@@ -730,6 +730,15 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       originalResponse.getHeader("b") shouldEqual "b;q=1.0"
     }
+
+    it("should throw an IllegalStateException if the response has already been committed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      when(mockResponse.isCommitted).thenReturn(true)
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.addHeader("a", "b")
+    }
   }
 
   describe("addIntHeader") {
@@ -809,6 +818,15 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.commitToResponse()
 
       originalResponse.getHeader("a") shouldEqual "2"
+    }
+
+    it("should throw an IllegalStateException if the response has already been committed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      when(mockResponse.isCommitted).thenReturn(true)
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.addIntHeader("a", 1)
     }
   }
 
@@ -901,6 +919,15 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.commitToResponse()
 
       originalResponse.getHeaders("a").size() shouldEqual 1
+    }
+
+    it("should throw an IllegalStateException if the response has already been committed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      when(mockResponse.isCommitted).thenReturn(true)
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.addDateHeader("a", System.currentTimeMillis())
     }
   }
 
@@ -1040,6 +1067,15 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.commitToResponse()
 
       originalResponse.getHeader("b") shouldEqual "b;q=0.5"
+    }
+
+    it("should throw an IllegalStateException if the response has already been committed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      when(mockResponse.isCommitted).thenReturn(true)
+
+      an[IllegalStateException] should be thrownBy wrappedResponse.appendHeader("a", "b")
     }
   }
 
