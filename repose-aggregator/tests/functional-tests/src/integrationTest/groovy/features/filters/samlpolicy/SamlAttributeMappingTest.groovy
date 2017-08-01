@@ -35,8 +35,7 @@ import static javax.servlet.http.HttpServletResponse.SC_OK
 import static javax.ws.rs.core.HttpHeaders.ACCEPT
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
 import static javax.ws.rs.core.MediaType.*
-import static org.openrepose.framework.test.mocks.MockIdentityV2Service.createIdpJsonWithValues
-import static org.openrepose.framework.test.mocks.MockIdentityV2Service.createMappingYamlWithValues
+import static org.openrepose.framework.test.mocks.MockIdentityV2Service.*
 import static org.openrepose.framework.test.util.saml.SamlPayloads.*
 import static org.openrepose.framework.test.util.saml.SamlUtilities.*
 
@@ -73,7 +72,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
     }
 
     @Unroll
-    def "the saml:response will be translated before being sent to the origin service #withOut path function in policy"() {
+    def "the saml:response will be translated before being sent to the origin service #withOut path function in #acceptType policy"() {
         given: "a mapping policy with a literal value and a path-based value in addition to the standard attributes"
         def extAttribLiteral = "banana"
         def extAttribLiteralValue = "phone"
@@ -100,7 +99,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         String idpId = generateUniqueIdpId()
         fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(id: idpId)
         fakeIdentityV2Service.getMappingPolicyForIdpHandler = fakeIdentityV2Service
-                .createGetMappingPolicyForIdp(mappings: [(idpId): mappingPolicy])
+                .createGetMappingPolicyForIdp(acceptType, [mappings: [(idpId): mappingPolicy]])
 
         when: "a request is sent to Repose"
         def mc = deproxy.makeRequest(
@@ -131,14 +130,16 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         attributes.find { it.name == "user/$extAttribPath" as String }.attributeValues[0].value == extAttribPathValue
 
         where:
-        [withOut, extAttribPathPolicy, remoteValue] << [
-                ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]]],
-                ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null]
+        [withOut, extAttribPathPolicy, remoteValue, acceptType] << [
+            ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]], APPLICATION_JSON],
+            ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null, APPLICATION_JSON],
+            ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]], TEXT_YAML],
+            ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null, TEXT_YAML]
         ]
     }
 
     @Unroll
-    def "the access response (JSON) from the origin service will be translated before being sent to the client #withOut path function in policy"() {
+    def "the access response (JSON) from the origin service will be translated before being sent to the client #withOut path function in #acceptType policy"() {
         given: "a mapping policy with a literal value and a path-based value in addition to the standard attributes"
         def extAttribLiteral = "potato"
         def extAttribLiteralValue = "salad"
@@ -159,7 +160,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         String idpId = generateUniqueIdpId()
         fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(id: idpId)
         fakeIdentityV2Service.getMappingPolicyForIdpHandler = fakeIdentityV2Service
-                .createGetMappingPolicyForIdp(mappings: [(idpId): mappingPolicy])
+            .createGetMappingPolicyForIdp(acceptType, [mappings: [(idpId): mappingPolicy]])
 
         when: "a request is sent to Repose requesting a JSON response"
         def mc = deproxy.makeRequest(
@@ -180,14 +181,16 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         json.access.'RAX-AUTH:extendedAttributes'.user."$extAttribPath" == extAttribPathValue
 
         where:
-        [withOut, extAttribPathPolicy, remoteValue] << [
-                ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]]],
-                ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null]
+        [withOut, extAttribPathPolicy, remoteValue, acceptType] << [
+            ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]], APPLICATION_JSON],
+            ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null, APPLICATION_JSON],
+            ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]], TEXT_YAML],
+            ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null, TEXT_YAML]
         ]
     }
 
     @Unroll
-    def "the access response (XML) from the origin service will be translated before being sent to the client #withOut path function in policy"() {
+    def "the access response (XML) from the origin service will be translated before being sent to the client #withOut path function in #acceptType policy"() {
         given: "a mapping policy with a fixed value and a dynamic value in addition to the standard attributes"
         def extAttribLiteral = "blues"
         def extAttribLiteralValue = "clues"
@@ -208,7 +211,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         String idpId = generateUniqueIdpId()
         fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(id: idpId)
         fakeIdentityV2Service.getMappingPolicyForIdpHandler = fakeIdentityV2Service
-                .createGetMappingPolicyForIdp(mappings: [(idpId): mappingPolicy])
+            .createGetMappingPolicyForIdp(acceptType, [mappings: [(idpId): mappingPolicy]])
 
         when: "a request is sent to Repose requesting an XML response"
         def mc = deproxy.makeRequest(
@@ -232,14 +235,16 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         userGroup.'*'.find { it.@name == extAttribPath }.value[0].text() == extAttribPathValue
 
         where:
-        [withOut, extAttribPathPolicy, remoteValue] << [
-                ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]]],
-                ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null]
+        [withOut, extAttribPathPolicy, remoteValue, acceptType] << [
+            ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]], APPLICATION_JSON],
+            ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null, APPLICATION_JSON],
+            ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]], TEXT_YAML],
+            ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null, TEXT_YAML]
         ]
     }
 
     @Unroll
-    def "the correct translation will be used on the request and response when cached #withOut path function in policy"() {
+    def "the correct translation will be used on the request and response when cached #withOut path function in #acceptType policy"() {
         given: "mapping policies with a literal value and a path-based value for three issuers"
         def numOfIssuers = 3
         def extAttribLiteral = "color"
@@ -282,7 +287,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         }
         Map idpIdToMapping = [idpIds, mappingPolicies].transpose().collectEntries()
         fakeIdentityV2Service.getMappingPolicyForIdpHandler = fakeIdentityV2Service
-                .createGetMappingPolicyForIdp(mappings: idpIdToMapping)
+                .createGetMappingPolicyForIdp(acceptType, [mappings: idpIdToMapping])
 
         when: "requests are sent to Repose for the first time for each issuer"
         def mcs = samls.collect { saml ->
@@ -365,9 +370,11 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         jsons.collect { it.access.'RAX-AUTH:extendedAttributes'.user."$extAttribPath" } == extAttribPathValuesRoundTwo
 
         where:
-        [withOut, extAttribPathPolicy, remoteValue] << [
-                ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]]],
-                ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null]
+        [withOut, extAttribPathPolicy, remoteValue, acceptType] << [
+            ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]], APPLICATION_JSON],
+            ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null, APPLICATION_JSON],
+            ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]], TEXT_YAML],
+            ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null, TEXT_YAML]
         ]
     }
 
@@ -405,7 +412,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
     }
 
     @Unroll
-    def "when the specified path for an extended attribute is not present in the saml:response, it is not added to the request/response #withOut path function in policy"() {
+    def "when the specified path for an extended attribute is not present in the saml:response, it is not added to the request/response #withOut path function in #acceptType policy"() {
         given: "a mapping policy with a literal value and a path-based value (that won't be in the saml:response)"
         def extAttribLiteral = "Captain"
         def extAttribLiteralValue = "Planet"
@@ -422,7 +429,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         String idpId = generateUniqueIdpId()
         fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(id: idpId)
         fakeIdentityV2Service.getMappingPolicyForIdpHandler = fakeIdentityV2Service
-                .createGetMappingPolicyForIdp(mappings: [(idpId): mappingPolicy])
+            .createGetMappingPolicyForIdp(acceptType, [mappings: [(idpId): mappingPolicy]])
 
         when: "a request is sent to Repose"
         def mc = deproxy.makeRequest(
@@ -462,10 +469,18 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         !json.access.'RAX-AUTH:extendedAttributes'.user."$extAttribPath"
 
         where:
-        [withOut, extAttribPathPolicy, remoteValue] << [
-                ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]]],
-                ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null]
+        [withOut, extAttribPathPolicy, remoteValue, acceptType] << [
+            ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]], APPLICATION_JSON],
+            ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null, APPLICATION_JSON],
+            ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]], TEXT_YAML],
+            ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null, TEXT_YAML]
         ]
+
+//        where:
+//        [withOut, extAttribPathPolicy, remoteValue, acceptType] << [[
+//            ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]]],
+//            ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null]
+//        ], [APPLICATION_JSON, TEXT_YAML]].combinations()
     }
 
     @Unroll
@@ -508,7 +523,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         String idpId = generateUniqueIdpId()
         fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(id: idpId)
         fakeIdentityV2Service.getMappingPolicyForIdpHandler = fakeIdentityV2Service
-                .createGetMappingPolicyForIdp(mappings: [(idpId): mappingPolicy])
+                .createGetMappingPolicyForIdp(TEXT_YAML, [mappings: [(idpId): mappingPolicy]])
 
         when: "a request is sent to Repose"
         def mc = deproxy.makeRequest(
