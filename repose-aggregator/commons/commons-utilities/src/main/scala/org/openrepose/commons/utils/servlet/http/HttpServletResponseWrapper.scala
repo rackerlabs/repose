@@ -223,11 +223,15 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     addHeader(name, DateUtils.formatDate(new Date(timeSinceEpoch)))
 
   override def addHeader(name: String, value: String): Unit = {
-    headerMap = headerMap + (name -> (headerMap.getOrElse(name, Seq.empty[String]) :+ value))
+    if (isCommitted) {
+      throw new IllegalStateException("Cannot call addHeader, addIntHeader, addDateHeader, or appendHeader after the response has been committed")
+    } else {
+      headerMap = headerMap + (name -> (headerMap.getOrElse(name, Seq.empty[String]) :+ value))
 
-    // Write through to the wrapped response immediately
-    if (headerMode != ResponseMode.MUTABLE) {
-      super.addHeader(name, value)
+      // Write through to the wrapped response immediately
+      if (headerMode != ResponseMode.MUTABLE) {
+        super.addHeader(name, value)
+      }
     }
   }
 
