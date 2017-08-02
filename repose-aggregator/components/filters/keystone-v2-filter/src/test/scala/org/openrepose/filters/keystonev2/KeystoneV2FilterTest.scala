@@ -2298,6 +2298,69 @@ with HttpDelegationManager {
     }
   }
 
+  describe("Handling multiple tenant extraction") {
+    def configuration = Marshaller.keystoneV2ConfigFromString(
+      """<?xml version="1.0" encoding="UTF-8"?>
+        |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+        |    <identity-service
+        |        uri="https://some.identity.com"
+        |        set-groups-in-header="false"
+        |    />
+        |    <tenant-handling>
+        |        <validate-tenant>
+        |            <uri-extraction-regex>/serverOne/(.+)/.*</uri-extraction-regex>
+        |            <uri-extraction-regex>/serverTwo/(.+)/.*</uri-extraction-regex>
+        |            <uri-extraction-regex>/serverToo/(.+)/.*</uri-extraction-regex>
+        |        </validate-tenant>
+        |    </tenant-handling>
+        |</keystone-v2>
+      """.stripMargin)
+
+    val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
+
+    filter.init(mockFilterConfig)
+    filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+    filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
+
+    Seq("One", "Two", "Too") foreach { uri =>
+      it(s"will authenticate and authorize if able to extract a tenant from the URI: /server$uri/345/foo") {
+        //make a request and validate that it called the akka service client?
+        val request = new MockHttpServletRequest
+        request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
+        request.setRequestURI(s"/server$uri/345/foo")
+
+        when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)), anyBoolean()))
+          .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponseTenantedRoles()))
+
+        val response = new MockHttpServletResponse
+        val filterChain = new MockFilterChain()
+        filter.doFilter(request, response, filterChain)
+
+        val postFilterRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
+        postFilterRequest.getHeader(OpenStackServiceHeader.ROLES) should include("role:123")
+        postFilterRequest.getHeader(OpenStackServiceHeader.ROLES) should include("role:345")
+      }
+    }
+
+    it(s"will neither authenticate nor authorize if not able to extract a tenant from the URI: /serverBad/345/foo") {
+      //make a request and validate that it called the akka service client?
+      val request = new MockHttpServletRequest
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
+      request.setRequestURI("/serverBad/345/foo")
+
+      when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)), anyBoolean()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponseTenantedRoles()))
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      response.getStatus shouldBe SC_UNAUTHORIZED
+      response.getErrorMessage shouldBe "Could not parse tenant from the URI"
+      response.getHeaders(WWW_AUTHENTICATE) should contain("Keystone uri=https://some.identity.com")
+    }
+  }
+
   describe("Configured tracing header") {
     def configuration = Marshaller.keystoneV2ConfigFromString(
       """<?xml version="1.0" encoding="UTF-8"?>

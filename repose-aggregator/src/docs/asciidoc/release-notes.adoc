@@ -2,10 +2,6 @@
 
 == In Progress Work
 
-* https://repose.atlassian.net/browse/REP-5748[REP-5748] - Updated the <<services/phone-home.adoc#, Phone Home Service>> to correct a bug that was preventing the message from actually reaching back.
-
-== In Progress Work
-
 * https://repose.atlassian.net/browse/REP-5737[REP-5737] - Updated the following filters to correct a typo that would prevent proper configuration schema validation.
 ** <<filters/ip-user.adoc#,IP User Filter>>
 ** <<filters/keystone-v2-basic-auth.adoc#, Keystone v2 Basic Auth Filter>>
@@ -17,6 +13,9 @@
 ====
 As part of this correction, any configurations that were taking advantage of this lack of validation will cease to function.
 ====
+
+* https://repose.atlassian.net/browse/REP-5748[REP-5748] - Updated the <<services/phone-home.adoc#, Phone Home Service>> to correct a bug that was preventing the message from actually reaching back.
+* https://repose.atlassian.net/browse/REP-5823[REP-5823] - Updated the <<services/keystone-v2.adoc#, Keystone v2 Filter>> to support multiple https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expressions] for URI tenant extraction.
 
 == 8.6.2.0 (2017-06-13)
 

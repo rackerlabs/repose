@@ -175,7 +175,7 @@
 
     <xs:complexType name="ValidateTenantType">
         <xs:sequence>
-            <xs:element name="uri-extraction-regex" type="xs:string" minOccurs="1" maxOccurs="1">
+            <xs:element name="uri-extraction-regex" type="xs:string" minOccurs="1" maxOccurs="unbounded">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>
