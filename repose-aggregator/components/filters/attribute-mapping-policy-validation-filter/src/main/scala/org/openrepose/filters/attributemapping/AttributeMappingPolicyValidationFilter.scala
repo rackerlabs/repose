@@ -103,6 +103,26 @@ class AttributeMappingPolicyValidationFilter extends Filter with LazyLogging {
         bufferedStream.reset()
         bufferedStream
       }
+    } else if (contentTypeLowerCase.contains("json")) {
+      Try {
+        // Validate the policy
+        AttributeMapper.validatePolicy(
+          AttributeMapper.parseJsonNode(requestStreamSource),
+          xsdEngineString)
+
+        bufferedStream.reset()
+        bufferedStream
+      }
+    } else if (contentTypeLowerCase.contains("xml")) {
+      Try {
+        // Validate the policy
+        AttributeMapper.validatePolicy(
+          requestStreamSource,
+          xsdEngineString)
+
+        bufferedStream.reset()
+        bufferedStream
+      }
     } else {
       Failure(UnsupportedContentTypeException(s"$contentType is not a supported Content-Type"))
     }

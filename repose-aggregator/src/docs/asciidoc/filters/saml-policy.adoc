@@ -3,7 +3,6 @@
 This filter takes a SAML Response in the post binding, decodes it, adds a new translated assertion to it and then signs the entire response.
 It'll attempt to locate a policy to use for the translation based on the assertion issuer.
 
-
 == General filter information
 * *Name:* saml-policy
 * *Default Configuration:* saml-policy.cfg.xml
@@ -130,3 +129,15 @@ This configuration exercises all the capabilities of the filter.
 == Additional Information
 The Keystone user account configured for use in this filter must possess a role of `identity:identity-provider-read-only`.
 It is recommended to use a `uri-regex` in your system model to filter traffic to this filter, because it will fail on non-SAML requests.
+
+=== Policy Translation
+
+Attribute mapping policies are stored with the IDP (Identity Provider).
+They will be retrieved and cached by this filter.
+
+Attribute mapping policies will be used to translate the SAML response document contained in the request.
+For this filter to apply the policy translation, the format (i.e., content type) of the policy must be one of the following:
+
+* YAML
+* JSON
+* XML

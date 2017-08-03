@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import static javax.servlet.http.HttpServletResponse.*
 import static org.openrepose.framework.test.util.saml.SamlUtilities.generateUniqueIdpId
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
 /**
  * Created by jennyvo on 6/16/15.
@@ -54,6 +55,8 @@ class MockIdentityV2Service {
 
     static final String SAML_AUTH_BY_PASSWORD = "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport"
     static final String SAML_AUTH_BY_RSAKEY = "urn:oasis:names:tc:SAML:2.0:ac:classes:TimeSyncToken"
+
+    static final String TEXT_YAML = "text/yaml"
 
     private AtomicInteger validateTokenCount = new AtomicInteger(0)
     private AtomicInteger getGroupsCount = new AtomicInteger(0)
@@ -650,26 +653,34 @@ class MockIdentityV2Service {
         }
     }
 
-    Closure<Response> createGetMappingPolicyForIdp(Map values = [defaultMapping: true]) {
-        def successHeaders = ['Content-type': 'text/yaml']
-        def failureHeaders = ['Content-type': 'application/json']
+    Closure<Response> createGetMappingPolicyForIdp(String acceptType = TEXT_YAML, Map values = [defaultMapping: true]) {
+        def yamlHeaders = ['Content-type': TEXT_YAML]
+        def jsonHeaders = ['Content-type': APPLICATION_JSON_VALUE]
 
         return { String idpId, Request request ->
             if (admin_token != request.getHeaders().getFirstValue("X-Auth-Token") && !values.skipAuthCheck) {
-                new Response(SC_UNAUTHORIZED, null, failureHeaders, UNAUTHORIZED_JSON)
+                new Response(SC_UNAUTHORIZED, null, jsonHeaders, UNAUTHORIZED_JSON)
             } else {
                 def mappingForIdpId = values.mappings?.get(idpId)
 
                 if (mappingForIdpId) {
-                    new Response(SC_OK, null, successHeaders, mappingForIdpId)
+                    if (acceptType.equalsIgnoreCase(APPLICATION_JSON_VALUE)) {
+                        new Response(SC_OK, null, jsonHeaders, mappingForIdpId)
+                    } else {
+                        new Response(SC_OK, null, yamlHeaders, mappingForIdpId)
+                    }
                 } else if (values.defaultMapping) {
-                    new Response(SC_OK, null, successHeaders, DEFAULT_MAPPING_POLICY)
+                    if (acceptType.equalsIgnoreCase(APPLICATION_JSON_VALUE)) {
+                        new Response(SC_OK, null, jsonHeaders, DEFAULT_MAPPING_POLICY_JSON)
+                    } else {
+                        new Response(SC_OK, null, yamlHeaders, DEFAULT_MAPPING_POLICY_YAML)
+                    }
                 } else {
                     def body = createIdentityFaultJsonWithValues(
                             name: "itemNotFound",
                             code: SC_NOT_FOUND,
                             message: "Identity Provider with id/name: '$idpId' was not found.")
-                    new Response(SC_NOT_FOUND, null, failureHeaders, body)
+                    new Response(SC_NOT_FOUND, null, jsonHeaders, body)
                 }
             }
         }
@@ -715,6 +726,44 @@ class MockIdentityV2Service {
                         issuer values.issuer ?: "http://idp.external.com"
                     }
             ])
+        }
+
+        json.toString()
+    }
+
+    static String createMappingJsonWithValues(Map values = [:]) {
+        def json = new JsonBuilder()
+
+        json {
+            mapping {
+                rules([
+                        {
+                            local {
+                                user {
+                                    domain values.domain ?: DEFAULT_MAPPING_VALUE
+                                    name values.name ?: DEFAULT_MAPPING_VALUE
+                                    email values.email ?: DEFAULT_MAPPING_VALUE
+                                    roles values.roles ?: DEFAULT_MAPPING_VALUE
+                                    expire values.expire ?: DEFAULT_MAPPING_VALUE
+                                    if (values.userExtAttribs) {
+                                        values.userExtAttribs.each { key, value ->
+                                            "$key" value
+                                        }
+                                    }
+                                }
+                                if (values.local) {
+                                    values.local.each { key, value ->
+                                        "$key" value
+                                    }
+                                }
+                            }
+                            if (values.remote) {
+                                remote values.remote
+                            }
+                        }
+                ] + (values.rules ?: []))
+                version "RAX-1"
+            }
         }
 
         json.toString()
@@ -1365,7 +1414,28 @@ class MockIdentityV2Service {
 
     static final String DEFAULT_MAPPING_VALUE = "{D}"
 
-    static final String DEFAULT_MAPPING_POLICY = """\
+    static final String DEFAULT_MAPPING_POLICY_JSON = """\
+{
+    "mapping": {
+        "version": "RAX-1",
+        "description": "Default mapping policy",
+        "rules": [
+            {
+                "local": {
+                    "user": {
+                        "domain": "{D}",
+                        "email": "{D}",
+                        "expire": "{D}",
+                        "name": "{D}",
+                        "roles": "{D}"
+                    }
+                }
+            }
+        ]
+    }
+}"""
+
+    static final String DEFAULT_MAPPING_POLICY_YAML = """\
 ---
 mapping:
   description: 'Default mapping policy'

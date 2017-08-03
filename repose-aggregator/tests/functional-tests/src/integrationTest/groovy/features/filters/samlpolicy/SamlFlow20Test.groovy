@@ -406,14 +406,15 @@ class SamlFlow20Test extends ReposeValveTest {
         mc.handlings.isEmpty()
     }
 
-    def "when Identity returns an invalid mapping policy, Repose should return a 502"() {
+    @Unroll
+    def "when Identity returns an invalid #contentType mapping policy, Repose should return a 502"() {
         given: "the Identity mock will return an invalid mapping policy"
         fakeIdentityV2Service.getMappingPolicyForIdpHandler = { String idpId, Request request ->
             new DeproxyResponse(
                     SC_OK,
                     null,
-                    [(CONTENT_TYPE): APPLICATION_JSON],
-                    createMappingYamlWithValues(rules: [[potato: [fries: [yummy: "yes"], hashBrowns: [:]]]]))
+                    [(CONTENT_TYPE): contentType],
+                    mappingPolicy)
         }
 
         when:
@@ -424,6 +425,12 @@ class SamlFlow20Test extends ReposeValveTest {
 
         and: "the request doesn't get to the origin service"
         mc.handlings.isEmpty()
+
+        where:
+        [contentType, mappingPolicy] << [
+            [APPLICATION_JSON, createMappingJsonWithValues(rules: [[potato: [fries: [yummy: "yes"], hashBrowns: [:]]]])],
+            [TEXT_YAML, createMappingYamlWithValues(rules: [[potato: [fries: [yummy: "yes"], hashBrowns: [:]]]])]
+        ]
     }
 
     def "when Identity returns a malformed mapping policy, Repose should return a 502"() {

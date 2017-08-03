@@ -843,7 +843,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       val result = samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
 
       result shouldBe a[Success[_]]
-      Json.stringify(Json.parse(result.get)) shouldEqual Json.stringify(Json.parse(samplePolicy))
+      Json.stringify(Json.parse(result.get.content)) shouldEqual Json.stringify(Json.parse(samplePolicy))
     }
 
     Set(
@@ -905,7 +905,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         val result = samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
 
         result shouldBe a[Success[_]]
-        Json.stringify(Json.parse(result.get)) shouldEqual Json.stringify(Json.parse(samplePolicy))
+        Json.stringify(Json.parse(result.get.content)) shouldEqual Json.stringify(Json.parse(samplePolicy))
       }
     }
 
@@ -961,6 +961,36 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         MM.anyMapOf(classOf[String], classOf[String]),
         MM.eq(false)
       )
+    }
+
+    Seq(
+      SamlIdentityClient.TextYaml,
+      MediaType.APPLICATION_JSON,
+      MediaType.APPLICATION_XML,
+      MediaType.TEXT_PLAIN
+    ) foreach { contentType =>
+      it(s"should return the content type of the $contentType policy") {
+        when(policyServiceClient.get(
+          MM.anyString(),
+          MM.anyString(),
+          MM.anyMapOf(classOf[String], classOf[String]),
+          MM.anyBoolean()
+        )).thenReturn(new ServiceClientResponse(
+          SC_OK,
+          Array(new BasicHeader(
+            CONTENT_TYPE,
+            contentType
+          )),
+          new ByteArrayInputStream(Array.empty[Byte])
+        ))
+
+        samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
+
+        val result = samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = false)
+
+        result shouldBe a[Success[_]]
+        result.get.contentType shouldEqual contentType
+      }
     }
   }
 

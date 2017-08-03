@@ -46,7 +46,7 @@ import org.mockito.{Matchers => MM}
 import org.openrepose.commons.utils.io.BufferedServletInputStream
 import org.openrepose.commons.utils.servlet.http.{HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.samlpolicy.SamlIdentityClient.{OverLimitException, UnexpectedStatusCodeException}
+import org.openrepose.filters.samlpolicy.SamlIdentityClient.{OverLimitException, Policy, TextYaml, UnexpectedStatusCodeException}
 import org.openrepose.filters.samlpolicy.config._
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.opensaml.core.config.{InitializationException, InitializationService}
@@ -921,6 +921,47 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       result.statusCode shouldEqual SC_UNAUTHORIZED
     }
 
+    it("should throw an exception if the policy is in an unsupported content type") {
+      filter.configurationUpdated(buildConfig())
+
+      when(samlIdentityClient.getToken(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]]
+      )).thenReturn(Success("token"))
+      when(samlIdentityClient.getIdpId(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )).thenReturn(Success("idp-id"))
+      when(samlIdentityClient.getPolicy(
+        MM.anyString(),
+        MM.anyString(),
+        MM.any[Option[String]],
+        MM.anyBoolean()
+      )).thenReturn(Success(Policy(
+        """---
+          |mapping:
+          |  - description: 'Bad mapping policy'
+          |  - rules:
+          |    - local:
+          |        user:
+          |          domain: '{D}'
+          |          email: '{D}'
+          |          expire: '{D}'
+          |          name: '{D}'
+          |          roles: '{D}'
+          |  - version: RAX-1
+          |""".stripMargin,
+        "no/content"
+      )))
+
+      val exception = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
+
+      exception.statusCode shouldEqual SC_BAD_GATEWAY
+    }
+
     it("should throw an exception if parsing the policy fails") {
       filter.configurationUpdated(buildConfig())
 
@@ -940,7 +981,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
-      )).thenReturn(Success(
+      )).thenReturn(Success(Policy(
         """---
           |mapping:
           |  - description: 'Bad mapping policy'
@@ -953,7 +994,9 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
           |          name: '{D}'
           |          roles: '{D}'
           |  - version: RAX-1
-          |""".stripMargin))
+          |""".stripMargin,
+        "text/yaml"
+      )))
 
       val exception = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
 
@@ -979,54 +1022,49 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
-      )).thenReturn(Success(
+      )).thenReturn(Success(Policy(
         """---
           |foo:
           |  bar: 1
-          |""".stripMargin))
+          |""".stripMargin,
+        "text/yaml"
+      )))
 
       val exception = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
 
       exception.statusCode shouldEqual SC_BAD_GATEWAY
     }
 
-    it("should return the compiled policy") {
-      filter.configurationUpdated(buildConfig())
+    Map(
+      TextYaml -> simpleYamlPolicy,
+      APPLICATION_JSON -> simpleJsonPolicy,
+      APPLICATION_XML -> simpleXmlPolicy
+    ) foreach { policy =>
+      it(s"should return the compiled ${policy._1} policy") {
+        filter.configurationUpdated(buildConfig())
 
-      when(samlIdentityClient.getToken(
-        MM.anyString(),
-        MM.anyString(),
-        MM.any[Option[String]]
-      )).thenReturn(Success("token"))
-      when(samlIdentityClient.getIdpId(
-        MM.anyString(),
-        MM.anyString(),
-        MM.any[Option[String]],
-        MM.anyBoolean()
-      )).thenReturn(Success("idp-id"))
-      when(samlIdentityClient.getPolicy(
-        MM.anyString(),
-        MM.anyString(),
-        MM.any[Option[String]],
-        MM.anyBoolean()
-      )).thenReturn(Success(
-        """---
-          |mapping:
-          |  description: 'Default mapping policy'
-          |  rules:
-          |  - local:
-          |      user:
-          |        domain: '{D}'
-          |        email: '{D}'
-          |        expire: '{D}'
-          |        name: '{D}'
-          |        roles: '{D}'
-          |  version: RAX-1
-          |""".stripMargin))
+        when(samlIdentityClient.getToken(
+          MM.anyString(),
+          MM.anyString(),
+          MM.any[Option[String]]
+        )).thenReturn(Success("token"))
+        when(samlIdentityClient.getIdpId(
+          MM.anyString(),
+          MM.anyString(),
+          MM.any[Option[String]],
+          MM.anyBoolean()
+        )).thenReturn(Success("idp-id"))
+        when(samlIdentityClient.getPolicy(
+          MM.anyString(),
+          MM.anyString(),
+          MM.any[Option[String]],
+          MM.anyBoolean()
+        )).thenReturn(Success(Policy(policy._2, policy._1)))
 
-      val result = filter.getPolicy("issuer", None)
+        val result = filter.getPolicy("issuer", None)
 
-      result shouldBe a [XsltExecutable]
+        result shouldBe a [XsltExecutable]
+      }
     }
   }
 
@@ -1791,6 +1829,64 @@ object SamlPolicyTranslationFilterTest {
       |    </saml2:Assertion>
       |</saml2p:Response>
       |""".stripMargin
+
+  val simpleYamlPolicy: String =
+    """---
+      |mapping:
+      |  rules:
+      |  - local:
+      |      user:
+      |        domain: "{D}"
+      |        name: "{D}"
+      |        email: "{D}"
+      |        roles: "{D}"
+      |        expire: "{D}"
+      |  version: RAX-1
+    """.stripMargin
+
+  val simpleJsonPolicy: String =
+    """{
+      |  "mapping": {
+      |    "rules": [
+      |       {
+      |        "local": {
+      |          "user": {
+      |            "domain":"{D}",
+      |            "name":"{D}",
+      |            "email":"{D}",
+      |            "roles":"{D}",
+      |            "expire":"{D}"
+      |          }
+      |        }
+      |      }
+      |    ],
+      |    "version":"RAX-1"
+      |  }
+      |}
+    """.stripMargin
+
+  val simpleXmlPolicy: String =
+    """<?xml version="1.0" encoding="UTF-8"?>
+      |<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
+      |         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      |         xmlns:xs="http://www.w3.org/2001/XMLSchema"
+      |         xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+      |         version="RAX-1">
+      |   <rules>
+      |      <rule>
+      |        <local>
+      |            <user>
+      |               <name value="{D}"/>
+      |               <email value="{D}"/>
+      |               <expire value="{D}"/>
+      |               <domain value="{D}"/>
+      |               <roles value="{D}"/>
+      |            </user>
+      |         </local>
+      |      </rule>
+      |   </rules>
+      |</mapping>
+    """.stripMargin
 
   val translatedIDPDoc: Document = makeDocument(translatedIDPStr)
 
