@@ -28,6 +28,7 @@ import javax.servlet.{ServletOutputStream, ServletResponse}
 import javax.ws.rs.core.HttpHeaders
 
 import org.apache.http.client.utils.DateUtils
+import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConversions._
 import scala.collection.immutable.TreeMap
@@ -75,6 +76,7 @@ import scala.io.Source
   */
 class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMode: ResponseMode, bodyMode: ResponseMode, desiredOutputStream: ServletOutputStream)
   extends javax.servlet.http.HttpServletResponseWrapper(originalResponse) with HeaderInteractor {
+  private val addHeaderWarningLogger = LoggerFactory.getLogger(this.getClass.getName + "_addHeaderWarning")
 
   private val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
   private val bodyOutputStream = bodyMode match {
@@ -224,14 +226,14 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
   override def addHeader(name: String, value: String): Unit = {
     if (isCommitted) {
-      throw new IllegalStateException("Cannot call addHeader, addIntHeader, addDateHeader, or appendHeader after the response has been committed")
-    } else {
-      headerMap = headerMap + (name -> (headerMap.getOrElse(name, Seq.empty[String]) :+ value))
+      addHeaderWarningLogger.warn("Calls to addHeader, addIntHeader, addDateHeader, or appendHeader after the response has been committed are essentially ignored.")
+      addHeaderWarningLogger.warn(s"The following header has been ignored: $name:$value")
+    }
+    headerMap = headerMap + (name -> (headerMap.getOrElse(name, Seq.empty[String]) :+ value))
 
-      // Write through to the wrapped response immediately
-      if (headerMode != ResponseMode.MUTABLE) {
-        super.addHeader(name, value)
-      }
+    // Write through to the wrapped response immediately
+    if (headerMode != ResponseMode.MUTABLE) {
+      super.addHeader(name, value)
     }
   }
 
