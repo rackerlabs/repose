@@ -26,6 +26,9 @@ import javax.servlet.{ServletOutputStream, ServletResponse}
 import javax.ws.rs.core.HttpHeaders._
 
 import org.apache.http.client.utils.DateUtils
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.core.LoggerContext
+import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{eq => mEq, _}
 import org.mockito.Mockito._
@@ -48,8 +51,11 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       yield (headerMode, bodyMode)
 
   var originalResponse: MockHttpServletResponse = _
+  var listAppender: ListAppender = _
 
   override def beforeEach(): Unit = {
+    val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
+    listAppender = ctx.getConfiguration.getAppender("List0").asInstanceOf[ListAppender].clear
     originalResponse = new MockHttpServletResponse()
   }
 
@@ -736,8 +742,11 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       when(mockResponse.isCommitted).thenReturn(true)
+      wrappedResponse.addHeader("a", "b")
 
-      an[IllegalStateException] should be thrownBy wrappedResponse.addHeader("a", "b")
+      val logEvents = listAppender.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* are essentially ignored."
     }
   }
 
@@ -825,8 +834,11 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       when(mockResponse.isCommitted).thenReturn(true)
+      wrappedResponse.addIntHeader("a", 1)
 
-      an[IllegalStateException] should be thrownBy wrappedResponse.addIntHeader("a", 1)
+      val logEvents = listAppender.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* are essentially ignored."
     }
   }
 
@@ -926,8 +938,11 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       when(mockResponse.isCommitted).thenReturn(true)
+      wrappedResponse.addDateHeader("a", System.currentTimeMillis())
 
-      an[IllegalStateException] should be thrownBy wrappedResponse.addDateHeader("a", System.currentTimeMillis())
+      val logEvents = listAppender.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* are essentially ignored."
     }
   }
 
@@ -1074,8 +1089,11 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       when(mockResponse.isCommitted).thenReturn(true)
+      wrappedResponse.appendHeader("a", "b")
 
-      an[IllegalStateException] should be thrownBy wrappedResponse.appendHeader("a", "b")
+      val logEvents = listAppender.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* are essentially ignored."
     }
   }
 
