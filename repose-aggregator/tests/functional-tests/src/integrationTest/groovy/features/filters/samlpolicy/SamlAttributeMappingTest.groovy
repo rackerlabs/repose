@@ -475,12 +475,6 @@ class SamlAttributeMappingTest extends ReposeValveTest {
             ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]], TEXT_YAML],
             ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null, TEXT_YAML]
         ]
-
-//        where:
-//        [withOut, extAttribPathPolicy, remoteValue, acceptType] << [[
-//            ["without", "{0}", [[path: $//saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID/$]]],
-//            ["with", "{Pt(/saml2p:Response/saml2:Assertion/saml2:Subject/saml2:NameID/@SPProvidedID)}", null]
-//        ], [APPLICATION_JSON, TEXT_YAML]].combinations()
     }
 
     @Unroll
