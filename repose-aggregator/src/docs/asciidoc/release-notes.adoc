@@ -17,6 +17,17 @@ As part of this correction, any configurations that were taking advantage of thi
 * https://repose.atlassian.net/browse/REP-5748[REP-5748] - Updated the <<services/phone-home.adoc#, Phone Home Service>> to correct a bug that was preventing the message from actually reaching back.
 * https://repose.atlassian.net/browse/REP-5823[REP-5823] - Updated the <<services/keystone-v2.adoc#, Keystone v2 Filter>> to support multiple https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expressions] for URI tenant extraction.
 * https://repose.atlassian.net/browse/REP-5853[REP-5853] - Updated the <<filters/saml-policy.adoc#, SAML Policy Translation Filter>> and <<filters/attribute-mapping-policy-validation.adoc#,Attribute Mapping Policy Validation Filter>> to recover support for XML and JSON (which was removed in <<8.6.2.0 (2017-06-13)>>).
+* https://repose.atlassian.net/browse/REP-5617[REP-5617] - Updated the the internal HTTP Servlet Response Wrapper to log a WARNING when addHeader, addIntHeader, addDateHeader, or appendHeader is called after the response has been committed.
+
+[NOTE]
+====
+This message is logged to a separate logger and can be disabled by adding the following to the `log4j2.xml`:
+
+[source,xml]
+----
+<Logger name="org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper_addHeaderWarning" level="off"/>
+----
+====
 
 == 8.6.2.0 (2017-06-13)
 
