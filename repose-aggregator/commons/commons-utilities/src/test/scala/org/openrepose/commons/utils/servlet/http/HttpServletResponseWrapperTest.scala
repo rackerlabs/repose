@@ -737,7 +737,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       originalResponse.getHeader("b") shouldEqual "b;q=1.0"
     }
 
-    it("should throw an IllegalStateException if the response has already been committed") {
+    it("should log a warning if the response has already been committed") {
       val mockResponse = mock[HttpServletResponse]
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
@@ -745,7 +745,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.addHeader("a", "b")
 
       val logEvents = listAppender.getEvents
-      logEvents.size shouldBe 1
+      logEvents.size shouldBe 2
       logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* are essentially ignored."
     }
   }
@@ -829,7 +829,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       originalResponse.getHeader("a") shouldEqual "2"
     }
 
-    it("should throw an IllegalStateException if the response has already been committed") {
+    it("should log a warning if the response has already been committed") {
       val mockResponse = mock[HttpServletResponse]
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
@@ -837,7 +837,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.addIntHeader("a", 1)
 
       val logEvents = listAppender.getEvents
-      logEvents.size shouldBe 1
+      logEvents.size shouldBe 2
       logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* are essentially ignored."
     }
   }
@@ -933,7 +933,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       originalResponse.getHeaders("a").size() shouldEqual 1
     }
 
-    it("should throw an IllegalStateException if the response has already been committed") {
+    it("should log a warning if the response has already been committed") {
       val mockResponse = mock[HttpServletResponse]
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
@@ -941,7 +941,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.addDateHeader("a", System.currentTimeMillis())
 
       val logEvents = listAppender.getEvents
-      logEvents.size shouldBe 1
+      logEvents.size shouldBe 2
       logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* are essentially ignored."
     }
   }
@@ -1084,7 +1084,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       originalResponse.getHeader("b") shouldEqual "b;q=0.5"
     }
 
-    it("should throw an IllegalStateException if the response has already been committed") {
+    it("should log a warning if the response has already been committed") {
       val mockResponse = mock[HttpServletResponse]
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
@@ -1092,7 +1092,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.appendHeader("a", "b")
 
       val logEvents = listAppender.getEvents
-      logEvents.size shouldBe 1
+      logEvents.size shouldBe 2
       logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* are essentially ignored."
     }
   }
