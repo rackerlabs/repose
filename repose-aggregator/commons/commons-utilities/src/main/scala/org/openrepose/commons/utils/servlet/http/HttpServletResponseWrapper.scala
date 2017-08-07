@@ -226,8 +226,8 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
   override def addHeader(name: String, value: String): Unit = {
     if (isCommitted) {
-      addHeaderWarningLogger.warn("Calls to addHeader, addIntHeader, addDateHeader, or appendHeader after the response has been committed are essentially ignored.")
-      addHeaderWarningLogger.warn(s"The following header has been ignored: $name:$value")
+      addHeaderWarningLogger.warn("Calls to addHeader, addIntHeader, addDateHeader, or appendHeader after the response has been committed may potentially be ignored.")
+      addHeaderWarningLogger.warn(s"The following header may not arrive at the client: $name: $value")
     }
     headerMap = headerMap + (name -> (headerMap.getOrElse(name, Seq.empty[String]) :+ value))
 
