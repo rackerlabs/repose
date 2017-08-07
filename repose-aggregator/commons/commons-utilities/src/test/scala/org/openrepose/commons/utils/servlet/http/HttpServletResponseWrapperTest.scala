@@ -746,7 +746,8 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       val logEvents = listAppender.getEvents
       logEvents.size shouldBe 2
-      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* are essentially ignored."
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* ignored."
+      logEvents.get(1).getMessage.getFormattedMessage should include regex "The following header may not arrive at the client: a: b"
     }
   }
 
@@ -838,7 +839,8 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       val logEvents = listAppender.getEvents
       logEvents.size shouldBe 2
-      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* are essentially ignored."
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* ignored."
+      logEvents.get(1).getMessage.getFormattedMessage should include regex "The following header may not arrive at the client: a: 1"
     }
   }
 
@@ -942,7 +944,8 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       val logEvents = listAppender.getEvents
       logEvents.size shouldBe 2
-      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* are essentially ignored."
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* ignored."
+      logEvents.get(1).getMessage.getFormattedMessage should include regex "The following header may not arrive at the client: a: "
     }
   }
 
@@ -1093,7 +1096,8 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       val logEvents = listAppender.getEvents
       logEvents.size shouldBe 2
-      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* are essentially ignored."
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* ignored."
+      logEvents.get(1).getMessage.getFormattedMessage should include regex "The following header may not arrive at the client: a: b"
     }
   }
 
