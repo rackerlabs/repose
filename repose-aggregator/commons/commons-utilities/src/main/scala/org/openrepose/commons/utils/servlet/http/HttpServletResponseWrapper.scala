@@ -28,6 +28,7 @@ import javax.servlet.{ServletOutputStream, ServletResponse}
 import javax.ws.rs.core.HttpHeaders
 
 import org.apache.http.client.utils.DateUtils
+import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper._
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConversions._
@@ -76,7 +77,7 @@ import scala.io.Source
   */
 class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMode: ResponseMode, bodyMode: ResponseMode, desiredOutputStream: ServletOutputStream)
   extends javax.servlet.http.HttpServletResponseWrapper(originalResponse) with HeaderInteractor {
-  private val addHeaderWarningLogger = LoggerFactory.getLogger(this.getClass.getName + "_addHeaderWarning")
+  private val headerWarningLogger = LoggerFactory.getLogger(classOf[HttpServletResponseWrapper].getName + "_headerWarning")
 
   private val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
   private val bodyOutputStream = bodyMode match {
@@ -224,11 +225,25 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   override def addDateHeader(name: String, timeSinceEpoch: Long): Unit =
     addHeader(name, DateUtils.formatDate(new Date(timeSinceEpoch)))
 
-  override def addHeader(name: String, value: String): Unit = {
+  private def logHeaderWarning(headerNames: String, mayWill: String, notStill: String, name: String, value: String): Unit = {
+    logHeaderWarning(headerNames, mayWill, notStill, s"$name: $value")
+  }
+
+  private def logHeaderWarning(headerNames: String, mayWill: String, notStill: String, nameValue: String): Unit = {
+    headerWarningLogger.info(s"Calls to $headerNames after the response has been committed $mayWill be ignored.")
+    headerWarningLogger.warn(s"The following header $mayWill $notStill arrive at the client: $nameValue")
+  }
+
+  private def ifCommitted(name: String, value: String): Unit = {
     if (isCommitted) {
-      addHeaderWarningLogger.warn("Calls to addHeader, addIntHeader, addDateHeader, or appendHeader after the response has been committed may potentially be ignored.")
-      addHeaderWarningLogger.warn(s"The following header may not arrive at the client: $name: $value")
+      logHeaderWarning(
+        "addHeader, addIntHeader, addDateHeader, setHeader, setIntHeader, setDateHeader, appendHeader, or replaceHeader",
+        May, Not, name, value)
     }
+  }
+
+  override def addHeader(name: String, value: String): Unit = {
+    ifCommitted(name, value)
     headerMap = headerMap + (name -> (headerMap.getOrElse(name, Seq.empty[String]) :+ value))
 
     // Write through to the wrapped response immediately
@@ -251,6 +266,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
       val existingValues = getHeadersList(name)
       existingValues.headOption match {
         case Some(currentHeadValue) =>
+          ifCommitted(name, value)
           val newHeadValue = currentHeadValue + "," + value
           headerMap = headerMap + (name -> (newHeadValue +: existingValues.tail))
         case None => addHeader(name, value)
@@ -277,6 +293,9 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     */
   override def removeHeader(name: String): Unit = {
     ifMutable(headerMode) {
+      if (isCommitted) {
+        logHeaderWarning("removeHeader", May, Still, name)
+      }
       headerMap = headerMap - name
     }
   }
@@ -286,6 +305,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   override def replaceHeader(name: String, value: String, quality: Double): Unit = setHeader(name, s"$value;q=$quality")
 
   override def setHeader(name: String, value: String): Unit = {
+    ifCommitted(name, value)
     headerMap = headerMap + (name -> Seq(value))
 
     if (headerMode != ResponseMode.MUTABLE) {
@@ -295,7 +315,9 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   }
 
   override def setContentLength(contentLength: Int): Unit = {
-    if (!isCommitted) {
+    if (isCommitted) {
+      logHeaderWarning("setContentLength", Will, Not, HttpHeaders.CONTENT_LENGTH, contentLength.toString)
+    } else {
       setIntHeader(HttpHeaders.CONTENT_LENGTH, contentLength)
     }
   }
@@ -305,7 +327,9 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   override def getContentType: String = getHeader(HttpHeaders.CONTENT_TYPE)
 
   override def setContentType(contentType: String): Unit = {
-    if (!isCommitted) {
+    if (isCommitted) {
+      logHeaderWarning("setContentType", Will, Not, HttpHeaders.CONTENT_TYPE, contentType)
+    } else {
       val charEncRegex = """;\s*charset\s*=\s*([^;]+)""".r
       val charEnc = charEncRegex.findFirstMatchIn(contentType).map(_.group(1))
       val modifiedContentType = contentType.replaceAll(""";\s*charset\s*=\s*[^;]+""", "")
@@ -316,7 +340,12 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   }
 
   override def setCharacterEncoding(charEncoding: String): Unit = {
-    if (!isCommitted && responseBodyType != ResponseBodyType.PrintWriter) {
+    if (isCommitted) {
+      logHeaderWarning("setCharacterEncoding", Will, Not, HttpHeaders.CONTENT_TYPE, s"*;charset=$charEncoding")
+    } else if (responseBodyType == ResponseBodyType.PrintWriter) {
+      headerWarningLogger.info("Calls to setCharacterEncoding after the Response Body Type has been set to Print Writer are ignored.")
+      headerWarningLogger.warn(s"The ${HttpHeaders.CONTENT_TYPE} header's charset will not be modified to: $charEncoding")
+    } else {
       // Verify that the provided character encoding is valid
       val charset = Charset.forName(charEncoding)
 
@@ -511,4 +540,11 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     val Available, OutputStream, PrintWriter = Value
   }
 
+}
+
+object HttpServletResponseWrapper {
+  val May: String = "may"
+  val Will: String = "will"
+  val Not: String = "not"
+  val Still: String = "still"
 }
