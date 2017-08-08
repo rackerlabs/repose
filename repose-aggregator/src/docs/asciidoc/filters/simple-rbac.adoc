@@ -1,6 +1,6 @@
 = Simple Role Based Access Control (RBAC) Filter
 
-include::../_includes/in-progress.adoc[]
+The Simple Role Based Access Control (RBAC) filter provides a way to get API validation for services without the need to create a WADL.
 
 == General filter information
 * *Name:* simple-rbac
@@ -11,42 +11,143 @@ include::../_includes/in-progress.adoc[]
 
 == Prerequisites & Postconditions
 === Required Request Headers
-???.
+* `X-Roles` - A header containing the roles belonging to the user making the request.
+The name of the header containing said roles is configurable, but `X-Roles` is the default.
 
 === Required Preceding Filters
-???.
+This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.
+
+However, due to the nature of this filter, it is typically placed early in the filter chain immediately after any authentication filters.
 
 === Request Headers Created
-???.
+* `X-Relevant-Roles` - Lists the values of the `X-Roles` (or a semantically equivalent) header which match a role value from the configuration for the resource being requested.
+In other words, `X-Relevant-Roles` are the user roles which granted access to the resource.
+* `X-Delegated` - Provides details about the failure being delegated by this filter.
+This is mainly intended for use by the <<herp.adoc#, Highly Efficient Record Processor (HERP) filter>> and <<derp.adoc#, Delegation Response Processor (DeRP) filter>> for internal delegation processing within Repose.
+However, it can be exposed to the origin service under certain configurations.
+This header is only added if delegation is enabled.
 
 === Request Body Changes
-???.
+This filter does not modify the request body.
 
 === Recommended Follow-On (Succeeding) Filters
-???.
+This filter is not strictly required by any other filters.
 
 === Response Body Changes
-???.
+This filter does not modify the response body.
 
 === Response Headers Created
-???.
+This filter does not create/modify any response headers.
 
 === Response Status Codes
-???.
+[cols="2", options="header,autowidth"]
+.Status Codes
+|===
+| Status Code
+| Reasons
+| `403`
+| A requested resource or method requires a specific `X-Roles` request header value that was not found.
+
+| `404`
+| The filter determined that the URI is invalid.
+
+  When `mask-rax-roles-403` attribute is enabled (i.e. `true`), this could also indicate the supplied `X-Roles` request header value did not have access to the URI.
+
+| `405`
+| The URI is valid, but the Method is not appropriate for the URI.
+
+  When `mask-rax-roles-403` attribute is enabled (i.e. `true`), this could also indicate the supplied `X-Roles` request header value had access to the URI, but not the requested Method.
+|===
 
 == Examples
-=== Shows how to ???
-This configuration will ???.
+=== Basic Example
+This configuration is a basic example that exhibits a common use-case.
 
 [source,xml]
-.???.cfg.xml
+.simple-rbac.cfg.xml
 ----
-<??? xmlns="http://docs.openrepose.org/repose/???/v1.0">
-    <???> <!--1-->
-    </???>
-</???>
+
+<simple-rbac xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0">
+    <resources> <!--1-->
+/path/to/this   GET     role1,role2,role3,role4
+/path/to/this   PUT     role1,role2,role3
+/path/to/this   POST    role1,role2
+/path/to/this   DELETE  role1
+/path/to/that   GET,PUT ALL
+/path/to/that   ALL     role1
+/path/{to}/wild GET     role1
+    </resources>
+</simple-rbac>
 ----
-<1> Specifies ???.
+<1> Defines the available resources.
+Resources are listed one per line in the `<PATH> <METHODS> <ROLES>` format.
+That is, each line should present the path to the resource, a series of spaces, the methods available on the resource, a series of spaces, and the roles which grant access to the resource.
+If a resource is not listed, requests to that resource will be rejected.
+<2> Opens a c
+
+[NOTE]
+====
+While roles are allowed to have spaces in the names, any additional leading and trailing whitespace around the comma separators is removed.
+That is to say a role can NOT start or end with a space.
+====
+
+[NOTE]
+====
+`ANY` and `ALL` act as special wildcards for both HTTP methods and roles.
+When used for HTTP methods it is shorthand for the four basic REST methods (`GET`, `PUT`, `POST`, and `DELETE`).
+====
+
+=== Full Example with External Resources File
+This configuration is a full example that uses every possible configuration item.
+It does not, however, cover the resources format, as including resources both inline and via the `href` attribute will cause only the inline resources to be used.
+
+[source,xml]
+.simple-rbac.cfg.xml
+----
+<simple-rbac xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0"
+             roles-header-name="X-ROLES" <!--1-->
+             mask-rax-roles-403="false" <!--2-->
+             enable-api-coverage="false" <!--3-->
+             dot-output="/path/to/dot" <!--4-->
+             wadl-output="/path/to/wadl"> <!--5-->
+    <delegating <!--6-->
+        quality="0.3" <!--7-->
+        component-name="simple-rbac"/> <!--8-->
+    <resources href="/path/to/resources"/> <!--9-->
+</simple-rbac>
+----
+<1> Specifies the header name of the header which contains the list of user roles. +
+    Defaults to `X-Roles`.
+<2> If set to true, instead of returning a FORBIDDEN (403), the response will be a NOT FOUND (404) if no methods are accessible or a METHOD NOT ALLOWED (405) if some methods are available. +
+    Defaults to false.
+<3> If set to true, this filter will record, via JMX, the number of times each state in the generated state machine (the underlying mechanism) is accessed.
+    These values may be used to determine API usage and coverage.
+    The path taken by each request is also logged to the named `api-coverage-logger` logger in the Log4J configuration.
+    If that logger is not configured, then they are logged to the default handler. +
+    Defaults to false.
+<4> Specifies the DOT output file for this validator.
+    DOT is a plain text graph description language.
+    This is a simple way of describing graphs that both humans and computer programs can use..
+<5> Specifies the Web Application Description Language (WADL) output file for this validator.
+    This is a way of describing the API of a Web Application that both humans and computer programs can use.
+<6> Inclusion of this element prevents this filter from returning errors, and directs this filter to populate delegation headers instead.
+<7> Specifies the quality of specific output headers.
+    When setting up a chain of delegating filters, the highest quality number will be the one that is eventually output. +
+    Default value is 0.3.
+<8> The component name used in the delegation header.
+    This is particularly useful when multiple instances of an API-Checker based filter are used in the same filter chain. +
+    Defaults to `simple-rbac`.
+<9> Specifies a location to an external file which contains the Simple RBAC resources.
+    If the message element has a value and the `href` attribute is configured, the Simple RBAC will use what is configured in the value.
+    If the file that the `href` attribute points to is modified, the Simple RBAC will not reload the configuration.
+    So the new RBAC file should be placed in a new file name (e.g. Dated) and the simple-rbac.cfg.xml file updated to point to it in order to guarantee the changes are utilized.
 
 == Additional Information
-*Remove this section if not needed.*
+
+=== Delegation
+In some cases, you may want to delegate the validation of a request down the chain to either another filter or to the origin service.
+Delegation prevents the Simple RBAC filter from failing the request by forwarding the request with the `X-Delegated` header that is set with a value which indicates how the filter would have failed if not in delegating mode.
+
+To place the filter in delegating mode, add the `delegating` element to the filter configuration with a quality that determines the delegation priority.
+
+The format for the `X-Delegated` header value is `status_code={status-code}`component={filter-name}`message={failure message};q={delegating-quality}`.

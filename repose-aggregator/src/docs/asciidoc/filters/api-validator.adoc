@@ -37,10 +37,13 @@ This filter has no dependencies on other filters and can be placed wherever it i
 However, due to the nature of this filter it is typically placed early in the filter chain immediately after any authentication filters.
 
 === Request Headers Created
-This filter only creates/modifies request headers when configured for <<../recipes/delegation.adoc#,Delegation>>.
-If delegation is enabled, then the `X-Delegated` header is created.
+* `X-Relevant-Roles` - Lists the values of the `X-Roles` header which match a `rax:roles` value from the WADL for the resource being requested.
+In other words, `X-Relevant-Roles` are the user roles which granted access to the resource.
+This header is only added to the request if `enable-rax-roles` is configured to be true.
+* `X-Delegated` - Provides details about the failure being delegated by this filter.
 This is mainly intended for use by the <<herp.adoc#, Highly Efficient Record Processor (HERP) filter>> and <<derp.adoc#, Delegation Response Processor (DeRP) filter>> for internal delegation processing within Repose.
 However, it can be exposed to the origin service under certain configurations.
+This header is only added if delegation is enabled.
 
 === Request Body Changes
 This filter does not modify the request body.
