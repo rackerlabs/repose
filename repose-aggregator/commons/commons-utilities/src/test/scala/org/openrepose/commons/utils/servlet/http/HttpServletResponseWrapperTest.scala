@@ -746,7 +746,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       val logEvents = listAppender.getEvents
       logEvents.size shouldBe 2
-      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* ignored."
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to .*addHeader.* after.* response.* committed.* ignored."
       logEvents.get(1).getMessage.getFormattedMessage should include regex "The following header may not arrive at the client: a: b"
     }
   }
@@ -839,7 +839,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       val logEvents = listAppender.getEvents
       logEvents.size shouldBe 2
-      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* ignored."
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to .*addIntHeader.* after.* response.* committed.* ignored."
       logEvents.get(1).getMessage.getFormattedMessage should include regex "The following header may not arrive at the client: a: 1"
     }
   }
@@ -944,7 +944,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       val logEvents = listAppender.getEvents
       logEvents.size shouldBe 2
-      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* ignored."
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to .*addDateHeader.* after.* response.* committed.* ignored."
       logEvents.get(1).getMessage.getFormattedMessage should include regex "The following header may not arrive at the client: a: "
     }
   }
@@ -1096,7 +1096,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       val logEvents = listAppender.getEvents
       logEvents.size shouldBe 2
-      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to addHeader.* after.* response.* committed.* ignored."
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to .*appendHeader.* after.* response.* committed.* ignored."
       logEvents.get(1).getMessage.getFormattedMessage should include regex "The following header may not arrive at the client: a: b"
     }
   }
@@ -1216,6 +1216,19 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.commitToResponse()
 
       originalResponse.getHeader("b") shouldEqual "b;q=0.5"
+    }
+
+    it("should log a warning if the response has already been committed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      when(mockResponse.isCommitted).thenReturn(true)
+      wrappedResponse.replaceHeader("a", "b")
+
+      val logEvents = listAppender.getEvents
+      logEvents.size shouldBe 2
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to .*replaceHeader.* after.* response.* committed.* ignored."
+      logEvents.get(1).getMessage.getFormattedMessage should include regex "The following header may not arrive at the client: a: b"
     }
   }
 
@@ -1345,6 +1358,19 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       originalResponse.getHeader("a") shouldEqual "b"
     }
+
+    it("should log a warning if the response has already been committed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      when(mockResponse.isCommitted).thenReturn(true)
+      wrappedResponse.setHeader("a", "b")
+
+      val logEvents = listAppender.getEvents
+      logEvents.size shouldBe 2
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to .*setHeader.* after.* response.* committed.* ignored."
+      logEvents.get(1).getMessage.getFormattedMessage should include regex "The following header may not arrive at the client: a: b"
+    }
   }
 
   describe("setIntHeader") {
@@ -1435,6 +1461,19 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.commitToResponse()
 
       originalResponse.getHeader("a") shouldEqual "2"
+    }
+
+    it("should log a warning if the response has already been committed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      when(mockResponse.isCommitted).thenReturn(true)
+      wrappedResponse.setIntHeader("a", 1)
+
+      val logEvents = listAppender.getEvents
+      logEvents.size shouldBe 2
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to .*setIntHeader.* after.* response.* committed.* ignored."
+      logEvents.get(1).getMessage.getFormattedMessage should include regex "The following header may not arrive at the client: a: 1"
     }
   }
 
@@ -1528,6 +1567,19 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       originalResponse.getHeaders("a").size() shouldEqual 1
     }
+
+    it("should log a warning if the response has already been committed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      when(mockResponse.isCommitted).thenReturn(true)
+      wrappedResponse.setDateHeader("a", System.currentTimeMillis())
+
+      val logEvents = listAppender.getEvents
+      logEvents.size shouldBe 2
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to .*setDateHeader.* after.* response.* committed.* ignored."
+      logEvents.get(1).getMessage.getFormattedMessage should include regex "The following header may not arrive at the client: a: "
+    }
   }
 
   describe("removeHeader") {
@@ -1570,6 +1622,19 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.removeHeader("A")
 
       wrappedResponse.getHeader("a") shouldBe null
+    }
+
+    it("should log a warning if the response has already been committed") {
+      val mockResponse = mock[HttpServletResponse]
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
+
+      when(mockResponse.isCommitted).thenReturn(true)
+      wrappedResponse.removeHeader("a")
+
+      val logEvents = listAppender.getEvents
+      logEvents.size shouldBe 2
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to .*removeHeader.* after.* response.* committed.* ignored."
+      logEvents.get(1).getMessage.getFormattedMessage should include regex "The following header may still arrive at the client: a"
     }
   }
 
@@ -1760,7 +1825,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.getHeader(CONTENT_LENGTH) shouldEqual "100"
     }
 
-    it("should not set the Content-Length header if the response has already been committed") {
+    it("should not set the Content-Length header and log a warning if the response has already been committed") {
       val mockResponse = mock[HttpServletResponse]
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
@@ -1769,6 +1834,11 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.setContentLength(100)
 
       wrappedResponse.getHeader(CONTENT_LENGTH) shouldBe null
+
+      val logEvents = listAppender.getEvents
+      logEvents.size shouldBe 2
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to .*setContentLength.* after.* response.* committed.* ignored."
+      logEvents.get(1).getMessage.getFormattedMessage should include regex s"The following header will not arrive at the client: $CONTENT_LENGTH: 100"
     }
   }
 
@@ -1830,7 +1900,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.getContentType shouldEqual "text/plain"
     }
 
-    it("should not set the Content-Type header if the response has already been committed") {
+    it("should not set the Content-Type header and log a warning if the response has already been committed") {
       val mockResponse = mock[HttpServletResponse]
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
@@ -1839,6 +1909,11 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.setContentType("text/plain")
 
       wrappedResponse.getHeader(CONTENT_TYPE) shouldBe null
+
+      val logEvents = listAppender.getEvents
+      logEvents.size shouldBe 2
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to .*setContentType.* after.* response.* committed.* ignored."
+      logEvents.get(1).getMessage.getFormattedMessage should include regex s"The following header will not arrive at the client: $CONTENT_TYPE: text/plain"
     }
   }
 
@@ -1921,15 +1996,20 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.getContentType shouldEqual "text/plain"
     }
 
-    it("should not set the character encoding if the response has already been committed") {
+    it("should not set the character encoding and log a warning if the response has already been committed") {
       val mockResponse = mock[HttpServletResponse]
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
       when(mockResponse.isCommitted).thenReturn(true)
 
-      wrappedResponse.setCharacterEncoding("text/plain")
+      wrappedResponse.setCharacterEncoding("UTF-8")
 
       wrappedResponse.getHeader(CONTENT_TYPE) shouldBe null
+
+      val logEvents = listAppender.getEvents
+      logEvents.size shouldBe 2
+      logEvents.get(0).getMessage.getFormattedMessage should include regex "Calls to .*setCharacterEncoding.* after.* response.* committed.* ignored."
+      logEvents.get(1).getMessage.getFormattedMessage should include regex s"The following header will not arrive at the client: $CONTENT_TYPE: \\*;charset=UTF-8"
     }
   }
 
