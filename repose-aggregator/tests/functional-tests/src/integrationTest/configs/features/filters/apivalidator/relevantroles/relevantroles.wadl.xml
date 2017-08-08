@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://wadl.dev.java.net/2009/02"
+             xmlns:rax="http://docs.rackspace.com/api"
+>
+    <resources base="http://localhost:${targetPort}">
+        <resource path="/raxRolesDisabled">
+            <resource path="/a">
+                <method name="GET" rax:roles="a:observer"/>
+                <method name="POST" rax:roles="a:admin"/>
+                <method name="PUT"/>
+                <method name="DELETE" rax:roles="a:observer a:admin"/>
+            </resource>
+        </resource>
+        <resource path="/raxRolesEnabled">
+            <resource path="/a">
+                <method name="GET" rax:roles="a:observer a:admin"/>
+                <method name="POST" rax:roles="a:admin"/>
+                <method name="DELETE" rax:roles="a:admin"/>
+            </resource>
+        </resource>
+        <resource path="/role-with-dashes">
+            <resource path="/a">
+                <method name="GET" rax:roles="This-Is-A-Role"/>
+                <method name="POST" rax:roles="a:admin"/>
+                <method name="DELETE" rax:roles="a:admin"/>
+            </resource>
+        </resource>
+        <resource path="/role-with-spaces">
+            <resource path="/a">
+                <method name="GET" rax:roles="a:admin&#xA0;wsp This&#xA0;Is&#xA0;A&#xA0;Role"/>
+                <method name="POST" rax:roles="a:admin&#xA0;wsp"/>
+                <method name="DELETE" rax:roles="a:admin&#xA0;wsp"/>
+            </resource>
+        </resource>
+        <resource path="/test_user3">
+            <resource path="/a" rax:roles="a:admin">
+                <method name="POST"/>
+                <method name="GET" rax:roles="a:observer observer"/>
+                <method name="PUT" rax:roles="a:creator"/>
+                <method name="DELETE" rax:roles="a:admin a:creator"/>
+            </resource>
+        </resource>
+        <resource path="/test_user4">
+            <resource path="/a" rax:roles="a:admin">
+                <method name="POST" rax:roles="a:creator"/>
+                <method name="GET" rax:roles="a:observer"/>
+                <resource path="/b" rax:roles="a:creator">
+                    <method name="GET" rax:roles="b:observer"/>
+                    <method name="PUT" rax:roles="b:creator"/>
+                    <method name="DELETE" rax:roles="b:creator b:admin"/>
+                </resource>
+            </resource>
+        </resource>
+        <resource path="/test_user5">
+            <resource path="/a" rax:roles="a:admin">
+                <method name="POST" rax:roles="a:creator"/>
+                <method name="GET" rax:roles="#all"/>
+                <resource path="/aa">
+                    <method name="PUT"/>
+                    <method name="DELETE"/>
+                    <method name="GET" rax:roles="#all"/>
+                </resource>
+            </resource>
+            <resource path="/b" rax:roles="#all">
+                <method name="GET"/>
+                <method name="POST" rax:roles="b:creator"/>
+                <resource path="/c" rax:roles="c:admin">
+                    <method name="DELETE"/>
+                    <method name="GET" rax:roles="c:observer"/>
+                </resource>
+            </resource>
+        </resource>
+        <resource path="/test_user6">
+            <resource path="/a">
+                <method name="GET"/>
+                <method name="PUT"/>
+            </resource>
+        </resource>
+        <resource path="/test_user7">
+            <resource path="/a" rax:roles="a:admin">
+                <method name="POST" rax:roles="a:creator"/>
+                <resource path="/b" rax:roles="b:creator">
+                    <method name="GET"/>
+                    <method name="PUT" rax:roles="b:observer"/>
+                    <method name="DELETE" rax:roles="b:observer b:admin"/>
+                </resource>
+            </resource>
+        </resource>
+        <resource path="/test_user7.1">
+            <resource path="/a" rax:roles="a:admin">
+                <method name="PUT" rax:roles="a:observer"/>
+                <resource path="/b" rax:roles="b:creator">
+                    <method name="POST"/>
+                    <method name="PUT" rax:roles="b:observer"/>
+                    <method name="DELETE" rax:roles="b:observer b:admin"/>
+                </resource>
+            </resource>
+        </resource>
+        <resource path="/test_user8">
+            <resource path="/a" rax:roles="a:admin">
+                <method name="POST" rax:roles="a:creator"/>
+                <method name="GET" rax:roles="#all"/>
+                <method name="PUT"/>
+            </resource>
+            <resource path="/b">
+                <method name="GET"/>
+                <resource path="/c">
+                    <method name="POST"/>
+                    <method name="GET"/>
+                </resource>
+            </resource>
+        </resource>
+        <resource path="/test_user9">
+            <resource path="/a" rax:roles="a:admin">
+                <method name="PUT" rax:roles="a:observer"/>
+                <resource path="/b" rax:roles="b:creator">
+                    <method name="POST"/>
+                    <method name="PUT" rax:roles="b:observer"/>
+                    <method name="DELETE" rax:roles="b:observer b:admin"/>
+                </resource>
+            </resource>
+        </resource>
+        <resource path="/test_user10">
+            <resource path="/a" rax:roles="a:admin">
+                <method name="PUT" rax:roles="a:observer"/>
+                <resource path="/b" rax:roles="b:creator">
+                    <method name="POST"/>
+                    <method name="PUT" rax:roles="b:observer"/>
+                    <method name="DELETE" rax:roles="b:observer b:admin"/>
+                </resource>
+            </resource>
+        </resource>
+        <resource path="/test_user11">
+            <resource path="/a" rax:roles="a:admin">
+                <method name="PUT" rax:roles="a:observer"/>
+                <resource path="/b" rax:roles="b:creator">
+                    <method name="POST"/>
+                    <method name="PUT" rax:roles="b:observer"/>
+                    <method name="DELETE" rax:roles="b:observer b:admin"/>
+                </resource>
+            </resource>
+        </resource>
+        <resource path="/test_user12">
+            <resource path="/a">
+                <method href="#getSomething"/>
+                <method href="#postSomething"/>
+                <method href="#putSomething"/>
+                <method href="#deleteSomething"/>
+                <method href="#patchSomething"/>
+            </resource>
+            <resource path="/v">
+                <method href="#getSomethingElse"/>
+            </resource>
+        </resource>
+    </resources>
+
+    <method id="getSomething" name="GET" rax:roles="a:observer a:admin"/>
+    <method id="postSomething" name="POST" rax:roles="a:creator a:admin"/>
+    <method id="putSomething" name="PUT" rax:roles="a:creator a:admin"/>
+    <method id="deleteSomething" name="DELETE" rax:roles="a:admin"/>
+    <method id="patchSomething" name="PATCH" rax:roles="a:admin"/>
+    <method id="getSomethingElse" name="GET" rax:roles="#all"/>
+</application>
