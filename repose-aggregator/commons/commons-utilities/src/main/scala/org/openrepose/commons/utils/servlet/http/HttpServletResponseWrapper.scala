@@ -77,7 +77,7 @@ import scala.io.Source
   */
 class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMode: ResponseMode, bodyMode: ResponseMode, desiredOutputStream: ServletOutputStream)
   extends javax.servlet.http.HttpServletResponseWrapper(originalResponse) with HeaderInteractor {
-  private val headerWarningLogger = LoggerFactory.getLogger(classOf[HttpServletResponseWrapper].getName + "_headerWarning")
+  private val headerWarningLogger = LoggerFactory.getLogger(s"${classOf[HttpServletResponseWrapper].getName}_headerWarning")
 
   private val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
   private val bodyOutputStream = bodyMode match {
