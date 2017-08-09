@@ -541,10 +541,3 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   }
 
 }
-
-object HttpServletResponseWrapper {
-  val May: String = "may"
-  val Will: String = "will"
-  val Not: String = "not"
-  val Still: String = "still"
-}
