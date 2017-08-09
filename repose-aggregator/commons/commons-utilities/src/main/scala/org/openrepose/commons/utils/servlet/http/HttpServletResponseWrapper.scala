@@ -28,7 +28,6 @@ import javax.servlet.{ServletOutputStream, ServletResponse}
 import javax.ws.rs.core.HttpHeaders
 
 import org.apache.http.client.utils.DateUtils
-import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper._
 import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConversions._
