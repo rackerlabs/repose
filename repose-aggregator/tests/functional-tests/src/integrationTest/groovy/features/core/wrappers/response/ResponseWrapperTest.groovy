@@ -199,8 +199,7 @@ class ResponseWrapperTest extends ReposeValveTest {
         messageChain.receivedResponse.headers.getFirstValue(REASON_HEADER_NAME) == REASON_MESSAGE
 
         and: "since the second filter sends an error the Response is closed and additional attempts to add a header should be logged as they may be ignored"
-        reposeLogSearch.searchByString("_headerWarning - Calls to addHeader.* ignored.").size() > 0
-        reposeLogSearch.searchByString("_headerWarning - The following header may not arrive at the client: $REASON_HEADER_NAME: $REASON_MESSAGE").size() > 0
+        reposeLogSearch.searchByString("Calls to .*addHeader.* after the response has been committed may be ignored -- the following header may not be modified: $REASON_HEADER_NAME: $REASON_MESSAGE").size() > 0
     }
 
     @Unroll
