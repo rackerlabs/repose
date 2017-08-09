@@ -77,7 +77,7 @@ import scala.io.Source
   */
 class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMode: ResponseMode, bodyMode: ResponseMode, desiredOutputStream: ServletOutputStream)
   extends javax.servlet.http.HttpServletResponseWrapper(originalResponse) with HeaderInteractor {
-  private val headerWarningLogger = LoggerFactory.getLogger(s"${classOf[HttpServletResponseWrapper].getName}_headerWarning")
+  private val headerWarningLogger = LoggerFactory.getLogger(s"${classOf[HttpServletResponseWrapper].getName}.headerWarning")
 
   private val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
   private val bodyOutputStream = bodyMode match {
@@ -225,25 +225,15 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   override def addDateHeader(name: String, timeSinceEpoch: Long): Unit =
     addHeader(name, DateUtils.formatDate(new Date(timeSinceEpoch)))
 
-  private def logHeaderWarning(headerNames: String, mayWill: String, notStill: String, name: String, value: String): Unit = {
-    logHeaderWarning(headerNames, mayWill, notStill, s"$name: $value")
-  }
-
-  private def logHeaderWarning(headerNames: String, mayWill: String, notStill: String, nameValue: String): Unit = {
-    headerWarningLogger.info(s"Calls to $headerNames after the response has been committed $mayWill be ignored.")
-    headerWarningLogger.warn(s"The following header $mayWill $notStill arrive at the client: $nameValue")
-  }
-
-  private def ifCommitted(name: String, value: String): Unit = {
-    if (isCommitted) {
-      logHeaderWarning(
-        "addHeader, addIntHeader, addDateHeader, setHeader, setIntHeader, setDateHeader, appendHeader, or replaceHeader",
-        May, Not, name, value)
-    }
-  }
+  private def headerWarningMessage(method: String, header: String): String = s"Calls to $method after the response has been committed may be ignored -- the following header may not be modified: $header"
 
   override def addHeader(name: String, value: String): Unit = {
-    ifCommitted(name, value)
+    if (isCommitted) {
+      headerWarningLogger.warn(headerWarningMessage(
+        "addHeader, addIntHeader, addDateHeader, or appendHeader",
+        s"$name: $value"
+      ))
+    }
     headerMap = headerMap + (name -> (headerMap.getOrElse(name, Seq.empty[String]) :+ value))
 
     // Write through to the wrapped response immediately
@@ -266,7 +256,12 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
       val existingValues = getHeadersList(name)
       existingValues.headOption match {
         case Some(currentHeadValue) =>
-          ifCommitted(name, value)
+          if (isCommitted) {
+            headerWarningLogger.warn(headerWarningMessage(
+              "appendHeader",
+              s"$name: $value"
+            ))
+          }
           val newHeadValue = currentHeadValue + "," + value
           headerMap = headerMap + (name -> (newHeadValue +: existingValues.tail))
         case None => addHeader(name, value)
@@ -294,7 +289,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   override def removeHeader(name: String): Unit = {
     ifMutable(headerMode) {
       if (isCommitted) {
-        logHeaderWarning("removeHeader", May, Still, name)
+        headerWarningLogger.warn(headerWarningMessage("removeHeader", name))
       }
       headerMap = headerMap - name
     }
@@ -305,7 +300,12 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   override def replaceHeader(name: String, value: String, quality: Double): Unit = setHeader(name, s"$value;q=$quality")
 
   override def setHeader(name: String, value: String): Unit = {
-    ifCommitted(name, value)
+    if (isCommitted) {
+      headerWarningLogger.warn(headerWarningMessage(
+        "setHeader, setIntHeader, setDateHeader, or replaceHeader",
+        s"$name: $value"
+      ))
+    }
     headerMap = headerMap + (name -> Seq(value))
 
     if (headerMode != ResponseMode.MUTABLE) {
@@ -316,7 +316,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
   override def setContentLength(contentLength: Int): Unit = {
     if (isCommitted) {
-      logHeaderWarning("setContentLength", Will, Not, HttpHeaders.CONTENT_LENGTH, contentLength.toString)
+      headerWarningLogger.warn(headerWarningMessage("setContentLength", s"${HttpHeaders.CONTENT_LENGTH}: $contentLength"))
     } else {
       setIntHeader(HttpHeaders.CONTENT_LENGTH, contentLength)
     }
@@ -328,7 +328,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
   override def setContentType(contentType: String): Unit = {
     if (isCommitted) {
-      logHeaderWarning("setContentType", Will, Not, HttpHeaders.CONTENT_TYPE, contentType)
+      headerWarningLogger.warn(headerWarningMessage("setContentType", s"${HttpHeaders.CONTENT_TYPE}: $contentType"))
     } else {
       val charEncRegex = """;\s*charset\s*=\s*([^;]+)""".r
       val charEnc = charEncRegex.findFirstMatchIn(contentType).map(_.group(1))
@@ -341,10 +341,10 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
   override def setCharacterEncoding(charEncoding: String): Unit = {
     if (isCommitted) {
-      logHeaderWarning("setCharacterEncoding", Will, Not, HttpHeaders.CONTENT_TYPE, s"*;charset=$charEncoding")
+      headerWarningLogger.warn(headerWarningMessage("setCharacterEncoding", s"${HttpHeaders.CONTENT_TYPE}: *;charset=$charEncoding"))
     } else if (responseBodyType == ResponseBodyType.PrintWriter) {
-      headerWarningLogger.info("Calls to setCharacterEncoding after the Response Body Type has been set to Print Writer are ignored.")
-      headerWarningLogger.warn(s"The ${HttpHeaders.CONTENT_TYPE} header's charset will not be modified to: $charEncoding")
+      headerWarningLogger.warn(
+        s"Calls to setCharacterEncoding after the Response Body Type has been set to Print Writer may be ignored -- the following header may not be modified: ${HttpHeaders.CONTENT_TYPE}: *;charset=$charEncoding")
     } else {
       // Verify that the provided character encoding is valid
       val charset = Charset.forName(charEncoding)
