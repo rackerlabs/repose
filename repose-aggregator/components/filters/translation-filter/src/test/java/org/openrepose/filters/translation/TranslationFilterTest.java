@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,11 +21,8 @@ package org.openrepose.filters.translation;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
-import org.openrepose.commons.utils.io.BufferedServletInputStream;
-import org.openrepose.commons.utils.io.RawInputStreamReader;
 import org.openrepose.commons.utils.servlet.http.HandleRequestResult;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
@@ -33,365 +30,212 @@ import org.openrepose.commons.utils.servlet.http.ResponseMode;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.filters.translation.config.*;
 import org.springframework.mock.web.MockFilterConfig;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.xml.sax.SAXException;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.StringTokenizer;
 
-import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.springframework.http.HttpHeaders.ACCEPT;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 import static org.xmlunit.matchers.CompareMatcher.isSimilarTo;
 
-@RunWith(Enclosed.class)
 public class TranslationFilterTest {
-    public static class WhenHandlingResponses {
-        private TranslationFilter filter;
-        private String xml = "application/xml";
-        private HttpServletRequest mockedRequest;
-        private HttpServletResponse mockedResponse;
-        private HttpServletRequestWrapper httpServletRequestWrapper;
-        private HttpServletResponseWrapper httpServletResponseWrapper;
-        private ConfigurationService configurationService;
-        private String configurationRoot;
+    private static byte[] contentEmpty;
+    private static byte[] contentRemoveMe;
 
-        @Before
-        public void setup() throws Exception {
-            configurationService = mock(ConfigurationService.class);
-            configurationRoot = "";
-            filter = new TranslationFilter(configurationService, configurationRoot);
+    private TranslationFilter filter;
+    private MockHttpServletRequest mockRequest;
+    private MockHttpServletResponse mockResponse;
+    private HttpServletRequestWrapper httpServletRequestWrapper;
+    private HttpServletResponseWrapper httpServletResponseWrapper;
 
-            MockFilterConfig mockFilterConfig = new MockFilterConfig("TranslationFilter");
-            filter.init(mockFilterConfig);
-
-            TranslationConfig config = new TranslationConfig();
-
-            RequestTranslations requestTranslations = new RequestTranslations();
-            requestTranslations.getRequestTranslation().add(new RequestTranslation());
-
-            ResponseTranslations responseTranslations = new ResponseTranslations();
-            ResponseTranslation trans2 = new ResponseTranslation();
-            StyleSheets sheets = new StyleSheets();
-            StyleSheet sheet = new StyleSheet();
-            sheet.setId("sheet1");
-            sheet.setHref("classpath:///identity.xsl");
-            sheets.getStyle().add(sheet);
-
-            sheet = new StyleSheet();
-            sheet.setId("sheet2");
-            sheet.setHref("classpath:///add-element.xsl");
-            sheets.getStyle().add(sheet);
-
-            sheet = new StyleSheet();
-            sheet.setId("sheet2");
-            sheet.setHref("classpath:///remove-element.xsl");
-            sheets.getStyle().add(sheet);
-
-            trans2.setAccept(xml);
-            trans2.setContentType(xml);
-            trans2.setCodeRegex("[\\d]{3}");
-            trans2.setTranslatedContentType(xml);
-            trans2.setStyleSheets(sheets);
-
-            responseTranslations.getResponseTranslation().add(trans2);
-
-            config.setRequestTranslations(requestTranslations);
-            config.setResponseTranslations(responseTranslations);
-            filter.configurationUpdated(config);
-
-            mockedRequest = mock(HttpServletRequest.class);
-            when(mockedRequest.getRequestURI()).thenReturn("/129.0.0.1/servers/");
-            when(mockedRequest.getMethod()).thenReturn("POST");
-            when(mockedRequest.getHeader(argThat(equalToIgnoringCase("Accept")))).thenReturn("application/xml");
-            when(mockedRequest.getHeaders(argThat(equalToIgnoringCase("accept")))).thenReturn((Enumeration) new StringTokenizer("application/xml"));
-            when(mockedRequest.getHeaderNames()).thenReturn((Enumeration) new StringTokenizer("Accept"));
-
-            List<String> headerNames = new ArrayList<>();
-            headerNames.add("content-type");
-
-            mockedResponse = mock(HttpServletResponse.class);
-            when(mockedResponse.getHeaderNames()).thenReturn(headerNames);
-            when(mockedResponse.getHeader(argThat(equalToIgnoringCase("content-type")))).thenReturn("application/xml");
-            when(mockedResponse.getStatus()).thenReturn(200);
-
-        }
-
-        @Test
-        public void shouldTranslateEmptyResponseBody() throws IOException, SAXException {
-            InputStream response = this.getClass().getResourceAsStream("/empty.xml");
-            when(mockedResponse.getContentType()).thenReturn("application/xml");
-            when(mockedResponse.getHeader(argThat(equalToIgnoringCase("Content-Type")))).thenReturn("application/xml");
-
-            httpServletRequestWrapper = new HttpServletRequestWrapper(mockedRequest);
-            httpServletResponseWrapper = new HttpServletResponseWrapper(mockedResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
-            httpServletResponseWrapper.setHeader("Content-Type", "application/xml");
-            httpServletResponseWrapper.setOutput(response);
-
-            filter.handleResponse(httpServletRequestWrapper, httpServletResponseWrapper);
-            String actual = IOUtils.toString(httpServletResponseWrapper.getOutputStreamAsInputStream());
-            final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><root/></add-me>";
-
-            assertThat(actual, isSimilarTo(expected));
-        }
-
-        @Test
-        public void shouldTranslateNonEmptyResponseBody() throws IOException, SAXException {
-            InputStream response = this.getClass().getResourceAsStream("/remove-me-element.xml");
-            when(mockedResponse.getContentType()).thenReturn("application/xml");
-            when(mockedResponse.getHeader(argThat(equalToIgnoringCase("Content-Type")))).thenReturn("application/xml");
-            httpServletRequestWrapper = new HttpServletRequestWrapper(mockedRequest);
-            httpServletResponseWrapper = new HttpServletResponseWrapper(mockedResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
-            httpServletResponseWrapper.setHeader("Content-Type", "application/xml");
-            httpServletResponseWrapper.setOutput(response);
-
-            filter.handleResponse(httpServletRequestWrapper, httpServletResponseWrapper);
-            String actual = IOUtils.toString(httpServletResponseWrapper.getOutputStreamAsInputStream());
-            final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><root>\n    This is  a test.\n</root></add-me>";
-
-            assertThat(actual, isSimilarTo(expected));
-        }
-
-        @Test
-        public void shouldTranslateNullResponseBody() throws IOException, SAXException {
-            when(mockedResponse.getContentType()).thenReturn("application/xml");
-            when(mockedResponse.getHeader(argThat(equalToIgnoringCase("Content-Type")))).thenReturn("application/xml");
-            httpServletRequestWrapper = new HttpServletRequestWrapper(mockedRequest);
-            httpServletResponseWrapper = new HttpServletResponseWrapper(mockedResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
-            httpServletResponseWrapper.setHeader("Content-Type", "application/xml");
-            httpServletResponseWrapper.setOutput(null);
-
-            filter.handleResponse(httpServletRequestWrapper, httpServletResponseWrapper);
-            String actual = IOUtils.toString(httpServletResponseWrapper.getOutputStreamAsInputStream());
-
-            assertThat(actual, isEmptyString());
-        }
-
-        @Test
-        public void shouldNotTranslateResponseBodyForUnconfiguredAccept() throws IOException, SAXException {
-            InputStream response = this.getClass().getResourceAsStream("/remove-me-element.xml");
-            when(mockedRequest.getHeader(argThat(equalToIgnoringCase("Accept")))).thenReturn("application/json");
-            when(mockedRequest.getHeaders(argThat(equalToIgnoringCase("accept")))).thenReturn((Enumeration) new StringTokenizer("application/json"));
-            when(mockedRequest.getContentType()).thenReturn("application/xml");
-            when(mockedResponse.getContentType()).thenReturn("application/xml");
-            when(mockedResponse.getHeader(argThat(equalToIgnoringCase("Content-Type")))).thenReturn("application/xml");
-            httpServletRequestWrapper = new HttpServletRequestWrapper(mockedRequest);
-            httpServletResponseWrapper = new HttpServletResponseWrapper(mockedResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
-            httpServletResponseWrapper.setHeader("Content-Type", "application/xml");
-            httpServletResponseWrapper.setOutput(response);
-
-            filter.handleResponse(httpServletRequestWrapper, httpServletResponseWrapper);
-            String actual = IOUtils.toString(httpServletResponseWrapper.getOutputStreamAsInputStream());
-            String expected = new String(RawInputStreamReader.instance().readFully(getClass().getResourceAsStream("/remove-me-element.xml")));
-
-            assertThat(actual, isSimilarTo(expected));
-        }
-
-        @Test
-        public void shouldNotModifyResponseStatusIf() throws Exception {
-            when(mockedRequest.getHeaderNames()).thenReturn(new Enumeration<String>() {
-                @Override
-                public boolean hasMoreElements() {
-                    return false;
-                }
-
-                @Override
-                public String nextElement() {
-                    return null;
-                }
-            });
-            when(mockedResponse.getStatus()).thenReturn(-1);
-            httpServletRequestWrapper = new HttpServletRequestWrapper(mockedRequest);
-            httpServletResponseWrapper = new HttpServletResponseWrapper(mockedResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
-
-            filter.handleResponse(httpServletRequestWrapper, httpServletResponseWrapper);
-            assertEquals("Must return the received response status code", -1, httpServletResponseWrapper.getStatus());
-        }
+    @BeforeClass
+    public static void setupSpec() throws Exception {
+        contentEmpty = IOUtils.toByteArray(TranslationFilterTest.class.getResourceAsStream("/empty.xml"));
+        contentRemoveMe = IOUtils.toByteArray(TranslationFilterTest.class.getResourceAsStream("/remove-me-element.xml"));
     }
 
-    public static class WhenHandlingRequests {
-        private TranslationFilter filter;
-        private String xml = "application/xml";
-        private HttpServletRequest mockedRequest;
-        private HttpServletResponse mockedResponse;
-        private HttpServletRequestWrapper httpServletRequestWrapper;
-        private HttpServletResponseWrapper httpServletResponseWrapper;
-        private ConfigurationService configurationService;
-        private String configurationRoot;
+    @Before
+    public void setup() throws Exception {
+        ConfigurationService configurationService = mock(ConfigurationService.class);
+        String configurationRoot = "";
+        filter = new TranslationFilter(configurationService, configurationRoot);
 
-        @Before
-        public void setup() throws Exception {
-            configurationService = mock(ConfigurationService.class);
-            configurationRoot = "";
-            filter = new TranslationFilter(configurationService, configurationRoot);
+        MockFilterConfig mockFilterConfig = new MockFilterConfig("TranslationFilter");
+        filter.init(mockFilterConfig);
 
-            MockFilterConfig mockFilterConfig = new MockFilterConfig("TranslationFilter");
-            filter.init(mockFilterConfig);
+        TranslationConfig config = new TranslationConfig();
 
-            TranslationConfig config = new TranslationConfig();
+        StyleSheets sheets = new StyleSheets();
+        StyleSheet sheet = new StyleSheet();
+        sheet.setId("sheet1");
+        sheet.setHref("classpath:///identity.xsl");
+        sheets.getStyle().add(sheet);
 
-            RequestTranslations requestTranslations = new RequestTranslations();
-            RequestTranslation trans1 = new RequestTranslation();
-            requestTranslations.getRequestTranslation().add(trans1);
+        sheet = new StyleSheet();
+        sheet.setId("sheet2");
+        sheet.setHref("classpath:///add-element.xsl");
+        sheets.getStyle().add(sheet);
 
-            StyleSheets sheets = new StyleSheets();
-            StyleSheet sheet = new StyleSheet();
-            sheet.setId("sheet1");
-            sheet.setHref("classpath:///identity.xsl");
-            sheets.getStyle().add(sheet);
+        sheet = new StyleSheet();
+        sheet.setId("sheet2");
+        sheet.setHref("classpath:///remove-element.xsl");
+        sheets.getStyle().add(sheet);
 
-            sheet = new StyleSheet();
-            sheet.setId("sheet2");
-            sheet.setHref("classpath:///add-element.xsl");
-            sheets.getStyle().add(sheet);
+        RequestTranslations requestTranslations = new RequestTranslations();
+        RequestTranslation trans1 = new RequestTranslation();
+        trans1.setAccept(APPLICATION_XML_VALUE);
+        trans1.setContentType(APPLICATION_XML_VALUE);
+        trans1.setTranslatedContentType(APPLICATION_XML_VALUE);
+        trans1.setStyleSheets(sheets);
+        requestTranslations.getRequestTranslation().add(trans1);
 
-            sheet = new StyleSheet();
-            sheet.setId("sheet2");
-            sheet.setHref("classpath:///remove-element.xsl");
-            sheets.getStyle().add(sheet);
+        ResponseTranslations responseTranslations = new ResponseTranslations();
+        ResponseTranslation trans2 = new ResponseTranslation();
+        trans2.setAccept(APPLICATION_XML_VALUE);
+        trans2.setContentType(APPLICATION_XML_VALUE);
+        trans2.setCodeRegex("[\\d]{3}");
+        trans2.setTranslatedContentType(APPLICATION_XML_VALUE);
+        trans2.setStyleSheets(sheets);
+        responseTranslations.getResponseTranslation().add(trans2);
 
-            trans1.setAccept(xml);
-            trans1.setContentType(xml);
-            trans1.setTranslatedContentType(xml);
-            trans1.setStyleSheets(sheets);
-            trans1.getHttpMethods().add(HttpMethod.ALL);
+        config.setRequestTranslations(requestTranslations);
+        config.setResponseTranslations(responseTranslations);
+        filter.configurationUpdated(config);
 
-            ResponseTranslations responseTranslations = new ResponseTranslations();
-            responseTranslations.getResponseTranslation().add(new ResponseTranslation());
+        mockRequest = new MockHttpServletRequest(HttpMethod.POST.value(), "/129.0.0.1/servers/");
+        mockRequest.setContentType(APPLICATION_XML_VALUE);
 
-            config.setRequestTranslations(requestTranslations);
-            config.setResponseTranslations(responseTranslations);
-            filter.configurationUpdated(config);
-
-            mockedRequest = mock(HttpServletRequest.class);
-            when(mockedRequest.getRequestURI()).thenReturn("/129.0.0.1/servers/");
-            when(mockedRequest.getMethod()).thenReturn("POST");
-            when(mockedRequest.getHeader(argThat(equalToIgnoringCase("Accept")))).thenReturn("application/xml");
-            when(mockedRequest.getHeaders(argThat(equalToIgnoringCase("accept")))).thenReturn((Enumeration) new StringTokenizer("application/xml"));
-            when(mockedRequest.getHeaders(argThat(equalToIgnoringCase("content-type")))).thenReturn((Enumeration) new StringTokenizer("application/xml"));
-            when(mockedRequest.getHeaderNames()).thenReturn((Enumeration) new StringTokenizer("Accept,content-type", ",", false));
-
-            List<String> headerNames = new ArrayList<>();
-            headerNames.add("content-type");
-
-            mockedResponse = mock(HttpServletResponse.class);
-            when(mockedResponse.getHeaderNames()).thenReturn(headerNames);
-            when(mockedResponse.getHeader(argThat(equalToIgnoringCase("content-type")))).thenReturn("application/xml");
-            when(mockedResponse.getStatus()).thenReturn(200);
-
-        }
-
-        @Test
-        public void shouldTranslateEmptyRequestBody() throws IOException, SAXException {
-            ServletInputStream response = new BufferedServletInputStream(this.getClass().getResourceAsStream("/empty.xml"));
-            when(mockedRequest.getInputStream()).thenReturn(response);
-            when(mockedRequest.getContentType()).thenReturn("application/xml");
-            when(mockedResponse.getHeader(argThat(equalToIgnoringCase("Content-Type")))).thenReturn("application/xml");
-
-            httpServletRequestWrapper = new HttpServletRequestWrapper(mockedRequest);
-            httpServletResponseWrapper = new HttpServletResponseWrapper(mockedResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
-            httpServletResponseWrapper.setHeader("Content-Type", "application/xml");
-
-            HandleRequestResult handleRequestResult = filter.handleRequest(httpServletRequestWrapper, httpServletResponseWrapper);
-            String actual = IOUtils.toString(handleRequestResult.getRequest().getInputStream());
-            final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me><root/></add-me>";
-
-            assertThat(actual, isSimilarTo(expected));
-        }
-
-        @Test
-        public void shouldTranslateNonEmptyRequestBody() throws IOException, SAXException {
-            ServletInputStream response = new BufferedServletInputStream(this.getClass().getResourceAsStream("/remove-me-element.xml"));
-            when(mockedRequest.getInputStream()).thenReturn(response);
-            httpServletRequestWrapper = new HttpServletRequestWrapper(mockedRequest);
-            httpServletResponseWrapper = new HttpServletResponseWrapper(mockedResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
-            when(mockedRequest.getContentType()).thenReturn("application/xml");
-            when(mockedResponse.getHeader(argThat(equalToIgnoringCase("Content-Type")))).thenReturn("application/xml");
-
-            HandleRequestResult handleRequestResult = filter.handleRequest(httpServletRequestWrapper, httpServletResponseWrapper);
-            String actual = IOUtils.toString(handleRequestResult.getRequest().getInputStream());
-            final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><root>\n    This is  a test.\n</root></add-me>";
-
-            assertThat(actual, isSimilarTo(expected));
-        }
-
-        @Test
-        public void shouldNotTranslateRequestBodyForUnconfiguredAccept() throws IOException, SAXException {
-            ServletInputStream response = new BufferedServletInputStream(this.getClass().getResourceAsStream("/remove-me-element.xml"));
-            when(mockedRequest.getInputStream()).thenReturn(response);
-            when(mockedRequest.getHeader(argThat(equalToIgnoringCase("Accept")))).thenReturn("application/other");
-            when(mockedRequest.getHeaders(argThat(equalToIgnoringCase("accept")))).thenReturn((Enumeration) new StringTokenizer("application/other"));
-            when(mockedRequest.getContentType()).thenReturn("application/other");
-            when(mockedResponse.getHeader(argThat(equalToIgnoringCase("Content-Type")))).thenReturn("application/other");
-            httpServletRequestWrapper = new HttpServletRequestWrapper(mockedRequest);
-            httpServletResponseWrapper = new HttpServletResponseWrapper(mockedResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
-            httpServletResponseWrapper.setHeader("Content-Type", "application/xml");
-
-            HandleRequestResult handleRequestResult = filter.handleRequest(httpServletRequestWrapper, httpServletResponseWrapper);
-            String actual = IOUtils.toString(handleRequestResult.getRequest().getInputStream());
-            String expected = new String(RawInputStreamReader.instance().readFully(getClass().getResourceAsStream("/remove-me-element.xml")));
-
-            assertThat(actual, isSimilarTo(expected));
-        }
+        mockResponse = new MockHttpServletResponse();
+        mockResponse.setContentType(APPLICATION_XML_VALUE);
+        mockResponse.setStatus(200);
     }
 
-    public static class WhenBuildingHandlers {
-        private TranslationFilter filter;
-        private String xml = "application/xml";
-        private ConfigurationService configurationService;
-        private String configurationRoot;
+    @Test
+    public void shouldTranslateEmptyResponseBody() throws IOException, SAXException {
+        mockRequest.addHeader(ACCEPT, APPLICATION_XML_VALUE);
 
-        @Before
-        public void setup() throws Exception {
-            configurationService = mock(ConfigurationService.class);
-            configurationRoot = "";
-            filter = new TranslationFilter(configurationService, configurationRoot);
+        httpServletRequestWrapper = new HttpServletRequestWrapper(mockRequest);
+        httpServletResponseWrapper = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
+        httpServletResponseWrapper.setHeader(CONTENT_TYPE, APPLICATION_XML_VALUE);
+        httpServletResponseWrapper.setOutput(new ByteArrayInputStream(contentEmpty));
 
-            MockFilterConfig mockFilterConfig = new MockFilterConfig("TranslationFilter");
-            filter.init(mockFilterConfig);
-        }
+        filter.handleResponse(httpServletRequestWrapper, httpServletResponseWrapper);
+        String actual = IOUtils.toString(httpServletResponseWrapper.getOutputStreamAsInputStream());
+        final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><root/></add-me>";
 
-        @Test
-        public void shouldCreateProcessorPoolsOnConfigUpdate() throws Exception {
-            TranslationConfig config = new TranslationConfig();
-            RequestTranslations requestTranslations = new RequestTranslations();
-            ResponseTranslations responseTranslations = new ResponseTranslations();
+        assertThat(actual, isSimilarTo(expected));
+    }
 
-            RequestTranslation trans1 = new RequestTranslation();
-            StyleSheets sheets = new StyleSheets();
-            StyleSheet sheet = new StyleSheet();
-            sheet.setId("sheet1");
-            sheet.setHref("classpath:///style.xsl");
-            sheets.getStyle().add(sheet);
-            trans1.setAccept(xml);
-            trans1.setContentType(xml);
-            trans1.setTranslatedContentType(xml);
-            trans1.setStyleSheets(sheets);
+    @Test
+    public void shouldTranslateNonEmptyResponseBody() throws IOException, SAXException {
+        mockRequest.addHeader(ACCEPT, APPLICATION_XML_VALUE);
 
-            requestTranslations.getRequestTranslation().add(trans1);
+        httpServletRequestWrapper = new HttpServletRequestWrapper(mockRequest);
+        httpServletResponseWrapper = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
+        httpServletResponseWrapper.setHeader(CONTENT_TYPE, APPLICATION_XML_VALUE);
+        httpServletResponseWrapper.setOutput(new ByteArrayInputStream(contentRemoveMe));
 
-            ResponseTranslation trans2 = new ResponseTranslation();
-            trans2.setAccept(xml);
-            trans2.setContentType(xml);
-            trans2.setCodeRegex("4[\\d]{2}");
-            trans2.setTranslatedContentType(xml);
-            trans2.setStyleSheets(sheets);
+        filter.handleResponse(httpServletRequestWrapper, httpServletResponseWrapper);
+        String actual = IOUtils.toString(httpServletResponseWrapper.getOutputStreamAsInputStream());
+        final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><root>\n    This is  a test.\n</root></add-me>";
 
-            responseTranslations.getResponseTranslation().add(trans2);
+        assertThat(actual, isSimilarTo(expected));
+    }
 
-            config.setRequestTranslations(requestTranslations);
-            config.setResponseTranslations(responseTranslations);
-            filter.configurationUpdated(config);
-//            assertEquals(1, filter.getRequestProcessors().size());
-//            assertEquals(1, filter.getResponseProcessors().size());
-        }
+    @Test
+    public void shouldTranslateNullResponseBody() throws IOException, SAXException {
+        mockRequest.addHeader(ACCEPT, APPLICATION_XML_VALUE);
+
+        httpServletRequestWrapper = new HttpServletRequestWrapper(mockRequest);
+        httpServletResponseWrapper = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
+        httpServletResponseWrapper.setHeader(CONTENT_TYPE, APPLICATION_XML_VALUE);
+        httpServletResponseWrapper.setOutput(null);
+
+        filter.handleResponse(httpServletRequestWrapper, httpServletResponseWrapper);
+        String actual = IOUtils.toString(httpServletResponseWrapper.getOutputStreamAsInputStream());
+
+        assertThat(actual, isEmptyString());
+    }
+
+    @Test
+    public void shouldNotTranslateResponseBodyForUnconfiguredAccept() throws IOException, SAXException {
+        mockRequest.addHeader(ACCEPT, APPLICATION_JSON_VALUE);
+        mockRequest.setContentType(APPLICATION_XML_VALUE);
+
+        httpServletRequestWrapper = new HttpServletRequestWrapper(mockRequest);
+        httpServletResponseWrapper = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
+        httpServletResponseWrapper.setHeader(CONTENT_TYPE, APPLICATION_XML_VALUE);
+        httpServletResponseWrapper.setOutput(new ByteArrayInputStream(contentRemoveMe));
+
+        filter.handleResponse(httpServletRequestWrapper, httpServletResponseWrapper);
+        String actual = IOUtils.toString(httpServletResponseWrapper.getOutputStreamAsInputStream());
+        String expected = new String(contentRemoveMe);
+
+        assertThat(actual, isSimilarTo(expected));
+    }
+
+    @Test
+    public void shouldNotModifyResponseStatusIf() throws Exception {
+        mockResponse.setStatus(-1);
+        httpServletRequestWrapper = new HttpServletRequestWrapper(mockRequest);
+        httpServletResponseWrapper = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
+
+        filter.handleResponse(httpServletRequestWrapper, httpServletResponseWrapper);
+        assertEquals("Must return the received response status code", -1, httpServletResponseWrapper.getStatus());
+    }
+
+    @Test
+    public void shouldTranslateEmptyRequestBody() throws IOException, SAXException {
+        mockRequest.addHeader(ACCEPT, APPLICATION_XML_VALUE);
+        mockRequest.setContent(contentEmpty);
+
+        httpServletRequestWrapper = new HttpServletRequestWrapper(mockRequest);
+        httpServletResponseWrapper = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
+        httpServletResponseWrapper.setHeader(CONTENT_TYPE, APPLICATION_XML_VALUE);
+
+        HandleRequestResult handleRequestResult = filter.handleRequest(httpServletRequestWrapper, httpServletResponseWrapper);
+        String actual = IOUtils.toString(handleRequestResult.getRequest().getInputStream());
+        final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me><root/></add-me>";
+
+        assertThat(actual, isSimilarTo(expected));
+    }
+
+    @Test
+    public void shouldTranslateNonEmptyRequestBody() throws IOException, SAXException {
+        mockRequest.addHeader(ACCEPT, APPLICATION_XML_VALUE);
+        mockRequest.setContent(contentRemoveMe);
+        httpServletRequestWrapper = new HttpServletRequestWrapper(mockRequest);
+        httpServletResponseWrapper = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
+
+        HandleRequestResult handleRequestResult = filter.handleRequest(httpServletRequestWrapper, httpServletResponseWrapper);
+        String actual = IOUtils.toString(handleRequestResult.getRequest().getInputStream());
+        final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><root>\n    This is  a test.\n</root></add-me>";
+
+        assertThat(actual, isSimilarTo(expected));
+    }
+
+    @Test
+    public void shouldNotTranslateRequestBodyForUnconfiguredAccept() throws IOException, SAXException {
+        mockRequest.setContent(contentRemoveMe);
+        mockRequest.addHeader(ACCEPT, "application/other");
+        mockResponse.setContentType("application/other");
+        httpServletRequestWrapper = new HttpServletRequestWrapper(mockRequest);
+        httpServletResponseWrapper = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
+        httpServletResponseWrapper.setHeader(CONTENT_TYPE, APPLICATION_XML_VALUE);
+
+        HandleRequestResult handleRequestResult = filter.handleRequest(httpServletRequestWrapper, httpServletResponseWrapper);
+        String actual = IOUtils.toString(handleRequestResult.getRequest().getInputStream());
+        String expected = new String(contentRemoveMe);
+
+        assertThat(actual, isSimilarTo(expected));
     }
 }
