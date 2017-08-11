@@ -79,6 +79,32 @@ class UriStripperRequestLinkResourceJsonTokenIndexTest extends ReposeValveTest {
         "link-c" | 5     | "/a/b/c"                     | "/a/b/c"
     }
 
+    @Unroll
+    def "when configured to update the token-index, the JSON request body link should NOT be updated when the HTTP method does not match"() {
+        given: "the JSON request body has the configured link"
+        def requestUrl = "/foo/$tenantId/bar"
+        jsonBuilder {
+            "$jsonPath" requestBodyLink
+        }
+
+        when: "a request is made"
+        def mc = deproxy.makeRequest(url: reposeEndpoint + requestUrl,
+            method: "PUT",
+            headers: requestHeaders,
+            requestBody: jsonBuilder.toString())
+
+        and: "the received request JSON is parsed"
+        def receivedRequestJson = jsonSlurper.parseText(mc.handlings[0].request.body as String)
+
+        then: "the request body link is modified"
+        receivedRequestJson."$jsonPath" == requestBodyLink
+
+        where:
+        jsonPath | index | requestBodyLink
+        "link-a" | 0     | "/$tenantId"
+        "link-a" | 0     | "/$tenantId/a/b/c/d/e/f/g/h"
+    }
+
     def "when a JSON request body contains multiple link-resources, they are all updated"() {
         given: "the JSON request body contains multiple link-resources"
         def requestUrl = "/foo/$tenantId/bar"
