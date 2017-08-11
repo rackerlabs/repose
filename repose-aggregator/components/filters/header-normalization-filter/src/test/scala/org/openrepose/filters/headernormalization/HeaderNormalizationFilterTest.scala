@@ -455,6 +455,22 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
 
         verify(meter, never()).mark(any())
       }
+
+      it(s"will NOT update metrics when a request method does not match any config target on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
+        val preHeaders = Seq(("legit-header", "such-value"))
+        target match {
+          case RequestTarget => addRequestHeaders(preHeaders)
+          case ResponseTarget => addResponseHeadersOnDoFilter(preHeaders)
+        }
+        servletRequest.setRequestURI("/v2/fries")
+        servletRequest.setMethod("GET")
+        val config = createConfig(newStyle, List(ConfigTarget(target, WhiteList, List("legit-header"), Some("/v1/servers/[^/]+/status"), Some(List("POST")))))
+        filter.configurationUpdated(config)
+
+        filter.doFilter(servletRequest, servletResponse, filterChain)
+
+        verify(meter, never()).mark(any())
+      }
     }
   }
 
