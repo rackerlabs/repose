@@ -129,15 +129,25 @@ class SimpleRBACTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code as Integer == respcode
 
+        and: "only the correct Relevant Roles should have made it to the origin service OR the call was rejected appropriately"
+        if (respcode == SC_OK) {
+            assert mc.handlings.size() == 1
+            def relevantRolesRequestHeaders = mc.handlings[0].request.getHeaders().findAll("X-Relevant-Roles")
+            assert relevantRolesRequestHeaders.containsAll(relevantRoles)
+            assert relevantRoles.containsAll(relevantRolesRequestHeaders)
+        } else {
+            assert mc.handlings.size() == 0
+        }
+
         where:
-        path            | method   | roles              | respcode
-        "/path/to/this" | "GET"    | "roleX,super,none" | SC_OK
-        "/path/to/this" | "PUT"    | "roleX,super,none" | SC_OK
-        "/path/to/this" | "POST"   | "roleX,super,none" | SC_OK
-        "/path/to/this" | "DELETE" | "roleX,super,none" | SC_OK
-        "/path/to/this" | "GET"    | "roleX,user,none"  | SC_OK
-        "/path/to/this" | "PUT"    | "roleX,user,none"  | SC_FORBIDDEN
-        "/path/to/this" | "POST"   | "roleX,user,none"  | SC_FORBIDDEN
-        "/path/to/this" | "DELETE" | "roleX,user,none"  | SC_FORBIDDEN
+        path            | method   | roles                    | relevantRoles      | respcode
+        "/path/to/this" | "GET"    | "roleX,super,none,admin" | ["super", "admin"] | SC_OK
+        "/path/to/this" | "PUT"    | "roleX,super,none,admin" | ["super", "admin"] | SC_OK
+        "/path/to/this" | "POST"   | "roleX,super,none,admin" | ["super"]          | SC_OK
+        "/path/to/this" | "DELETE" | "roleX,super,none,admin" | ["super"]          | SC_OK
+        "/path/to/this" | "GET"    | "roleX,user,none,admin"  | ["admin", "user"]  | SC_OK
+        "/path/to/this" | "PUT"    | "roleX,user,none,admin"  | ["admin"]          | SC_OK
+        "/path/to/this" | "POST"   | "roleX,user,none,admin"  | null               | SC_FORBIDDEN
+        "/path/to/this" | "DELETE" | "roleX,user,none,admin"  | null               | SC_FORBIDDEN
     }
 }

@@ -77,11 +77,11 @@ class ApiValidatorEnableCoverageFalseTest extends ReposeValveTest {
             def scope = it.getKeyProperty('scope')
             def name = it.getKeyProperty('name')
             def type = it.getKeyProperty('type')
-            if (scope.contains("raxRolesEnabled") && name == "checker") {
+            if (scope?.contains("raxRolesEnabled") && name == "checker") {
                 check = true
             }
 
-            if (type.contains("Handler")) {
+            if (type?.contains("Handler")) {
                 handler = handler + 1
             }
         }

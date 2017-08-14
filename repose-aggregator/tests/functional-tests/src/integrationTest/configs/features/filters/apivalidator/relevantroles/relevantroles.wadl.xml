@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://wadl.dev.java.net/2009/02"
+             xmlns:rax="http://docs.rackspace.com/api"
+>
+    <resources base="http://localhost:${targetPort}">
+        <resource path="/raxRolesEnabled">
+            <resource path="/a">
+                <method name="GET" rax:roles="a:admin a:observer"/>
+                <method name="POST" rax:roles="a:admin"/>
+                <method name="DELETE" rax:roles="a:admin"/>
+            </resource>
+        </resource>
+        <resource path="/role-with-dashes">
+            <resource path="/a">
+                <method name="GET" rax:roles="a:admin-dash This-Is-A-Role"/>
+                <method name="POST" rax:roles="a:admin-dash"/>
+                <method name="DELETE" rax:roles="a:admin-dash"/>
+            </resource>
+        </resource>
+        <resource path="/role-with-spaces">
+            <resource path="/a">
+                <method name="GET" rax:roles="a:admin&#xA0;wsp This&#xA0;Is&#xA0;A&#xA0;Role"/>
+                <method name="POST" rax:roles="a:admin&#xA0;wsp"/>
+                <method name="DELETE" rax:roles="a:admin&#xA0;wsp"/>
+            </resource>
+        </resource>
+    </resources>
+</application>
