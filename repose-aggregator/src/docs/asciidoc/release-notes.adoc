@@ -19,6 +19,7 @@ As part of this correction, any configurations that were taking advantage of thi
 * https://repose.atlassian.net/browse/REP-5853[REP-5853] - Updated the <<filters/saml-policy.adoc#, SAML Policy Translation Filter>> and <<filters/attribute-mapping-policy-validation.adoc#,Attribute Mapping Policy Validation Filter>> to recover support for XML and JSON (which was removed in <<8.6.2.0 (2017-06-13)>>).
 * https://repose.atlassian.net/browse/REP-5521[REP-5521] - Updated the API Checker library from v2.2.1 to v2.3.0.
 ** This brings the `X-Relevant-Roles` header population feature to the <<filters/api-validator.adoc#, API Validator filter>> and <<filters/simple-rbac.adoc#, Simple RBAC filter>>.
+* https://repose.atlassian.net/browse/REP-5940[REP-5940] - Updated the `attribute-mapper` library from v1.2.0 to v1.3.0.
 
 == 8.6.2.0 (2017-06-13)
 
