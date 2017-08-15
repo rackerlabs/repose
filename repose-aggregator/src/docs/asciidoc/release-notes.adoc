@@ -1,6 +1,6 @@
 = Release Notes
 
-== In Progress Work
+== 8.6.3.0 (2017-08-15)
 
 * https://repose.atlassian.net/browse/REP-5737[REP-5737] - Updated the following filters to correct a typo that would prevent proper configuration schema validation.
 ** <<filters/ip-user.adoc#,IP User Filter>>
