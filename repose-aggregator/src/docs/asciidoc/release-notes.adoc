@@ -29,6 +29,9 @@ This message is logged to a separate logger and can be disabled by adding the fo
 ----
 ====
 
+* https://repose.atlassian.net/browse/REP-5521[REP-5521] - Updated the API Checker library from v2.2.1 to v2.3.0.
+** This brings the `X-Relevant-Roles` header population feature to the <<filters/api-validator.adoc#, API Validator filter>> and <<filters/simple-rbac.adoc#, Simple RBAC filter>>.
+
 == 8.6.2.0 (2017-06-13)
 
 * https://repose.atlassian.net/browse/REP-5757[REP-5757] - Updated the <<filters/saml-policy.adoc#, SAML Policy Translation Filter>> to utilize YAML policy files.
