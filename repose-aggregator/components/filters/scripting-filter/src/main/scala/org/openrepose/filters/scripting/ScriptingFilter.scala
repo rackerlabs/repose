@@ -82,6 +82,7 @@ class ScriptingFilter @Inject()(configurationService: ConfigurationService)
       logger.debug("Running script")
       Try(scriptRunner.run(bindings)) match {
         case Success(_) =>
+          logger.debug("Script Successful")
           wrappedResponse.commitToResponse()
         case Failure(e) =>
           logger.error("Processing failure -- the script threw an Exception", e)
