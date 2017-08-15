@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,6 @@
  */
 package org.openrepose.core.services.reporting.jmx;
 
-import org.openrepose.core.MBeanObjectNames;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.destinations.DestinationInfo;
 import org.slf4j.Logger;
@@ -36,7 +35,7 @@ import java.util.Date;
 import java.util.List;
 
 @Named("reposeReport")
-@ManagedResource(objectName = MBeanObjectNames.REPOSE_REPORT, description = "Repose report MBean.")
+@ManagedResource(description = "Repose report MBean.")
 public class ReposeReport implements ReposeReportMBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReposeReport.class);

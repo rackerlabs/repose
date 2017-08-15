@@ -23,12 +23,10 @@ import com.codahale.metrics.ObjectNameFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Named;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.util.Hashtable;
 
-@Named
 public class MetricsJmxObjectNameFactory implements ObjectNameFactory {
 
     public static final String NAME_KEY = "name";

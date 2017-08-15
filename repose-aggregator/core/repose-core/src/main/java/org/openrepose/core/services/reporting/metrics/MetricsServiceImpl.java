@@ -24,6 +24,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.graphite.Graphite;
 import com.codahale.metrics.graphite.GraphiteReporter;
 import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.utils.net.NetUtilities;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
@@ -100,7 +101,7 @@ public class MetricsServiceImpl implements MetricsService {
         //There are tests that don't start the JMX if the metrics service isn't enabled...
         this.jmxReporter = JmxReporter
                 .forRegistry(metricRegistry)
-                .inDomain(ReposeJmxNamingStrategy.bestGuessHostname())
+                .inDomain(NetUtilities.bestGuessHostname())
                 .createsObjectNamesWith(new MetricsJmxObjectNameFactory())
                 .build();
         this.jmxReporter.start(); //But it needs to be started if there's no configs
@@ -130,7 +131,7 @@ public class MetricsServiceImpl implements MetricsService {
             throws IOException {
         Graphite graphite = new Graphite(host, port);
         GraphiteReporter reporter = GraphiteReporter.forRegistry(metricRegistry)
-                .prefixedWith(MetricRegistry.name(prefix, ReposeJmxNamingStrategy.bestGuessHostname()))
+                .prefixedWith(MetricRegistry.name(prefix, NetUtilities.bestGuessHostname()))
                 .build(graphite);
         reporter.start(period, TimeUnit.SECONDS);
 

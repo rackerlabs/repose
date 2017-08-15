@@ -25,6 +25,7 @@ import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.MutablePropertyValues;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -163,8 +164,6 @@ public class CoreSpringProvider {
             // I'm not sure how well this will work, maybe it will fix the problem.
             GenericBeanDefinition mBeanServer = new GenericBeanDefinition();
             mBeanServer.setBeanClass(MBeanServerFactoryBean.class);
-            mBeanServer.setAutowireCandidate(true);
-            mBeanServer.setLazyInit(false); //Make sure that it's not lazy!
             MutablePropertyValues mBeanServerProps = new MutablePropertyValues();
             //This should tell spring to ENSURE that it'll use an existing server
             mBeanServerProps.add("locateExistingServerIfPossible", true);
@@ -172,21 +171,23 @@ public class CoreSpringProvider {
             //Would have to give this an agent id?
             coreContext.registerBeanDefinition("reposeMBeanServer", mBeanServer);
 
+            GenericBeanDefinition jmxAttributeSource = new GenericBeanDefinition();
+            jmxAttributeSource.setBeanClass(AnnotationJmxAttributeSource.class);
+            coreContext.registerBeanDefinition("jmxAttributeSource", jmxAttributeSource);
+
+            GenericBeanDefinition jmxNamingStrategy = new GenericBeanDefinition();
+            jmxNamingStrategy.setBeanClass(ReposeJmxNamingStrategy.class);
+            jmxNamingStrategy.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR);
+
             //This creates the primary JMX MBean exporter... There should be only one.
             GenericBeanDefinition mBeanExporter = new GenericBeanDefinition();
             mBeanExporter.setBeanClass(AnnotationMBeanExporter.class);
-            mBeanExporter.setAutowireCandidate(true);
             MutablePropertyValues mBeanExporterProps = new MutablePropertyValues();
             mBeanExporterProps.add("autodetect", true);
             mBeanExporterProps.add("server", mBeanServer);
+            mBeanExporterProps.add("namingStrategy", jmxNamingStrategy);
             mBeanExporter.setPropertyValues(mBeanExporterProps);
-
             coreContext.registerBeanDefinition("exporter", mBeanExporter);
-
-            GenericBeanDefinition jmxAttributeSource = new GenericBeanDefinition();
-            jmxAttributeSource.setBeanClass(AnnotationJmxAttributeSource.class);
-            jmxAttributeSource.setAutowireCandidate(true);
-            coreContext.registerBeanDefinition("jmxAttributeSource", jmxAttributeSource);
 
             coreContext.refresh();
 

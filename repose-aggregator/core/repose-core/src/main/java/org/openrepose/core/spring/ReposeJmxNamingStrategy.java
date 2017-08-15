@@ -19,80 +19,81 @@
  */
 package org.openrepose.core.spring;
 
+import org.openrepose.commons.utils.net.NetUtilities;
+import org.openrepose.core.services.reporting.metrics.MetricsJmxObjectNameFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource;
+import org.springframework.jmx.export.metadata.JmxAttributeSource;
+import org.springframework.jmx.export.metadata.ManagedResource;
 import org.springframework.jmx.export.naming.MetadataNamingStrategy;
 import org.springframework.jmx.export.naming.ObjectNamingStrategy;
+import org.springframework.jmx.support.ObjectNameManager;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.UUID;
 
-@Named
-@Lazy
 public class ReposeJmxNamingStrategy extends MetadataNamingStrategy implements ObjectNamingStrategy {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReposeJmxNamingStrategy.class);
-    private static final String SEPARATOR = "-";
-    private static final String DEFAULT_DOMAIN_PREFIX = UUID.randomUUID().toString() + SEPARATOR;
-    private final String jmxPrefix;
 
-    //Metrics service needs this guy
-    @Inject
+    private final String jmxDomain;
+    private final MetricsJmxObjectNameFactory metricsJmxObjectNameFactory;
+
+    private JmxAttributeSource attributeSource;
+
+    /**
+     * Create a new {@code ReposeJmxNamingStrategy} for the given
+     * {@code JmxAttributeSource}.
+     *
+     * @param attributeSource the JmxAttributeSource to use
+     */
     public ReposeJmxNamingStrategy(AnnotationJmxAttributeSource attributeSource) {
         super(attributeSource);
-        this.jmxPrefix = ReposeJmxNamingStrategy.bestGuessHostname() + SEPARATOR;
-
-        LOG.info("Configuring JMX naming strategy for {}", jmxPrefix);
+        this.attributeSource = attributeSource;
+        this.metricsJmxObjectNameFactory = new MetricsJmxObjectNameFactory();
+        this.jmxDomain = NetUtilities.bestGuessHostname();
+        LOG.info("Configuring Spring JMX naming strategy with domain {}", jmxDomain);
     }
 
     /**
-     * Do some logic to figure out what our local hostname is, or get as close as possible
-     * references: http://stackoverflow.com/a/7800008/423218 and http://stackoverflow.com/a/17958246/423218
+     * <p>
+     * Obtain an {@code ObjectName} for the supplied bean.
+     * <p>
+     * If the annotated bean has been provided a name, either via
+     * the bean key or the {@code objectName} property of the
+     * {@code ManagedResource} annotation, then the name will be
+     * used to attempt to construct an {@code ObjectName}.
+     * Otherwise, the domain of the {@code ObjectName} will be the local
+     * hostname and the property list of the {@code ObjectName} will be
+     * consistent with other Repose JMX beans (e.g., metrics beans).
      *
-     * @return a string with either the hostname, or something to ID this host
+     * @param managedBean the bean that will be exposed under the
+     *                    returned {@code ObjectName}
+     * @param beanKey     the key associated with this bean in the beans map
+     *                    passed to the {@code MBeanExporter}
+     * @return the {@code ObjectName} instance
+     * @throws MalformedObjectNameException if the resulting {@code ObjectName} is invalid
      */
-    public static String bestGuessHostname() {
-        String result;
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            LOG.debug("Looking up a windows COMPUTERNAME environment var for the JMX name");
-            result = System.getenv("COMPUTERNAME");
-        } else {
-            LOG.debug("Looking up a linux HOSTNAME environment var for the JMX name");
-            //We're probably on linux at this point
-            String envHostname = System.getenv("HOSTNAME");
-            if (envHostname != null) {
-                result = envHostname;
-            } else {
-                LOG.debug("Unable to find a Linux HOSTNAME environment var, trying another tool");
-                //Now we've got to do even more work
-                try {
-                    result = InetAddress.getLocalHost().getHostName();
-                } catch (UnknownHostException e) {
-                    //Weren't able to get the local host :(
-                    LOG.warn("Unable to resolve local hostname for JMX", e);
-                    result = DEFAULT_DOMAIN_PREFIX;
-                }
-            }
-        }
-
-        LOG.info("Setting JMX prefix for this JVM to {}. http://i.imgur.com/1iyYqfv.gif", result);
-        return result;
-    }
-
     @Override
     public ObjectName getObjectName(Object managedBean, String beanKey) throws MalformedObjectNameException {
-        ObjectName name = super.getObjectName(managedBean, beanKey);
-        return new ObjectName(jmxPrefix + name.getDomain(), name.getKeyPropertyList());
-    }
+        Class<?> managedClass = AopUtils.getTargetClass(managedBean);
+        ManagedResource mr = this.attributeSource.getManagedResource(managedClass);
 
-    public String getJmxPrefix() {
-        return jmxPrefix;
+        // Check if an object name has been specified.
+        if (mr != null && StringUtils.hasText(mr.getObjectName())) {
+            return ObjectNameManager.getInstance(mr.getObjectName());
+        } else {
+            try {
+                return ObjectNameManager.getInstance(beanKey);
+            } catch (MalformedObjectNameException ex) {
+                String beanPackage = ClassUtils.getPackageName(managedClass);
+                String beanClass = ClassUtils.getShortName(managedClass);
+                return metricsJmxObjectNameFactory.createName(null, jmxDomain, String.join(".", beanPackage, beanClass));
+            }
+        }
     }
 }

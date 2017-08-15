@@ -296,7 +296,7 @@ class ReposeValveLauncher extends ReposeLauncher {
         }
 
         // First query for the mbean.  The name of the mbean is partially configurable, so search for a match.
-        def HashSet cfgBean = (HashSet) jmx.getMBeans("*org.openrepose.core.services.jmx:type=ConfigurationInformation")
+        def HashSet cfgBean = (HashSet) jmx.getMBeans('*:001=\"org\",002=\"openrepose\",003=\"core\",004=\"services\",005=\"jmx\",006=\"ConfigurationInformation\"')
         if (cfgBean == null || cfgBean.isEmpty()) {
             return false
         }
