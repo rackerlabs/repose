@@ -94,7 +94,7 @@ This configuration shows explicitly naming the user and group headers to their d
     <group name="sample-ipv4-group"> <!--5-->
         <cidr-ip>192.168.1.0/24</cidr-ip> <!--7-->
     </group>
-    <group name="match-all"> <!--8->
+    <group name="match-all"> <!--8-->
         <cidr-ip>0.0.0.0/0</cidr-ip>
         <cidr-ip>0::0/0</cidr-ip>
     </group>
