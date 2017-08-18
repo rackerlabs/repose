@@ -28,39 +28,62 @@ import spock.lang.Unroll
 
 class TranslationRequestTest extends ReposeValveTest {
 
-    def static String xmlPayLoad = "<a><remove-me>test</remove-me>somebody</a>"
-    def static String rssPayload = "<a>test body</a>"
-    def
-    static String xmlPayloadWithEntities = "<?xml version=\"1.0\" standalone=\"no\" ?> <!DOCTYPE a [   <!ENTITY c SYSTEM  \"/etc/passwd\"> ]>  <a><remove-me>test</remove-me>&quot;somebody&c;</a>"
-    def
-    static String xmlPayloadWithExtEntities = "<?xml version=\"1.0\" standalone=\"no\" ?> <!DOCTYPE a [  <!ENTITY license_agreement SYSTEM \"http://www.mydomain.com/license.xml\"> ]>  <a><remove-me>test</remove-me>&quot;somebody&license_agreement;</a>"
-    def
-    static String xmlPayloadWithXmlBomb = "<?xml version=\"1.0\"?> <!DOCTYPE lolz [   <!ENTITY lol \"lol\">   <!ENTITY lol2 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">   <!ENTITY lol3 \"&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;\">   <!ENTITY lol4 \"&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;\">   <!ENTITY lol5 \"&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;\">   <!ENTITY lol6 \"&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;\">   <!ENTITY lol7 \"&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;\">   <!ENTITY lol8 \"&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;\">   <!ENTITY lol9 \"&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;\"> ]> <lolz>&lol9;</lolz>"
-    def static String jsonPayload = "{\"field1\": \"value1\", \"field2\": \"value2\"}"
-    def static String invalidXml = "<a><remove-me>test</remove-me>somebody"
-    def static String invalidJson = "{{'field1': \"value1\", \"field2\": \"value2\"]}"
+    static String xmlPayLoad = "<a><remove-me>test</remove-me>somebody</a>"
+    static String rssPayload = "<a>test body</a>"
+    static String xmlPayloadWithEntities =
+        """<?xml version="1.0" standalone="no" ?>
+          |<!DOCTYPE a [
+          |   <!ENTITY c SYSTEM  "/etc/passwd">
+          |]>
+          |<a>
+          |   <remove-me>test</remove-me>&quot;somebody&c;
+          |</a>
+          |""".stripMargin()
+    static String xmlPayloadWithExtEntities =
+        """<?xml version="1.0" standalone="no" ?>
+          |<!DOCTYPE a [
+          |   <!ENTITY license_agreement SYSTEM "http://www.mydomain.com/license.xml">
+          |]>
+          |<a>
+          |   <remove-me>test</remove-me>&quot;somebody&license_agreement;
+          |</a>
+          |""".stripMargin()
+    static String xmlPayloadWithXmlBomb =
+        """<?xml version="1.0"?>
+          |<!DOCTYPE lolz [
+          |   <!ENTITY lol0 "lol">
+          |   <!ENTITY lol1 "&lol0;&lol0;&lol0;&lol0;&lol0;&lol0;&lol0;&lol0;&lol0;&lol0;">
+          |   <!ENTITY lol2 "&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;">
+          |   <!ENTITY lol3 "&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;">
+          |   <!ENTITY lol4 "&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;">
+          |   <!ENTITY lolX "&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol0;&lol0;">
+          |]>
+          |<lolz>&lolX;</lolz>
+          |""".stripMargin()
+    static String jsonPayload = """{"field1": "value1", "field2": "value2"}"""
+    static String invalidXml = "<a><remove-me>test</remove-me>somebody"
+    static String invalidJson = """{{'field1': "value1", "field2": "value2"]}"""
 
+    static Map acceptXML = ["accept": "application/xml"]
+    static Map contentXML = ["content-type": "application/xml"]
+    static Map contentJSON = ["content-type": "application/json"]
+    static Map contentXMLHTML = ["content-type": "application/xhtml+xml"]
+    static Map contentOther = ["content-type": "application/other"]
+    static Map contentRss = ["content-type": "application/rss+xml"]
 
-    def static Map acceptXML = ["accept": "application/xml"]
-    def static Map contentXML = ["content-type": "application/xml"]
-    def static Map contentJSON = ["content-type": "application/json"]
-    def static Map contentXMLHTML = ["content-type": "application/xhtml+xml"]
-    def static Map contentOther = ["content-type": "application/other"]
-    def static Map contentRss = ["content-type": "application/rss+xml"]
+    static ArrayList<String> xmlJSON = [
+        """<json:string name="field1">value1</json:string>""",
+        """<json:string name="field2">value2</json:string>"""
+    ]
+    static String remove = "remove-me"
+    static String add = "add-me"
 
-    def
-    static ArrayList<String> xmlJSON = ["<json:string name=\"field1\">value1</json:string>", "<json:string name=\"field2\">value2</json:string>"]
-    def static String remove = "remove-me"
-    def static String add = "add-me"
-
-
-    def String convertStreamToString(byte[] input) {
-        return new Scanner(new ByteArrayInputStream(input)).useDelimiter("\\A").next();
+    String convertStreamToString(byte[] input) {
+        return new Scanner(new ByteArrayInputStream(input)).useDelimiter("\\A").next()
     }
 
     //Start repose once for this particular translation test
     def setupSpec() {
-
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/translation/common", params)
@@ -68,40 +91,41 @@ class TranslationRequestTest extends ReposeValveTest {
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-
     }
 
     @Unroll("response: xml, request: #reqHeaders - #reqBody")
     def "when translating requests"() {
-
         given: "Repose is configured to translate requests"
         def xmlResp = { request -> return new Response(200, "OK", contentXML) }
 
-
         when: "User passes a request through repose"
-        def resp = deproxy.makeRequest(url: (String) reposeEndpoint, method: method, headers: reqHeaders, requestBody: reqBody, defaultHandler: xmlResp)
+        def resp = deproxy.makeRequest(
+            url: (String) reposeEndpoint,
+            method: method,
+            headers: reqHeaders,
+            requestBody: reqBody,
+            defaultHandler: xmlResp
+        )
         def sentRequest = ((MessageChain) resp).handlings[0]
 
-        then: "Request body sent from repose to the origin service should contain"
-
+        then: "Received response code should be appropriate"
         resp.receivedResponse.code == responseCode
 
+        and: "Request body sent from repose to the origin service should contain"
         if (responseCode != "400") {
             for (String st : shouldContain) {
                 if (sentRequest.request.body instanceof byte[])
-                    assert (convertStreamToString(sentRequest.request.body).contains(st))
+                    assert (convertStreamToString(sentRequest.request.body as byte[]).contains(st))
                 else
                     assert (sentRequest.request.body.contains(st))
             }
         }
 
-
         and: "Request body sent from repose to the origin service should not contain"
-
         if (responseCode != "400") {
             for (String st : shouldNotContain) {
                 if (sentRequest.request.body instanceof byte[])
-                    assert (!convertStreamToString(sentRequest.request.body).contains(st))
+                    assert (!convertStreamToString(sentRequest.request.body as byte[]).contains(st))
                 else
                     assert (!sentRequest.request.body.contains(st))
             }
@@ -117,20 +141,22 @@ class TranslationRequestTest extends ReposeValveTest {
         acceptXML + contentJSON    | jsonPayload               | [add] + xmlJSON | []               | "POST" | '200'
         acceptXML + contentOther   | jsonPayload               | [jsonPayload]   | [add]            | "POST" | '200'
         acceptXML + contentXML     | xmlPayloadWithExtEntities | ["\"somebody"]  | [remove]         | "POST" | "200"
-
-
     }
 
     def "when translating application/rss+xml requests with header translations"() {
-
         given: "Repose is configured to translate request headers"
         def respHeaders = ["content-type": "application/xml"]
-        def testHeaders = ['test': 'x', 'other': 'y']
+        def reqHeaders = ['test': 'x', 'other': 'y']
         def xmlResp = { request -> return new Response(200, "OK", respHeaders, rssPayload) }
 
-
         when: "User sends a request through repose"
-        def resp = deproxy.makeRequest(url: (String) reposeEndpoint + "/somepath?testparam=x&otherparam=y", method: "POST", headers: contentRss + acceptXML + testHeaders, requestBody: rssPayload, defaultHandler: xmlResp)
+        def resp = deproxy.makeRequest(
+            url: (String) reposeEndpoint + "/somepath?testparam=x&otherparam=y",
+            method: "POST",
+            headers: contentRss + acceptXML + reqHeaders,
+            requestBody: rssPayload,
+            defaultHandler: xmlResp
+        )
         def sentRequest = ((MessageChain) resp).getHandlings()[0]
 
         then: "Request body sent from repose to the origin service should contain"
@@ -144,16 +170,20 @@ class TranslationRequestTest extends ReposeValveTest {
         ((Handling) sentRequest).request.headers.getNames().contains("translation-header")
         ((Handling) sentRequest).request.headers.getNames().contains("other")
         !((Handling) sentRequest).request.headers.getNames().contains("test")
-
     }
 
     def "when attempting to translate an invalid xml/json request"() {
-
         when: "User passes invalid json/xml through repose"
-        def resp = deproxy.makeRequest(url: (String) reposeEndpoint, method: "POST", headers: reqHeaders, requestBody: reqBody, defaultHandler: "")
+        def resp = deproxy.makeRequest(
+            url: (String) reposeEndpoint,
+            method: "POST",
+            headers: reqHeaders,
+            requestBody: reqBody,
+            defaultHandler: ""
+        )
 
         then: "Repose will send back 400s as the requests are invalid"
-        resp.receivedResponse.code.equals(respCode)
+        resp.receivedResponse.code == respCode
 
         where:
         reqHeaders              | respHeaders | reqBody     | respCode
@@ -164,16 +194,19 @@ class TranslationRequestTest extends ReposeValveTest {
     def "Should split request headers according to rfc by default"() {
         given:
         def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
-                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
-        def reqHeaders =
-                [
-                        "user-agent": userAgentValue,
-                        "x-pp-user" : "usertest1, usertest2, usertest3",
-                        "accept"    : "application/xml;q=1 , application/json;q=0.5"
-                ]
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
+        def reqHeaders = [
+            "user-agent": userAgentValue,
+            "x-pp-user" : "usertest1, usertest2, usertest3",
+            "accept"    : "application/xml;q=1 , application/json;q=0.5"
+        ]
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/", method: 'GET', headers: reqHeaders)
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint + "/",
+            method: 'GET',
+            headers: reqHeaders
+        )
 
         then:
         mc.handlings.size() == 1
@@ -185,20 +218,21 @@ class TranslationRequestTest extends ReposeValveTest {
 
     @Unroll("Requests - headers: #headerName with \"#headerValue\" keep its case")
     def "Requests - headers should keep its case in requests"() {
-
         when: "make a request with the given header and value"
-        def headers = [
-                'Content-Length': '0'
+        def reqHeaders = [
+            'Content-Length': '0',
+            (headerName)    : headerValue
         ]
-        headers[headerName.toString()] = headerValue.toString()
 
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers)
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint,
+            headers: reqHeaders
+        )
 
         then: "the request should keep headerName and headerValue case"
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.contains(headerName)
         mc.handlings[0].request.headers.getFirstValue(headerName) == headerValue
-
 
         where:
         headerName         | headerValue
@@ -211,5 +245,4 @@ class TranslationRequestTest extends ReposeValveTest {
         //"content-encoding" | "idENtItY"
         //"Content-Encoding" | "IDENTITY"
     }
-
 }
