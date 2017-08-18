@@ -462,7 +462,7 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
           case RequestTarget => addRequestHeaders(preHeaders)
           case ResponseTarget => addResponseHeadersOnDoFilter(preHeaders)
         }
-        servletRequest.setRequestURI("/v2/fries")
+        servletRequest.setRequestURI("/v1/servers/web-server-01/status")
         servletRequest.setMethod("GET")
         val config = createConfig(newStyle, List(ConfigTarget(target, WhiteList, List("legit-header"), Some("/v1/servers/[^/]+/status"), Some(List("POST")))))
         filter.configurationUpdated(config)

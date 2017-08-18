@@ -249,7 +249,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
         setMockAkkaBehavior("someTenant", request.headers.getOrElse("X-Contact-Id", "ThisIsMissingAContact"), valkyrie.code, valkyrie.payload)
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClientFactory, mockDatastoreService)
-        filter.configurationUpdated(createGenericValkyrieConfiguration(null, httpMethods = List[HttpMethod]()))
+        filter.configurationUpdated(createGenericValkyrieConfiguration(null, httpMethods = List.empty[HttpMethod]))
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod(request.method)

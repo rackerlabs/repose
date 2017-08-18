@@ -94,8 +94,8 @@ class RateLimitingServiceImplTest extends RateLimitServiceTestContext {
 
         queryParamLimitGroup.getLimit().add(newLimitConfig("query-param-test", "*", ".*", methods, ["index"].asList()))
 
-        defaultMethodsLimitGroup.getLimit().add newLimitConfig("methods-test-empty", "/methods/empty/*", "/methods/empty/.*", Collections.emptyList(), queryNames)
-        defaultMethodsLimitGroup.getLimit().add newLimitConfig("methods-test-all", "/methods/all/*", "/methods/all/.*", Collections.singletonList(HttpMethod.ALL), queryNames)
+        defaultMethodsLimitGroup.getLimit().add(newLimitConfig("methods-test-empty", "/methods/empty/*", "/methods/empty/.*", Collections.emptyList(), queryNames))
+        defaultMethodsLimitGroup.getLimit().add(newLimitConfig("methods-test-all", "/methods/all/*", "/methods/all/.*", Collections.singletonList(HttpMethod.ALL), queryNames))
 
         config.getLimitGroup().add(queryParamLimitGroup)
         config.getLimitGroup().add(configuredLimitGroup)
