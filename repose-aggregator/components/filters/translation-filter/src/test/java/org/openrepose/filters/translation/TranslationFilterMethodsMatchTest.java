@@ -42,7 +42,7 @@ import static org.springframework.http.HttpHeaders.ACCEPT;
 import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 import static org.xmlunit.matchers.CompareMatcher.isSimilarTo;
 
-public class TranslationFilterMethodsTest {
+public class TranslationFilterMethodsMatchTest {
     private static byte[] contentRemoveMe;
 
     private TranslationFilter filter;
@@ -53,7 +53,7 @@ public class TranslationFilterMethodsTest {
 
     @BeforeClass
     public static void setupSpec() throws Exception {
-        contentRemoveMe = IOUtils.toByteArray(TranslationFilterMethodsTest.class.getResourceAsStream("/remove-me-element.xml"));
+        contentRemoveMe = IOUtils.toByteArray(TranslationFilterMethodsMatchTest.class.getResourceAsStream("/remove-me-element.xml"));
     }
 
     @Before
@@ -92,16 +92,8 @@ public class TranslationFilterMethodsTest {
         trans1.getHttpMethods().add(HttpMethod.POST);
         requestTranslations.getRequestTranslation().add(trans1);
 
-        ResponseTranslations responseTranslations = new ResponseTranslations();
-        responseTranslations.getResponseTranslation().add(new ResponseTranslation());
-
         config.setRequestTranslations(requestTranslations);
-        config.setResponseTranslations(responseTranslations);
         filter.configurationUpdated(config);
-
-        mockRequest = new MockHttpServletRequest(HttpMethod.PUT.value(), "/129.0.0.1/servers/");
-        mockRequest.addHeader(ACCEPT, APPLICATION_XML_VALUE);
-        mockRequest.setContentType(APPLICATION_XML_VALUE);
 
         mockResponse = new MockHttpServletResponse();
         mockResponse.setContentType(APPLICATION_XML_VALUE);
@@ -109,7 +101,26 @@ public class TranslationFilterMethodsTest {
     }
 
     @Test
+    public void shouldTranslateRequestBodyForMatchingMethod() throws IOException, SAXException {
+        mockRequest = new MockHttpServletRequest(HttpMethod.POST.value(), "/129.0.0.1/servers/");
+        mockRequest.addHeader(ACCEPT, APPLICATION_XML_VALUE);
+        mockRequest.setContentType(APPLICATION_XML_VALUE);
+        mockRequest.setContent(contentRemoveMe);
+        httpServletRequestWrapper = new HttpServletRequestWrapper(mockRequest);
+        httpServletResponseWrapper = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
+
+        HandleRequestResult handleRequestResult = filter.handleRequest(httpServletRequestWrapper, httpServletResponseWrapper);
+        String actual = IOUtils.toString(handleRequestResult.getRequest().getInputStream());
+        String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><root>\n    This is  a test.\n</root></add-me>";
+
+        assertThat(actual, isSimilarTo(expected));
+    }
+
+    @Test
     public void shouldNotTranslateRequestBodyForNonMatchingMethod() throws IOException, SAXException {
+        mockRequest = new MockHttpServletRequest(HttpMethod.PUT.value(), "/129.0.0.1/servers/");
+        mockRequest.addHeader(ACCEPT, APPLICATION_XML_VALUE);
+        mockRequest.setContentType(APPLICATION_XML_VALUE);
         mockRequest.setContent(contentRemoveMe);
         httpServletRequestWrapper = new HttpServletRequestWrapper(mockRequest);
         httpServletResponseWrapper = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE);
