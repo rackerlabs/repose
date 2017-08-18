@@ -18,10 +18,11 @@ RUN yum update -q -y && yum install -q -y repose-valve-$REPOSE_VERSION repose-fi
 WORKDIR /etc/repose
 VOLUME /etc/repose
 
-# Create the log file so that we can safely tail it as part of the CMD instruction.
+# Switch user to repose
 USER repose
+
+# Create the log file so that we can safely tail it as part of the CMD instruction.
 RUN touch /var/log/repose/current.log
-USER root
 
 # Expose the default Repose service port for host port forwarding.
 # If the port in the user's system model differs from this port, the user will have to map it manually using the
