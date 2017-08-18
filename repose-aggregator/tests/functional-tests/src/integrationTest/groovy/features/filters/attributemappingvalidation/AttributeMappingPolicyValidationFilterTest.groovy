@@ -328,6 +328,25 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         mc.handlings.size() == 0
     }
 
+    def "should fail to validate bad YAML (dimitry style)"() {
+        given:
+        String body =
+            """
+            |- just: write some
+            |- yaml:
+            |  - [here, and]
+            |  - {it: updates, in: real-time}
+            |sdfsdds
+            """.stripMargin()
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_YAML], requestBody: body)
+
+        then:
+        mc.receivedResponse.code == "400"
+        mc.handlings.size() == 0
+    }
+
     def "YAML comments should be preserved"() {
         given:
         String comment = "Find me"
