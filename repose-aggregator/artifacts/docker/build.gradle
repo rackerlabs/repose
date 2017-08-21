@@ -32,47 +32,52 @@ docker {
     }
 }
 
-task buildImage(type: DockerBuildImage) {
-    finalizedBy 'removeImage'
-    inputDir = file("$projectDir/src/docker")
-    buildArgs = ['REPOSE_VERSION': reposeVersion]
-}
+['Ubuntu': '', 'Centos': '-centos'].forEach { baseImage, tagSuffix ->
+    task("build${baseImage}Image", type: DockerBuildImage) {
+        finalizedBy "remove${baseImage}Image"
+        inputDir = file("$projectDir/src/docker/${baseImage.toLowerCase()}")
+        buildArgs = ['REPOSE_VERSION': reposeVersion]
+    }
 
-task tagImageVersion(type: DockerTagImage) {
-    dependsOn 'buildImage'
-    repository = 'rackerlabs/repose'
-    tag = reposeVersion
-    targetImageId { buildImage.getImageId() }
-}
+    task("tag${baseImage}ImageVersion", type: DockerTagImage) {
+        dependsOn "build${baseImage}Image"
+        repository = 'rackerlabs/repose'
+        tag = reposeVersion + tagSuffix
+        targetImageId { tasks["build${baseImage}Image"].getImageId() }
+    }
 
-task tagImageLatest(type: DockerTagImage) {
-    dependsOn 'buildImage'
-    repository = 'rackerlabs/repose'
-    tag = 'latest'
-    targetImageId { buildImage.getImageId() }
-}
+    task("tag${baseImage}ImageLatest", type: DockerTagImage) {
+        dependsOn "build${baseImage}Image"
+        repository = 'rackerlabs/repose'
+        tag = "latest${tagSuffix}"
+        targetImageId { tasks["build${baseImage}Image"].getImageId() }
+    }
 
-task pushImageVersion(type: DockerPushImage) {
-    dependsOn 'tagImageVersion'
-    imageName = 'rackerlabs/repose'
-    tag = reposeVersion
-}
+    task("push${baseImage}ImageVersion", type: DockerPushImage) {
+        dependsOn "tag${baseImage}ImageVersion"
+        imageName = 'rackerlabs/repose'
+        tag = reposeVersion + tagSuffix
+    }
 
-task pushImageLatest(type: DockerPushImage) {
-    dependsOn 'tagImageLatest'
-    imageName = 'rackerlabs/repose'
-    tag = 'latest'
-}
+    task("push${baseImage}ImageLatest", type: DockerPushImage) {
+        dependsOn "tag${baseImage}ImageLatest"
+        imageName = 'rackerlabs/repose'
+        tag = "latest${tagSuffix}"
+    }
 
-task pushImage {
-    dependsOn 'pushImageVersion', 'pushImageLatest'
-}
+    task("push${baseImage}Image") {
+        group = 'docker'
+        dependsOn "push${baseImage}ImageVersion", "push${baseImage}ImageLatest"
+    }
 
-task removeImage(type: DockerRemoveImage) {
-    dependsOn 'buildImage'
-    mustRunAfter 'tagImageVersion', 'tagImageLatest', 'pushImageVersion', 'pushImageLatest'
-    targetImageId { buildImage.getImageId() }
-    force = true
+    task("remove${baseImage}Image", type: DockerRemoveImage) {
+        dependsOn "build${baseImage}Image"
+        mustRunAfter "tag${baseImage}ImageVersion", "tag${baseImage}ImageLatest", "push${baseImage}ImageVersion", "push${baseImage}ImageLatest"
+        targetImageId { tasks["build${baseImage}Image"].getImageId() }
+        force = true
+    }
+
+    tasks["push${baseImage}ImageLatest"].onlyIf { isLatestDockerHubVersion(reposeVersion) }
 }
 
 boolean isLatestDockerHubVersion(String version) {
@@ -92,5 +97,3 @@ boolean isLatestDockerHubVersion(String version) {
 
     return isLatest
 }
-
-pushImageLatest.onlyIf { isLatestDockerHubVersion(reposeVersion) }
