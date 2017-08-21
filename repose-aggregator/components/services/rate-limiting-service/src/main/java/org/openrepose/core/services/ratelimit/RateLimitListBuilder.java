@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -105,8 +105,12 @@ public class RateLimitListBuilder {
     }
 
     private void processLiveRateLimits(ConfiguredRatelimit configuredRateLimit, Calendar cal, CachedRateLimit cachedLimit) {
+        List<HttpMethod> httpMethods = configuredRateLimit.getHttpMethods();
+        if (httpMethods.isEmpty()) {
+            httpMethods = Collections.singletonList(HttpMethod.ALL);
+        }
         // TODO remove for loop since every except the method will be the same
-        for (HttpMethod method : configuredRateLimit.getHttpMethods()) {
+        for (HttpMethod method : httpMethods) {
             final RateLimit limit = new RateLimit();
 
             limit.setValue(configuredRateLimit.getValue());

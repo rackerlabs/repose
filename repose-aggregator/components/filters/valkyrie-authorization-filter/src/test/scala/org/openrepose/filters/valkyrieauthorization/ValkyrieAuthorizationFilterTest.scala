@@ -249,7 +249,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
         setMockAkkaBehavior("someTenant", request.headers.getOrElse("X-Contact-Id", "ThisIsMissingAContact"), valkyrie.code, valkyrie.payload)
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClientFactory, mockDatastoreService)
-        filter.configurationUpdated(createGenericValkyrieConfiguration(null))
+        filter.configurationUpdated(createGenericValkyrieConfiguration(null, httpMethods = List.empty[HttpMethod]))
 
         val mockServletRequest = new MockHttpServletRequest
         mockServletRequest.setMethod(request.method)
@@ -1205,7 +1205,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         filter.doFilter(mockServletRequest, originalResponse, mockFilterChain)
 
-        val content: String = originalResponse.getContentAsString 
+        val content: String = originalResponse.getContentAsString
         val json: JsValue = Json.parse(content)
         assert((json \ "values").as[JsArray].value.size == 2)
         assert((json \ "metadata" \ "count").as[JsNumber].as[Int] == 2)
