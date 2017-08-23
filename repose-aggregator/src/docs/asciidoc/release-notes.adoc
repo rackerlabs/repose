@@ -1,10 +1,11 @@
 = Release Notes
 
-== Future Release
+== In Progress Work
 
 * https://repose.atlassian.net/browse/REP-5939[REP-5939] - Added support for, and began publishing, a CentOS-based Docker image.
 * https://repose.atlassian.net/browse/REP-5766[REP-5766] - Updated Dockerfile to run Repose as the `repose` user.
 * https://repose.atlassian.net/browse/REP-5767[REP-5767] - Updated Dockerfiles to simplify usage of `JAVA_OPTS`.
+* https://repose.atlassian.net/browse/REP-5985[REP-5985] - Updated the Jackson version from v2.4.0 to v2.8.9 to correct some library mismatch issues.
 
 == 8.6.3.0 (2017-08-15)
 
