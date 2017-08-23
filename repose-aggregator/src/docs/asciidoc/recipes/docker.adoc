@@ -67,8 +67,9 @@ docker run                             \ <1>
    -d                                  \ <2>
    -v /my/config/directory:/etc/repose \ <3>
    -p 8080:8080                        \ <4>
-   --name my_repose                    \ <5>
-   rackerlabs/repose:latest              <6>
+   -e JAVA_OPTS=-Xmx1024m              \ <5>
+   --name my_repose                    \ <6>
+   rackerlabs/repose:latest              <7>
 ----
 Let's break that command down and take a closer look at what it is doing:
 
@@ -82,8 +83,11 @@ Let's break that command down and take a closer look at what it is doing:
 <4> This option defines a port mapping between the host (i.e., the OS running Docker) and the Docker container.
     Doing so allows Repose to accept traffic over the specified port from outside of Docker.
     The port mapping format is HOST_PORT:CONTAINER_PORT, so in this case, traffic on port 8080 of the host will be forwarded to port 8080 of the container.
-<5> This option names the container so that it's easier to interact with.
-<6> This is the image ID (in repository:tag format) to create a container from.
+<5> This option sets the `JAVA_OPTS` environment variable.
+    Doing so allows the user to configure the JVM that Repose is running on.
+    The value of this environment variable should be valid command-line arguments for the `java` command.
+<6> This option names the container so that it's easier to interact with.
+<7> This is the image ID (in repository:tag format) to create a container from.
     Remember that Repose images are hosted at Docker Hub, which Docker can use implicitly.
 
 Now if we wanted to, we could change the Docker options that define the environment that Repose will run in.

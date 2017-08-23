@@ -27,5 +27,9 @@ RUN touch /var/log/repose/current.log
 # "-p" flag with the Docker run command.
 EXPOSE 8080
 
+# This environment variable is used to set command-line options.
+# The user can manually set these options using the "-e" flag with the Docker run command.
+ENV JAVA_OPTS=
+
 # Start Repose.
-CMD ["java", "-jar", "/usr/share/repose/repose-valve.jar", "-c", "/etc/repose"]
+CMD java $JAVA_OPTS -jar /usr/share/repose/repose-valve.jar -c /etc/repose
