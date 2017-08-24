@@ -45,7 +45,7 @@ public class ReposeJmxNamingStrategyTest {
     public void setUp() throws Exception {
         annotationJmxAttributeSource = mock(AnnotationJmxAttributeSource.class);
 
-        reposeJmxNamingStrategy = new ReposeJmxNamingStrategy(annotationJmxAttributeSource);
+        reposeJmxNamingStrategy = new ReposeJmxNamingStrategy(annotationJmxAttributeSource, new MetricsJmxObjectNameFactory());
     }
 
     @Test

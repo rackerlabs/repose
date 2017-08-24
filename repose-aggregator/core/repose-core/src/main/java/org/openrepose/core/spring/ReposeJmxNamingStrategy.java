@@ -19,8 +19,8 @@
  */
 package org.openrepose.core.spring;
 
+import com.codahale.metrics.ObjectNameFactory;
 import org.openrepose.commons.utils.net.NetUtilities;
-import org.openrepose.core.services.reporting.metrics.MetricsJmxObjectNameFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
@@ -41,7 +41,7 @@ public class ReposeJmxNamingStrategy extends MetadataNamingStrategy implements O
     private static final Logger LOG = LoggerFactory.getLogger(ReposeJmxNamingStrategy.class);
 
     private final String jmxDomain;
-    private final MetricsJmxObjectNameFactory metricsJmxObjectNameFactory;
+    private final ObjectNameFactory objectNameFactory;
 
     private JmxAttributeSource attributeSource;
 
@@ -51,10 +51,13 @@ public class ReposeJmxNamingStrategy extends MetadataNamingStrategy implements O
      *
      * @param attributeSource the JmxAttributeSource to use
      */
-    public ReposeJmxNamingStrategy(AnnotationJmxAttributeSource attributeSource) {
+    public ReposeJmxNamingStrategy(
+        AnnotationJmxAttributeSource attributeSource,
+        ObjectNameFactory objectNameFactory
+    ) {
         super(attributeSource);
         this.attributeSource = attributeSource;
-        this.metricsJmxObjectNameFactory = new MetricsJmxObjectNameFactory();
+        this.objectNameFactory = objectNameFactory;
         this.jmxDomain = NetUtilities.bestGuessHostname();
         LOG.info("Configuring Spring JMX naming strategy with domain {}", jmxDomain);
     }
@@ -92,7 +95,7 @@ public class ReposeJmxNamingStrategy extends MetadataNamingStrategy implements O
             } catch (MalformedObjectNameException ex) {
                 String beanPackage = ClassUtils.getPackageName(managedClass);
                 String beanClass = ClassUtils.getShortName(managedClass);
-                return metricsJmxObjectNameFactory.createName(null, jmxDomain, String.join(".", beanPackage, beanClass));
+                return objectNameFactory.createName(null, jmxDomain, String.join(".", beanPackage, beanClass));
             }
         }
     }

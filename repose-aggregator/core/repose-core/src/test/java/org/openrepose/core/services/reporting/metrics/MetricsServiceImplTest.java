@@ -39,7 +39,8 @@ public class MetricsServiceImplTest {
     public void setUp() {
         metricsService = new MetricsServiceImpl(
             mock(ConfigurationService.class),
-            mock(HealthCheckService.class));
+            mock(HealthCheckService.class),
+            new MetricsJmxObjectNameFactory());
     }
 
     @Test
