@@ -21,8 +21,8 @@ package org.openrepose.core.spring;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.openrepose.commons.utils.jmx.JmxObjectNameFactory;
 import org.openrepose.commons.utils.net.NetUtilities;
-import org.openrepose.core.services.reporting.metrics.MetricsJmxObjectNameFactory;
 import org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
@@ -77,8 +77,7 @@ public class ReposeJmxNamingStrategyTest {
     @Test
     public void getObjectName_shouldReturnTheFQCNObjectName() throws Exception {
         Object beanObject = new Object();
-        ObjectName expectedObjectName = new MetricsJmxObjectNameFactory().createName(
-            null,
+        ObjectName expectedObjectName = JmxObjectNameFactory.getName(
             NetUtilities.bestGuessHostname(),
             beanObject.getClass().getCanonicalName());
 

@@ -102,7 +102,7 @@ public class MetricsServiceImpl implements MetricsService {
         this.jmxReporter = JmxReporter
                 .forRegistry(metricRegistry)
                 .inDomain(NetUtilities.bestGuessHostname())
-                .createsObjectNamesWith(new MetricsJmxObjectNameFactory())
+                .createsObjectNamesWith(MetricsJmxObjectNameFactory.getInstance())
                 .build();
         this.jmxReporter.start(); //But it needs to be started if there's no configs
         this.enabled = true;
