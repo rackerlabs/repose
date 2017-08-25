@@ -21,7 +21,6 @@ package org.openrepose.core.services.reporting.metrics;
 
 import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.ObjectNameFactory;
 import com.codahale.metrics.graphite.Graphite;
 import com.codahale.metrics.graphite.GraphiteReporter;
 import org.openrepose.commons.config.manager.UpdateListener;
@@ -93,8 +92,7 @@ public class MetricsServiceImpl implements MetricsService {
     @Inject
     public MetricsServiceImpl(
             ConfigurationService configurationService,
-            HealthCheckService healthCheckService,
-            ObjectNameFactory metricsJmxObjectNameFactory
+            HealthCheckService healthCheckService
     ) {
         this.configurationService = configurationService;
         this.healthCheckServiceProxy = healthCheckService.register();
@@ -104,7 +102,7 @@ public class MetricsServiceImpl implements MetricsService {
         this.jmxReporter = JmxReporter
                 .forRegistry(metricRegistry)
                 .inDomain(NetUtilities.bestGuessHostname())
-                .createsObjectNamesWith(metricsJmxObjectNameFactory)
+                .createsObjectNamesWith(new MetricsJmxObjectNameFactory())
                 .build();
         this.jmxReporter.start(); //But it needs to be started if there's no configs
         this.enabled = true;
