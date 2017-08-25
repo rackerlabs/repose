@@ -423,8 +423,8 @@ public class PowerFilter extends DelegatingFilterProxy {
         } catch (URISyntaxException use) {
             LOG.debug("{}:{} -- Invalid URI requested: {}", clusterId, nodeId, wrappedRequest.getRequestURI(), use);
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
-        } catch (Exception ex) {
-            LOG.error("{}:{} -- Exception encountered while processing filter chain.", clusterId, nodeId, ex);
+        } catch (Throwable t) {
+            LOG.error("{}:{} -- Issue encountered while processing filter chain.", clusterId, nodeId, t);
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error processing request");
         } finally {
             // We must call this method here so that the response messaging service can potentially mutate the body of
