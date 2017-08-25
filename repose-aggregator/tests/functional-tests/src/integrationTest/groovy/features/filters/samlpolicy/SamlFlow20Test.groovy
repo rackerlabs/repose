@@ -65,7 +65,7 @@ class SamlFlow20Test extends ReposeValveTest {
         deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityV2Service.handler)
 
         repose.start()
-        reposeLogSearch.awaitByString("Repose ready", 1, 30)
+        waitUntilReposeIsReady()
 
         fakeIdentityV2Service.admin_token = UUID.randomUUID().toString()
     }

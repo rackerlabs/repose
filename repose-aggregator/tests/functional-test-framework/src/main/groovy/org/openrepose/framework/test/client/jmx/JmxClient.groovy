@@ -36,7 +36,7 @@ import javax.management.remote.JMXServiceURL
 class JmxClient {
     public static final String COUNT_ATTRIBUTE = "Count"
 
-    def String jmxUrl
+    String jmxUrl
     def clock = new SystemClock()
     MBeanServerConnection server
 
@@ -60,7 +60,6 @@ class JmxClient {
             conditions.eventually {
                 try {
                     tehCode.call()
-                    whyFail = null
                 } catch (Exception e) {
                     //Don't actually care, because eventually a thingy
                     whyFail = e
@@ -70,13 +69,12 @@ class JmxClient {
         } catch (SpockTimeoutError ste) {
             throw new SpockAssertionError(ste.getMessage(), whyFail)
         }
-
     }
 
     int getMBeanCountAttribute(String name) {
         try {
             server.getAttribute(new ObjectName(name), COUNT_ATTRIBUTE) as int
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             0
         }
     }
@@ -102,11 +100,11 @@ class JmxClient {
      * @param attr
      * @return
      */
-    def quickMBeanAttribute(name, attr) {
-        def obj = null
+    def quickMBeanAttribute(String name, String attr) {
+        def obj
         try {
             obj = server.getAttribute(new ObjectName(name), attr)
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             obj = null
         }
         return obj
@@ -118,7 +116,7 @@ class JmxClient {
      * @param name - complete MBean name, to be passed into ObjectName
      * @return
      */
-    def getMBeanAttribute(name, attr) {
+    def getMBeanAttribute(String name, String attr) {
         def obj = null
         eventually {
             obj = server.getAttribute(new ObjectName(name), attr)
@@ -140,7 +138,7 @@ class JmxClient {
         try {
             def beansInDomain = server.queryMBeans(new ObjectName(domain), null)
             mbeans = beansInDomain.findAll { it.className == expectedClassName }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             //Nothing at all!
         }
 
@@ -153,7 +151,7 @@ class JmxClient {
      * @param beanName
      * @return
      */
-    Collection<ObjectInstance> getMBeans(domain, expectedClassName, expectedCount) {
+    Collection<ObjectInstance> getMBeans(String domain, expectedClassName, expectedCount) {
         def mbeans = null
 
         eventually {
@@ -170,7 +168,7 @@ class JmxClient {
      * @param beanName
      * @return
      */
-    def getMBeans(domain) {
+    def getMBeans(String domain) {
         def mbeans = null
         eventually {
             mbeans = server.queryMBeans(new ObjectName(domain), null)
@@ -186,10 +184,10 @@ class JmxClient {
      * @param domain
      * @return
      */
-    def quickMBeanNames(domain) {
+    def quickMBeanNames(String domain) {
         try {
             return server.queryNames(new ObjectName(domain), null)
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             return []
         }
     }
@@ -201,7 +199,7 @@ class JmxClient {
      * @param beanName
      * @return
      */
-    def getMBeanNames(domain) {
+    def getMBeanNames(String domain) {
         def mbeans = []
 
         try {

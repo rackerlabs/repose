@@ -19,10 +19,10 @@
  */
 package org.openrepose.framework.test
 
-import org.apache.http.client.ClientProtocolException
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
+import org.linkedin.util.clock.SystemClock
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
@@ -36,8 +36,6 @@ abstract class ReposeLauncher {
 
     abstract void enableDebug()
 
-    abstract boolean areAnyUp()
-
     boolean isUp() {
         this.process?.isAlive() ?: false
     }
@@ -49,28 +47,22 @@ abstract class ReposeLauncher {
      */
     abstract void enableSuspend()
 
-    abstract void addToClassPath(String path)
-
-    def waitForNon500FromUrl(url, int timeoutInSeconds = 60, int intervalInSeconds = 2) {
-
+    static def waitForNon500FromUrl(String url, int timeoutInSeconds = 60, int intervalInSeconds = 2) {
         waitForResponseCodeFromUrl(url, timeoutInSeconds, intervalInSeconds) { code -> code < 500 }
     }
 
-    def waitForDesiredResponseCodeFromUrl(url, desiredCodes, timeoutInSeconds = 60, int intervalInSeconds = 2) {
-
+    static def waitForDesiredResponseCodeFromUrl(String url, desiredCodes, timeoutInSeconds = 60, int intervalInSeconds = 2) {
         waitForResponseCodeFromUrl(url, timeoutInSeconds, intervalInSeconds) { code -> code in desiredCodes }
     }
 
-    def waitForResponseCodeFromUrl(url, timeoutInSeconds, int intervalInSeconds, isResponseAcceptable) {
-
+    static def waitForResponseCodeFromUrl(String url, timeoutInSeconds, int intervalInSeconds, isResponseAcceptable) {
         print("\n\nWaiting for repose to start at ${url} \n\n")
-        waitForCondition(clock, "${timeoutInSeconds}s", "${intervalInSeconds}s") {
+        waitForCondition(SystemClock.INSTANCE, "${timeoutInSeconds}s", "${intervalInSeconds}s") {
             try {
                 print(".")
                 HttpClient client = new DefaultHttpClient()
                 isResponseAcceptable(client.execute(new HttpGet(url)).statusLine.statusCode)
             } catch (IOException ignored) {
-            } catch (ClientProtocolException ignored) {
             }
         }
         println()

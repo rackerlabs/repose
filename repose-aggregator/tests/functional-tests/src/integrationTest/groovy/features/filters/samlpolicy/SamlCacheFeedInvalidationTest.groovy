@@ -66,7 +66,7 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
         fakeIdentityV2Service.admin_token = UUID.randomUUID().toString()
 
         repose.start()
-        reposeLogSearch.awaitByString("Repose ready", 1, 30)
+        waitUntilReposeIsReady()
     }
 
     def setup() {
@@ -115,6 +115,8 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
         when: "the atom feed entry is made available and we wait until Repose logs that it processed the entry"
         atomEndpoint.defaultHandler = atomFeedHandlerWithEntry
         reposeLogSearch.awaitByString(ATOM_FEED_LOG_SEARCH_STRING, 1, FEED_POLLING_FREQUENCY_SEC + 1, TimeUnit.SECONDS)
+        // Let the cache entry actually clear
+        sleep(250)
 
         and: "a request is sent after the cache entry is supposed to be invalidated"
         atomEndpoint.defaultHandler = fakeAtomFeed.handler
@@ -123,13 +125,13 @@ class SamlCacheFeedInvalidationTest extends ReposeValveTest {
         requestBody = asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml))
         mc = deproxy.makeRequest(url: url, method: HTTP_POST, headers: headers, requestBody: requestBody)
 
-        then: "the IDP and Mapping Policy endpoints are called again"
-        fakeIdentityV2Service.getGetIdpFromIssuerCount() == 1
-        fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 1
-
-        and: "the request is overall successful"
+        then: "the request is overall successful"
         mc.receivedResponse.code as Integer == SC_OK
         mc.handlings[0]
+
+        and: "the IDP and Mapping Policy endpoints are called again"
+        fakeIdentityV2Service.getGetIdpFromIssuerCount() == 1
+        fakeIdentityV2Service.getGetMappingPolicyForIdpCount() == 1
 
         where:
         eventType << ["CREATE", "UPDATE", "DELETE", "Surprise"]

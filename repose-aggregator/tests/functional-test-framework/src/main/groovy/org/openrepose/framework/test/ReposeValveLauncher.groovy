@@ -79,11 +79,6 @@ class ReposeValveLauncher extends ReposeLauncher {
     }
 
     void start(Map params) {
-
-        boolean killOthersBeforeStarting = true
-        if (params.containsKey("killOthersBeforeStarting")) {
-            killOthersBeforeStarting = params.killOthersBeforeStarting
-        }
         boolean waitOnJmxAfterStarting = true
         if (params.containsKey("waitOnJmxAfterStarting")) {
             waitOnJmxAfterStarting = params.waitOnJmxAfterStarting
@@ -92,15 +87,14 @@ class ReposeValveLauncher extends ReposeLauncher {
         String clusterId = params.get('clusterId', "")
         String nodeId = params.get('nodeId', "")
 
-        start(killOthersBeforeStarting, waitOnJmxAfterStarting, clusterId, nodeId)
+        start(waitOnJmxAfterStarting, clusterId, nodeId)
     }
 
     /**
      * TODO: need to know what node in the system model we care about. There might be many, for multiple local node testing...
-     * @param killOthersBeforeStarting
      * @param waitOnJmxAfterStarting
      */
-    void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting, String clusterId, String nodeId) {
+    void start(boolean waitOnJmxAfterStarting, String clusterId, String nodeId) {
 
         File jarFile = new File(reposeJar)
         if (!jarFile.exists() || !jarFile.isFile()) {
@@ -112,14 +106,6 @@ class ReposeValveLauncher extends ReposeLauncher {
             throw new FileNotFoundException("Missing or invalid configuration folder.")
         }
 
-        if (killOthersBeforeStarting) {
-            waitForCondition(clock, '5s', '1s') {
-                killIfUp()
-                !isUp()
-            }
-        }
-
-        def jmxprops = ""
         def debugProps = ""
         def jacocoProps = ""
         def classPath = ""
@@ -140,7 +126,7 @@ class ReposeValveLauncher extends ReposeLauncher {
         if (!jmxPort) {
             jmxPort = PortFinder.instance.getNextOpenPort()
         }
-        jmxprops = "-Dspock=spocktest -Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
+        def jmxprops = "-Dspock=spocktest -Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
 
         if (!classPaths.isEmpty()) {
             classPath = "-cp " + (classPaths as Set).join(";")
@@ -162,11 +148,11 @@ class ReposeValveLauncher extends ReposeLauncher {
             newEnv.putAll(System.getenv())
 
             additionalEnvironment.each { k, v ->
-                newEnv.put(k, v) //Should override anything, if there's anything to override
+                newEnv.put(k as String, v as String) //Should override anything, if there's anything to override
             }
             def envList = newEnv.collect { k, v -> "$k=$v" }
             this.process = cmd.execute(envList, null)
-            this.process.consumeProcessOutput(System.out, System.err)
+            this.process.consumeProcessOutput(System.out as Appendable, System.err as Appendable)
         })
 
         th.run()
@@ -184,17 +170,17 @@ class ReposeValveLauncher extends ReposeLauncher {
                 print("Waiting for repose auto-guessed node to start: ")
             }
 
-            waitForCondition(clock, '60s', '1s') {
+            waitForCondition(clock, '180s', '1s') {
                 isReposeNodeUp(clusterId, nodeId)
             }
         }
     }
 
-    def connectViaJmxRemote(jmxUrl) {
+    def connectViaJmxRemote(String jmxUrl) {
         try {
             jmx = new JmxClient(jmxUrl)
             return true
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
             return false
         }
     }
@@ -217,7 +203,7 @@ class ReposeValveLauncher extends ReposeLauncher {
 
     void stop(int timeout, boolean throwExceptionOnKill) {
         try {
-            println("Stopping Repose");
+            println("Stopping Repose")
             this.process?.destroy()
 
             print("Waiting for Repose to shutdown")
@@ -229,12 +215,9 @@ class ReposeValveLauncher extends ReposeLauncher {
             println()
         } catch (IOException ioex) {
             this.process.waitForOrKill(5000)
-            killIfUp()
             if (throwExceptionOnKill) {
-                throw new TimeoutException("An error occurred while attempting to stop Repose Controller. Reason: ${ioex.getMessage()}", ioex)
+                throw new TimeoutException("An error occurred while attempting to stop Repose Controller. Reason: ${ioex.getMessage()}")
             }
-        } finally {
-            configurationProvider.cleanConfigDirectory()
         }
     }
 
@@ -247,11 +230,6 @@ class ReposeValveLauncher extends ReposeLauncher {
     void enableSuspend() {
         this.debugEnabled = true
         this.doSuspend = true
-    }
-
-    @Override
-    void addToClassPath(String path) {
-        classPaths.add(path)
     }
 
     /**
@@ -296,12 +274,12 @@ class ReposeValveLauncher extends ReposeLauncher {
         }
 
         // First query for the mbean.  The name of the mbean is partially configurable, so search for a match.
-        def HashSet cfgBean = (HashSet) jmx.getMBeans("*org.openrepose.core.services.jmx:type=ConfigurationInformation")
+        HashSet cfgBean = (HashSet) jmx.getMBeans("*org.openrepose.core.services.jmx:type=ConfigurationInformation")
         if (cfgBean == null || cfgBean.isEmpty()) {
             return false
         }
 
-        def String beanName = cfgBean.iterator().next().name.toString()
+        String beanName = cfgBean.iterator().next().name.toString()
 
         //Doing the JMX invocation here, because it's kinda ugly
         Object[] opParams = [clusterId, nodeId]
@@ -310,32 +288,5 @@ class ReposeValveLauncher extends ReposeLauncher {
         //Invoke the 'is repose ready' bit on it
         def nodeIsReady = jmx.server.invoke(new ObjectName(beanName), "isNodeReady", opParams, opSignature)
         return nodeIsReady
-    }
-
-    @Override
-    boolean areAnyUp() {
-        println TestUtils.getJvmProcesses()
-        return TestUtils.getJvmProcesses().contains("repose-valve.jar")
-    }
-
-    private static void killIfUp() {
-        String processes = TestUtils.getJvmProcesses()
-        def regex = /(\d*) repose-valve.jar .*spocktest .*/
-        def matcher = (processes =~ regex)
-        if (matcher.size() > 0) {
-
-            for (int i = 1; i <= matcher.size(); i++) {
-                String pid = matcher[0][i]
-
-                if (pid != null && !pid.isEmpty()) {
-                    println("Killing running repose-valve process: " + pid)
-                    Runtime rt = Runtime.getRuntime();
-                    if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1)
-                        rt.exec("taskkill " + pid.toInteger());
-                    else
-                        rt.exec("kill -9 " + pid.toInteger());
-                }
-            }
-        }
     }
 }
