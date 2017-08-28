@@ -12,6 +12,12 @@ dependencies {
     asciidoctor 'org.asciidoctor:asciidoctorj-diagram'
 }
 
+task aggregateScoverage(type: org.scoverage.ScoverageAggregate)
+
+checkScoverage {
+    reportDir = file("$buildDir/scoverage-aggregate")
+}
+
 task copyXsds(type: Copy) {
     // Copy the Repose Core configuration schemas.
     from("${project.projectDir}/core/repose-core-api/src/main/resources/META-INF/schema/container/container-configuration.xsd")

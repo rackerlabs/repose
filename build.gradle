@@ -12,6 +12,7 @@ buildscript {
         classpath 'com.netflix.nebula:nebula-dependency-recommender:3.6.3'
         classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
         classpath 'gradle.plugin.org.openrepose:gradle-jaxb-plugin:2.4.1'
+        classpath "gradle.plugin.org.scoverage:gradle-scoverage:2.1.0"
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
         classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:0.8.2'
         classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1'
@@ -127,12 +128,16 @@ subprojects {
     apply plugin: 'jacoco'
     apply plugin: 'nebula.maven-publish'
     apply plugin: 'signing'
+    apply plugin: "org.scoverage"
 
     dependencies {
         jaxb "com.sun.xml.bind:jaxb-xjc"
         jaxb "com.sun.xml.bind:jaxb-impl"
         jaxb "javax.xml.bind:jaxb-api"
         jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-ant"
+
+        scoverage 'org.scoverage:scalac-scoverage-plugin_2.11:1.1.0'
+        scoverage 'org.scoverage:scalac-scoverage-runtime_2.11:1.1.0'
 
         //todo: remove these once gradle bug with zinc compiler is fixed
         zinc 'com.typesafe.zinc:zinc:0.3.9'
@@ -224,6 +229,18 @@ subprojects {
         }
         main {
             java {
+                compileClasspath += generated.output
+                runtimeClasspath += generated.output
+            }
+            scala {
+                compileClasspath += generated.output
+                runtimeClasspath += generated.output
+            }
+            scoverage {
+                compileClasspath += generated.output
+                runtimeClasspath += generated.output
+            }
+            testScoverage {
                 compileClasspath += generated.output
                 runtimeClasspath += generated.output
             }
