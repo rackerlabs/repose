@@ -44,7 +44,7 @@ object JmxObjectNameFactory extends LazyLogging {
       //
       val objectNameProperties = new util.Hashtable[String, String]()
       name.split(KeySegmentDelimiter).zipWithIndex foreach { case (nameSegment, index) =>
-        objectNameProperties.put(KeyFormat.format(index), ObjectName.quote(nameSegment))
+        objectNameProperties.put(KeyFormat.format(index + 1), ObjectName.quote(nameSegment))
       }
 
       // If for some reason the ObjectName is still a pattern, fall back to quoting the domain.
