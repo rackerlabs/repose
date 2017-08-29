@@ -8,6 +8,11 @@
 * https://repose.atlassian.net/browse/REP-5985[REP-5985] - Updated the Jackson version from v2.4.0 to v2.8.9 to correct some library mismatch issues.
 * https://repose.atlassian.net/browse/REP-5315[REP-5315] - Updated Spring-managed bean names in JMX to be consistent with metric beans.
 * https://repose.atlassian.net/browse/REP-5885[REP-5885] - Fixed the bug where an `Error` during processing would result in a `200` response from Repose.
+* https://repose.atlassian.net/browse/REP-6001[REP-6001] - Updated dependencies:
+** API Checker: 2.3.0 → 2.4.0
+*** https://github.com/rackerlabs/api-checker/blob/api-checker-2.4.0/RELEASE.md[API Checker v2.4.0 release notes]
+** Attribute Mapper: 1.3.0 → 1.3.1
+*** https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-1.3.1/RELEASE.md[Attribute Mapper v1.3.1 release notes]
 
 == 8.6.3.0 (2017-08-15)
 
