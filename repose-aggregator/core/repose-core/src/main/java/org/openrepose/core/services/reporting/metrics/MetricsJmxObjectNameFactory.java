@@ -23,59 +23,37 @@ import com.codahale.metrics.ObjectNameFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Named;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import java.util.Hashtable;
 
-@Named
+import static org.openrepose.commons.utils.jmx.JmxObjectNameFactory.*;
+
 public class MetricsJmxObjectNameFactory implements ObjectNameFactory {
 
-    public static final String NAME_KEY = "name";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricsJmxObjectNameFactory.class);
-    private static final int STARTING_KEY_INDEX = 1;
-    private static final String KEY_SEGMENT_DELIMITER = "\\.";
-    private static final String KEY_FORMAT = "%03d";
+
+    private static MetricsJmxObjectNameFactory instance;
+
+    private MetricsJmxObjectNameFactory() {
+        // An empty constructor supporting the singleton pattern
+    }
+
+    public static MetricsJmxObjectNameFactory getInstance() {
+        if (instance == null) {
+            instance = new MetricsJmxObjectNameFactory();
+        }
+        return instance;
+    }
 
     @Override
-    @SuppressWarnings({"squid:S00112", "squid:S1149"})
     public ObjectName createName(String type, String domain, String name) {
         try {
-            /*
-             Split the name on every period and give each segment its own property.
-             Doing so should give us unlimited nested buckets in JConsole.
-             Since the name argument is provided by the user, we always quote it.
-              */
-            int keyIndex = STARTING_KEY_INDEX;
-            // [squid:S1149] Hashtable is a parameter of the ObjectName constructor.
-            Hashtable<String, String> objectNameProperties = new Hashtable<>();
-            for (String nameSegment : name.split(KEY_SEGMENT_DELIMITER)) {
-                objectNameProperties.put(String.format(KEY_FORMAT, keyIndex++), ObjectName.quote(nameSegment));
-            }
-
-            /*
-             If for some reason the ObjectName is still a pattern, fall back to quoting the domain.
-             */
-            ObjectName objectName = new ObjectName(domain, objectNameProperties);
-            if (objectName.isPattern()) {
-                objectName = new ObjectName(ObjectName.quote(domain), objectNameProperties);
-            }
-
-            return new ObjectName(objectName.getCanonicalName());
+            return getName(domain, name);
         } catch (MalformedObjectNameException mone) {
-            LOGGER.info("Unable to register {} {} using our custom format", domain, name, mone);
-            try {
-                return new ObjectName(domain, NAME_KEY, ObjectName.quote(name));
-            } catch (MalformedObjectNameException moreMone) {
-                LOGGER.warn("Unable to register {} {}", domain, name, moreMone);
-                // [squid:S00112] A RuntimeException must be thrown here as our recovery logic failed,
-                //                but this method does not declare any checked exceptions.
-                //
-                // TODO: In a future version of the metrics library, this interface will change and this exception
-                // TODO: will not need to be handled. See: https://github.com/dropwizard/metrics/pull/1076
-                throw new RuntimeException(moreMone);
-            }
+            // TODO: In a future version of the metrics library, this interface will change and this exception
+            // TODO: will not need to be handled. See: https://github.com/dropwizard/metrics/pull/1076
+            LOGGER.warn("Unable to register {} {}", domain, name, mone);
+            throw new RuntimeException(mone);
         }
     }
 }

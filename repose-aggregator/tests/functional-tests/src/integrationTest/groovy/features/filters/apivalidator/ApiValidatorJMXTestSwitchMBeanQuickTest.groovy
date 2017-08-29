@@ -58,7 +58,7 @@ class ApiValidatorJMXTestSwitchMBeanQuickTest extends ReposeValveTest {
 
     def "when loading validators on startup, should register Configuration MXBeans"() {
 
-        String ConfigurationBeanDomain = "*org.openrepose.core.services.jmx:type=ConfigurationInformation"
+        String ConfigurationBeanDomain = '*:001="org",002="openrepose",003="core",004="services",005="jmx",006="ConfigurationInformation"'
         String ConfigurationClassName = "org.openrepose.core.services.jmx.ConfigurationInformation"
 
         deproxy.makeRequest(url: reposeEndpoint + "/")

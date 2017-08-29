@@ -19,7 +19,7 @@
  */
 package org.openrepose.cli.command.datastore.local;
 
-import org.openrepose.core.MBeanObjectNames;
+import org.openrepose.commons.utils.net.NetUtilities;
 import org.openrepose.core.services.datastore.distributed.impl.ehcache.ReposeLocalCacheMBean;
 
 import javax.management.JMX;
@@ -36,6 +36,9 @@ import java.io.IOException;
 // close jmxc, but how on Earth would we test it since cli-utils doesn't seem to be used?  Suppressing this for now.
 public class ReposeJMXClient implements ReposeLocalCacheMBean {
 
+    private static final String hostname = NetUtilities.bestGuessHostname();
+    private static final String REPOSE_LOCAL_CACHE_OBJECT_NAME = hostname + ":001=\"org\",002=\"openrepose\",003=\"core\",004=\"services\",005=\"datastore\",006=\"distributed\",007=\"impl\",008=\"ehcache\",009=\"ReposeLocalCache\"";
+
     private final ReposeLocalCacheMBean reposeLocalCacheMBeanProxy;
 
     public ReposeJMXClient(String port) throws IOException, MalformedObjectNameException {
@@ -46,7 +49,7 @@ public class ReposeJMXClient implements ReposeLocalCacheMBean {
         final MBeanServerConnection reposeConnection = jmxc.getMBeanServerConnection();
 
         reposeLocalCacheMBeanProxy = JMX.newMBeanProxy(reposeConnection,
-                new ObjectName(MBeanObjectNames.REPOSE_LOCAL_CACHE),
+                new ObjectName(REPOSE_LOCAL_CACHE_OBJECT_NAME),
                 ReposeLocalCacheMBean.class,
                 true);
     }
