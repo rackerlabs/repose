@@ -23,6 +23,11 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
+import javax.servlet.http.HttpServletResponse
+
+import static javax.servlet.http.HttpServletResponse.SC_BAD_GATEWAY
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+
 class ExceptionAndErrorHandlingTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()
@@ -43,7 +48,7 @@ class ExceptionAndErrorHandlingTest extends ReposeValveTest {
 
         then:
         // The PowerFilterChain catches the Exception and sets the response code to 500
-        messageChain.receivedResponse.code.toInteger() == 500
+        messageChain.receivedResponse.code.toInteger() == SC_INTERNAL_SERVER_ERROR
     }
 
     def "should return a 502 response if an error is thrown by a filter during processing"() {
@@ -55,6 +60,6 @@ class ExceptionAndErrorHandlingTest extends ReposeValveTest {
 
         then:
         // The PowerFilter catches the Error and sets the response code to 502
-        messageChain.receivedResponse.code.toInteger() == 502
+        messageChain.receivedResponse.code.toInteger() == SC_BAD_GATEWAY
     }
 }
