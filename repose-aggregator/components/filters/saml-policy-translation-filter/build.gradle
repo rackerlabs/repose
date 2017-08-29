@@ -32,3 +32,17 @@ dependencies {
     testCompile 'org.opensaml:opensaml-security-api'
     testCompile 'org.opensaml:opensaml-xmlsec-api'
 }
+
+processTestResources {
+    from('src/test/resources') {
+        include '**/*.properties'
+        expand(configRoot: "${project.buildDir}/resources/test/")
+    }
+}
+
+processTestScoverageResources {
+    from('src/test/resources') {
+        include '**/*.properties'
+        expand(configRoot: "${project.buildDir}/resources/testScoverage/")
+    }
+}
