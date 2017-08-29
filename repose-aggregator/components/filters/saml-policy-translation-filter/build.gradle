@@ -33,6 +33,10 @@ dependencies {
     testCompile 'org.opensaml:opensaml-xmlsec-api'
 }
 
+license {
+    excludes(["**/test.properties"])
+}
+
 processTestResources {
     from('src/test/resources') {
         include '**/*.properties'
