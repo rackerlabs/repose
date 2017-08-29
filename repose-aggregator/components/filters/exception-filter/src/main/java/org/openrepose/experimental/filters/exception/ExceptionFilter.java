@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 /**
@@ -46,7 +47,7 @@ import java.io.IOException;
  */
 public class ExceptionFilter implements Filter {
     private static final Logger LOG = LoggerFactory.getLogger(ExceptionFilter.class);
-
+    private static final String THROW_ERROR_HEADER = "X-Throw-Error";
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -56,13 +57,19 @@ public class ExceptionFilter implements Filter {
     @Override
     @SuppressWarnings("squid:S00112")
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-            throws IOException, ServletException {
-        LOG.warn("in the doFilter method of ExceptionFilter.  About to throw an error!");
+        throws IOException, ServletException {
+        LOG.warn("in the doFilter method of ExceptionFilter. About to throw something!");
 
-        //currently, we just want to validate that this filter throws an exception that's caught by repose core (powerfilterchain)
-        // This RuntimeException is only being thrown for testing.
-        // So it is safe to suppress warning squid:S00112
-        throw new RuntimeException("This is just a test filter!  Don't use it in real life!");
+        HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
+        String throwErrorHeader = httpServletRequest.getHeader(THROW_ERROR_HEADER);
+        if (!Boolean.parseBoolean(throwErrorHeader)) {
+            // in the default case, we just want to validate that this filter throws an exception that's caught by repose core (powerfilterchain)
+            // This RuntimeException is only being thrown for testing.
+            // So it is safe to suppress warning squid:S00112
+            throw new RuntimeException("This is just a test filter! Don't use it in real life!");
+        } else {
+            throw new Error("This is just a test filter! Don't use it in real life!");
+        }
     }
 
     @Override
