@@ -1,6 +1,7 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import org.ajoberstar.grgit.Grgit
+import org.scoverage.ScoverageAggregate
 
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -12,7 +13,7 @@ dependencies {
     asciidoctor 'org.asciidoctor:asciidoctorj-diagram'
 }
 
-task aggregateScoverage(type: org.scoverage.ScoverageAggregate)
+task aggregateScoverage(type: ScoverageAggregate)
 
 checkScoverage {
     reportDir = file("$buildDir/scoverage-aggregate")
@@ -100,6 +101,10 @@ task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds
         commit(message: "Adding documentation for $version")
         push()
     }
+}
+
+if (project.hasProperty("minCoverageRatio")) {
+    check.dependsOn checkScoverage
 }
 
 asciidoctor.dependsOn copyXsds

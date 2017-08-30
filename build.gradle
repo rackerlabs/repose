@@ -382,6 +382,37 @@ subprojects {
         sign configurations.archives
     }
 
+    // todo: fix Scoverage running as dependency of check
+    //       it looks like it is being brought in by certain tasks (which are probably generated from source sets)
+    //       the following command removes Scoverage tasks:
+    //       gradlew build -x codenarcScoverage -x codenarcTestScoverage -x license -x checkstyleScoverage -x checkstyleTestScoverage -m
+    // todo: fix jacocoTestCoverageVerification task skipping
+    if (project.hasProperty("minCoverageRatio")) {
+        def minCoverageRatio = (project.findProperty("minCoverageRatio") ?: "0.75") as double
+
+        // Configure the JaCoCo test coverage verification
+        jacocoTestCoverageVerification {
+            violationRules {
+                rule {
+                    limit {
+                        minimum = minCoverageRatio
+                    }
+                }
+            }
+        }
+
+        // Configure the Scoverage test coverage verification
+        checkScoverage {
+            minimumRate = minCoverageRatio
+        }
+
+        // Wire in test coverage verification tasks
+        //
+        // Note: To take advantage of Scoverage aggregation, the check dependency on
+        // Scoverage was placed in the repose-aggregator sub-project.
+        check.dependsOn jacocoTestCoverageVerification
+    }
+
     buildAll.dependsOn build
     publish.dependsOn buildAll
     project.tasks.getByPath(':release').dependsOn publish
