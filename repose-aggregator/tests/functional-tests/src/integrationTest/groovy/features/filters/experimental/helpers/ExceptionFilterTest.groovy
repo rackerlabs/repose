@@ -58,7 +58,7 @@ class ExceptionFilterTest extends ReposeValveTest {
         mc.receivedResponse.code == '500'
 
         logSearch.awaitByString(
-                "java.lang.RuntimeException: This is just a test filter!  Don't use it in real life!",
+                "java.lang.RuntimeException: This is just a test filter! Don't use it in real life!",
                 1,
                 3, TimeUnit.SECONDS).size() > 0
 
