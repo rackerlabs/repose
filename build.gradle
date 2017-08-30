@@ -261,11 +261,12 @@ subprojects {
 
     checkstyle {
         configFile = file("$rootDir/repose-aggregator/src/config/styles/checkstyle.xml")
-        sourceSets = sourceSets.matching {it.name != 'generated'}
+        sourceSets = sourceSets.matching {it.name != 'generated' && it.name != 'scoverage' && it.name != 'testScoverage'}
     }
 
     codenarc {
         configFile = file("$rootDir/repose-aggregator/src/config/styles/codenarc.xml")
+        sourceSets = sourceSets.matching {it.name != 'generated' && it.name != 'scoverage' && it.name != 'testScoverage'}
     }
 
     //todo: write a good one of these plugins, because this is garbage
@@ -286,7 +287,7 @@ subprojects {
         }
         exclude "**/*.cfg.xml"
         exclude "**/log4j2*.xml"
-        sourceSets = sourceSets.matching {it.name != 'generated'}
+        sourceSets = sourceSets.matching {it.name != 'generated' && it.name != 'scoverage' && it.name != 'testScoverage'}
     }
 
     //todo: for some reason jacoco freaks when we do clean and build together
@@ -382,10 +383,6 @@ subprojects {
         sign configurations.archives
     }
 
-    // todo: fix Scoverage running as dependency of check
-    //       it looks like it is being brought in by certain tasks (which are probably generated from source sets)
-    //       the following command removes Scoverage tasks:
-    //       gradlew build -x codenarcScoverage -x codenarcTestScoverage -x license -x checkstyleScoverage -x checkstyleTestScoverage -m
     // todo: fix jacocoTestCoverageVerification task skipping
     if (project.hasProperty("minCoverageRatio")) {
         def minCoverageRatio = (project.findProperty("minCoverageRatio") ?: "0.75") as double
