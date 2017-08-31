@@ -104,6 +104,7 @@ task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds
 }
 
 if (project.hasProperty("minCoverageRatio")) {
+    aggregateScoverage.dependsOn subprojects.reportScoverage
     checkScoverage.dependsOn aggregateScoverage
     check.dependsOn checkScoverage
 }

@@ -407,7 +407,6 @@ subprojects {
         //
         // Note: To take advantage of Scoverage aggregation, the check dependency on
         // Scoverage was placed in the repose-aggregator sub-project.
-        project.tasks.getByPath(':repose-aggregator:aggregateScoverage').dependsOn reportScoverage
         check.dependsOn jacocoTestCoverageVerification
     }
 
