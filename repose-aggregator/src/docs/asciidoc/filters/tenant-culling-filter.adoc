@@ -1,37 +1,43 @@
-= Ticketing Tenant Culling Filter
+= Tenant Culling Filter
 
-The tenant culling filter is for use by ticketing (both dexter and picard) to use on resources that need further specific tenant id information.
-The filter looks at all the tenants that identity gives back for a user and creates and populates a list of them based on the roles that the user was granted access with.
+The Tenant Culling filter is used on resources that need further specific tenant id information.
+The filter looks at all the tenants that Keystone returns for a user to creates and populates a list of them based on the specific roles that were used to grant access to the resource.
 
 == General filter information
 * *Name:* tenant-culling
 * *Default Configuration:* No configuration
-* *Bundle:* lefty-filter-bundle
+* *Bundle:* repose-filter-bundle
 
 == Prerequisites & Postconditions
 === Required Request Headers
-* `X-Relevant-Roles` - The roles this user was granted access based on.
 * `X-Auth-Token-Key` - The datastore cache key that contains the users token information.
+* `X-Relevant-Roles` - The roles this user was granted access based on.
 
 === Required Preceding Filters
-* Keystone v2 filter - Sets the user's tenant info in the datastore as well as sets the `X-Auth-Token-Key` header.
-* Simple RBAC Filter/API Validator Filter - Either one is required because they set the `X-Relevant-Roles` header.
+The following filters are used to populate the <<Required Request Headers>>:
+
+* <<keystone-v2.adoc#, Keystone v2 filter>> - Sets the user's tenant info in the datastore as well as sets the `X-Auth-Token-Key` header.
+* <<simple-rbac.adoc#, Simple RBAC filter>> / <<api-validator.adoc#, API Validator filter>> - Either one is required because they set the `X-Relevant-Roles` header.
 
 === Request Headers Created
 * `X-Tenant-Id` - The tenants that match the roles this request was authorized with as well as the default if present.
+
+[NOTE]
+====
 This header will be replaced if previously present.
+====
 
 === Request Body Changes
 This filter does not modify the request body.
 
 === Recommended Follow-On (Succeeding) Filters
-None
+This filter is not strictly required by any other filters.
 
 === Response Body Changes
-None
+This filter does not modify the response body.
 
 === Response Headers Created
-None
+Changes to response headers vary based on configuration.
 
 === Response Status Codes
 [cols="2,a", options="header,autowidth"]
