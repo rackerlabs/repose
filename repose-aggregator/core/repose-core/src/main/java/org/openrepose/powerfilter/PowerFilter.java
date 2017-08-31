@@ -424,8 +424,12 @@ public class PowerFilter extends DelegatingFilterProxy {
             LOG.debug("{}:{} -- Invalid URI requested: {}", clusterId, nodeId, wrappedRequest.getRequestURI(), use);
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
         } catch (Exception ex) {
-            LOG.error("{}:{} -- Exception encountered while processing filter chain.", clusterId, nodeId, ex);
+            LOG.error("{}:{} -- Issue encountered while processing filter chain.", clusterId, nodeId, ex);
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error processing request");
+        } catch (Error e) {
+            LOG.error("{}:{} -- Error encountered while processing filter chain.", clusterId, nodeId, e);
+            wrappedResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error processing request");
+            throw e;
         } finally {
             // We must call this method here so that the response messaging service can potentially mutate the body of
             // the response. The method itself enables the wrapper to report a committed response as being so, while
