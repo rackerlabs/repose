@@ -13,4 +13,5 @@ dependencies {
     testCompile "org.powermock:powermock-module-junit4:1.6.1"
     testCompile "org.powermock:powermock-api-mockito:1.6.1"
     testCompile "org.springframework:spring-test:4.1.4.RELEASE"
+    testCompile "org.slf4j:jcl-over-slf4j"
 }
