@@ -21,60 +21,80 @@
 
 <web-fragment xmlns="http://java.sun.com/xml/ns/javaee">
     <filter>
-        <filter-name>header-user</filter-name>
-        <filter-class>org.openrepose.filters.headeruser.HeaderUserFilter</filter-class>
+        <filter-name>add-header</filter-name>
+        <filter-class>org.openrepose.filters.addheader.AddHeaderFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>uri-user</filter-name>
-        <filter-class>org.openrepose.filters.uriuser.UriUserFilter</filter-class>
+        <filter-name>body-extractor-to-header</filter-name>
+        <filter-class>org.openrepose.filters.bodyextractortoheader.BodyExtractorToHeaderFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>uri-normalization</filter-name>
-        <filter-class>org.openrepose.filters.urinormalization.UriNormalizationFilter</filter-class>
-    </filter>
-    <filter>
-        <filter-name>header-normalization</filter-name>
-        <filter-class>org.openrepose.filters.headernormalization.HeaderNormalizationFilter</filter-class>
-    </filter>
-    <filter>
-        <filter-name>slf4j-http-logging</filter-name>
-        <filter-class>org.openrepose.filters.slf4jlogging.Slf4jHttpLoggingFilter</filter-class>
-    </filter>
-    <filter>
-        <filter-name>rate-limiting</filter-name>
-        <filter-class>org.openrepose.filters.ratelimiting.RateLimitingFilter</filter-class>
-    </filter>
-    <filter>
-        <filter-name>destination-router</filter-name>
-        <filter-class>org.openrepose.filters.destinationrouter.DestinationRouterFilter</filter-class>
-    </filter>
-    <filter>
-        <filter-name>versioning</filter-name>
-        <filter-class>org.openrepose.filters.versioning.VersioningFilter</filter-class>
-    </filter>
-    <filter>
-        <filter-name>tenant-culling</filter-name>
-        <filter-class>org.openrepose.filters.tenantculling.TenantCullingFilter</filter-class>
-    </filter>
-    <filter>
-        <filter-name>translation</filter-name>
-        <filter-class>org.openrepose.filters.translation.TranslationFilter</filter-class>
-    </filter>
-    <filter>
-        <filter-name>flush-output</filter-name>
-        <filter-class>org.openrepose.filters.flush.FlushOutputFilter</filter-class>
+        <filter-name>body-patcher</filter-name>
+        <filter-class>org.openrepose.filters.bodypatcher.BodyPatcherFilter</filter-class>
     </filter>
     <filter>
         <filter-name>compression</filter-name>
         <filter-class>org.openrepose.filters.compression.CompressionFilter</filter-class>
     </filter>
     <filter>
+        <filter-name>content-type-stripper</filter-name>
+        <filter-class>org.openrepose.filters.contenttypestripper.ContentTypeStripperFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>cors</filter-name>
+        <filter-class>org.openrepose.filters.cors.CorsFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>derp</filter-name>
+        <filter-class>org.openrepose.filters.derp.DerpFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>destination-router</filter-name>
+        <filter-class>org.openrepose.filters.destinationrouter.DestinationRouterFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>flush-output</filter-name>
+        <filter-class>org.openrepose.filters.flush.FlushOutputFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>forwarded-proto</filter-name>
+        <filter-class>org.openrepose.filters.forwardedproto.ForwardedProtoFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>header-normalization</filter-name>
+        <filter-class>org.openrepose.filters.headernormalization.HeaderNormalizationFilter</filter-class>
+    </filter>
+    <filter>
         <filter-name>header-translation</filter-name>
         <filter-class>org.openrepose.filters.headertranslation.HeaderTranslationFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>uri-stripper</filter-name>
-        <filter-class>org.openrepose.filters.uristripper.UriStripperFilter</filter-class>
+        <filter-name>header-user</filter-name>
+        <filter-class>org.openrepose.filters.headeruser.HeaderUserFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>herp</filter-name>
+        <filter-class>org.openrepose.filters.herp.HerpFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>ip-user</filter-name>
+        <filter-class>org.openrepose.filters.ipuser.IpUserFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>iri-validator</filter-name>
+        <filter-class>org.openrepose.filters.irivalidator.IriValidatorFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>keystone-v2</filter-name>
+        <filter-class>org.openrepose.filters.keystonev2.KeystoneV2Filter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>keystone-v2-basic-auth</filter-name>
+        <filter-class>org.openrepose.filters.keystonev2basicauth.KeystoneV2BasicAuthFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>merge-header</filter-name>
+        <filter-class>org.openrepose.filters.mergeheader.MergeHeaderFilter</filter-class>
     </filter>
     <filter>
         <filter-name>openstack-identity-v3</filter-name>
@@ -85,63 +105,43 @@
         <filter-class>org.openrepose.filters.rackspaceauthuser.RackspaceAuthUserFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>keystone-v2-basic-auth</filter-name>
-        <filter-class>org.openrepose.filters.keystonev2basicauth.KeystoneV2BasicAuthFilter</filter-class>
+        <filter-name>rate-limiting</filter-name>
+        <filter-class>org.openrepose.filters.ratelimiting.RateLimitingFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>content-type-stripper</filter-name>
-        <filter-class>org.openrepose.filters.contenttypestripper.ContentTypeStripperFilter</filter-class>
+        <filter-name>slf4j-http-logging</filter-name>
+        <filter-class>org.openrepose.filters.slf4jlogging.Slf4jHttpLoggingFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>derp</filter-name>
-        <filter-class>org.openrepose.filters.derp.DerpFilter</filter-class>
+        <filter-name>tenant-culling</filter-name>
+        <filter-class>org.openrepose.filters.tenantculling.TenantCullingFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>add-header</filter-name>
-        <filter-class>org.openrepose.filters.addheader.AddHeaderFilter</filter-class>
+        <filter-name>translation</filter-name>
+        <filter-class>org.openrepose.filters.translation.TranslationFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>forwarded-proto</filter-name>
-        <filter-class>org.openrepose.filters.forwardedproto.ForwardedProtoFilter</filter-class>
+        <filter-name>uri-normalization</filter-name>
+        <filter-class>org.openrepose.filters.urinormalization.UriNormalizationFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>iri-validator</filter-name>
-        <filter-class>org.openrepose.filters.irivalidator.IriValidatorFilter</filter-class>
+        <filter-name>uri-stripper</filter-name>
+        <filter-class>org.openrepose.filters.uristripper.UriStripperFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>herp</filter-name>
-        <filter-class>org.openrepose.filters.herp.HerpFilter</filter-class>
-    </filter>
-    <filter>
-        <filter-name>valkyrie-authorization</filter-name>
-        <filter-class>org.openrepose.filters.valkyrieauthorization.ValkyrieAuthorizationFilter</filter-class>
-    </filter>
-    <filter>
-        <filter-name>merge-header</filter-name>
-        <filter-class>org.openrepose.filters.mergeheader.MergeHeaderFilter</filter-class>
-    </filter>
-    <filter>
-        <filter-name>keystone-v2</filter-name>
-        <filter-class>org.openrepose.filters.keystonev2.KeystoneV2Filter</filter-class>
-    </filter>
-    <filter>
-        <filter-name>cors</filter-name>
-        <filter-class>org.openrepose.filters.cors.CorsFilter</filter-class>
+        <filter-name>uri-user</filter-name>
+        <filter-class>org.openrepose.filters.uriuser.UriUserFilter</filter-class>
     </filter>
     <filter>
         <filter-name>url-extractor-to-header</filter-name>
         <filter-class>org.openrepose.filters.urlextractortoheader.UrlExtractorToHeaderFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>body-extractor-to-header</filter-name>
-        <filter-class>org.openrepose.filters.bodyextractortoheader.BodyExtractorToHeaderFilter</filter-class>
+        <filter-name>valkyrie-authorization</filter-name>
+        <filter-class>org.openrepose.filters.valkyrieauthorization.ValkyrieAuthorizationFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>ip-user</filter-name>
-        <filter-class>org.openrepose.filters.ipuser.IpUserFilter</filter-class>
-    </filter>
-    <filter>
-        <filter-name>body-patcher</filter-name>
-        <filter-class>org.openrepose.filters.bodypatcher.BodyPatcherFilter</filter-class>
+        <filter-name>versioning</filter-name>
+        <filter-class>org.openrepose.filters.versioning.VersioningFilter</filter-class>
     </filter>
 </web-fragment>
