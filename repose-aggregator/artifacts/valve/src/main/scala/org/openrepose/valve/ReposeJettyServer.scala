@@ -35,8 +35,6 @@ import org.springframework.web.context.ContextLoaderListener
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext
 import org.springframework.web.filter.DelegatingFilterProxy
 
-case class ServerInitializationException(message: String, cause: Throwable = null) extends Exception(message, cause)
-
 /**
   * Each jetty server starts here. These are the unique things that identify a jetty.
   * A single jetty can listen on both an HTTP port and an HTTPS port. In theory, a single jetty could listen on many
@@ -60,6 +58,8 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
                         idleTimeout: Option[Long],
                         soLingerTime: Option[Int],
                         testMode: Boolean = false) {
+
+  import ReposeJettyServer._
 
   val config = ConfigFactory.load("springConfiguration.conf")
 
@@ -233,4 +233,8 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
   def stop() = {
     server.stop()
   }
+}
+
+object ReposeJettyServer {
+  case class ServerInitializationException(message: String, cause: Throwable = null) extends Exception(message, cause)
 }
