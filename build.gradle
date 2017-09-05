@@ -1,3 +1,5 @@
+import groovy.io.FileType
+
 buildscript {
     repositories {
         mavenCentral()
@@ -295,6 +297,33 @@ subprojects {
         toolVersion = "0.7.6.201602180812"
     }
 
+    jacocoTestReport {
+        afterEvaluate {
+            // Ignore Scala classes.
+            //
+            // I really wanted for there to be a way to just exclude the Scala source set and its output,
+            // but that does not appear to be possible.
+            // For one, the "Scala" source set is actually just configuration of the "main" source set.
+            // For another, compiled Scala classes are output to the same base directory as compiled Java classes, and
+            // changing that has far-reaching consequences.
+            //
+            // Instead, I've added some logic which will attempt to map compiled classes to Scala source files, and remove
+            // those classes from the set of classes JaCoCo reports on.
+            def scalaClassPatterns = sourceDirectories.filter({ dir -> dir.name == 'scala' }).files.inject([]) { classPatterns, scalaDir ->
+                if (scalaDir.exists()) {
+                    scalaDir.eachFileRecurse(FileType.FILES) { scalaSrcFile ->
+                        classPatterns.add('**/' + scalaDir.toPath().relativize(scalaSrcFile.toPath()).toString().replaceFirst('\\.scala$', '*'))
+                    }
+                }
+                classPatterns
+            }
+            sourceDirectories = sourceDirectories.filter({ dir -> dir.name != 'scala' })
+            classDirectories = files(classDirectories.files.collect { classDirectory ->
+                fileTree(dir: classDirectory, excludes: scalaClassPatterns)
+            })
+        }
+    }
+
     test {
         jacoco {
             destinationFile = file("$rootDir/repose-aggregator/build/jacoco/jacocoTest.exec")
@@ -383,7 +412,6 @@ subprojects {
         sign configurations.archives
     }
 
-    // todo: fix jacocoTestCoverageVerification task skipping
     if (project.hasProperty("minCoverageRatio")) {
         def minCoverageRatio = (project.findProperty("minCoverageRatio") ?: "0.75") as double
 
