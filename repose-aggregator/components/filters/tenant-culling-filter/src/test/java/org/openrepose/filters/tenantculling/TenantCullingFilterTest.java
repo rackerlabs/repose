@@ -47,7 +47,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-import static org.openrepose.filters.tenantculling.TenantCullingFilter.RELEVANT_ROLES;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.hamcrest.Matchers.equalTo;
@@ -56,6 +55,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID;
+import static org.openrepose.filters.tenantculling.TenantCullingFilter.RELEVANT_ROLES;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ObjectSerializer.class)
@@ -102,7 +102,7 @@ public class TenantCullingFilterTest {
         FilterChain filterChain = mock(FilterChain.class);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(KeystoneV2Filter.AuthTokenKey(), "cachekey");
-        request.addHeader(RELEVANT_ROLES, "role-name");
+        request.addHeader(RELEVANT_ROLES(), "role-name");
         List<KeystoneRequestHandler.Role> roles = new ArrayList<>();
         roles.add(new KeystoneRequestHandler.Role("role-name", Option.apply("123456")));
         roles.add(new KeystoneRequestHandler.Role("role-name", Option.apply(null)));
@@ -123,7 +123,7 @@ public class TenantCullingFilterTest {
         FilterChain filterChain = mock(FilterChain.class);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(KeystoneV2Filter.AuthTokenKey(), "cachekey");
-        request.addHeader(RELEVANT_ROLES, "role-name");
+        request.addHeader(RELEVANT_ROLES(), "role-name");
         List<KeystoneRequestHandler.Role> roles = new ArrayList<>();
         roles.add(new KeystoneRequestHandler.Role("role-name", Option.apply("123456")));
         roles.add(new KeystoneRequestHandler.Role("role-name", Option.apply("098765")));
@@ -143,7 +143,7 @@ public class TenantCullingFilterTest {
         FilterChain filterChain = mock(FilterChain.class);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(KeystoneV2Filter.AuthTokenKey(), "cachekey");
-        request.addHeader(RELEVANT_ROLES, "role-name,other-name");
+        request.addHeader(RELEVANT_ROLES(), "role-name,other-name");
         List<KeystoneRequestHandler.Role> roles = new ArrayList<>();
         roles.add(new KeystoneRequestHandler.Role("role-name", Option.apply("123456")));
         roles.add(new KeystoneRequestHandler.Role("other-name", Option.apply("098765")));
@@ -163,7 +163,7 @@ public class TenantCullingFilterTest {
         FilterChain filterChain = mock(FilterChain.class);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(KeystoneV2Filter.AuthTokenKey(), "cachekey");
-        request.addHeader(RELEVANT_ROLES, "role-name");
+        request.addHeader(RELEVANT_ROLES(), "role-name");
         List<KeystoneRequestHandler.Role> roles = new ArrayList<>();
         roles.add(new KeystoneRequestHandler.Role("role-name", Option.apply("123456")));
         roles.add(new KeystoneRequestHandler.Role("other-name", Option.apply("098765")));
@@ -252,11 +252,11 @@ public class TenantCullingFilterTest {
 
     private KeystoneRequestHandler.ValidToken tokenWithTenantAndRoles(String tenant, List<KeystoneRequestHandler.Role> roles) {
         return new KeystoneRequestHandler.ValidToken(
-                null, null, JavaConverters.asScalaBufferConverter(roles).asScala().toSeq(),
-                Option.apply(null), Option.apply(null), Option.apply(tenant),
-                JavaConverters.asScalaBufferConverter(new ArrayList<String>()).asScala().toSeq(), Option.apply(null), Option.apply(null),
-                JavaConverters.asScalaBufferConverter(new ArrayList<String>()).asScala().toSeq(), Option.apply(null), Option.apply(null),
-                Option.apply(null));
+            null, null, JavaConverters.asScalaBufferConverter(roles).asScala().toSeq(),
+            Option.apply(null), Option.apply(null), Option.apply(tenant),
+            JavaConverters.asScalaBufferConverter(new ArrayList<String>()).asScala().toSeq(), Option.apply(null), Option.apply(null),
+            JavaConverters.asScalaBufferConverter(new ArrayList<String>()).asScala().toSeq(), Option.apply(null), Option.apply(null),
+            Option.apply(null));
     }
 
     private TypeSafeMatcher<Enumeration<String>> hasValue(String value) {
