@@ -1,12 +1,12 @@
 = Implementing Role-Based Access Control (RBAC)
 :toclevels: 4
 
-You can implement Role-Based Access Control (RBAC) with Repose with the Header Normalization, the Authorization, and the API Validator filters.
+You can implement Role-Based Access Control (RBAC) with Repose using the Authentication and Authorization mechanisms.
 This guide takes you through the process of setting up RBAC with Repose.
 
 == 1. Configure the Header Normalization filter
 
-To prevent users from submitting their own roles, you will need to blacklist headers using the Header Normalization filter.
+To prevent users from submitting their own roles, you will need to blacklist headers using the <<../filters/header-normalization.adoc#,Header Normalization filter>>.
 
 [source,xml]
 .header-normalization.cfg.xml
@@ -41,13 +41,10 @@ Please refer to the <<../filters/keystone-v2.adoc#,Keystone v2 filter>> document
 
 == 3. Configure the RBAC filter
 
-There are two mechanisms for doing the authorization side.
-If your API is minimal or your just getting started with it, then you might find the Simple RBAC filter most useful.
+There are two mechanisms for doing the Authorization side.
+If your API is minimal or your just getting started with it, then you might find the <<../filters/simple-rbac.adoc#,Simple RBAC filter>> most useful.
 It uses a very simple Domain Specific Language (DSL) that is similar to what other tools use for this basic mechanism.
-If on the other had your API is large and/or your authorizations are complex, then you will need the heavy lifting of the API Validation filter.
-Since the Simple way is very self explanatory, we will only dive into the more complex way here.
-
-You will do most of your RBAC configuration here.
+If on the other had your API is large and/or your authorizations are complex, then you will need the heavy lifting of the <<../filters/api-validator.adoc#,API Validator filter>>.
 
 === 1. What do you need?
 We recommend that you build a table similar to the example below that contains endpoints and the roles that you wish to allow access to those endpoints.
@@ -172,3 +169,47 @@ Please refer to the <<../filters/api-validator.adoc#,API Validator filter>> docu
 ====
 The status codes returned by authorization failures, via `rax:roles` extensions (403), differs from the statuses returned when roles are defined directly in the `validator.cfg.xml` (404 and 405).
 ====
+
+== 4. Enable Tenant Culling based on Relevant Roles
+
+=== 1. Do you need only Relevant Tenants?
+If your origin service requires the `X-Tenant-Id` header to contain only the tenant id's pertinent to the RBAC Authorization roles that were provided in the `X-Relevant-Roles` header,
+    then enable the <<../filters/tenant-culling.adoc#,Tenant Culling filter>>.
+
+=== 2. How to enable Tenant Culling
+The following example shows a basic System Model that enables the Tenant Culling filter.
+
+[source,xml]
+.system-model.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+    <repose-cluster id="repose">
+        <nodes>
+            <node id="repose_node1" hostname="localhost" http-port="8080"/>
+        </nodes>
+
+        <filters>
+            <filter name="header-normalization"/>
+            <filter name="keystone-v2"/>
+            <filter name="simple-rbac"/>
+            <filter name="tenant-culling"/>
+        </filters>
+
+        <destinations>
+            <endpoint id="local" protocol="http" hostname="localhost" root-path="/" port="8000" default="true"/>
+        </destinations>
+    </repose-cluster>
+</system-model>
+----
+
+There is no further configuration of this feature.
+Simply by including the <<../filters/tenant-culling.adoc#,Tenant Culling filter>> in the System Model after the Authentication and RBAC filters, it is enabled.
+
+[NOTE]
+====
+Even though the <<../filters/header-normalization.adoc#,Header Normalization filter>> isn't strictly required for tenant culling to work, it is a good idea to always include it before any Authentication filters.
+====
+
+Please refer to the <<../filters/tenant-culling.adoc#,Tenant Culling filter>> documentation for more information about this feature.
