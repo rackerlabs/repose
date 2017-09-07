@@ -2,7 +2,7 @@
 
 include::../_includes/in-progress.adoc[]
 
-=== Configuration
+== Configuration
 * *Default Configuration:* rate-limiting.cfg.xml
 * *Released:* prior to version v1.0.6
 * link:../schemas/rate-limiting-configuration.xsd[Schema]

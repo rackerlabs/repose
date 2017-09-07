@@ -20,6 +20,8 @@ task copyXsds(type: Copy) {
 
     // Copy all filter and service configuration schemas.
     from(fileTree("${project.projectDir}/components").include('**/src/main/resources/META-INF/schema/config/*.xsd').files)
+    // Copy all datastore service configuration schemas.
+    from(fileTree("${project.projectDir}/components").include('**/src/main/resources/META-INF/schema/*-datastore/*.xsd').files)
 
     // Place all schemas into a schemas directory.
     into("${project.buildDir}/asciidoc/html5/schemas/")

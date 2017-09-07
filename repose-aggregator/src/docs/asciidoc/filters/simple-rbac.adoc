@@ -83,7 +83,6 @@ This configuration is a basic example that exhibits a common use-case.
 Resources are listed one per line in the `<PATH> <METHODS> <ROLES>` format.
 That is, each line should present the path to the resource, a series of spaces, the methods available on the resource, a series of spaces, and the roles which grant access to the resource.
 If a resource is not listed, requests to that resource will be rejected.
-<2> Opens a c
 
 [NOTE]
 ====
