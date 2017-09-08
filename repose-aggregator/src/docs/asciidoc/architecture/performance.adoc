@@ -1,7 +1,5 @@
 = Performance Testing
 
-include::../_includes/in-progress.adoc[]
-
 Performance testing is a method of testing various aspects of Repose in order to collect performance data.
 Performance data can be used to determine the overhead of the aspects in question, both at a system resource level as well as at a response time level.
 

@@ -1,1 +1,4 @@
 # Repose Performance Test Suite
+
+The documentation for this test suite can be found at:
+* http://www.openrepose.org/versions/latest/architecture/performance.html
