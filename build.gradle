@@ -311,7 +311,7 @@ subprojects {
         afterEvaluate {
             // Ignore Scala classes.
             classDirectories = files(classDirectories.files.collect { classDirectory ->
-                fileTree(dir: classDirectory, excludes: getScalaClassPatterns(sourceDirectories))
+                fileTree(dir: classDirectory, excludes: ['**/ObjectFactory.class'] + (getScalaClassPatterns(sourceDirectories) as List<String>))
             })
             sourceDirectories = sourceDirectories.filter({ dir -> dir.name != 'scala' })
         }
@@ -420,7 +420,7 @@ subprojects {
             afterEvaluate {
                 // Ignore Scala classes.
                 classDirectories = files(classDirectories.files.collect { classDirectory ->
-                    fileTree(dir: classDirectory, excludes: getScalaClassPatterns(sourceDirectories))
+                    fileTree(dir: classDirectory, excludes: ['**/ObjectFactory.class'] + (getScalaClassPatterns(sourceDirectories) as List<String>))
                 })
                 sourceDirectories = sourceDirectories.filter({ dir -> dir.name != 'scala' })
             }
