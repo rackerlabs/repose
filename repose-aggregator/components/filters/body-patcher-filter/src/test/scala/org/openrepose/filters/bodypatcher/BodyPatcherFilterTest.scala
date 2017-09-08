@@ -30,6 +30,7 @@ import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.filters.bodypatcher.BodyPatcherFilter._
 import org.openrepose.filters.bodypatcher.config.{BodyPatcherConfig, ChangeDetails, Patch}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
