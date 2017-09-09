@@ -3,3 +3,10 @@ dependencies {
 
     provided "org.glassfish:javax.servlet"
 }
+
+jacocoTestCoverageVerification {
+    violationRules {
+        // This is an experimental filter meant for testing, and so does not need to be tested itself.
+        setFailOnViolation(false)
+    }
+}

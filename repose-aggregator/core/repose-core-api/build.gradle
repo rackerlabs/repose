@@ -29,3 +29,16 @@ processResources {
     // Instead I've elected to use ant based filtering.
     filter(ReplaceTokens, tokens: [docsHome: docsHome])
 }
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rules.forEach { rule ->
+            rule.limits.forEach { limit ->
+                if (limit.counter == 'INSTRUCTION' && limit.value == 'COVEREDRATIO') {
+                    // todo: set to the current coverage -- need more coverage, but we don't want the build to fail for the baseline
+                    limit.minimum = 0.39
+                }
+            }
+        }
+    }
+}

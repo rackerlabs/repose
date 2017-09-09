@@ -3,3 +3,10 @@ license {
               "**/ejb-jar_3_1.xsd", "**/web-app_3_0.xsd", "**/web-fragment_3_0.xsd", "**/web-common_3_0.xsd",
               "**/xml.xsd"])
 }
+
+jacocoTestCoverageVerification {
+    violationRules {
+        // All classes are generated via xjc, and thus do not have coverage.
+        setFailOnViolation(false)
+    }
+}

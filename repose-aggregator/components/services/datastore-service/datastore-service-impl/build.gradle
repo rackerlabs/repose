@@ -27,3 +27,16 @@ dependencies {
     testCompile "org.hamcrest:hamcrest-all"
     testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
 }
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rules.forEach { rule ->
+            rule.limits.forEach { limit ->
+                if (limit.counter == 'INSTRUCTION' && limit.value == 'COVEREDRATIO') {
+                    // todo: set to the current coverage -- need more coverage, but we don't want the build to fail for the baseline
+                    limit.minimum = 0.34
+                }
+            }
+        }
+    }
+}
