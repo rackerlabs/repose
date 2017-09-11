@@ -456,6 +456,7 @@ sonarqube {
         property "sonar.dynamicAnalysis", "reuseReports"
         property "sonar.jacoco.reportPath", "$rootDir/repose-aggregator/build/jacoco/jacocoTest.exec"
         property "sonar.jacoco.itReportPath", "$rootDir/repose-aggregator/build/jacoco/jacocoIntegrationTest.exec"
+        property "sonar.scoverage.reportPath", "$rootDir/repose-aggreagtor/build/scoverage-aggregate/scoverage.xml"
     }
 }
 
