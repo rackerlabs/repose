@@ -37,3 +37,16 @@ sourceSets.main.java.srcDirs = []
 license {
     excludes(["**/empty.txt", "**/fail.xml", "**/message.xsl", "**/test.properties", "**/warn.xml"])
 }
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rules.forEach { rule ->
+            rule.limits.forEach { limit ->
+                if (limit.counter == 'INSTRUCTION' && limit.value == 'COVEREDRATIO') {
+                    // todo: set to the current coverage -- need more coverage, but we don't want the build to fail for the baseline
+                    limit.minimum = 0.73
+                }
+            }
+        }
+    }
+}
