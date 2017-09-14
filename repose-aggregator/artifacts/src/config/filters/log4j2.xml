@@ -30,6 +30,7 @@
         <Logger name="org.springframework" level="warn"/>
         <Logger name="intrafilter-logging" level="info"/>
         <Logger name="org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper.headerWarning" level="warn"/>
+        <Logger name="trace-id-logging" level="trace"/>
         <Logger name="phone-home-message" level="info" additivity="false">
             <AppenderRef ref="PhoneHomeMessages"/>
         </Logger>
