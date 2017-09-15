@@ -51,8 +51,16 @@ object TenantCullingFilter {
   @throws[IOException]
   @throws[ServletException]
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
+    def logNamedSeq(name: String, seq: Seq[Any]): Unit = {
+      log.trace("{} :", name)
+      seq.foreach(log.trace(" - {}", _))
+    }
+
     def withDefaultTenant(token: KeystoneRequestHandler.ValidToken, tenants: Seq[String]): Seq[String] = {
+      logNamedSeq("Tenant ID's", tenants)
       if (token.defaultTenantId.isDefined) {
+        log.trace("Adding Default:")
+        log.trace(" - {}", token.defaultTenantId.get)
         tenants :+ token.defaultTenantId.get
       } else {
         tenants
@@ -62,18 +70,24 @@ object TenantCullingFilter {
     val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
     val response = servletResponse.asInstanceOf[HttpServletResponse]
     val cacheKey = request.getHeader(KeystoneV2Filter.AuthTokenKey)
-    val relevantRoles = request.getSplittableHeaders(TenantCullingFilter.RELEVANT_ROLES)
+    val relevantRoles = request.getSplittableHeaderScala(TenantCullingFilter.RELEVANT_ROLES)
     if (cacheKey != null) {
       try {
         val token = objectSerializer.readObject(objectSerializer.writeObject(datastore.get(cacheKey))).asInstanceOf[KeystoneRequestHandler.ValidToken]
         if (token != null) {
+          logNamedSeq("Token Roles", token.roles)
+          logNamedSeq("Relevant Roles", relevantRoles)
           val tenants: Seq[String] = token.roles
             .filter(role => relevantRoles.contains(role.name))
             .filter(_.tenantId.isDefined)
             .map(_.tenantId.get)
           request.removeHeader(TENANT_ID)
-          withDefaultTenant(token, tenants)
-            .foreach(request.addHeader(TENANT_ID, _))
+          val withDefault = withDefaultTenant(token, tenants)
+          log.debug("Adding {}:", TENANT_ID)
+          withDefault.foreach { tenant =>
+            log.debug(" - {}", tenant)
+            request.addHeader(TENANT_ID, tenant)
+          }
           chain.doFilter(request, response)
         }
         else {
