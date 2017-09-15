@@ -1,0 +1,19 @@
+{
+  dir_prefix: "filters/tenantculling",
+  repose: {
+    config: {
+      system_model: {
+        filters: [
+          { name: "keystone-v2" },
+          { name: "tenant-culling" }
+        ]
+      }
+    }
+  },
+  gatling: {
+    test: {
+      name: "TenantCullingFilterSimulation",
+      package: "filters.tenantculling"
+    }
+  }
+}
