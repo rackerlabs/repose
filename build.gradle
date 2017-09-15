@@ -238,13 +238,13 @@ subprojects {
                 compileClasspath += generated.output
                 runtimeClasspath += generated.output
             }
-            testScoverage {
-                compileClasspath += generated.output
-                runtimeClasspath += generated.output
-            }
         }
         test {
             java {
+                compileClasspath += generated.output
+                runtimeClasspath += generated.output
+            }
+            testScoverage {
                 compileClasspath += generated.output
                 runtimeClasspath += generated.output
             }
