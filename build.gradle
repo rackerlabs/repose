@@ -234,10 +234,6 @@ subprojects {
                 compileClasspath += generated.output
                 runtimeClasspath += generated.output
             }
-            scala {
-                compileClasspath += generated.output
-                runtimeClasspath += generated.output
-            }
             scoverage {
                 compileClasspath += generated.output
                 runtimeClasspath += generated.output
@@ -249,10 +245,6 @@ subprojects {
         }
         test {
             java {
-                compileClasspath += generated.output
-                runtimeClasspath += generated.output
-            }
-            scala {
                 compileClasspath += generated.output
                 runtimeClasspath += generated.output
             }
