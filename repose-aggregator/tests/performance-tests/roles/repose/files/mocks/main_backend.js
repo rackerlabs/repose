@@ -18,22 +18,26 @@ app.use (function(req, res, next) {
 app.disable('etag');
 
 app.get('/*', function(req, res) {
+    copyReqHeadersToRes(req, res)
     res.send(200, '{"server":"obtained successfully"}');
 });
 
 app.put('/*', function(req, res) {
     res.set('content-type', 'application/atom+xml');
     res.set('x-pp-user', 'user1');
+    copyReqHeadersToRes(req, res)
     res.send(201, '{"server":"updated successfully"}');
 });
 
 app.delete('/*', function(req, res) {
+    copyReqHeadersToRes(req, res)
     res.send(204, '{"server":"deleted successfully"}');
 });
 
 app.post('/*', function(req, res) {
     res.set('content-type', 'application/atom+xml');
     res.set('x-pp-user', 'user1');
+    copyReqHeadersToRes(req, res)
     res.send(201, '<?xml version="1.0" encoding="UTF-8"?>' +
         '<atom:entry xmlns:atom="http://www.w3.org/2005/Atom" xmlns="http://docs.rackspace.com/core/event" xmlns:cb-bin="http://docs.rackspace.com/usage/cloudbackup/bandwidthIn">' +
         '<atom:id>urn:uuid:8d89673c-c989-11e1-895a-0b3d632a8a89</atom:id>' +
@@ -53,5 +57,13 @@ app.post('/*', function(req, res) {
         '<atom:published>2013-02-28T19:28:57.758Z</atom:published>' +
         '</atom:entry>');
 });
+
+function copyReqHeadersToRes(req, res) {
+    var headers = req.rawHeaders
+    var len = headers.length;
+    for (var i = 0; i < len; i+=2) {
+        res.set('ReqHdr-'+headers[i], headers[i+1])
+    }
+}
 
 app.listen(8080);
