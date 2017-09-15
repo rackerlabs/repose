@@ -59,11 +59,20 @@ app.post('/*', function(req, res) {
 });
 
 function copyReqHeadersToRes(req, res) {
-    var headers = req.rawHeaders
-    var len = headers.length;
-    for (var i = 0; i < len; i+=2) {
-        res.set('ReqHdr-'+headers[i], headers[i+1])
+    var doCopy = req.header('Copy-Req-Hdr-To-Res')
+    if (doCopy && doCopy.trim().toLowerCase().startsWith('t')) {
+        var headers = req.rawHeaders
+        var len = (headers.length / 2);
+        for (var i = 0; i < len; i++) {
+            // Accounts for NodeJS clobbering duplicate header names with new values.
+            res.set('ReqHdr-'+pad(i, 3)+'-'+headers[i*2], headers[(i*2)+1])
+        }
     }
+}
+
+function pad(num, size) {
+    var s = "000000000" + num;
+    return s.substr(s.length-size);
 }
 
 app.listen(8080);
