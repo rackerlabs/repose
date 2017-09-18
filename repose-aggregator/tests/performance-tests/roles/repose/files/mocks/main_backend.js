@@ -19,26 +19,26 @@ app.disable('etag');
 
 app.get('/*', function(req, res) {
     copyReqHeadersToRes(req, res)
-    res.send(200, '{"server":"obtained successfully"}');
+    res.send(getResStatus(req, 200), '{"server":"obtained successfully"}');
 });
 
 app.put('/*', function(req, res) {
     res.set('content-type', 'application/atom+xml');
     res.set('x-pp-user', 'user1');
     copyReqHeadersToRes(req, res)
-    res.send(201, '{"server":"updated successfully"}');
+    res.send(getResStatus(req, 201), '{"server":"updated successfully"}');
 });
 
 app.delete('/*', function(req, res) {
     copyReqHeadersToRes(req, res)
-    res.send(204, '{"server":"deleted successfully"}');
+    res.send(getResStatus(req, 204), '{"server":"deleted successfully"}');
 });
 
 app.post('/*', function(req, res) {
     res.set('content-type', 'application/atom+xml');
     res.set('x-pp-user', 'user1');
     copyReqHeadersToRes(req, res)
-    res.send(201, '<?xml version="1.0" encoding="UTF-8"?>' +
+    res.send(getResStatus(req, 201), '<?xml version="1.0" encoding="UTF-8"?>' +
         '<atom:entry xmlns:atom="http://www.w3.org/2005/Atom" xmlns="http://docs.rackspace.com/core/event" xmlns:cb-bin="http://docs.rackspace.com/usage/cloudbackup/bandwidthIn">' +
         '<atom:id>urn:uuid:8d89673c-c989-11e1-895a-0b3d632a8a89</atom:id>' +
         '<atom:category term="tid:1234" />' +
@@ -73,6 +73,15 @@ function copyReqHeadersToRes(req, res) {
 function pad(num, size) {
     var s = "000000000" + num;
     return s.substr(s.length-size);
+}
+
+function getResStatus(req, status) {
+    var resStatusHdr = req.header('Mock-Origin-Res-Status')
+    if (resStatusHdr) {
+        return parseInt(resStatusHdr)
+    } else {
+        return status
+    }
 }
 
 app.listen(8080);
