@@ -3,6 +3,7 @@ dependencies {
     compile "xerces:xerces-xsd11"
     compile "org.mockito:mockito-all"
     compile "org.hamcrest:hamcrest-all"
+    compile "org.scalatest:scalatest_$scalaMajDotMin"
 
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"

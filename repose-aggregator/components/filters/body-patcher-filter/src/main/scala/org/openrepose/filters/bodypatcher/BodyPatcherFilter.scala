@@ -49,6 +49,8 @@ import scala.util.{Failure, Success, Try}
 @Named
 class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
   extends AbstractConfiguredFilter[BodyPatcherConfig](configurationService) with RegexStringOperators with LazyLogging {
+  import BodyPatcherFilter._
+
   override val DEFAULT_CONFIG: String = "body-patcher.cfg.xml"
   override val SCHEMA_LOCATION: String = "/META-INF/schema/config/body-patcher.xsd"
 
@@ -155,9 +157,11 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
   }
 }
 
-case class BodyUnparseableException(message: String, cause: Throwable) extends Exception(message, cause)
+object BodyPatcherFilter {
+  case class BodyUnparseableException(message: String, cause: Throwable) extends Exception(message, cause)
 
-sealed trait ContentType { val regex: Regex }
-case object Json extends ContentType { override val regex = ".*json.*".r }
-case object Xml extends ContentType { override val regex = ".*xml.*".r }
-case object Other extends ContentType { override val regex = ".*".r }
+  sealed trait ContentType { val regex: Regex }
+  case object Json extends ContentType { override val regex = ".*json.*".r }
+  case object Xml extends ContentType { override val regex = ".*xml.*".r }
+  case object Other extends ContentType { override val regex = ".*".r }
+}

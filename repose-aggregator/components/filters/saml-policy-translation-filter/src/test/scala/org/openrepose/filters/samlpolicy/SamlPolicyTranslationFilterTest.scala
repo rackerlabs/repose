@@ -26,7 +26,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 import java.security.cert.X509Certificate
 import java.security.{KeyStore, Security}
 import java.text.SimpleDateFormat
-import java.util.{Base64, Date, TimeZone, UUID}
+import java.util.{Base64, Date, Properties, TimeZone, UUID}
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{FilterChain, FilterConfig, ServletInputStream}
@@ -1588,7 +1588,12 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
 object SamlPolicyTranslationFilterTest {
   final val JsonObjectMapper = new ObjectMapper()
 
-  val configRoot = "./build/resources/test/"
+  val testProperties = {
+    val p = new Properties()
+    p.load(ClassLoader.getSystemResourceAsStream("test.properties"))
+    p
+  }
+  val configRoot = testProperties.getProperty("configRoot")
   val keystoreFilename = "single.jks"
   val keystorePassword = "password"
   val keyName = "server"
