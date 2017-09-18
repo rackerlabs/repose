@@ -98,11 +98,17 @@ class TenantCullingFilterSimulation extends Simulation {
       .get("/")
       .header("x-auth-token", "${authToken}")
       .header("X-Relevant-Roles", "${relevantRoles}")
-      .check(status.is(200))
+      .header("Mock-Origin-Res-Status", "${ExpectedResponseStatusCode}")
+      .check(status.is(ExpectedResponseStatusCode))
   }
 
   def getRelevantRoles: String = {
     val roles = for (i <- 0 to r.nextInt(availableRolesLength)) yield (availableRoles(random.nextInt(availableRolesLength)))
     roles mkString(", ")
   }
+}
+
+object TenantCullingFilterSimulation {
+  // This is a bogus value that wouldn't occur naturally.
+  val ExpectedResponseStatusCode = 210
 }
