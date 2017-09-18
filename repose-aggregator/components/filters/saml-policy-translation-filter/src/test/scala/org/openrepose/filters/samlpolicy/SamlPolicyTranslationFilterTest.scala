@@ -1078,7 +1078,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       .parse(new InputSource(new StringReader(documentString)))
     val brokenXslt =
       """<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-        |                version="1.0">
+        |                version="3.1">
         |    <xsl:template match="/">
         |        <xsl:message terminate="yes">Break ALL the things!</xsl:message>
         |    </xsl:template>
@@ -1088,7 +1088,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       .compile(new StreamSource(new StringReader(brokenXslt)))
     val workingXslt =
       """<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-        |                version="1.0">
+        |                version="3.1">
         |    <xsl:template match="/">
         |        <xsl:copy-of select="."/>
         |    </xsl:template>
