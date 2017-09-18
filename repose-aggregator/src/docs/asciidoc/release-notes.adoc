@@ -14,15 +14,12 @@
 ** Attribute Mapper: 1.3.0 → 1.3.1
 *** https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-1.3.1/RELEASE.md[Attribute Mapper v1.3.1 release notes]
 * https://repose.atlassian.net/browse/REP-5727[REP-5727] - Extracted trace ID logging to its own named logger.
-** The `trace-id-logging` Logger in your Log4j2 configuration will determine the logging behavior for trace ID logging.
-If the `trace-id-logging` Logger has not been configured, it will inherit the `Root` logger's configuration.
 +
-[IMPORTANT]
+[NOTE]
 ====
-If Repose is already installed and configured, and the `Root` logger is not configured to log at the `trace` logging level, then upgrading Repose will drop some or all trace ID logging messages.
-Please add and configure the `trace-id-logging` Logger to regain those messages.
+The `org.openrepose.powerfilter.PowerFilter.trace-id-logging` Logger in your Log4j2 configuration will determine the logging behavior for trace ID logging.
+If the `org.openrepose.powerfilter.PowerFilter.trace-id-logging` Logger has not been configured, it will inherit the `org.openrepose.powerfilter.PowerFilter` logger's configuration.
 ====
-
 
 == 8.6.3.0 (2017-08-15)
 

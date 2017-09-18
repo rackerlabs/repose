@@ -120,7 +120,7 @@ ifdef::basebackend-html[]
 ++++
 endif::[]
 ----
-Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,527 655550 [qtp1589228348-31] INFO trace-id-logging - Tracing header: {"requestId":"f863f80f-914d-4c01-a579-648673206a96","origin":null}
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,527 655550 [qtp1589228348-31] INFO org.openrepose.powerfilter.PowerFilter.trace-id-logging - Tracing header: {"requestId":"f863f80f-914d-4c01-a579-648673206a96","origin":null}
 Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,533 655556 [qtp1589228348-31] DEBUG org.apache.http.impl.conn.PoolingClientConnectionManager - Connection request: [route: {}->http://localhost:8000][total kept alive: 0; route allocated: 0 of 200; total allocated: 0 of 400]
 Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,534 655557 [qtp1589228348-31] DEBUG org.apache.http.impl.conn.PoolingClientConnectionManager - Connection leased: [id: 2][route: {}->http://localhost:8000][total kept alive: 0; route allocated: 1 of 200; total allocated: 1 of 400]
 Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,534 655557 [qtp1589228348-31] DEBUG org.apache.http.impl.conn.DefaultClientConnectionOperator - Connecting to localhost:8000

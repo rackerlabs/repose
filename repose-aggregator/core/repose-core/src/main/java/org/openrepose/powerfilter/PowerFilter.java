@@ -92,7 +92,7 @@ public class PowerFilter extends DelegatingFilterProxy {
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
     public static final String APPLICATION_DEPLOYMENT_HEALTH_REPORT = "ApplicationDeploymentError";
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
-    private static final Logger TRACE_ID_LOG = LoggerFactory.getLogger("trace-id-logging");
+    private static final Logger TRACE_ID_LOG = LoggerFactory.getLogger(LOG.getName() + ".trace-id-logging");
     private final Object configurationLock = new Object();
     private final EventListener<ApplicationDeploymentEvent, List<String>> applicationDeploymentListener;
     private final UpdateListener<SystemModel> systemModelConfigurationListener;
