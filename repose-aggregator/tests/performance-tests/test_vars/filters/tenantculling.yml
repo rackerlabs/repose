@@ -8,6 +8,13 @@
           { name: "tenant-culling" }
         ]
       }
+    },
+    config_files: {
+      templates: [
+        "container.cfg.xml",
+        "system-model.cfg.xml",
+        "filters/keystonev2/keystone-v2.cfg.xml"
+      ]
     }
   },
   gatling: {
