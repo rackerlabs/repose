@@ -1,3 +1,5 @@
+import groovy.io.FileType
+
 buildscript {
     repositories {
         mavenCentral()
@@ -12,6 +14,7 @@ buildscript {
         classpath 'com.netflix.nebula:nebula-dependency-recommender:3.6.3'
         classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
         classpath 'gradle.plugin.org.openrepose:gradle-jaxb-plugin:2.4.1'
+        classpath 'gradle.plugin.org.scoverage:gradle-scoverage:2.1.0'
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
         classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:0.8.2'
         classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1'
@@ -127,12 +130,16 @@ subprojects {
     apply plugin: 'jacoco'
     apply plugin: 'nebula.maven-publish'
     apply plugin: 'signing'
+    apply plugin: 'org.scoverage'
 
     dependencies {
         jaxb "com.sun.xml.bind:jaxb-xjc"
         jaxb "com.sun.xml.bind:jaxb-impl"
         jaxb "javax.xml.bind:jaxb-api"
         jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-ant"
+
+        scoverage "org.scoverage:scalac-scoverage-plugin_$scalaMajDotMin:1.1.0"
+        scoverage "org.scoverage:scalac-scoverage-runtime_$scalaMajDotMin:1.1.0"
 
         //todo: remove these once gradle bug with zinc compiler is fixed
         zinc 'com.typesafe.zinc:zinc:0.3.9'
@@ -227,6 +234,20 @@ subprojects {
                 compileClasspath += generated.output
                 runtimeClasspath += generated.output
             }
+            scoverage {
+                compileClasspath += generated.output
+                runtimeClasspath += generated.output
+            }
+        }
+        test {
+            java {
+                compileClasspath += generated.output
+                runtimeClasspath += generated.output
+            }
+            testScoverage {
+                compileClasspath += generated.output
+                runtimeClasspath += generated.output
+            }
         }
     }
 
@@ -244,11 +265,12 @@ subprojects {
 
     checkstyle {
         configFile = file("$rootDir/repose-aggregator/src/config/styles/checkstyle.xml")
-        sourceSets = sourceSets.matching {it.name != 'generated'}
+        sourceSets = sourceSets.matching {it.name != 'generated' && it.name != 'scoverage' && it.name != 'testScoverage'}
     }
 
     codenarc {
         configFile = file("$rootDir/repose-aggregator/src/config/styles/codenarc.xml")
+        sourceSets = sourceSets.matching {it.name != 'generated' && it.name != 'scoverage' && it.name != 'testScoverage'}
     }
 
     //todo: write a good one of these plugins, because this is garbage
@@ -269,12 +291,22 @@ subprojects {
         }
         exclude "**/*.cfg.xml"
         exclude "**/log4j2*.xml"
-        sourceSets = sourceSets.matching {it.name != 'generated'}
+        sourceSets = sourceSets.matching {it.name != 'generated' && it.name != 'scoverage' && it.name != 'testScoverage'}
     }
 
     //todo: for some reason jacoco freaks when we do clean and build together
     jacoco {
         toolVersion = "0.7.6.201602180812"
+    }
+
+    jacocoTestReport {
+        afterEvaluate {
+            // Ignore Scala classes.
+            classDirectories = files(classDirectories.files.collect { classDirectory ->
+                fileTree(dir: classDirectory, excludes: ['**/ObjectFactory.class'] + (getScalaClassPatterns(sourceDirectories) as List<String>))
+            })
+            sourceDirectories = sourceDirectories.filter({ dir -> dir.name != 'scala' })
+        }
     }
 
     test {
@@ -365,6 +397,39 @@ subprojects {
         sign configurations.archives
     }
 
+    if (project.hasProperty("minCoverageRatio")) {
+        def minCoverageRatio = (project.findProperty("minCoverageRatio") ?: "0.75") as double
+
+        // Configure the JaCoCo test coverage verification
+        jacocoTestCoverageVerification {
+            violationRules {
+                rule {
+                    limit {
+                        minimum = minCoverageRatio
+                    }
+                }
+            }
+            afterEvaluate {
+                // Ignore Scala classes.
+                classDirectories = files(classDirectories.files.collect { classDirectory ->
+                    fileTree(dir: classDirectory, excludes: ['**/ObjectFactory.class'] + (getScalaClassPatterns(sourceDirectories) as List<String>))
+                })
+                sourceDirectories = sourceDirectories.filter({ dir -> dir.name != 'scala' })
+            }
+        }
+
+        // Configure the Scoverage test coverage verification
+        checkScoverage {
+            minimumRate = minCoverageRatio
+        }
+
+        // Wire in test coverage verification tasks
+        //
+        // Note: To take advantage of Scoverage aggregation, the check dependency on
+        // Scoverage was placed in the repose-aggregator sub-project.
+        check.dependsOn jacocoTestCoverageVerification
+    }
+
     buildAll.dependsOn build
     publish.dependsOn buildAll
     project.tasks.getByPath(':release').dependsOn publish
@@ -383,6 +448,7 @@ sonarqube {
         property "sonar.dynamicAnalysis", "reuseReports"
         property "sonar.jacoco.reportPath", "$rootDir/repose-aggregator/build/jacoco/jacocoTest.exec"
         property "sonar.jacoco.itReportPath", "$rootDir/repose-aggregator/build/jacoco/jacocoIntegrationTest.exec"
+        property "sonar.scoverage.reportPath", "$rootDir/repose-aggreagtor/build/scoverage-aggregate/scoverage.xml"
     }
 }
 
@@ -400,5 +466,26 @@ remotes {
         if (systemKnownHosts.exists()) {
             knownHosts = file(systemKnownHosts)
         }
+    }
+}
+
+static def getScalaClassPatterns(FileCollection sourceDirs) {
+    // I really wanted for there to be a way to just exclude the Scala source set and its output,
+    // but that does not appear to be possible.
+    // For one, the "Scala" source set is actually just configuration of the "main" source set.
+    // For another, compiled Scala classes are output to the same base directory as compiled Java classes, and
+    // changing that has far-reaching consequences.
+    //
+    // Instead, I've added some logic which will attempt to map compiled classes to Scala source files, and remove
+    // those classes from the set of classes JaCoCo reports on.
+    //
+    // fixme: Account for multiple top-level class definitions in a single Scala source file.
+    sourceDirs.filter({ dir -> dir.name == 'scala' }).files.inject([]) { classPatterns, scalaDir ->
+        if (scalaDir.exists()) {
+            scalaDir.eachFileRecurse(FileType.FILES) { scalaSrcFile ->
+                classPatterns.add('**/' + scalaDir.toPath().relativize(scalaSrcFile.toPath()).toString().replaceFirst('\\.scala$', '*'))
+            }
+        }
+        classPatterns
     }
 }

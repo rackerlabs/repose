@@ -19,21 +19,21 @@
  */
 package org.openrepose.filters.apivalidator
 
+import java.net.URL
+
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
+import org.openrepose.commons.test.ConfigurationTest
+import org.openrepose.components.apivalidator.servlet.config.ObjectFactory
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class ValidatorConfigurationSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/config/validator-configuration.xsd")
+class ValidatorConfigurationTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/validator-configuration.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/validator.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 
   describe("schema validation") {
-    it("should successfully validate the sample config") {
-      validator.validateConfigFile("/META-INF/schema/examples/validator.cfg.xml")
-    }
-
     it(s"should successfully validate when there is only one default and the validator-names, dot-output, & ... are uniqe") {
       val config =
         s"""<validators xmlns="http://docs.openrepose.org/repose/validator/v1.0" multi-role-match="true">

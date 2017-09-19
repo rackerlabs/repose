@@ -107,3 +107,10 @@ buildRpm {
 
     requires('java', '1.8.0', GREATER | EQUAL)
 }
+
+jacocoTestCoverageVerification {
+    violationRules {
+        // todo: coverage is currently around 9% -- it is known, but should not fail the build
+        setFailOnViolation(false)
+    }
+}

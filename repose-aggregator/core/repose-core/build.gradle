@@ -94,8 +94,13 @@ task copyEars() {
 }
 
 test.dependsOn copyEars
+testScoverage.dependsOn copyEars
 
 processResources {
+    expand(reposeVersion: version, reposeVersionName: reposeCodename)
+}
+
+processScoverageResources {
     expand(reposeVersion: version, reposeVersionName: reposeCodename)
 }
 
@@ -103,7 +108,24 @@ processTestResources {
     expand(earDirectory: copyEars.outputDir, earVersion: version)
 }
 
+processTestScoverageResources {
+    expand(earDirectory: copyEars.outputDir, earVersion: version)
+}
+
 license {
     excludes(["**/log4j2.component.properties", "**/test.properties", "**/log4j2-List2.json", "**/log4j2-List1.yaml",
               "**/log4j2-List1.json", "**/log4j2-List2.yaml"])
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rules.forEach { rule ->
+            rule.limits.forEach { limit ->
+                if (limit.counter == 'INSTRUCTION' && limit.value == 'COVEREDRATIO') {
+                    // todo: set to the current coverage -- need more coverage, but we don't want the build to fail for the baseline
+                    limit.minimum = 0.49
+                }
+            }
+        }
+    }
 }

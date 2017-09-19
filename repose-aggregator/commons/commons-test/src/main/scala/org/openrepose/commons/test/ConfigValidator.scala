@@ -19,31 +19,44 @@
  */
 package org.openrepose.commons.test
 
-import java.io.ByteArrayInputStream
+import java.io.{ByteArrayInputStream, InputStream}
+import java.net.URL
 import javax.xml.transform.Source
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.{SchemaFactory, Validator}
 
 class ConfigValidator(validator: Validator) {
   def validateConfigFile(fileName: String): Unit = {
-    validator.validate(new StreamSource(classOf[ConfigValidator].getResourceAsStream(fileName)))
+    validateConfig(classOf[ConfigValidator].getResourceAsStream(fileName))
   }
 
   def validateConfigString(config: String): Unit = {
-    validator.validate(new StreamSource(new ByteArrayInputStream(config.getBytes)))
+    validateConfig(new ByteArrayInputStream(config.getBytes))
+  }
+
+  def validateConfig(config: InputStream): Unit = {
+    validator.validate(new StreamSource(config))
   }
 }
 
 object ConfigValidator {
   def apply(schemaFileNames: String*): ConfigValidator = {
+    apply(schemaFileNames.map(classOf[ConfigValidator].getResource): _*)
+  }
+
+  // The dummy implicit here is not actually used. It is only included to provide
+  // this function with a different signature than the other. The reason that this
+  // is necessary is that Scala varags are packed into a generic collection which
+  // is subject to type erasure. As a result, varags with different types are treated
+  // as equivalent types.
+  def apply(schemas: URL*)(implicit dummy: DummyImplicit): ConfigValidator = {
     val factory = SchemaFactory.newInstance(
       "http://www.w3.org/XML/XMLSchema/v1.1",
       classOf[org.apache.xerces.jaxp.validation.XMLSchema11Factory].getCanonicalName,
       classOf[ConfigValidator].getClassLoader)
     factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true)
-    new ConfigValidator(factory.newSchema(
-      schemaFileNames.map(fileName => new StreamSource(classOf[ConfigValidator].getResourceAsStream(fileName)))
-        .toArray[Source])
+    new ConfigValidator(factory
+      .newSchema(schemas.map(_.openStream).map(new StreamSource(_)).toArray[Source])
       .newValidator())
   }
 }

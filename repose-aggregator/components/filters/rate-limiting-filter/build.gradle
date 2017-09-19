@@ -32,3 +32,16 @@ license {
     excludes(["**/absolute-limits.json", "**/absolute-limits.xml", "**/combined-limits.xml", "**/lbaas-limits-json.xsl",
               "**/limits-json.xsl", "**/limits-combine.xsl"])
 }
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rules.forEach { rule ->
+            rule.limits.forEach { limit ->
+                if (limit.counter == 'INSTRUCTION' && limit.value == 'COVEREDRATIO') {
+                    // todo: set to the current coverage -- need more coverage, but we don't want the build to fail for the baseline
+                    limit.minimum = 0.54
+                }
+            }
+        }
+    }
+}

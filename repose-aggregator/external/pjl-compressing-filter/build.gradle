@@ -12,3 +12,10 @@ dependencies {
     testCompile "org.springframework:spring-test"
     testCompile "org.slf4j:jcl-over-slf4j"
 }
+
+jacocoTestCoverageVerification {
+    violationRules {
+        // Nearly all of this code is from an external source, therefore we do not overly care about our coverage of it.
+        setFailOnViolation(false)
+    }
+}

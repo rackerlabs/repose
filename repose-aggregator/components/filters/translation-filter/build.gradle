@@ -33,3 +33,16 @@ license {
               "request.xml", "post_server_req_v1.1.xsl", "add-element.xsl", "empty.xml", "identity.xsl",
               "remove-me-element.xml", "remove-element.xsl", "style.xsl", "request-information.xml"].collect {"**/$it"})
 }
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rules.forEach { rule ->
+            rule.limits.forEach { limit ->
+                if (limit.counter == 'INSTRUCTION' && limit.value == 'COVEREDRATIO') {
+                    // todo: set to the current coverage -- need more coverage, but we don't want the build to fail for the baseline
+                    limit.minimum = 0.59
+                }
+            }
+        }
+    }
+}
