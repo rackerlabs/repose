@@ -42,11 +42,9 @@ class TenantCullingFilterSimulation extends Simulation {
   val rampUpDuration = conf.getInt(s"$confRoot.ramp_up_users.duration_in_sec")
   val percentile3ResponseTimeUpperBound = conf.getInt(s"$confRoot.expectations.percentile3_response_time_upper_bound")
   val percentSuccessfulRequest = conf.getInt(s"$confRoot.expectations.percent_successful_requests")
-  val defaultRole="identity:user-admin"
-  val availableRoles=[defaultRole, "object-store:default", "compute:default"]
+  val defaultRole = "identity:user-admin"
+  val availableRoles = Seq(defaultRole, "object-store:default", "compute:default")
   val availableRolesLength = availableRoles.length
-  val rolesTenants=[defaultRole, "object-store:default", "compute:default"]
-
 
   // this value is provided through a Java property on the command line when Gatling is run
   val baseUrl = conf.getString("test.base_url")
@@ -65,10 +63,10 @@ class TenantCullingFilterSimulation extends Simulation {
       exec(getRequest)
     }
     .inject(
-      constantUsersPerSec(rampUpUsers) during(rampUpDuration seconds))
+      constantUsersPerSec(rampUpUsers) during (rampUpDuration seconds))
     .throttle(
-      jumpToRps(throughput), holdFor(warmUpDuration minutes),  // warm up period
-      jumpToRps(0), holdFor(duration minutes))                 // stop scenario during actual test
+      jumpToRps(throughput), holdFor(warmUpDuration minutes), // warm up period
+      jumpToRps(0), holdFor(duration minutes)) // stop scenario during actual test
 
   // set up the main scenario
   val mainScenario = scenario("Tenant Culling Filter Test")
@@ -77,8 +75,8 @@ class TenantCullingFilterSimulation extends Simulation {
       exec(getRequest)
     }
     .inject(
-      nothingFor(warmUpDuration minutes),  // do nothing during warm up period
-      constantUsersPerSec(rampUpUsers) during(rampUpDuration seconds))
+      nothingFor(warmUpDuration minutes), // do nothing during warm up period
+      constantUsersPerSec(rampUpUsers) during (rampUpDuration seconds))
     .throttle(
       jumpToRps(throughput), holdFor((warmUpDuration + duration) minutes))
 
@@ -104,7 +102,7 @@ class TenantCullingFilterSimulation extends Simulation {
 
   def getRelevantRoles: String = {
     val roles = for (i <- 0 to r.nextInt(availableRolesLength)) yield (availableRoles(random.nextInt(availableRolesLength)))
-    roles mkString(", ")
+    roles mkString (", ")
   }
 }
 
