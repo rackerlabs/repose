@@ -96,7 +96,7 @@ class TenantCullingFilterSimulation extends Simulation {
       .get("/")
       .header("x-auth-token", "${authToken}")
       .header("X-Relevant-Roles", "${relevantRoles}")
-      .header("Mock-Origin-Res-Status", "${ExpectedResponseStatusCode}")
+      .header("Mock-Origin-Res-Status", ExpectedResponseStatusCode)
       .check(status.is(ExpectedResponseStatusCode))
   }
 
