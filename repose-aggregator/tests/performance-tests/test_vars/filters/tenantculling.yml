@@ -17,6 +17,12 @@
       ]
     }
   },
+  mock: {
+    backends: [
+      "main_backend.js",
+      "auth_backend.js"
+    ]
+  },
   gatling: {
     test: {
       name: "TenantCullingFilterSimulation",
