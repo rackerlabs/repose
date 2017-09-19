@@ -32,6 +32,8 @@ import scala.util.Random
   * Tenant Culling filter performance simulation.
   */
 class TenantCullingFilterSimulation extends Simulation {
+  import TenantCullingFilterSimulation._
+
   // properties to configure the Gatling test
   val conf = ConfigFactory.load("application.conf")
   val confRoot = "test"
@@ -101,7 +103,7 @@ class TenantCullingFilterSimulation extends Simulation {
   }
 
   def getRelevantRoles: String = {
-    val roles = for (i <- 0 to r.nextInt(availableRolesLength)) yield (availableRoles(random.nextInt(availableRolesLength)))
+    val roles = for (i <- 0 to random.nextInt(availableRolesLength)) yield (availableRoles(random.nextInt(availableRolesLength)))
     roles mkString (", ")
   }
 }
