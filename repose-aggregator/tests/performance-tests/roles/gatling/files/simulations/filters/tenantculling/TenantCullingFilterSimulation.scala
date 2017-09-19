@@ -92,18 +92,16 @@ class TenantCullingFilterSimulation extends Simulation {
   ).protocols(httpConf)
 
   def getRequest: HttpRequestBuilder = {
-    def deviceId = Random.numeric.take(8).mkString
-
     http(session => session.scenario)
       .get("/")
       .header("x-auth-token", "${authToken}")
       .header("X-Relevant-Roles", "${relevantRoles}")
-      .header("Mock-Origin-Res-Status", ExpectedResponseStatusCode)
+      .header("Mock-Origin-Res-Status", s"$ExpectedResponseStatusCode")
       .check(status.is(ExpectedResponseStatusCode))
   }
 
   def getRelevantRoles: String = {
-    val roles = for (i <- 0 to random.nextInt(availableRolesLength)) yield (availableRoles(random.nextInt(availableRolesLength)))
+    val roles = for (i <- 0 to Random.nextInt(availableRolesLength)) yield (availableRoles(Random.nextInt(availableRolesLength)))
     roles mkString (", ")
   }
 }
