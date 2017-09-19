@@ -71,5 +71,6 @@ class TracingHeaderTest extends ReposeValveTest {
         requestid.matches(".+-.+-.+-.+-.+")
         //**tracing header log REP-1828
         reposeLogSearch.searchByString("GUID:$requestid -.*").size() > 0
+        reposeLogSearch.searchByString("Tracing header: ").size() == 0
     }
 }
