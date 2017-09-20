@@ -793,12 +793,12 @@ class MockIdentityV2Service {
     }
 
     String createAccessJsonWithValues(Map values = [:]) {
-        def token = values.token ?: client_token
-        def expires = values.expires ?: getExpires()
-        def tenantId = values.tenantId ?: client_tenantid
-        def userId = values.userId ?: client_userid
-        def username = values.username ?: client_username
-        def roles = (values.roles ?: [[name: "identity:admin"]])
+        def token = values.getOrDefault('token', client_token)
+        def expires = values.getOrDefault('expires', getExpires())
+        def tenantId = values.getOrDefault('tenantId', client_tenantid)
+        def userId = values.getOrDefault('userId', client_userid)
+        def username = values.getOrDefault('username', client_username)
+        def roles = values.getOrDefault('roles', [[name: "identity:admin"]])
 
         def json = new JsonBuilder()
 
