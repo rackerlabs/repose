@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<application xmlns="http://wadl.dev.java.net/2009/02"
+             xmlns:rax="http://docs.rackspace.com/api">
+    <resources base="http://localhost:${targetPort}/">
+        <resource path="open">
+            <method name="GET"/>
+        </resource>
+        <resource path="access">
+            <method name="GET" rax:roles="get"/>
+            <method name="POST" rax:roles="post"/>
+        </resource>
+        <resource path="culling">
+            <method name="GET" rax:roles="get admin"/>
+        </resource>
+        <resource path="realistic/{userId}">
+            <param name="userId" style="template"/>
+            <method name="GET" rax:roles="an:admin an:observer"/>
+            <method name="POST" rax:roles="an:admin"/>
+        </resource>
+    </resources>
+</application>
