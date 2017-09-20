@@ -799,6 +799,7 @@ class MockIdentityV2Service {
         def userId = values.getOrDefault('userId', client_userid)
         def username = values.getOrDefault('username', client_username)
         def roles = values.getOrDefault('roles', [[name: "identity:admin"]])
+        def region = values.getOrDefault('region', 'the-default-region')
 
         def json = new JsonBuilder()
 
@@ -820,7 +821,7 @@ class MockIdentityV2Service {
                 user {
                     id userId
                     name username
-                    'RAX-AUTH:defaultRegion' "the-default-region"
+                    'RAX-AUTH:defaultRegion' region
                     delegate.roles roles.withIndex(1).collect { role, index ->
                         [name: role.name, id: index] + (role.tenantId ? [tenantId: role.tenantId] : [:])
                     }
