@@ -19,7 +19,6 @@
  */
 package features.filters.tenantculling
 
-import groovy.json.JsonBuilder
 import org.apache.commons.lang3.RandomStringUtils
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
@@ -82,7 +81,7 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
         given: "a configured Keystone/Identity and appropriate request header"
         fakeIdentityService.client_tenantid = UUID.randomUUID().toString()
         def headers = [
-                (AUTH_TOKEN): fakeIdentityService.client_token
+            (AUTH_TOKEN): fakeIdentityService.client_token
         ]
 
         when: "the request is made"
@@ -102,8 +101,8 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
         fakeIdentityService.client_tenantid = clientTenantId
         fakeIdentityService.validateTokenHandler = createValidateTokenHandler(roles)
         def headers = [
-                (AUTH_TOKEN)    : fakeIdentityService.client_token,
-                (RELEVANT_ROLES): relevant
+            (AUTH_TOKEN)    : fakeIdentityService.client_token,
+            (RELEVANT_ROLES): relevant
         ]
 
         when: "the request is made"
@@ -134,8 +133,8 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
         given: "a configured Keystone/Identity and appropriate request headers"
         fakeIdentityService.client_tenantid = UUID.randomUUID().toString()
         def headers = [
-                (AUTH_TOKEN): fakeIdentityService.client_token,
-                (TENANT_ID) : tenantIdOne
+            (AUTH_TOKEN): fakeIdentityService.client_token,
+            (TENANT_ID) : tenantIdOne
         ]
 
         when: "the request is made"
@@ -156,9 +155,9 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
         fakeIdentityService.client_tenantid = null
         fakeIdentityService.validateTokenHandler = createValidateTokenHandler(roles)
         def headers = [
-                (AUTH_TOKEN): fakeIdentityService.client_token,
-                (TENANT_ID) : tenantIdOne,
-                (RELEVANT_ROLES): 'bogus'
+            (AUTH_TOKEN)    : fakeIdentityService.client_token,
+            (TENANT_ID)     : tenantIdOne,
+            (RELEVANT_ROLES): 'bogus'
         ]
 
         when: "the request is made"
@@ -182,19 +181,19 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
         fakeIdentityService.client_tenantid = tenantIdDef
         fakeIdentityService.validateTokenHandler = createValidateTokenHandler([roles: twoRoles])
         def headers = [
-                (AUTH_TOKEN)    : fakeIdentityService.client_token,
-                (RELEVANT_ROLES): roleNameOne
+            (AUTH_TOKEN)    : fakeIdentityService.client_token,
+            (RELEVANT_ROLES): roleNameOne
         ]
         def requestBody = RandomStringUtils.random(256, BODY_CHARS)
         def responseBody = RandomStringUtils.random(256, BODY_CHARS)
 
         when: "the request is made"
         MessageChain mc = deproxy.makeRequest(
-                url: reposeEndpoint,
-                method: httpMethod,
-                headers: headers,
-                requestBody: requestBody,
-                defaultHandler: { new Response(SC_OK, null, null, responseBody) }
+            url: reposeEndpoint,
+            method: httpMethod,
+            headers: headers,
+            requestBody: requestBody,
+            defaultHandler: { new Response(SC_OK, null, null, responseBody) }
         )
 
         then: "the origin service should receive the appropriate tenant(s)"
@@ -218,65 +217,8 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
     Closure<Response> createValidateTokenHandler(Map params) {
         { String tokenId, String tenantId, Request request ->
             def headers = [(CONTENT_TYPE): APPLICATION_JSON]
-            // TODO: The method in Repose's MockIdentityV2Service should be used when updated.
-            //def body = fakeIdentityService.createAccessJsonWithValues(params)
-            def body = createAccessJsonWithValues(params)
+            def body = fakeIdentityService.createAccessJsonWithValues(params)
             new Response(SC_OK, null, headers, body)
         }
-    }
-
-    // TODO: This method has been updated in Repose's MockIdentityV2Service, but wasn't released at the time of this writing.
-    String createAccessJsonWithValues(Map values = [:]) {
-        def token = values.token ?: fakeIdentityService.client_token
-        def expires = values.expires ?: fakeIdentityService.getExpires()
-        def tenantId = values.tenantId ?: fakeIdentityService.client_tenantid
-        def userId = values.userId ?: fakeIdentityService.client_userid
-        def username = values.username ?: fakeIdentityService.client_username
-        def roles = (values.roles ?: [[name: "identity:admin"]])
-
-        def json = new JsonBuilder()
-
-        json {
-            access {
-                delegate.token {
-                    id token
-                    delegate.expires expires
-                    if (tenantId) {
-                        tenant {
-                            id tenantId
-                            name tenantId
-                        }
-                    }
-                    if (values.authBy) {
-                        'RAX-AUTH:authenticatedBy' values.authBy
-                    }
-                }
-                user {
-                    id userId
-                    name username
-                    'RAX-AUTH:defaultRegion' "the-default-region"
-                    delegate.roles roles.withIndex(1).collect { role, index ->
-                        [name: role.name, id: index] + (role.tenantId ? [tenantId: role.tenantId] : [:])
-                    }
-                }
-                serviceCatalog([
-                        {
-                            name "cloudServersOpenStack"
-                            type "compute"
-                            endpoints([
-                                    {
-                                        publicURL "https://ord.servers.api.rackspacecloud.com/v2/$tenantId"
-                                        delegate.region "ORD"
-                                        delegate.tenantId tenantId
-                                        versionId "2"
-                                        versionInfo "https://ord.servers.api.rackspacecloud.com/v2"
-                                        versionList "https://ord.servers.api.rackspacecloud.com/"
-                                    }
-                            ])
-                        }
-                ])
-            }
-        }
-        json.toString()
     }
 }
