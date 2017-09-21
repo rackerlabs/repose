@@ -21,11 +21,7 @@ package features.recipes.tenantCullingRbac
 
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
-import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.Header
-import org.rackspace.deproxy.MessageChain
-import org.rackspace.deproxy.Request
-import org.rackspace.deproxy.Response
+import org.rackspace.deproxy.*
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -46,7 +42,7 @@ class TenantCullingRBACRecipeTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs('common', params)
-        repose.configurationProvider.applyConfigs('features/recipes/tenantCullingRbac', params)
+        repose.configurationProvider.applyConfigs('features/recipes/tenantCullingRbac/common', params)
         repose.start()
     }
 
@@ -161,7 +157,9 @@ class TenantCullingRBACRecipeTest extends ReposeValveTest {
         messageChain.handlings[0].request.headers.findAll('X-Relevant-Roles') == relevantRoles.collect { it.name }
 
         and: "only the default tenant ID and any tenant ID associated with a relevant role will be present in the X-Tenant-Id header"
-        messageChain.handlings[0].request.headers.findAll('X-Tenant-Id') == relevantRoles.collect { it.tenantId } + [defaultTenantId] - null
+        messageChain.handlings[0].request.headers.findAll('X-Tenant-Id') == relevantRoles.collect {
+            it.tenantId
+        } + [defaultTenantId] - null
 
         and: "only the default tenant name will be present in the X-Tenant-Name header"
         messageChain.handlings[0].request.headers.findAll('X-Tenant-Name') == [defaultTenantId] - null
@@ -306,7 +304,6 @@ class TenantCullingRBACRecipeTest extends ReposeValveTest {
         messageChain.handlings[0].request.headers.findAll('X-Token-Expires').size() == 1
         messageChain.handlings[0].request.headers.findAll('X-Token-Expires').find { it ==~ '\\w+, \\d.*' }
     }
-
 
     Closure<Response> createValidateTokenHandler(Map params = [:]) {
         { String tokenId, String tenantId, Request request ->
