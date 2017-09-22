@@ -9,7 +9,7 @@ strong {
 }
 
 .slide {
-    padding: 100px 0;
+    padding-top: 50px;
 }
 
 .slide-1 {
@@ -34,6 +34,32 @@ strong {
 
 }
 
+.slide-5 {
+
+}
+
+#contact-grid {
+  display: grid;
+  grid-gap: 20px;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: auto;
+}
+
+#chat {
+  grid-column: 1;
+  grid-row: 1 / 3;
+}
+
+#email {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+#web {
+  grid-column: 2;
+  grid-row: 2;
+}
+
 .narwhal-landing {
     position: relative;
     bottom: -16px;
@@ -47,7 +73,6 @@ strong {
 }
 
 // Timeline pattern
-
 
 .path-container {
   margin-top: 50px;
