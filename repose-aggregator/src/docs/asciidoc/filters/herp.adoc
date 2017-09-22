@@ -33,7 +33,7 @@ This filter has no dependencies on other filters and can be placed wherever it i
 ====
 In order for the HERP filter to process and record every request, no preceding filter in the filter chain may write a response.
 To prevent short-circuiting without changing behavior, delegation has been added to many Repose filters.
-See <<delegation.adoc#,Delegation in Repose>> for more details.
+See <<../recipes/delegation.adoc#,Delegation in Repose>> for more details.
 ====
 
 === Request Headers Created

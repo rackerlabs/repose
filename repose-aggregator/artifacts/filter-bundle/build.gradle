@@ -25,6 +25,7 @@ dependencies {
     earlib project(":repose-aggregator:components:filters:rackspace-auth-user-filter")
     earlib project(":repose-aggregator:components:filters:rate-limiting-filter")
     earlib project(":repose-aggregator:components:filters:slf4j-http-logging-filter")
+    earlib project(":repose-aggregator:components:filters:tenant-culling-filter")
     earlib project(":repose-aggregator:components:filters:translation-filter")
     earlib project(":repose-aggregator:components:filters:uri-normalization-filter")
     earlib project(":repose-aggregator:components:filters:uri-stripper-filter")

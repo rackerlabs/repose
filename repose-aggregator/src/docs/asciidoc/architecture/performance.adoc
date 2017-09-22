@@ -1,7 +1,5 @@
 = Performance Testing
 
-include::../_includes/in-progress.adoc[]
-
 Performance testing is a method of testing various aspects of Repose in order to collect performance data.
 Performance data can be used to determine the overhead of the aspects in question, both at a system resource level as well as at a response time level.
 
@@ -131,33 +129,57 @@ image::../images/performance-test-framework.png[Performance Test Framework]
 
 === Creating a New Test
 
-[NOTE]
-====
-In the directory structure of the performance tests, all test-specific files are organized by test and category.
-That is, each file is located in a directory named after the specific test which is itself located in a directory named after the category of test.
-For example, the `repose-aggregator/tests/performance-tests/roles/repose/files/config/` directory contains the `filters/` and `use-cases/` sub-directories and the common file `log4j2.xml`.
-====
+The directory structure of the performance tests is organized by `category` and `test`.
+That is, each file is located in a directory named after the specific `test` which is itself located in a directory named after the `category` of test.
+For example, the repose configuration files directory:
+
+* `repose-aggregator/tests/performance-tests/roles/repose/files/config/`
+
+contains the `category` sub-directories `filters/` and `use-cases/`.
+
+Armed with this information, these are the basic steps to create a new test:
 
 . Create a vars file for the new test.
-.. These are located in `repose-aggregator/tests/performance-tests/test_vars/`.
-.. At a minimum, it should contain the `dir_prefix`, the filter chain, and the Gatling simulation name and package.
-.. The Gatling simulation name should follow the pattern: Name Type "Simulation" (e.g., SamlFilterSimulation, ComplexUseCaseSimulation).
-. If necessary, add Repose configuration files.
-.. Create any necessary new directories under `repose-aggregator/tests/performance-tests/roles/repose/` with the same names and hierarchy configured in the `dir_prefix`.
-Template files should be placed under the `templates/config/` directory, and raw configuration files should be placed under the `files/config/` directory.
-. Create a http://gatling.io/docs/current/general/concepts/#simulation[Gatling simulation].
-.. Create a new directory under `repose-aggregator/tests/performance-tests/roles/gatling/files/simulations/` with the same name as the configured Gatling simulation package (may be different than `dir_prefix`).
-.. Write a Gatling simulation with the same name as the configured Gatling simulation name.
-This code will be responsible for generating test traffic and performance test data.
-. If necessary, add mock services.
-.. Create any necessary new directories under `repose-aggregator/tests/performance-tests/roles/repose/files/mocks/`.
-
+.. This needs to be located at:
+* `repose-aggregator/tests/performance-tests/test_vars/{category}/{test}.yaml`
+.. At a minimum, the vars file should contain:
+* `dir_prefix`
++
 [NOTE]
 ====
-Ansible supports Jinja2 templates.
-These templates allow users to add dynamic content to files and Ansible variables.
-Jinja2 templated files should always be placed in the `templates/` sub-directory of a role directory and have a `.j2` file extension.
+The `dir_prefix` is the `{category}/{test}` used to create the new vars file (e.g. `filter/saml`).
 ====
+* required filter chain
+* Gatling simulation class `package`
++
+[NOTE]
+====
+The `package` is similarly created using `{category}.{test}` (e.g. `filter.saml`).
+====
+* Gatling simulation class `name`
++
+[NOTE]
+====
+The `name` should follow the Camel Cased pattern of `{Test}{Category}Simulation` (e.g., `SamlFilterSimulation`, `ComplexUseCaseSimulation`).
+====
+. If necessary, add Repose configuration files.
+.. Template files should be placed in the directory:
+* `repose-aggregator/tests/performance-tests/roles/repose/templates/config/{dir_prefix}/`
++
+[NOTE]
+====
+The Framework uses Ansible and it supports Jinja2 templates.
+These templates allow users to add dynamic content to files and Ansible variables.
+Jinja2 templated files must have a `.j2` file extension appended to the file name and it will be removed as part of the templating process.
+====
+.. Configuration files should be placed in the directory:
+* `repose-aggregator/tests/performance-tests/roles/repose/files/config/{dir_prefix}/`
+. Create a http://gatling.io/docs/current/general/concepts/#simulation[Gatling simulation].
+.. The Gatling simulation which will be responsible for generating test traffic and performance test data, should be created in the file:
+* `repose-aggregator/tests/performance-tests/roles/gatling/files/simulations/{package}/{name}.scala`
+. If necessary, add mock services.
+.. Create any necessary mocks in the directory:
+* `repose-aggregator/tests/performance-tests/roles/repose/files/mocks/{dir_prefix}/`.
 
 === Running a Test Automatically
 
@@ -176,9 +198,10 @@ If you have the appropriate permissions on the Repose Jenkins instance, you can 
 .performance-test build parameters
 [options="header,autowidth"]
 |===
-| Name          | Required | Description                                                                   | Example
-| perf_test     | Yes      | name of the performance test you wish to perform                              | uses-cases/simple
-| extra_options | No       | extra options to pass to the ansible-playbook command                         | `-e '{gatling: {test: {params: {duration_in_min: 1}}}}'`
+| Name          | Required | Description                                           | Example
+| perf_test     | Yes      | name of the performance test you wish to perform      | `uses-cases/simple`
+| extra_options | No       | extra options to pass to the ansible-playbook command | `-e '{gatling: {test: {params: {duration_in_min: 1}}}}'`
+| branch        | Yes      | the branch to build from (Default: master)            | `REP-0000_NewPerfTest`
 |===
 
 === Running a Test Locally

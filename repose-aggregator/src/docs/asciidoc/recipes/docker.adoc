@@ -23,10 +23,10 @@ All official, published Docker images for Repose, can be found on Docker Hub at:
 https://hub.docker.com/r/rackerlabs/repose/
 
 == Dockerfile
-The Dockerfile used to build the Docker images has been copied below for the sake of convenience.
+The Dockerfile used to build the Debian/Ubuntu Docker images has been copied below for the sake of convenience.
 
 ----
-include::../../../../artifacts/docker/src/docker/Dockerfile[]
+include::../../../../artifacts/docker/src/docker/ubuntu/Dockerfile[]
 ----
 
 To modify and/or build a Repose Docker image from the Dockerfile, follow these steps:

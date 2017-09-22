@@ -1,0 +1,32 @@
+{
+  dir_prefix: "filters/tenantculling",
+  repose: {
+    config: {
+      system_model: {
+        filters: [
+          { name: "keystone-v2" },
+          { name: "tenant-culling" }
+        ]
+      }
+    },
+    config_files: {
+      templates: [
+        "container.cfg.xml",
+        "system-model.cfg.xml",
+        "filters/keystonev2/keystone-v2.cfg.xml"
+      ]
+    }
+  },
+  mock: {
+    backends: [
+      "main_backend.js",
+      "auth_backend.js"
+    ]
+  },
+  gatling: {
+    test: {
+      name: "TenantCullingFilterSimulation",
+      package: "filters.tenantculling"
+    }
+  }
+}

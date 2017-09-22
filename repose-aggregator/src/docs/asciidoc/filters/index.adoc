@@ -89,6 +89,9 @@ Enables users to write custom filters for Repose using a variety of scripting la
 == <<slf4j-http-logging.adoc#,SFL4J HTTP Logging Filter>>
 *IN PROGRESS*
 
+== <<tenant-culling.adoc#,Tenant Culling Filter>>
+Winnows away the tenants that are not relevant to the current request.
+
 == <<translation.adoc#,Translation Filter>>
 *IN PROGRESS*
 

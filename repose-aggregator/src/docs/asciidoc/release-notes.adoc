@@ -13,6 +13,7 @@
 *** https://github.com/rackerlabs/api-checker/blob/api-checker-2.4.0/RELEASE.md[API Checker v2.4.0 release notes]
 ** Attribute Mapper: 1.3.0 → 1.3.1
 *** https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-1.3.1/RELEASE.md[Attribute Mapper v1.3.1 release notes]
+* https://repose.atlassian.net/browse/REP-5994[REP-5994] - Brought the <<filters/tenant-culling.adoc#, Tenant Culling Filter>> into the main filter bundle.
 * https://repose.atlassian.net/browse/REP-5727[REP-5727] - Extracted trace ID logging to its own named logger.
 +
 [NOTE]
@@ -36,7 +37,7 @@ As part of this correction, any configurations that were taking advantage of thi
 ====
 
 * https://repose.atlassian.net/browse/REP-5748[REP-5748] - Updated the <<services/phone-home.adoc#, Phone Home Service>> to correct a bug that was preventing the message from actually reaching back.
-* https://repose.atlassian.net/browse/REP-5823[REP-5823] - Updated the <<services/keystone-v2.adoc#, Keystone v2 Filter>> to support multiple https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expressions] for URI tenant extraction.
+* https://repose.atlassian.net/browse/REP-5823[REP-5823] - Updated the <<filters/keystone-v2.adoc#, Keystone v2 Filter>> to support multiple https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expressions] for URI tenant extraction.
 * https://repose.atlassian.net/browse/REP-5853[REP-5853] - Updated the <<filters/saml-policy.adoc#, SAML Policy Translation Filter>> and <<filters/attribute-mapping-policy-validation.adoc#,Attribute Mapping Policy Validation Filter>> to recover support for XML and JSON (which was removed in <<8.6.2.0 (2017-06-13)>>).
 * https://repose.atlassian.net/browse/REP-5617[REP-5617] - Updated the the internal HTTP Servlet Response Wrapper to log a WARNING when addHeader, addIntHeader, addDateHeader, or appendHeader is called after the response has been committed.
 

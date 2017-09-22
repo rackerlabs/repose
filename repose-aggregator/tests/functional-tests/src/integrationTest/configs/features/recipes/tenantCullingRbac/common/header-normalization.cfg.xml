@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
+    <target>
+        <request>
+            <!-- Remove all of the headers related to the filters under test -->
+            <blacklist id="tenant-culling-rbac">
+                <header id="X-Authorization"/>
+                <header id="X-Identity-Status"/>
+                <header id="X-User-Name"/>
+                <header id="X-User-ID"/>
+                <header id="X-Authenticated-By"/>
+                <header id="X-Roles"/>
+                <header id="X-PP-User"/>
+                <header id="X-PP-Groups"/>
+                <header id="X-Catalog"/>
+                <header id="X-Impersonator-ID"/>
+                <header id="X-Impersonator-Name"/>
+                <header id="X-Impersonator-Roles"/>
+                <header id="X-Contact-ID"/>
+                <header id="X-Default-Region"/>
+                <header id="X-Tenant-ID"/>
+                <header id="X-Tenant-Name"/>
+                <header id="X-Token-Expires"/>
+                <header id="X-Auth-Token-Key"/>
+                <header id="X-Relevant-Roles"/>
+            </blacklist>
+        </request>
+    </target>
+</header-normalization>
