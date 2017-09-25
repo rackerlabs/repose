@@ -10,9 +10,9 @@
 * https://repose.atlassian.net/browse/REP-5885[REP-5885] - Fixed the bug where an `Error` during processing would result in a `200` response from Repose.
 * https://repose.atlassian.net/browse/REP-6001[REP-6001] - Updated dependencies:
 ** API Checker: 2.3.0 → 2.4.1
-*** https://github.com/rackerlabs/api-checker/blob/api-checker-2.4.0/RELEASE.md[API Checker v2.4.0 release notes]
-** Attribute Mapper: 1.3.0 → 1.3.1
-*** https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-1.3.1/RELEASE.md[Attribute Mapper v1.3.1 release notes]
+*** https://github.com/rackerlabs/api-checker/blob/api-checker-2.4.1/RELEASE.md[API Checker v2.4.1 release notes]
+** Attribute Mapper: 1.3.0 → 2.0.0
+*** https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-2.0.0/RELEASE.md[Attribute Mapper v2.0.0 release notes]
 * https://repose.atlassian.net/browse/REP-5994[REP-5994] - Brought the <<filters/tenant-culling.adoc#, Tenant Culling Filter>> into the main filter bundle.
 * https://repose.atlassian.net/browse/REP-5727[REP-5727] - Extracted trace ID logging to its own named logger.
 +
