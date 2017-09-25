@@ -46,7 +46,7 @@ import org.mockito.{Matchers => MM}
 import org.openrepose.commons.utils.io.BufferedServletInputStream
 import org.openrepose.commons.utils.servlet.http.{HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.samlpolicy.SamlIdentityClient.{OverLimitException, Policy, TextYaml, UnexpectedStatusCodeException}
+import org.openrepose.filters.samlpolicy.SamlIdentityClient.{OverLimitException, Policy, ProviderInfo, TextYaml, UnexpectedStatusCodeException}
 import org.openrepose.filters.samlpolicy.config._
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.opensaml.core.config.{InitializationException, InitializationService}
@@ -805,7 +805,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
-      )).thenReturn(Success("idp-id"))
+      )).thenReturn(Success(ProviderInfo("idp-id", Array.empty)))
       when(samlIdentityClient.getPolicy(
         MM.anyString(),
         MM.anyString(),
@@ -883,7 +883,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
-      )).thenReturn(Success("idp-id"))
+      )).thenReturn(Success(ProviderInfo("idp-id", Array.empty)))
       when(samlIdentityClient.getPolicy(
         MM.anyString(),
         MM.anyString(),
@@ -909,7 +909,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
-      )).thenReturn(Success("idp-id"))
+      )).thenReturn(Success(ProviderInfo("idp-id", Array.empty)))
       when(samlIdentityClient.getPolicy(
         MM.anyString(),
         MM.anyString(),
@@ -934,7 +934,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
-      )).thenReturn(Success("idp-id"))
+      )).thenReturn(Success(ProviderInfo("idp-id", Array.empty)))
       when(samlIdentityClient.getPolicy(
         MM.anyString(),
         MM.anyString(),
@@ -975,7 +975,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
-      )).thenReturn(Success("idp-id"))
+      )).thenReturn(Success(ProviderInfo("idp-id", Array.empty)))
       when(samlIdentityClient.getPolicy(
         MM.anyString(),
         MM.anyString(),
@@ -1016,7 +1016,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
-      )).thenReturn(Success("idp-id"))
+      )).thenReturn(Success(ProviderInfo("idp-id", Array.empty)))
       when(samlIdentityClient.getPolicy(
         MM.anyString(),
         MM.anyString(),
@@ -1053,7 +1053,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
           MM.anyString(),
           MM.any[Option[String]],
           MM.anyBoolean()
-        )).thenReturn(Success("idp-id"))
+        )).thenReturn(Success(ProviderInfo("idp-id", Array.empty)))
         when(samlIdentityClient.getPolicy(
           MM.anyString(),
           MM.anyString(),

@@ -563,7 +563,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       val result = samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
       result shouldBe a[Success[_]]
-      result.get shouldEqual sampleIdpId
+      result.get.idpId shouldEqual sampleIdpId
+      result.get.domains should contain only("77366")
     }
 
     Set(
@@ -625,7 +626,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         val result = samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
         result shouldBe a[Success[_]]
-        result.get shouldEqual sampleIdpId
+        result.get.idpId shouldEqual sampleIdpId
+        result.get.domains should contain only("77366")
       }
     }
 

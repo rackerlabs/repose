@@ -341,11 +341,11 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
           getToken(traceId, checkCache = false) flatMap { newToken =>
             samlIdentityClient.getIdpId(issuer, newToken, traceId, checkCache = false)
           }
-      } flatMap { idpId =>
-        samlIdentityClient.getPolicy(idpId, token, traceId, checkCache = true) recoverWith {
+      } flatMap { providerInfo =>
+        samlIdentityClient.getPolicy(providerInfo.idpId, token, traceId, checkCache = true) recoverWith {
           case UnexpectedStatusCodeException(SC_UNAUTHORIZED, _) =>
             getToken(traceId, checkCache = false) flatMap { newToken =>
-              samlIdentityClient.getPolicy(idpId, newToken, traceId, checkCache = false)
+              samlIdentityClient.getPolicy(providerInfo.idpId, newToken, traceId, checkCache = false)
             }
         }
       }
