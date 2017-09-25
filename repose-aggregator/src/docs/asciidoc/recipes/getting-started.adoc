@@ -143,7 +143,7 @@ For details on common troubleshooting techniques, visit our <<../troubleshooting
 For a list of frequently asked questions and answers, visit our <<../faq.adoc#,FAQ>> page.
 
 == Need More Information About Repose?
-<<../contact-us.adoc#,Contact us!>> We would be happy to address any questions, comments, or concerns with anything having to do with Repose!
+http://www.openrepose.org/#contact-us[Contact us]! We would be happy to address any questions, comments, or concerns with anything having to do with Repose!
 
 [TIP]
 ====

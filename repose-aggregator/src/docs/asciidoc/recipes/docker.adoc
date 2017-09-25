@@ -127,4 +127,4 @@ This option simply mounts the Repose log directory in the container to the same 
 
 == Notices
 Custom artifacts are not currently supported by our Docker images.
-If you would like to deploy custom code in Repose running in Docker, please <<../contact-us.adoc#,Contact Us>>!
+If you would like to deploy custom code in Repose running in Docker, please http://www.openrepose.org/#contact-us[contact us]!

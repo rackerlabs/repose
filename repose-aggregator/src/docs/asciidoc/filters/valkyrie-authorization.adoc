@@ -11,7 +11,7 @@ Consequently, the user may only view items they have permission to view.
 [NOTE]
 ====
 Currently, only JSON bodies are supported.
-If you would like to request XML support, please <<../contact-us.adoc#,contact us>>!
+If you would like to request XML support, please http://www.openrepose.org/#contact-us[contact us]!
 ====
 * **Account Permission to Role Translation**:
 Takes the user's account level permissions and translates their names into the standard `X-Roles` header allowing <<../recipes/role-based-access-control.adoc#,Role-based access control (RBAC)>> to be used on the request.
