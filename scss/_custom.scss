@@ -9,7 +9,7 @@ strong {
 }
 
 .slide {
-    padding-top: 50px;
+    padding: 100px 0;
 }
 
 .slide-1 {
@@ -31,11 +31,18 @@ strong {
 }
 
 .slide-4 {
-
+  padding: 0 0;
+  padding-top: 50px;
 }
 
 .slide-5 {
+  padding: 0 0;
+  padding-top: 50px;
+}
 
+.slide-6 {
+  padding: 0 0;
+  padding-top: 50px;
 }
 
 #contact-grid {
@@ -123,10 +130,10 @@ strong {
 }
 
 .icon {
-  position:relative;
+  position: relative;
   font-size: 100px;
   text-align: center;
-  top: 25px;
+  top: 10px;
 }
 
 
