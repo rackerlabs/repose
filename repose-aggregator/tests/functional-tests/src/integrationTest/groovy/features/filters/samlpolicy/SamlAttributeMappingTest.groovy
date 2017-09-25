@@ -27,6 +27,7 @@ import org.openrepose.framework.test.util.saml.SamlUtilities
 import org.opensaml.saml.saml2.core.Attribute
 import org.opensaml.saml.saml2.core.Response as SamlResponse
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
@@ -554,6 +555,134 @@ class SamlAttributeMappingTest extends ReposeValveTest {
                 ["with extra pre-whitespace and explicit start", "\n\n---\n", ""],
                 ["with extra pre-whitespace", "\n\n", ""],
                 ["with extra post-whitespace", "", "\n\n"],
+        ]
+    }
+
+    @Unroll
+    def "the translated saml:response will make it to the origin service when the #policyFormat policy uses the default domain SAML attribute"() {
+        given: "a saml:response with a domain"
+        def samlIssuer = generateUniqueIssuer()
+        def attribDomain = "193083"
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(
+            issuer: samlIssuer,
+            attributes: [domain: [attribDomain]],
+            fakeSign: true))
+
+        and: "an Identity mock that will return the mapping policy"
+        String approvedDomain = "123456"
+        String idpId = generateUniqueIdpId()
+        fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(
+            id: idpId,
+            approvedDomains: [approvedDomain])
+        fakeIdentityV2Service.createGetMappingPolicyForIdp(policyFormat)
+
+        when: "a request is sent to Repose"
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint + SAML_AUTH_URL,
+            method: HTTP_POST,
+            headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
+            requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the origin service will receive the request"
+        mc.handlings.size() == 1
+
+        when: "the saml:response received by the origin service is unmarshalled"
+        SamlResponse response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
+        List<Attribute> attributes = response.assertions[0].attributeStatements[0].attributes
+
+        then: "the request has two assertions"
+        response.assertions.size() == 2
+
+        and: "the domain attribute is set to the SAML attribute domain"
+        attributes.find { it.name == "domain" }.attributeValues[0].value == attribDomain
+
+        where:
+        policyFormat << [TEXT_YAML, APPLICATION_JSON]
+    }
+
+    @Unroll
+    def "the translated saml:response will make it to the origin service when the #policyFormat policy uses the default domain and the IDP provides one approved domain"() {
+        given: "a saml:response with a domain"
+        def samlIssuer = generateUniqueIssuer()
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(
+            issuer: samlIssuer,
+            attributes: [domain: []],
+            fakeSign: true))
+
+        and: "an Identity mock that will return the mapping policy"
+        String approvedDomain = "123456"
+        String idpId = generateUniqueIdpId()
+        fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(
+            id: idpId,
+            approvedDomains: [approvedDomain])
+        fakeIdentityV2Service.createGetMappingPolicyForIdp(policyFormat)
+
+        when: "a request is sent to Repose"
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint + SAML_AUTH_URL,
+            method: HTTP_POST,
+            headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
+            requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the origin service will receive the request"
+        mc.handlings.size() == 1
+
+        when: "the saml:response received by the origin service is unmarshalled"
+        SamlResponse response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
+        List<Attribute> attributes = response.assertions[0].attributeStatements[0].attributes
+
+        then: "the request has two assertions"
+        response.assertions.size() == 2
+
+        and: "the domain attribute is set to the IDP approved domain"
+        attributes.find { it.name == "domain" }.attributeValues[0].value == approvedDomain
+
+        where:
+        policyFormat << [TEXT_YAML, APPLICATION_JSON]
+    }
+
+    @Unroll
+    def "the translated saml:response will not make it to the origin service when the #policyFormat policy uses the default domain and the IDP provides #approvedDomainsMultiplicity approved domains"() {
+        given: "a saml:response without a domain attribute"
+        def samlIssuer = generateUniqueIssuer()
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(
+            issuer: samlIssuer,
+            attributes: [domain: []],
+            fakeSign: true))
+
+        and: "an Identity mock that will return the mapping policy"
+        String idpId = generateUniqueIdpId()
+        fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(
+            id: idpId,
+            approvedDomains: approvedDomains)
+        fakeIdentityV2Service.createGetMappingPolicyForIdp(policyFormat)
+
+        when: "a request is sent to Repose"
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint + SAML_AUTH_URL,
+            method: HTTP_POST,
+            headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED],
+            requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the origin service will receive the request"
+        mc.handlings.size() == 1
+
+        when: "the saml:response received by the origin service is unmarshalled"
+        SamlResponse response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
+        List<Attribute> attributes = response.assertions[0].attributeStatements[0].attributes
+
+        then: "the request has two assertions"
+        response.assertions.size() == 2
+
+        and: "the domain attribute is not set"
+        attributes.find { it.name == "domain" }.attributeValues[0].value == null
+
+        where:
+        [approvedDomainsMultiplicity, approvedDomains, policyFormat] << [
+            ["no", [], TEXT_YAML],
+            ["multiple", ["098765", "987654"], TEXT_YAML],
+            ["no", [], APPLICATION_JSON],
+            ["multiple", ["098765", "987654"], APPLICATION_JSON],
         ]
     }
 }
