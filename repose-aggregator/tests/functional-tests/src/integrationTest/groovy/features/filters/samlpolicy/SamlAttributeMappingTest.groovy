@@ -642,7 +642,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
     }
 
     @Unroll
-    def "the translated saml:response will not make it to the origin service when the #policyFormat policy uses the default domain and the IDP provides #approvedDomainsMultiplicity approved domains"() {
+    def "the translated saml:response will make it to the origin service when the #policyFormat policy uses the default domain and the IDP provides #approvedDomainsMultiplicity approved domains"() {
         given: "a saml:response without a domain attribute"
         def samlIssuer = generateUniqueIssuer()
         def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(
