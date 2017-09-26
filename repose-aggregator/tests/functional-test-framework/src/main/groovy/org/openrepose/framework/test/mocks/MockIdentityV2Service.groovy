@@ -718,12 +718,12 @@ class MockIdentityV2Service {
         json {
             'RAX-AUTH:identityProviders'([
                     {
-                        name values.name ?: "External IDP"
-                        federationType values.federationType ?: "DOMAIN"
-                        approvedDomains values.approvedDomains ?: ["77366"]
-                        description values.description ?: "An External IDP Description"
-                        id values.id ?: generateUniqueIdpId()
-                        issuer values.issuer ?: "http://idp.external.com"
+                        name values.getOrDefault('name', 'External IDP')
+                        federationType values.getOrDefault('federationType', 'DOMAIN')
+                        approvedDomains values.getOrDefault('approvedDomains', ['77366'])
+                        description values.getOrDefault('description', 'An External IDP Description')
+                        id values.getOrDefault('id', generateUniqueIdpId())
+                        issuer values.getOrDefault('issuer', 'http://idp.external.com')
                     }
             ])
         }

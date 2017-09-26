@@ -46,7 +46,8 @@ import org.mockito.{Matchers => MM}
 import org.openrepose.commons.utils.io.BufferedServletInputStream
 import org.openrepose.commons.utils.servlet.http.{HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.samlpolicy.SamlIdentityClient.{OverLimitException, Policy, TextYaml, UnexpectedStatusCodeException}
+import org.openrepose.filters.samlpolicy.SamlIdentityClient.{OverLimitException, Policy, ProviderInfo, TextYaml, UnexpectedStatusCodeException}
+import org.openrepose.filters.samlpolicy.SamlPolicyTranslationFilter.PolicyInfo
 import org.openrepose.filters.samlpolicy.config._
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.opensaml.core.config.{InitializationException, InitializationService}
@@ -805,9 +806,9 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
-      )).thenReturn(Success("idp-id"))
+      )).thenReturn(Success(ProviderInfo("idp-id", Array.empty)))
       when(samlIdentityClient.getPolicy(
-        MM.anyString(),
+        MM.any[ProviderInfo],
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
@@ -823,13 +824,13 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.any[Option[String]]
       )
       verify(samlIdentityClient).getPolicy(
-        MM.anyString(),
+        MM.any[ProviderInfo],
         MM.anyString(),
         MM.any[Option[String]],
         MM.eq(true)
       )
       verify(samlIdentityClient).getPolicy(
-        MM.anyString(),
+        MM.any[ProviderInfo],
         MM.anyString(),
         MM.any[Option[String]],
         MM.eq(false)
@@ -883,9 +884,9 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
-      )).thenReturn(Success("idp-id"))
+      )).thenReturn(Success(ProviderInfo("idp-id", Array.empty)))
       when(samlIdentityClient.getPolicy(
-        MM.anyString(),
+        MM.any[ProviderInfo],
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
@@ -909,9 +910,9 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
-      )).thenReturn(Success("idp-id"))
+      )).thenReturn(Success(ProviderInfo("idp-id", Array.empty)))
       when(samlIdentityClient.getPolicy(
-        MM.anyString(),
+        MM.any[ProviderInfo],
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
@@ -934,9 +935,9 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
-      )).thenReturn(Success("idp-id"))
+      )).thenReturn(Success(ProviderInfo("idp-id", Array.empty)))
       when(samlIdentityClient.getPolicy(
-        MM.anyString(),
+        MM.any[ProviderInfo],
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
@@ -954,7 +955,8 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
           |          roles: '{D}'
           |  - version: RAX-1
           |""".stripMargin,
-        "no/content"
+        "no/content",
+        Array.empty
       )))
 
       val exception = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
@@ -975,9 +977,9 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
-      )).thenReturn(Success("idp-id"))
+      )).thenReturn(Success(ProviderInfo("idp-id", Array.empty)))
       when(samlIdentityClient.getPolicy(
-        MM.anyString(),
+        MM.any[ProviderInfo],
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
@@ -995,7 +997,8 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
           |          roles: '{D}'
           |  - version: RAX-1
           |""".stripMargin,
-        "text/yaml"
+        "text/yaml",
+        Array.empty
       )))
 
       val exception = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
@@ -1016,9 +1019,9 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
-      )).thenReturn(Success("idp-id"))
+      )).thenReturn(Success(ProviderInfo("idp-id", Array.empty)))
       when(samlIdentityClient.getPolicy(
-        MM.anyString(),
+        MM.any[ProviderInfo],
         MM.anyString(),
         MM.any[Option[String]],
         MM.anyBoolean()
@@ -1027,7 +1030,8 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
           |foo:
           |  bar: 1
           |""".stripMargin,
-        "text/yaml"
+        "text/yaml",
+        Array.empty
       )))
 
       val exception = the [SamlPolicyException] thrownBy filter.getPolicy("issuer", None)
@@ -1053,17 +1057,17 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
           MM.anyString(),
           MM.any[Option[String]],
           MM.anyBoolean()
-        )).thenReturn(Success("idp-id"))
+        )).thenReturn(Success(ProviderInfo("idp-id", Array.empty)))
         when(samlIdentityClient.getPolicy(
-          MM.anyString(),
+          MM.any[ProviderInfo],
           MM.anyString(),
           MM.any[Option[String]],
           MM.anyBoolean()
-        )).thenReturn(Success(Policy(policy._2, policy._1)))
+        )).thenReturn(Success(Policy(policy._2, policy._1, Array.empty)))
 
         val result = filter.getPolicy("issuer", None)
 
-        result shouldBe a [XsltExecutable]
+        result shouldBe a [PolicyInfo]
       }
     }
   }
@@ -1098,12 +1102,12 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
       .compile(new StreamSource(new StringReader(workingXslt)))
 
     it("should throw a SamlPolicyException(400) if the translation fails") {
-      val thrown = the[SamlPolicyException] thrownBy filter.translateResponse(document, brokenXsltExec)
+      val thrown = the[SamlPolicyException] thrownBy filter.translateResponse(document, PolicyInfo(Array.empty, brokenXsltExec))
       thrown.statusCode shouldEqual SC_BAD_REQUEST
     }
 
     it("should return a translated document without throwing an exception") {
-      filter.translateResponse(document, workingXsltExec) should not be document
+      filter.translateResponse(document, PolicyInfo(Array.empty, workingXsltExec)) should not be document
     }
   }
 

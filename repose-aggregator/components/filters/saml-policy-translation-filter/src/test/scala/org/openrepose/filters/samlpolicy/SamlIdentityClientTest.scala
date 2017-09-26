@@ -33,7 +33,7 @@ import org.mockito.{Matchers => MM}
 import org.openrepose.commons.utils.http.CommonHttpHeader.TRACE_GUID
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
-import org.openrepose.filters.samlpolicy.SamlIdentityClient.{OverLimitException, SC_TOO_MANY_REQUESTS}
+import org.openrepose.filters.samlpolicy.SamlIdentityClient.{OverLimitException, ProviderInfo, SC_TOO_MANY_REQUESTS}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
@@ -563,7 +563,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       val result = samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
       result shouldBe a[Success[_]]
-      result.get shouldEqual sampleIdpId
+      result.get.idpId shouldEqual sampleIdpId
+      result.get.domains should contain only("77366")
     }
 
     Set(
@@ -625,7 +626,8 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         val result = samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
         result shouldBe a[Success[_]]
-        result.get shouldEqual sampleIdpId
+        result.get.idpId shouldEqual sampleIdpId
+        result.get.domains should contain only("77366")
       }
     }
 
@@ -735,7 +737,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
-      val result = samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
+      val result = samlPolicyProvider.getPolicy(ProviderInfo("idpId", Array.empty), "token", None, checkCache = true)
 
       result shouldBe a[Failure[_]]
     }
@@ -750,7 +752,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
-      samlPolicyProvider.getPolicy("idpId", "token", Some("trace-id"), checkCache = true)
+      samlPolicyProvider.getPolicy(ProviderInfo("idpId", Array.empty), "token", Some("trace-id"), checkCache = true)
 
       verify(policyServiceClient).get(
         MM.anyString(),
@@ -770,7 +772,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
-      samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
+      samlPolicyProvider.getPolicy(ProviderInfo("idpId", Array.empty), "token", None, checkCache = true)
 
       verify(policyServiceClient).get(
         MM.anyString(),
@@ -792,7 +794,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
-      samlPolicyProvider.getPolicy("idpId", token, Some("trace-id"), checkCache = true)
+      samlPolicyProvider.getPolicy(ProviderInfo("idpId", Array.empty), token, Some("trace-id"), checkCache = true)
 
       verify(policyServiceClient).get(
         MM.anyString(),
@@ -816,7 +818,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
         samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
-        val result = samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
+        val result = samlPolicyProvider.getPolicy(ProviderInfo("idpId", Array.empty), "token", None, checkCache = true)
 
         result shouldBe a[Failure[_]]
         an [OverLimitException] should be thrownBy result.get
@@ -840,7 +842,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
-      val result = samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
+      val result = samlPolicyProvider.getPolicy(ProviderInfo("idpId", Array.empty), "token", None, checkCache = true)
 
       result shouldBe a[Success[_]]
       Json.stringify(Json.parse(result.get.content)) shouldEqual Json.stringify(Json.parse(samplePolicy))
@@ -873,7 +875,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
         samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
-        val result = samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
+        val result = samlPolicyProvider.getPolicy(ProviderInfo("idpId", Array.empty), "token", None, checkCache = true)
 
         result shouldBe a[Failure[_]]
       }
@@ -902,11 +904,34 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
         samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
-        val result = samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
+        val result = samlPolicyProvider.getPolicy(ProviderInfo("idpId", Array.empty), "token", None, checkCache = true)
 
         result shouldBe a[Success[_]]
         Json.stringify(Json.parse(result.get.content)) shouldEqual Json.stringify(Json.parse(samplePolicy))
       }
+    }
+
+    it(s"should pass on domains") {
+      when(policyServiceClient.get(
+        MM.anyString(),
+        MM.anyString(),
+        MM.anyMapOf(classOf[String], classOf[String]),
+        MM.anyBoolean()
+      )).thenReturn(new ServiceClientResponse(
+        SC_OK,
+        Array(new BasicHeader(
+          CONTENT_TYPE,
+          MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
+        )),
+        new ByteArrayInputStream(samplePolicy.getBytes)
+      ))
+
+      samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
+
+      val result = samlPolicyProvider.getPolicy(ProviderInfo("idpId", Array("banana")), "token", None, checkCache = true)
+
+      result shouldBe a[Success[_]]
+      result.get.domains should contain only "banana"
     }
 
     it("should check the HTTP request cache if not retrying") {
@@ -926,7 +951,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
-      samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = true)
+      samlPolicyProvider.getPolicy(ProviderInfo("idpId", Array.empty), "token", None, checkCache = true)
 
       verify(policyServiceClient).get(
         MM.anyString(),
@@ -953,7 +978,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
-      samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = false)
+      samlPolicyProvider.getPolicy(ProviderInfo("idpId", Array.empty), "token", None, checkCache = false)
 
       verify(policyServiceClient).get(
         MM.anyString(),
@@ -986,7 +1011,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
 
         samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
-        val result = samlPolicyProvider.getPolicy("idpId", "token", None, checkCache = false)
+        val result = samlPolicyProvider.getPolicy(ProviderInfo("idpId", Array.empty), "token", None, checkCache = false)
 
         result shouldBe a[Success[_]]
         result.get.contentType shouldEqual contentType
