@@ -91,7 +91,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
 
   private final val JsonObjectMapper = new ObjectMapper()
 
-  private var policyCache: Cache[String, XsltExecutable] = _
+  private var policyCache: Cache[String, PolicyInfo] = _
   private var feedId: Option[String] = None
   private var serviceToken: Option[String] = None
   private var sendTraceHeader: Boolean = true
@@ -131,8 +131,8 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
           response = new HttpServletResponseWrapper(response, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
           request.addHeader("Identity-API-Version", "2.0")
           val issuer = validateResponseAndGetIssuer(rawDocument)
-          val translatedDocument = translateResponse(rawDocument, policyCache.get(issuer, new Callable[XsltExecutable] {
-            override def call(): XsltExecutable = getPolicy(issuer, traceId)
+          val translatedDocument = translateResponse(rawDocument, policyCache.get(issuer, new Callable[PolicyInfo] {
+            override def call(): PolicyInfo = getPolicy(issuer, traceId)
           }))
           signResponse(translatedDocument)
       }
@@ -333,7 +333,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @return the compiled xslt that represents the policy
     * @throws SamlPolicyException for so many reasons
     */
-  def getPolicy(issuer: String, traceId: Option[String]): XsltExecutable = {
+  def getPolicy(issuer: String, traceId: Option[String]): PolicyInfo = {
     logger.trace(s"Getting policy for issuer: $issuer")
     getToken(traceId) flatMap { token =>
       samlIdentityClient.getIdpId(issuer, token, traceId, checkCache = true) recoverWith {
@@ -342,10 +342,10 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
             samlIdentityClient.getIdpId(issuer, newToken, traceId, checkCache = false)
           }
       } flatMap { providerInfo =>
-        samlIdentityClient.getPolicy(providerInfo.idpId, token, traceId, checkCache = true) recoverWith {
+        samlIdentityClient.getPolicy(providerInfo, token, traceId, checkCache = true) recoverWith {
           case UnexpectedStatusCodeException(SC_UNAUTHORIZED, _) =>
             getToken(traceId, checkCache = false) flatMap { newToken =>
-              samlIdentityClient.getPolicy(providerInfo.idpId, newToken, traceId, checkCache = false)
+              samlIdentityClient.getPolicy(providerInfo, newToken, traceId, checkCache = false)
             }
         }
       }
@@ -361,11 +361,11 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
         throw UnsupportedPolicyFormatException(s"$policyContentType is not a supported policy format")
       }
 
-      AttributeMapper.generateXSLExec(
+      PolicyInfo(policy.domains, AttributeMapper.generateXSLExec(
         new StreamSource(new StringReader(policy.content)),
         policyFormat,
         validate = true,
-        XSDEngine.AUTO.toString)
+        XSDEngine.AUTO.toString))
     } recover {
       case e@(_: SaxonApiException | _: TransformerException) =>
         throw SamlPolicyException(SC_BAD_GATEWAY, "Failed to generate the policy transformation", e)
@@ -390,9 +390,9 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     * @return the translated document
     * @throws SamlPolicyException if the translation fails
     */
-  def translateResponse(document: Document, policy: XsltExecutable): Document = {
+  def translateResponse(document: Document, policy: PolicyInfo): Document = {
     try {
-      AttributeMapper.convertAssertion(policy, document)
+      AttributeMapper.convertAssertion(policy.translation, document)
     } catch {
       case e@(_: SaxonApiException | _: TransformerException) =>
         throw SamlPolicyException(SC_BAD_REQUEST, "Failed to translate the SAML Response", e)
@@ -547,7 +547,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       policyCache = CacheBuilder.newBuilder()
         .expireAfterWrite(newConfiguration.getPolicyAcquisition.getCache.getTtl, TimeUnit.SECONDS)
         .build()
-        .asInstanceOf[Cache[String, XsltExecutable]]
+        .asInstanceOf[Cache[String, PolicyInfo]]
     }
 
     legacyIssuers = Option(newConfiguration.getPolicyBypassIssuers).map(_.getIssuer.asScala.toList.map(new URI(_))).getOrElse(List.empty)
@@ -629,4 +629,6 @@ object SamlPolicyTranslationFilter {
   val signatureXPath = "/s2p:Response/s2:Assertion/sig:Signature"
   val envSignatureXPath = "/s2p:Response/sig:Signature"
   val xPathVersion = 30
+
+  case class PolicyInfo(domains: Array[String], translation: XsltExecutable)
 }

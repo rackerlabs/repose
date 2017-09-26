@@ -195,10 +195,10 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
     * @param checkCache whether or not to use the HTTP request cache
     * @return the policy if successful, or a failure if unsuccessful
     */
-  def getPolicy(idpId: String, token: String, traceId: Option[String], checkCache: Boolean): Try[Policy] = {
+  def getPolicy(provider: ProviderInfo, token: String, traceId: Option[String], checkCache: Boolean): Try[Policy] = {
     val akkaResponse = Try(policyServiceClient.akkaServiceClient.get(
-      PolicyRequestKey(idpId),
-      s"$policyUri${PolicyPath(idpId)}",
+      PolicyRequestKey(provider.idpId),
+      s"$policyUri${PolicyPath(provider.idpId)}",
       (Map(
         HttpHeaders.ACCEPT -> String.join(",", TextYaml, MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML),
         CommonHttpHeader.AUTH_TOKEN -> token
@@ -221,7 +221,8 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
                 .getOrElse(StandardCharsets.ISO_8859_1.name())
               Policy(
                 Source.fromInputStream(serviceClientResponse.getData, responseEncoding).getLines.mkString("\n"),
-                contentTypeHeader.map(_.getName).getOrElse(TextYaml))
+                contentTypeHeader.map(_.getName).getOrElse(TextYaml),
+                provider.domains)
             } recover {
               case f: Exception =>
                 throw GenericIdentityException("Policy in response from Identity could not be read", f)
@@ -273,7 +274,7 @@ object SamlIdentityClient {
   case class OverLimitException(retryAfter: String, message: String)
     extends Exception(message) with IdentityException
 
-  case class Policy(content: String, contentType: String)
+  case class Policy(content: String, contentType: String, domains: Array[String])
 
   case class ProviderInfo(idpId: String, domains: Array[String])
 
