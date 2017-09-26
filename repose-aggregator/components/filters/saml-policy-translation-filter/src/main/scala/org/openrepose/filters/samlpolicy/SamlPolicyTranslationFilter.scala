@@ -392,7 +392,8 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     */
   def translateResponse(document: Document, policy: PolicyInfo): Document = {
     try {
-      AttributeMapper.convertAssertion(policy.translation, document)
+      val domainMap = if (policy.domains.length == 1) Map("domain" -> policy.domains.head) else Map.empty[String, String]
+      AttributeMapper.convertAssertion(policy.translation, document, domainMap)
     } catch {
       case e@(_: SaxonApiException | _: TransformerException) =>
         throw SamlPolicyException(SC_BAD_REQUEST, "Failed to translate the SAML Response", e)
