@@ -1,6 +1,6 @@
 = Release Notes
 
-== In Progress Work
+== 8.7.0.0 (2017-09-26)
 
 * https://repose.atlassian.net/browse/REP-5939[REP-5939] - Added support for, and began publishing, a CentOS-based Docker image.
 * https://repose.atlassian.net/browse/REP-5766[REP-5766] - Updated Dockerfile to run Repose as the `repose` user.
