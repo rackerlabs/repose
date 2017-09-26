@@ -10,7 +10,7 @@
 * https://repose.atlassian.net/browse/REP-5885[REP-5885] - Fixed the bug where an `Error` during processing would result in a `200` response from Repose.
 * https://repose.atlassian.net/browse/REP-6050[REP-6050] - Update Contact Us page information across all the documentation.
 * https://repose.atlassian.net/browse/REP-5261[REP-5261] - Confirmed the Translation filter will allow 100,000 Entity Expansions and updated the documentation accordingly.
-* https://repose.atlassian.net/browse/REP-6098[REP-6098] - Updated the SAML Policy Translation filter to allow multiple locations for default values in an effort to support multiple Ientity Providers (IDP's).
+* https://repose.atlassian.net/browse/REP-6098[REP-6098] - Updated the SAML Policy Translation filter to allow multiple locations for default values in an effort to support multiple Identity Providers (IDP's).
 * https://repose.atlassian.net/browse/REP-6001[REP-6001] - Updated dependencies:
 ** API Checker: 2.3.0 → 2.4.1
 *** https://github.com/rackerlabs/api-checker/blob/api-checker-2.4.1/RELEASE.md[API Checker v2.4.1 release notes]
