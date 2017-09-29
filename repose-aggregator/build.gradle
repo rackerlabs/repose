@@ -143,7 +143,7 @@ int compareVersions(String v1, String v2) {
 
 boolean isLatestVersion(String version, List<String> otherVersions) {
     return !otherVersions.any {
-        it.length() > 0 && it.charAt(0).isDigit() && compareVersions(version, it) < 0
+        it ==~ /(\d+\.)*\d+/ && compareVersions(version, it) < 0
     }
 }
 
