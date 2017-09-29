@@ -1,5 +1,11 @@
 = Release Notes
 
+== 8.7.0.1 (2017-09-28)
+
+* https://repose.atlassian.net/browse/REP-6115[REP-6115] - Updated dependencies:
+** Attribute Mapper: 2.0.0 → 2.0.1
+*** https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-2.0.1/RELEASE.md[Attribute Mapper v2.0.1 release notes]
+
 == 8.7.0.0 (2017-09-26)
 
 * https://repose.atlassian.net/browse/REP-5939[REP-5939] - Added support for, and began publishing, a CentOS-based Docker image.
