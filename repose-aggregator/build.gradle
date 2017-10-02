@@ -51,6 +51,22 @@ asciidoctor {
 
         into '.'
     }
+
+    ext.capturedOutput = [ ]
+    def listener = { ext.capturedOutput << it } as StandardOutputListener
+
+    logging.addStandardErrorListener(listener)
+    logging.addStandardOutputListener(listener)
+
+    doLast {
+        logging.removeStandardOutputListener(listener)
+        logging.removeStandardErrorListener(listener)
+        ext.capturedOutput.join('').with { output ->
+            if (output =~ /WARNING:/) {
+                throw new RuntimeException("See output above for specific cause of failure(s).")
+            }
+        }
+    }
 }
 
 tasks.linkchecker.dependsOn asciidoctor
