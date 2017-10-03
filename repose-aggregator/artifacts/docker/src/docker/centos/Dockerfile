@@ -14,15 +14,22 @@ RUN yum update -q -y && yum install -q -y wget java-1.8.0-openjdk-headless
 RUN wget --quiet -O /etc/yum.repos.d/openrepose.repo http://repo.openrepose.org/el/openrepose.repo
 RUN yum update -q -y && yum install -q -y repose-valve-$REPOSE_VERSION repose-filter-bundle-$REPOSE_VERSION repose-extensions-filter-bundle-$REPOSE_VERSION repose-experimental-filter-bundle-$REPOSE_VERSION
 
-# Expose /etc/repose as a volume for mounting.
-WORKDIR /etc/repose
-VOLUME /etc/repose
+ENV APP_ROOT=/etc/repose
+ENV APP_LOGS=/var/log/repose
+
+# Turn off local logging
+RUN sed -i 's,<\(Appender.*RollingFile.*/\)>,<!--\1-->,' ${APP_ROOT}/log4j2.xml
+
+# Arbitrary User ID support
+RUN chgrp -R 0 ${APP_ROOT} ${APP_LOGS} && \
+    chmod -R g=u ${APP_ROOT} ${APP_LOGS}
+
+# Expose APP_ROOT as a volume for mounting.
+WORKDIR ${APP_ROOT}
+VOLUME ${APP_ROOT}
 
 # Switch user to repose
 USER repose
-
-# Create the log file so that we can safely tail it as part of the CMD instruction.
-RUN touch /var/log/repose/current.log
 
 # Expose the default Repose service port for host port forwarding.
 # If the port in the user's system model differs from this port, the user will have to map it manually using the
