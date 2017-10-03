@@ -69,12 +69,11 @@ asciidoctor {
     }
 }
 
-tasks.linkchecker.dependsOn asciidoctor
 linkchecker {
     startFileName = "$buildDir/asciidoc/html5"
 }
 
-task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds the new version of the docs to github pages') << {
+task('publishDocs', dependsOn: tasks.linkchecker, group: 'release', description: 'Adds the new version of the docs to github pages') << {
     def workingDir = project.file("${project.buildDir}/gh-pages")
 
     workingDir.deleteDir()
@@ -134,7 +133,8 @@ if (project.hasProperty("minCoverageRatio")) {
 }
 
 asciidoctor.dependsOn copyXsds
-build.dependsOn asciidoctor
+tasks.linkchecker.dependsOn asciidoctor
+build.dependsOn tasks.linkchecker
 publishDocs.dependsOn project.tasks.getByPath(':buildAll')
 project.tasks.getByPath(':release').dependsOn publishDocs
 
