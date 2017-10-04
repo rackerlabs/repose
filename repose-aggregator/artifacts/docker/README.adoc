@@ -1,0 +1,71 @@
+= Repose Docker Images
+
+This explains how to build a local image based on the `Dockerfile` 's located in the `src` directory.
+
+[NOTE]
+====
+The `build${baseImage}Image` task is always finalized by the `remove${baseImage}Image` task.
+It is intended for use with the `push${baseImage}Image` task and not for creating a local image.
+====
+
+== Setting up the environment
+
+Whether the intent is to simply test the tasks or to actually build a local image, the Docker Container Engine needs to be running.
+Since these instructions are fairly involved, they are outside the scope of this document.
+However, they can be found https://docs.docker.com/engine/installation/[here].
+
+At this point you may be able to execute the `docker run hello-world` test.
+If you can, then up you are almost ready to create a Repose Docker image.
+If you can't, then the steps below may get you up and going.
+Either way, you will need to perform them.
+
+== Minor updates
+
+These are a few minor things you may run into on some platforms that are not well documented in the installation instructions.
+
+You will need to get a https://hub.docker.com[Docker Hub] account.
+Once you have that account, you will need to login using:
+
+- `docker login`
+
+Once you have confirmed your credentials, you will need to add them to the `~/.gradle/gradle.properties` file to allow them to work with the Repose build:
+
+- `dockerhub.username=<USERNAME>`
+- `dockerhub.password=<PASSWORD>`
+
+Another issue that may arise is that communication with the Docker Container Engine is denied do to a lack of permissions.
+In the Repose build, this would manifest itself with a failure similar to the following:
+
+- `I/O exception (org.newsclub.net.unix.AFUNIXSocketException) caught when processing request to {}->unix://localhost:80: Permission denied`
+
+OR
+
+- `org.newsclub.net.unix.AFUNIXSocketException: Permission denied (socket: /run/docker.sock)`
+
+This is easily remedied by adding the user to the `docker` group.
+On most *NIX systems this can be accomplished by issuing the following command as `root` or another elevated user (e.g. `sudo`):
+
+- `usermod -aG docker $USER`
+
+== Confirming you are ready
+
+Make sure you can run the Docker test:
+
+- `docker run hello-world`
+
+Then try to build a quick Repose Docker image from the root of the Repose project.
+Remember once the image is created, it is removed and thrown away:
+
+- `./gradlew :repose-aggregator:artifacts:docker:buildUbuntuImage -Prepose-version=8.7.0.1`
+
+Lastly build a real image if you want:
+
+- `docker build --build-arg REPOSE_VERSION=8.7.0.1 ./repose-aggregator/artifacts/docker/src/docker/<IMAGE_TYPE>/`
+
+This will result in a message similar to:
+
+- `Successfully built <IMAGE_ID>`
+
+Then you can tag it for later using:
+
+- `docker tag <IMAGE_ID> local_repose:v8.7.0.1_<IMAGE_TYPE>`
