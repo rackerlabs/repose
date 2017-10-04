@@ -170,7 +170,7 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
               val idp = (json \ "RAX-AUTH:identityProviders").as[JsArray].value
                 .headOption
                 .getOrElse(throw SamlPolicyException(SC_UNAUTHORIZED, "Unknown issuer"))
-              ProviderInfo((idp \ "id").as[String], (idp \ "approvedDomains").as[Array[String]])
+              ProviderInfo((idp \ "id").as[String], (idp \ "approvedDomainIds").as[Array[String]])
             } recover {
               case s: SamlPolicyException =>
                 throw s

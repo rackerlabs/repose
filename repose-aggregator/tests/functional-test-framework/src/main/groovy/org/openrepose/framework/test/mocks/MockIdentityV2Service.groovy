@@ -720,7 +720,7 @@ class MockIdentityV2Service {
                     {
                         name values.getOrDefault('name', 'External IDP')
                         federationType values.getOrDefault('federationType', 'DOMAIN')
-                        approvedDomains values.getOrDefault('approvedDomains', ['77366'])
+                        approvedDomainIds values.getOrDefault('approvedDomainIds', ['77366'])
                         description values.getOrDefault('description', 'An External IDP Description')
                         id values.getOrDefault('id', generateUniqueIdpId())
                         issuer values.getOrDefault('issuer', 'http://idp.external.com')

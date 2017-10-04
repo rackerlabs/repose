@@ -22,7 +22,7 @@ function createIdpJsonWithValues(values = {}) {
             {
                 name: values.name || 'External IDP',
                 federationType: values.federationType || 'DOMAIN',
-                approvedDomains: values.approvedDomains || ['77366'],
+                approvedDomainIds: values.approvedDomainIds || ['77366'],
                 description: values.description || 'An External IDP Description',
                 id: values.id || generateUniqueIdpId(),
                 issuer: values.issuer || 'http://idp.external.com'
