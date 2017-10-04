@@ -1,5 +1,10 @@
 = Release Notes
 
+== In Progress Work
+
+* https://repose.atlassian.net/browse/REP-6133[REP-6133] - Updated the published Docker images to turn off local logging by default to be more in line with the expectations of a https://12factor.net/logs[Twelve-Factor App].
+* https://repose.atlassian.net/browse/REP-6135[REP-6135] - Updated the published Docker images to support running the container using an arbitrarily assigned user ID as is expected by the https://docs.openshift.com/container-platform/3.6/creating_images/guidelines.html#openshift-container-platform-specific-guidelines[OpenShift Container Platform].
+
 == 8.7.0.2 (2017-10-04)
 
 * https://repose.atlassian.net/browse/REP-6162[REP-6162] - Updated the Keystone v2 get IDP call to support the field name change from `approvedDomains` to `approvedDomainIds`.

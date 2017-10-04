@@ -1,12 +1,10 @@
 = Repose Docker Images
 
-This explains how to build a local image based on the `Dockerfile` 's located in the `src` directory.
+This document explains how to build a local image based on the `Dockerfile` 's located in the `src` directory.
 
-[NOTE]
-====
-The `build${baseImage}Image` task is always finalized by the `remove${baseImage}Image` task.
-It is intended for use with the `push${baseImage}Image` task and not for creating a local image.
-====
+If you are instead just looking to use a pre-built docker image, then check us out on Docker Hub.
+
+image::http://dockeri.co/image/rackerlabs/repose[Repose Docker,link=https://hub.docker.com/r/rackerlabs/repose/]
 
 == Setting up the environment
 
@@ -15,13 +13,14 @@ Since these instructions are fairly involved, they are outside the scope of this
 However, they can be found https://docs.docker.com/engine/installation/[here].
 
 At this point you may be able to execute the `docker run hello-world` test.
-If you can, then up you are almost ready to create a Repose Docker image.
+If you can, then you are almost ready to create a local Repose Docker image.
 If you can't, then the steps below may get you up and going.
 Either way, you will need to perform them.
 
 == Minor updates
 
-These are a few minor things you may run into on some platforms that are not well documented in the installation instructions.
+These are a few minor configuration items that may prevent some platforms from even executing the `docker run hello-world` test.
+They are not always well documented in the installation instructions, but are easily remedied.
 
 You will need to get a https://hub.docker.com[Docker Hub] account.
 Once you have that account, you will need to login using:
@@ -42,7 +41,7 @@ OR
 
 - `org.newsclub.net.unix.AFUNIXSocketException: Permission denied (socket: /run/docker.sock)`
 
-This is easily remedied by adding the user to the `docker` group.
+This can be fixed by adding the user to the `docker` group.
 On most *NIX systems this can be accomplished by issuing the following command as `root` or another elevated user (e.g. `sudo`):
 
 - `usermod -aG docker $USER`
@@ -58,14 +57,70 @@ Remember once the image is created, it is removed and thrown away:
 
 - `./gradlew :repose-aggregator:artifacts:docker:buildUbuntuImage -Prepose-version=8.7.0.1`
 
-Lastly build a real image if you want:
+[NOTE]
+====
+The `build${baseImage}Image` Gradle tasks are always finalized by a `remove${baseImage}Image` task.
+These are intended for use with the `push${baseImage}Image` tasks and not for creating a local image to use.
+====
 
-- `docker build --build-arg REPOSE_VERSION=8.7.0.1 ./repose-aggregator/artifacts/docker/src/docker/<IMAGE_TYPE>/`
+== Build a local Repose Docker image
+
+Build a local Repose Docker image:
+
+- `docker build --build-arg REPOSE_VERSION=<VERSION> ./repose-aggregator/artifacts/docker/src/docker/<IMAGE_TYPE>/`
 
 This will result in a message similar to:
 
 - `Successfully built <IMAGE_ID>`
 
-Then you can tag it for later using:
+Then you can tag it for later use with:
 
-- `docker tag <IMAGE_ID> local_repose:v8.7.0.1_<IMAGE_TYPE>`
+- `docker tag <IMAGE_ID> local_repose:v<VERSION>-<IMAGE_TYPE>`
+
+Lastly start running it executing:
+
+- `docker run -itp 8080:8080 local_repose:v<VERSION>-<IMAGE_TYPE>`
+
+[NOTE]
+====
+The options on the `docker run` command perform the following:
+
+- `-i, --interactive` - Keep STDIN open even if not attached
+- `-t, --tty` - Allocate a pseudo-TTY
+- `-p, --publish list` - Publish a container's port(s) to the host
+
+Issue `docker run --help` for a complete list of options.
+====
+
+If you don't wish to see the logging information, then instead of using the `i` and `t` options on the `run` command,
+replace them with the `d` option to `detatch` from it and run it in the background:
+
+- `docker run -dp 8080:8080 local_repose:v<VERSION>-<IMAGE_TYPE>`
+
+If you wish to see the information being output by a container that was started in a `detach` 'ed fashion,
+then simply `attach` to it.
+If you didn't keep the container ID that was output when started the detached container,
+then you will need to find it using:
+
+- `docker ps`
+
+Then you can `attach` to it using:
+
+- `docker attach <CONTAINER_ID>`
+
+and you will begin to see the processes output.
+
+You can also look in on the running container by executing a shell in it:
+
+- `docker exec -it <CONTAINER_ID> /bin/bash`
+
+In that shell you could check on Repose's phone home log with:
+
+- `cat /var/log/repose/phone-home.log`
+
+== Conclusion
+
+This is just a quick look at what is needed to create and execute a Repose Docker image locally.
+This is not a definitive guide on Docker and is only intended to get you the required information as fast as possible.
+If you run into any problems or your appetite for Docker hasn't been satisfied,
+then web searches on Docker in general or on any specific issues you may be experiencing will be your friend.
