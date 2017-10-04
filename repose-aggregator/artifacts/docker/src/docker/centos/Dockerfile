@@ -15,14 +15,15 @@ RUN wget --quiet -O /etc/yum.repos.d/openrepose.repo http://repo.openrepose.org/
 RUN yum update -q -y && yum install -q -y repose-valve-$REPOSE_VERSION repose-filter-bundle-$REPOSE_VERSION repose-extensions-filter-bundle-$REPOSE_VERSION repose-experimental-filter-bundle-$REPOSE_VERSION
 
 ENV APP_ROOT=/etc/repose
+ENV APP_VARS=/var/repose
 ENV APP_LOGS=/var/log/repose
 
 # Turn off local logging
 RUN sed -i 's,<\(Appender.*RollingFile.*/\)>,<!--\1-->,' ${APP_ROOT}/log4j2.xml
 
 # Arbitrary User ID support
-RUN chgrp -R 0 ${APP_ROOT} ${APP_LOGS} && \
-    chmod -R g=u ${APP_ROOT} ${APP_LOGS}
+RUN chgrp -R 0 ${APP_ROOT} ${APP_VARS} ${APP_LOGS} && \
+    chmod -R g=u ${APP_ROOT} ${APP_VARS} ${APP_LOGS}
 
 # Expose APP_ROOT as a volume for mounting.
 WORKDIR ${APP_ROOT}
