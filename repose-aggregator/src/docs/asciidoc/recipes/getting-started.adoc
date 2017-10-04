@@ -109,10 +109,6 @@ See <<http-container-attributes.adoc#,HTTP container attributes>>
 === Deployment
 Once you know how you'll want to configure Repose, you may want to automate the deployment using a configuration management tool or reusable container.
 
-==== Vagrant
-If you don't already have a Linux environment ready, you can use Vagrant to easily create a new virtual machine running the Linux distribution of your choice.
-For more details, see: <<vagrant.adoc#,Vagrant>>
-
 ==== Docker
 Docker and Repose make a fantastic team together.
 For more details, see: <<docker.adoc#,Docker>>

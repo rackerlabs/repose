@@ -20,9 +20,6 @@ Learn how to implement Role-Based Access Control (RBAC) with Repose!
 == <<running-valve.adoc#,Running Valve>>
 Details the ways which Repose Valve can be run.
 
-== <<vagrant.adoc#,Vagrant>>
-Learn the basics of running and operating Repose in a Vagrant guest VM!
-
 == <<valve-installation.adoc#,Valve Installation>>
 Covers the typical Repose setup -- a Valve installation (i.e., standalone application) running as a Linux service.
 
