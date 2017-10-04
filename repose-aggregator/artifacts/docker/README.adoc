@@ -23,11 +23,11 @@ These are a few minor configuration items that may prevent some platforms from e
 They are not always well documented in the installation instructions, but are easily remedied.
 
 You will need to get a https://hub.docker.com[Docker Hub] account.
-Once you have that account, you will need to login using:
+Once you have that account, you can verify your credential by logging in using:
 
 - `docker login`
 
-Once you have confirmed your credentials, you will need to add them to the `~/.gradle/gradle.properties` file to allow them to work with the Repose build:
+Once you have confirmed your credentials, you can add them to the `~/.gradle/gradle.properties` file or you will have to provide them as build properties to use the Repose build:
 
 - `dockerhub.username=<USERNAME>`
 - `dockerhub.password=<PASSWORD>`
