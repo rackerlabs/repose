@@ -8,6 +8,7 @@ import java.nio.file.Paths
 import java.text.SimpleDateFormat
 
 apply plugin: 'org.asciidoctor.convert'
+apply plugin: 'org.openrepose.gradle.plugins.linkchecker'
 
 dependencies {
     asciidoctor 'org.asciidoctor:asciidoctorj-diagram'
@@ -50,6 +51,26 @@ asciidoctor {
 
         into '.'
     }
+
+    ext.capturedOutput = [ ]
+    def listener = { ext.capturedOutput << it } as StandardOutputListener
+
+    logging.addStandardErrorListener(listener)
+    logging.addStandardOutputListener(listener)
+
+    doLast {
+        logging.removeStandardOutputListener(listener)
+        logging.removeStandardErrorListener(listener)
+        ext.capturedOutput.join('').with { output ->
+            if (output =~ /WARNING:/) {
+                throw new RuntimeException("See output above for specific cause of failure(s).")
+            }
+        }
+    }
+}
+
+linkchecker {
+    startFileName = "$buildDir/asciidoc/html5"
 }
 
 task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds the new version of the docs to github pages') << {
@@ -113,6 +134,8 @@ if (project.hasProperty("minCoverageRatio")) {
 
 asciidoctor.dependsOn copyXsds
 build.dependsOn asciidoctor
+tasks.linkchecker.dependsOn asciidoctor
+check.dependsOn tasks.linkchecker
 publishDocs.dependsOn project.tasks.getByPath(':buildAll')
 project.tasks.getByPath(':release').dependsOn publishDocs
 
