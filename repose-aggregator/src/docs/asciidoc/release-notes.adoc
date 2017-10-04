@@ -1,5 +1,9 @@
 = Release Notes
 
+== 8.7.0.2 (2017-10-04)
+
+* https://repose.atlassian.net/browse/REP-6162[REP-6162] - Updated the Keystone v2 get IDP call to support the field name change from `approvedDomains` to `approvedDomainIds`.
+
 == 8.7.0.1 (2017-09-28)
 
 * https://repose.atlassian.net/browse/REP-6115[REP-6115] - Updated dependencies:
