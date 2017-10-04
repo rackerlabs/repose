@@ -410,7 +410,7 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         |  "RAX-AUTH:identityProviders": [{
         |    "name": "demo",
         |	   "federationType": "domain",
-        |	   "approvedDomains": ["77366"],
+        |	   "approvedDomainIds": ["77366"],
         |	   "description": "a description",
         |	   "id": "$sampleIdpId",
         |	   "issuer": "https://demo.issuer.com"

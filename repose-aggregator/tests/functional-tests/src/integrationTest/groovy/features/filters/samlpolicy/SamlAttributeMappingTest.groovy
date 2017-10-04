@@ -569,11 +569,11 @@ class SamlAttributeMappingTest extends ReposeValveTest {
             fakeSign: true))
 
         and: "an Identity mock that will return the mapping policy"
-        String approvedDomain = "123456"
+        String approvedDomainId = "123456"
         String idpId = generateUniqueIdpId()
         fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(
             id: idpId,
-            approvedDomains: [approvedDomain])
+            approvedDomainIds: [approvedDomainId])
         fakeIdentityV2Service.createGetMappingPolicyForIdp(policyFormat)
 
         when: "a request is sent to Repose"
@@ -610,11 +610,11 @@ class SamlAttributeMappingTest extends ReposeValveTest {
             fakeSign: true))
 
         and: "an Identity mock that will return the mapping policy"
-        String approvedDomain = "123456"
+        String approvedDomainId = "123456"
         String idpId = generateUniqueIdpId()
         fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(
             id: idpId,
-            approvedDomains: [approvedDomain])
+            approvedDomainIds: [approvedDomainId])
         fakeIdentityV2Service.createGetMappingPolicyForIdp(policyFormat)
 
         when: "a request is sent to Repose"
@@ -635,7 +635,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         response.assertions.size() == 2
 
         and: "the domain attribute is set to the IDP approved domain"
-        attributes.find { it.name == "domain" }.attributeValues[0].value == approvedDomain
+        attributes.find { it.name == "domain" }.attributeValues[0].value == approvedDomainId
 
         where:
         policyFormat << [TEXT_YAML, APPLICATION_JSON]
@@ -654,7 +654,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         String idpId = generateUniqueIdpId()
         fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(
             id: idpId,
-            approvedDomains: approvedDomains)
+            approvedDomainIds: approvedDomainIds)
         fakeIdentityV2Service.createGetMappingPolicyForIdp(policyFormat)
 
         when: "a request is sent to Repose"
@@ -678,7 +678,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         attributes.find { it.name == "domain" }.attributeValues[0].value == null
 
         where:
-        [approvedDomainsMultiplicity, approvedDomains, policyFormat] << [
+        [approvedDomainsMultiplicity, approvedDomainIds, policyFormat] << [
             ["no", [], TEXT_YAML],
             ["multiple", ["098765", "987654"], TEXT_YAML],
             ["no", [], APPLICATION_JSON],
