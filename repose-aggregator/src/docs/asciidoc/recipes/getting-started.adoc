@@ -77,9 +77,12 @@ Installation instructions are provided for Debian package managers (e.g., APT) a
 Certain deployment methods will handle environment setup automatically.
 
 === Installation
-The most common and preferred way to run Repose is as a standalone application using the Valve installation.
+The recommended and most common way to run Repose is as a standalone application using the Valve installation.
 This installation allows Repose to be executed either as a Linux service (e.g. systemd) or directly from the installed JAR.
 An alternative would be to run Repose inside an existing servlet container (e.g. Tomcat, GlassFish) using the WAR installation.
+
+The most recent addition to the Repose family is a containerized release of the Valve installation.
+This is great if you are looking to eventually run Repose with a container service or are just trying it out for the first time.
 
 While Repose can be installed manually, there are other deployment options available.
 However, these other methods do require a little more System Administration knowledge which is not covered here.
@@ -94,24 +97,25 @@ After installing it this way, consult the <<running-valve.adoc#,Running Valve>> 
 Instructions for installing the WAR are on the <<war-installation.adoc#,WAR Installation>> page.
 
 ===== Tomcat Setup
-
 After installing the WAR, there is additional setup to get everything working with Tomcat.
 See <<tomcat-setup.adoc#,Tomcat Setup>> for more details.
 
 ===== GlassFish Setup
-
 See <<glassfish-setup.adoc#,GlassFish Setup>> for more details.
 
 ===== Container Attributes known to affect Repose
-
 See <<http-container-attributes.adoc#,HTTP container attributes>>
+
+==== Docker Container
+See <<quick-start.adoc#,Quick Start>> for more details.
 
 === Deployment
 Once you know how you'll want to configure Repose, you may want to automate the deployment using a configuration management tool or reusable container.
 
 ==== Docker
 Docker and Repose make a fantastic team together.
-For more details, see: <<docker.adoc#,Docker>>
+If you are interested in using the published Repose Docker images, see our <<quick-start.adoc#,Quick Start>>.
+For more details on building a custom Repose Docker image, see our <<docker.adoc#,Docker>> recipe.
 
 ==== Puppet
 There is an unsupported starter module in the GitHub repository https://github.com/rackerlabs/puppet-repose[rackerlabs/puppet-repose].
