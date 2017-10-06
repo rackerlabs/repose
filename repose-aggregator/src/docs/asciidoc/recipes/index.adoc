@@ -26,17 +26,18 @@ Covers the typical Repose setup -- a Valve installation (i.e., standalone applic
 == <<war-installation.adoc#,WAR Installation>>
 Covers setting up Repose inside of a user-provided servlet container.
 
-== <<quick-setup.adoc#,Quick Setup>>
-*IN PROGRESS*
-If you want to stand up a Repose instance quickly, visit the Quick Setup page.
+== <<quick-start.adoc#,Quick Start>>
+If you want to stand up a Repose instance quickly, visit the Quick Start.
 
 == <<echo-server.adoc#,Echo Server>>
 *IN PROGRESS*
-If you're evaluating Repose and want a simple origin service to test against, you can install a local instance of httpbin that will echo back your requests.  See Echo Server Tutorial for more details.
+If you're evaluating Repose and want a simple origin service to test against, you can install a local instance of httpbin that will echo back your requests.
+See Echo Server Tutorial for more details.
 
 == <<rate-limiting.adoc#,Rate Limiting>>
 *IN PROGRESS*
-Rate limiting is a common use case for Repose and is easy to test.  See Rate Limiting Tutorial for more details.
+Rate limiting is a common use case for Repose and is easy to test.
+See Rate Limiting Tutorial for more details.
 
 == <<basic-authentication.adoc#,Basic Authentication>>
 *IN PROGRESS*
