@@ -1,3 +1,80 @@
 = Preventing XML bomb attacks
 
-include::../_includes/in-progress.adoc[]
+You can configure the Translation filter a with a few different options to help prevent XML bomb attacks.
+
+== Limit doctype declarations
+Set `allow-doc-type` to `true` to allow the <<../filters/translation.adoc#,Translation Filter>> to accept substitutions within the limits of the secure processing feature of the Simple API for XML (SAX).
+The current limitation of 100,000 is sufficient enough to be useful but limiting enough to not cause damage.
+Additionally, this configuration will convert everything to UTF-8 which prevents attacks by content-type switching.
+The default for `allow-doc-type` is `false`.
+When set to `false`, the filter will reject all doctype declarations.
+
+[source,xml]
+.The following configuration is an example with `allow-doc-type` set to `true`.
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<translation xmlns="http://docs.openrepose.org/repose/translation/v1.0"
+             allow-doctype-decl="true"
+>
+  <request-translations>
+    <request-translation content-type="application/xml"
+                         translated-content-type="application/xml"
+    >
+      <style-sheets>
+        <style id="copy">
+          <xsl>
+            <xsl:stylesheet version="2.0"
+                            xmlns:httpx="http://openrepose.org/repose/httpx/v1.0"
+                            xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+            >
+              <xsl:output encoding="UTF-8" method="xml"/>
+              <xsl:template match="node() | @*">
+                <xsl:copy>
+                  <xsl:apply-templates select="@* | node()"/>
+                </xsl:copy>
+              </xsl:template>
+            </xsl:stylesheet>
+          </xsl>
+        </style>
+      </style-sheets>
+    </request-translation>
+  </request-translations>
+</translation>
+----
+
+== Limit methods
+Limit the amount of HTTP methods that are allowed by configuring the `http-methods` attribute.
+
+[source,xml]
+.The following configuration is an example with `http-methods` limited to `PUT` and `POST`.
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<translation xmlns="http://docs.openrepose.org/repose/translation/v1.0"
+             allow-doctype-decl="true"
+>
+  <request-translations>
+    <request-translation content-type="application/xml"
+                         http-methods="PUT POST"
+                         translated-content-type="application/xml"
+    >
+      <style-sheets>
+        <style id="copy">
+          <xsl>
+            <xsl:stylesheet version="2.0"
+                            xmlns:httpx="http://openrepose.org/repose/httpx/v1.0"
+                            xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+            >
+              <xsl:output encoding="UTF-8" method="xml"/>
+              <xsl:template match="node() | @*">
+                <xsl:copy>
+                  <xsl:apply-templates select="@* | node()"/>
+                </xsl:copy>
+              </xsl:template>
+            </xsl:stylesheet>
+          </xsl>
+        </style>
+      </style-sheets>
+    </request-translation>
+  </request-translations>
+</translation>
+----
