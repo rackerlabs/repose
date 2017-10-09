@@ -107,7 +107,7 @@ docker container logs --follow CONTAINER_ID
 When the Repose instance in the Docker container is ready to accept and proxy requests, you will see a log message containing `Repose ready`.
 
 == Connecting to the Repose Docker container
-The simplest way to connected to the Repose instance is using the *cURL* command:
+The simplest way to connect to the Repose instance is using the *cURL* command:
 
 ----
 curl -v http://127.0.0.1:8080
