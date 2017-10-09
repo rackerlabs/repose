@@ -5,6 +5,9 @@ include::_includes/in-progress.adoc[]
 == How to Navigate These Docs
 Here's loosely how these docs are organized.
 
+=== <<recipes/quick-start.adoc#,Quick Start>>
+If you want to stand up a Repose instance quickly, visit the Quick Start.
+
 === <<recipes/getting-started.adoc#, Getting Started>>
 We all need to get started somewhere.
 If this your first time using *Repose*, then this is the place for you!
