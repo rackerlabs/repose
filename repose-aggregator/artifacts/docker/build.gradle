@@ -19,24 +19,29 @@ docker {
 }
 
 ['Ubuntu': '', 'Centos': '-centos'].forEach { baseImage, tagSuffix ->
-    task("build${baseImage}Image", type: DockerBuildImage) {
-        finalizedBy "remove${baseImage}Image"
+    task("build${baseImage}ImageLocal", type: DockerBuildImage) {
         inputDir = file("$projectDir/src/docker/${baseImage.toLowerCase()}")
         buildArgs = ['REPOSE_VERSION': reposeVersion]
+    }
+
+    task("build${baseImage}Image") {
+        dependsOn "build${baseImage}ImageLocal"
+        finalizedBy "remove${baseImage}Image"
+        ext.imageId = tasks["build${baseImage}ImageLocal"].getImageId()
     }
 
     task("tag${baseImage}ImageVersion", type: DockerTagImage) {
         dependsOn "build${baseImage}Image"
         repository = 'rackerlabs/repose'
         tag = reposeVersion + tagSuffix
-        targetImageId { tasks["build${baseImage}Image"].getImageId() }
+        targetImageId { tasks["build${baseImage}ImageLocal"].getImageId() }
     }
 
     task("tag${baseImage}ImageLatest", type: DockerTagImage) {
         dependsOn "build${baseImage}Image"
         repository = 'rackerlabs/repose'
         tag = "latest${tagSuffix}"
-        targetImageId { tasks["build${baseImage}Image"].getImageId() }
+        targetImageId { tasks["build${baseImage}ImageLocal"].getImageId() }
     }
 
     task("push${baseImage}ImageVersion", type: DockerPushImage) {
@@ -59,7 +64,7 @@ docker {
     task("remove${baseImage}Image", type: DockerRemoveImage) {
         dependsOn "build${baseImage}Image"
         mustRunAfter "tag${baseImage}ImageVersion", "tag${baseImage}ImageLatest", "push${baseImage}ImageVersion", "push${baseImage}ImageLatest"
-        targetImageId { tasks["build${baseImage}Image"].getImageId() }
+        targetImageId { tasks["build${baseImage}ImageLocal"].getImageId() }
         force = true
     }
 

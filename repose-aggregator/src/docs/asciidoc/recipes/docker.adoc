@@ -115,7 +115,6 @@ They can be passed in as build properties or the easier way is to add them to yo
 - `dockerhub.password=<PASSWORD>`
 
 Then try to build a quick Repose Docker image from the root of the Repose project.
-Remember once the image is created, it is removed and thrown away:
 
 ----
 ./gradlew \
@@ -123,7 +122,20 @@ Remember once the image is created, it is removed and thrown away:
     -Prepose-version=8.7.0.2
 ----
 
-This method will not tag the image for you, but is a repeatable mechanism.
+This will ultimately result in a message similar to:
+
+----
+Successfully built IMAGE_ID
+Created image with ID 'IMAGE_ID'.
+
+BUILD SUCCESSFUL
+----
+
+Since this method will not automatically tag the image, you will need to tag it yourself for easier reference later:
+
+----
+docker tag IMAGE_ID local/repose:v8.7.0.2-ubuntu
+----
 
 == Notices
 Custom artifacts are not currently supported by our Docker images.
