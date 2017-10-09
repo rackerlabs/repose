@@ -12,15 +12,23 @@ RUN apt-get update -qq && apt-get install -qq -y wget openjdk-8-jre-headless
 RUN wget --quiet -O - http://repo.openrepose.org/debian/pubkey.gpg | apt-key add - && echo 'deb http://repo.openrepose.org/debian stable main' > /etc/apt/sources.list.d/openrepose.list
 RUN apt-get update -qq && apt-get install -y repose-valve=$REPOSE_VERSION repose-filter-bundle=$REPOSE_VERSION repose-extensions-filter-bundle=$REPOSE_VERSION repose-experimental-filter-bundle=$REPOSE_VERSION
 
-# Expose /etc/repose as a volume for mounting.
-WORKDIR /etc/repose
-VOLUME /etc/repose
+ENV APP_ROOT=/etc/repose
+ENV APP_VARS=/var/repose
+
+# Turn off local logging
+RUN sed -i 's,<\(Appender.*RollingFile.*/\)>,<!--\1-->,' ${APP_ROOT}/log4j2.xml
+RUN sed -i 's,<\(Appender.*PhoneHomeMessages.*/\)>,<!--\1-->,' ${APP_ROOT}/log4j2.xml
+
+# Arbitrary User ID support
+RUN chgrp -R 0 ${APP_ROOT} ${APP_VARS} && \
+    chmod -R g=u ${APP_ROOT} ${APP_VARS}
+
+# Expose APP_ROOT as a volume for mounting.
+WORKDIR ${APP_ROOT}
+VOLUME ${APP_ROOT}
 
 # Switch user to repose
 USER repose
-
-# Create the log file so that we can safely tail it as part of the CMD instruction.
-RUN touch /var/log/repose/current.log
 
 # Expose the default Repose service port for host port forwarding.
 # If the port in the user's system model differs from this port, the user will have to map it manually using the
