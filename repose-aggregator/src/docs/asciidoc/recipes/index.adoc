@@ -2,8 +2,12 @@
 
 include::../_includes/in-progress.adoc[]
 
+== <<quick-start.adoc#,Quick Start>>
+If you want to stand up a Repose instance quickly, visit the Quick Start.
+
 == <<getting-started.adoc#,Getting Started>>
-We all need to get started somewhere. If this your first time using *Repose*, then this is the place for you!
+We all need to get started somewhere.
+If this your first time using *Repose*, then this is the place for you!
 
 == <<custom-filter-for-repose.adoc#,Custom Filter for Repose>>
 Learn how to create your own custom filter for Repose!
@@ -25,9 +29,6 @@ Covers the typical Repose setup -- a Valve installation (i.e., standalone applic
 
 == <<war-installation.adoc#,WAR Installation>>
 Covers setting up Repose inside of a user-provided servlet container.
-
-== <<quick-start.adoc#,Quick Start>>
-If you want to stand up a Repose instance quickly, visit the Quick Start.
 
 == <<echo-server.adoc#,Echo Server>>
 *IN PROGRESS*
