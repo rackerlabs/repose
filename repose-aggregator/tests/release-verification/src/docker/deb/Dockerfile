@@ -13,7 +13,8 @@ EXPOSE 8080 10037
 RUN apt-get update -qq && apt-get install -y -qq \
     wget \
     curl \
-    python-pip
+    python-pip \
+    openjdk-8-jre-headless
 RUN wget -O - http://repo.openrepose.org/debian/pubkey.gpg | apt-key add -
 RUN echo "deb http://repo.openrepose.org/debian stable main" > /etc/apt/sources.list.d/openrepose.list
 

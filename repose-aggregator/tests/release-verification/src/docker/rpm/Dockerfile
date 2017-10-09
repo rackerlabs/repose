@@ -22,7 +22,8 @@ RUN yum update -y --quiet && yum install -y --quiet \
     rpm-build \
     wget \
     curl \
-    python-setuptools
+    python-setuptools \
+    java-1.8.0-openjdk-headless
 RUN easy_install pip
 RUN pip install --upgrade pip setuptools
 RUN wget --quiet -O /etc/yum.repos.d/openrepose.repo http://repo.openrepose.org/el/openrepose.repo
