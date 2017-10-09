@@ -27,7 +27,12 @@ As was seen, it wasn't very useful unless you wanted to go to the Rackspace home
 So you are probably wondering how you make a Repose container do cool stuff like <<preventing-xml-bomb.adoc#,Preventing XML bomb attacks>>.
 
 If you already have a Repose configuration that you are migrating to a Docker container, then it is very easy to present it to the container.
-If you don't already have a configuration, then see the <<../architecture/configuration.adoc#,Configuration>> page for more details on how to create one.
+Simply add the location to the `--volume` option as described in the example below.
+
+If you don't already have a configuration, then there is a couple of paths you might want to take.
+The first is if you don't know how Repose works and therefore need to know what you can do, then visit the <<getting-started.adoc#,Getting Started>>.
+We all need to get started somewhere and this is a great place if it is your first time using *Repose*.
+If you are already familiar with using *Repose* and are just looking for a quick reference of the different files, the visit the <<../architecture/configuration.adoc#,Configuration>> page for more specific details.
 We also have a series of <<index.adoc#,Recipes>> that will walk you through some of our common use cases and their configurations.
 
 The following command will mount a volume containing a configuration and perform a couple other new options to the `run` command which are explained below.
