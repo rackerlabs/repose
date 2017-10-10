@@ -7,7 +7,7 @@ Repose uses one of the following datastore implementations to store various type
 * Remote datastore (name: distributed/remote)
 
 The local datastore is enabled by default.
-The others are enabled by including the appropriate service into your system model configuration.
+The others are enabled by including the appropriate service into your <<../architecture/system-model.adoc#,System Model>> configuration.
 
 == Local Datastore
 If no other datastores are configured, then Repose will use the local datastore.
@@ -28,7 +28,22 @@ Once other nodes become reachable, the Distributed Datastore Service will return
 * *Released:* v2.7.0
 * link:../schemas/dist-datastore.xsd[Schema]
 
-The Distributed Datastore service can be added to a Repose deployment by adding it as a service (dist-datastore) within the services list of the system-model.cfg.xml file.
+The Distributed Datastore service can be enabled in a Repose deployment by adding it to the services list of the <<../architecture/system-model.adoc#,System Model>> like this:
+[source,xml]
+.system-model.cfg.xml (partial)
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+  <repose-cluster id="repose">
+    ...
+    <services>
+      <service name="dist-datastore"/>
+    </services>
+    ...
+  </repose-cluster>
+</system-model>
+----
+
 Adding the Distributed Datastore Service to a Repose deployment requires that listening ports be configured within the `dist-datastore.cfg.xml` file.
 The `<port>` element is the port configuration for the Distributed Datastore.
 When you configure Repose to start with the Distributed Datastore, the running Repose instance will try to find the `<port>` configuration that matches it's own `cluster` and `node`.
@@ -207,6 +222,22 @@ The Remote Datastore Service will return to using the configured object store as
 The static Repose instance is simply configured as a single node cluster with the distributed datastore service enabled.
 The distributed datastore is typically configured with <<../recipes/client-authentication.adoc#, SSL/TLS Client Authentication>> so that all clients must properly authenticate before a session is established.
 Then all of the dynamic clients are configured with a remote datastore and the <<http-connection-pool.adoc#,HTTP Connection Pool service>> configured to provide the proper authentication.
+
+The Remote Datastore service can be enabled in the dynamic clients by adding it to the services list of the <<../architecture/system-model.adoc#,System Model>> like this:
+[source,xml]
+.system-model.cfg.xml (partial)
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+  <repose-cluster id="repose">
+    ...
+    <services>
+      <service name="remote-datastore"/>
+    </services>
+    ...
+  </repose-cluster>
+</system-model>
+----
 
 The following is a basic sample configuration.
 [source,xml]
