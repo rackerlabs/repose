@@ -1,6 +1,123 @@
 = Atom Feed Consumption Service
 
-include::../_includes/in-progress.adoc[]
+The Atom Feed Consumption Service is a service in *Repose* which enables simple reading of Atom feeds.
+By centralizing this function in a service, *Repose* developers may share resources (and reduce overhead) when multiple *Repose* components need to read the same feed.
 
-== Configuration
-=== link:../schemas/atom-feed-service.xsd[Schema]
+== General Service information
+* *Default Configuration:* atom-feed-service.cfg.xml
+* *Released:* v7.3.2.0
+* link:../schemas/atom-feed-service.xsd[Schema]
+
+The Atom Feed Consumption Service can be enabled in a *Repose* deployment by adding it to the services list of the <<../architecture/system-model.adoc#,System Model>> like this:
+[source,xml]
+.system-model.cfg.xml (partial)
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+  <repose-cluster id="repose">
+    ...
+    <services>
+      <service name="atom-feed-service"/>
+    </services>
+    ...
+  </repose-cluster>
+</system-model>
+----
+
+== Examples
+=== Basic Configuration
+This is the most basic configuration there is to a non-authenticating feed:
+
+[source,xml]
+.atom-feed-service.cfg.xml
+----
+<?xml version="1.1" encoding="UTF-8"?>
+<atom-feed-service xmlns="http://docs.openrepose.org/repose/atom-feed-service/v1.0"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <feed id="non-authenticating-feed"      <!--1-->
+          uri="http://public.atom.com/feed" <!--2-->
+    />
+</atom-feed-service>
+----
+<1> This is a required attribute that defines a unique ID which may be used to identify this feed.
+<2> This is a required attribute that defines the URI at which this feed can be read.
+
+==== Full Configuration
+[source,xml]
+.atom-feed-service.cfg.xml
+----
+<?xml version="1.1" encoding="UTF-8"?>
+<atom-feed-service xmlns="http://docs.openrepose.org/repose/atom-feed-service/v1.0"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <feed id="authenticating-feed"           <!--1-->
+          uri="http://private.atom.com/feed" <!--2-->
+          polling-frequency="5"              <!--3-->
+          entry-order="read"                 <!--4-->
+          connection-pool-id="default"       <!--5-->
+    >
+        <authentication xsi:type="OpenStackIdentityV2AuthenticationType" <!--6-->
+                        uri="http://identity.jware.com"                  <!--7-->
+                        username="zombiekid"                             <!--8-->
+                        password="iliketurtles"                          <!--9-->
+                        timeout="5000"                                   <!--10-->
+        />
+    </feed>
+</atom-feed-service>
+----
+
+<1> This is a required attribute that defines a unique ID which may be used to identify this feed.
+<2> This is a required attribute that defines the URI at which this feed can be read.
+<3> This is an optional attribute that defines how often, in seconds, the Atom Feed service checks this feed for updates. (Default: 5)
+<4> This is an optional attribute that defines the order in which new Atom events will be delivered to any listeners registered on this feed. (Default: read)
++
+The legal values are:
++
+    - read - a feed listener will receive events in the order in which entries are read from the feed, from top to bottom.
+    - reverse-read - a feed listener will receive events in the order in which entries are put on the feed, from bottom to top.
+
+<5> This is an optional attribute that defines the HTTP Connection pool ID to use when communicating with this feed.
+<6> This is an optional element that must be present in order to perform authentication for a secure feed.
+<7> This is a required attribute that defines the URI at which the OpenStack Identity service can be reached.
+<8> This is a required attribute that defines the username of the user which will query the authenticated feed.
+    Note that the user must have, at a minimum, read permissions on the associated feed.
+<9> This is a required attribute that defines the password of the user which will query the authenticated feed.
+<10> This is an optional attribute that defines the amount of time, in milliseconds, to wait before considering an authentication attempt to be a failure.
+     A value of '0' indicates an infinite wait time. (Default: 5000)
+
+== Usage in a Custom Filter
+. Configure an Atom Feed in the atom-feed-service.cfg.xml configuration file described above.
+  Make sure to note the exact value of the "id" attribute for your feed.
+. Add a dependency to the component under development for the following Maven coordinate (of the form groupId:artifactId:version):
++
+----
+org.openrepose:atom-feed-service-api:{repose-version}
+----
+. Wire in the Atom Feed Consumption service spring bean.
+. Write one or more Atom Feed listener(s) which conform(s) to the AtomFeedListener interface.
+. Create an instance of your listener, like so:
++
+----
+MyAtomFeedListener myListener = ...;
+----
+. Register your listener(s) with the Atom Feed Consumption service using the configured Atom Feed "id" from above, like so:
++
+----
+String myListenerId = atomFeedService.registerListener(myFeedId, myListener);
+----
+. You're done! Your listener will get callbacks for all new entries in your configured Atom Feed.
+. To unregister your listener, use the listenerId returned from the .registerListener(...) method, like so:
++
+----
+atomFeedService.unregisterListener(myListenerId);
+----
+
+== Architecture
+The Atom Feed Consumption service is built on top of the Akka framework.
+It utilizes the Akka actor system to scale horizontally as the number of Atom Feeds being monitored grows.
+In addition, most processing done by the Atom Feed Consumption service is asynchronous and non-blocking.
+
+[NOTE]
+====
+Due to the nature of the Akka actor system, if the Atom Feed Consumption Service is configured to poll a feed more quickly than that feed can be read, the Akka actor queue for that Feed will grow perpetually.
+This will result in high memory usage, and eventually the JVM will run out of memory and crash.
+====
