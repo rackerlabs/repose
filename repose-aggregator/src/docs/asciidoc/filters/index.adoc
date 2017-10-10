@@ -75,13 +75,13 @@ Provides a mechanism for authenticating incoming requests with the OpenStack Key
 For identity usage for rate limiting and user access events.
 
 == <<rate-limiting.adoc#,Rate Limiting Filter>>
-Limits the number of requests allowed through Repose to the origin service.
+Limits the number of requests allowed through *Repose* to the origin service.
 
 == <<saml-policy.adoc#,SAML Policy Translation Filter>>
 Allows the translation and addition of new assertions to a SAML response request.
 
 == <<scripting.adoc#,Scripting Filter>>
-Enables users to write custom filters for Repose using a variety of scripting languages.
+Enables users to write custom filters for *Repose* using a variety of scripting languages.
 
 == <<simple-rbac.adoc#,Simple Role Based Access Control (RBAC) Filter>>
 *IN PROGRESS*

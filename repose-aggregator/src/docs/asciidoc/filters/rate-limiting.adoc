@@ -1,6 +1,6 @@
 = Rate Limiting Filter
 
-The Rate Limiting filter can be used to limit the number of requests that make it through Repose to specified resources belonging to the origin service.
+The Rate Limiting filter can be used to limit the number of requests that make it through *Repose* to specified resources belonging to the origin service.
 By imposing a rate limit, an operator can prevent the origin service from being flooded by requests, thereby bounding the potential for congestion or contention.
 
 Additionally, this filter can expose rate limiting data by allowing users to query rate limits.
@@ -270,11 +270,11 @@ Only the limits in the first limit group to match the request are applied.
 ====
 
 === Limits
-A limit is the number of requests per unit of time that are allowed to pass through Repose.
+A limit is the number of requests per unit of time that are allowed to pass through *Repose*.
 Limits are applied selectively to requests matching certain criteria such as a request's HTTP method and query parameters.
 Multiple rate limits that match the same request will all apply.
 A limit is reached when a user has sent a number of requests equal to the value of the limit within the span of one unit (configurable on the limit) of time.
-If a limit has been reached, this filter will prevent requests from passing through Repose.
+If a limit has been reached, this filter will prevent requests from passing through *Repose*.
 If a limit has not been reached, the request will pass through this filter.
 Limits will reset after the configured unit of time has passed.
 
@@ -328,10 +328,10 @@ Otherwise, only the limits defined in this filter's configuration will be return
 
 [NOTE]
 ====
-To retrieve limits from a origin service, a request will be made through the Repose filter chain to the origin service.
+To retrieve limits from a origin service, a request will be made through the *Repose* filter chain to the origin service.
 ====
 
 === Distributed Datastore
-If this filter is configured to use the <<../services/datastores.adoc#, Distributed Datastore>>, and the Distributed Datastore service is unable to communicate with other nodes (e.g., during a rolling upgrade to Repose), then the Distributed Datastore service will fall back on the local datastore.
+If this filter is configured to use the <<../services/datastores.adoc#, Distributed Datastore>>, and the Distributed Datastore service is unable to communicate with other nodes (e.g., during a rolling upgrade to *Repose*), then the Distributed Datastore service will fall back on the local datastore.
 Consequently, rate limits may not be tracked correctly during the transition from the Distributed Datastore to the local datastore or vice-versa.
 To be more precise, when Distributed Datastore nodes are unreachable, limit data cannot be be retrieved, and so new limits are created in the local datastore.

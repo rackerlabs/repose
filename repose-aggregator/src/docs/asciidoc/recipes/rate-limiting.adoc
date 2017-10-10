@@ -1,7 +1,7 @@
 = Rate Limiting
 
 == Overview
-A common use case for Repose is rate limiting.
+A common use case for *Repose* is rate limiting.
 It limits how many requests per some unit of time (e.g. 10 requests per minute) are allowed to be made.
 In our example, we'll be using the `X-PP-User` header to indicate who we are for rate limiting purposes.
 For additional info on populating that header and on rate limiting by groups, see the <<../filters/rate-limiting.adoc#,Rate Limiting Filter>> documentation.
@@ -37,7 +37,7 @@ include::https://raw.githubusercontent.com/rackerlabs/repose/master/repose-aggre
 
 == Testing
 === Script
-You can use this script to quickly make 11 requests to Repose to confirm that rate limiting is working.
+You can use this script to quickly make 11 requests to *Repose* to confirm that rate limiting is working.
 
 [source,shell]
 .test_rate_limiting.sh
@@ -112,7 +112,7 @@ A sample of the 11th attempt output is below.
 }
 ----
 
-This is real handy if you have a single Repose node, however if you scale your Repose cluster horizontally,
+This is real handy if you have a single *Repose* node, however if you scale your *Repose* cluster horizontally,
 then you will need to configure for Distributed Rate Limiting for it to behave as you would expect it to.
 
 == Distributed Rate Limiting

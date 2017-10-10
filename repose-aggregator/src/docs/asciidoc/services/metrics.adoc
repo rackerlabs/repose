@@ -1,14 +1,14 @@
 = Metrics Service
 
-The Metrics Service enables the registration, collection, and reporting of metrics across Repose.
+The Metrics Service enables the registration, collection, and reporting of metrics across *Repose*.
 
-Metrics collected by this service provide insight into the state of Repose and its components at any given time.
+Metrics collected by this service provide insight into the state of *Repose* and its components at any given time.
 
 == Background
 
 The goal of the Metrics Service is to provide a simple, convenient mechanism for gathering and reporting metrics.
 To that end, the Metrics Service manages a centralized metrics registry and reporters for that registry.
-By exposing the Metrics Service as a Java `@Named` component, other Repose components may easily leverage the ability to record metrics.
+By exposing the Metrics Service as a Java `@Named` component, other *Repose* components may easily leverage the ability to record metrics.
 
 Implementation wise, the Metrics Service is a light-weight wrapper around the http://metrics.dropwizard.io/[Dropwizard metrics library].
 This allows the service to offer all of the capabilities of a powerful, open-source metrics library.
@@ -52,7 +52,7 @@ All metrics reported to this service will be reported to JMX.
 In order to report metrics to JMX, this service must translate metric names into https://docs.oracle.com/javase/8/docs/api/javax/management/ObjectName.html[JMX ObjectNames].
 A metric can be named virtually anything, but names often follow the `<segment1>.<segment2>.<...>.<segmentn>` convention.
 A simplified general form for an object name is `<domain>:<key1>=<value1>,<key2>=<value2>,<...>,<keyn>=<valuen>`.
-To go from metric name to object name, the translation process will start by prepending the metric name with the hostname of the host running Repose.
+To go from metric name to object name, the translation process will start by prepending the metric name with the hostname of the host running *Repose*.
 Next, it will split the metric name using `.` as a delimiter.
 The index of each delimited segment will act as the key for that segment, and the value of the segment will act as the value.
 
@@ -140,7 +140,7 @@ The following lists attempt to aggregate all of the metrics being reported to th
 | Meter
 | `org.openrepose.core.ResponseCode.Repose.<response-code>`
 | Counts the number of responses with a `<response-code>` status code returned to the client.
-`<response-code>` is the HTTP status code in the response before being sent to the client (i.e., after Repose processing has occurred).
+`<response-code>` is the HTTP status code in the response before being sent to the client (i.e., after *Repose* processing has occurred).
 
 | Power Filter Chain
 | Timer

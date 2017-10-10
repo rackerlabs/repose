@@ -1,6 +1,6 @@
 = Cross-Origin Resource Sharing (CORS) Filter
 
-The Cross-Origin Resource Sharing (CORS) filter allows Repose to manage CORS requests without the origin service needing to understand CORS.
+The Cross-Origin Resource Sharing (CORS) filter allows *Repose* to manage CORS requests without the origin service needing to understand CORS.
 For an introduction to CORS, see the <<CORS Overview>> section below.
 
 [WARNING]
@@ -366,7 +366,7 @@ Even though the web browser will prevent the client-side code from seeing the re
 To mitigate this issue, the web browser will send a CORS Preflight Request to the third-party server to first verify that the `Origin` and HTTP method are allowed (among a few other things) before sending the CORS Actual Request.
 If the response to the CORS Preflight Request indicates the CORS Actual Request would not include the appropriate CORS headers, the web browser will not proceed with sending the CORS Actual Request.
 
-Because the CORS Preflight Request is asking if a CORS Actual Request would be allowed and not for the request to actually be processed, this type of request is completely handled by the CORS filter in Repose.
+Because the CORS Preflight Request is asking if a CORS Actual Request would be allowed and not for the request to actually be processed, this type of request is completely handled by the CORS filter in *Repose*.
 No other filters after the CORS filter will process the request, and the request will not reach the origin service.
 
 A web browser may choose to skip sending a CORS Preflight Request if the HTTP method is GET, HEAD, or POST, the request headers do not include anything other than `Accept`, `Accept-Language`, and `Content-Language`, and the request does not require any cookies, HTTP authentication, nor use of any client-side SSL certificates.
@@ -376,7 +376,7 @@ For example, if your origin service requires an `X-Auth-Token` header, the web b
 ==== Origin Header
 Some web browsers (e.g., Chrome and Safari) will send the `Origin` header for same-origin (i.e., non-CORS) requests in addition to CORS requests which is technically allowed under https://tools.ietf.org/html/rfc6454#section-7.3[RFC 6454].
 This is typically not a concern for servers handling CORS because the unnecessary inclusion of CORS headers will be ignored by the client if they are not needed to process the response.
-Because Repose has the added ability to reject requests with unapproved origins, additional logic is required to differentiate between CORS requests and same-origin requests when the `Origin` header is present.
+Because *Repose* has the added ability to reject requests with unapproved origins, additional logic is required to differentiate between CORS requests and same-origin requests when the `Origin` header is present.
 
 Requests are considered same-origin requests when the `Origin` header matches the original `Host` header set by the client according to the comparison rules in https://tools.ietf.org/html/rfc6454#section-5[RFC 6454 Section 5].
 If the `X-Forwarded-Host` header is present in the request, the first value will be used as the host.
@@ -385,6 +385,6 @@ This check is not performed for CORS Preflight Requests since web browsers shoul
 
 [CAUTION]
 ====
-If a proxy server sitting between the client and Repose rewrites the `Host` without updating the `X-Forwarded-Host` header with the original value, Repose will not be able to correctly identify same-origin requests coming from that client.
+If a proxy server sitting between the client and *Repose* rewrites the `Host` without updating the `X-Forwarded-Host` header with the original value, *Repose* will not be able to correctly identify same-origin requests coming from that client.
 This may result in requests from that client being incorrectly rejected on the basis that they are CORS requests when they may in fact be same-origin requests.
 ====

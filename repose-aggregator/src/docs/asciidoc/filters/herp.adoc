@@ -3,7 +3,7 @@
 The Highly Efficient Record Processor (HERP) filter logs an event for each API request.
 These logs provide information regarding the processing of each request.
 The logs can be inspected to view the usage of a service and to perform auditing.
-Events are recorded even if the API request is rejected by Repose before reaching the origin service.
+Events are recorded even if the API request is rejected by *Repose* before reaching the origin service.
 
 == General Filter Information
 * *Name:* herp
@@ -32,7 +32,7 @@ This filter has no dependencies on other filters and can be placed wherever it i
 [CAUTION]
 ====
 In order for the HERP filter to process and record every request, no preceding filter in the filter chain may write a response.
-To prevent short-circuiting without changing behavior, delegation has been added to many Repose filters.
+To prevent short-circuiting without changing behavior, delegation has been added to many *Repose* filters.
 See <<../recipes/delegation.adoc#,Delegation in Repose>> for more details.
 ====
 
@@ -195,7 +195,7 @@ A list of supported keys follows:
 [cols="3", options="header,autowidth"]
 |===
 | Supported fields     | Description                                                                                                                        | Prerequisite Filter(s)
-| clusterId            | The cluster ID of the Repose node on which the filter is running, configured in the Repose system model.                           | -
+| clusterId            | The cluster ID of the *Repose* node on which the filter is running, configured in the *Repose* system model.                           | -
 | dataCenter           | The data center, configured in the highly-efficient-record-processor.cfg.xml file.
                          This string will be used in logging to note the data center of the service.                                                        | -
 | guid	               | A globally unique identifier generated for a particular request.
@@ -203,7 +203,7 @@ A list of supported keys follows:
 | impersonatorName     | The impersonator making the request on behalf of a user.                                                                           | client-auth *or* openstack-identity-v3
 | methodLabel          | A label which describes the API call.
                          This is pulled from the WADL used by the api-validator filter.                                                                     | api-validator
-| nodeId               | The node ID of the Repose node on which the filter is running, configured in the Repose system model.	                            | -
+| nodeId               | The node ID of the *Repose* node on which the filter is running, configured in the *Repose* system model.	                            | -
 | parameters           | The query parameters for a request.
                          Note that this field is a map, and specific parameters can be inserted using the following form: `{{parameters.<parameter-key>}}`. | -
 | projectID            | The tenant ID or project ID of the user making the request authenticated through an OpenStack Identity service.
@@ -245,4 +245,4 @@ The following helpers are available:
 === Recommendation For Managing Disk Space
 If you expect heavy usage, you should use a logging tool, such as link:http://logstash.net/[Logstash], for managing events and logs and should not write events to files.
 Even if you rely on auditing, it is not recommended that you use the file system with the audit logs.
-Repose has developed <<../recipes/api-event-flume.adoc#,CF Flume Sink>> to eliminate disk space and log file issues.
+*Repose* has developed <<../recipes/api-event-flume.adoc#,CF Flume Sink>> to eliminate disk space and log file issues.

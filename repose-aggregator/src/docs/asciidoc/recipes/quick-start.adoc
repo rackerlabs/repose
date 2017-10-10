@@ -1,20 +1,20 @@
 = Quick Start
 
-With the advent of container technology, Repose can be fully encapsulated and run as a service with minimal setup.
+With the advent of container technology, *Repose* can be fully encapsulated and run as a service with minimal setup.
 
-By bundling the environment with the software itself, deploying Repose has become a much quicker and simpler process.
+By bundling the environment with the software itself, deploying *Repose* has become a much quicker and simpler process.
 Docker boasts security through isolation, and when run on platforms with native support, it requires very little overhead.
-To make everything as easy and versatile as possible, the Repose team now publishes Docker images on Docker Hub as part of every release.
+To make everything as easy and versatile as possible, the *Repose* team now publishes Docker images on Docker Hub as part of every release.
 
 == Prerequisites
-Before you can use a Repose Docker image, you will need to install and have running a Docker Container Engine.
+Before you can use a *Repose Docker* image, you will need to install and have running a Docker Container Engine.
 The Docker Container Engine is available for almost all operating systems.
 The installation instructions for the Docker Container Engine are outside the scope of this Quick Start guide, but they can be found https://docs.docker.com/engine/installation/[here].
 Since this is a Quick Start guide, only the minimal features required to get up and running are presented here.
 For a complete exploration of what the Docker Container Engine can provide, take a look at the https://docs.docker.com/[official Docker documentation site].
 
 At this point you may be able to execute the `docker run hello-world` test.
-If you can, then you are almost ready to run a basic Repose Docker image.
+If you can, then you are almost ready to run a basic *Repose Docker* image.
 If you can't, then the steps below may get you up and going.
 
 == Minor updates
@@ -43,7 +43,7 @@ All official Repose Docker images are published on Docker Hub at:
 image::http://dockeri.co/image/rackerlabs/repose[Repose Docker,link=https://hub.docker.com/r/rackerlabs/repose/]
 
 == Running a Docker Container
-After you have a running Docker Container Engine, you can run the latest Repose release with the following command:
+After you have a running Docker Container Engine, you can run the latest *Repose* release with the following command:
 
 ----
 docker run                  \ <1>
@@ -58,11 +58,11 @@ Let's break that command down and take a closer look at what it is doing:
     In detached mode, the container will run in the background.
     If we were to run in attached mode (the default) instead of detached mode, the terminal we used to execute this command would receive all of the container output (e.g. STDOUT, and STDERR).
 <3> This option defines a port mapping between the host (i.e., the OS running the Docker Container Engine) and the Docker container itself.
-    Doing so allows Repose to accept traffic over the specified port from outside of Docker.
+    Doing so allows *Repose* to accept traffic over the specified port from outside of Docker.
     The port mapping format is `HOST_PORT:CONTAINER_PORT`.
     So in this example, traffic on host port 8080 will be forwarded to the containers port 8080.
 <4> This is the image ID (in repository:tag format) to create a container from.
-    Remember that Repose images are hosted at Docker Hub, which Docker can use implicitly.
+    Remember that *Repose* images are hosted at Docker Hub, which Docker can use implicitly.
 
 The `docker run` command will return the full 64 character unique ID of the Container that was started.
 However, only the first 12 are typically needed for the `CONTAINER_ID` in the rest of the command examples.
@@ -74,7 +74,7 @@ docker ps
 
 == Inspecting a Running Docker Container
 Once running, you may wish to inspect the internal state of the container.
-Well, the default command for the official Repose Docker images will run Repose in the foreground, and as a result, simply attaching to the container with a command like the following will only allow interaction with the Repose process:
+Well, the default command for the official *Repose Docker* images will run *Repose* in the foreground, and as a result, simply attaching to the container with a command like the following will only allow interaction with the *Repose* process:
 
 ----
 docker attach CONTAINER_ID
@@ -87,7 +87,7 @@ Instead, you can use a command like the one below to execute a new bash session 
 docker exec --interactive --tty CONTAINER_ID /bin/bash
 ----
 
-In that shell you can check the current filter chain being used by the Repose instance with:
+In that shell you can check the current filter chain being used by the *Repose* instance with:
 
 ----
 cat /etc/repose/system-model.cfg.xml
@@ -104,10 +104,10 @@ To access a containers log information simply use the following:
 docker container logs --follow CONTAINER_ID
 ----
 
-When the Repose instance in the Docker container is ready to accept and proxy requests, you will see a log message containing `Repose ready`.
+When the *Repose* instance in the Docker container is ready to accept and proxy requests, you will see a log message containing `Repose ready`.
 
 == Connecting to the Repose Docker container
-The simplest way to connect to the Repose instance is using the *cURL* command:
+The simplest way to connect to the *Repose* instance is using the *cURL* command:
 
 ----
 curl -v http://127.0.0.1:8080
@@ -126,16 +126,16 @@ This indicates that a new request was made to this instance and since you receiv
 If you connect to that same address using a regular web browser, you will automagically be redirected clear on through to the Rackspace homepage.
 
 == What's next?
-Out of the box a default configured Repose doesn't do much.
+Out of the box a default configured *Repose* doesn't do much.
 This is because everybody needs it to do something specific to their needs.
 There are a lot of different <<../filters/index.adoc#,Filters>> available that can be used like building blocks to make a filter chain that does exactly what you need.
-One of the things that Repose is used for is <<preventing-xml-bomb.adoc#,Preventing XML bomb attacks>>.
+One of the things that *Repose* is used for is <<preventing-xml-bomb.adoc#,Preventing XML bomb attacks>>.
 
-If you are ready to learn how to tweak the default configuration to do a little more or are feeling adventurous and want explore building your very own custom Repose Docker image,
+If you are ready to learn how to tweak the default configuration to do a little more or are feeling adventurous and want explore building your very own custom *Repose Docker* image,
 then head on over to the <<docker.adoc#,Docker>> recipe page.
 
 == What if I'm done?
-If you have had your fill of running Repose in a local Docker container for right now, then you can stop it from running using:
+If you have had your fill of running *Repose* in a local Docker container for right now, then you can stop it from running using:
 
 ----
 docker stop CONTAINER_ID
@@ -153,13 +153,13 @@ If you forget what the `CONTAINER_ID` is, then you can add the `--all` option to
 docker ps --all
 ----
 
-If you have decided to completely give up on this Repose Docker container, then you can remove it with:
+If you have decided to completely give up on this *Repose Docker* container, then you can remove it with:
 
 ----
 docker rm CONTAINER_ID
 ----
 
-If you are never going to run another Repose Docker container, then you can remove the image used to create them with:
+If you are never going to run another *Repose Docker* container, then you can remove the image used to create them with:
 
 ----
 docker rmi rackerlabs/repose:latest

@@ -3,9 +3,9 @@
 
 include::../_includes/in-progress.adoc[]
 
-Covers the typical Repose setup -- a Valve installation (i.e., standalone application) running as a Linux service.
+Covers the typical *Repose* setup -- a Valve installation (i.e., standalone application) running as a Linux service.
 
-For instructions on starting Repose after setup, see: <<running-valve.adoc#,Running Valve>>.
+For instructions on starting *Repose* after setup, see: <<running-valve.adoc#,Running Valve>>.
 
 For more information about the packages themselves, see: <<../architecture/packages.adoc#,Packages>>.
 
@@ -49,13 +49,13 @@ sudo yum install -y repose-valve repose-filter-bundle repose-extensions-filter-b
 == Other Operating Systems (e.g., Windows, MacOS)
 Native packages are not yet provided for all operating systems.
 
-To install Repose Valve on systems that do not support Repose packages, see: <<Manual>>
+To install *Repose Valve* on systems that do not support *Repose* packages, see: <<Manual>>
 
 == Manual
 [CAUTION]
 ====
 This installation method is not recommended unless necessary.
-This method does not verify or modify the environment to accommodate Repose.
+This method does not verify or modify the environment to accommodate *Repose*.
 ====
 
 If you want to manually download the application archives, they are available in our Nexus Repository.

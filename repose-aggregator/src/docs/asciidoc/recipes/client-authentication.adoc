@@ -1,6 +1,6 @@
 = SSL/TLS Client Authentication
 
-This recipe explains how to utilize SSL/TLS Client Authentication in Repose.
+This recipe explains how to utilize SSL/TLS Client Authentication in *Repose*.
 
 SSL/TLS provides an encrypted link between the client and the server, and is the standard for sending private data over the internet.
 You may want to enable SSL/TLS Client Authentication if part of your infrastructure is in a different datacenter to ensure only cross service traffic can reach your service.
@@ -17,8 +17,8 @@ Even though you can optionally add a particular Server's credentials directly in
 == Generate and Install the Certificate
 
 In the following steps, the _client_ will refer to the entity sending the request, and the _server_ will refer to the entity receiving the request.
-If you are setting up client authentication for requests inbound to Repose, then the entity sending the request is the _client_ and Repose is the _server_.
-If you are setting up client authentication for requests outbound from Repose to the origin service, then Repose is the _client_ and the origin service is the _server_.
+If you are setting up client authentication for requests inbound to *Repose*, then the entity sending the request is the _client_ and *Repose* is the _server_.
+If you are setting up client authentication for requests outbound from *Repose* to the origin service, then *Repose* is the _client_ and the origin service is the _server_.
 [[create-client-certificate]]
 === Generate the _client_ key and certificate
 
@@ -44,7 +44,7 @@ Using the `keytool` import _client_ certificate into the _server_ keystore.
 $ keytool -importcert -keystore server.jks -storepass password -keypass password -alias client -file client.cer
 
 
-== Client to *Repose* Authentication
+== Client to Repose Authentication
 
 With your certificates in the right spot it's time to turn authentication on for *Valve*.
 This is achieved with a simple tweak to the `container.cfg.xml`.

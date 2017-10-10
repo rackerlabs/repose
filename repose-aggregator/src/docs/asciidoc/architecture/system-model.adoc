@@ -2,35 +2,35 @@
 
 include::../_includes/in-progress.adoc[]
 
-The Repose `system-model.cfg.xml` is the main configuration file for Repose.
+The *Repose* `system-model.cfg.xml` is the main configuration file for *Repose*.
 It outlines the entire deployment layout for the service cluster.
-Repose must be aware of this in order to configure itself and correctly coordinate routing if necessary.
-Additionally, the system model lets Repose know where the other Repose nodes reside.
-Using this information, Repose can coordinate its own clustering to help load balance or share data among nodes that share common filters.
+*Repose* must be aware of this in order to configure itself and correctly coordinate routing if necessary.
+Additionally, the system model lets *Repose* know where the other *Repose* nodes reside.
+Using this information, *Repose* can coordinate its own clustering to help load balance or share data among nodes that share common filters.
 
 == Model Definitions
 Cluster (Service or Repose)::
 An entity that defines a collection of nodes, all of which provide equivalent functionality.
 This element also defines service's scope within the system model.
 The service hosted on each node must be functionally equivalent at the API level.
-A filter chain may be attached to a Repose cluster to identify the Repose HTTP message interception logic that must be performed by each node within the cluster.
+A filter chain may be attached to a *Repose* cluster to identify the *Repose* HTTP message interception logic that must be performed by each node within the cluster.
 
 Endpoint::
 An endpoint is a special type of destination.
 An endpoint destination can specify an exact node to which requests can be routed.
 This element can contain protocol, hostname, root-path, and port elements that are used in constructing a route.
-If the endpoint is within the same container as Repose, protocol, hostname and port are not specified.
+If the endpoint is within the same container as *Repose*, protocol, hostname and port are not specified.
 
 Destinations::
-A Repose cluster must enumerate eligible routes to which HTTP messages can be forwarded.
+A *Repose* cluster must enumerate eligible routes to which HTTP messages can be forwarded.
 These are listed in the destinations section of the repose-cluster.
 If a destination is requested that is not listed in this section, a "service not available" code is returned.
 A valid destination can either be an endpoint or a target cluster.
-All nodes within the target cluster of a destination are considered eligible for routing, and by default, Repose forwards to each node in round-robin order, starting at the top of the node sequence.
+All nodes within the target cluster of a destination are considered eligible for routing, and by default, *Repose* forwards to each node in round-robin order, starting at the top of the node sequence.
 
 Filter::
 An HTTP message interceptor that provides a specific piece of business functionality.
-A filter contains a Repose specific named reference.
+A filter contains a *Repose* specific named reference.
 
 Filters (Filter Chain)::
 A sequence of filters that will intercept and process the request and/ord response.
@@ -49,15 +49,15 @@ Services::
 A sequence of services that will be loaded into the servlet context to be available for filters in the cluster.
 
 Target Cluster::
-A target cluster is a type of destination that specifies another cluster (Repose or service) as a routing destination.
+A target cluster is a type of destination that specifies another cluster (*Repose* or service) as a routing destination.
 The target cluster element can contain cluster, protocol, root-path attributes.
-Repose will choose a node from the target cluster as the target of the dispatch in a round-robin manner.
+*Repose* will choose a node from the target cluster as the target of the dispatch in a round-robin manner.
 
 == Configuration
 This section is only meant to explain certain quirks of the system model, and to provide a link to the comprehensive configuration schema.
 Other aspects of configuration will be explained through examples. See: <<Repose Deployment Scenarios>>
 
-Since port numbers below 1024 are privileged, Repose typically can *not* connect directly to them.
+Since port numbers below 1024 are privileged, *Repose* typically can *not* connect directly to them.
 There are several ways to go about getting around this, but one of the most generally accepted ways is to execute the following commands with root privilege (e.g. sudo):
 ----
 /sbin/iptables -t nat -I PREROUTING -p tcp --dport  80 -j REDIRECT --to-port 8080
@@ -94,10 +94,10 @@ There are several ways to go about getting around this, but one of the most gene
   </repose-cluster>
 </system-model>
 ----
-<1> Defines a new Repose cluster with an ID that must be unique across all defined clusters.
-<2> Defines a new Repose node with an ID that must be unique across all defined nodes in the list.
-<3> Defines the hostname of the Repose node.
-If set to localhost, any physical node will match and run the Repose node.
+<1> Defines a new *Repose* cluster with an ID that must be unique across all defined clusters.
+<2> Defines a new *Repose* node with an ID that must be unique across all defined nodes in the list.
+<3> Defines the hostname of the *Repose* node.
+If set to localhost, any physical node will match and run the *Repose* node.
 <4> Defines the port for the node to listen on.
 <5> Defines a sequence of filters to run. In this case, no filters are being used.
 <6> Defines a set of services to run. In this case, no services are being used.

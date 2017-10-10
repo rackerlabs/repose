@@ -2,7 +2,7 @@
 
 include::_includes/in-progress.adoc[]
 
-This page summarizes the different methods which can be used to get more information on the state of Repose and how it interacts with the clients, origin service, and third party services.
+This page summarizes the different methods which can be used to get more information on the state of *Repose* and how it interacts with the clients, origin service, and third party services.
 Most of these methods can be used in a production deployment.
 
 == Intrafilter Logging
@@ -31,7 +31,7 @@ The TRACE setting is the most verbose logging setting.
 === Enabling
 
 To enable intrafilter logging, the corresponding named log4j2 logger should be set to the `TRACE` level.
-This can be achieved by adding a line like the following to the `log4j2.xml` file in your Repose configuration directory.
+This can be achieved by adding a line like the following to the `log4j2.xml` file in your *Repose* configuration directory.
 
 [source,xml]
 ----
@@ -74,14 +74,14 @@ The log line will be a single line without carriage returns.
 ----
 
 == Time Spent in Each Filter
-Repose can report on which filters handled the client request and how long each filter took.
+*Repose* can report on which filters handled the client request and how long each filter took.
 This allows you to verify that all expected filters handled the request.
 
 === Enabling
 To enable this, add the following header to the client request:
 `x-trace-request: true`
 
-The Repose response to the client will contain the following header added to the response, one for each filter which handled the request:
+The *Repose* response to the client will contain the following header added to the response, one for each filter which handled the request:
 `x-[filter name]: [time]ms`
 
 The `x-trace-request` header can be easily added to a test request using curl and the -H [header] flag.
@@ -91,7 +91,7 @@ curl -v -H "x-trace-request: true" http://localhost:8080/
 ----
 
 === Sample Output
-The following example contains three headers which Repose added to the response.
+The following example contains three headers which *Repose* added to the response.
 These headers indicate that the the client-auth, http-logging, and default-router all handled the request, taking 0, 6, and 0 ms respectively.
 
 ----
@@ -210,7 +210,7 @@ ifdef::basebackend-html[]
 endif::[]
 
 == Access Repose Internal Metrics and Instrumentation
-Repose instruments its internal operations, such as the types of response codes returned from Repose or the origin service and the number of active requests.
+*Repose* instruments its internal operations, such as the types of response codes returned from *Repose* or the origin service and the number of active requests.
 This information is published through JMX and can be accessed through any JMX client.
 JConsole is a popular choice to access information published through JMX as it is shipped with the JDK.
 

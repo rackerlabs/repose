@@ -2,10 +2,10 @@
 
 include::../_includes/in-progress.adoc[]
 
-Provides details about the packages Repose maintains for easy installation by our users.
+Provides details about the packages *Repose* maintains for easy installation by our users.
 
 == Directory Layout
-This section outlines where Repose files live in the filesystem after being extracted from one of our packages.
+This section outlines where *Repose* files live in the filesystem after being extracted from one of our packages.
 
 [cols="3", options="header, autowidth"]
 |===
@@ -13,7 +13,7 @@ This section outlines where Repose files live in the filesystem after being extr
 
 |EAR Files
 |/usr/share/repose/filters
-|Location of all of the artifacts for Repose to use.
+|Location of all of the artifacts for *Repose* to use.
 
 |Valve JAR File
 |/usr/share/repose/repose-valve.jar
@@ -37,5 +37,5 @@ This section outlines where Repose files live in the filesystem after being extr
 
 |Deployment
 |/var/repose
-|Working directory for artifacts being used when Repose is running.
+|Working directory for artifacts being used when *Repose* is running.
 |===
