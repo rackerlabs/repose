@@ -1,72 +1,124 @@
 = Rate Limiting
 
-include::../_includes/in-progress.adoc[]
+== Overview
+A common use case for Repose is rate limiting.
+It limits how many requests per some unit of time (e.g. 10 requests per minute) are allowed to be made.
+In our example, we'll be using the `X-PP-User` header to indicate who we are for rate limiting purposes.
+For additional info on populating that header and on rate limiting by groups, see the <<../filters/rate-limiting.adoc#,Rate Limiting Filter>> documentation.
 
 == Configuration
-* *Default Configuration:* rate-limiting.cfg.xml
-* *Released:* prior to version v1.0.6
-* link:../schemas/rate-limiting-configuration.xsd[Schema]
-
-Rate limiting can be configured to use any of the datastore types to store rate limiting information for users.
-By default, rate limiting will use the distributed datastore (`hash-ring`) if available.
-If no distributed datastores are available, then rate limiting will use the local datastore.
+=== System Model
+The filter can be enabled by adding it to the list of filters in the <<../architecture/system-model.adoc#,System Model>>.
 
 [source,xml]
 .system-model.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- To configure Repose see: http://wiki.openrepose.org/display/REPOSE/Configuration -->
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
   <repose-cluster id="repose">
-    <nodes>
-      <node id="node1" hostname="localhost" http-port="9090"/>
-      <node id="node2" hostname="localhost" http-port="8080"/>
-    </nodes>
+    ...
     <filters>
       <filter name="rate-limiting"/>
     </filters>
-    <services>
-      <service name="dist-datastore"/>
-    </services>
-    <destinations>
-      <endpoint id="endpoint" protocol="http" hostname="originservice" root-path="/" port="8080" default="true"/>
-    </destinations>
-  </repose-cluster>
+    ...
 </system-model>
 ----
 
-In the following example, the Repose instance with the `node` `id` of `node1` will launch a Distributed Datastore service which will listen on port 9999.
-The Repose instance with the `node` `id` of `node2` will launch it's own Distributed Datastore service which will listen on port 7777.
-With `allow-all` set to `false`, a host that is not in the cluster cannot communicate with the Distributed Datastore.
-
-[source,xml]
-.dist-datastore.cfg.xml
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'>
-    <allowed-hosts allow-all="false"/>
-    <port-config>
-        <port port="9999" cluster="repose"/>
-        <port port="7777" cluster="repose" node="node2"/>
-    </port-config>
-</distributed-datastore>
-----
+=== Rate Limiting
+After the filter has been added to the <<../architecture/system-model.adoc#,System Model>>, the example configuration can copied/moved from the examples directory to the configuration files directory (i.e. `/etc/repose`).
+The example configuration for rate limiting is sufficient for testing and will limit requests to the origin service to 10 times per minute.
 
 [source,xml]
 .rate-limiting.cfg.xml
 ----
-<?xml version="1.0" encoding="UTF-8"?>
-<rate-limiting xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0" datastore="distributed/hash-ring">
-    <!-- Protects the Origin Service from being flooded. -->
-    <global-limit-group>
-        <limit id="global" uri="*" uri-regex=".*" value="1000" unit="MINUTE"/>
-    </global-limit-group>
-
-    <!-- Limits for all other requests -->
-    <limit-group id="limited" groups="IP_Standard" default="true">
-        <limit id="all" uri="*" uri-regex=".*" http-methods="POST PUT GET DELETE" value="10" unit="MINUTE"/>
-    </limit-group>
-
-    <!-- Limits for WhiteListed IPs -->
-    <limit-group id="unlimited" groups="IP_Super" default="false"/>
-</rate-limiting>
+include::https://raw.githubusercontent.com/rackerlabs/repose/master/repose-aggregator/components/filters/rate-limiting-filter/src/main/resources/META-INF/schema/examples/rate-limiting.cfg.xml[]
 ----
+
+== Testing
+=== Script
+You can use this script to quickly make 11 requests to Repose to confirm that rate limiting is working.
+
+[source,shell]
+.test_rate_limiting.sh
+----
+#!/bin/bash
+OUT_FILE="repose-curl.out"
+rm -f $OUT_FILE
+touch $OUT_FILE
+for i in {1..11} ; do
+  echo -en "\n\n~~~~~ Attempt #$i ~~~~~\n\n" >> $OUT_FILE
+  curl -H "x-pp-user: abc123" -H "Content-Type: Test" -H "Content-Length: 0" localhost:8080/get -v >> $OUT_FILE 2>&1
+done
+----
+
+=== Running
+Assuming you named the script `test_rate_limiting.sh`, you can run it with the following:
+
+[source,shell]
+.console session
+----
+# make the script executable
+chmod +x test_rate_limiting.sh
+
+# run the script
+./test_rate_limiting.sh
+
+# view the results
+less repose-curl.out
+----
+
+=== Results
+You should see the first 10 attempts succeed with a 200 and the 11th attempt fail with a 413.
+A sample of the 11th attempt output is below.
+
+[source,shell]
+.console session
+----
+~~~~~ Attempt #11 ~~~~~
+* Hostname was NOT found in DNS cache
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+^M  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying ::1...
+* Connected to localhost (::1) port 8080 (#0)
+> GET /get HTTP/1.1
+> User-Agent: curl/7.35.0
+> Host: localhost:8080
+> Accept: */*
+> x-pp-user: abc123
+> Content-Type: Test
+> Content-Length: 0
+>
+< HTTP/1.1 413 Request Entity Too Large
+< Date: Wed, 02 Dec 2015 04:59:28 GMT
+< Retry-After: Wed, 02 Dec 2015 05:00:28 GMT
+< Content-Type: application/json
+< Via: 1.1 Repose (Repose/7.2.2.0)
+< x-trans-id: eyJyZXF1ZXN0SWQiOiJjMWQxYmU0Ny1iOTYwLTQxZTAtYTY0My03NWQzNDNhNTJlNjciLCJvcmlnaW4iOm51bGx9
+< Content-Length: 223
+* Server Jetty(9.2.z-SNAPSHOT) is not blacklisted
+< Server: Jetty(9.2.z-SNAPSHOT)
+<
+{ [data not shown]
+^M100   223  100   223    0     0  11081      0 --:--:-- --:--:-- --:--:-- 11150
+* Connection #0 to host localhost left intact
+{
+    "overLimit" : {
+        "code" : 413,
+        "message" : "OverLimit Retry...",
+        "details" : "Error Details...",
+        "retryAfter" : "2015-12-02T05:00:28Z"
+    }
+}
+----
+
+This is real handy if you have a single Repose node, however if you scale your Repose cluster horizontally,
+then you will need to configure for Distributed Rate Limiting for it to behave as you would expect it to.
+
+== Distributed Rate Limiting
+If no <<../services/datastores.adoc#,Distributed Datastores>> are available, then rate limiting will use the local datastore and each node will allow the configured rate through.
+This is not typically the desired behavior and is easily remedied.
+By default, rate limiting will be distributed using the standard <<../services/datastores.adoc#_distributed_datastore,Distributed Datastore>> (`hash-ring`) if it is available.
+However, the <<../services/datastores.adoc#_distributed_datastore,Distributed Datastore>> must be enabled in the <<../architecture/system-model.adoc#,System Model>>.
+Furthermore, any of the datastore types can be used to store rate limiting information.
+The <<../services/datastores.adoc#,Distributed Datastore>> documentation has more information on how to properly enable and configure them.
