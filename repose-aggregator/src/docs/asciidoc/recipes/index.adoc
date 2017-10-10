@@ -44,7 +44,7 @@ Rate limiting is a common use case for Repose and is easy to test.
 *IN PROGRESS*
 
 == <<preventing-xml-bomb.adoc#,Preventing XML bomb attacks>>
-*IN PROGRESS*
+Details how to configure Repose to help prevent XML bomb attacks.
 
 == <<api-event-flume.adoc#,API Access Event Recording with Flume>>
 *IN PROGRESS*
