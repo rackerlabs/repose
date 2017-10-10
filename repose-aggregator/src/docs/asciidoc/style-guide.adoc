@@ -56,3 +56,8 @@ Nesting in lists will correspond to the number of leading asterisks.
 
 == Citations
 * http://asciidoctor.org/docs/asciidoc-recommended-practices/[AsciiDoc Recommended Practices]
+
+== Repose is Bold
+The name of the *Repose* project should be bold (i.e. surrounded with asterisks (`*`)).
+
+If *Repose* is used as part of a full product name (e.g. *Repose Docker* image), then the proper names are all bold, but the common item is not.
