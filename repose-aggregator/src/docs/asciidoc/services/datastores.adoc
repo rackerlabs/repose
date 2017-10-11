@@ -117,7 +117,7 @@ Since each datastore node will have a copy of the keystore, each node will trust
 Client authentication in SSL/TLS can act as as alternate form of client validation, performing a task similar to that of an access control list.
 As such, the usage of client authentication may replace the need to configure the allowed-hosts section of the `dist-datastore.cfg.xml` file.
 
-The that distributed datastore will use the <<http-connection-pool.adoc#,HTTP Connection Pool service>> to communicate across nodes.
+The distributed datastore will use the <<http-connection-pool.adoc#,HTTP Connection Pool service>> to communicate across nodes.
 If a connection pool is not configured, the default will be used.
 In nearly all cases, the connection pool being used should not be the default, but rather, a connection pool should be configured to use <<../recipes/client-authentication.adoc#, SSL/TLS Client Authentication>> configured in the distributed datastore.
 That is, the distributed datastore may be thought of as a server, and clients in the connection pool as clients.
