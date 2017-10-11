@@ -27,7 +27,6 @@ docker {
     task("build${baseImage}Image") {
         dependsOn "build${baseImage}ImageLocal"
         finalizedBy "remove${baseImage}Image"
-        ext.imageId = tasks["build${baseImage}ImageLocal"].getImageId()
     }
 
     task("tag${baseImage}ImageVersion", type: DockerTagImage) {
