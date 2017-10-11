@@ -3,7 +3,7 @@
 include::../_includes/in-progress.adoc[]
 
 == <<atom-feed-consumption.adoc#,Atom Feed Consumption Service>>
-Enables a *Repose* filter to read an Atom feed.
+Consolidates the consumption of Atom feeds and provides a simple interface to retrieve consumed data.
 
 == <<datastores.adoc#,Datastores>>
 Enables the local *Repose* node or an entire cluster to store various types of data.
