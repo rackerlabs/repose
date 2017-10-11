@@ -116,7 +116,7 @@ Run the following command to show all available images:
 docker images
 ----
 
-== Building a Repose Docker Image With the build file
+== Building a Repose Docker Image with the build file
 The *Repose* build system expects your Docker Hub credentials to be available at build time.
 They can be passed in as build properties or the easier way is to add them to your `~/.gradle/gradle.properties` file:
 

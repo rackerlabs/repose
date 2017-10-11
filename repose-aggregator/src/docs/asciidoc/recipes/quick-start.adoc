@@ -7,7 +7,7 @@ You do not need to be a Docker expert to run Repose, but if you would like to le
 == Prerequisites
 Before you can use a *Repose Docker* image, you will need to install and have running a Docker Container Engine.
 The Docker Container Engine is available for almost all operating systems.
-The installation instructions for the Docker Container Engine are outside the scope of this Quick Start guide, but they can be found https://docs.docker.com/engine/installation/[here].
+Please follow the https://docs.docker.com/engine/installation/[installation instructions for Docker Container Engine] since that is outside the scope of this Quick Start guide.
 Since this is a Quick Start guide, only the minimal features required to get up and running are presented.
 For a complete exploration of what the Docker Container Engine can provide, take a look at the https://docs.docker.com/[Official Docker Documentation].
 
@@ -99,7 +99,7 @@ The intent is that all traditional logging information should be streamed on STD
 To access a containers log information simply use the following:
 
 ----
-docker container logs --follow CONTAINER_ID
+docker logs --follow CONTAINER_ID
 ----
 
 When the *Repose* instance in the Docker container is ready to accept and proxy requests, you will see a log message containing `Repose ready`.
