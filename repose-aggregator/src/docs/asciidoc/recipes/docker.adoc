@@ -2,6 +2,10 @@
 
 With the advent of container technology, *Repose* can be fully encapsulated and run as a service.
 
+By bundling the environment with the software itself, deploying *Repose* has become a much quicker and simpler process.
+Docker boasts security through isolation, and when run on platforms with native support, it requires very little overhead.
+To make everything as easy and versatile as possible, the *Repose* team now publishes Docker images on Docker Hub as part of every release.
+
 Even though the published *Repose Docker* image doesn't do a lot by default, this recipe will show you how to tap into some of that power hidden just below the surface.
 
 == Prerequisites

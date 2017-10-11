@@ -1,17 +1,15 @@
 = Quick Start
 
-With the advent of container technology, *Repose* can be fully encapsulated and run as a service with minimal setup.
+To get started in record time, we are going to deploy *Repose* using https://www.docker.com/[Docker]!
 
-By bundling the environment with the software itself, deploying *Repose* has become a much quicker and simpler process.
-Docker boasts security through isolation, and when run on platforms with native support, it requires very little overhead.
-To make everything as easy and versatile as possible, the *Repose* team now publishes Docker images on Docker Hub as part of every release.
+You do not need to be a Docker expert to run Repose, but if you would like to learn more, check out the <<docker.adoc#,Docker Recipe>> and https://docs.docker.com/[Official Docker Documentation]!
 
 == Prerequisites
 Before you can use a *Repose Docker* image, you will need to install and have running a Docker Container Engine.
 The Docker Container Engine is available for almost all operating systems.
 The installation instructions for the Docker Container Engine are outside the scope of this Quick Start guide, but they can be found https://docs.docker.com/engine/installation/[here].
-Since this is a Quick Start guide, only the minimal features required to get up and running are presented here.
-For a complete exploration of what the Docker Container Engine can provide, take a look at the https://docs.docker.com/[official Docker documentation site].
+Since this is a Quick Start guide, only the minimal features required to get up and running are presented.
+For a complete exploration of what the Docker Container Engine can provide, take a look at the https://docs.docker.com/[Official Docker Documentation].
 
 At this point you may be able to execute the `docker run hello-world` test.
 If you can, then you are almost ready to run a basic *Repose Docker* image.
