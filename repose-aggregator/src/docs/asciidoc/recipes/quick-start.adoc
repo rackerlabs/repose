@@ -119,7 +119,7 @@ The output will contain lines similar to these:
 ----
 
 If you look at the container logs, then you will see a new entry under the `Repose ready` that contains `Tracing header: {...}`.
-This indicates that a new request was made to this instance and since you received the `301 Moved Permanently` response, then you know the default configured Respose is working as expected.
+This indicates that a new request was made to this instance and since you received the `301 Moved Permanently` response, then you know the default configured *Repose* is working as expected.
 
 If you connect to that same address using a regular web browser, you will automagically be redirected clear on through to the Rackspace homepage.
 

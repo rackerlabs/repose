@@ -64,7 +64,7 @@ AKA
 cp server.jks <REPOSE>/repose-aggregator/artifacts/valve/src/test/resources/valveTesting/sslTesting/
 ```
 
-# These are the CURL results against a Respose server as configured for the `SSLClientAuthenticationTest` with each of the given conditions:
+# These are the CURL results against a Repose server as configured for the `SSLClientAuthenticationTest` with each of the given conditions:
 
 ## If both the server certs and client certs are provided:
 $ curl --verbose --cacert server.pem --cert client.p12 https://localhost:10009/
