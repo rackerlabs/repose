@@ -172,12 +172,11 @@ For more details, see:
 * https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html
 * https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeystoreImplementation
 
-== Proxy (Valve) Configuration of SSL/TLS Certificates
-*Repose Valve* is based on Jetty and uses its services for SSL/TLS.
+== Valve Configuration of SSL/TLS Certificates
+*Repose Valve* is based on Jetty and uses its services for SSL/TLS termination.
+To enable this feature you need to:
 
-To make the *Repose Proxy Server* deployment option work with origin SSL/TLS requests:
-
-. http://www.eclipse.org/jetty/documentation/current/configuring-ssl.html[Generate keys and certificates].
+. Obtain keys and certificates from somewhere OR http://www.eclipse.org/jetty/documentation/current/configuring-ssl.html[generate them].
 . http://www.eclipse.org/jetty/documentation/current/configuring-ssl.html#loading-keys-and-certificates[Load the keys and certificates into a keystore file].
 . Place the keystore file in your *Repose* configuration root directory.
 . Place the keystore information in your `container.cfg.xml` file.
