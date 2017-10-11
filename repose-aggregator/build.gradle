@@ -44,8 +44,7 @@ asciidoctor {
                'toc': 'left',
                'icons': 'font',
                'docinfo': 'shared',
-               'sectanchors': '',
-               'allow-uri-read': ''
+               'sectanchors': ''
 
     resources {
         from 'src/docs/resources'
