@@ -19,7 +19,7 @@ Enables the registration, collection, and reporting of metrics across *Repose*.
 Such metrics provide insight into the state of *Repose* and its components at any given time.
 
 == <<phone-home.adoc#,Phone Home Service>>
-Sends usage data consisting of the filters and services in use along with contact information to the *Repose Team*.
+Sends basic configuration data to the *Repose Team*.
 
 == <<response-messaging.adoc#,Response Messaging service>>
 *IN PROGRESS*
