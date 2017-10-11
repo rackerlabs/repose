@@ -5,11 +5,11 @@ To get started in record time, we are going to deploy *Repose* using https://www
 You do not need to be a Docker expert to run Repose, but if you would like to learn more, check out the <<docker.adoc#,Docker Recipe>> and https://docs.docker.com/[Official Docker Documentation]!
 
 == Prerequisites
-Before you can use a *Repose Docker* image, you will need to install and have running a Docker Container Engine.
-The Docker Container Engine is available for almost all operating systems.
-Please follow the https://docs.docker.com/engine/installation/[installation instructions for Docker Container Engine] since that is outside the scope of this Quick Start guide.
+Before you can use a *Repose Docker* image, you will need to install and have running a Docker Engine.
+The Docker Engine is available for almost all operating systems.
+Please follow the https://docs.docker.com/engine/installation/[installation instructions for Docker Engine] since that is outside the scope of this Quick Start guide.
 Since this is a Quick Start guide, only the minimal features required to get up and running are presented.
-For a complete exploration of what the Docker Container Engine can provide, take a look at the https://docs.docker.com/[Official Docker Documentation].
+For a complete exploration of what the Docker Engine can provide, take a look at the https://docs.docker.com/[Official Docker Documentation].
 
 At this point you may be able to execute the `docker run hello-world` test.
 If you can, then you are almost ready to run a basic *Repose Docker* image.
@@ -24,7 +24,7 @@ Once you have that account, you can verify your credentials by logging in using:
 
 - `docker login`
 
-Another issue that may arise is that communication with the Docker Container Engine is denied do to a lack of permissions.
+Another issue that may arise is that communication with the Docker Engine is denied do to a lack of permissions.
 This can be fixed by adding the user to the `docker` group.
 On most *NIX systems this can be accomplished by issuing the following command as `root` or another elevated user (e.g. `sudo`):
 
@@ -41,7 +41,7 @@ All official Repose Docker images are published on Docker Hub at:
 image::http://dockeri.co/image/rackerlabs/repose[Repose Docker,link=https://hub.docker.com/r/rackerlabs/repose/]
 
 == Running a Docker Container
-After you have a running Docker Container Engine, you can run the latest *Repose* release with the following command:
+After you have a running Docker Engine, you can run the latest *Repose* release with the following command:
 
 ----
 docker run                  \ <1>
@@ -55,7 +55,7 @@ Let's break that command down and take a closer look at what it is doing:
 <2> This option will run the container in detached mode.
     In detached mode, the container will run in the background.
     If we were to run in attached mode (the default) instead of detached mode, the terminal we used to execute this command would receive all of the container output (e.g. STDOUT, and STDERR).
-<3> This option defines a port mapping between the host (i.e., the OS running the Docker Container Engine) and the Docker container itself.
+<3> This option defines a port mapping between the host (i.e., the OS running the Docker Engine) and the Docker container itself.
     Doing so allows *Repose* to accept traffic over the specified port from outside of Docker.
     The port mapping format is `HOST_PORT:CONTAINER_PORT`.
     So in this example, traffic on host port 8080 will be forwarded to the containers port 8080.
