@@ -42,8 +42,8 @@ When set to `false`, the filter will reject all doctype declarations.
 </translation>
 ----
 
-== Limit methods
-Limit the amount of HTTP methods that are allowed by configuring the `http-methods` attribute.
+== Restricting Methods
+Control the of HTTP method verbs that are allowed by configuring the `http-methods` attribute.
 
 [source,xml]
 .The following configuration is an example with `http-methods` limited to `PUT` and `POST`.
