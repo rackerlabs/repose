@@ -47,7 +47,7 @@ docker tag IMAGE_ID local/repose:v{project-version}-ubuntu
 ----
 
 == Logging inside the Repose Docker Container
-The published images adhere to the expectations of 12Factor logging.
+The published images adhere to the expectations of https://12factor.net/logs[Twelve-Factor App logging].
 Sometimes though, it may be handy to enable the regular *Repose Valve* logging that is disabled in those images.
 
 If you are using a published image, then you can execute an interactive session on a running container and uncomment the two `AppenderRef` lines below in the logging configuration file to begin logging to the standard `/var/log/repose/` location inside the container:
