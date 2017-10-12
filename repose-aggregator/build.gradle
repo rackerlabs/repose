@@ -71,6 +71,7 @@ asciidoctor {
 
 linkchecker {
     startFileName = "$buildDir/asciidoc/html5"
+    httpURLConnectionTimeout = 1000
 }
 
 task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds the new version of the docs to github pages') << {
