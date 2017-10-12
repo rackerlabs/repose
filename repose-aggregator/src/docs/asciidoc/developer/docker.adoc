@@ -1,0 +1,47 @@
+= Repose and Docker - Tips and Tricks
+
+This is a collection of information cobbled together from several sources, but mostly from sifting through the https://docs.docker.com/[Official Docker Documentation] and then applying it to *Repose*.
+
+The rest of this assumes you are already familiar with the contents of the <<../recipes/quick-start.adoc#,Quick Start>> and <<../recipes/docker.adoc#,Docker>> recipes.
+Obviously since you made it here, your hunger for *Repose Docker* knowledge was not satiated.
+
+== Overview
+Basically you just need to:
+
+. Acquire a Repose Docker image.
+.. Download the Docker image. See: <<../recipes/quick-start.adoc#_repose_docker_images,Repose Docker Images>>
+.. Build the Docker image. See: <<../recipes/docker.adoc#_manually_building_a_repose_docker_image,Docker>>
+. Run the Repose Docker image in a Docker container. See: <<../recipes/quick-start.adoc#_running_a_docker_container,Running a Docker Container>>
+
+== Building a Repose Docker Image with the build file
+The *Repose* build system expects your Docker Hub credentials to be available at build time.
+They can be passed in as build properties or the easier way is to add them to your `~/.gradle/gradle.properties` file:
+
+- `dockerhub.username=<USERNAME>`
+- `dockerhub.password=<PASSWORD>`
+
+Then try to build a quick *Repose Docker* image from the root of the *Repose* project.
+
+[source,bash,subs="verbatim,attributes"]
+----
+./gradlew \
+    :repose-aggregator:artifacts:docker:buildUbuntuImageLocal \
+    -Prepose-version={project-version}
+----
+
+This will ultimately result in a message similar to:
+
+----
+Successfully built IMAGE_ID
+Created image with ID 'IMAGE_ID'.
+
+BUILD SUCCESSFUL
+----
+
+Since this method will not automatically tag the image, you will need to tag it yourself for easier reference later:
+
+[source,bash,subs="verbatim,attributes"]
+----
+docker tag IMAGE_ID local/repose:v{project-version}-ubuntu
+----
+

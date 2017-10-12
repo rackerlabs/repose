@@ -1,0 +1,6 @@
+= Developer Documentation
+
+This is a living set of documentation with the tribal knowledge on how and what to do to make *Repose* go.
+
+== <<docker.adoc#,Docker tips and tricks>>
+This is a lot of information we found useful as developers on using Docker with *Repose*.

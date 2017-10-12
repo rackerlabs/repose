@@ -42,6 +42,12 @@ You found something missing from the docs?
 Impossible, there is no way this magnificent set of documents could ever be incomplete.
 But if there were something missing and you wanted to help, here's where you would go to figure out how we try to make a page.
 
+=== <<developer/index.adoc#, Developer Documentation>>
+So you have this great idea for a *Repose* feature and you need it like yesterday.
+What do you do?
+Fork the repository, hack on the code, and submit a Pull Request.
+You'll find tribal knowledge of what makes *Repose* tick and how to do things in here.
+
 === <<faq.adoc#, Frequently Asked Questions (FAQ)>>
 Couldn't find the answer to your question elsewhere? Maybe it is hiding on our FAQ page.
 
