@@ -76,24 +76,32 @@ Now if we wanted to, we could change the Docker options that define the environm
 If we wanted to forward random ports instead of explicitly declaring the port mapping, we could replace the `--publish 8080:8080` option with `--publish-all` instead.
 
 == Manually Building a Repose Docker Image
-The latest version of the Dockerfiles used to build the *Repose Docker* images published on Docker Hub can be found at:
+The Dockerfile's used to build v{project-version} of the *Repose Docker* images published on Docker Hub are:
 
-- https://raw.githubusercontent.com/rackerlabs/repose/master/repose-aggregator/artifacts/docker/src/docker/ubuntu/Dockerfile[Debian/Ubuntu]
-- https://raw.githubusercontent.com/rackerlabs/repose/master/repose-aggregator/artifacts/docker/src/docker/centos/Dockerfile[RedHat/Centos]
++++ <details><summary>Ubuntu</summary><div> +++
+----
+include::../../../../artifacts/docker/src/docker/ubuntu/Dockerfile[]
+----
++++ </div></details> +++
+
++++ <details><summary>CentOS</summary><div> +++
+----
+include::../../../../artifacts/docker/src/docker/centos/Dockerfile[]
+----
++++ </div></details> +++
 
 To build a custom *Repose Docker* image, follow these steps:
 
 . Acquire a *Repose* Dockerfile.
-.. Clone/Fork the *Repose* project.
-.. cURL/Wget one of the files linked above.
 . *Optionally* Modify the Dockerfile.
-. Run the following command from the root of the *Repose* project to build an image based on the Dockerfile for Ubuntu that will provide *Repose* v8.7.0.2:
+. Run the following command from the root of the *Repose* project to build an image based on the Dockerfile copy/pasted from above.
 +
+[source,bash,subs="verbatim,attributes"]
 ----
-docker build                                             \ <1>
-   --build-arg REPOSE_VERSION=8.7.0.2                    \ <2>
-   --tag local/repose:v8.7.0.2-ubuntu                    \ <3>
-   ./repose-aggregator/artifacts/docker/src/docker/ubuntu/ <4>
+docker build                          \ <1>
+   --build-arg REPOSE_VERSION={project-version} \ <2>
+   --tag local/repose:v{project-version}-local  \ <3>
+   /dir/containing/dockerfile/          <4>
 ----
 Let's break that command down and take a closer look at what it is doing:
 +
@@ -102,7 +110,7 @@ Let's break that command down and take a closer look at what it is doing:
     See our http://www.openrepose.org/versions/latest/release-notes.html[Release Notes] page for a list of available versions.
 <3> This option defines the tag to apply to the image.
     It is in `repository:tag` format.
-<4> The last parameter is the path to the *Repose* Dockerfile.
+<4> The last parameter is the directory that contains the Dockerfile.
     The Dockerfile itself must exist as a child of the provided directory.
 +
 [NOTE]
@@ -114,36 +122,6 @@ Run the following command to show all available images:
 +
 ----
 docker images
-----
-
-== Building a Repose Docker Image with the build file
-The *Repose* build system expects your Docker Hub credentials to be available at build time.
-They can be passed in as build properties or the easier way is to add them to your `~/.gradle/gradle.properties` file:
-
-- `dockerhub.username=<USERNAME>`
-- `dockerhub.password=<PASSWORD>`
-
-Then try to build a quick *Repose Docker* image from the root of the *Repose* project.
-
-----
-./gradlew \
-    :repose-aggregator:artifacts:docker:buildUbuntuImageLocal \
-    -Prepose-version=8.7.0.2
-----
-
-This will ultimately result in a message similar to:
-
-----
-Successfully built IMAGE_ID
-Created image with ID 'IMAGE_ID'.
-
-BUILD SUCCESSFUL
-----
-
-Since this method will not automatically tag the image, you will need to tag it yourself for easier reference later:
-
-----
-docker tag IMAGE_ID local/repose:v8.7.0.2-ubuntu
 ----
 
 == Notices
