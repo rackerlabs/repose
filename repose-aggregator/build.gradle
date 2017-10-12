@@ -62,7 +62,7 @@ asciidoctor {
         logging.removeStandardOutputListener(listener)
         logging.removeStandardErrorListener(listener)
         ext.capturedOutput.join('').with { output ->
-            if (output =~ /WARNING:/) {
+            if (output =~ /WARNING:/ || output =~ /ERROR:/) {
                 throw new RuntimeException("See output above for specific cause of failure(s).")
             }
         }
