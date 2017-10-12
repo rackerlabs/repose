@@ -129,8 +129,7 @@ This is because everybody needs it to do something specific to their needs.
 There are a lot of different <<../filters/index.adoc#,Filters>> available that can be used like building blocks to make a filter chain that does exactly what you need.
 One of the things that *Repose* is used for is <<preventing-xml-bomb.adoc#,Preventing XML bomb attacks>>.
 
-If you are ready to learn how to tweak the default configuration to do a little more or are feeling adventurous and want explore building your very own custom *Repose Docker* image,
-then head on over to the <<docker.adoc#,Docker>> recipe page.
+If you are ready to learn how to tweak the default configuration to do a little more or are feeling adventurous and want explore building your very own custom *Repose Docker* image, then head on over to the <<docker.adoc#,Docker>> recipe page.
 
 == What if I'm done?
 If you have had your fill of running *Repose* in a local Docker container for right now, then you can stop it from running using:

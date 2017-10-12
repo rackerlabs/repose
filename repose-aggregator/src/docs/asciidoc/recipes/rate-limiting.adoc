@@ -112,8 +112,7 @@ A sample of the 11th attempt output is below.
 }
 ----
 
-This is real handy if you have a single *Repose* node, however if you scale your *Repose* cluster horizontally,
-then you will need to configure for Distributed Rate Limiting for it to behave as you would expect it to.
+This is real handy if you have a single *Repose* node, however if you scale your *Repose* cluster horizontally, then you will need to configure for Distributed Rate Limiting for it to behave as you would expect it to.
 
 == Distributed Rate Limiting
 If no <<../services/datastores.adoc#,Distributed Datastores>> are available, then rate limiting will use the local datastore and each node will allow the configured rate through.
