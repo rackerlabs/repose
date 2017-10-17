@@ -78,17 +78,8 @@ If we wanted to forward random ports instead of explicitly declaring the port ma
 == Manually Building a Repose Docker Image
 The Dockerfile's used to build v{project-version} of the *Repose Docker* images published on Docker Hub are:
 
-+++ <details><summary>Ubuntu</summary><div> +++
-----
-include::../../../../artifacts/docker/src/docker/ubuntu/Dockerfile[]
-----
-+++ </div></details> +++
-
-+++ <details><summary>CentOS</summary><div> +++
-----
-include::../../../../artifacts/docker/src/docker/centos/Dockerfile[]
-----
-+++ </div></details> +++
+. link:../resources/ubuntu/Dockerfile[Ubuntu]
+. link:../resources/centos/Dockerfile[CentOS]
 
 To build a custom *Repose Docker* image, follow these steps:
 
@@ -110,13 +101,9 @@ Let's break that command down and take a closer look at what it is doing:
     See our http://www.openrepose.org/versions/latest/release-notes.html[Release Notes] page for a list of available versions.
 <3> This option defines the tag to apply to the image.
     It is in `repository:tag` format.
-<4> The last parameter is the directory that contains the Dockerfile.
-    The Dockerfile itself must exist as a child of the provided directory.
-+
-[NOTE]
-====
-This directory will also be treated as the Docker build context.
-====
+<4> The last parameter is the path of the `docker build` context.
+    By default, there should be a `Dockerfile` at the root of the context.
+    If you need it to reside somewhere else, then review the https://docs.docker.com/[Official Docker Documentation] for additional options.
 . If the Dockerfile was successfully built, a Docker image should be available within Docker.
 Run the following command to show all available images:
 +

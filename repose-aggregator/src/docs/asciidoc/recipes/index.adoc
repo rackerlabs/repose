@@ -3,7 +3,7 @@
 include::../_includes/in-progress.adoc[]
 
 == <<quick-start.adoc#,Quick Start>>
-If you want to stand up a *Repose* instance quickly, visit the Quick Start.
+If you want to stand up a *Repose* instance quickly.
 
 == <<getting-started.adoc#,Getting Started>>
 We all need to get started somewhere.

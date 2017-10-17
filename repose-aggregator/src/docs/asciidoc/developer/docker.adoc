@@ -5,16 +5,16 @@ This is a collection of information cobbled together from several sources, but m
 The rest of this assumes you are already familiar with the contents of the <<../recipes/quick-start.adoc#,Quick Start>> and <<../recipes/docker.adoc#,Docker>> recipes.
 Since you made it here your hunger for *Repose Docker* knowledge must not have been satiated, so read on and enjoy.
 
-== Overview
+== Running Repose as a Docker Container
 Basically you just need to:
 
 . Acquire a Repose Docker image.
-.. Download the Docker image. See: <<../recipes/quick-start.adoc#_repose_docker_images,Repose Docker Images>>
-.. Build the Docker image. See: <<../recipes/docker.adoc#_manually_building_a_repose_docker_image,Manually Building a Repose Docker Image>>
-.. Build the Docker image from the project. See <<Building a Repose Docker Image with the build file>>
-. Run the Repose Docker image in a Docker container. See: <<../recipes/quick-start.adoc#_running_a_docker_container,Running a Docker Container>>
+.. <<../recipes/quick-start.adoc#_repose_docker_images,Download a *Repose* Docker Image>>.
+.. <<../recipes/docker.adoc#_manually_building_a_repose_docker_image,Build a *Repose* Docker Image>>
+.. <<Build a Repose Docker Image with the build file>>
+. <<../recipes/quick-start.adoc#_running_a_docker_container,Run the Repose Docker image in a Docker container>>
 
-== Building a Repose Docker Image with the build file
+== Build a Repose Docker Image with the build file
 The *Repose* build system expects your Docker Hub credentials to be available at build time.
 They can be passed in as build properties or the easier way is to add them to your `~/.gradle/gradle.properties` file:
 
@@ -47,8 +47,8 @@ docker tag IMAGE_ID local/repose:v{project-version}-ubuntu
 ----
 
 == Logging inside the Repose Docker Container
-The published images adhere to the expectations of https://12factor.net/logs[Twelve-Factor App logging].
-Sometimes though, it may be handy to enable the regular *Repose Valve* logging that is disabled in those images.
+The published images adhere to the expectations of https://12factor.net/logs[Twelve-Factor App logging] via streaming everything to `STDOUT`/`STDERR` and this is covered further in the <<../recipes/quick-start.adoc#_docker_container_logging,Quick Start>>.
+Sometimes though, it may be handy to enable the regular *Repose Valve* logging that is disabled in the published images.
 
 If you are using a published image, then you can execute an interactive session on a running container and uncomment the two `AppenderRef` lines below in the logging configuration file to begin logging to the standard `/var/log/repose/` location inside the container:
 
@@ -91,4 +91,4 @@ docker run                                   \
     So in this case, the contents of `/var/log/repose` in the container will be available on the host's `/var/log/repose` directory.
     This allows us to `tail` or persist the logs even if the Docker container is restarted.
 
-If you didn't recognize it, this is almost the identical command provided in the <<../recipes/docker.adoc#_using_a_repose_docker_image,Using a Repose Docker Image>> section, but with the extra volume mount option.
+If you didn't recognize it, this is almost the identical command provided in the <<../recipes/docker.adoc#_using_a_repose_docker_image,Docker recipe's Using a Repose Docker Image>> section, but with the extra volume mount option.

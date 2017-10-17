@@ -35,6 +35,23 @@ task copyXsds(type: Copy) {
     into("${project.buildDir}/asciidoc/html5/schemas/")
 }
 
+task copyUbuntuDockerfile(type: Copy) {
+    // Copy the Repose Ubuntu Dockerfile.
+    from("${project.projectDir}/artifacts/docker/src/docker/ubuntu/Dockerfile")
+
+    // Place the file into a resources subdirectory.
+    into("${project.buildDir}/asciidoc/html5/resources/ubuntu/")
+
+}
+
+task copyCentosDockerfile(type: Copy) {
+    // Copy the Repose CentOS Dockerfile.
+    from("${project.projectDir}/artifacts/docker/src/docker/centos/Dockerfile")
+
+    // Place the file into a resources subdirectory.
+    into("${project.buildDir}/asciidoc/html5/resources/centos/")
+}
+
 asciidoctor {
     requires 'asciidoctor-diagram'
     options template_dirs: ["${project.projectDir}/src/docs/asciidoc/_backends/haml"]
@@ -134,6 +151,8 @@ if (project.hasProperty("minCoverageRatio")) {
 }
 
 asciidoctor.dependsOn copyXsds
+asciidoctor.dependsOn copyUbuntuDockerfile
+asciidoctor.dependsOn copyCentosDockerfile
 build.dependsOn asciidoctor
 tasks.linkchecker.dependsOn asciidoctor
 check.dependsOn tasks.linkchecker
