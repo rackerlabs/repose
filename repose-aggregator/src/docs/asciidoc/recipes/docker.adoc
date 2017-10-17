@@ -85,7 +85,7 @@ To build a custom *Repose Docker* image, follow these steps:
 
 . Acquire a *Repose* Dockerfile.
 . *Optionally* Modify the Dockerfile.
-. Run the following command from the root of the *Repose* project to build an image based on the Dockerfile copy/pasted from above.
+. Run the following command from the root of the *Repose* project to build an image based on one of the Dockerfile's linked above.
 +
 [source,bash,subs="verbatim,attributes"]
 ----
