@@ -4,10 +4,11 @@
 
 * https://repose.atlassian.net/browse/REP-6133[REP-6133] - Updated the published Docker images to turn off local logging by default to be more in line with the expectations of a https://12factor.net/logs[Twelve-Factor App].
 * https://repose.atlassian.net/browse/REP-6135[REP-6135] - Updated the published Docker images to support running the container using an arbitrarily assigned user ID as is expected by the https://docs.openshift.com/container-platform/3.6/creating_images/guidelines.html#openshift-container-platform-specific-guidelines[OpenShift Container Platform].
-* https://repose.atlassian.net/browse/REP-6252[REP-6252] - Updated dependencies:
+* https://repose.atlassian.net/browse/REP-6252[REP-6252], https://repose.atlassian.net/browse/REP-6211[REP-6211] - Updated dependencies:
 ** Gradle LinkChecker Plugin: 0.2.0 → 0.3.0
 *** https://github.com/rackerlabs/gradle-linkchecker-plugin/blob/0.3.0/RELEASE.adoc[Gradle LinkChecker Plugin v0.3.0 release notes]
-
+** Attribute Mapper: 2.0.1 → ?.?.?
+*** https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-?.?.?/RELEASE.md[Attribute Mapper v?.?.? release notes]
 
 == 8.7.0.2 (2017-10-04)
 
