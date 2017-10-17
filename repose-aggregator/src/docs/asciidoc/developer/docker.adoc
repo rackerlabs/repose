@@ -11,10 +11,10 @@ Basically you just need to:
 . Acquire a Repose Docker image.
 .. <<../recipes/quick-start.adoc#_repose_docker_images,Download a *Repose* Docker Image>>.
 .. <<../recipes/docker.adoc#_manually_building_a_repose_docker_image,Build a *Repose* Docker Image>>
-.. <<Build a Repose Docker Image with the build file>>
+.. <<Building a Repose Docker Image with the build file>>
 . <<../recipes/quick-start.adoc#_running_a_docker_container,Run the Repose Docker image in a Docker container>>
 
-== Build a Repose Docker Image with the build file
+== Building a Repose Docker Image with the build file
 The *Repose* build system expects your Docker Hub credentials to be available at build time.
 They can be passed in as build properties or the easier way is to add them to your `~/.gradle/gradle.properties` file:
 
@@ -91,4 +91,4 @@ docker run                                   \
     So in this case, the contents of `/var/log/repose` in the container will be available on the host's `/var/log/repose` directory.
     This allows us to `tail` or persist the logs even if the Docker container is restarted.
 
-If you didn't recognize it, this is almost the identical command provided in the <<../recipes/docker.adoc#_using_a_repose_docker_image,Docker recipe's Using a Repose Docker Image>> section, but with the extra volume mount option.
+If you didn't recognize it, this is almost identical to the command provided in <<../recipes/docker.adoc#_using_a_repose_docker_image,Using a Repose Docker Image>>, but with the extra volume mount option.

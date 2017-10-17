@@ -101,7 +101,7 @@ Let's break that command down and take a closer look at what it is doing:
     See our http://www.openrepose.org/versions/latest/release-notes.html[Release Notes] page for a list of available versions.
 <3> This option defines the tag to apply to the image.
     It is in `repository:tag` format.
-<4> The last parameter is the path of the `docker build` context.
+<4> The last parameter is the path to the `docker build` context.
     By default, there should be a `Dockerfile` at the root of the context.
     If you need it to reside somewhere else, then review the https://docs.docker.com/[Official Docker Documentation] for additional options.
 . If the Dockerfile was successfully built, a Docker image should be available within Docker.
