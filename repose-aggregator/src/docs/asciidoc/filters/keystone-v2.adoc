@@ -68,7 +68,7 @@ If any of this information is provided, then it will be passed in the following 
 * `X-Auth-Token-Key` - The key for the parsed version of the token response that is contained in the datastore service
 
 If delegation is enabled, then the `X-Delegated` header is created.
-This is mainly intended for use by the <<herp.adoc#, Highly Efficient Record Processor (HERP) filter>> and <<derp.adoc#, Delegation Response Processor (DeRP) filter>> for internal delegation processing within Repose.
+This is mainly intended for use by the <<herp.adoc#, Highly Efficient Record Processor (HERP) filter>> and <<derp.adoc#, Delegation Response Processor (DeRP) filter>> for internal delegation processing within *Repose*.
 However, it can be exposed to the origin service under certain configurations.
 
 === Request Body Changes
@@ -94,9 +94,9 @@ This includes `401`s from further down the filter chain as well as the origin se
 [cols="a,a,a,a", options="header"]
 |===
 |When the Keystone v2 Identity service returns:
-|Repose Get Admin Token Call Returns
-|Repose Validate Token Call Returns
-|Repose Groups Call Returns
+|*Repose* Get Admin Token Call Returns
+|*Repose* Validate Token Call Returns
+|*Repose* Groups Call Returns
 
 | _Successful_ (`2xx`)
 | Request continues
@@ -143,7 +143,7 @@ The admin token is unauthorized.
 
 `429`
 
-The Keystone v2 Identity service rate limited the Repose instance.
+The Keystone v2 Identity service rate limited the *Repose* instance.
 | `503`
 | `503`
 | `503`
@@ -249,7 +249,7 @@ The the `X-Identity-Status` header is in addition to the regular `X-Delegated` d
 You can configure this filter to allow no-op processing of requests that do not require authentication.
 For example, a service might want all calls authenticated with the exception of the call for WADL retrieval.
 In this situation, you can configure the whitelist as shown in the example below.
-The whitelist contains a list of https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expressions] that Repose attempts to match against the full request URI.
+The whitelist contains a list of https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expressions] that *Repose* attempts to match against the full request URI.
 If the URI matches an expression in the white list, then the request is passed to the origin service.
 Otherwise, authentication is performed against the request.
 
@@ -272,7 +272,7 @@ The length of time that tokens are cached is determined by the Time To Live (TTL
 
 You can configure alternate maximum TTL for caching of authentication tokens, groups, and endpoints.
 If you specify the token element value in the configuration file, this value is used when caching tokens, unless the token TTL value provided by the Keystone v2 Identity service is less than the token-cache-timeout value.
-This method prevents Repose from caching stale tokens.
+This method prevents *Repose* from caching stale tokens.
 If the token's TTL exceeds the maximum allowed TTL value (2^31 - 1), the maximum allowed TTL is used.
 
 [source,xml]

@@ -1,6 +1,6 @@
 = Scripting Filter
 
-The Scripting filter enables users to write custom filters for Repose using a variety of scripting languages.
+The Scripting filter enables users to write custom filters for *Repose* using a variety of scripting languages.
 Custom filters can be used to perform arbitrary processing with access to the bindings described below.
 
 == General filter information
@@ -60,12 +60,12 @@ Currently supported bindings are detailed by the following table:
 
 |request
 |A HttpServletRequest object containing data associated with the current request.
-To allow for modification of the request, the request object will be wrapped with the Repose HttpServletRequestWrapper class.
+To allow for modification of the request, the request object will be wrapped with the *Repose* HttpServletRequestWrapper class.
 All methods on the HttpServletRequestWrapper class will be available in the script.
 
 |response
 |A HttpServletResponse object containing data associated with the current response.
-To allow for more powerful modification of the response, the response object will be wrapped with the Repose HttpServletResponseWrapper class.
+To allow for more powerful modification of the response, the response object will be wrapped with the *Repose* HttpServletResponseWrapper class.
 All methods on the HttpServletResponseWrapper class will be available in the script.
 
 |filterChain

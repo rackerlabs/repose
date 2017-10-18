@@ -1,0 +1,94 @@
+= Repose and Docker - Tips and Tricks
+
+This is a collection of information cobbled together from several sources, but mostly from sifting through the https://docs.docker.com/[Official Docker Documentation] and then applying it to *Repose*.
+
+The rest of this assumes you are already familiar with the contents of the <<../recipes/quick-start.adoc#,Quick Start>> and <<../recipes/docker.adoc#,Docker>> recipes.
+Since you made it here your hunger for *Repose Docker* knowledge must not have been satiated, so read on and enjoy.
+
+== Running Repose as a Docker Container
+Basically you just need to:
+
+. Acquire a Repose Docker image.
+.. <<../recipes/quick-start.adoc#_repose_docker_images,Download a *Repose* Docker Image>>.
+.. <<../recipes/docker.adoc#_manually_building_a_repose_docker_image,Build a *Repose* Docker Image>>
+.. <<Building a Repose Docker Image with the build file>>
+. <<../recipes/quick-start.adoc#_running_a_docker_container,Run the Repose Docker image in a Docker container>>
+
+== Building a Repose Docker Image with the build file
+The *Repose* build system expects your Docker Hub credentials to be available at build time.
+They can be passed in as build properties or the easier way is to add them to your `~/.gradle/gradle.properties` file:
+
+- `dockerhub.username=<USERNAME>`
+- `dockerhub.password=<PASSWORD>`
+
+Then try to build a quick *Repose Docker* image from the root of the *Repose* project.
+
+[source,bash,subs="verbatim,attributes"]
+----
+./gradlew \
+    :repose-aggregator:artifacts:docker:buildUbuntuImageLocal \
+    -Prepose-version={project-version}
+----
+
+This will ultimately result in a message similar to:
+
+----
+Successfully built IMAGE_ID
+Created image with ID 'IMAGE_ID'.
+
+BUILD SUCCESSFUL
+----
+
+Since this method will not automatically tag the image, you will need to tag it yourself for easier reference later:
+
+[source,bash,subs="verbatim,attributes"]
+----
+docker tag IMAGE_ID local/repose:v{project-version}-ubuntu
+----
+
+== Logging inside the Repose Docker Container
+The published images adhere to the expectations of https://12factor.net/logs[Twelve-Factor App logging] via streaming everything to `STDOUT`/`STDERR` and this is covered further in the <<../recipes/quick-start.adoc#_docker_container_logging,Quick Start>>.
+Sometimes though, it may be handy to enable the regular *Repose Valve* logging that is disabled in the published images.
+
+If you are using a published image, then you can execute an interactive session on a running container and uncomment the two `AppenderRef` lines below in the logging configuration file to begin logging to the standard `/var/log/repose/` location inside the container:
+
+[source,xml]
+./etc/repose/log4j2.xml (partial)
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration monitorInterval="15" packages="org.apache.logging.log4j.flume.appender">
+      ...
+            <AppenderRef ref="RollingFile"/>
+      ...
+            <AppenderRef ref="PhoneHomeMessages"/>
+      ...
+</Configuration>
+----
+
+If you are building your own image based on one of the *Repose Dockerfile*'s, then you can simply remove the lines below and the *Repose* image will log to the standard `/var/log/repose/` location.
+
+----
+RUN sed -i 's,<\(Appender.*RollingFile.*/\)>,<!--\1-->,' ${APP_ROOT}/log4j2.xml
+RUN sed -i 's,<\(Appender.*PhoneHomeMessages.*/\)>,<!--\1-->,' ${APP_ROOT}/log4j2.xml
+----
+
+The `/var/log/repose/` logging directory has also been modified in the Dockerfile to allow logging to be turned on and also support arbitrary user ID's like are used in the OpenShift environment.
+
+To access the *Repose* log files, you can mount the directory as a Docker volume when starting the container using a command like the following:
+
+----
+docker run                                   \
+   --detach                                  \
+   --volume /my/config/directory:/etc/repose \
+   --volume /var/log/repose:/var/log/repose  \ <1>
+   --publish 8080:8080                       \
+   --env JAVA_OPTS=-Xmx1024m                 \
+   --name my_repose                          \
+   rackerlabs/repose:latest
+----
+<1> This option defines a volume that is mounted from the host (i.e., the OS running Docker) onto the Docker container.
+    The volume mapping format is `HOST_DIRECTORY:CONTAINER_DIRECTORY`.
+    So in this case, the contents of `/var/log/repose` in the container will be available on the host's `/var/log/repose` directory.
+    This allows us to `tail` or persist the logs even if the Docker container is restarted.
+
+If you didn't recognize it, this is almost identical to the command provided in <<../recipes/docker.adoc#_using_a_repose_docker_image,Using a Repose Docker Image>>, but with the extra volume mount option.

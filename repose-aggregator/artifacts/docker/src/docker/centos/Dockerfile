@@ -1,7 +1,5 @@
-# Use CentOS as a base, to enable security patching for
-# CentOS users.
-# The version should be whatever version conforms with
-# the managed CentOS image.
+# Use CentOS as a base, to enable security patching for CentOS users.
+# The version should be whatever version conforms with the managed CentOS image.
 FROM centos:7
 
 MAINTAINER The Repose Team <reposecore@rackspace.com>
@@ -16,14 +14,15 @@ RUN yum update -q -y && yum install -q -y repose-valve-$REPOSE_VERSION repose-fi
 
 ENV APP_ROOT=/etc/repose
 ENV APP_VARS=/var/repose
+ENV APP_LOGS=/var/log/repose
 
 # Turn off local logging
 RUN sed -i 's,<\(Appender.*RollingFile.*/\)>,<!--\1-->,' ${APP_ROOT}/log4j2.xml
 RUN sed -i 's,<\(Appender.*PhoneHomeMessages.*/\)>,<!--\1-->,' ${APP_ROOT}/log4j2.xml
 
 # Arbitrary User ID support
-RUN chgrp -R 0 ${APP_ROOT} ${APP_VARS} && \
-    chmod -R g=u ${APP_ROOT} ${APP_VARS}
+RUN chgrp -R 0 ${APP_ROOT} ${APP_VARS} ${APP_LOGS} && \
+    chmod -R g=u ${APP_ROOT} ${APP_VARS} ${APP_LOGS}
 
 # Expose APP_ROOT as a volume for mounting.
 WORKDIR ${APP_ROOT}

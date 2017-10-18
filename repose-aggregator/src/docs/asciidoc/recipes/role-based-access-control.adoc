@@ -1,8 +1,8 @@
 = Implementing Role-Based Access Control (RBAC)
 :toclevels: 4
 
-You can implement Role-Based Access Control (RBAC) with Repose using the Authentication and Authorization mechanisms.
-This guide takes you through the process of setting up RBAC with Repose.
+You can implement Role-Based Access Control (RBAC) with *Repose* using the Authentication and Authorization mechanisms.
+This guide takes you through the process of setting up RBAC with *Repose*.
 
 == 1. Configure the Header Normalization filter
 
@@ -35,7 +35,7 @@ Please refer to the <<../filters/header-normalization.adoc#,Header Normalization
 
 == 2. Configure then Authentication filter
 
-The Authentication filter will grab the user's roles from their authentication token and return those roles to Repose.
+The Authentication filter will grab the user's roles from their authentication token and return those roles to *Repose*.
 
 Please refer to the <<../filters/keystone-v2.adoc#,Keystone v2 filter>> documentation for more information about the available configuration options.
 

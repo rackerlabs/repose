@@ -43,6 +43,7 @@ The top-level section is reserved for the document title, so the first section i
 ....
 
 Of the supported section title styles, this style requires the least number of characters, and it’s intuitive since the number of leading characters represents the heading level.
+In addition, section titles, other than the top-level document title, should not have any blank lines directly below them before a sub-section title or the content.
 
 == Lists
 Use `*` to define lists rather than `-`.
@@ -56,3 +57,8 @@ Nesting in lists will correspond to the number of leading asterisks.
 
 == Citations
 * http://asciidoctor.org/docs/asciidoc-recommended-practices/[AsciiDoc Recommended Practices]
+
+== Repose is Bold
+The name of the *Repose* project should be bold (i.e. surrounded with asterisks (`*`)).
+
+If *Repose* is used as part of a full product name (e.g. *Repose Docker* image), then the proper names are all bold, but the common item is not.

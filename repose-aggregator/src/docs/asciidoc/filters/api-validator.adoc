@@ -41,7 +41,7 @@ However, due to the nature of this filter it is typically placed early in the fi
 In other words, `X-Relevant-Roles` are the user roles which granted access to the resource.
 This header is only added to the request if `enable-rax-roles` is configured to be true.
 * `X-Delegated` - Provides details about the failure being delegated by this filter.
-This is mainly intended for use by the <<herp.adoc#, Highly Efficient Record Processor (HERP) filter>> and <<derp.adoc#, Delegation Response Processor (DeRP) filter>> for internal delegation processing within Repose.
+This is mainly intended for use by the <<herp.adoc#, Highly Efficient Record Processor (HERP) filter>> and <<derp.adoc#, Delegation Response Processor (DeRP) filter>> for internal delegation processing within *Repose*.
 However, it can be exposed to the origin service under certain configurations.
 This header is only added if delegation is enabled.
 
@@ -151,15 +151,15 @@ This configuration expands the basic example in order to show off all of the fea
 ----
 <1> List of roles from which at least one role must match a role in the request for this validator to be applied.
     Triggers off of `X-Roles` header. +
-    *DEPRECATED:* Roles defined outside of the WADL will not be supported in Repose 9 and this attribute will not be available.
+    *DEPRECATED:* Roles defined outside of the WADL will not be supported in *Repose* 9 and this attribute will not be available.
 <2> If the api-validator config `multi-match` is set to `true` then the default validator will be the first validator to process the incoming request.
     If multi-match is set to `false` and if no validator is matched to the users' roles, then the filter will use the default validator. (Default: false) +
-    *DEPRECATED:* Multiple validators will not be supported in Repose 9 and this attribute will not be available.
+    *DEPRECATED:* Multiple validators will not be supported in *Repose* 9 and this attribute will not be available.
 <3> Location of the WADL to associate with this validator.
     If not specified, then the wadl needs to be embedded within the validator element.
     Can be located within the file system or pointed to a remote file.
     Can use absolute or relative path. +
-    *DEPRECATED:* This attribute is currently optional, but will be *required* in Repose 9.
+    *DEPRECATED:* This attribute is currently optional, but will be *required* in *Repose* 9.
     Currently both a WADL file and embedded WADL can not be defined.
     Currently at least a WADL file or embedded WADL must be defined.
 <4> If set to `true`, this validator will record, via JMX, the number of times each state in the generated state machine (the mechanism underlying api validation) is accessed.
@@ -192,7 +192,7 @@ This configuration expands the basic example in order to show off all of the fea
 <16> Enables the use of the rax:ignoreXSD extension in WADL files to exclude some representations from validation against the XSD.  (Default: true)
 <17> This is an optimization where the well formed check and multiple XPath checks can be merged into a single check. (Default: true)
 <18> Sets the name for this validator.
-     The name is used as the MBean name when connecting to Repose via JMX.
+     The name is used as the MBean name when connecting to *Repose* via JMX.
 <19> If set to true and the WADL defines required headers then the filter will check that those required headers are present. (Default: false)
 <20> Enables the use of `rax:roles` in WADL files to determine resource access. (Default: false) +
      *NOTE:* _IF_ `true`, _THEN_ `rax:roles` defined in the supplied WADL files will be used to determine resource access. +
@@ -302,11 +302,11 @@ This configuration shows the deprecated, but currently legal, multi-validator de
 </validators>
 ----
 <1> Defines the `roles` to which this validator is applied. +
-    *DEPRECATED:* Roles defined outside of the WADL will not be supported in Repose 9 and this attribute will not be available.
+    *DEPRECATED:* Roles defined outside of the WADL will not be supported in *Repose* 9 and this attribute will not be available.
 <2> Indicates that this is not the default validator. +
-    *DEPRECATED:* Multiple validators will not be supported in Repose 9 and this attribute will not be available.
+    *DEPRECATED:* Multiple validators will not be supported in *Repose* 9 and this attribute will not be available.
 <3> Shows how to embed a WADL into the configuration. +
-    *DEPRECATED:* This element body is currently optional, but will not be supported in Repose 9.
+    *DEPRECATED:* This element body is currently optional, but will not be supported in *Repose* 9.
     Currently both a WADL file and embedded WADL can not be defined.
     Currently at least a WADL file or embedded WADL must be defined.
 

@@ -42,14 +42,14 @@ This page lists container supported HTTP attributes and defaults so that we can 
 * `LimitRequestFieldSize` : Limits the size of the HTTP request header allowed from the client.
                             Default is 8k.
 
-Sometimes, depending on headers added by Repose, the default container limits can be exceeded.
-If Repose is deployed as Root.WAR in a container and the header size limit is exceeded, then Repose will respond to the client with the same response code that was received from origin service.
+Sometimes, depending on headers added by *Repose*, the default container limits can be exceeded.
+If *Repose* is deployed as Root.WAR in a container and the header size limit is exceeded, then *Repose* will respond to the client with the same response code that was received from origin service.
 
 Two example scenarios when it can exceed header size limit are:
 
-* When client sends request that has header with large value (container header size limit -1) and Repose add value to the same header and forwards request to origin service.
-  Origin Service container will return `4XX` response code which will be passed back to client by Repose.
-* When client sends request and Repose adds header value (example `X-Roles` header that contains all the roles for user that are sent back by Auth) and forwards request to origin service.
-  Origin Service container will return `4XX` response code which will be passed back to client by Repose.
+* When client sends request that has header with large value (container header size limit -1) and *Repose* add value to the same header and forwards request to origin service.
+  Origin Service container will return `4XX` response code which will be passed back to client by *Repose*.
+* When client sends request and *Repose* adds header value (example `X-Roles` header that contains all the roles for user that are sent back by Auth) and forwards request to origin service.
+  Origin Service container will return `4XX` response code which will be passed back to client by *Repose*.
   The Auth user client is using can have lots (hundreds) of roles.
-  Repose returns `400` in this case.
+  *Repose* returns `400` in this case.

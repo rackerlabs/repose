@@ -1,9 +1,9 @@
 = Phone Home Service
 
-The Phone Home service (a.k.a, Telemetry Service, Usage Statistics Service) is a service in Repose which will send usage data to a collection service.
-Usage data consists of the filters in use, the services in use, contact information, and other information relating to a specific instance of Repose.
-When enabled, this data is sent to a collection service owned and managed by the Repose team.
-This data is used to improve Repose as a product by providing insight into common usage patterns and metrics.
+The Phone Home service (a.k.a, Telemetry Service, Usage Statistics Service) is a service in *Repose* which will send usage data to a collection service.
+Usage data consists of the filters in use, the services in use, contact information, and other information relating to a specific instance of *Repose*.
+When enabled, this data is sent to a collection service owned and managed by the *Repose* team.
+This data is used to improve *Repose* as a product by providing insight into common usage patterns and metrics.
 
 == Configuration
 * *Default Configuration:* system-model.cfg.xml
@@ -12,7 +12,7 @@ This data is used to improve Repose as a product by providing insight into commo
 
 === Service Configuration
 The Phone Home service is activated by adding a `phone-home` element to the system model configuration file and setting the `enabled` attribute to true.
-This element is included in the default Repose installation, but is disabled.
+This element is included in the default *Repose* installation, but is disabled.
 Explicit action must be taken for the Phone Home service to be used.
 
 [source,xml]
@@ -30,7 +30,7 @@ Explicit action must be taken for the Phone Home service to be used.
 </system-model>
 ----
 <1> The `phone-home` element's `enabled` attribute must be set to `true` to activate this feature.
-<2> The name of the Service/API that this instance of Repose is in front of.
+<2> The name of the Service/API that this instance of *Repose* is in front of.
 <3> The contact email address for the origin service.
 
 === Message Logger Configuration

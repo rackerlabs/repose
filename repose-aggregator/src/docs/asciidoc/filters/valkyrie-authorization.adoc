@@ -113,7 +113,7 @@ See https://tools.ietf.org/html/rfc7231#section-7.1.3[the official HTTP specific
 
 [NOTE]
 ====
-For more information about specific response codes that Repose will receive from the Valkyrie service, please refer to the https://one.rackspace.com/display/IDPLAT/Valkyrie[Valkyrie documentataion].
+For more information about specific response codes that *Repose* will receive from the Valkyrie service, please refer to the https://one.rackspace.com/display/IDPLAT/Valkyrie[Valkyrie documentataion].
 ====
 
 == Account Admins
@@ -221,4 +221,4 @@ A `X-Device-Id` header should not be added or allowed on requests to endpoints w
 
 == Additional Information
 This filter utilizes Keystone to authenticate with the Valkyrie service.
-The `X-Auth-Token` header will be copied from the inbound request to Repose to the outbound request to the Valkyrie service.
+The `X-Auth-Token` header will be copied from the inbound request to *Repose* to the outbound request to the Valkyrie service.
