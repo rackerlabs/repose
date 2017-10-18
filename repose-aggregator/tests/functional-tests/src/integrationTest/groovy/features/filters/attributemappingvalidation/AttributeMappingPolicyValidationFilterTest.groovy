@@ -365,4 +365,125 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         mc.handlings.size() == 1
         (mc.handlings[0].request.body as String).contains(comment)
     }
+
+    def "should fail to validate JSON with an inline function"() {
+        given:
+        String body =
+            '''{
+            |  "mapping": {
+            |    "rules": [
+            |      {
+            |        "remote": [
+            |          {
+            |            "path": "let $addOne := function($i as xs:int) as xs:int { $i + 1 }\\nreturn $addOne(1)"
+            |          }
+            |        ],
+            |        "local": {}
+            |      }
+            |    ],
+            |    "version": "RAX-1"
+            |  }
+            |}
+            |'''.stripMargin()
+
+        when:
+        reposeLogSearch.cleanLog()
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_JSON], requestBody: body)
+
+        then:
+        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
+        mc.handlings.size() == 0
+        reposeLogSearch.searchByString("Inline functions are not allowed in a policy path").size() == 2
+    }
+
+    def "should fail to validate XML with a recursive function"() {
+        given:
+        String body =
+            '''<?xml version="1.0" encoding="UTF-8"?>
+            |<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
+            |         version="RAX-1">
+            |    <rules>
+            |        <rule>
+            |            <local/>
+            |            <remote>
+            |                <attribute path="
+            |                    let $addSome := function($i as xs:int, $f as function(xs:int, function(*)) as xs:int) as xs:int
+            |                    {
+            |                      if ($i > 3) then $i
+            |                      else $f($i + 1, $f)
+            |                    }
+            |                    return $addSome(1, $addSome)"/>
+            |            </remote>
+            |        </rule>
+            |    </rules>
+            |</mapping>
+            |'''.stripMargin()
+
+        when:
+        reposeLogSearch.cleanLog()
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_XML], requestBody: body)
+
+        then:
+        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
+        mc.handlings.size() == 0
+        reposeLogSearch.searchByString("Inline functions are not allowed in a policy path").size() == 2
+    }
+
+    def "should validate JSON with a map function"() {
+        given:
+        String body =
+            '''{
+            |    "mapping": {
+            |        "rules": [
+            |            {
+            |                "remote": [
+            |                    {
+            |                        "path": "let $myMap := map { \\"foo\\": \\"bar\\" } return $myMap(\\"foo\\")"
+            |                    }
+            |                ],
+            |                "local": {}
+            |            }
+            |        ],
+            |        "version": "RAX-1"
+            |    }
+            |}
+            |'''.stripMargin()
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_JSON], requestBody: body)
+
+        then:
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings.size() == 1
+        jsonSlurper.parseText(body) == jsonSlurper.parseText(mc.handlings[0].request.body as String)
+    }
+
+    def "should validate XML with a namespaced map"() {
+        given:
+        String body =
+            '''<?xml version="1.0" encoding="UTF-8"?>
+            |<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
+            |         xmlns:map="http://www.w3.org/2005/xpath-functions/map"
+            |         version="RAX-1">
+            |    <rules>
+            |        <rule>
+            |            <local/>
+            |            <remote>
+            |                <attribute path="
+            |                    let $myMap := map { &quot;foo&quot;: &quot;bar&quot; }
+            |                    return map:get($myMap, &quot;foo&quot;)"/>
+            |            </remote>
+            |        </rule>
+            |    </rules>
+            |</mapping>
+            |'''.stripMargin()
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_XML], requestBody: body)
+
+        then:
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings.size() == 1
+        xmlSlurper.parseText(body) == xmlSlurper.parseText(mc.handlings[0].request.body as String)
+    }
 }
