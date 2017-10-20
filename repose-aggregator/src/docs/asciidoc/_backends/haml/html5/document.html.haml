@@ -108,6 +108,10 @@
     - unless nofooter
       #footer
         #footer-text
+          - if attr? 'project-version'
+            = precede %(#{attr 'version-label'} #{attr 'project-version'}) do
+              - if (attr? :revnumber) || (attr? 'last-update-label')
+                %br
           - if attr? :revnumber
             = precede %(#{attr 'version-label'} #{attr :revnumber}) do
               - if attr? 'last-update-label'
