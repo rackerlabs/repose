@@ -177,6 +177,104 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         yaml.load(body) == yaml.load(mc.handlings[0].request.body as String)
     }
 
+    def "should validate XML with multi-value roles"() {
+        given:
+        String body =
+            '''<?xml version="1.0" encoding="UTF-8"?>
+            |<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
+            |         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            |         xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            |         xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+            |         version="RAX-1">
+            |  <rules>
+            |    <rule>
+            |      <local>
+            |        <user>
+            |          <domain value="{D}"/>
+            |          <name value="{D}"/>
+            |          <email value="{D}"/>
+            |          <roles value="{Ats(http:\\/\\/schemas.xmlsoap.org\\/claims\\/Group)}"
+            |                 multiValue="true"
+            |          />
+            |          <expire value="{D}"/>
+            |        </user>
+            |      </local>
+            |    </rule>
+            |  </rules>
+            |</mapping>
+            |'''.stripMargin()
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_XML], requestBody: body)
+
+        then:
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        xmlSlurper.parseText(body) == xmlSlurper.parseText(mc.handlings[0].request.body as String)
+    }
+
+    def "should validate JSON with multi-value roles"() {
+        given:
+        String body =
+            '''{
+            |  "mapping": {
+            |    "rules": [
+            |      {
+            |        "local": {
+            |          "user": {
+            |            "domain": "{D}",
+            |            "name": "{D}",
+            |            "email": "{D}",
+            |            "roles": {
+            |                "value":"{Ats(http:\\/\\/schemas.xmlsoap.org\\/claims\\/Group)}",
+            |                "multiValue":true
+            |            },
+            |            "expire": "{D}"
+            |          }
+            |        }
+            |      }
+            |    ],
+            |    "version":"RAX-1"
+            |  }
+            |}
+            |'''.stripMargin()
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_JSON], requestBody: body)
+
+        then:
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        jsonSlurper.parseText(body) == jsonSlurper.parseText(mc.handlings[0].request.body as String)
+    }
+
+    def "should validate YAML with multi-value roles"() {
+        given:
+        String body =
+            '''---
+            |mapping:
+            |  rules:
+            |  - local:
+            |      user:
+            |        domain: "{D}"
+            |        name: "{D}"
+            |        email: "{D}"
+            |        roles:
+            |           value: "{Ats(http://schemas.xmlsoap.org/claims/Group)}"
+            |           multiValue: true
+            |        expire: "{D}"
+            |  version: RAX-1
+            '''.stripMargin()
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_YAML], requestBody: body)
+
+        then:
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        yaml.load(body) == yaml.load(mc.handlings[0].request.body as String)
+    }
+
     def "should not remove the name attribute from a remote in a JSON policy"() {
         given:
         String body =
