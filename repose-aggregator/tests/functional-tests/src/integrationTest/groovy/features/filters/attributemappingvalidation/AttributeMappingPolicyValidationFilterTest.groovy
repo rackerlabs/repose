@@ -89,7 +89,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
     def "should validate correct XML"() {
         given:
         String body =
-            """<?xml version="1.0" encoding="UTF-8"?>
+            '''<?xml version="1.0" encoding="UTF-8"?>
             |<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
             |         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             |         xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -97,19 +97,19 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             |         version="RAX-1">
             |   <rules>
             |      <rule>
-            |        <local>
+            |         <local>
             |            <user>
+            |               <domain value="{D}"/>
             |               <name value="{D}"/>
             |               <email value="{D}"/>
-            |               <expire value="{D}"/>
-            |               <domain value="{D}"/>
             |               <roles value="{D}"/>
+            |               <expire value="{D}"/>
             |            </user>
             |         </local>
             |      </rule>
             |   </rules>
             |</mapping>
-            |""".stripMargin()
+            |'''.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_XML], requestBody: body)
@@ -123,7 +123,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
     def "should validate correct JSON"() {
         given:
         String body =
-            """{
+            '''{
             |  "mapping": {
             |    "rules": [
             |      {
@@ -132,6 +132,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             |            "domain": "{D}",
             |            "name": "{D}",
             |            "email": "{D}",
+            |            "roles": "{D}",
             |            "expire": "{D}"
             |          }
             |        }
@@ -140,7 +141,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             |    "version":"RAX-1"
             |  }
             |}
-            |""".stripMargin()
+            |'''.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_JSON], requestBody: body)
@@ -154,7 +155,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
     def "should validate correct YAML"() {
         given:
         String body =
-            """---
+            '''---
             |mapping:
             |  rules:
             |  - local:
@@ -165,7 +166,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             |        roles: "{D}"
             |        expire: "{D}"
             |  version: RAX-1
-            |""".stripMargin()
+            |'''.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_YAML], requestBody: body)
@@ -179,7 +180,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
     def "should not remove the name attribute from a remote in a JSON policy"() {
         given:
         String body =
-            """{
+            '''{
             |  "mapping": {
             |    "rules": [
             |      {
@@ -200,7 +201,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             |    "version":"RAX-1"
             |  }
             |}
-            |""".stripMargin()
+            |'''.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_JSON], requestBody: body)
@@ -214,7 +215,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
     def "should not remove the name attribute from a remote in a YAML policy"() {
         given:
         String body =
-            """---
+            '''---
             |mapping:
             |  rules:
             |  - local:
@@ -225,7 +226,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             |      name: Username
             |      regex: false
             |  version: RAX-1
-            |""".stripMargin()
+            |'''.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_YAML], requestBody: body)
@@ -239,7 +240,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
     def "should not validate bad XML"() {
         given:
         String body =
-            """<?xml version="1.0" encoding="UTF-8"?>
+            '''<?xml version="1.0" encoding="UTF-8"?>
             |<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
             |         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             |         xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -258,7 +259,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             |         </local>
             |      </rule>
             |   </rules>
-            |""".stripMargin()
+            |'''.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_XML], requestBody: body)
@@ -271,10 +272,10 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
     def "should not validate bad JSON"() {
         given:
         String body =
-            """{
+            '''{
             |  "mapping": {
             |    "rules": [
-            |       {
+            |      {
             |        "local": {
             |          "user": {
             |            "domain":"{D}",
@@ -282,13 +283,13 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             |            "email":"{D}",
             |            "roles":"{D}",
             |            "expire":"{D}"
-            |           }
-            |         }
-            |       }
-            |     ],
+            |          }
+            |        }
+            |      }
+            |    ],
             |    "version":"RAX-1"
             |  }
-            |""".stripMargin()
+            |'''.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_JSON], requestBody: body)
@@ -301,7 +302,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
     def "should fail to validate bad YAML"() {
         given:
         String body =
-            """---
+            '''---
             |mapping:
             |  rules:
             |    local:
@@ -312,7 +313,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             |        roles: "{D}"
             |        expire: "{D}"
             |  version: RAX-1
-            |""".stripMargin()
+            |'''.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_YAML], requestBody: body)
@@ -325,12 +326,12 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
     def "should fail to validate bad YAML (dimitry style)"() {
         given:
         String body =
-            """- just: write some
+            '''- just: write some
             |- yaml:
             |  - [here, and]
             |  - {it: updates, in: real-time}
             |sdfsdds
-            |""".stripMargin()
+            |'''.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_YAML], requestBody: body)
@@ -402,20 +403,20 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             '''<?xml version="1.0" encoding="UTF-8"?>
             |<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
             |         version="RAX-1">
-            |    <rules>
-            |        <rule>
-            |            <local/>
-            |            <remote>
-            |                <attribute path="
-            |                    let $addSome := function($i as xs:int, $f as function(xs:int, function(*)) as xs:int) as xs:int
-            |                    {
-            |                      if ($i > 3) then $i
-            |                      else $f($i + 1, $f)
-            |                    }
-            |                    return $addSome(1, $addSome)"/>
-            |            </remote>
-            |        </rule>
-            |    </rules>
+            |   <rules>
+            |      <rule>
+            |         <local/>
+            |         <remote>
+            |            <attribute path="
+            |               let $addSome := function($i as xs:int, $f as function(xs:int, function(*)) as xs:int) as xs:int
+            |               {
+            |                  if ($i > 3) then $i
+            |                  else $f($i + 1, $f)
+            |               }
+            |               return $addSome(1, $addSome)"/>
+            |         </remote>
+            |      </rule>
+            |   </rules>
             |</mapping>
             |'''.stripMargin()
 
@@ -433,19 +434,19 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         given:
         String body =
             '''{
-            |    "mapping": {
-            |        "rules": [
-            |            {
-            |                "remote": [
-            |                    {
-            |                        "path": "let $myMap := map { \\"foo\\": \\"bar\\" } return $myMap(\\"foo\\")"
-            |                    }
-            |                ],
-            |                "local": {}
-            |            }
+            |  "mapping": {
+            |    "rules": [
+            |      {
+            |        "remote": [
+            |          {
+            |            "path": "let $myMap := map { \\"foo\\": \\"bar\\" } return $myMap(\\"foo\\")"
+            |          }
             |        ],
-            |        "version": "RAX-1"
-            |    }
+            |        "local": {}
+            |      }
+            |    ],
+            |    "version": "RAX-1"
+            |  }
             |}
             |'''.stripMargin()
 
@@ -465,16 +466,16 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             |<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
             |         xmlns:map="http://www.w3.org/2005/xpath-functions/map"
             |         version="RAX-1">
-            |    <rules>
-            |        <rule>
-            |            <local/>
-            |            <remote>
-            |                <attribute path="
-            |                    let $myMap := map { &quot;foo&quot;: &quot;bar&quot; }
-            |                    return map:get($myMap, &quot;foo&quot;)"/>
-            |            </remote>
-            |        </rule>
-            |    </rules>
+            |   <rules>
+            |      <rule>
+            |         <local/>
+            |         <remote>
+            |            <attribute path="
+            |               let $myMap := map { &quot;foo&quot;: &quot;bar&quot; }
+            |               return map:get($myMap, &quot;foo&quot;)"/>
+            |         </remote>
+            |      </rule>
+            |   </rules>
             |</mapping>
             |'''.stripMargin()
 
