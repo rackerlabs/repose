@@ -1263,14 +1263,15 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         |    </user>
         |    <serviceCatalog/>
         |    <RAX-AUTH:extendedAttributes xmlns="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
-        |                                 xmlns:RAX-AUTH="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
+        |                                 xmlns:RAX-AUTH="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
+        |                                 xmlns:mapping="http://docs.rackspace.com/identity/api/ext/MappingRules">
         |        <group name="user">
         |            <attribute name="foo">
         |                <value>2017-01-25T21:50:56.399-06:00</value>
         |            </attribute>
         |        </group>
         |        <group name="test">
-        |            <attribute name="policy">
+        |            <attribute multiValue="true" name="policy">
         |                <value>TestPolicy</value>
         |                <value>TestPolicy2</value>
         |                <value>TestPolicy YEA!</value>
@@ -1749,6 +1750,7 @@ object SamlPolicyTranslationFilterTest {
       |        <saml2p:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
       |    </saml2p:Status>
       |    <saml2:Assertion xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
+      |                     xmlns:mapping="http://docs.rackspace.com/identity/api/ext/MappingRules"
       |                     xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
       |                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       |                     ID="_406fb7fe-a519-4919-a42c-f67794a670a5__RAX__"
@@ -1780,7 +1782,7 @@ object SamlPolicyTranslationFilterTest {
       |            <saml2:Attribute Name="user/foo">
       |                <saml2:AttributeValue xsi:type="xs:dateTime">2017-01-25T21:50:56.399-06:00</saml2:AttributeValue>
       |            </saml2:Attribute>
-      |            <saml2:Attribute Name="test/policy">
+      |            <saml2:Attribute Name="test/policy" mapping:multiValue="true">
       |                <saml2:AttributeValue xsi:type="xs:string">TestPolicy</saml2:AttributeValue>
       |                <saml2:AttributeValue xsi:type="xs:string">TestPolicy2</saml2:AttributeValue>
       |                <saml2:AttributeValue xsi:type="xs:string">TestPolicy YEA!</saml2:AttributeValue>
