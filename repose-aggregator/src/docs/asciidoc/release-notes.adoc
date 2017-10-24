@@ -7,8 +7,12 @@
 * https://repose.atlassian.net/browse/REP-6252[REP-6252], https://repose.atlassian.net/browse/REP-6211[REP-6211] - Updated dependencies:
 ** Gradle LinkChecker Plugin: 0.2.0 → 0.3.0
 *** https://github.com/rackerlabs/gradle-linkchecker-plugin/blob/0.3.0/RELEASE.adoc[Gradle LinkChecker Plugin v0.3.0 release notes]
-** Attribute Mapper: 2.0.1 → 2.1.0
-*** https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-2.1.0/RELEASE.md[Attribute Mapper v2.1.0 release notes]
+** API Checker: 2.4.1 → 2.5.1
+*** https://github.com/rackerlabs/api-checker/blob/api-checker-2.5.1/RELEASE.md[API Checker v2.5.1 release notes]
+** Attribute Mapper: 2.0.1 → 2.1.1
+*** https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-2.1.1/RELEASE.md[Attribute Mapper v2.1.1 release notes]
+** Saxon: 9.7.0-15 → 9.8.0-4
+*** http://www.saxonica.com/products/latest.xml[Saxon 9.8.0.4 release notes]
 
 == 8.7.0.2 (2017-10-04)
 
