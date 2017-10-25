@@ -782,7 +782,7 @@ class MockIdentityV2Service {
                                                           domain: (values.domain ?: DEFAULT_MAPPING_VALUE),
                                                           name  : (values.name ?: DEFAULT_MAPPING_VALUE),
                                                           email : (values.email ?: DEFAULT_MAPPING_VALUE),
-                                                          groups:  (values.groups ?: DEFAULT_MAPPING_VALUE),
+                                                          groups: (values.groups ?: DEFAULT_MAPPING_VALUE),
                                                           roles : (values.roles ?: DEFAULT_MAPPING_VALUE),
                                                           expire: (values.expire ?: DEFAULT_MAPPING_VALUE)
                                                   ] + (values.userExtAttribs ?: [])
