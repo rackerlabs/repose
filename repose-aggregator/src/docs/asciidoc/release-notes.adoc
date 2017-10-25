@@ -1,9 +1,10 @@
 = Release Notes
 
-== In Progress Work
-
+== 8.7.1.0 (2017-10-25)
 * https://repose.atlassian.net/browse/REP-6133[REP-6133] - Updated the published Docker images to turn off local logging by default to be more in line with the expectations of a https://12factor.net/logs[Twelve-Factor App].
 * https://repose.atlassian.net/browse/REP-6135[REP-6135] - Updated the published Docker images to support running the container using an arbitrarily assigned user ID as is expected by the https://docs.openshift.com/container-platform/3.6/creating_images/guidelines.html#openshift-container-platform-specific-guidelines[OpenShift Container Platform].
+* https://repose.atlassian.net/browse/REP-6179[REP-6179] - Converted more old Wiki Docs over to the new www.openrepose.org/versions/latest/[Versioned Docs].
+* https://repose.atlassian.net/browse/REP-6186[REP-6186] - Updated the automated Release Verification to force the use of Java 8 since some GNU/Linux distributions are already providing Java 9 by default.
 * https://repose.atlassian.net/browse/REP-6252[REP-6252], https://repose.atlassian.net/browse/REP-6211[REP-6211] - Updated dependencies:
 ** Gradle LinkChecker Plugin: 0.2.0 → 0.3.0
 *** https://github.com/rackerlabs/gradle-linkchecker-plugin/blob/0.3.0/RELEASE.adoc[Gradle LinkChecker Plugin v0.3.0 release notes]
@@ -14,18 +15,16 @@
 ** Saxon: 9.7.0-15 → 9.8.0-4
 *** http://www.saxonica.com/products/latest.xml[Saxon 9.8.0.4 release notes]
 
-== 8.7.0.2 (2017-10-04)
 
+== 8.7.0.2 (2017-10-04)
 * https://repose.atlassian.net/browse/REP-6162[REP-6162] - Updated the Keystone v2 get IDP call to support the field name change from `approvedDomains` to `approvedDomainIds`.
 
 == 8.7.0.1 (2017-09-28)
-
 * https://repose.atlassian.net/browse/REP-6115[REP-6115] - Updated dependencies:
 ** Attribute Mapper: 2.0.0 → 2.0.1
 *** https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-2.0.1/RELEASE.md[Attribute Mapper v2.0.1 release notes]
 
 == 8.7.0.0 (2017-09-26)
-
 * https://repose.atlassian.net/browse/REP-5939[REP-5939] - Added support for, and began publishing, a CentOS-based Docker image.
 * https://repose.atlassian.net/browse/REP-5766[REP-5766] - Updated Dockerfile to run Repose as the `repose` user.
 * https://repose.atlassian.net/browse/REP-5767[REP-5767] - Updated Dockerfiles to simplify usage of `JAVA_OPTS`.
@@ -50,7 +49,6 @@ If the `org.openrepose.powerfilter.PowerFilter.trace-id-logging` Logger has not 
 ====
 
 == 8.6.3.0 (2017-08-15)
-
 * https://repose.atlassian.net/browse/REP-5737[REP-5737] - Updated the following filters to correct a typo that would prevent proper configuration schema validation.
 ** <<filters/ip-user.adoc#,IP User Filter>>
 ** <<filters/keystone-v2-basic-auth.adoc#, Keystone v2 Basic Auth Filter>>
@@ -84,20 +82,17 @@ This message is logged to a separate logger and can be disabled by adding the fo
 * https://repose.atlassian.net/browse/REP-3502[REP-3502] - Confirmed the correct use of the default `ALL` HTTP Method in all of the configuration files.
 
 == 8.6.2.0 (2017-06-13)
-
 * https://repose.atlassian.net/browse/REP-5757[REP-5757] - Updated the <<filters/saml-policy.adoc#, SAML Policy Translation Filter>> to utilize YAML policy files.
 ** Updated the `attribute-mapper` library from v1.1.1 to v1.2.0 to bring in the YAML updates made in https://repose.atlassian.net/browse/REP-5632[REP-5632]
 * https://repose.atlassian.net/browse/REP-5592[REP-5592] - Updated the <<filters/attribute-mapping-policy-validation.adoc#,Attribute Mapping Policy Validation Filter>> to only work for YAML bodies.
 * https://repose.atlassian.net/browse/REP-5694[REP-5694] - Updated the <<filters/valkyrie-authorization.adoc#,Valkyrie Authorization Filter>> versioned docs to point to the current Valkyrie service documentation.
 
 == 8.6.1.1 (2017-06-08)
-
 * https://repose.atlassian.net/browse/REP-5520[REP-5520] - Updated the <<filters/keystone-v2.adoc#, Keystone v2 Filter>> to provide the token cache key, and to generally handle `401` - _Unauthroized_ responses.
 * https://repose.atlassian.net/browse/REP-5347[REP-5347] - Updated the Attribute Mapping library from v1.0.2 to v1.1.1.
 * https://repose.atlassian.net/browse/REP-5595[REP-5595] - Updated the <<filters/attribute-mapping-policy-validation.adoc#,Attribute Mapping Policy Validation Filter>> to utilize new Attribute Mapping library features for cleaner JSON validation.
 
 == 8.6.0.0 (2017-06-02)
-
 * https://repose.atlassian.net/browse/REP-5234[REP-5234] - Added the new <<services/datastores.adoc#_remote_datastore, Remote Datastore service>> which allows the Distributed Datastore service concept to work in dynamic containerized environments like OpenShift.
 * https://repose.atlassian.net/browse/REP-5343[REP-5343] - Updated the Keystone v2 Filter to support the new Apply RCN Roles feature of Rackspace Keystone v2 Identity.
 Converted the https://repose.atlassian.net/wiki/display/REPOSE/Keystone+v2+filter[old Keystone v2 Filter documentation] over to the <<filters/keystone-v2.adoc#, new versioned docs>>.
@@ -107,7 +102,6 @@ Converted the https://repose.atlassian.net/wiki/display/REPOSE/Keystone+v2+filte
 ** This brings the bulk metadata feature to the <<filters/api-validator.adoc#, API Validator filter>>.
 
 == 8.5.0.1 (2017-04-14)
-
 * https://repose.atlassian.net/browse/REP-4024[REP-4024] - The <<filters/header-normalization.adoc#, Header Normalization Filter>> updated to include removing headers on the Response.
 * https://repose.atlassian.net/browse/REP-3901[REP-3901] - The Debian and RPM Repose Valve and WAR artifacts will now create the `repose` user and group even if the configuration files are already present.
 * https://repose.atlassian.net/browse/REP-5130[REP-5130] - <<filters/rackspace-auth-user.adoc#, Rackspace Auth User Filter>> now gives a more specific and quieter log message when it runs into a non-xml or non-json content type.
@@ -128,16 +122,13 @@ However, there were some internal contract changes with the Via and Location hea
 * https://repose.atlassian.net/browse/REP-4465[REP-4465] - Certain enums provided by Repose have been replaced by classes holding the same constant values.
 
 == 8.4.1.0 (2017-02-24)
-
 * https://repose.atlassian.net/browse/REP-5101[REP-5101] - <<filters/saml-policy.adoc#, SAML Policy Translation Filter>> now allows un-encoded `application/xml` requests in addition to the previous `application/x-www-form-urlencoded` requests.
 
 == 8.4.0.2 (2017-02-21)
-
 * https://repose.atlassian.net/browse/REP-5100[REP-5100] - <<filters/rate-limiting.adoc#, Rate Limiting Filter>> was mistakenly getting the full parameter map, and not just the query parameters.
 * https://repose.atlassian.net/browse/REP-5071[REP-5071] - Repose is now using Attribute Mapping v1.0.2.
 
 == 8.4.0.1 (2017-02-04)
-
 * https://repose.atlassian.net/browse/REP-4795[REP-4795] https://repose.atlassian.net/browse/REP-4831[REP-4831] - the <<filters/saml-policy.adoc#, SAML Policy Translation Filter>> has been released!
 * https://repose.atlassian.net/browse/REP-4653[REP-4653] - The <<filters/rackspace-auth-user.adoc#, Rackspace Auth User Filter>> updated to read request body of Forgot Password request to get the username and the <<filters/herp.adoc#, Highly Efficient Record Processor (HERP) Filter>> was updated to get `X-User-Name` from response headers.
 * https://repose.atlassian.net/browse/REP-4928[REP-4928] - The <<filters/keystone-v2.adoc#, Keystone v2 Filter>> will now return a 401 if self-validating tokens are being used and the Identity service responds with a 401.
@@ -149,9 +140,7 @@ However, there were some internal contract changes with the Via and Location hea
 * https://repose.atlassian.net/browse/REP-4999[REP-4999] - Leading and trailing whitespace in directory values in the container.cfg.xml file are now ignored.
 
 == 8.3.0.1 (2016-12-13)
-
 * https://repose.atlassian.net/browse/REP-4764[REP-4764] - `sendError` in the response wrapper will now call `sendError` on the underlying response when appropriate.
 
 == Prior Releases
-
 * https://repose.atlassian.net/wiki/display/REPOSE/Repose+Release+Notes[Legacy Release Notes]
