@@ -89,10 +89,11 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         def attribRole = "nova:cool_cat"
         def attribDomain = "193083"
         def attribEmail = "frodo.baggins@nowhere.abc"
+        def attribGroup = "Hobbits"
         def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(
                 issuer: samlIssuer,
                 name: attribName,
-                attributes: [roles: [attribRole], domain: [attribDomain], email: [attribEmail]],
+                attributes: [roles: [attribRole], domain: [attribDomain], email: [attribEmail], groups: [attribGroup]],
                 spProvidedId: extAttribPathValue,
                 fakeSign: true))
 
@@ -123,6 +124,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         attributes.find { it.name == "roles" }.attributeValues[0].value == attribRole
         attributes.find { it.name == "domain" }.attributeValues[0].value == attribDomain
         attributes.find { it.name == "email" }.attributeValues[0].value == attribEmail
+        attributes.find { it.name == "groups" }.attributeValues[0].value == attribGroup
 
         and: "the extended attributes are set correctly"
         attributes.find {
@@ -412,6 +414,98 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         !json.access.'RAX-AUTH:extendedAttributes'
     }
 
+    def "when an extended attribute in the JSON policy is multi-valued, it is added to the request/response as an array"() {
+        given: "a mapping policy with a single-valued array"
+        def extUserAttribName = "foo"
+        def extUserAttribValues = ["bar"]
+        def mappingPolicy = createMappingJsonWithValues(userExtAttribs: [(extUserAttribName): extUserAttribValues])
+
+        and: "a saml:response"
+        def samlIssuer = generateUniqueIssuer()
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
+
+        and: "an Identity mock that will return the mapping policy"
+        String idpId = generateUniqueIdpId()
+        fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(id: idpId)
+        fakeIdentityV2Service.getMappingPolicyForIdpHandler = fakeIdentityV2Service
+            .createGetMappingPolicyForIdp(APPLICATION_JSON, [mappings: [(idpId): mappingPolicy]])
+
+        when: "a request is sent to Repose"
+        def mc = deproxy.makeRequest(
+            url: reposeEndpoint + SAML_AUTH_URL,
+            method: HTTP_POST,
+            headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED, (ACCEPT): APPLICATION_JSON],
+            requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the origin service receives the request and the client receives the response"
+        mc.handlings[0]
+        mc.receivedResponse.code as Integer == SC_OK
+
+        when: "the saml:response received by the origin service is unmarshalled"
+        SamlResponse response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
+        List<Attribute> attributes = response.assertions[0].attributeStatements[0].attributes
+
+        then: "the request has two assertions"
+        response.assertions.size() == 2
+
+        and: "the extended attribute for the literal value is set in the request"
+        attributes.find {
+            it.name == "user/$extUserAttribName" as String
+        }.attributeValues.collect {it.value} == extUserAttribValues
+
+        when: "the response sent to the client is parsed as JSON"
+        def json = jsonSlurper.parseText(mc.receivedResponse.body as String)
+
+        then: "the extended attribute for the literal value is set in the response"
+        json.access.'RAX-AUTH:extendedAttributes'.user."$extUserAttribName" == extUserAttribValues
+    }
+
+    def "when an extended attribute in the YAML policy is multi-valued, it is added to the request/response as an array"() {
+        given: "a mapping policy with a single-valued array"
+        def extUserAttribName = "foo"
+        def extUserAttribValues = ["bar"]
+        def mappingPolicy = createMappingYamlWithValues(userExtAttribs: [(extUserAttribName): extUserAttribValues])
+
+        and: "a saml:response"
+        def samlIssuer = generateUniqueIssuer()
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
+
+        and: "an Identity mock that will return the mapping policy"
+        String idpId = generateUniqueIdpId()
+        fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(id: idpId)
+        fakeIdentityV2Service.getMappingPolicyForIdpHandler = fakeIdentityV2Service
+            .createGetMappingPolicyForIdp(TEXT_YAML, [mappings: [(idpId): mappingPolicy]])
+
+        when: "a request is sent to Repose"
+        def mc = deproxy.makeRequest(
+            url: reposeEndpoint + SAML_AUTH_URL,
+            method: HTTP_POST,
+            headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED, (ACCEPT): APPLICATION_JSON],
+            requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the origin service receives the request and the client receives the response"
+        mc.handlings[0]
+        mc.receivedResponse.code as Integer == SC_OK
+
+        when: "the saml:response received by the origin service is unmarshalled"
+        SamlResponse response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
+        List<Attribute> attributes = response.assertions[0].attributeStatements[0].attributes
+
+        then: "the request has two assertions"
+        response.assertions.size() == 2
+
+        and: "the extended attribute for the literal value is set in the request"
+        attributes.find {
+            it.name == "user/$extUserAttribName" as String
+        }.attributeValues.collect {it.value} == extUserAttribValues
+
+        when: "the response sent to the client is parsed as JSON"
+        def json = jsonSlurper.parseText(mc.receivedResponse.body as String)
+
+        then: "the extended attribute for the literal value is set in the response"
+        json.access.'RAX-AUTH:extendedAttributes'.user."$extUserAttribName" == extUserAttribValues
+    }
+
     @Unroll
     def "when the specified path for an extended attribute is not present in the saml:response, it is not added to the request/response #withOut path function in #acceptType policy"() {
         given: "a mapping policy with a literal value and a path-based value (that won't be in the saml:response)"
@@ -493,6 +587,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
                 |        domain: '{D}'
                 |        name: '{D}'
                 |        email: '{D}'
+                |        groups: '{D}'
                 |        roles: '{D}'
                 |        expire: '{D}'
                 |        $extAttribLiteral: $extAttribLiteralValue
@@ -507,10 +602,11 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         def attribRole = "Tammy:GubbaNubNubDoRaKa"
         def attribDomain = "193083"
         def attribEmail = "BirdNTammy@GetSchwifty.com"
+        def attribGroup = "Avianpeople"
         def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(
                 issuer: samlIssuer,
                 name: attribName,
-                attributes: [roles: [attribRole], domain: [attribDomain], email: [attribEmail]],
+                attributes: [roles: [attribRole], domain: [attribDomain], email: [attribEmail], groups: [attribGroup]],
                 spProvidedId: extAttribPathValue,
                 fakeSign: true))
 
@@ -541,6 +637,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         attributes.find { it.name == "roles" }.attributeValues[0].value == attribRole
         attributes.find { it.name == "domain" }.attributeValues[0].value == attribDomain
         attributes.find { it.name == "email" }.attributeValues[0].value == attribEmail
+        attributes.find { it.name == "groups" }.attributeValues[0].value == attribGroup
 
         and: "the extended attributes are set correctly"
         attributes.find {

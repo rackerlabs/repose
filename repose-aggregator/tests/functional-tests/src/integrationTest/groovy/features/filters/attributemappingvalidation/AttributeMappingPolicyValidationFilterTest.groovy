@@ -26,7 +26,7 @@ import org.rackspace.deproxy.MessageChain
 import org.yaml.snakeyaml.Yaml
 import spock.lang.Unroll
 
-import static javax.servlet.http.HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE
+import static javax.servlet.http.HttpServletResponse.*
 import static javax.ws.rs.core.MediaType.*
 
 /**
@@ -89,33 +89,33 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
     def "should validate correct XML"() {
         given:
         String body =
-            """<?xml version="1.0" encoding="UTF-8"?>
-                <mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
-                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xmlns:xs="http://www.w3.org/2001/XMLSchema"
-                         xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
-                         version="RAX-1">
-                   <rules>
-                      <rule>
-                        <local>
-                            <user>
-                               <name value="{D}"/>
-                               <email value="{D}"/>
-                               <expire value="{D}"/>
-                               <domain value="{D}"/>
-                               <roles value="{D}"/>
-                            </user>
-                         </local>
-                      </rule>
-                   </rules>
-                </mapping>
-            """
+            '''<?xml version="1.0" encoding="UTF-8"?>
+            |<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
+            |         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            |         xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            |         xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+            |         version="RAX-1">
+            |   <rules>
+            |      <rule>
+            |         <local>
+            |            <user>
+            |               <domain value="{D}"/>
+            |               <name value="{D}"/>
+            |               <email value="{D}"/>
+            |               <roles value="{D}"/>
+            |               <expire value="{D}"/>
+            |            </user>
+            |         </local>
+            |      </rule>
+            |   </rules>
+            |</mapping>
+            |'''.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_XML], requestBody: body)
 
         then:
-        mc.receivedResponse.code == "200"
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         xmlSlurper.parseText(body) == xmlSlurper.parseText(mc.handlings[0].request.body as String)
     }
@@ -123,31 +123,31 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
     def "should validate correct JSON"() {
         given:
         String body =
-            """
-            {
-              "mapping": {
-                "rules": [
-                  {
-                    "local": {
-                      "user": {
-                        "domain": "{D}",
-                        "name": "{D}",
-                        "email": "{D}",
-                        "expire": "{D}"
-                      }
-                    }
-                  }
-                ],
-                "version":"RAX-1"
-              }
-            }
-            """
+            '''{
+            |  "mapping": {
+            |    "rules": [
+            |      {
+            |        "local": {
+            |          "user": {
+            |            "domain": "{D}",
+            |            "name": "{D}",
+            |            "email": "{D}",
+            |            "roles": "{D}",
+            |            "expire": "{D}"
+            |          }
+            |        }
+            |      }
+            |    ],
+            |    "version":"RAX-1"
+            |  }
+            |}
+            |'''.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_JSON], requestBody: body)
 
         then:
-        mc.receivedResponse.code == "200"
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         jsonSlurper.parseText(body) == jsonSlurper.parseText(mc.handlings[0].request.body as String)
     }
@@ -155,8 +155,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
     def "should validate correct YAML"() {
         given:
         String body =
-            """
-            |---
+            '''---
             |mapping:
             |  rules:
             |  - local:
@@ -167,7 +166,105 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             |        roles: "{D}"
             |        expire: "{D}"
             |  version: RAX-1
-            """.stripMargin()
+            |'''.stripMargin()
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_YAML], requestBody: body)
+
+        then:
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings.size() == 1
+        yaml.load(body) == yaml.load(mc.handlings[0].request.body as String)
+    }
+
+    def "should validate XML with multi-value roles"() {
+        given:
+        String body =
+            '''<?xml version="1.0" encoding="UTF-8"?>
+            |<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
+            |         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            |         xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            |         xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+            |         version="RAX-1">
+            |  <rules>
+            |    <rule>
+            |      <local>
+            |        <user>
+            |          <domain value="{D}"/>
+            |          <name value="{D}"/>
+            |          <email value="{D}"/>
+            |          <roles value="{Ats(http:\\/\\/schemas.xmlsoap.org\\/claims\\/Group)}"
+            |                 multiValue="true"
+            |          />
+            |          <expire value="{D}"/>
+            |        </user>
+            |      </local>
+            |    </rule>
+            |  </rules>
+            |</mapping>
+            |'''.stripMargin()
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_XML], requestBody: body)
+
+        then:
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        xmlSlurper.parseText(body) == xmlSlurper.parseText(mc.handlings[0].request.body as String)
+    }
+
+    def "should validate JSON with multi-value roles"() {
+        given:
+        String body =
+            '''{
+            |  "mapping": {
+            |    "rules": [
+            |      {
+            |        "local": {
+            |          "user": {
+            |            "domain": "{D}",
+            |            "name": "{D}",
+            |            "email": "{D}",
+            |            "roles": {
+            |                "value":"{Ats(http:\\/\\/schemas.xmlsoap.org\\/claims\\/Group)}",
+            |                "multiValue":true
+            |            },
+            |            "expire": "{D}"
+            |          }
+            |        }
+            |      }
+            |    ],
+            |    "version":"RAX-1"
+            |  }
+            |}
+            |'''.stripMargin()
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_JSON], requestBody: body)
+
+        then:
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        jsonSlurper.parseText(body) == jsonSlurper.parseText(mc.handlings[0].request.body as String)
+    }
+
+    def "should validate YAML with multi-value roles"() {
+        given:
+        String body =
+            '''---
+            |mapping:
+            |  rules:
+            |  - local:
+            |      user:
+            |        domain: "{D}"
+            |        name: "{D}"
+            |        email: "{D}"
+            |        roles:
+            |           value: "{Ats(http://schemas.xmlsoap.org/claims/Group)}"
+            |           multiValue: true
+            |        expire: "{D}"
+            |  version: RAX-1
+            '''.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_YAML], requestBody: body)
@@ -181,35 +278,34 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
     def "should not remove the name attribute from a remote in a JSON policy"() {
         given:
         String body =
-            """
-            {
-              "mapping": {
-                "rules": [
-                  {
-                    "local": {
-                      "user": {
-                        "name": "{D}"
-                      }
-                    },
-                    "remote": [
-                      {
-                        "multiValue": false,
-                        "name": "Username",
-                        "regex": false
-                      }
-                    ]
-                  }
-                ],
-                "version":"RAX-1"
-              }
-            }
-            """
+            '''{
+            |  "mapping": {
+            |    "rules": [
+            |      {
+            |        "local": {
+            |          "user": {
+            |            "name": "{D}"
+            |          }
+            |        },
+            |        "remote": [
+            |          {
+            |            "multiValue": false,
+            |            "name": "Username",
+            |            "regex": false
+            |          }
+            |        ]
+            |      }
+            |    ],
+            |    "version":"RAX-1"
+            |  }
+            |}
+            |'''.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_JSON], requestBody: body)
 
         then:
-        mc.receivedResponse.code == "200"
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         jsonSlurper.parseText(body) == jsonSlurper.parseText(mc.handlings[0].request.body as String)
     }
@@ -217,8 +313,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
     def "should not remove the name attribute from a remote in a YAML policy"() {
         given:
         String body =
-            """
-            |---
+            '''---
             |mapping:
             |  rules:
             |  - local:
@@ -229,13 +324,13 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             |      name: Username
             |      regex: false
             |  version: RAX-1
-            """.stripMargin()
+            |'''.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_YAML], requestBody: body)
 
         then:
-        mc.receivedResponse.code == "200"
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         yaml.load(body) == yaml.load(mc.handlings[0].request.body as String)
     }
@@ -243,71 +338,69 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
     def "should not validate bad XML"() {
         given:
         String body =
-            """<?xml version="1.0" encoding="UTF-8"?>
-                <mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
-                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                         xmlns:xs="http://www.w3.org/2001/XMLSchema"
-                         xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
-                         version="RAX-1">
-                   <rules>
-                      <rule>
-                        <local>
-                            <user>
-                               <name value="{D}"/>
-                               <email value="{D}"/>
-                               <expire value="{D}"/>
-                               <domain value="{D}"/>
-                               <roles value="{D}"/>
-                            </user>
-                         </local>
-                      </rule>
-                   </rules>
-            """
+            '''<?xml version="1.0" encoding="UTF-8"?>
+            |<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
+            |         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            |         xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            |         xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+            |         version="RAX-1">
+            |   <rules>
+            |      <rule>
+            |         <local>
+            |            <user>
+            |               <name value="{D}"/>
+            |               <email value="{D}"/>
+            |               <expire value="{D}"/>
+            |               <domain value="{D}"/>
+            |               <roles value="{D}"/>
+            |            </user>
+            |         </local>
+            |      </rule>
+            |   </rules>
+            |'''.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_XML], requestBody: body)
 
         then:
-        mc.receivedResponse.code == "400"
+        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
         mc.handlings.size() == 0
     }
 
     def "should not validate bad JSON"() {
         given:
         String body =
-            """
-            {
-              "mapping": {
-                "rules": [
-                   {
-                    "local": {
-                      "user": {
-                        "domain":"{D}",
-                        "name":"{D}",
-                        "email":"{D}",
-                        "roles":"{D}",
-                        "expire":"{D}"
-                       }
-                     }
-                   }
-                 ],
-                "version":"RAX-1"
-              }
-            """
+            '''{
+            |  "mapping": {
+            |    "rules": [
+            |      {
+            |        "local": {
+            |          "user": {
+            |            "domain":"{D}",
+            |            "name":"{D}",
+            |            "email":"{D}",
+            |            "roles":"{D}",
+            |            "expire":"{D}"
+            |          }
+            |        }
+            |      }
+            |    ],
+            |    "version":"RAX-1"
+            |  }
+            |'''.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_JSON], requestBody: body)
 
         then:
-        mc.receivedResponse.code == "400"
+        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
         mc.handlings.size() == 0
     }
 
     def "should fail to validate bad YAML"() {
         given:
         String body =
-            """
-            |---
+            '''---
             |mapping:
             |  rules:
             |    local:
@@ -318,32 +411,31 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             |        roles: "{D}"
             |        expire: "{D}"
             |  version: RAX-1
-            """.stripMargin()
+            |'''.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_YAML], requestBody: body)
 
         then:
-        mc.receivedResponse.code == "400"
+        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
         mc.handlings.size() == 0
     }
 
     def "should fail to validate bad YAML (dimitry style)"() {
         given:
         String body =
-            """
-            |- just: write some
+            '''- just: write some
             |- yaml:
             |  - [here, and]
             |  - {it: updates, in: real-time}
             |sdfsdds
-            """.stripMargin()
+            |'''.stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_YAML], requestBody: body)
 
         then:
-        mc.receivedResponse.code == "400"
+        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
         mc.handlings.size() == 0
     }
 
@@ -351,8 +443,7 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         given:
         String comment = "Find me"
         String body =
-            """
-            |---
+            """---
             |mapping: # ${comment}
             |  rules:
             |  - local:
@@ -363,14 +454,135 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
             |      name: Username
             |      regex: false
             |  version: RAX-1
-            """.stripMargin()
+            |""".stripMargin()
 
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_YAML], requestBody: body)
 
         then:
-        mc.receivedResponse.code == "200"
+        mc.receivedResponse.code as Integer == SC_OK
         mc.handlings.size() == 1
         (mc.handlings[0].request.body as String).contains(comment)
+    }
+
+    def "should fail to validate JSON with an inline function"() {
+        given:
+        String body =
+            '''{
+            |  "mapping": {
+            |    "rules": [
+            |      {
+            |        "remote": [
+            |          {
+            |            "path": "let $addOne := function($i as xs:int) as xs:int { $i + 1 }\\nreturn $addOne(1)"
+            |          }
+            |        ],
+            |        "local": {}
+            |      }
+            |    ],
+            |    "version": "RAX-1"
+            |  }
+            |}
+            |'''.stripMargin()
+
+        when:
+        reposeLogSearch.cleanLog()
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_JSON], requestBody: body)
+
+        then:
+        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
+        mc.handlings.size() == 0
+        reposeLogSearch.searchByString("Inline functions are not allowed in a policy path").size() == 2
+    }
+
+    def "should fail to validate XML with a recursive function"() {
+        given:
+        String body =
+            '''<?xml version="1.0" encoding="UTF-8"?>
+            |<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
+            |         version="RAX-1">
+            |   <rules>
+            |      <rule>
+            |         <local/>
+            |         <remote>
+            |            <attribute path="
+            |               let $addSome := function($i as xs:int, $f as function(xs:int, function(*)) as xs:int) as xs:int
+            |               {
+            |                  if ($i > 3) then $i
+            |                  else $f($i + 1, $f)
+            |               }
+            |               return $addSome(1, $addSome)"/>
+            |         </remote>
+            |      </rule>
+            |   </rules>
+            |</mapping>
+            |'''.stripMargin()
+
+        when:
+        reposeLogSearch.cleanLog()
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_XML], requestBody: body)
+
+        then:
+        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
+        mc.handlings.size() == 0
+        reposeLogSearch.searchByString("Inline functions are not allowed in a policy path").size() == 2
+    }
+
+    def "should validate JSON with a map function"() {
+        given:
+        String body =
+            '''{
+            |  "mapping": {
+            |    "rules": [
+            |      {
+            |        "remote": [
+            |          {
+            |            "path": "let $myMap := map { \\"foo\\": \\"bar\\" } return $myMap(\\"foo\\")"
+            |          }
+            |        ],
+            |        "local": {}
+            |      }
+            |    ],
+            |    "version": "RAX-1"
+            |  }
+            |}
+            |'''.stripMargin()
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_JSON], requestBody: body)
+
+        then:
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings.size() == 1
+        jsonSlurper.parseText(body) == jsonSlurper.parseText(mc.handlings[0].request.body as String)
+    }
+
+    def "should validate XML with a namespaced map"() {
+        given:
+        String body =
+            '''<?xml version="1.0" encoding="UTF-8"?>
+            |<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
+            |         xmlns:map="http://www.w3.org/2005/xpath-functions/map"
+            |         version="RAX-1">
+            |   <rules>
+            |      <rule>
+            |         <local/>
+            |         <remote>
+            |            <attribute path="
+            |               let $myMap := map { &quot;foo&quot;: &quot;bar&quot; }
+            |               return map:get($myMap, &quot;foo&quot;)"/>
+            |         </remote>
+            |      </rule>
+            |   </rules>
+            |</mapping>
+            |'''.stripMargin()
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_XML], requestBody: body)
+
+        then:
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings.size() == 1
+        xmlSlurper.parseText(body) == xmlSlurper.parseText(mc.handlings[0].request.body as String)
     }
 }
