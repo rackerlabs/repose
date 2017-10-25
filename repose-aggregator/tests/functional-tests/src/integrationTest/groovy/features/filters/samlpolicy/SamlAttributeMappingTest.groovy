@@ -89,10 +89,11 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         def attribRole = "nova:cool_cat"
         def attribDomain = "193083"
         def attribEmail = "frodo.baggins@nowhere.abc"
+        def attribGroup = "Hobbits"
         def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(
                 issuer: samlIssuer,
                 name: attribName,
-                attributes: [roles: [attribRole], domain: [attribDomain], email: [attribEmail]],
+                attributes: [roles: [attribRole], domain: [attribDomain], email: [attribEmail], groups: [attribGroup]],
                 spProvidedId: extAttribPathValue,
                 fakeSign: true))
 
@@ -123,6 +124,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         attributes.find { it.name == "roles" }.attributeValues[0].value == attribRole
         attributes.find { it.name == "domain" }.attributeValues[0].value == attribDomain
         attributes.find { it.name == "email" }.attributeValues[0].value == attribEmail
+        attributes.find { it.name == "groups" }.attributeValues[0].value == attribGroup
 
         and: "the extended attributes are set correctly"
         attributes.find {
@@ -493,6 +495,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
                 |        domain: '{D}'
                 |        name: '{D}'
                 |        email: '{D}'
+                |        groups: '{D}'
                 |        roles: '{D}'
                 |        expire: '{D}'
                 |        $extAttribLiteral: $extAttribLiteralValue
@@ -507,10 +510,11 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         def attribRole = "Tammy:GubbaNubNubDoRaKa"
         def attribDomain = "193083"
         def attribEmail = "BirdNTammy@GetSchwifty.com"
+        def attribGroup = "Avianpeople"
         def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(
                 issuer: samlIssuer,
                 name: attribName,
-                attributes: [roles: [attribRole], domain: [attribDomain], email: [attribEmail]],
+                attributes: [roles: [attribRole], domain: [attribDomain], email: [attribEmail], groups: [attribGroup]],
                 spProvidedId: extAttribPathValue,
                 fakeSign: true))
 
@@ -541,6 +545,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         attributes.find { it.name == "roles" }.attributeValues[0].value == attribRole
         attributes.find { it.name == "domain" }.attributeValues[0].value == attribDomain
         attributes.find { it.name == "email" }.attributeValues[0].value == attribEmail
+        attributes.find { it.name == "groups" }.attributeValues[0].value == attribGroup
 
         and: "the extended attributes are set correctly"
         attributes.find {

@@ -743,6 +743,7 @@ class MockIdentityV2Service {
                                     domain values.domain ?: DEFAULT_MAPPING_VALUE
                                     name values.name ?: DEFAULT_MAPPING_VALUE
                                     email values.email ?: DEFAULT_MAPPING_VALUE
+                                    groups values.groups ?: DEFAULT_MAPPING_VALUE
                                     roles values.roles ?: DEFAULT_MAPPING_VALUE
                                     expire values.expire ?: DEFAULT_MAPPING_VALUE
                                     if (values.userExtAttribs) {
@@ -781,6 +782,7 @@ class MockIdentityV2Service {
                                                           domain: (values.domain ?: DEFAULT_MAPPING_VALUE),
                                                           name  : (values.name ?: DEFAULT_MAPPING_VALUE),
                                                           email : (values.email ?: DEFAULT_MAPPING_VALUE),
+                                                          groups:  (values.groups ?: DEFAULT_MAPPING_VALUE),
                                                           roles : (values.roles ?: DEFAULT_MAPPING_VALUE),
                                                           expire: (values.expire ?: DEFAULT_MAPPING_VALUE)
                                                   ] + (values.userExtAttribs ?: [])
@@ -1426,6 +1428,7 @@ class MockIdentityV2Service {
                     "user": {
                         "domain": "{D}",
                         "email": "{D}",
+                        "groups": "{D}",
                         "expire": "{D}",
                         "name": "{D}",
                         "roles": "{D}"
@@ -1445,6 +1448,7 @@ mapping:
       user:
         domain: '{D}'
         email: '{D}'
+        groups: '{D}'
         expire: '{D}'
         name: '{D}'
         roles: '{D}'
