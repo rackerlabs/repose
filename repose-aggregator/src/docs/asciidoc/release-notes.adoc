@@ -3,7 +3,7 @@
 == 8.7.1.0 (2017-10-25)
 * https://repose.atlassian.net/browse/REP-6133[REP-6133] - Updated the published Docker images to turn off local logging by default to be more in line with the expectations of a https://12factor.net/logs[Twelve-Factor App].
 * https://repose.atlassian.net/browse/REP-6135[REP-6135] - Updated the published Docker images to support running the container using an arbitrarily assigned user ID as is expected by the https://docs.openshift.com/container-platform/3.6/creating_images/guidelines.html#openshift-container-platform-specific-guidelines[OpenShift Container Platform].
-* https://repose.atlassian.net/browse/REP-6179[REP-6179] - Converted more old Wiki Docs over to the new www.openrepose.org/versions/latest/[Versioned Docs].
+* https://repose.atlassian.net/browse/REP-6179[REP-6179] - Converted more old Wiki Docs over to the new http://www.openrepose.org/versions/latest/[Versioned Docs].
 * https://repose.atlassian.net/browse/REP-6186[REP-6186] - Updated the automated Release Verification to force the use of Java 8 since some GNU/Linux distributions are already providing Java 9 by default.
 * https://repose.atlassian.net/browse/REP-6252[REP-6252], https://repose.atlassian.net/browse/REP-6211[REP-6211] - Updated dependencies:
 ** Gradle LinkChecker Plugin: 0.2.0 → 0.3.0
