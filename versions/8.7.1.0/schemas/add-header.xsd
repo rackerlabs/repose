@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           targetNamespace="http://docs.openrepose.org/repose/add-header/v1.0"
+           xmlns="http://docs.openrepose.org/repose/add-header/v1.0"
+           elementFormDefault="qualified">
+
+    <xs:element name="add-headers" type="AddHeadersConfig"/>
+
+    <xs:complexType name="AddHeadersConfig">
+        <xs:all>
+            <xs:element name="request" type="HttpMessage" minOccurs="0"/>
+            <xs:element name="response" type="HttpMessage" minOccurs="0"/>
+        </xs:all>
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="count(*)>=1"
+                   xerces:message="At least one header must be defined."
+                   saxon:message="At least one header must be defined."/>
+    </xs:complexType>
+
+    <xs:complexType name="HttpMessage">
+        <xs:sequence>
+            <xs:element name="header" type="Header" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Header">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Add Header can be used to add a new header with specific value to a request chain.</html:p>
+                <html:p>Optionally you can remove the old header, which is left in by default.</html:p>
+                <html:p>Values are limited to 4096 characters.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:simpleContent>
+            <xs:extension base="HeaderValue">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+                <xs:attribute name="overwrite" type="xs:boolean" use="optional" default="false"/>
+                <xs:attribute name="quality" type="DoubleBetweenZeroAndOne" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Quality assigned to users found in the request headers.
+                                If no quality is set, Repose will default this value to 0.1
+                            </html:p>
+                            <html:p>
+                                Quality factors are defined in the
+                                <html:a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.9">HTTP RFC -
+                                    Section-3.9
+                                </html:a>
+                                (for usage examples, see<html:a
+                                    href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html">HTTP RFC - Section
+                                14.1</html:a>)
+                                as a mechanism for weighting values in multi-value headers.
+                                Possible values for quality are 0 to 1.0.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:simpleType name="HeaderValue">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    This limits header value to 4096 characters.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="4096"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="DoubleBetweenZeroAndOne">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0.0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
