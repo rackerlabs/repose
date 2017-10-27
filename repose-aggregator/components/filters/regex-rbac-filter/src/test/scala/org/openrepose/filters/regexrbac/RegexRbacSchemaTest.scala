@@ -44,7 +44,7 @@ class RegexRbacSchemaTest extends FunSpec with Matchers {
                      |/path/to/this   DELETE  role1
                      |/path/to/that   GET,PUT ALL
                      |/path/to/that   ALL     role1
-                     |/path/[^/]+/*   GET     role1
+                     |/path/[^/]+/.*  GET     role1
                      |    </resources>
                      |</regex-rbac>""".stripMargin
       validator.validateConfigString(config)
@@ -68,7 +68,7 @@ class RegexRbacSchemaTest extends FunSpec with Matchers {
                      |/path/to/this   DELETE  role1
                      |/path/to/that   GET,PUT ALL
                      |/path/to/that   ALL     role1
-                     |/path/[^/]+/*   GET     role1
+                     |/path/[^/]+/.*  GET     role1
                      |    </resources>
                      |</regex-rbac>""".stripMargin
       intercept[SAXParseException] {
