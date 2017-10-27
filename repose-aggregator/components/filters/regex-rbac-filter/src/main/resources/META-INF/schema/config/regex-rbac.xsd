@@ -119,7 +119,7 @@
                         <xs:documentation>
                             <html:p>
                                 Specifies a location to an external file which contains the RegEx RBAC resources.
-                                If the message element has a value and the href attribute is configured,
+                                If the resources element has a value and the href attribute is configured,
                                 then the RegEx RBAC filter will use the contents of the referenced location for the
                                 endpoints configuration.
                             </html:p>

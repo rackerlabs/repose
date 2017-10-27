@@ -8,6 +8,6 @@
         /path/to/this   DELETE  role1
         /path/to/that   GET,PUT ALL
         /path/to/that   ALL     role1
-        /path/{to}/wild GET     role1
+        /Path/[^/]+/.*  GET     role1
     </resources>
 </regex-rbac>
