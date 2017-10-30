@@ -100,11 +100,8 @@
                 <html:p>
                     This is a list of resources, HTTP methods, and roles allowed to access them.
 
-                    The special HTTP methods ANY and ALL are shorthand for the four standard REST methods
-                    (GET, PUT, POST, DELETE). Other methods are supported, but they must be explicitly stated.
-                    If a given Resource line has the HTTP method of ANY/ALL, then only the four are utilized.
-                    If more methods need to be supported by a particular Resource, then put them on another Resource
-                    line.
+                    The special HTTP methods ANY and ALL are synonymous and indicate the HTTP method should not play a
+                    part in the RBAC determination.
 
                     The RegEx RBAC resources can be either linked via an href attribute or defined directly in this
                     element.
