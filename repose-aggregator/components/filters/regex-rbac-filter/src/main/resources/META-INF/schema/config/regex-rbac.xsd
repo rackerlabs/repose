@@ -100,8 +100,21 @@
                 <html:p>
                     This is a list of resources, HTTP methods, and roles allowed to access them.
 
+                    These are expressed in a Domain Specific Language (DSL) that is column based with each column
+                    separated by one or more whitespace characters.
+
+                    The first column contains a
+                    <html:a href="http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">
+                        Java Regular Expression
+                    </html:a>
+                    defining the resource.
+
+                    The second column contains the HTTP methods that pertain to the resource defined in the first column.
                     The special HTTP methods ANY and ALL are synonymous and indicate the HTTP method should not play a
                     part in the RBAC determination.
+
+                    The third and last column contains the roles that must be present in the <code>X-Roles</code> request
+                    header. To support roles with spaces, the non-breaking space (NBSP, &#xA0;) character is used.
 
                     The RegEx RBAC resources can be either linked via an href attribute or defined directly in this
                     element.
