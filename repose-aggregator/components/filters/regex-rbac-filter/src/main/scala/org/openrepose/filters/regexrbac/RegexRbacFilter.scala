@@ -19,14 +19,21 @@
  */
 package org.openrepose.filters.regexrbac
 
+import java.io.InputStream
 import javax.inject.{Inject, Named}
 import javax.servlet._
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
+import org.openrepose.commons.config.manager.UpdateFailedException
 import org.openrepose.commons.utils.string.RegexStringOperators
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.filters.regexrbac.RegexRbacFilter._
 import org.openrepose.filters.regexrbac.config.RegexRbacConfig
+
+import scala.io.Source
+import scala.util.Try
+import scala.util.matching.Regex
 
 @Named
 class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
@@ -35,10 +42,57 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
   override val DEFAULT_CONFIG: String = "regex-rbac.cfg.xml"
   override val SCHEMA_LOCATION: String = "/META-INF/schema/config/regex-rbac.xsd"
 
+  var parsedResources: Option[List[Resource]] = None
+
   override def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
     chain.doFilter(request, response)
+  }
+
+  override def doConfigurationUpdated(newConfigurationObject: RegexRbacConfig): Unit = {
+
+    def parseLine(line: String): Option[Resource] = {
+      val values = line.trim.split("\\s+")
+      values.length match {
+        case x if x > 3 =>
+          logger.warn(s"Malformed RBAC Resource: $line")
+          logger.info("Ensure all roles with spaces have been modified to use a non-breaking space (NBSP, &#xA0;) character.")
+          throw new UpdateFailedException("Malformed RBAC Resource")
+        case 3 =>
+          Some(Resource(
+            values(0).r,
+            Try(values(1).split(',').toSet[String].map(_.trim)).getOrElse(Set.empty),
+            Try(values(2).split(',').toSet[String].map(_.trim).map(_.replaceAll("&#xA0;", " "))).getOrElse(Set.empty)
+          ))
+        case 1 if values(0).length == 0 =>
+          None
+        case _ =>
+          logger.warn(s"Malformed RBAC Resource: $line")
+          throw new UpdateFailedException("Malformed RBAC Resource")
+      }
+    }
+
+    def readResource(resourceStream: InputStream): Option[String] = {
+      Try(Some(Source.fromInputStream(resourceStream).getLines().mkString("\n"))).getOrElse(None)
+    }
+
+    val rawResources = Option(newConfigurationObject.getResources).flatMap { resources =>
+      Option(resources.getValue).filter(_.trim.nonEmpty).orElse(
+        Option(resources.getHref).flatMap { fileName =>
+          readResource(
+            configurationService.getResourceResolver.resolve(fileName).newInputStream()
+          )
+        }
+      )
+    }
+
+    parsedResources = rawResources.flatMap { lines =>
+      Some(lines.replaceAll("[\r?\n?]", "\n").split('\n').toList.flatMap(parseLine))
+    }
   }
 }
 
 object RegexRbacFilter {
+
+  case class Resource(path: Regex, methods: Set[String], roles: Set[String])
+
 }
