@@ -22,6 +22,7 @@ package org.openrepose.filters.regexrbac
 import java.io.InputStream
 import javax.inject.{Inject, Named}
 import javax.servlet._
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateFailedException
@@ -44,8 +45,8 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
 
   var parsedResources: Option[List[Resource]] = None
 
-  override def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
-    chain.doFilter(request, response)
+  override def doWork(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse, chain: FilterChain): Unit = {
+    chain.doFilter(httpRequest, httpResponse)
   }
 
   override def doConfigurationUpdated(newConfigurationObject: RegexRbacConfig): Unit = {

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -51,19 +51,17 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
 
   val datastore: Datastore = Option(datastoreService.getDistributedDatastore).getOrElse(datastoreService.getDefaultDatastore)
 
-  override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
-    val httpServletRequest = servletRequest.asInstanceOf[HttpServletRequest]
-    if (httpServletRequest.getMethod != "POST") {
+  override def doWork(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse, chain: FilterChain): Unit = {
+    if (httpRequest.getMethod != "POST") {
       // this filter only operates on POST requests that have a body to parse
-      filterChain.doFilter(servletRequest, servletResponse)
+      chain.doFilter(httpRequest, httpResponse)
     } else {
-      val rawRequestInputStream = httpServletRequest.getInputStream
+      val rawRequestInputStream = httpRequest.getInputStream
       val requestInputStream =
         if (rawRequestInputStream.markSupported) rawRequestInputStream
         else new BufferedServletInputStream(rawRequestInputStream)
-      val wrappedRequest = new HttpServletRequestWrapper(httpServletRequest, requestInputStream)
-      val wrappedResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse],
-        ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
+      val wrappedRequest = new HttpServletRequestWrapper(httpRequest, requestInputStream)
+      val wrappedResponse = new HttpServletResponseWrapper(httpResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
       val authUserGroup: Option[RackspaceAuthUserGroup] = parseUserGroupFromInputStream(wrappedRequest.getRequestURI,
         wrappedRequest.getInputStream, wrappedRequest.getContentType, wrappedRequest.getSplittableHeaderScala(SessionIdHeader))
       authUserGroup foreach { rackspaceAuthUserGroup =>
@@ -75,7 +73,7 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
         wrappedRequest.addHeader(PowerApiHeader.GROUPS, rackspaceAuthUserGroup.group, rackspaceAuthUserGroup.quality)
       }
 
-      filterChain.doFilter(wrappedRequest, wrappedResponse)
+      chain.doFilter(wrappedRequest, wrappedResponse)
 
       wrappedResponse.getHeadersList(HttpHeaders.WWW_AUTHENTICATE).asScala.filter(_.startsWith("OS-MF")) foreach { header =>
         Option(StringUtils.substringBetween(header, "sessionId='", "'")) match {

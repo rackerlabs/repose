@@ -54,10 +54,7 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
   override val DEFAULT_CONFIG: String = "body-patcher.cfg.xml"
   override val SCHEMA_LOCATION: String = "/META-INF/schema/config/body-patcher.xsd"
 
-  override def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
-    val httpRequest = request.asInstanceOf[HttpServletRequest]
-    val httpResponse = response.asInstanceOf[HttpServletResponse]
-
+  override def doWork(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse, chain: FilterChain): Unit = {
     val pathChanges: List[ChangeDetails] = filterPathChanges(httpRequest)
     val requestPatches: List[Patch] = filterRequestChanges(pathChanges)
     val responsePatches: List[Patch] = filterResponseChanges(pathChanges)
@@ -72,7 +69,7 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
             .recover({
               case jpe: JsonParseException =>
                 logger.debug("Bad Json body", jpe)
-                throw new BodyUnparseableException("Couldn't parse the body as json", jpe)
+                throw BodyUnparseableException("Couldn't parse the body as json", jpe)
             }).get
           val patchedValue: JsValue = applyJsonPatches(originalValue, jsonPatches)
           new HttpServletRequestWrapper(httpRequest, new ServletInputStreamWrapper(new ByteArrayInputStream(PJson.stringify(patchedValue).getBytes)))
@@ -106,7 +103,7 @@ class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
                   .recover({
                     case jpe: JsonParseException =>
                       logger.debug("Bad Json body", jpe)
-                      throw new BodyUnparseableException("Couldn't parse the body as json", jpe)
+                      throw BodyUnparseableException("Couldn't parse the body as json", jpe)
                   }).get
                 val patchedValue: JsValue = applyJsonPatches(contentValue, jsonPatches)
                 wrappedResponse.setOutput(new ByteArrayInputStream(PJson.stringify(patchedValue).getBytes))
@@ -161,7 +158,7 @@ object BodyPatcherFilter {
   case class BodyUnparseableException(message: String, cause: Throwable) extends Exception(message, cause)
 
   sealed trait ContentType { val regex: Regex }
-  case object Json extends ContentType { override val regex = ".*json.*".r }
-  case object Xml extends ContentType { override val regex = ".*xml.*".r }
-  case object Other extends ContentType { override val regex = ".*".r }
+  case object Json extends ContentType { override val regex: Regex = ".*json.*".r }
+  case object Xml extends ContentType { override val regex: Regex = ".*xml.*".r }
+  case object Other extends ContentType { override val regex: Regex = ".*".r }
 }

@@ -89,8 +89,6 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
   override val DEFAULT_CONFIG: String = "saml-policy.cfg.xml"
   override val SCHEMA_LOCATION: String = "/META-INF/schema/config/saml-policy.xsd"
 
-  private final val JsonObjectMapper = new ObjectMapper()
-
   private var policyCache: Cache[String, PolicyInfo] = _
   private var feedId: Option[String] = None
   private var serviceToken: Option[String] = None
@@ -112,12 +110,11 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     )
   }
 
-  override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
-
+  override def doWork(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse, chain: FilterChain): Unit = {
     try {
-      preValidateRequest(servletRequest.asInstanceOf[HttpServletRequest])
-      val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
-      var response = servletResponse.asInstanceOf[HttpServletResponse]
+      preValidateRequest(httpRequest)
+      val request = new HttpServletRequestWrapper(httpRequest)
+      var response = httpResponse
       val samlResponse = decodeSamlResponse(request)
       val rawDocument = readToDom(samlResponse)
       val traceId = Option(request.getHeader(TRACE_GUID)).filter(_ => sendTraceHeader)
@@ -154,17 +151,17 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       }
     } catch {
       case ex: OverLimitException =>
-        servletResponse.asInstanceOf[HttpServletResponse].addHeader(RETRY_AFTER, ex.retryAfter)
-        servletResponse.asInstanceOf[HttpServletResponse].sendError(SC_SERVICE_UNAVAILABLE, "Identity service temporarily unavailable")
+        httpResponse.addHeader(RETRY_AFTER, ex.retryAfter)
+        httpResponse.sendError(SC_SERVICE_UNAVAILABLE, "Identity service temporarily unavailable")
         logger.debug("Identity service temporarily unavailable", ex)
       case ex: SamlPolicyException =>
-        servletResponse.asInstanceOf[HttpServletResponse].sendError(ex.statusCode, ex.message)
+        httpResponse.sendError(ex.statusCode, ex.message)
         logger.debug("SAML policy translation failed", ex)
       case CausedBy(ex: SamlPolicyException) =>
-        servletResponse.asInstanceOf[HttpServletResponse].sendError(ex.statusCode, ex.message)
+        httpResponse.sendError(ex.statusCode, ex.message)
         logger.debug("SAML policy translation failed", ex)
       case ex: Exception =>
-        servletResponse.asInstanceOf[HttpServletResponse].sendError(SC_INTERNAL_SERVER_ERROR, "Unknown error in SAML Policy Filter")
+        httpResponse.sendError(SC_INTERNAL_SERVER_ERROR, "Unknown error in SAML Policy Filter")
         logger.warn("Unexpected problem in SAML Policy Filter", ex)
     }
   }

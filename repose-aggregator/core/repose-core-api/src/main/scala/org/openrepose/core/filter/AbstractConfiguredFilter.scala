@@ -21,7 +21,7 @@ package org.openrepose.core.filter
 
 import java.net.URL
 import javax.servlet._
-import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateListener
@@ -38,23 +38,20 @@ import scala.reflect.{ClassTag, _}
 abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: ConfigurationService)
   extends Filter with LazyLogging with UpdateListener[T] {
 
-  private var configFile: String = _
-
   /**
     * The default configuration file name for the filter.
     */
   val DEFAULT_CONFIG: String
-
   /**
     * The location of the schema file describing the xml config.
     */
   val SCHEMA_LOCATION: String
-
   /**
     * The configuration most recently received by the configurationUpdated method.
     */
   var configuration: T = _
   var initialized: Boolean = false
+  private var configFile: String = _
 
   /**
     * Subscribes with the configuration service. If the filter config doesn't have a custom file name,
@@ -131,7 +128,7 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
       response.asInstanceOf[HttpServletResponse].sendError(500, "Filter not initialized")
     } else {
       logger.trace("{} processing request...", this.getClass.getSimpleName)
-      doWork(request, response, chain)
+      doWork(request.asInstanceOf[HttpServletRequest], response.asInstanceOf[HttpServletResponse], chain)
       logger.trace("{} returning response...", this.getClass.getSimpleName)
     }
   }
@@ -139,11 +136,11 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
   /**
     * Where the concrete class does it's work. This method is the equivalent doFilter in a normal filter.
     *
-    * @param request
-    * @param response
+    * @param httpRequest
+    * @param httpResponse
     * @param chain
     */
-  def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit
+  def doWork(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse, chain: FilterChain): Unit
 
   /**
     * Un-subscribes from the configuration service.
