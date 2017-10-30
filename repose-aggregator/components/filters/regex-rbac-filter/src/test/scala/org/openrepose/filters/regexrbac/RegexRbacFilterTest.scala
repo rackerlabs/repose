@@ -32,6 +32,7 @@ import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, anyString, argThat, same, eq => eql}
 import org.mockito.Mockito
 import org.mockito.Mockito.{when => whenMock, _}
+import org.openrepose.commons.config.manager.UpdateFailedException
 import org.openrepose.commons.config.resource.{ConfigurationResource, ConfigurationResourceResolver}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.regexrbac.RegexRbacFilterTest._
@@ -178,7 +179,7 @@ class RegexRbacFilterTest
       filter.configuration.getDelegating.getQuality shouldBe 1.0d
       filter.configuration.isMaskRaxRoles403
     }
-    it("should log if the resources list has a bad line") {
+    it("should log if the resources list has a bad line without enough elements") {
       Given("an un-initialized filter and a configuration with a malformed resource in the list")
       val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
       val listAppender = ctx.getConfiguration.getAppender("List0").asInstanceOf[ListAppender].clear
@@ -194,12 +195,42 @@ class RegexRbacFilterTest
       config.setResources(resources)
 
       When("the configuration is updated")
-      filter.configurationUpdated(config)
+      val exception = intercept[UpdateFailedException] {
+        filter.configurationUpdated(config)
+      }
 
       Then("the filter's configuration should be modified")
-      filter.isInitialized
+      !filter.isInitialized
+      exception.getLocalizedMessage should include("Malformed RBAC Resource")
       val events = listAppender.getEvents.toList.map(_.getMessage.getFormattedMessage)
       events.count(_.contains("Malformed RBAC Resource: /path/to/bad")) shouldBe 1
+    }
+    it("should log if the resources list has a bad line with to many elements") {
+      Given("an un-initialized filter and a configuration with a malformed resource in the list")
+      val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
+      val listAppender = ctx.getConfiguration.getAppender("List0").asInstanceOf[ListAppender].clear
+      filter.configuration shouldBe null
+      !filter.isInitialized
+      val resources = new ResourcesType
+      resources.setValue(
+        """
+          |/path/to/good  ALL       ANY
+          |/path/to/bad   ALL       role with regular space
+          | """.stripMargin.trim()
+      )
+      config.setResources(resources)
+
+      When("the configuration is updated")
+      val exception = intercept[UpdateFailedException] {
+        filter.configurationUpdated(config)
+      }
+
+      Then("the filter's configuration should be modified")
+      !filter.isInitialized
+      exception.getLocalizedMessage should include("Malformed RBAC Resource")
+      val events = listAppender.getEvents.toList.map(_.getMessage.getFormattedMessage)
+      events.count(_.contains("Malformed RBAC Resource: /path/to/bad")) shouldBe 1
+      events.count(_.contains("use a non-breaking space")) shouldBe 1
     }
     it("should load the file if the resources are external") {
       Given("an un-initialized filter and a configuration with the resources in a file")
@@ -317,7 +348,7 @@ class RegexRbacFilterTest
       servletRequest.setMethod("GET")
       servletRequest.addHeader(XRolesHeader, "role 1")
       val resources = new ResourcesType
-      resources.setValue("/path/[^/]+/.* GET role&nbsp;1")
+      resources.setValue("/path/[^/]+/.* GET role&#xA0;1")
       config.setResources(resources)
       filter.configurationUpdated(config)
 
