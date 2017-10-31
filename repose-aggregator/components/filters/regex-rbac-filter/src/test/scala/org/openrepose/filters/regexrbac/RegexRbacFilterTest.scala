@@ -312,15 +312,15 @@ class RegexRbacFilterTest
           ("GET"   , "role2", SC_OK       , SC_OK),
           ("PUT"   , "role2", SC_OK       , SC_OK),
           ("POST"  , "role2", SC_OK       , SC_OK),
-          ("DELETE", "role2", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
+          ("DELETE", "role2", SC_FORBIDDEN, SC_NOT_FOUND),
           ("GET"   , "role3", SC_OK       , SC_OK),
           ("PUT"   , "role3", SC_OK       , SC_OK),
-          ("POST"  , "role3", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
-          ("DELETE", "role3", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
+          ("POST"  , "role3", SC_FORBIDDEN, SC_NOT_FOUND),
+          ("DELETE", "role3", SC_FORBIDDEN, SC_NOT_FOUND),
           ("GET"   , "role4", SC_OK       , SC_OK),
-          ("PUT"   , "role4", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
-          ("POST"  , "role4", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
-          ("DELETE", "role4", SC_FORBIDDEN, SC_METHOD_NOT_ALLOWED),
+          ("PUT"   , "role4", SC_FORBIDDEN, SC_NOT_FOUND),
+          ("POST"  , "role4", SC_FORBIDDEN, SC_NOT_FOUND),
+          ("DELETE", "role4", SC_FORBIDDEN, SC_NOT_FOUND),
           ("GET"   , "role5", SC_FORBIDDEN, SC_NOT_FOUND),
           ("PUT"   , "role5", SC_FORBIDDEN, SC_NOT_FOUND),
           ("POST"  , "role5", SC_FORBIDDEN, SC_NOT_FOUND),
@@ -380,7 +380,7 @@ class RegexRbacFilterTest
       delegationValue should not be null
       val delegationHeader = parseDelegationHeader(delegationValue)
       delegationHeader shouldBe a[Success[_]]
-      delegationHeader.get.statusCode shouldBe SC_UNAUTHORIZED
+      delegationHeader.get.statusCode shouldBe SC_FORBIDDEN
     }
     it("should allow configuration of the delegated unauthorized request") {
       Given(s"a bad request")
@@ -406,7 +406,7 @@ class RegexRbacFilterTest
       delegationValue should not be null
       val delegationHeader = parseDelegationHeader(delegationValue)
       delegationHeader shouldBe a[Success[_]]
-      delegationHeader.get.statusCode shouldBe SC_UNAUTHORIZED
+      delegationHeader.get.statusCode shouldBe SC_FORBIDDEN
       delegationHeader.get.component shouldBe componentName
       delegationHeader.get.quality shouldBe quality
     }
@@ -415,8 +415,8 @@ class RegexRbacFilterTest
         // @formatter:off
         //Role          Result
         ("role1,role2", SC_OK),
-        ("role1"      , SC_NOT_FOUND),
-        ("role2"      , SC_NOT_FOUND)
+        ("role1"      , SC_FORBIDDEN),
+        ("role2"      , SC_FORBIDDEN)
         // @formatter:on
       ).foreach { case (roles, result) =>
         it(s"${shouldNot(result)} allow the request to $path with roles '$roles'.") {
