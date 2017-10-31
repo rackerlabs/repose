@@ -124,7 +124,7 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
           Some(Resource(
             stringToRegexString(values(0)),
             Try(values(1).split(',').toSet[String].map(_.trim) map (_.toUpperCase)).getOrElse(Set.empty),
-            Try(values(2).split(',').toSet[String].map(_.trim).map(_.replaceAll("&#xA0;", " "))
+            Try(values(2).split(',').toSet[String].map(_.trim).map(_.replaceAll("\u00A0", " "))
               .map(role => if (role.equalsIgnoreCase("ANY") || role.equalsIgnoreCase("ALL")) role.toUpperCase() else role)
             ).getOrElse(Set.empty)
           ))

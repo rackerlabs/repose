@@ -257,7 +257,7 @@ class RegexRbacFilterTest
       !filter.isInitialized
       exception.getLocalizedMessage should include("Malformed RBAC Resource")
       val events = listAppender.getEvents.toList.map(_.getMessage.getFormattedMessage)
-      events.count(_.contains("Malformed RBAC Resource: /path/to/bad")) shouldBe 1
+      events.count(_.contains("Malformed RBAC Resource: ")) shouldBe 1
     }
   }
 
@@ -367,7 +367,7 @@ class RegexRbacFilterTest
       servletRequest.setMethod("GET")
       servletRequest.addHeader(XRolesHeader, "role 1")
       val resources = new ResourcesType
-      resources.setValue("/path/[^/]+/.* GET role&#xA0;1")
+      resources.setValue("/path/[^/]+/.* GET role\u00A01")
       config.setResources(resources)
       filter.configurationUpdated(config)
 
