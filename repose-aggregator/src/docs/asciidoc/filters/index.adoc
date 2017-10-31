@@ -77,6 +77,9 @@ For identity usage for rate limiting and user access events.
 == <<rate-limiting.adoc#,Rate Limiting Filter>>
 Limits the number of requests allowed through *Repose* to the origin service.
 
+== <<regex-rbac.adoc#,RegEx Role Based Access Control (RBAC) Filter>>
+Validates calls to an API by checking the requested URI against a series Regular Expressions to enforce <<../recipes/role-based-access-control.adoc#,Role-Based Access Control (RBAC)>>.
+
 == <<saml-policy.adoc#,SAML Policy Translation Filter>>
 Allows the translation and addition of new assertions to a SAML response request.
 

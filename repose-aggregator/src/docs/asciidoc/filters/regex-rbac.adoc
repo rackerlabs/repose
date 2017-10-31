@@ -1,0 +1,194 @@
+= RegEx Role Based Access Control (RBAC) Filter
+
+The RegEx Role Based Access Control (RBAC) filter provides a way to get API validation for services without the need to create a WADL.
+
+== General filter information
+* *Name:* regex-rbac
+* *Default Configuration:* regex-rbac.cfg.xml
+* *Released:* v8.1.2.0
+* *Bundle:* repose-filter-bundle
+* link:../schemas/regex-rbac.xsd[Schema]
+
+== Prerequisites & Postconditions
+=== Required Request Headers
+* `X-Roles` - A header containing the roles belonging to the user making the request.
++++
+[NOTE]
+====
+This header is not configurable.
+====
+
+=== Required Preceding Filters
+This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.
+
+However, due to the nature of this filter, it is typically placed early in the filter chain immediately after any authentication filters.
+
+=== Request Headers Created
+* `X-Delegated` - Provides details about the failure being delegated by this filter.
+This is mainly intended for use by the <<herp.adoc#, Highly Efficient Record Processor (HERP) filter>> and <<derp.adoc#, Delegation Response Processor (DeRP) filter>> for internal delegation processing within *Repose*.
+However, it can be exposed to the origin service under certain configurations.
++++
+[NOTE]
+====
+This header is only added if delegation is enabled.
+====
+
+=== Request Body Changes
+This filter does not modify the request body.
+
+=== Recommended Follow-On (Succeeding) Filters
+This filter is not strictly required by any other filters.
+
+=== Response Body Changes
+This filter does not modify the response body.
+
+=== Response Headers Created
+This filter does not create/modify any response headers.
+
+=== Response Status Codes
+[cols="2", options="header,autowidth"]
+.Status Codes
+|===
+| Status Code
+| Reasons
+| `403`
+| A requested resource or method requires a specific `X-Roles` request header value that was not found.
+
+| `404`
+| The filter determined that the URI is invalid.
+
+  When `mask-rax-roles-403` attribute is enabled (i.e. `true`), this could also indicate the supplied `X-Roles` request header value did not have access to the URI or possibly only with the requested method.
+
+| `405`
+| The URI is valid, but the Method is not appropriate for the URI.
+|===
+
+== Examples
+=== Basic Example
+This configuration is a basic example that exhibits a common use-case.
+
+[source,xml]
+.regex-rbac.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<regex-rbac xmlns="http://docs.openrepose.org/repose/regex-rbac/v1.0">
+    <resources> <!--1-->
+       /path/[^/]+/* GET,put role1,role2,role3,role4 <!--2-->
+    </resources>
+</regex-rbac>
+----
+<1> Defines the available resources locally in the config.
+Resources are listed one per line in the `<PATH> <METHODS> <ROLES>` format.
+That is, each line should present the path to the resource, any amount of whitespace, the methods available on the resource, a set of whitespace, and the roles which grant access to the resource.
+If a resource is not listed, requests to that resource will be rejected.
+<2> Defines a single resource at the `/path/{any-single-segment}/{anything}` that can only be accessed with a `GET` or `PUT` and only if the `X-Roles` header has at least one of the required roles: `role1`, `role2`, `role3`, or `role4`
+
+[NOTE]
+====
+The resources are defined using http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expressions].
+====
+
+[NOTE]
+====
+Roles are only allowed to have spaces in the names through the use of the , any additional leading and trailing whitespace around the comma separators is removed.
+That is to say a role can NOT start or end with a space.
+====
+
+[NOTE]
+====
+`ANY` and `ALL` act as special wildcards for both HTTP methods and roles.
+When used for HTTP methods it is shorthand for the four basic REST methods (`GET`, `PUT`, `POST`, and `DELETE`).
+====
+
+=== Expanded Example with embedded Resources
+This configuration is a basic example that exhibits a common use-case.
+
+[source,xml]
+.regex-rbac.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<regex-rbac xmlns="http://docs.openrepose.org/repose/regex-rbac/v1.0">
+    <resources> <!--1-->
+/path/[^/]+/this GET     role1,role2,role3,role4 <!--2-->
+/path/[^/]+/this put     role1,role2,role3       <!--3-->
+/path/[^/]+/this POST    role1,role2             <!--4-->
+/path/[^/]+/this DELETE  role1                   <!--5-->
+/path/[^/]+/that get,PUT ANY                     <!--6-->
+/Path/[^/]+    GET       admin,role1             <!--7-->
+/Path/[^/]+    GET       admin,role2             <!--7-->
+/Path/[^/]+/.* ALL       admin,role with space   <!--8-->
+    </resources>
+</regex-rbac>
+----
+<1> Defines the available resources locally in the config.
+Resources are listed one per line in the `<PATH> <METHODS> <ROLES>` format.
+That is, each line should present the path to the resource, any amount of whitespace, the methods available on the resource, a set of whitespace, and the roles which grant access to the resource.
+If a resource is not listed, requests to that resource will be rejected.
+<2> The resource at `/path/{any-single-segment}/this` can only be accessed with a `GET` if the `X-Roles` header has at least one of the required roles: `role1`, `role2`, `role3`, or `role4`
+<3> The resource at `/path/{any-single-segment}/this` can only be accessed with a `PUT` if the `X-Roles` header has at least one of the required roles: `role1`, `role2`, or `role3`
+<4> The resource at `/path/{any-single-segment}/this` can only be accessed with a `POST` if the `X-Roles` header has at least one of the required roles: `role1` or `role2`
+<5> The resource at `/path/{any-single-segment}/this` can only be accessed with a `DELETE` if the `X-Roles` header has the required role: `role1`
+<6> The resource at `/path/{any-single-segment}/this` can only be accessed with a `GET` or `PUT`, but there is no required role that must be in the `X-Roles` header.
+<7> The resource at `/Path/{any-single-segment}` can only be accessed with a `GET` and must have one of the following in the `X-Roles` header:
+* the `admin` role
+* both `role1` and `role2`
+<8> The resource at `/Path/{any-single-segment}/{anything}` can only be accessed with any HTTP method and must have either `admin` of `role with space` in the `X-Roles` header.
+
+[NOTE]
+====
+Roles are only allowed to have spaces in the names through the use of the , any additional leading and trailing whitespace around the comma separators is removed.
+That is to say a role can NOT start or end with a space.
+====
+
+[NOTE]
+====
+`ANY` and `ALL` act as special wildcards for both HTTP methods and roles.
+When used for HTTP methods it is shorthand for the four basic REST methods (`GET`, `PUT`, `POST`, and `DELETE`).
+====
+
+[NOTE]
+====
+The requested resource endpoint must exactly match a RegEx to be considered a match.
+That is to say, there can not be any extra characters in the request, including or excluding trailing slashes, that are not accounted for in the RegEx.
+====
+
+=== Full Example with External Resources File
+This configuration is a full example that uses every possible configuration item.
+It does not, however, cover the resources format, as including resources both inline and via the `href` attribute will cause only the inline resources to be used.
+
+[source,xml]
+.regex-rbac.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<regex-rbac xmlns="http://docs.openrepose.org/repose/regex-rbac/v1.0"
+             mask-rax-roles-403="false" <!--1-->
+>
+    <delegating <!--2-->
+        quality="0.3" <!--3-->
+        component-name="regex-rbac"/> <!--4-->
+    <resources href="/path/to/resources"/> <!--5-->
+</regex-rbac>
+----
+<1> If set to true, instead of returning a FORBIDDEN (403) or a METHOD NOT ALLOWED (405), the response will be a NOT FOUND (404). +
+    Defaults to false.
+<2> Inclusion of this element prevents this filter from returning errors, and directs this filter to populate delegation headers instead.
+<3> Specifies the quality of specific output headers.
+    When setting up a chain of delegating filters, the highest quality number will be the one that is eventually output. +
+    Default value is 0.3.
+<4> The component name used in the delegation header.
+    This is particularly useful when multiple instances of an API-Checker based filter are used in the same filter chain. +
+    Defaults to `regex-rbac`.
+<5> Specifies a location to an external file which contains the RegEx RBAC resources.
+    If the message element has a value and the `href` attribute is configured, the RegEx RBAC will use what is configured in the value.
+    If the file that the `href` attribute points to is modified, the RegEx RBAC will not reload the configuration.
+    So the new RBAC file should be placed in a new file name (e.g. Dated) and the regex-rbac.cfg.xml file updated to point to it in order to guarantee the changes are utilized.
+
+== Additional Information
+
+=== Delegation
+In some cases, you may want to delegate the validation of a request down the chain to either another filter or to the origin service.
+Delegation prevents the RegEx RBAC filter from failing the request by forwarding the request with the `X-Delegated` header that is set with a value which indicates how the filter would have failed if not in delegating mode.
+
+To place the filter in delegating mode, add the `delegating` element to the filter configuration with a quality that determines the delegation priority.
+
+The format for the `X-Delegated` header value is `status_code={status-code}`component={filter-name}`message={failure message};q={delegating-quality}`.
