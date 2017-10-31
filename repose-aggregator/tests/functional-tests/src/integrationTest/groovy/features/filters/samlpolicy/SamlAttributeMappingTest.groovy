@@ -414,6 +414,56 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         !json.access.'RAX-AUTH:extendedAttributes'
     }
 
+    def "an extended attribute with no value is added to the request/response when added by the policy"() {
+        given: "a mapping policy an extended attribute with no value"
+        def extUserAttribName = "foo"
+        def extUserAttribValues = ["{0}"]
+        def remotePath = "()"
+        def remoteValue = [[path: remotePath]]
+        def mappingPolicy = createMappingJsonWithValues(
+            userExtAttribs: [(extUserAttribName): extUserAttribValues],
+            remote: remoteValue)
+
+        and: "a saml:response"
+        def samlIssuer = generateUniqueIssuer()
+        def saml = samlResponse(issuer(samlIssuer) >> status() >> assertion(issuer: samlIssuer, fakeSign: true))
+
+        and: "an Identity mock that will return the mapping policy"
+        String idpId = generateUniqueIdpId()
+        fakeIdentityV2Service.getIdpFromIssuerHandler = fakeIdentityV2Service.createGetIdpFromIssuerHandler(id: idpId)
+        fakeIdentityV2Service.getMappingPolicyForIdpHandler = fakeIdentityV2Service
+            .createGetMappingPolicyForIdp(APPLICATION_JSON, [mappings: [(idpId): mappingPolicy]])
+
+        when: "a request is sent to Repose"
+        def mc = deproxy.makeRequest(
+            url: reposeEndpoint + SAML_AUTH_URL,
+            method: HTTP_POST,
+            headers: [(CONTENT_TYPE): APPLICATION_FORM_URLENCODED, (ACCEPT): APPLICATION_JSON],
+            requestBody: asUrlEncodedForm((PARAM_SAML_RESPONSE): encodeBase64(saml)))
+
+        then: "the origin service receives the request and the client receives the response"
+        mc.handlings[0]
+        mc.receivedResponse.code as Integer == SC_OK
+
+        when: "the saml:response received by the origin service is unmarshalled"
+        SamlResponse response = samlUtilities.unmarshallResponse(mc.handlings[0].request.body as String)
+        List<Attribute> attributes = response.assertions[0].attributeStatements[0].attributes
+
+        then: "the request has two assertions"
+        response.assertions.size() == 2
+
+        and: "the extended attribute with no value is set in the request"
+        attributes.find {
+            it.name == "user/$extUserAttribName" as String
+        }.attributeValues.collect {it.value} == []
+
+        when: "the response sent to the client is parsed as JSON"
+        def json = jsonSlurper.parseText(mc.receivedResponse.body as String)
+
+        then: "the extended attribute with no value is set in the response"
+        json.access.'RAX-AUTH:extendedAttributes'.user."$extUserAttribName" == []
+    }
+
     def "when an extended attribute in the JSON policy is multi-valued, it is added to the request/response as an array"() {
         given: "a mapping policy with a single-valued array"
         def extUserAttribName = "foo"
@@ -549,10 +599,8 @@ class SamlAttributeMappingTest extends ReposeValveTest {
             it.name == "user/$extAttribLiteral" as String
         }.attributeValues[0].value == extAttribLiteralValue
 
-        // TODO: This may be a bug in the attibuteMapping library.
-        // TODO: It is adding an extended attribute that references a path in the SAML Response even though it doesn't exist.
-        and: "the extended attribute for the path value is not in the request"
-        !attributes.any { it.name == "user/$extAttribPath" as String }
+        and: "the extended attribute for the path value has no value"
+        attributes.find{ it.name == "user/$extAttribPath" as String }.attributeValues == []
 
         when: "the response sent to the client is parsed as JSON"
         def json = jsonSlurper.parseText(mc.receivedResponse.body as String)
@@ -771,8 +819,8 @@ class SamlAttributeMappingTest extends ReposeValveTest {
         then: "the request has two assertions"
         response.assertions.size() == 2
 
-        and: "the domain attribute is not set"
-        attributes.find { it.name == "domain" }.attributeValues[0].value == null
+        and: "the domain attribute has no value"
+        attributes.find { it.name == "domain" }.attributeValues == []
 
         where:
         [approvedDomainsMultiplicity, approvedDomainIds, policyFormat] << [
