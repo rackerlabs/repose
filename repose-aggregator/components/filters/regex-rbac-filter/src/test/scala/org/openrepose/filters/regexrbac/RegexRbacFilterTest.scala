@@ -300,6 +300,22 @@ class RegexRbacFilterTest
           servletResponse.getStatus shouldBe SC_NOT_FOUND
         }
       }
+      it(s"should not allow the request using a method not in the access list. ($method)") {
+        Given(s"a request using HTTP method $method")
+        servletRequest.setRequestURI("/path/to/good")
+        servletRequest.setMethod(method)
+        servletRequest.addHeader(XRolesHeader, "role1")
+        val resources = new ResourcesType
+        resources.setValue("/path/[^/]+/.* Custom ANY")
+        config.setResources(resources)
+        filter.configurationUpdated(config)
+
+        When("the nonexistent resource is requested")
+        filter.doFilter(servletRequest, servletResponse, filterChain)
+
+        Then(s"the request should not be allowed access")
+        servletResponse.getStatus shouldBe SC_METHOD_NOT_ALLOWED
+      }
     }
     Seq(false, true).foreach { doMask =>
       Seq("/path/to/abc", "/path/to/xyz", "/path/to/abc/xyz", "/path/too/abc").foreach { path =>
