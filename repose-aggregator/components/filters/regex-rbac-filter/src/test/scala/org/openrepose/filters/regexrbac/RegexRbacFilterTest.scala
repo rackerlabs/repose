@@ -455,7 +455,7 @@ class RegexRbacFilterTest
       filter.destroy()
 
       Then("the filter should unregister with the ConfigurationService")
-      verify(mockConfigService).unsubscribeFrom("another-name.cfg.xml", same(filter))
+      verify(mockConfigService).unsubscribeFrom(eql("another-name.cfg.xml"), same(filter))
     }
   }
 }
