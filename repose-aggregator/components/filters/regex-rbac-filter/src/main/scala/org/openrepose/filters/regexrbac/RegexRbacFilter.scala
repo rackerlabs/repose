@@ -61,8 +61,10 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
         case 3 =>
           Some(Resource(
             values(0).r,
-            Try(values(1).split(',').toSet[String].map(_.trim)).getOrElse(Set.empty),
-            Try(values(2).split(',').toSet[String].map(_.trim).map(_.replaceAll("&#xA0;", " "))).getOrElse(Set.empty)
+            Try(values(1).split(',').toSet[String].map(_.trim) map (_.toUpperCase)).getOrElse(Set.empty),
+            Try(values(2).split(',').toSet[String].map(_.trim).map(_.replaceAll("&#xA0;", " "))
+              .map(role => if (role.equalsIgnoreCase("ANY") || role.equalsIgnoreCase("ALL")) role.toUpperCase() else role)
+            ).getOrElse(Set.empty)
           ))
         case 1 if values(0).length == 0 =>
           None
