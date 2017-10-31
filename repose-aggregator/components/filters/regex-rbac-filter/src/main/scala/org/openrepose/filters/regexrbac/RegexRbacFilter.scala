@@ -54,7 +54,7 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
   override def doWork(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse, chain: FilterChain): Unit = {
     val httpRequestWrapper = new HttpServletRequestWrapper(httpRequest)
 
-    def sendError(statusCode: Int): Unit = {
+    def sendError(message: String, statusCode: Int): Unit = {
       val status = if (configuration.isMaskRaxRoles403) {
         logger.debug(s"Masking $statusCode with $SC_NOT_FOUND")
         SC_NOT_FOUND
@@ -62,11 +62,11 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
 
       Option(configuration.getDelegating) match {
         case Some(delegating) =>
-          logger.debug(s"Delegating with status $status")
+          logger.debug(s"Delegating with status $status caused by: $message")
           val delegationHeaders = buildDelegationHeaders(
             status,
             Option(delegating.getComponentName).getOrElse("regex-rbac"),
-            "Failure in the RegEx RBAC filter",
+            s"Failed in the RegEx RBAC filter due to $message",
             delegating.getQuality)
           delegationHeaders foreach { case (key, values) =>
             values foreach { value =>
@@ -75,7 +75,7 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
           }
           chain.doFilter(httpRequestWrapper, httpResponse)
         case None =>
-          logger.debug(s"Rejecting with status $status")
+          logger.debug(s"Rejecting with status $status caused by: $message")
           httpResponse.sendError(status)
       }
     }
@@ -87,7 +87,7 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
       }
     )).getOrElse(List.empty[Resource])
     if (matchedPaths.isEmpty) {
-      sendError(SC_NOT_FOUND)
+      sendError("No Matching Paths", SC_NOT_FOUND)
     } else {
       val requestMethod = httpRequestWrapper.getMethod.toUpperCase()
       val matchedMethods = matchedPaths.filter(resource =>
@@ -95,7 +95,7 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
           resource.methods.contains("ALL") ||
           resource.methods.contains(requestMethod))
       if (matchedMethods.isEmpty) {
-        sendError(SC_METHOD_NOT_ALLOWED)
+        sendError("No Matching Methods", SC_METHOD_NOT_ALLOWED)
       } else {
         val requestRoles = httpRequestWrapper.getSplittableHeaders("X-Roles").asScala.toSet
         val notMatchedRoles = matchedMethods.filterNot(resource =>
@@ -105,7 +105,7 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
         if (notMatchedRoles.isEmpty) {
           chain.doFilter(httpRequest, httpResponse)
         } else {
-          sendError(SC_FORBIDDEN)
+          sendError("No Matching Roles", SC_FORBIDDEN)
         }
       }
     }
