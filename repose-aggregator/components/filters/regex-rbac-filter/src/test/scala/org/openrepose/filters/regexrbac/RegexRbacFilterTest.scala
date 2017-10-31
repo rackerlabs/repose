@@ -78,6 +78,7 @@ class RegexRbacFilterTest
         |/path/[^/]+/.* DELETE    role1
         |/Path/[^/]+/.* GET,put   any
         |/Path/[^/]+    ALL       ANY
+        |/TEST/[^/]+    ALL       ANY
         |""".stripMargin.trim()
     )
     config.setResources(resources)
@@ -284,7 +285,7 @@ class RegexRbacFilterTest
         Then("the request should be allowed access")
         servletResponse.getStatus shouldBe SC_OK
       }
-      Seq("/path/abc", "/Path/to/xyz", "/this/is/bad").foreach { path =>
+      Seq("/path/abc", "/TEST/TrailingSlash/", "/this/is/bad").foreach { path =>
         it(s"should not allow the request to $path since it is not in the access list. ($method)") {
           Given(s"a request using HTTP method $method")
           servletRequest.setRequestURI(path)
