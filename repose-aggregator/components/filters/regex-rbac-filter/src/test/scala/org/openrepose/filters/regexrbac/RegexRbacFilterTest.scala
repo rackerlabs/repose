@@ -248,11 +248,13 @@ class RegexRbacFilterTest
       whenMock(resourceResolver.resolve(rbacFileName)).thenReturn(configurationResource)
       whenMock(mockConfigService.getResourceResolver).thenReturn(resourceResolver)
 
-      When("the configuration is updated")
-      filter.configurationUpdated(config)
+      val exception = intercept[UpdateFailedException] {
+        filter.configurationUpdated(config)
+      }
 
       Then("the filter's configuration should be modified")
-      filter.isInitialized
+      !filter.isInitialized
+      exception.getLocalizedMessage should include("Malformed RBAC Resource")
       val events = listAppender.getEvents.toList.map(_.getMessage.getFormattedMessage)
       events.count(_.contains("Malformed RBAC Resource: /path/to/bad")) shouldBe 1
     }
