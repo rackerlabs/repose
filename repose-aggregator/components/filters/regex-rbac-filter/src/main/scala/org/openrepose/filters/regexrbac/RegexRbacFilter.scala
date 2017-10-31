@@ -22,23 +22,29 @@ package org.openrepose.filters.regexrbac
 import java.io.InputStream
 import javax.inject.{Inject, Named}
 import javax.servlet._
+import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
+import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateFailedException
-import org.openrepose.commons.utils.string.RegexStringOperators
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
+import org.openrepose.commons.utils.string.{RegexString, RegexStringOperators}
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.regexrbac.RegexRbacFilter._
 import org.openrepose.filters.regexrbac.config.RegexRbacConfig
 
+import scala.collection.JavaConverters._
 import scala.io.Source
 import scala.util.Try
-import scala.util.matching.Regex
 
 @Named
 class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
-  extends AbstractConfiguredFilter[RegexRbacConfig](configurationService) with RegexStringOperators with LazyLogging {
+  extends AbstractConfiguredFilter[RegexRbacConfig](configurationService)
+    with HttpDelegationManager
+    with RegexStringOperators
+    with LazyLogging {
 
   override val DEFAULT_CONFIG: String = "regex-rbac.cfg.xml"
   override val SCHEMA_LOCATION: String = "/META-INF/schema/config/regex-rbac.xsd"
@@ -46,7 +52,63 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
   var parsedResources: Option[List[Resource]] = None
 
   override def doWork(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse, chain: FilterChain): Unit = {
-    chain.doFilter(httpRequest, httpResponse)
+    val httpRequestWrapper = new HttpServletRequestWrapper(httpRequest)
+
+    def sendError(statusCode: Int): Unit = {
+      val status = if (configuration.isMaskRaxRoles403) {
+        logger.debug(s"Masking $statusCode with $SC_NOT_FOUND")
+        SC_NOT_FOUND
+      } else statusCode
+
+      Option(configuration.getDelegating) match {
+        case Some(delegating) =>
+          logger.debug(s"Delegating with status $status")
+          val delegationHeaders = buildDelegationHeaders(
+            status,
+            Option(delegating.getComponentName).getOrElse("regex-rbac"),
+            "Failure in the RegEx RBAC filter",
+            delegating.getQuality)
+          delegationHeaders foreach { case (key, values) =>
+            values foreach { value =>
+              httpRequestWrapper.addHeader(key, value)
+            }
+          }
+          chain.doFilter(httpRequestWrapper, httpResponse)
+        case None =>
+          logger.debug(s"Rejecting with status $status")
+          httpResponse.sendError(status)
+      }
+    }
+
+    val requestUri = httpRequestWrapper.getRequestURI
+    val matchedPaths = parsedResources.flatMap(resources => Option(resources
+      .filter { resource =>
+        resource.path =~ requestUri
+      }
+    )).getOrElse(List.empty[Resource])
+    if (matchedPaths.isEmpty) {
+      sendError(SC_NOT_FOUND)
+    } else {
+      val requestMethod = httpRequestWrapper.getMethod.toUpperCase()
+      val matchedMethods = matchedPaths.filter(resource =>
+        resource.methods.contains("ANY") ||
+          resource.methods.contains("ALL") ||
+          resource.methods.contains(requestMethod))
+      if (matchedMethods.isEmpty) {
+        sendError(SC_METHOD_NOT_ALLOWED)
+      } else {
+        val requestRoles = httpRequestWrapper.getSplittableHeaders("X-Roles").asScala.toSet
+        val notMatchedRoles = matchedMethods.filterNot(resource =>
+          resource.roles.contains("ANY") ||
+            resource.roles.contains("ALL") ||
+            resource.roles.intersect(requestRoles).nonEmpty)
+        if (notMatchedRoles.isEmpty) {
+          chain.doFilter(httpRequest, httpResponse)
+        } else {
+          sendError(SC_FORBIDDEN)
+        }
+      }
+    }
   }
 
   override def doConfigurationUpdated(newConfigurationObject: RegexRbacConfig): Unit = {
@@ -60,7 +122,7 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
           throw new UpdateFailedException("Malformed RBAC Resource")
         case 3 =>
           Some(Resource(
-            values(0).r,
+            stringToRegexString(values(0)),
             Try(values(1).split(',').toSet[String].map(_.trim) map (_.toUpperCase)).getOrElse(Set.empty),
             Try(values(2).split(',').toSet[String].map(_.trim).map(_.replaceAll("&#xA0;", " "))
               .map(role => if (role.equalsIgnoreCase("ANY") || role.equalsIgnoreCase("ALL")) role.toUpperCase() else role)
@@ -96,6 +158,6 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
 
 object RegexRbacFilter {
 
-  case class Resource(path: Regex, methods: Set[String], roles: Set[String])
+  case class Resource(path: RegexString, methods: Set[String], roles: Set[String])
 
 }
