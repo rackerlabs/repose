@@ -26,7 +26,7 @@
         <Logger name="org.openrepose.nodeservice.atomfeed" level="trace"/>
 
         <!-- I need debug info from JMX! -->
-        <!-- useful: http://docs.oracle.com/javase/1.5.0/docs/guide/jmx/logging.html -->
+        <!-- useful: https://docs.oracle.com/javase/8/docs/technotes/guides/jmx/logging.html -->
         <!-- also useful: http://logging.apache.org/log4j/2.x/log4j-jul/index.html -->
         <!-- set these to FINEST to get log analysis of when mbeans were started and where -->
         <Logger name="javax.management" level="debug"/>
