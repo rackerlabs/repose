@@ -1,4 +1,7 @@
 = Release Notes
+== In Progress Work
+** Attribute Mapper: 2.1.1 → 2.2.0
+*** https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-2.2.0/RELEASE.md[Attribute Mapper v2.2.0 release notes]
 
 == 8.7.1.0 (2017-10-25)
 * https://repose.atlassian.net/browse/REP-6133[REP-6133] - Updated the published Docker images to turn off local logging by default to be more in line with the expectations of a https://12factor.net/logs[Twelve-Factor App].
