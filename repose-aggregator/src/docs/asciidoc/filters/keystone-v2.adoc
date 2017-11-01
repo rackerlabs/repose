@@ -219,10 +219,10 @@ This configuration is an example using the `identity-service` element's configur
 <1> The Keystone v2 Identity service Endpoint URI.
 <2> Http Connection pool ID to use when talking to the Keystone v2 Identity service. +
     *NOTE:* If the `connection-pool-id` is not defined, then the default pool is used.
-<3> Set the user's roles in the `X-Roles` header. (Default: true)
-<4> Set the user's groups in the `X-PP-Groups` header. (Default: true)
-<5> Set the user's service catalog, base64 encoded, in the `X-Catalog` header. (Default: false)
-<6> Indicates whether or not to include the `apply_rcn_roles` query parameter when talking to the Keystone v2 Identity service. (Default: false)
+<3> Set the user's roles in the `X-Roles` header. (Default: `true`)
+<4> Set the user's groups in the `X-PP-Groups` header. (Default: `true`)
+<5> Set the user's service catalog, base64 encoded, in the `X-Catalog` header. (Default: `false`)
+<6> Indicates whether or not to include the `apply_rcn_roles` query parameter when talking to the Keystone v2 Identity service. (Default: `false`)
 
 === Enable Delegation
 In some cases, you may want to delegate the decision to reject a request down the chain to either another filter or to the origin service.
@@ -243,7 +243,7 @@ The the `X-Identity-Status` header is in addition to the regular `X-Delegated` d
 <1> If this element is present, then delegation is enabled.
     Delegation will cause this filter to pass requests it would ordinarily reject along with a header detailing why it would have rejected the request.
 <2> Indicates the quality that will be added to any output headers.
-    When setting up a chain of delegating filters the highest quality number will be the one that is eventually output to the logging mechanisms. (Default: 0.7)
+    When setting up a chain of delegating filters the highest quality number will be the one that is eventually output to the logging mechanisms. (Default: `0.7`)
 
 === Configuring White-Listed URI's
 You can configure this filter to allow no-op processing of requests that do not require authentication.
@@ -290,7 +290,7 @@ If the token's TTL exceeds the maximum allowed TTL value (2^31 - 1), the maximum
     </cache>
 </keystone-v2>
 ----
-<1> This value will be added or subtracted to the cache timeouts to help ensure that the cached items have some variability so they don't all expire at the exact same time. (Default: 0)
+<1> This value will be added or subtracted to the cache timeouts to help ensure that the cached items have some variability so they don't all expire at the exact same time. (Default: `0`)
 <2> The number of seconds which cached tokens will live in the datastore.
 <3> The number of seconds which cached groups will live in the datastore.
 <4> The number of seconds which cached endpoints will live in the datastore.
@@ -353,18 +353,18 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
     </tenant-handling>
 </keystone-v2>
 ----
-<1> Indicates if all the Tenant IDs from the user and the roles the user has should be sent or not. (Default: false)
+<1> Indicates if all the Tenant IDs from the user and the roles the user has should be sent or not. (Default: `false`)
 <2> If this element is included, then Tenant ID Validation will be enforced based on the value extracted from the URI.
 <3> A `/` delimited list of prefixes to attempt to strip from the Tenant ID in the token response from the Keystone v2 Identity service.
     The post-strip Tenant ID is only used in the Tenant Validation check.
 <4> If in legacy roles mode, then all roles associated with a user token are forwarded.
-    If NOT in legacy roles mode, then roles which aren't tied to the tenant provided in the request will NOT be forwarded UNLESS the user has a pre-authorized role. (Default: false)
+    If NOT in legacy roles mode, then roles which aren't tied to the tenant provided in the request will NOT be forwarded UNLESS the user has a pre-authorized role. (Default: `false`)
 <5> The https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] with at least one capture group.
     The first capture group must be around the portion of the URI to extract the Tenant ID from for validation.
 <6> If this element is included, then include Quality parameters on all the tenant ID headers sent.
-<7> The default tenant has the highest quality by default. (Default: 0.9)
-<8> Followed by the one that matches the URI by default (if any). (Default: 0.7)
-<9> Followed by the tenants from the roles by default. (Default: 0.5)
+<7> The default tenant has the highest quality by default. (Default: `0.9`)
+<8> Followed by the one that matches the URI by default (if any). (Default: `0.7`)
+<9> Followed by the tenants from the roles by default. (Default: `0.5`)
 
 [NOTE]
 ====

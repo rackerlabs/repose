@@ -67,8 +67,8 @@ This is the most basic configuration there is to a non-authenticating feed:
 
 <1> This is a required attribute that defines a unique ID which may be used to identify this feed.
 <2> This is a required attribute that defines the URI at which this feed can be read.
-<3> This is an optional attribute that defines how often, in seconds, the Atom Feed service checks this feed for updates. (Default: 5)
-<4> This is an optional attribute that defines the order in which new Atom events will be delivered to any listeners registered on this feed. (Default: read)
+<3> This is an optional attribute that defines how often, in seconds, the Atom Feed service checks this feed for updates. (Default: `5`)
+<4> This is an optional attribute that defines the order in which new Atom events will be delivered to any listeners registered on this feed. (Default: `read`)
 +
 The legal values are:
 +
@@ -82,7 +82,7 @@ The legal values are:
     Note that the user must have, at a minimum, read permissions on the associated feed.
 <9> This is a required attribute that defines the password of the user which will query the authenticated feed.
 <10> This is an optional attribute that defines the amount of time, in milliseconds, to wait before considering an authentication attempt to be a failure.
-     A value of '0' indicates an infinite wait time. (Default: 5000)
+     A value of '0' indicates an infinite wait time. (Default: `5000`)
 
 == Usage in a Custom Filter
 . Configure an Atom Feed in the atom-feed-service.cfg.xml configuration file described above.

@@ -201,7 +201,7 @@ If you have the appropriate permissions on the *Repose Jenkins* instance, you ca
 | Name          | Required | Description                                           | Example
 | perf_test     | Yes      | name of the performance test you wish to perform      | `uses-cases/simple`
 | extra_options | No       | extra options to pass to the ansible-playbook command | `-e '{gatling: {test: {params: {duration_in_min: 1}}}}'`
-| branch        | Yes      | the branch to build from (Default: master)            | `REP-0000_NewPerfTest`
+| branch        | Yes      | the branch to build from (Default: `master`)          | `REP-0000_NewPerfTest`
 |===
 
 === Running a Test Locally
