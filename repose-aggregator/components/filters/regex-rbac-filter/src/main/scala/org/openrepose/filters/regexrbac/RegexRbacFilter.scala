@@ -98,14 +98,19 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
         sendError("No Matching Methods", SC_METHOD_NOT_ALLOWED)
       } else {
         val requestRoles = httpRequestWrapper.getSplittableHeaders("X-Roles").asScala.toSet
-        val notMatchedRoles = matchedMethods.filterNot(resource =>
-          resource.roles.contains("ANY") ||
-            resource.roles.contains("ALL") ||
-            resource.roles.intersect(requestRoles).nonEmpty)
-        if (notMatchedRoles.isEmpty) {
-          chain.doFilter(httpRequest, httpResponse)
+        val (relevantRoles, noMatchingRoles) = matchedMethods.foldLeft(Set.empty[String], List.empty[Resource]) {
+          case ((matches, noMatch), p) => p match {
+            case resource if resource.roles.contains("ANY") => (Set("ANY") ++ matches, noMatch)
+            case resource if resource.roles.contains("ALL") => (Set("ALL") ++ matches, noMatch)
+            case resource if resource.roles.intersect(requestRoles).nonEmpty => (resource.roles.intersect(requestRoles) ++ matches, noMatch)
+            case resource => (matches, resource :: noMatch)
+          }
+        }
+        if (noMatchingRoles.nonEmpty) {
+          sendError("Non-Matching Roles", SC_FORBIDDEN)
         } else {
-          sendError("No Matching Roles", SC_FORBIDDEN)
+          httpRequestWrapper.addHeader(XRelevantRolesHeader, relevantRoles.mkString(", "))
+          chain.doFilter(httpRequestWrapper, httpResponse)
         }
       }
     }
@@ -157,6 +162,7 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
 }
 
 object RegexRbacFilter {
+  private final val XRelevantRolesHeader = "X-Relevant-Roles"
 
   case class Resource(path: RegexString, methods: Set[String], roles: Set[String])
 
