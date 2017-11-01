@@ -1263,8 +1263,7 @@ class SamlPolicyTranslationFilterTest extends FunSpec with BeforeAndAfterEach wi
         |    </user>
         |    <serviceCatalog/>
         |    <RAX-AUTH:extendedAttributes xmlns="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
-        |                                 xmlns:RAX-AUTH="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
-        |                                 xmlns:mapping="http://docs.rackspace.com/identity/api/ext/MappingRules">
+        |                                 xmlns:RAX-AUTH="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0">
         |        <group name="user">
         |            <attribute name="foo">
         |                <value>2017-01-25T21:50:56.399-06:00</value>
