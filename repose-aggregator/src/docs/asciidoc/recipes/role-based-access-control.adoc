@@ -90,7 +90,7 @@ There is even a setting available to save your Simple RBAC filter configuration 
 
 Please refer to the <<../filters/simple-rbac.adoc#,Simple RBAC filter>> documentation for more information about the available configuration options.
 
-==== 1. Simple RBAC filter
+==== 2. RegEx RBAC filter
 The RegEx RBAC filter is configured using a Domain Specific Language (DSL) similar to the one above.
 
 [source,xml]
@@ -100,12 +100,13 @@ The RegEx RBAC filter is configured using a Domain Specific Language (DSL) simil
 <regex-rbac xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0">
     <resources>
 /path/[^/]+/this   GET     role1,role2,role3,role4
-/path/[^/]+/this   PUT     role1,role2,role3
+/path/[^/]+/this   put     role1,role2,role3
 /path/[^/]+/this   POST    role1,role2
 /path/[^/]+/this   DELETE  role1
-/path/[^/]+/that   GET,PUT ALL
-/path/[^/]+/that   ALL     role1
-/path/[^/]+/.*     GET     role1
+/path/[^/]+/that   get,PUT ANY
+/Path/[^/]+    GET       admin,role1
+/Path/[^/]+    GET       admin,role2
+/Path/[^/]+/.* ALL       admin,role with space
     </resources>
 </regex-rbac>
 ----
@@ -114,7 +115,7 @@ This filter provides an RBAC mechanism for API's that don't conveniently fit int
 
 Please refer to the <<../filters/regex-rbac.adoc#,RegEx RBAC filter>> documentation for more information about the available configuration options.
 
-==== 2. API Validator filter
+==== 3. API Validator filter
 If your API is complex or you simply need or are already using some of the extra features available in the API Validator filter, then this is the choice for you.
 
 ===== 1. Enable RAX-Roles
