@@ -1,5 +1,7 @@
 = Release Notes
+
 == 8.7.2.0 (2017-11-01)
+* https://repose.atlassian.net/browse/REP-6294[REP-6294] - Updated dependencies:
 ** Attribute Mapper: 2.1.1 → 2.2.0
 *** https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-2.2.0/RELEASE.md[Attribute Mapper v2.2.0 release notes]
 
@@ -17,7 +19,6 @@
 *** https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-2.1.1/RELEASE.md[Attribute Mapper v2.1.1 release notes]
 ** Saxon: 9.7.0-15 → 9.8.0-4
 *** http://www.saxonica.com/products/latest.xml[Saxon 9.8.0.4 release notes]
-
 
 == 8.7.0.2 (2017-10-04)
 * https://repose.atlassian.net/browse/REP-6162[REP-6162] - Updated the Keystone v2 get IDP call to support the field name change from `approvedDomains` to `approvedDomainIds`.
