@@ -2,6 +2,8 @@
 
 The Simple Role Based Access Control (RBAC) filter provides a way to get API validation for services without the need to create a WADL.
 
+The <<../recipes/role-based-access-control.adoc#,Role-Based Access Control (RBAC)>> is achieved using a request header populated by an authentication filter.
+
 == General filter information
 * *Name:* simple-rbac
 * *Default Configuration:* simple-rbac.cfg.xml
