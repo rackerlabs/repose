@@ -37,7 +37,7 @@ import org.openrepose.filters.regexrbac.config.RegexRbacConfig
 
 import scala.collection.JavaConverters._
 import scala.io.Source
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 @Named
 class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
@@ -49,20 +49,63 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
   override val DEFAULT_CONFIG: String = "regex-rbac.cfg.xml"
   override val SCHEMA_LOCATION: String = "/META-INF/schema/config/regex-rbac.xsd"
 
-  var parsedResources: Option[List[Resource]] = None
+  var parsedResources: Option[Iterable[Resource]] = None
 
   override def doWork(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse, chain: FilterChain): Unit = {
     val httpRequestWrapper = new HttpServletRequestWrapper(httpRequest)
 
+    def processPaths(): Try[Iterable[Resource]] = {
+      val requestUri = httpRequestWrapper.getRequestURI
+      parsedResources match {
+        case Some(resources) =>
+          resources.filter(_.path =~ requestUri) match {
+            case Nil => Failure(NoMatchingPathsException())
+            case matchedPaths => Success(matchedPaths)
+          }
+        case _ => Failure(UnknownException())
+      }
+    }
+
+    def processMethods(matchedPaths: Iterable[Resource]): Try[Iterable[Resource]] = {
+      val requestMethod = httpRequestWrapper.getMethod.toUpperCase
+      matchedPaths.filter(resource =>
+        resource.methods.contains("ANY") ||
+          resource.methods.contains("ALL") ||
+          resource.methods.contains(requestMethod)) match {
+        case Nil => Failure(NoMatchingMethodsException())
+        case matchedMethods => Success(matchedMethods)
+      }
+    }
+
+    def processRoles(matchedMethods: Iterable[Resource]): Try[Set[String]] = {
+      val requestRoles = Set("ANY", "ALL") ++ httpRequestWrapper.getSplittableHeaders("X-Roles").asScala.toSet
+      val (relevantRoles, noMatchingRoles) = matchedMethods.foldLeft(Set.empty[String], List.empty[String]) {
+        case ((matches, noMatch), resource) =>
+          val intersection = resource.roles.intersect(requestRoles)
+          if (intersection.nonEmpty) {
+            (intersection ++ matches, noMatch)
+          } else {
+            (matches, resource.path.string :: noMatch)
+          }
+      }
+      noMatchingRoles match {
+        case Nil => Success(relevantRoles)
+        case _ => Failure(NoMatchingRolesException(noMatchingRoles))
+      }
+    }
+
     def sendError(message: String, statusCode: Int): Unit = {
-      val status = if (configuration.isMaskRaxRoles403) {
+      val status = if (configuration.isMaskRaxRoles403 &&
+        (statusCode == SC_METHOD_NOT_ALLOWED || statusCode == SC_FORBIDDEN)) {
         logger.debug(s"Masking $statusCode with $SC_NOT_FOUND")
         SC_NOT_FOUND
-      } else statusCode
+      } else {
+        statusCode
+      }
 
       Option(configuration.getDelegating) match {
         case Some(delegating) =>
-          logger.debug(s"Delegating with status $status caused by: $message")
+          logger.debug(s"Delegating with status $status caused by: {}", message)
           val delegationHeaders = buildDelegationHeaders(
             status,
             Option(delegating.getComponentName).getOrElse("regex-rbac"),
@@ -80,39 +123,23 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
       }
     }
 
-    val requestUri = httpRequestWrapper.getRequestURI
-    val matchedPaths = parsedResources.flatMap(resources => Option(resources
-      .filter { resource =>
-        resource.path =~ requestUri
-      }
-    )).getOrElse(List.empty[Resource])
-    if (matchedPaths.isEmpty) {
-      sendError("No Matching Paths", SC_NOT_FOUND)
-    } else {
-      val requestMethod = httpRequestWrapper.getMethod.toUpperCase()
-      val matchedMethods = matchedPaths.filter(resource =>
-        resource.methods.contains("ANY") ||
-          resource.methods.contains("ALL") ||
-          resource.methods.contains(requestMethod))
-      if (matchedMethods.isEmpty) {
+    processPaths()
+      .flatMap(processMethods)
+      .flatMap(processRoles) match {
+      case Success(relevantRoles) =>
+        httpRequestWrapper.addHeader(XRelevantRolesHeader, relevantRoles.mkString(", "))
+        chain.doFilter(httpRequestWrapper, httpResponse)
+      case Failure(_: NoMatchingPathsException) =>
+        sendError("No Matching Paths", SC_NOT_FOUND)
+      case Failure(_: NoMatchingMethodsException) =>
         sendError("No Matching Methods", SC_METHOD_NOT_ALLOWED)
-      } else {
-        val requestRoles = httpRequestWrapper.getSplittableHeaders("X-Roles").asScala.toSet
-        val (relevantRoles, noMatchingRoles) = matchedMethods.foldLeft(Set.empty[String], List.empty[Resource]) {
-          case ((matches, noMatch), p) => p match {
-            case resource if resource.roles.contains("ANY") => (Set("ANY") ++ matches, noMatch)
-            case resource if resource.roles.contains("ALL") => (Set("ALL") ++ matches, noMatch)
-            case resource if resource.roles.intersect(requestRoles).nonEmpty => (resource.roles.intersect(requestRoles) ++ matches, noMatch)
-            case resource => (matches, resource :: noMatch)
-          }
+      case Failure(e: NoMatchingRolesException) =>
+        e.paths foreach { path: String =>
+          logger.debug("No Matching Roles: {}", path)
         }
-        if (noMatchingRoles.nonEmpty) {
-          sendError("Non-Matching Roles", SC_FORBIDDEN)
-        } else {
-          httpRequestWrapper.addHeader(XRelevantRolesHeader, relevantRoles.mkString(", "))
-          chain.doFilter(httpRequestWrapper, httpResponse)
-        }
-      }
+        sendError("Non-Matching Roles", SC_FORBIDDEN)
+      case _ =>
+        sendError("Unknown failure", SC_INTERNAL_SERVER_ERROR)
     }
   }
 
@@ -122,7 +149,7 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
       val values = line.trim.split("\\s+")
       values.length match {
         case x if x > 3 =>
-          logger.warn(s"Malformed RBAC Resource: $line")
+          logger.warn("Malformed RBAC Resource: {}", line)
           logger.info("Ensure all roles with spaces have been modified to use a non-breaking space (NBSP, &#xA0;) character.")
           throw new UpdateFailedException("Malformed RBAC Resource")
         case 3 =>
@@ -136,7 +163,7 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
         case 1 if values(0).length == 0 =>
           None
         case _ =>
-          logger.warn(s"Malformed RBAC Resource: $line")
+          logger.warn("Malformed RBAC Resource: {}", line)
           throw new UpdateFailedException("Malformed RBAC Resource")
       }
     }
@@ -165,5 +192,13 @@ object RegexRbacFilter {
   private final val XRelevantRolesHeader = "X-Relevant-Roles"
 
   case class Resource(path: RegexString, methods: Set[String], roles: Set[String])
+
+  case class UnknownException() extends Exception()
+
+  case class NoMatchingPathsException() extends Exception()
+
+  case class NoMatchingMethodsException() extends Exception()
+
+  case class NoMatchingRolesException(paths: Seq[String]) extends Exception()
 
 }
