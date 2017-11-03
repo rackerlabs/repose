@@ -147,14 +147,14 @@ Armed with this information, these are the basic steps to create a new test:
 +
 [NOTE]
 ====
-The `dir_prefix` is the `{category}/{test}` used to create the new vars file (e.g. `filter/saml`).
+The `dir_prefix` is the `{category}/{test}` used to create the new vars file (e.g. `filters/saml`).
 ====
 * required filter chain
 * Gatling simulation class `package`
 +
 [NOTE]
 ====
-The `package` is similarly created using `{category}.{test}` (e.g. `filter.saml`).
+The `package` is similarly created using `{category}.{test}` (e.g. `filters.saml`).
 ====
 * Gatling simulation class `name`
 +
@@ -218,6 +218,24 @@ If you have https://puppet.com/[Puppet] installed, you can download our manifest
 `git clone https://github.com/rackerlabs/repose.git`
 . Navigate to the performance test directory in the project. +
 `cd repose/repose-aggregator/tests/performance-tests`
+. If the test is not on the `master` branch, then you simply indicate the correct branch in the test's `vars` file:
++
+[source,yaml]
+----
+{
+  dir_prefix: "filter/saml",
+  repose: {
+    install: {
+      git: {
+        branch: "REP-0000_NewPerfTest" # <1>
+      }
+    },
+    ...
+  },
+  ...
+}
+----
+<1> This indicates the desired branch.
 . Run the `start_test.yml` Ansible playbook. +
 This playbook will create the necessary Cloud resources, provision the servers, and execute the Gatling simulation.
 When running the playbook, you may specify which test to run and what configuration to override for that test.
