@@ -148,10 +148,6 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
     def parseLine(line: String): Option[Resource] = {
       val values = line.trim.split("\\s+")
       values.length match {
-        case x if x > 3 =>
-          logger.warn("Malformed RBAC Resource: {}", line)
-          logger.info("Ensure all roles with spaces have been modified to use a non-breaking space (NBSP, &#xA0;) character.")
-          throw new UpdateFailedException("Malformed RBAC Resource")
         case 3 =>
           Some(Resource(
             stringToRegexString(values(0)),
@@ -162,8 +158,11 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
           ))
         case 1 if values(0).length == 0 =>
           None
-        case _ =>
+        case x =>
           logger.warn("Malformed RBAC Resource: {}", line)
+          if (x > 3) {
+            logger.info("Ensure all roles with spaces have been modified to use a non-breaking space (NBSP, Unicode: 00A0) character.")
+          }
           throw new UpdateFailedException("Malformed RBAC Resource")
       }
     }
