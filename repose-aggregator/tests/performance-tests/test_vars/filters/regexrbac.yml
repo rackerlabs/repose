@@ -1,11 +1,6 @@
 {
   dir_prefix: "filters/regexrbac",
   repose: {
-    install: {
-      git: {
-        branch: "REP-6159_RegexRbacFilter"
-      }
-    },
     config: {
       system_model: {
         filters: [
