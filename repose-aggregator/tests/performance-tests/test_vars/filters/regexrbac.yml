@@ -1,0 +1,28 @@
+{
+  dir_prefix: "filters/regexrbac",
+  repose: {
+    install: {
+      git: {
+        branch: "REP-6159_RegexRbacFilter"
+      }
+    },
+    config: {
+      system_model: {
+        filters: [
+          { name: "regex-rbac" }
+        ]
+      }
+    },
+    config_files: {
+      files: [
+        "{{ dir_prefix }}/regex-rbac.cfg.xml"
+      ]
+    }
+  },
+  gatling: {
+    test: {
+      name: "RegexRbacFilterSimulation",
+      package: "filters.regexrbac"
+    }
+  }
+}
