@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<regex-rbac xmlns="http://docs.openrepose.org/repose/regex-rbac/v1.0">
+    <resources>
+        /all ALL ALL
+        /all/any ALL ANY
+        /any ANY ANY
+        /any/all ANY ALL
+        /url/caSing ANY ANY
+        /url/regex/\d{4} ANY ANY
+        /url/regex/[^/\d]+ ANY ANY
+        /method/head HEAD ANY
+        /method/get GET ANY
+        /method/put PUT ANY
+        /method/post POST ANY
+        /method/patch PATCH ANY
+        /method/delete DELETE ANY
+        /method/options OPTIONS ANY
+        /roles/simple ANY role1,role2
+        /roles/nbsp ANY role1,nb sp,role2
+        /roles/nbsp/end ANY role1,nbsp ,role2
+        /roles/casing ANY ROLE1
+        /multimatch/[^/]+ ANY wildcard
+        /multimatch/one ANY multimatch
+        /multimatch/one/.+ ANY multimatch
+        /inheritance/parent ANY parent
+        /inheritance/parent/child ANY child
+        /spaces  ANY    ANY
+    </resources>
+</regex-rbac>

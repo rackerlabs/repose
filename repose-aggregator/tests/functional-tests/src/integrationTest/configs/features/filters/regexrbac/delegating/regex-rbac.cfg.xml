@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<regex-rbac xmlns="http://docs.openrepose.org/repose/regex-rbac/v1.0">
+    <delegating component-name="${delegatingComponentName}" quality="${delegationQuality}"/>
+    <resources>
+        /simple GET role1,role2
+    </resources>
+</regex-rbac>
