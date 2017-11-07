@@ -24,12 +24,11 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND
+import static org.openrepose.commons.utils.http.OpenStackServiceHeader.ROLES
 
 class RegexRbacMask403Test extends ReposeValveTest {
 
     static String GET = "GET"
-
-    static String ROLES_HEADER = "X-Roles"
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -48,7 +47,7 @@ class RegexRbacMask403Test extends ReposeValveTest {
         MessageChain messageChain = deproxy.makeRequest(
             url: reposeEndpoint + "/simple",
             method: GET,
-            headers: [(ROLES_HEADER): "forbidden-role"]
+            headers: [(ROLES): "forbidden-role"]
         )
 
         then: "Repose responds with a 404"

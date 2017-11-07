@@ -25,6 +25,8 @@ import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.*
+import static org.openrepose.commons.utils.http.OpenStackServiceHeader.ROLES
+import static org.openrepose.commons.utils.http.PowerApiHeader.RELEVANT_ROLES
 
 class RegexRbacAccessTest extends ReposeValveTest {
 
@@ -45,9 +47,6 @@ class RegexRbacAccessTest extends ReposeValveTest {
         OPTIONS
     ]
 
-    static String ROLES_HEADER = "X-Roles"
-    static String RELEVANT_ROLES_HEADER = "X-Relevant-Roles"
-
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
@@ -65,7 +64,7 @@ class RegexRbacAccessTest extends ReposeValveTest {
         MessageChain messageChain = deproxy.makeRequest(
             url: reposeEndpoint + resource,
             method: GET,
-            headers: [(ROLES_HEADER): "any"]
+            headers: [(ROLES): "any"]
         )
 
         then: "the origin service responds with a 200"
@@ -82,7 +81,7 @@ class RegexRbacAccessTest extends ReposeValveTest {
         MessageChain messageChain = deproxy.makeRequest(
             url: reposeEndpoint + resource,
             method: GET,
-            headers: [(ROLES_HEADER): "any"]
+            headers: [(ROLES): "any"]
         )
 
         then: "Repose responds with a 404"
@@ -99,7 +98,7 @@ class RegexRbacAccessTest extends ReposeValveTest {
         MessageChain messageChain = deproxy.makeRequest(
             url: reposeEndpoint + resource,
             method: GET,
-            headers: roles ? [(ROLES_HEADER): roles] : []
+            headers: roles ? [(ROLES): roles] : []
         )
 
         then: "the origin service responds with a 200"
@@ -137,7 +136,7 @@ class RegexRbacAccessTest extends ReposeValveTest {
         MessageChain messageChain = deproxy.makeRequest(
             url: reposeEndpoint + resource,
             method: GET,
-            headers: [(ROLES_HEADER): roles]
+            headers: [(ROLES): roles]
         )
 
         then: "Repose responds with a 403"
@@ -160,7 +159,7 @@ class RegexRbacAccessTest extends ReposeValveTest {
         MessageChain messageChain = deproxy.makeRequest(
             url: reposeEndpoint + "/roles/simple",
             method: GET,
-            headers: [(ROLES_HEADER): userRoles]
+            headers: [(ROLES): userRoles]
         )
 
         then: "the origin service responds with a 200"
@@ -168,8 +167,8 @@ class RegexRbacAccessTest extends ReposeValveTest {
         messageChain.receivedResponse.code as Integer == SC_OK
 
         and: "relevant roles are forwarded in a header"
-        messageChain.handlings[0].request.headers.contains(RELEVANT_ROLES_HEADER)
-        messageChain.handlings[0].request.headers.findAll(RELEVANT_ROLES_HEADER).head() == relevantRoles
+        messageChain.handlings[0].request.headers.contains(RELEVANT_ROLES)
+        messageChain.handlings[0].request.headers.findAll(RELEVANT_ROLES).head() == relevantRoles
 
         where:
         userRoles             || relevantRoles

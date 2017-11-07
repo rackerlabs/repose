@@ -34,9 +34,9 @@ import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON
 import static org.openrepose.commons.utils.http.CommonHttpHeader.AUTH_TOKEN
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID
+import static org.openrepose.commons.utils.http.PowerApiHeader.RELEVANT_ROLES
 
 class TenantCullingFilterFunctionalTest extends ReposeValveTest {
-    static final def RELEVANT_ROLES = 'X-Relevant-Roles'
     static final def BODY_CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz '
 
     @Shared

@@ -25,13 +25,12 @@ import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.*
+import static org.openrepose.commons.utils.http.OpenStackServiceHeader.ROLES
 
 class RegexRbacExternalConfigurationTest extends ReposeValveTest {
 
     static String GET = "GET"
     static String POST = "POST"
-
-    static String ROLES_HEADER = "X-Roles"
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -51,7 +50,7 @@ class RegexRbacExternalConfigurationTest extends ReposeValveTest {
         MessageChain messageChain = deproxy.makeRequest(
             url: reposeEndpoint + resource,
             method: method,
-            headers: [(ROLES_HEADER): roles]
+            headers: [(ROLES): roles]
         )
 
         then: "the origin service responds with a 200"

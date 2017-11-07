@@ -35,7 +35,6 @@ import org.mockito.Mockito.{when => whenMock, _}
 import org.openrepose.commons.config.manager.UpdateFailedException
 import org.openrepose.commons.config.resource.{ConfigurationResource, ConfigurationResourceResolver}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.regexrbac.RegexRbacFilterTest._
 import org.openrepose.filters.regexrbac.config.{DelegatingType, RegexRbacConfig, ResourcesType}
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
@@ -45,6 +44,8 @@ import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttp
 import scala.collection.JavaConversions._
 import scala.language.postfixOps
 import scala.util.Success
+import org.openrepose.commons.utils.http.OpenStackServiceHeader.ROLES
+import org.openrepose.commons.utils.http.PowerApiHeader.RELEVANT_ROLES
 
 @RunWith(classOf[JUnitRunner])
 class RegexRbacFilterTest
@@ -277,7 +278,7 @@ class RegexRbacFilterTest
         val role = "role1"
         servletRequest.setRequestURI("/path/to/abc")
         servletRequest.setMethod(method)
-        servletRequest.addHeader(XRolesHeader, role)
+        servletRequest.addHeader(ROLES, role)
         val resources = new ResourcesType
         resources.setValue(s"/path/[^/]+/.* some,$method,custom role1")
         config.setResources(resources)
@@ -288,14 +289,14 @@ class RegexRbacFilterTest
 
         Then("the request should be allowed access")
         servletResponse.getStatus shouldBe SC_OK
-        filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(XRelevantRolesHeader) shouldBe role
+        filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(RELEVANT_ROLES) shouldBe role
       }
       Seq("/path/abc", "/TEST/TrailingSlash/", "/this/is/bad").foreach { path =>
         it(s"should not allow the request to $path since it is not in the access list. ($method)") {
           Given(s"a request using HTTP method $method")
           servletRequest.setRequestURI(path)
           servletRequest.setMethod(method)
-          servletRequest.addHeader(XRolesHeader, "role1")
+          servletRequest.addHeader(ROLES, "role1")
           filter.configurationUpdated(config)
 
           When("the nonexistent resource is requested")
@@ -310,7 +311,7 @@ class RegexRbacFilterTest
         Given(s"a request using HTTP method $method")
         servletRequest.setRequestURI("/path/to/good")
         servletRequest.setMethod(method)
-        servletRequest.addHeader(XRolesHeader, "role1")
+        servletRequest.addHeader(ROLES, "role1")
         val resources = new ResourcesType
         resources.setValue("/path/[^/]+/.* Custom ANY")
         config.setResources(resources)
@@ -355,7 +356,7 @@ class RegexRbacFilterTest
             Given(s"a request using HTTP method $method")
             servletRequest.setRequestURI(path)
             servletRequest.setMethod(method)
-            servletRequest.addHeader(XRolesHeader, role)
+            servletRequest.addHeader(ROLES, role)
             config.setMaskRaxRoles403(doMask)
             filter.configurationUpdated(config)
 
@@ -366,7 +367,7 @@ class RegexRbacFilterTest
             val status = maskedNot(doMask, result, masked)
             servletResponse.getStatus shouldBe status
             if (status == SC_OK) {
-              assert(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(XRelevantRolesHeader).equals(role))
+              assert(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(RELEVANT_ROLES).equals(role))
             } else {
               assert(filterChain.getRequest == null)
             }
@@ -379,7 +380,7 @@ class RegexRbacFilterTest
       val role = "role 1"
       servletRequest.setRequestURI("/path/to/this")
       servletRequest.setMethod("GET")
-      servletRequest.addHeader(XRolesHeader, role)
+      servletRequest.addHeader(ROLES, role)
       val resources = new ResourcesType
       resources.setValue("/path/[^/]+/.* GET role\u00A01")
       config.setResources(resources)
@@ -390,13 +391,13 @@ class RegexRbacFilterTest
 
       Then(s"the request should not be allowed access")
       servletResponse.getStatus shouldBe SC_OK
-      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(XRelevantRolesHeader) shouldBe role
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(RELEVANT_ROLES) shouldBe role
     }
     it("should delegate an unauthorized request when configured") {
       Given(s"a bad request")
       servletRequest.setRequestURI("/path/to/this")
       servletRequest.setMethod("GET")
-      servletRequest.addHeader(XRolesHeader, "bad")
+      servletRequest.addHeader(ROLES, "bad")
       val resources = new ResourcesType
       resources.setValue("/path/[^/]+/.* get role1")
       config.setResources(resources)
@@ -413,13 +414,13 @@ class RegexRbacFilterTest
       val delegationHeader = parseDelegationHeader(delegationValue)
       delegationHeader shouldBe a[Success[_]]
       delegationHeader.get.statusCode shouldBe SC_FORBIDDEN
-      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(XRelevantRolesHeader) shouldBe null
+      filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(RELEVANT_ROLES) shouldBe null
     }
     it("should allow configuration of the delegated unauthorized request") {
       Given(s"a bad request")
       servletRequest.setRequestURI("/path/to/this")
       servletRequest.setMethod("GET")
-      servletRequest.addHeader(XRolesHeader, "bad")
+      servletRequest.addHeader(ROLES, "bad")
       val resources = new ResourcesType
       resources.setValue("/path/[^/]+/.* get role1")
       config.setResources(resources)
@@ -456,7 +457,7 @@ class RegexRbacFilterTest
           Given(s"a request to $path with roles '$roles'")
           servletRequest.setRequestURI(path)
           servletRequest.setMethod("GET")
-          servletRequest.addHeader(XRolesHeader, roles)
+          servletRequest.addHeader(ROLES, roles)
           val resources = new ResourcesType
           resources.setValue(
             """/path/[^/]+/.*     get role1
@@ -471,8 +472,8 @@ class RegexRbacFilterTest
           Then(s"the request should not be allowed access")
           servletResponse.getStatus shouldBe result
           if (result == SC_OK) {
-            assert(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(XRelevantRolesHeader).contains("role1"))
-            assert(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(XRelevantRolesHeader).contains("role2"))
+            assert(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(RELEVANT_ROLES).contains("role1"))
+            assert(filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(RELEVANT_ROLES).contains("role2"))
           } else {
             assert(filterChain.getRequest == null)
           }
@@ -496,9 +497,4 @@ class RegexRbacFilterTest
       verify(mockConfigService).unsubscribeFrom(eql("another-name.cfg.xml"), same(filter))
     }
   }
-}
-
-object RegexRbacFilterTest {
-  private final val XRolesHeader = "X-Roles"
-  private final val XRelevantRolesHeader = "X-Relevant-Roles"
 }

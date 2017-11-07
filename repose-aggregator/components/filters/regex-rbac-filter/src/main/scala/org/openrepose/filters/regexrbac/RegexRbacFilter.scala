@@ -188,8 +188,6 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
 }
 
 object RegexRbacFilter {
-  private final val XRelevantRolesHeader = "X-Relevant-Roles"
-
   case class Resource(path: RegexString, methods: Set[String], roles: Set[String])
 
   case class UnknownException() extends Exception()
