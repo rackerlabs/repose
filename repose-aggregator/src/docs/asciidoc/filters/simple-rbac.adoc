@@ -19,7 +19,7 @@ The name of the header containing said roles is configurable, but `X-Roles` is t
 === Required Preceding Filters
 This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.
 
-However, due to the nature of this filter, it is typically placed early in the filter chain immediately after any authentication filters.
+However, due to the nature of this filter, it is typically placed early in the filter chain immediately after any authentication filters (e.g. <<keystone-v2.adoc#, Keystone v2 Filter>>).
 
 === Request Headers Created
 * `X-Relevant-Roles` - Lists the values of the `X-Roles` (or a semantically equivalent) header which match a role value from the configuration for the resource being requested.
