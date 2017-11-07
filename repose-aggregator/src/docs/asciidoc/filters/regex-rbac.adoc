@@ -23,7 +23,7 @@ This header is not configurable.
 === Required Preceding Filters
 This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.
 
-However, due to the nature of this filter, it is typically placed early in the filter chain immediately after any authentication filters.
+However, due to the nature of this filter, it is typically placed early in the filter chain immediately after any authentication filters (e.g. <<keystone-v2.adoc#, Keystone v2 Filter>>).
 
 === Request Headers Created
 * `X-Relevant-Roles` - Lists the user roles from the `X-Roles` header which matched allowing access to the requested resource.
@@ -166,7 +166,7 @@ It does not, however, cover the resources format, as including resources both in
 == Additional Information
 
 === Delegation
-In some cases, you may want to delegate the validation of a request down the chain to either another filter or to the origin service.
+In some cases (e.g. <<../recipes/user-access-events.adoc#, User Access Events>>), you may want to delegate the validation of a request down the chain to either another filter or to the origin service.
 Delegation prevents the RegEx RBAC filter from failing the request by forwarding the request with the `X-Delegated` header that is set with a value which indicates how the filter would have failed if not in delegating mode.
 
 To place the filter in delegating mode, add the `delegating` element to the filter configuration with a quality that determines the delegation priority.
