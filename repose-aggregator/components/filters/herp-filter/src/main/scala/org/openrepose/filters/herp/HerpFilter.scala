@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -246,7 +246,7 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
 
 class CadfTimestamp extends Helper[Long] {
   override def apply(context: Long, options: Options): CharSequence = {
-    // From http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
+    // From http://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     // "For formatting, if the offset value from GMT is 0, 'Z' is produced."
     // This only manipulates the Time Zones that produce a 'Z'.
     val formattedString = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(new Date(context))

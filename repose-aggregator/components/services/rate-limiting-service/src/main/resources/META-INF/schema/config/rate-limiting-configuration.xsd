@@ -202,7 +202,7 @@
                     <html:p>A regular expression (regex) for the URI at which the user can query their limits.</html:p>
                     <html:p>
                         Please refer to
-                        <html:a href="http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html">Java
+                        <html:a href="http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Java
                             Regular Expression Api
                         </html:a>
                         for more information on regular expression syntax.

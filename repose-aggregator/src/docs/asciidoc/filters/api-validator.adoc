@@ -153,7 +153,7 @@ This configuration expands the basic example in order to show off all of the fea
     Triggers off of `X-Roles` header. +
     *DEPRECATED:* Roles defined outside of the WADL will not be supported in *Repose* 9 and this attribute will not be available.
 <2> If the api-validator config `multi-match` is set to `true` then the default validator will be the first validator to process the incoming request.
-    If multi-match is set to `false` and if no validator is matched to the users' roles, then the filter will use the default validator. (Default: false) +
+    If multi-match is set to `false` and if no validator is matched to the users' roles, then the filter will use the default validator. (Default: `false`) +
     *DEPRECATED:* Multiple validators will not be supported in *Repose* 9 and this attribute will not be available.
 <3> Location of the WADL to associate with this validator.
     If not specified, then the wadl needs to be embedded within the validator element.
@@ -163,20 +163,20 @@ This configuration expands the basic example in order to show off all of the fea
     Currently both a WADL file and embedded WADL can not be defined.
     Currently at least a WADL file or embedded WADL must be defined.
 <4> If set to `true`, this validator will record, via JMX, the number of times each state in the generated state machine (the mechanism underlying api validation) is accessed.
-    These values may be used to determine api usage and coverage. (Default: false)
+    These values may be used to determine api usage and coverage. (Default: `false`)
 <5> The DOT output file for this validator.
     DOT is a plain text graph description language that is a simple way of describing graphs that both humans and applications can use.
-<6> Check that the request body is well-formed XML or JSON that conforms to the XML or JSON syntax rules. (Default: false)
-<7> If set to `true` and the WADL references an XSD or JSON grammar(s), then the incoming request body will be validated against the grammar(s). (Default: false)
-<8> If set to `true` and the WADL request representation contains an element the filter will check the root element of a request.  (Default: false)
-<9> If set to `true` and the WADL has plain parameters defined, then the filter will check the plain parameters. (Default: false)
+<6> Check that the request body is well-formed XML or JSON that conforms to the XML or JSON syntax rules. (Default: `false`)
+<7> If set to `true` and the WADL references an XSD or JSON grammar(s), then the incoming request body will be validated against the grammar(s). (Default: `false`)
+<8> If set to `true` and the WADL request representation contains an element the filter will check the root element of a request.  (Default: `false`)
+<9> If set to `true` and the WADL has plain parameters defined, then the filter will check the plain parameters. (Default: `false`)
 <10> Allow XSD grammar transform.
-     Transform the XML after validation, to fill in things like default values. (Default: false)
+     Transform the XML after validation, to fill in things like default values. (Default: `false`)
 <11> If set to `true` allows the filter to perform a transform before xsd validation takes place.
-     The transformation rules can be defined in the WADL via the Rackspace WADL extension: `rax:preprocess` (Default: true)
-<12> Analyzes the state machine generated from the WADL and makes sure that there aren't any duplicate nodes in the machine. (Default: true)
+     The transformation rules can be defined in the WADL via the Rackspace WADL extension: `rax:preprocess` (Default: `true`)
+<12> Analyzes the state machine generated from the WADL and makes sure that there aren't any duplicate nodes in the machine. (Default: `true`)
 <13> XPath version used in the WADL.
-     Can be 1 or 2. (Default: 1) +
+     Can be 1 or 2. (Default: `1`) +
      *NOTE:* _IF_ 1 is set, _THEN_ the Xalan implementation will be used; _ELSE IF_ 2, _THEN_ Saxon will be used. +
      *NOTE:* XPath 2 with schema awareness requires a Saxon license.
 <14> Indicates the XSL engine to use from the possible list of: +
@@ -189,18 +189,18 @@ This configuration expands the basic example in order to show off all of the fea
      *&deg; Xerces* (Default) +
      *&deg; SaxonEE* +
      *NOTE:* The SaxonEE validator requires a license.
-<16> Enables the use of the rax:ignoreXSD extension in WADL files to exclude some representations from validation against the XSD.  (Default: true)
-<17> This is an optimization where the well formed check and multiple XPath checks can be merged into a single check. (Default: true)
+<16> Enables the use of the rax:ignoreXSD extension in WADL files to exclude some representations from validation against the XSD.  (Default: `true`)
+<17> This is an optimization where the well formed check and multiple XPath checks can be merged into a single check. (Default: `true`)
 <18> Sets the name for this validator.
      The name is used as the MBean name when connecting to *Repose* via JMX.
-<19> If set to true and the WADL defines required headers then the filter will check that those required headers are present. (Default: false)
-<20> Enables the use of `rax:roles` in WADL files to determine resource access. (Default: false) +
+<19> If set to true and the WADL defines required headers then the filter will check that those required headers are present. (Default: `false`)
+<20> Enables the use of `rax:roles` in WADL files to determine resource access. (Default: `false`) +
      *NOTE:* _IF_ `true`, _THEN_ `rax:roles` defined in the supplied WADL files will be used to determine resource access. +
      *NOTE:* _IF_ `true`, _THEN_ `check-headers` will also be enabled regardless of it's setting.
 <21> Mask `rax-roles` with `404` and `405` errors.
      By default `rax-roles` responds with a `403` if there is a role mismatch.
-     If this is set to `true`, then the response will be `404` if no methods are accessible or `405` if some methods are available. (Default: false)
-<22> If set to `true`, then the validity of the generated state machine is checked (e.g. no dead-end paths, there is a single start state, no orphaned nodes, etc.). (Default: true)
+     If this is set to `true`, then the response will be `404` if no methods are accessible or `405` if some methods are available. (Default: `false`)
+<22> If set to `true`, then the validity of the generated state machine is checked (e.g. no dead-end paths, there is a single start state, no orphaned nodes, etc.). (Default: `true`)
 
 === Enable Delegation
 To place this filter in <<../recipes/delegation.adoc#,Delegation>> mode, add the `delegating` element to the filter configuration with an optional `quality` attribute that determines the delegating priority.
@@ -219,7 +219,7 @@ To place this filter in <<../recipes/delegation.adoc#,Delegation>> mode, add the
 <1> If this element is present, then delegation is enabled.
     Delegation will cause this filter to pass requests it would ordinarily reject along with a header detailing why it would have rejected the request.
 <2> Indicates the quality that will be added to any output headers.
-    When setting up a chain of delegating filters the highest quality number will be the one that is eventually output. (Default: 0.3)
+    When setting up a chain of delegating filters the highest quality number will be the one that is eventually output. (Default: `0.3`)
 
 === Deprecated Multi-Validator Definition
 This configuration shows the deprecated, but currently legal, multi-validator definition as well as an embedded WADL which is also deprecated.

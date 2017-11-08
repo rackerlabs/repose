@@ -83,7 +83,7 @@ class HerpCloudfeedCADFdefaultTemplateTest extends ReposeValveTest {
         )
         def format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
         def now = format.format(curdate)
-        // From http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
+        // From http://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
         // "For formatting, if the offset value from GMT is 0offset value from GMT is 0, 'Z' is produced."
         // This only manipulates the Time Zones that produce a 'Z'.
         if (now.endsWith("Z")) {

@@ -145,7 +145,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
 
   def selectiveRequest(protocols: Array[String] = null, ciphers: Array[String] = null): Unit = {
     //Protocol names come from here:
-    //http://docs.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html#SSLContext
+    //http://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext
 
     //Explicitly using httpclient 4.4.1 because I can find an example how to exclude protocols:
     // http://stackoverflow.com/a/26439487/423218

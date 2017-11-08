@@ -267,7 +267,7 @@ The following is a basic sample configuration.
 <1> Defines the id of the cluster this configuration is for.
 <2> Defines the host providing the remote datastore.
 <3> Defines the port on which the remote datastore is listening (1-65535).
-<4> Defines if the remote datastore is expecting a secure connection request (Default: True).
+<4> Defines if the remote datastore is expecting a secure connection request (Default: `true`).
 <5> Http Connection Pool ID to use when connecting to the Remote Datastore.
 
 [NOTE]
