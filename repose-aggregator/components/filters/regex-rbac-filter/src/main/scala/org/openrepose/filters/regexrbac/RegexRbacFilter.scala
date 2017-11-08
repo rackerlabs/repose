@@ -28,6 +28,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.config.manager.UpdateFailedException
+import org.openrepose.commons.utils.http.PowerApiHeader.RELEVANT_ROLES
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.commons.utils.string.{RegexString, RegexStringOperators}
 import org.openrepose.core.filter.AbstractConfiguredFilter
@@ -127,7 +128,7 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
       .flatMap(processMethods)
       .flatMap(processRoles) match {
       case Success(relevantRoles) =>
-        httpRequestWrapper.addHeader(XRelevantRolesHeader, relevantRoles.mkString(", "))
+        httpRequestWrapper.addHeader(RELEVANT_ROLES, relevantRoles.mkString(", "))
         chain.doFilter(httpRequestWrapper, httpResponse)
       case Failure(_: NoMatchingPathsException) =>
         sendError("No Matching Paths", SC_NOT_FOUND)
