@@ -72,18 +72,18 @@ This configuration will extract user data from the example request body into hea
 <2> Specifies the name of the header to create.
 <3> Specifies the http://goessner.net/articles/JsonPath/[JsonPath expression] to apply to the request body in order to extract the desired value.
 <4> Specifies the value to insert into the header if the JsonPath expression does not resolve to a value from the body. +
-If this attribute is not present and the JsonPath expression does not resolve to a value from the body, the header will not be created. +
-If the JsonPath expression does resolve to a value from the body, this value is not used.
+    If this attribute is not present and the JsonPath expression does not resolve to a value from the body, the header will not be created. +
+    If the JsonPath expression does resolve to a value from the body, this value is not used.
 <5> Specifies the value to insert into the header if the JsonPath expression resolves to the JSON null value. +
-If this attribute is not present and the value of the JsonPath expression resolves to the JSON null value, the header will not be created. +
-If the JsonPath expression does match a value in the body, this value is not used.
+    If this attribute is not present and the value of the JsonPath expression resolves to the JSON null value, the header will not be created. +
+    If the JsonPath expression does match a value in the body, this value is not used.
 <6> Specifies whether or not to overwrite all existing values of the header. +
-If this attribute is false, the new value will be added to existing values of the header. +
+    If this attribute is false, the new value will be added to existing values of the header. +
     If this attribute is true and the JsonPath expression resolves to some value, the existing value(s) for the header will be removed and the new value resolved by the JsonPath expression will be added. +
-If this attribute is true and the JsonPath expression does not resolve to some value, the existing value(s) for the header will not be modified. +
-Defaults to *false*.
+    If this attribute is true and the JsonPath expression does not resolve to some value, the existing value(s) for the header will not be modified. +
+    Defaults to *false*.
 <7> Specifies the quality assigned to the header if a new value is added or an original value is replaced.
-If no quality is set, then no quality will be assigned to the new header(s).
+    If no quality is set, then no quality will be assigned to the new header(s).
 
 == Additional Information
 [IMPORTANT]
