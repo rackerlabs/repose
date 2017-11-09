@@ -1,52 +1,92 @@
 = Body Extractor to Header Filter
 
-include::../_includes/in-progress.adoc[]
+This filter will extract a value from the request body and put it in a request header.
 
 == General filter information
-* *Name:* ???
-* *Default Configuration:* ???.cfg.xml
-* *Released:* v?.?.?.?
+* *Name:* body-extractor-to-header
+* *Default Configuration:* body-extractor-to-header.cfg.xml
+* *Released:* v7.3.5.0
 * *Bundle:* repose-filter-bundle
 * link:../schemas/body-extractor-to-header.xsd[Schema]
 
 == Prerequisites & Postconditions
 === Required Request Headers
-???.
+This filter does not require any request headers.
 
 === Required Preceding Filters
-???.
+This filter has no dependency on any other filter.
 
 === Request Headers Created
-???.
+Changes to request headers vary based on configuration.
 
 === Request Body Changes
-???.
+This filter does not modify the request body.
 
 === Recommended Follow-On (Succeeding) Filters
-???.
+This filter is not a dependency of any other filter.
 
 === Response Body Changes
-???.
+This filter does not modify the response body.
 
 === Response Headers Created
-???.
+This filter does not create/modify any response headers.
 
 === Response Status Codes
-???.
+This filter does not modify the response status code.
 
 == Examples
-=== Shows how to ???
-This configuration will ???.
+=== Extract User Data
+Consider the following example request body.
+
+[source,json]
+----
+{
+    "user": {
+        "name": "Bob",
+        "aliases": [
+            "The Builder",
+            "The Painter"
+        ]
+    }
+}
+----
+
+This configuration will extract user data from the example request body into headers.
 
 [source,xml]
-.???.cfg.xml
+.body-extractor-to-header.cfg.xml
 ----
-<??? xmlns="http://docs.openrepose.org/repose/???/v1.0">
-    <???> <!--1-->
-    </???>
-</???>
+<body-extractor-to-header xmlns="http://docs.openrepose.org/repose/body-extractor-to-header/v1.0">
+    <extraction header="User-Name" jsonpath="$.user.name" /> <!--1-->
+
+    <extraction
+        header="First-Alias" <!--2-->
+        jsonpath="$.user.aliases[0]" <!--3-->
+        defaultIfMiss="" <!--4-->
+        defaultIfNull="" <!--5-->
+        overwrite="false" <!--6-->
+        quality="1.0"/> <!--7-->
+</body-extractor-to-header>
 ----
-<1> Specifies ???.
+<1> Populates the `User-Name` header with the value in the request body extracted from `$.user.name`.
+<2> Specifies the name of the header to create.
+<3> Specifies the http://goessner.net/articles/JsonPath/[JsonPath expression] to apply to the request body in order to extract the desired value.
+<4> Specifies the value to insert into the header if the JsonPath expression does not resolve to a value from the body. +
+    If this attribute is not present and the JsonPath expression does not resolve to a value from the body, the header will not be created. +
+    If the JsonPath expression does resolve to a value from the body, this value is not used.
+<5> Specifies the value to insert into the header if the JsonPath expression resolves to the JSON null value. +
+    If this attribute is not present and the value of the JsonPath expression resolves to the JSON null value, the header will not be created. +
+    If the JsonPath expression does match a value in the body, this value is not used.
+<6> Specifies whether or not to overwrite all existing values of the header. +
+    If this attribute is false, the new value will be added to existing values of the header. +
+    If this attribute is true and the JsonPath expression resolves to some value, the existing value(s) for the header will be removed and the new value resolved by the JsonPath expression will be added. +
+    If this attribute is true and the JsonPath expression does not resolve to some value, the existing value(s) for the header will not be modified. +
+    Defaults to *false*.
+<7> Specifies the quality assigned to the header if a new value is added or an original value is replaced.
+    If no quality is set, then no quality will be assigned to the new header(s).
 
 == Additional Information
-*Remove this section if not needed.*
+[IMPORTANT]
+====
+This filter currently only supports JSON request bodies.
+====

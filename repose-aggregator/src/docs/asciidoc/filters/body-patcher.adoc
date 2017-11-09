@@ -1,52 +1,121 @@
 = Body Patcher Filter
 
-include::../_includes/in-progress.adoc[]
+This filter allows changes to the request/response body based on a path regex and content type.
+
+Changes take the form of JSON Patches as defined in https://tools.ietf.org/html/rfc6902[RFC 6902].
 
 == General filter information
-* *Name:* ???
-* *Default Configuration:* ???.cfg.xml
-* *Released:* v?.?.?.?
+* *Name:* body-patcher
+* *Default Configuration:* body-patcher.cfg.xml
+* *Released:* v8.0.0.0
 * *Bundle:* repose-filter-bundle
 * link:../schemas/body-patcher.xsd[Schema]
 
 == Prerequisites & Postconditions
 === Required Request Headers
-???.
+* `Content-Type`
 
 === Required Preceding Filters
-???.
+This filter has no hard dependency on any other filter.
+
+However, the <<api-validator.adoc#, API Validator filter>> can be used to validate the request body before attempting to apply patches.
 
 === Request Headers Created
-???.
+This filter does not create/modify any request headers.
 
 === Request Body Changes
-???.
+Changes to the request body vary based on configuration.
 
 === Recommended Follow-On (Succeeding) Filters
-???.
+This filter is not a dependency of any other filter.
 
 === Response Body Changes
-???.
+Changes to the response body vary based on configuration.
 
 === Response Headers Created
-???.
+This filter does not create/modify any response headers.
 
 === Response Status Codes
-???.
+[cols="2", options="header,autowidth"]
+.Status Codes
+|===
+| Status Code
+| Reasons
+
+| `400`
+a| * When the content type of the request is JSON, but the body cannot be parsed as such.
+
+| `500`
+a| * Any configured patch is not valid JSON.
+a| * A configured patch cannot be applied to the request/response body.
+a| * When the content type of the response is JSON, but the body cannot be parsed as such.
+|===
 
 == Examples
-=== Shows how to ???
-This configuration will ???.
+=== Exhaustive
+This configuration will apply a set of patches to HTTP messages for various resources.
+In doing so, it will demonstrate all of the functions of this filter.
 
 [source,xml]
-.???.cfg.xml
+.body-patcher.cfg.xml
 ----
-<??? xmlns="http://docs.openrepose.org/repose/???/v1.0">
-    <???> <!--1-->
-    </???>
-</???>
+<body-patcher xmlns="http://docs.openrepose.org/repose/bodypatcher/v1.0">
+    <change> <!--1-->
+        <request> <!--2-->
+            <json> <!--3-->
+                [
+                    {
+                        "op" : "replace",
+                        "path" : "/a",
+                        "value" : 6
+                    },{
+                        "op" : "remove",
+                        "path" : "/b"
+                    }
+                ]
+            </json>
+        </request>
+        <response> <!--4-->
+            <json> <!--5-->
+                [
+                    {
+                        "op" : "add",
+                        "path" : "/d",
+                        "value" : false
+                    }
+                ]
+            </json>
+        </response>
+    </change>
+
+    <change path="/foo/bar/.*"> <!--6-->
+        <response>
+            <json>
+                [
+                    {
+                        "op" : "remove",
+                        "path" : "/b"
+                    }
+                ]
+            </json>
+        </response>
+    </change>
+</body-patcher>
 ----
-<1> Specifies ???.
+<1> Declares a change to be made.
+    The absence of the path attribute indicates that this change applies to requests with any path.
+<2> Contains the set of patches to be applied to the request.
+    This element is optional, but at least one of the `request` or `response` elements must be present.
+<3> The action to take for JSON content.
+    The content of this element should be a JSON patch.
+    In this case, the JSON patch will replace the value of the `a` field with `6`, and remove the `b` field.
+<4> Contains the set of patches to be applied to the response.
+    This element is optional, but at least one of the `request` or `response` elements must be present.
+<5> In this case, the JSON patch will add a `d` field with a value of `false`.
+<6> Declares a change to be made, but only to requests with a path matching the regular expression `/foo/bar/.*`.
 
 == Additional Information
-*Remove this section if not needed.*
+[IMPORTANT]
+====
+This filter currently only supports JSON bodies.
+====
