@@ -105,12 +105,12 @@ In doing so, it will demonstrate all of the functions of this filter.
 <1> Declares a change to be made.
     The absence of the path attribute indicates that this change applies to requests with any path.
 <2> Contains the set of patches to be applied to the request.
-    This element is optional, but at least one of the `request` and `response` elements must be present.
+    This element is optional, but at least one of the `request` or `response` elements must be present.
 <3> The action to take for JSON content.
     The content of this element should be a JSON patch.
     In this case, the JSON patch will replace the value of the `a` field with `6`, and remove the `b` field.
 <4> Contains the set of patches to be applied to the response.
-    This element is optional, but at least one of the `request` and `response` elements must be present.
+    This element is optional, but at least one of the `request` or `response` elements must be present.
 <5> In this case, the JSON patch will add a `d` field with a value of `false`.
 <6> Declares a change to be made, but only to requests with a path matching the regular expression `/foo/bar/.*`.
 
