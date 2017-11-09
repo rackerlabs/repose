@@ -1,0 +1,7 @@
+/path/to/this  GET       role1,role2,role3,role4
+/path/to/this  PUT       role1,role2,role3
+/path/to/this  POST      role1,role2
+/path/to/this  DELETE    role1
+/path/to/that  GET,PUT   ANY
+/Path/[^/]+/.* GET       role1,role with space
+/path/to/bad   BAD

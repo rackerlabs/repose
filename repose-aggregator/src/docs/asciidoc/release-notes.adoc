@@ -1,5 +1,8 @@
 = Release Notes
 
+== In Progress Work
+* https://repose.atlassian.net/browse/REP-6159[REP-6159] - Added the new <<filters/regex-rbac.adoc#, RegEx Role Based Access Control (RBAC) Filter>>.
+
 == 8.7.2.0 (2017-11-01)
 * https://repose.atlassian.net/browse/REP-6294[REP-6294] - Updated dependencies:
 ** Attribute Mapper: 2.1.1 → 2.2.0

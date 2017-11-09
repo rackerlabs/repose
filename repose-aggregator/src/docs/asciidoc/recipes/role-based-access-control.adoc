@@ -44,6 +44,7 @@ Please refer to the <<../filters/keystone-v2.adoc#,Keystone v2 filter>> document
 There are two mechanisms for doing the Authorization side.
 If your API is minimal or your just getting started with it, then you might find the <<../filters/simple-rbac.adoc#,Simple RBAC filter>> most useful.
 It uses a very simple Domain Specific Language (DSL) that is similar to what other tools use for this basic mechanism.
+Another easy to configure powerful tool is the <<../filters/regex-rbac.adoc#,RegEx RBAC filter>> which uses a similar configuration, but the resources are defined with http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expressions].
 If on the other had your API is large and/or your authorizations are complex, then you will need the heavy lifting of the <<../filters/api-validator.adoc#,API Validator filter>>.
 
 === 1. What do you need?
@@ -89,7 +90,32 @@ There is even a setting available to save your Simple RBAC filter configuration 
 
 Please refer to the <<../filters/simple-rbac.adoc#,Simple RBAC filter>> documentation for more information about the available configuration options.
 
-==== 2. API Validator filter
+==== 2. RegEx RBAC filter
+The RegEx RBAC filter is configured using a Domain Specific Language (DSL) similar to the one above.
+
+[source,xml]
+.regex-rbac.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<regex-rbac xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0">
+    <resources>
+/path/[^/]+/this   GET     role1,role2,role3,role4
+/path/[^/]+/this   put     role1,role2,role3
+/path/[^/]+/this   POST    role1,role2
+/path/[^/]+/this   DELETE  role1
+/path/[^/]+/that   get,PUT ANY
+/Path/[^/]+    GET       admin,role1
+/Path/[^/]+    GET       admin,role2
+/Path/[^/]+/.* ALL       admin,role with space
+    </resources>
+</regex-rbac>
+----
+
+This filter provides an RBAC mechanism for API's that don't conveniently fit into the restrictions imposed by the WADL specification.
+
+Please refer to the <<../filters/regex-rbac.adoc#,RegEx RBAC filter>> documentation for more information about the available configuration options.
+
+==== 3. API Validator filter
 If your API is complex or you simply need or are already using some of the extra features available in the API Validator filter, then this is the choice for you.
 
 ===== 1. Enable RAX-Roles

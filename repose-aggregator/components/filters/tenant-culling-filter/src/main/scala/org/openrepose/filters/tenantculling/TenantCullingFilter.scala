@@ -26,15 +26,12 @@ import javax.servlet.http.HttpServletResponse.{SC_INTERNAL_SERVER_ERROR, SC_UNAU
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID
+import org.openrepose.commons.utils.http.PowerApiHeader.RELEVANT_ROLES
 import org.openrepose.commons.utils.io.ObjectSerializer
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.filters.keystonev2.{KeystoneRequestHandler, KeystoneV2Filter}
 import org.slf4j.{Logger, LoggerFactory}
-
-object TenantCullingFilter {
-  val RELEVANT_ROLES = "X-Relevant-Roles"
-}
 
 @Named class TenantCullingFilter @Inject()(datastoreService: DatastoreService) extends Filter {
   private val log: Logger = LoggerFactory.getLogger(classOf[TenantCullingFilter])
@@ -70,7 +67,7 @@ object TenantCullingFilter {
     val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
     val response = servletResponse.asInstanceOf[HttpServletResponse]
     val cacheKey = request.getHeader(KeystoneV2Filter.AuthTokenKey)
-    val relevantRoles = request.getSplittableHeaderScala(TenantCullingFilter.RELEVANT_ROLES)
+    val relevantRoles = request.getSplittableHeaderScala(RELEVANT_ROLES)
     if (cacheKey != null) {
       try {
         val token = objectSerializer.readObject(objectSerializer.writeObject(datastore.get(cacheKey))).asInstanceOf[KeystoneRequestHandler.ValidToken]

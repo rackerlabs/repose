@@ -244,8 +244,8 @@ class StubbedFilter(configurationService: ConfigurationService) extends Abstract
 
   def getInitialized: Boolean = initialized
 
-  override def doWork(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit =
-    passedObjects = new PassedObjects(request.asInstanceOf[HttpServletRequest], response.asInstanceOf[HttpServletResponse], chain)
+  override def doWork(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse, chain: FilterChain): Unit =
+    passedObjects = PassedObjects(httpRequest, httpResponse, chain)
 
   case class PassedObjects(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain)
 }

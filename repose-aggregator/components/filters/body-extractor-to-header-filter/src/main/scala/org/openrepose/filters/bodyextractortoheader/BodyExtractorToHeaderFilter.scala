@@ -22,7 +22,7 @@ package org.openrepose.filters.bodyextractortoheader
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import javax.inject.{Inject, Named}
 import javax.servlet._
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.jayway.jsonpath.{DocumentContext, JsonPath, Configuration => JsonConfiguration, Option => JsonOption}
 import org.openrepose.commons.utils.io.{BufferedServletInputStream, RawInputStreamReader}
@@ -45,33 +45,33 @@ class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationS
   private val jsonPathConfiguration = JsonConfiguration.defaultConfiguration()
   jsonPathConfiguration.addOptions(JsonOption.DEFAULT_PATH_LEAF_TO_NULL)
 
-  override def doWork(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
-    var httpRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
+  override def doWork(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse, chain: FilterChain): Unit = {
+    var httpRequestWrapper = new HttpServletRequestWrapper(httpRequest)
 
     def addHeader(name: String, value: String, quality: Option[java.lang.Double], overwrite: Boolean): Unit = {
       if (overwrite) {
-        httpRequest.removeHeader(name)
+        httpRequestWrapper.removeHeader(name)
       }
       quality match {
-        case Some(qual) => httpRequest.addHeader(name, value, qual)
-        case None => httpRequest.addHeader(name, value)
+        case Some(qual) => httpRequestWrapper.addHeader(name, value, qual)
+        case None => httpRequestWrapper.addHeader(name, value)
       }
     }
 
     val jsonDoc: Option[Try[DocumentContext]] = {
-      Option(httpRequest.getContentType) filter { contentType =>
+      Option(httpRequestWrapper.getContentType) filter { contentType =>
         contentType.toLowerCase.contains("json")
       } map { contentType =>
         val is = {
-          httpRequest.getInputStream match {
+          httpRequestWrapper.getInputStream match {
             case inputStream if inputStream.markSupported => inputStream
             case inputStream =>
               val sourceEntity: ByteArrayOutputStream = new ByteArrayOutputStream
               RawInputStreamReader.instance.copyTo(inputStream, sourceEntity)
-              httpRequest = new HttpServletRequestWrapper(
-                httpRequest,
+              httpRequestWrapper = new HttpServletRequestWrapper(
+                httpRequestWrapper,
                 new BufferedServletInputStream(new ByteArrayInputStream(sourceEntity.toByteArray)))
-              httpRequest.getInputStream
+              httpRequestWrapper.getInputStream
           }
         }
         is.mark(Integer.MAX_VALUE)
@@ -102,7 +102,7 @@ class BodyExtractorToHeaderFilter @Inject()(configurationService: ConfigurationS
       }
     }
 
-    filterChain.doFilter(httpRequest, servletResponse)
+    chain.doFilter(httpRequestWrapper, httpResponse)
   }
 
   override def configurationUpdated(configurationObject: BodyExtractorToHeaderConfig): Unit = {

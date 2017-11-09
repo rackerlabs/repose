@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<regex-rbac xmlns="http://docs.openrepose.org/repose/regex-rbac/v1.0">
+    <resources href="resources.rbac"/>
+</regex-rbac>

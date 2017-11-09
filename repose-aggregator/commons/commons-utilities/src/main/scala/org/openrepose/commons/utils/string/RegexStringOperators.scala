@@ -36,7 +36,7 @@ trait RegexStringOperators {
   */
 object RegexString extends RegexStringOperators {}
 
-class RegexString(string: String) {
+class RegexString(val string: String) {
 
   val pattern: Pattern = string.r.pattern
 
