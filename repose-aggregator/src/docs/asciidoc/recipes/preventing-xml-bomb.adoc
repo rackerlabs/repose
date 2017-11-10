@@ -6,8 +6,8 @@ You can configure the Translation filter a with a few different options to help 
 Set `allow-doc-type` to `true` to allow the <<../filters/translation.adoc#,Translation Filter>> to accept substitutions within the limits of the secure processing feature of the Simple API for XML (SAX).
 The current limitation of 100,000 is sufficient enough to be useful but limiting enough to not cause damage.
 Additionally, this configuration will convert everything to UTF-8 which prevents attacks by content-type switching.
-The default for `allow-doc-type` is `false`.
-When set to `false`, the filter will reject all doctype declarations.
+When set to `false`, the filter will reject all doctype declarations. +
+Default: `false`
 
 [source,xml]
 .The following configuration is an example with `allow-doc-type` set to `true`.

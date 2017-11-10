@@ -99,7 +99,8 @@ The following is a basic sample configuration.
     *NOTE:* This attribute is only used if the `truststore-filename` attribute is present.
 <7> Defines a list of hosts who has access to the distributed datastore API calls.
     This does not add the host to the participating data storage nodes.
-<8> Setting the optional `allow-all` to `true` (defaults to `false`) will turn off host ACL checking.
+<8> Setting the optional `allow-all` to `true` will turn off host ACL checking. +
+    Default: `false`
 <9> Defines a host who has access to the distributed datastore API.
 <10> Defines the `port` on which all datastores in this `cluster` will listen.
 <11> Overrides the default `port`, defined for this `cluster` 's datastores to listen, only for this particular `node`.
@@ -267,7 +268,8 @@ The following is a basic sample configuration.
 <1> Defines the id of the cluster this configuration is for.
 <2> Defines the host providing the remote datastore.
 <3> Defines the port on which the remote datastore is listening (1-65535).
-<4> Defines if the remote datastore is expecting a secure connection request (Default: `true`).
+<4> Defines if the remote datastore is expecting a secure connection request. +
+    Default: `true`
 <5> Http Connection Pool ID to use when connecting to the Remote Datastore.
 
 [NOTE]

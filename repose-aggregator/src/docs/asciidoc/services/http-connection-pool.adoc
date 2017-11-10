@@ -57,49 +57,49 @@ The id/name of the pool corresponds to the connection pool id found in other ser
     *WARNING*: Setting this attribute to false may cause *Repose* to attempt to retrieve the actual content length through reading the ServletInputStream.
     This will cause some performance degradation as request body is no longer always streamed through. +
     It is recommended that users leave this value as true unless their service does not support chunked encoding. +
-    Default is true.
+    Default: `true`
 <4> Maximum number of connections opened across all endpoints in this connection pool.
     If this is set too high, you may run out of memory. +
-    Default is 400.
+    Default: `400`
 <5> Maximum number of connections opened per endpoint in this connection pool. +
-    Default is 200.
+    Default: `200`
 <6> Defines the socket timeout in milliseconds, which is the timeout for waiting for data (or, put differently, a maximum period of inactivity between two consecutive data packets).
     A timeout value of zero is interpreted as an infinite timeout. +
-    Default is 30000.
+    Default: `30000`
 <7> Determines the size of the internal socket buffer used to buffer data while receiving / transmitting HTTP messages. +
-    Default is 8192.
+    Default: `8192`
 <8> Determines the timeout in milliseconds until a connection is established.
     A timeout value of zero is interpreted as an infinite timeout.
     Please note this parameter can only be applied to connections that are bound to a particular local address. +
-    Default is 30000.
+    Default: `30000`
 <9> Determines the maximum line length limit.
     If set to a positive value, any HTTP line exceeding this limit will cause an IOException.
     A negative or zero value will effectively disable the check. +
-    Default is 8192.
+    Default: `8192`
 <10> Determines the maximum HTTP header count allowed.
      If set to a positive value, the number of HTTP headers received from the data stream exceeding this limit will cause an IOException.
      A negative or zero value will effectively disable the check. +
-     Default is 100.
+     Default: `100`
 <11> Maximum number of lines allotted for garbage. +
-     Default is 100.
+     Default: `100`
 <12> Determines whether Nagle's algorithm is to be used.
      The Nagle's algorithm tries to conserve bandwidth by minimizing the number of segments that are sent.
      When applications wish to decrease network latency and increase performance, they can disable Nagle's algorithm (that is enable http.tcp.nodelay).
      Data will be sent earlier, at the cost of an increase in bandwidth consumption. +
-     Default is true.
+     Default: `true`
 <13> If a Keep-Alive header is not present in the response, the value of keepalive.timeout is evaluated.
      If this value is 0, the connection will be kept alive indefinitely.
      If the value is greater than 0, the connection will be kept alive for the number of milliseconds specified.
-     Set to 1 to connect:close.
-     Default is 0.
-<14> The keystore filename either fully qualified or relative to the *Repose* configuration directory (/etc/repose is the default).
+     Set to 1 to connect:close. +
+     Default: `0`
+<14> The keystore filename either fully qualified or relative to the *Repose* configuration directory (Default: `/etc/repose`).
      Used for SSL/TLS Client Authentication. +
      NOTE: The `keystore-filename`, `keystore-password`, and `key-password` are all mutually required. If one exists, then they all must exist and client authentication is assumed to be required.
 <15> The password to access the keystore. +
      NOTE: The `keystore-filename`, `keystore-password`, and `key-password` are all mutually required. If one exists, then they all must exist and client authentication is assumed to be required.
 <16> The password for the particular key within the keystore. +
      NOTE: The `keystore-filename`, `keystore-password`, and `key-password` are all mutually required. If one exists, then they all must exist and client authentication is assumed to be required.
-<17> The truststore filename either fully qualified or relative to the *Repose* configuration directory (/etc/repose is the default).
+<17> The truststore filename either fully qualified or relative to the *Repose* configuration directory (Default: `/etc/repose`).
      Used when it is necessary to have the certificate of the requested resource's server. +
      NOTE: The `truststore-filename` and `truststore-password` are mutually required. If one exists, then the other must exist.
 <18> The password to access the truststore. +

@@ -33,13 +33,13 @@ This allows the service to offer all of the capabilities of a powerful, open-sou
 </metrics>
 ----
 <1> Enables the service.
-If this attribute is set to `false`, then metrics will not be reported, +
-Defaults to `true`.
+    If this attribute is set to `false`, then metrics will not be reported, +
+    Default: `true`
 <2> Holds the Graphite server definitions.
 <3> Declares that a Graphite server running on the `graphite.example.com` host should receive published metrics.
 <4> Declares the port that the Graphite server is listening on.
 <5> Defines the polling period, in seconds, of the Graphite reporter.
-In this case, new metrics will be sent to the Graphite server every `10` seconds.
+    In this case, new metrics will be sent to the Graphite server every `10` seconds.
 <6> Defines the prefix which will be prepended to the names of any metrics being sent to the Graphite server.
 
 == Further Information

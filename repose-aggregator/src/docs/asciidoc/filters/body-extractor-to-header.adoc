@@ -81,7 +81,7 @@ This configuration will extract user data from the example request body into hea
     If this attribute is false, the new value will be added to existing values of the header. +
     If this attribute is true and the JsonPath expression resolves to some value, the existing value(s) for the header will be removed and the new value resolved by the JsonPath expression will be added. +
     If this attribute is true and the JsonPath expression does not resolve to some value, the existing value(s) for the header will not be modified. +
-    Defaults to *false*.
+    Default: `false`
 <7> Specifies the quality assigned to the header if a new value is added or an original value is replaced.
     If no quality is set, then no quality will be assigned to the new header(s).
 
