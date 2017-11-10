@@ -135,7 +135,7 @@ Provided below are sample requests to give you a better idea of what that looks 
 ----
 <1> By including this element, the limit query feature is enabled.
 <2> The `uri-regex` attribute specifies the URI at which queries will be handled.
-All requests that match this URI regular expression will be handled as limit query requests.
+    All requests that match this URI regular expression will be handled as limit query requests.
 <3> The `include-absolute-limits` attribute specifies whether or not <<Absolute Limits>> should be queried.
 
 .Limit Query Request (without group)
@@ -232,25 +232,25 @@ This configuration provides per-user limits, global limits, and an endpoint to q
 <7> Specifies the regular expression used (i.e., matched against the URI) to determine whether or not a request is a limit data query request.
 <8> Specifies <<Global Limits>>, which are applied irrespective of user.
 <9> Specifies a unique ID which identifies this limit.
-No two limits may have the same ID, even if those limits are in different limit groups (including the global limit group).
+    No two limits may have the same ID, even if those limits are in different limit groups (including the global limit group).
 <10> Describes the request URIs for which this limit will be applied.
 <11> Specifies the regular expression used (i.e., matched against the URI) to determine whether or not the limit should be applied to a request.
 <12> Specifies the HTTP methods for which this limit will be applied.
 <13> Specifies the number of requests to allow through this filter before a limit is hit.
-After the limit is hit, all requests will receive a 413 or 429 response until the limit resets.
+     After the limit is hit, all requests will receive a 413 or 429 response until the limit resets.
 <14> Specifies the unit of time after which the limit resets.
 <15> Specifies query parameter names used to determine whether or not the limit should be applied to a request.
 <16> Specifies group-based limits.
 <17> Specifies a unique ID which identifies this limit group.
-No two limit groups may have the same ID.
+     No two limit groups may have the same ID.
 <18> Specifies which user groups the limits in this limit group will be applied to.
-User groups are extracted from the `X-PP-Groups` header described in <<Required Headers>>.
+     User groups are extracted from the `X-PP-Groups` header described in <<Required Headers>>.
 <19> Specifies whether or not this is the default limit group.
-The default limit group will be used when no other limit group matches the request.
+     The default limit group will be used when no other limit group matches the request.
 <20> Defines a limit of ten HTTP GET requests per minute on resources located at `/users/one/*`.
-This means that a single user could make ten requests to both `/users/one/foo` and `/users/one/bar` within the span of one minute.
+     This means that a single user could make ten requests to both `/users/one/foo` and `/users/one/bar` within the span of one minute.
 <21> Defines a limit of two HTTP POST requests per minute on resources located at `/users/two/*`.
-This means that a single user could make two requests between `/users/one/foo` and `/users/one/bar` within the span of one minute.
+     This means that a single user could make two requests between `/users/one/foo` and `/users/one/bar` within the span of one minute.
 
 == Additional Information
 

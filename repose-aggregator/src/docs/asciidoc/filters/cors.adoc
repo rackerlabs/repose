@@ -325,14 +325,14 @@ This is an example configuration with notes on all of the required and optional 
 ----
 <1> At least one `origin` element is required.
 <2> The `regex` attribute is not required.
-If it is not present, it is defaulted to `false` and the specified URI is treated as a literal string.
+    If it is not present, it is defaulted to `false` and the specified URI is treated as a literal string.
 <3> When the `regex` attribute is `true`, the specified URI will be treated as a https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#sum[Java regular expression].
 <4> At least one `method` element is required.
 <5> The `resources` element is optional.
 <6> At least one `resource` element is required when the `resources` element is present.
 <7> The `path` attribute is required and is always treated as a Java regular expression.
 <8> The `allowed-methods` element is optional.
-Leaving it out is useful when you need to prevent adding additional HTTP methods to a sub-resource as is the case with `/v1/status.*` in this example.
+    Leaving it out is useful when you need to prevent adding additional HTTP methods to a sub-resource as is the case with `/v1/status.*` in this example.
 <9> At least one `method` element is required when the `allowed-methods` element is present.
 
 == Additional Information
