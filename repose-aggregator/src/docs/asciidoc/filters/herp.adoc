@@ -9,7 +9,7 @@ Events are recorded even if the API request is rejected by *Repose* before reach
 * *Name:* herp
 * *Released:* v7.0.0.1
 * *Bundle:* repose-filter-bundle
-* *Default configuration:* highly-efficient-record-processor.cfg.xml
+* *Default Configuration:* highly-efficient-record-processor.cfg.xml
 * *Configuration Schema:* link:../schemas/highly-efficient-record-processor.xsd[highly-efficient-record-processor.xsd]
 
 == Prerequisites & Postconditions
