@@ -20,21 +20,20 @@
 
 package org.openrepose.core.services.rms.config
 
+import java.net.URL
+
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
-import org.scalatest.{FunSpec, Matchers}
+import org.openrepose.commons.test.ConfigurationTest
 import org.scalatest.junit.JUnitRunner
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class ResponseMessagingSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/response-messaging/response-messaging.xsd")
+class ResponseMessagingSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/response-messaging/response-messaging.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/response-messaging.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 
   describe("schema validation") {
-    it("should successfully validate the sample config") {
-      validator.validateConfigFile("/META-INF/schema/examples/response-messaging.cfg.xml")
-    }
-
     it("should successfully validate config when the status code IDs are unique") {
       val config = """<response-messaging xmlns="http://docs.openrepose.org/repose/response-messaging/v1.0">
                      |    <status-code id="1" code-regex="404" overwrite="ALWAYS">

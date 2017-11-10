@@ -21,9 +21,8 @@ package org.openrepose.commons.test
 
 import java.net.URL
 import javax.xml.bind.JAXBContext
-import javax.xml.transform.stream.StreamSource
 
-import org.scalatest.{BeforeAndAfterAll, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSpec, Matchers}
 
 import scala.language.implicitConversions
 
@@ -34,11 +33,16 @@ import scala.language.implicitConversions
   * Therefore, any tests which extend this test should either not override the beforeAll() method,
   * or should call through to the beforeAll() method defined here (i.e., call super.beforeAll()).
   */
-abstract class ConfigurationTest extends FunSpec with Matchers with BeforeAndAfterAll {
+abstract class ConfigurationTest extends FunSpec with Matchers with BeforeAndAfterAll with BeforeAndAfterEach {
   /**
     * The XML schema to validate the example configuration against.
     */
   val schema: URL
+
+  /**
+    * Any auxiliary schemas necessary for validation.
+    */
+  val auxiliarySchemas: Seq[URL] = Seq.empty
 
   /**
     * The example configuration to be validated and unmarshalled.
@@ -55,10 +59,14 @@ abstract class ConfigurationTest extends FunSpec with Matchers with BeforeAndAft
     */
   var validator: ConfigValidator = _
 
+  /**
+    * Overriding the value of this flag ensures that the tests defined in this class are always registered,
+    * even if there are no other tests defined.
+    */
+  override val invokeBeforeAllAndAfterAllEvenIfNoTestsAreExpected = true
+
   override def beforeAll(): Unit = {
     super.beforeAll()
-
-    validator = ConfigValidator(schema)
 
     describe("unmarshalling") {
       it("should successfully unmarshal the sample config") {
@@ -71,5 +79,11 @@ abstract class ConfigurationTest extends FunSpec with Matchers with BeforeAndAft
         validator.validateConfig(exampleConfig.openStream())
       }
     }
+  }
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+
+    validator = ConfigValidator(schema +: auxiliarySchemas: _*)
   }
 }

@@ -20,21 +20,20 @@
 
 package org.openrepose.core.services.datastore.distributed.config
 
+import java.net.URL
+
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
+import org.openrepose.commons.test.ConfigurationTest
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class DistDatastoreSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/dist-datastore/dist-datastore.xsd")
+class DistDatastoreSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/dist-datastore/dist-datastore.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/dist-datastore.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 
   describe("schema validation") {
-    it("should successfully validate the sample config") {
-      validator.validateConfigFile("/META-INF/schema/examples/dist-datastore.cfg.xml")
-    }
-
     it("should successfully validate config with allow-all set to true and the allow list empty") {
       val config = """<distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'>
                      |    <allowed-hosts allow-all="true"/>

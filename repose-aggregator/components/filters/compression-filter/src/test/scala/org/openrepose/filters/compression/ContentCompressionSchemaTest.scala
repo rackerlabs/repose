@@ -20,21 +20,20 @@
 
 package org.openrepose.filters.compression
 
+import java.net.URL
+
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
-import org.scalatest.{FunSpec, Matchers}
+import org.openrepose.commons.test.ConfigurationTest
 import org.scalatest.junit.JUnitRunner
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class ContentCompressionSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/config/content-compression-configuration.xsd")
+class ContentCompressionSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/content-compression-configuration.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/compression.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 
   describe("schema validation") {
-    it("should successfully validate the sample config") {
-      validator.validateConfigFile("/META-INF/schema/examples/compression.cfg.xml")
-    }
-
     it("should successfully validate if only include-content-types is specified") {
       val config = """<content-compression xmlns="http://docs.openrepose.org/repose/content-compression/v1.0">
                      |    <compression compression-threshold="1024" include-content-types="application/xml text/html"/>

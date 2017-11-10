@@ -19,18 +19,15 @@
  */
 package org.openrepose.filters.rackspaceauthuser
 
+import java.net.URL
+
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
+import org.openrepose.commons.test.ConfigurationTest
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class RackspaceAuthUserSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/config/rackspace-auth-user-configuration.xsd")
-
-  describe("schema validation") {
-    it("should successfully validate the example config") {
-      validator.validateConfigFile("/META-INF/schema/examples/rackspace-auth-user.cfg.xml")
-    }
-  }
+class RackspaceAuthUserSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/rackspace-auth-user-configuration.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/rackspace-auth-user.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 }

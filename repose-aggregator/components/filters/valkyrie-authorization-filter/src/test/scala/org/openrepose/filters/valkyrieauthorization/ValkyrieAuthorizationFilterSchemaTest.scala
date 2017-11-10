@@ -19,21 +19,21 @@
  */
 package org.openrepose.filters.valkyrieauthorization
 
+import java.net.URL
+
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
+import org.openrepose.commons.test.ConfigurationTest
+import org.openrepose.filters.valkyrieauthorization.config.ObjectFactory
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class ValkyrieAuthorizationFilterSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/config/valkyrie-authorization.xsd")
+class ValkyrieAuthorizationFilterSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/valkyrie-authorization.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/valkyrie-authorization.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 
   describe("schema validation") {
-    it("should successfully validate the sample config") {
-      validator.validateConfigFile("/META-INF/schema/examples/valkyrie-authorization.cfg.xml")
-    }
-
     val methods = List("GET", "DELETE", "POST", "PUT", "PATCH", "HEAD", "OPTIONS", "CONNECT", "TRACE", "ALL")
     (1 to methods.length flatMap (method => methods.combinations(method))).map(methodList => methodList.mkString(" ")).toList.foreach { httpMethods =>
       it(s"should successfully validate if the HTTP Methods list is not empty ($httpMethods)") {

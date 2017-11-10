@@ -19,24 +19,25 @@
  */
 package org.openrepose.filters.headernormalization
 
+import java.net.URL
+
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
+import org.openrepose.commons.test.ConfigurationTest
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
+import org.openrepose.filters.headernormalization.config.ObjectFactory
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class HeaderNormalizationConfigurationSchemaTest extends FunSpec with Matchers {
+class HeaderNormalizationConfigurationSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/header-normalization-configuration.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/header-normalization.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
+
   val filterTypes = Seq("request", "response")
   val listTypes = Seq("whitelist", "blacklist")
-  val validator = ConfigValidator("/META-INF/schema/config/header-normalization-configuration.xsd")
 
   describe("schema validation") {
-    it("should successfully validate the sample config") {
-      validator.validateConfigFile("/META-INF/schema/examples/header-normalization.cfg.xml")
-    }
-
     filterTypes.foreach { filterType =>
       listTypes.foreach { listType =>
         it(s"should successfully validate when a $filterType target defines a $listType") {

@@ -19,18 +19,16 @@
  */
 package org.openrepose.filters.bodyextractortoheader
 
+import java.net.URL
+
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
+import org.openrepose.commons.test.ConfigurationTest
+import org.openrepose.filters.bodyextractortoheader.config.ObjectFactory
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class BodyExtractorToHeaderSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/config/body-extractor-to-header.xsd")
-
-  describe("schema validation") {
-    it("should successfully validate the example config") {
-      validator.validateConfigFile("/META-INF/schema/examples/body-extractor-to-header.cfg.xml")
-    }
-  }
+class BodyExtractorToHeaderSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/body-extractor-to-header.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/body-extractor-to-header.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 }

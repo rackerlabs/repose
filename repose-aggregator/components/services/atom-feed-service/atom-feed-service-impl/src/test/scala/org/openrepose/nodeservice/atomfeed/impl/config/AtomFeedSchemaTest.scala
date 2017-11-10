@@ -19,18 +19,16 @@
  */
 package org.openrepose.nodeservice.atomfeed.impl.config
 
+import java.net.URL
+
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
+import org.openrepose.commons.test.ConfigurationTest
+import org.openrepose.docs.repose.atom_feed_service.v1.ObjectFactory
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class AtomFeedSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/config/atom-feed-service.xsd")
-
-  describe("schema validation") {
-    it("should successfully validate the sample config") {
-      validator.validateConfigFile("/META-INF/schema/examples/atom-feed-service.cfg.xml")
-    }
-  }
+class AtomFeedSchemaTest extends ConfigurationTest {
+    override val schema: URL = getClass.getResource("/META-INF/schema/config/atom-feed-service.xsd")
+    override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/atom-feed-service.cfg.xml")
+    override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 }

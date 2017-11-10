@@ -20,21 +20,20 @@
 
 package org.openrepose.core.service.httpclient.config
 
+import java.net.URL
+
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
-import org.scalatest.{FunSpec, Matchers}
+import org.openrepose.commons.test.ConfigurationTest
 import org.scalatest.junit.JUnitRunner
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class HttpConnectionPoolSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/config/http-connection-pool.xsd")
+class HttpConnectionPoolSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/http-connection-pool.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/http-connection-pool.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 
   describe("schema validation") {
-    it("should successfully validate the sample config") {
-      validator.validateConfigFile("/META-INF/schema/examples/http-connection-pool.cfg.xml")
-    }
-
     it("should successfully validate config containing pools with unique IDs and one default pool") {
       val config = """<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
                      |    <pool id="apple" default="true"/>

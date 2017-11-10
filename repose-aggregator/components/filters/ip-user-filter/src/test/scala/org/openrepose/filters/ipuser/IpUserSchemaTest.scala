@@ -19,21 +19,21 @@
  */
 package org.openrepose.filters.ipuser
 
+import java.net.URL
+
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
+import org.openrepose.commons.test.ConfigurationTest
+import org.openrepose.filters.ipuser.config.ObjectFactory
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class IpUserSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/config/ip-user.xsd")
+class IpUserSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/ip-user.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/ip-user.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 
   describe("schema validation") {
-    it("should successfully validate the example config") {
-      validator.validateConfigFile("/META-INF/schema/examples/ip-user.cfg.xml")
-    }
-
     it("should successfully validate when given a complex configuration") {
       val config =
         """<?xml version="1.0" encoding="UTF-8"?>

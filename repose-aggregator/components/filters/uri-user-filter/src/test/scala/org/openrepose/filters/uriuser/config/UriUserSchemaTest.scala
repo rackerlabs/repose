@@ -19,21 +19,20 @@
  */
 package org.openrepose.filters.uriuser.config
 
+import java.net.URL
+
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
-import org.scalatest.{FunSpec, Matchers}
+import org.openrepose.commons.test.ConfigurationTest
 import org.scalatest.junit.JUnitRunner
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class UriUserSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/config/uri-user-configuration.xsd")
+class UriUserSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/uri-user-configuration.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/uri-user.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 
   describe("schema validation") {
-    it("should successfully validate the sample config") {
-      validator.validateConfigFile("/META-INF/schema/examples/uri-user.cfg.xml")
-    }
-
     it("should successfully validate config if no mapping IDs are provided") {
       val config = """<uri-user xmlns='http://docs.openrepose.org/repose/uri-user/v1.0'>
                      |    <identification-mappings>

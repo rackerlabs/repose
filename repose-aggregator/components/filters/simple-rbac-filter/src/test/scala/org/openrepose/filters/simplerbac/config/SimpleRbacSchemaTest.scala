@@ -20,21 +20,20 @@
 
 package org.openrepose.filters.simplerbac.config
 
+import java.net.URL
+
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
-import org.scalatest.{FunSpec, Matchers}
+import org.openrepose.commons.test.ConfigurationTest
 import org.scalatest.junit.JUnitRunner
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class SimpleRbacSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/config/simple-rbac.xsd")
+class SimpleRbacSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/simple-rbac.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/simple-rbac.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 
   describe("schema validation") {
-    it("should successfully validate the sample config") {
-      validator.validateConfigFile("/META-INF/schema/examples/simple-rbac.cfg.xml")
-    }
-
     it("should successfully validate the config when resources are specified inline") {
       val config = """<simple-rbac xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0"
                      |             roles-header-name="X-ROLES"

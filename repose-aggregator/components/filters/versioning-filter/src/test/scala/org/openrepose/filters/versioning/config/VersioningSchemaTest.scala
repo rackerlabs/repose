@@ -19,21 +19,20 @@
  */
 package org.openrepose.filters.versioning.config
 
+import java.net.URL
+
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
-import org.scalatest.{FunSpec, Matchers}
+import org.openrepose.commons.test.ConfigurationTest
 import org.scalatest.junit.JUnitRunner
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class VersioningSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/config/versioning-configuration.xsd")
+class VersioningSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/versioning-configuration.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/versioning.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 
   describe("schema validation") {
-    it("should successfully validate the sample config") {
-      validator.validateConfigFile("/META-INF/schema/examples/versioning.cfg.xml")
-    }
-
     it("should successfully validate config if version mapping IDs are unique") {
       val config = """<versioning xmlns="http://docs.openrepose.org/repose/versioning/v2.0">
                      |    <version-mapping id="foo" pp-dest-id="foo" status="CURRENT"/>

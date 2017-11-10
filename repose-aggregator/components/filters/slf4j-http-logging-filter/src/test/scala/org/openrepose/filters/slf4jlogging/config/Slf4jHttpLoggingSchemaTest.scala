@@ -20,21 +20,20 @@
 
 package org.openrepose.filters.slf4jlogging.config
 
+import java.net.URL
+
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
-import org.scalatest.{FunSpec, Matchers}
+import org.openrepose.commons.test.ConfigurationTest
 import org.scalatest.junit.JUnitRunner
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class Slf4jHttpLoggingSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/config/slf4j-http-logging-configuration.xsd")
+class Slf4jHttpLoggingSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/slf4j-http-logging-configuration.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/slf4j-http-logging.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 
   describe("schema validation") {
-    it("should successfully validate the sample config") {
-      validator.validateConfigFile("/META-INF/schema/examples/slf4j-http-logging.cfg.xml")
-    }
-
     it("should successfully validate the config when the log format is either an attribute or an element but not both") {
       val config = """<slf4j-http-logging xmlns="http://docs.openrepose.org/repose/slf4j-http-logging/v1.0">
                      |    <slf4j-http-log
