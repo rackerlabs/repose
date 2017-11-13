@@ -117,7 +117,7 @@ For more information about specific response codes that *Repose* will receive fr
 ====
 
 == Account Admins
-If a user has the `account_admin` role in Valkyrie, when `enable-bypass-account-admin` is configured to be `true` (Default: `false`), the Valkyrie filter will pass the request along regardless of whether or not the device permission check fails.
+If a user has the `account_admin` role in Valkyrie, when `enable-bypass-account-admin` is configured to be `true`, the Valkyrie filter will pass the request along regardless of whether or not the device permission check fails.
 Culling will also not be performed when configured in this manner.
 The Valkyrie filter can add the user's permissions to the `X-Roles` header, but it is left to a subsequent filter or the origin service to validate the request.
 
