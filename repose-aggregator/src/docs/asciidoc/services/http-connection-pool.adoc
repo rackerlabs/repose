@@ -92,7 +92,7 @@ The id/name of the pool corresponds to the connection pool id found in other ser
      If the value is greater than 0, the connection will be kept alive for the number of milliseconds specified.
      Set to 1 to connect:close. +
      Default: `0`
-<14> The keystore filename either fully qualified or relative to the *Repose* configuration directory (Default: `/etc/repose`).
+<14> The keystore filename either fully qualified or relative to the *Repose* <<../architecture/configuration.adoc#, configuration directory>>.
      Used for SSL/TLS Client Authentication. +
      NOTE: The `keystore-filename`, `keystore-password`, and `key-password` are all mutually required.
      If one exists, then they all must exist and client authentication is assumed to be required.
@@ -102,7 +102,7 @@ The id/name of the pool corresponds to the connection pool id found in other ser
 <16> The password for the particular key within the keystore. +
      NOTE: The `keystore-filename`, `keystore-password`, and `key-password` are all mutually required.
      If one exists, then they all must exist and client authentication is assumed to be required.
-<17> The truststore filename either fully qualified or relative to the *Repose* configuration directory (Default: `/etc/repose`).
+<17> The truststore filename either fully qualified or relative to the *Repose* <<../architecture/configuration.adoc#, configuration directory>>.
      Used when it is necessary to have the certificate of the requested resource's server. +
      NOTE: The `truststore-filename` and `truststore-password` are mutually required.
      If one exists, then the other must exist.
