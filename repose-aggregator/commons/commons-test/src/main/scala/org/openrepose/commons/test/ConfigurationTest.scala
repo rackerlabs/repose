@@ -84,6 +84,6 @@ abstract class ConfigurationTest extends FunSpec with Matchers with BeforeAndAft
   override def beforeEach(): Unit = {
     super.beforeEach()
 
-    validator = ConfigValidator(schema +: auxiliarySchemas: _*)
+    validator = ConfigValidator(auxiliarySchemas :+ schema: _*)
   }
 }

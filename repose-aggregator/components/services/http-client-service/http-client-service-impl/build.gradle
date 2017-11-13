@@ -8,10 +8,12 @@ dependencies {
 
     provided "javax.inject:javax.inject"
 
+    testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit:4.12"
     testCompile "org.hamcrest:hamcrest-all"
     testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.eclipse.jetty:jetty-server"
     testCompile "org.mockito:mockito-all"
+    testCompile "org.scala-lang:scala-library"
     testCompile "xerces:xerces-xsd11"
 }

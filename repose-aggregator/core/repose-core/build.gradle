@@ -49,6 +49,7 @@ dependencies {
 
     provided "javax.servlet:javax.servlet-api"
 
+    testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"
     testCompile "org.hamcrest:hamcrest-all"
     testCompile "org.codehaus.groovy:groovy-all"
