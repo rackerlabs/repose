@@ -99,7 +99,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
     }
   }
 
-  final def validateToken(validatingToken: String, validatableToken: String, applyRcnRoles: Boolean, checkCache: Boolean = true): Try[ValidToken] = {
+  final def validateToken(validatingToken: String, validatableToken: String, applyRcnRoles: Boolean, ignoredRoles: Set[String], checkCache: Boolean = true): Try[ValidToken] = {
     def extractUserInformation(keystoneResponse: InputStream): Try[ValidToken] = {
       val input: String = Source.fromInputStream(keystoneResponse).getLines mkString ""
       try {
@@ -108,6 +108,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
         val userId = (json \ "access" \ "user" \ "id").as[String]
         val roles = (json \ "access" \ "user" \ "roles").as[JsArray].value
           .map(jsRole => Role((jsRole \ "name").as[String], (jsRole \ "tenantId").asOpt[String]))
+          .filter(role => !ignoredRoles.contains(role.name))
           .toVector
         val authenticatedBy = (json \ "access" \ "token" \ "RAX-AUTH:authenticatedBy").asOpt[JsArray]
           .map(_.value)
@@ -116,7 +117,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
         val expirationDate = iso8601ToRfc1123((json \ "access" \ "token" \ "expires").as[String])
         val username = (json \ "access" \ "user" \ "name").asOpt[String]
         val defaultTenantId = (json \ "access" \ "token" \ "tenant" \ "id").asOpt[String]
-        val tenantIds = (json \ "access" \ "user" \ "roles" \\ "tenantId").map(_.as[String]).toVector
+        val tenantIds = roles.flatMap(_.tenantId)
         val tenantName = (json \ "access" \ "token" \ "tenant" \ "name").asOpt[String]
         val defaultRegion = (json \ "access" \ "user" \ "RAX-AUTH:defaultRegion").asOpt[String]
         val contactId = (json \ "access" \ "user" \ "RAX-AUTH:contactId").asOpt[String]

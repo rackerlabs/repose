@@ -390,6 +390,16 @@ trait IdentityResponses {
        |                    "id":"345",
        |                    "tenantId": "345",
        |                    "name":"role:345"
+       |                },
+       |                {
+       |                    "id":"678",
+       |                    "tenantId": "678",
+       |                    "name":"identity:tenant-access"
+       |                },
+       |                {
+       |                    "id":"789",
+       |                    "tenantId": "345",
+       |                    "name":"identity:tenant-access"
        |                }
        |            ]
        |        }
