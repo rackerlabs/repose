@@ -47,9 +47,9 @@ org.apache.logging.log4j                  log4j-flume-ng           2.3          
 org.apache.logging.log4j                  log4j-iostreams          2.3             Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
 org.apache.logging.log4j                  log4j-jul                2.3             Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
 org.apache.logging.log4j                  log4j-slf4j-impl         2.3             Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
-org.eclipse.jetty                         jetty-server             9.3.0.v20150612 Apache License Version 2.0  http://www.eclipse.org/jetty/licenses.php
-org.eclipse.jetty                         jetty-servlet            9.3.0.v20150612 Apache License Version 2.0  http://www.eclipse.org/jetty/licenses.php
-org.eclipse.jetty                         jetty-util               9.3.0.v20150612 Apache License Version 2.0  http://www.eclipse.org/jetty/licenses.php
+org.eclipse.jetty                         jetty-server             9.3.6.v20151106 Apache License Version 2.0  http://www.eclipse.org/jetty/licenses.php
+org.eclipse.jetty                         jetty-servlet            9.3.6.v20151106 Apache License Version 2.0  http://www.eclipse.org/jetty/licenses.php
+org.eclipse.jetty                         jetty-util               9.3.6.v20151106 Apache License Version 2.0  http://www.eclipse.org/jetty/licenses.php
 org.jvnet.jaxb2_commons                   jaxb2-basics-runtime     0.6.5           CDDL v1.1 and GPL v2        https://jaxb.java.net/
 org.scala-lang                            scala-library            2.11.7          Scala Specific License      http://www.scala-lang.org/license.html
 org.slf4j                                 jcl-over-slf4j           1.7.7           MIT License                 http://slf4j.org/license.html
