@@ -27,7 +27,8 @@ The line breaks between contiguous lines of prose will not be visible in the ren
 
 [NOTE]
 ====
-While line breaks don’t appear in the output, a blank line introduces a new paragraph. Use paragraphs to structure your text and don’t make them too large.
+While line breaks don’t appear in the output, a blank line introduces a new paragraph.
+Use paragraphs to structure your text and don’t make them too large.
 ====
 
 == Section Titles
@@ -59,6 +60,10 @@ Nesting in lists will correspond to the number of leading asterisks.
 * http://asciidoctor.org/docs/asciidoc-recommended-practices/[AsciiDoc Recommended Practices]
 
 == Repose is Bold
-The name of the *Repose* project should be bold (i.e. surrounded with asterisks (`*`)).
+The name of the *Repose* project should be bold (i.e., surrounded with asterisks (`*`)).
 
-If *Repose* is used as part of a full product name (e.g. *Repose Docker* image), then the proper names are all bold, but the common item is not.
+If *Repose* is used as part of a full product name (e.g., *Repose Docker* image), then the proper names are all bold, but the common item is not.
+
+== I.e. and E.g.
+The abbreviations i.e. and e.g. can be used if the list following them is complete or incomplete respectively.
+They both must be followed by a comma.
