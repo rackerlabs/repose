@@ -94,16 +94,21 @@ The id/name of the pool corresponds to the connection pool id found in other ser
      Default: `0`
 <14> The keystore filename either fully qualified or relative to the *Repose* configuration directory (Default: `/etc/repose`).
      Used for SSL/TLS Client Authentication. +
-     NOTE: The `keystore-filename`, `keystore-password`, and `key-password` are all mutually required. If one exists, then they all must exist and client authentication is assumed to be required.
+     NOTE: The `keystore-filename`, `keystore-password`, and `key-password` are all mutually required.
+     If one exists, then they all must exist and client authentication is assumed to be required.
 <15> The password to access the keystore. +
-     NOTE: The `keystore-filename`, `keystore-password`, and `key-password` are all mutually required. If one exists, then they all must exist and client authentication is assumed to be required.
+     NOTE: The `keystore-filename`, `keystore-password`, and `key-password` are all mutually required.
+     If one exists, then they all must exist and client authentication is assumed to be required.
 <16> The password for the particular key within the keystore. +
-     NOTE: The `keystore-filename`, `keystore-password`, and `key-password` are all mutually required. If one exists, then they all must exist and client authentication is assumed to be required.
+     NOTE: The `keystore-filename`, `keystore-password`, and `key-password` are all mutually required.
+     If one exists, then they all must exist and client authentication is assumed to be required.
 <17> The truststore filename either fully qualified or relative to the *Repose* configuration directory (Default: `/etc/repose`).
      Used when it is necessary to have the certificate of the requested resource's server. +
-     NOTE: The `truststore-filename` and `truststore-password` are mutually required. If one exists, then the other must exist.
+     NOTE: The `truststore-filename` and `truststore-password` are mutually required.
+     If one exists, then the other must exist.
 <18> The password to access the truststore. +
-     NOTE: The `truststore-filename` and `truststore-password` are mutually required. If one exists, then the other must exist.
+     NOTE: The `truststore-filename` and `truststore-password` are mutually required.
+     If one exists, then the other must exist.
 <19> Indicates that the configured list of headers should be added to every outbound request on this connection pool.
      Use is optional.
 <20> A header to be added to every outbound request from this connection pool.

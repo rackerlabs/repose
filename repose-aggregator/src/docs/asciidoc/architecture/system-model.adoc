@@ -99,8 +99,10 @@ There are several ways to go about getting around this, but one of the most gene
 <3> Defines the hostname of the *Repose* node.
 If set to localhost, any physical node will match and run the *Repose* node.
 <4> Defines the port for the node to listen on.
-<5> Defines a sequence of filters to run. In this case, no filters are being used.
-<6> Defines a set of services to run. In this case, no services are being used.
+<5> Defines a sequence of filters to run.
+    In this case, no filters are being used.
+<6> Defines a set of services to run.
+    In this case, no services are being used.
 <7> Defines a new endpoint with an ID that must be unique across all defined endpoints in the destinations list.
     There must be exactly one default destination endpoint.
 <8> Defines the endpoint's protocol.

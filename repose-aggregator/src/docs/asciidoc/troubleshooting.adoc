@@ -104,7 +104,8 @@ x-default-router-time: 0ms
 You can view all of the data being sent and received to the origin service and other third party APIs (e.g., Identity) by turning on Apache HttpClient logging.
 
 === Enabling
-In `log4j2.xml`, update the `org.apache` logger to the `debug` level. For example:
+In `log4j2.xml`, update the `org.apache` logger to the `debug` level.
+For example:
 
 [source,xml]
 ----
