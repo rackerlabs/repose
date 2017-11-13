@@ -147,14 +147,14 @@ Armed with this information, these are the basic steps to create a new test:
 +
 [NOTE]
 ====
-The `dir_prefix` is the `{category}/{test}` used to create the new vars file (e.g. `filters/saml`).
+The `dir_prefix` is the `{category}/{test}` used to create the new vars file (e.g., `filters/saml`).
 ====
 * required filter chain
 * Gatling simulation class `package`
 +
 [NOTE]
 ====
-The `package` is similarly created using `{category}.{test}` (e.g. `filters.saml`).
+The `package` is similarly created using `{category}.{test}` (e.g., `filters.saml`).
 ====
 * Gatling simulation class `name`
 +

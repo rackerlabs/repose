@@ -107,7 +107,7 @@ The following further assumes the deprecated `via` attribute is not defined and 
 == User-Supplied Logging Configuration
 There are two steps to supply a logging configuration for *Repose*:
 
-. Add a log configuration file to the *Repose* configuration files directory (e.g. `/etc/repose`).
+. Add a log configuration file to the *Repose* configuration files directory (e.g., `/etc/repose`).
 . Specify the name of the log configuration file in the `container.cfg.xml` file.
   It should look like the following example.
 
@@ -296,7 +296,7 @@ This mode should only be used during development testing.
 These settings are NOT intended for a production environment.
 ====
 
-When running in insecure mode, *Repose* will accept all certificates from external services with which it communicates (e.g. authentication service, origin service).
+When running in insecure mode, *Repose* will accept all certificates from external services with which it communicates (e.g., authentication service, origin service).
 
 === Valve
 When running the Valve deployment, *Repose* may be placed in insecure mode by passing in the `-k` option as follows:

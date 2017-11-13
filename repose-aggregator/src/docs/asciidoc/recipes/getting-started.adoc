@@ -78,8 +78,8 @@ Certain deployment methods will handle environment setup automatically.
 
 === Installation
 The recommended and most common way to run *Repose* is as a standalone application using the Valve installation.
-This installation allows *Repose* to be executed either as a Linux service (e.g. systemd) or directly from the installed JAR.
-An alternative would be to run *Repose* inside an existing servlet container (e.g. Tomcat, GlassFish) using the WAR installation.
+This installation allows *Repose* to be executed either as a Linux service (e.g., systemd) or directly from the installed JAR.
+An alternative would be to run *Repose* inside an existing servlet container (e.g., Tomcat, GlassFish) using the WAR installation.
 
 The most recent addition to the *Repose* family is a containerized release of the Valve installation.
 This is great if you are looking to eventually run *Repose* with a container service or are just trying it out for the first time.

@@ -112,7 +112,7 @@ The id/name of the pool corresponds to the connection pool id found in other ser
 
 == Common Use Cases/Problems
 
-=== Origin Service doesn't support chunked encoding (e.g. WSGI)
+=== Origin Service doesn't support chunked encoding (e.g., WSGI)
 
 If the origin service doesn't support chunked encoding, it can be turned off easily.
 Add or update the `chunked-encoding` attribute for your default pool to false.
@@ -154,7 +154,7 @@ The size of the pools can be increased by raising `http.conn-manager.max-total` 
 <2> The new overall pool size.
     This is the maximum number of connections this pool will have open at once.
 <3> The new max number of connections to a single endpoint.
-    If a pool is only ever used for a single endpoint (e.g. foo.com), then this number and `http.conn-manager.max-total` should be the same.
+    If a pool is only ever used for a single endpoint (e.g., foo.com), then this number and `http.conn-manager.max-total` should be the same.
     If they aren't then the max pool size will never be reached.
 
 === Requested endpoint requires a static header

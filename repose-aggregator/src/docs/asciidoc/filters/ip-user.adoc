@@ -100,7 +100,7 @@ This configuration shows explicitly naming the user and group headers to their d
     </group>
 </ip-user>
 ----
-<1> Specifies the header name for the User information (i.e. IP Address). +
+<1> Specifies the header name for the User information (i.e., IP Address). +
     Default: `X-PP-User`
 <2> Specifies the quality to associate with the User information. +
     Default: `0.4`

@@ -58,7 +58,7 @@ This section is only meant to explain certain quirks of the system model, and to
 Other aspects of configuration will be explained through examples. See: <<Repose Deployment Scenarios>>
 
 Since port numbers below 1024 are privileged, *Repose* typically can *not* connect directly to them.
-There are several ways to go about getting around this, but one of the most generally accepted ways is to execute the following commands with root privilege (e.g. sudo):
+There are several ways to go about getting around this, but one of the most generally accepted ways is to execute the following commands with root privilege (e.g., sudo):
 ----
 /sbin/iptables -t nat -I PREROUTING -p tcp --dport  80 -j REDIRECT --to-port 8080
 /sbin/iptables -t nat -I PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443

@@ -2,7 +2,7 @@
 
 == Overview
 A common use case for *Repose* is rate limiting.
-It limits how many requests per some unit of time (e.g. 10 requests per minute) are allowed to be made.
+It limits how many requests per some unit of time (e.g., 10 requests per minute) are allowed to be made.
 In this recipe, we'll be using the `X-PP-User` header to indicate who we are for rate limiting purposes.
 For additional info on populating that header and on rate limiting by groups, see the <<../filters/rate-limiting.adoc#,Rate Limiting Filter>> documentation.
 

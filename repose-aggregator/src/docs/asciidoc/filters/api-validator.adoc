@@ -76,12 +76,12 @@ This filter does not create/modify any response headers.
 | `404`
 | The filter determined that the URI is invalid.
 
-  When `mask-rax-roles-403` attribute is enabled (i.e. `true`), this could also indicate the supplied `X-Roles` request header value did not have access to the URI.
+  When `mask-rax-roles-403` attribute is enabled (i.e., `true`), this could also indicate the supplied `X-Roles` request header value did not have access to the URI.
 
 | `405`
 | The URI is valid, but the Method is not appropriate for the URI.
 
-  When `mask-rax-roles-403` attribute is enabled (i.e. `true`), this could also indicate the supplied `X-Roles` request header value had access to the URI, but not the requested Method.
+  When `mask-rax-roles-403` attribute is enabled (i.e., `true`), this could also indicate the supplied `X-Roles` request header value had access to the URI, but not the requested Method.
 |===
 
 [NOTE]
@@ -218,7 +218,7 @@ This configuration expands the basic example in order to show off all of the fea
      By default `rax-roles` responds with a `403` if there is a role mismatch.
      If this is set to `true`, then the response will be `404` if no methods are accessible or `405` if some methods are available. +
      Default: `false`
-<22> If set to `true`, then the validity of the generated state machine is checked (e.g. no dead-end paths, there is a single start state, no orphaned nodes, etc.). +
+<22> If set to `true`, then the validity of the generated state machine is checked (e.g., no dead-end paths, there is a single start state, no orphaned nodes, etc.). +
      Default: `true`
 
 === Enable Delegation

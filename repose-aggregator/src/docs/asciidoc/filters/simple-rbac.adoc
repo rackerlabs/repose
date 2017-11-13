@@ -19,7 +19,7 @@ The name of the header containing said roles is configurable, but `X-Roles` is t
 === Required Preceding Filters
 This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.
 
-However, due to the nature of this filter, it is typically placed early in the filter chain immediately after any authentication filters (e.g. <<keystone-v2.adoc#, Keystone v2 Filter>>).
+However, due to the nature of this filter, it is typically placed early in the filter chain immediately after any authentication filters (e.g., <<keystone-v2.adoc#, Keystone v2 Filter>>).
 
 === Request Headers Created
 * `X-Relevant-Roles` - Lists the values of the `X-Roles` (or a semantically equivalent) header which match a role value from the configuration for the resource being requested.
@@ -53,12 +53,12 @@ This filter does not create/modify any response headers.
 | `404`
 | The filter determined that the URI is invalid.
 
-  When `mask-rax-roles-403` attribute is enabled (i.e. `true`), this could also indicate the supplied `X-Roles` request header value did not have access to the URI.
+  When `mask-rax-roles-403` attribute is enabled (i.e., `true`), this could also indicate the supplied `X-Roles` request header value did not have access to the URI.
 
 | `405`
 | The URI is valid, but the Method is not appropriate for the URI.
 
-  When `mask-rax-roles-403` attribute is enabled (i.e. `true`), this could also indicate the supplied `X-Roles` request header value had access to the URI, but not the requested Method.
+  When `mask-rax-roles-403` attribute is enabled (i.e., `true`), this could also indicate the supplied `X-Roles` request header value had access to the URI, but not the requested Method.
 |===
 
 == Examples
@@ -141,7 +141,7 @@ It does not, however, cover the resources format, as including resources both in
 <9> Specifies a location to an external file which contains the Simple RBAC resources.
     If the message element has a value and the `href` attribute is configured, the Simple RBAC will use what is configured in the value.
     If the file that the `href` attribute points to is modified, the Simple RBAC will not reload the configuration.
-    So the new RBAC file should be placed in a new file name (e.g. Dated) and the simple-rbac.cfg.xml file updated to point to it in order to guarantee the changes are utilized.
+    So the new RBAC file should be placed in a new file name (e.g., Dated) and the simple-rbac.cfg.xml file updated to point to it in order to guarantee the changes are utilized.
 
 == Additional Information
 
