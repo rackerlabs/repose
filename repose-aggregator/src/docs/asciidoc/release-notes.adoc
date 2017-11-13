@@ -1,5 +1,10 @@
 = Release Notes
 
+== In Progress Work
+* https://repose.atlassian.net/browse/REP-5616[REP-5616] - Updated dependencies:
+** Jetty: 9.2.0.v20140526 → 9.2.22.v20170606
+*** https://github.com/eclipse/jetty.project/blob/jetty-9.2.x/VERSION.txt
+
 == 8.7.3.0 (2017-11-17)
 * https://repose.atlassian.net/browse/REP-6159[REP-6159] - Added the new <<filters/regex-rbac.adoc#, RegEx Role Based Access Control (RBAC) Filter>>.
 * https://repose.atlassian.net/browse/REP-6313[REP-6313] - Updated <<filters/keystone-v2.adoc#, Keystone v2 Filter>> to automatically ignore configured roles.
