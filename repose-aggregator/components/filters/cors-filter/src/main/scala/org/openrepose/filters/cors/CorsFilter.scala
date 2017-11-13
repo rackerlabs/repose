@@ -210,7 +210,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
     val maybeForwardedHost = request.getSplittableHeaderScala(CommonHttpHeader.X_FORWARDED_HOST).headOption
     val maybeForwardedHostUri = Try(maybeForwardedHost
       .map(forwardedHost => new URIBuilder(s"${request.getScheme}://$forwardedHost"))
-      .map(uri => uri.setPort(normalizePort(uri.getPort, uri.getScheme)).setHost(normalizeUriHost(uri.getHost)).build()))
+      .map(uri => uri.setPort(normalizePort(uri.getPort, uri.getScheme)).setHost(normalizeHost(uri.getHost)).build()))
     lazy val hostUri = new URIBuilder().setScheme(request.getScheme).setHost(normalizeHost(request.getServerName))
       .setPort(normalizePort(request.getServerPort, request.getScheme)).build()
     maybeForwardedHostUri match {
@@ -229,14 +229,13 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
   def getOriginUri(origin: String): Try[URI] = Try(new URIBuilder(origin))
     .map(originUri => originUri
       .setPort(normalizePort(originUri.getPort, originUri.getScheme))
-      .setHost(normalizeUriHost(originUri.getHost))
+      .setHost(normalizeHost(originUri.getHost))
       .build())
 
-  def normalizeHost(host: String): String =
-    if (InetAddresses.isInetAddress(host)) InetAddresses.forString(host).getHostAddress else host
-
-  def normalizeUriHost(host: String): String =
-    if (InetAddresses.isUriInetAddress(host)) InetAddresses.forUriString(host).getHostAddress else host
+  def normalizeHost(host: String): String = {
+    val hostReplaced = host.replaceFirst("""^\[?([0-9A-Fa-f:]+)\]?$""", "$1")
+    if (InetAddresses.isInetAddress(hostReplaced)) InetAddresses.toAddrString(InetAddresses.forString(hostReplaced)) else hostReplaced
+  }
 
   def normalizePort(port: Int, scheme: String): Int = (port, scheme.toLowerCase) match {
     case (p, _) if p > 0 => p

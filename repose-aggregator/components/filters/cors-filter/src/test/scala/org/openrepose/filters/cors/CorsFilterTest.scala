@@ -98,7 +98,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getStatus shouldBe -321  // verify unchanged
+          servletResponse.getStatus shouldBe -321 // verify unchanged
         }
       }
 
@@ -130,7 +130,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
           servletRequest.setMethod("OPTIONS")
           servletRequest.addHeader(CorsHttpHeader.ORIGIN, "http://totally.allowed")
           servletRequest.addHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, requestMethod)
-          servletResponse.setStatus(-321)  // since default value is 200 (the test success value)
+          servletResponse.setStatus(-321) // since default value is 200 (the test success value)
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
@@ -237,7 +237,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
 
     describe("when an actual request is received") {
       HttpMethods foreach { httpMethod =>
-        it (s"should call the next filter in the filter chain for HTTP method $httpMethod") {
+        it(s"should call the next filter in the filter chain for HTTP method $httpMethod") {
           servletRequest.setMethod(httpMethod)
           servletRequest.addHeader(CorsHttpHeader.ORIGIN, "http://totally.allowed")
 
@@ -263,7 +263,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-          servletResponse.getStatus shouldBe -321  // verify unchanged
+          servletResponse.getStatus shouldBe -321 // verify unchanged
         }
 
         List(
@@ -289,7 +289,8 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
             servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS).toLowerCase.split(",") should contain theSameElementsAs
               servletResponse.getHeaderNames.asScala.filter { headerName =>
                 headerName != CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS &&
-                  headerName != HttpHeaders.VARY}.map(_.toLowerCase)
+                  headerName != HttpHeaders.VARY
+              }.map(_.toLowerCase)
             servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS) should have size 1
           }
         }
@@ -342,7 +343,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
         servletRequest.setMethod("OPTIONS")
         servletRequest.addHeader(CorsHttpHeader.ORIGIN, "http://totally.allowed")
         servletRequest.addHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, "GET")
-        servletResponse.setStatus(-321)  // since default value is 200 (the test success value)
+        servletResponse.setStatus(-321) // since default value is 200 (the test success value)
 
         val configOrigin = new Origin
         configOrigin.setValue("http://totally.allowed")
@@ -350,7 +351,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
 
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-        servletResponse.getStatus shouldBe 200  // preflight success
+        servletResponse.getStatus shouldBe 200 // preflight success
         servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe "http://totally.allowed"
       }
 
@@ -358,7 +359,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
         servletRequest.setMethod("OPTIONS")
         servletRequest.addHeader(CorsHttpHeader.ORIGIN, "http://good.enough.com:8080")
         servletRequest.addHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, "GET")
-        servletResponse.setStatus(-321)  // since default value is 200 (the test success value)
+        servletResponse.setStatus(-321) // since default value is 200 (the test success value)
 
         val configOrigin = new Origin
         configOrigin.setValue("http://.*good.enough.*")
@@ -367,7 +368,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
 
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-        servletResponse.getStatus shouldBe 200  // preflight success
+        servletResponse.getStatus shouldBe 200 // preflight success
         servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe "http://good.enough.com:8080"
       }
 
@@ -375,7 +376,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
         servletRequest.setMethod("OPTIONS")
         servletRequest.addHeader(CorsHttpHeader.ORIGIN, "http://not.going.to.work:9000")
         servletRequest.addHeader(CorsHttpHeader.ACCESS_CONTROL_REQUEST_METHOD, "GET")
-        servletResponse.setStatus(-321)  // since default value is 200 (the test success value)
+        servletResponse.setStatus(-321) // since default value is 200 (the test success value)
 
         val configOrigin = new Origin
         configOrigin.setValue("NOPE")
@@ -398,7 +399,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
 
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-        servletResponse.getStatus shouldBe -321  // verify unchanged
+        servletResponse.getStatus shouldBe -321 // verify unchanged
         servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe "http://let.me.in:8000"
       }
 
@@ -414,7 +415,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
 
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-        servletResponse.getStatus shouldBe -321  // verify unchanged
+        servletResponse.getStatus shouldBe -321 // verify unchanged
         servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe "https://you.can.trust.me:8443"
       }
 
@@ -444,7 +445,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
 
         corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
-        servletResponse.getStatus shouldBe -321  // verify unchanged
+        servletResponse.getStatus shouldBe -321 // verify unchanged
       }
     }
 
@@ -460,7 +461,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
           servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should have size 1
-          servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).split(",") should contain (httpMethod)
+          servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).split(",") should contain(httpMethod)
         }
 
         it(s"should not permit HTTP method $httpMethod when it is not globally allowed in config") {
@@ -485,7 +486,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
           servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should have size 1
-          servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).split(",") should contain (httpMethod)
+          servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).split(",") should contain(httpMethod)
         }
 
         it(s"should not permit HTTP method $httpMethod when it is not configured and a root resource allows something else") {
@@ -522,7 +523,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
           servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should have size 1
-          servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).split(",") should contain (httpMethod)
+          servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).split(",") should contain(httpMethod)
         }
 
         it(s"should permit HTTP method $httpMethod when a specific child resource allows it") {
@@ -535,7 +536,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
           corsFilter.doFilter(servletRequest, servletResponse, filterChain)
 
           servletResponse.getHeaders(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS) should have size 1
-          servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).split(",") should contain (httpMethod)
+          servletResponse.getHeader(CorsHttpHeader.ACCESS_CONTROL_ALLOW_METHODS).split(",") should contain(httpMethod)
         }
 
         it(s"should return a 403 when the requested method is not allowed for method $httpMethod") {
@@ -640,23 +641,51 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
   }
 
   describe("the getHostUri method") {
-    List(
-      ("http", "openrepose.org", 80, 80),
-      ("http", "10.8.4.4", -1, 80),
-      ("http", "zombo.com", 7777, 7777),
-      ("https", "[2001:db8:cafe:0:0:0:0:34]", 443, 443),
-      ("https", "rackspace.com", -1, 443)
-    ) foreach { case (scheme, serverName, port, expectedPort) =>
-      it(s"should be able to parse the request scheme '$scheme', serverName '$serverName', and port '$port' into a URI") {
-        servletRequest.setScheme(scheme)
-        servletRequest.setServerName(serverName)
-        servletRequest.setServerPort(port)
+    Seq(("http", 80), ("https", 443)) foreach { case (scheme, port) =>
+      Seq("openrepose.org", "10.8.4.4", "zombo.com", "rackspace.com") foreach { serverName =>
+        it(s"should be able to parse the request scheme '$scheme', serverName '$serverName', and port '$port' into a URI") {
+          servletRequest.setScheme(scheme)
+          servletRequest.setServerName(serverName)
+          servletRequest.setServerPort(-1)
 
-        val uri = corsFilter.getHostUri(servletRequest)
+          val uri = corsFilter.getHostUri(servletRequest)
 
-        uri.getScheme shouldBe scheme
-        uri.getHost shouldBe serverName
-        uri.getPort shouldBe expectedPort
+          uri.getScheme shouldBe scheme
+          uri.getHost shouldBe serverName
+          uri.getPort shouldBe port
+        }
+
+        Seq(8080, 8443, 7777) foreach { expectedPort =>
+          it(s"should be able to parse the request scheme '$scheme', serverName '$serverName', and port '$expectedPort' into a URI") {
+            servletRequest.setScheme(scheme)
+            servletRequest.setServerName(serverName)
+            servletRequest.setServerPort(expectedPort)
+
+            val uri = corsFilter.getHostUri(servletRequest)
+
+            uri.getScheme shouldBe scheme
+            uri.getHost shouldBe serverName
+            uri.getPort shouldBe expectedPort
+          }
+        }
+      }
+
+      Seq(
+        "[2001:db8:cafe::17]",
+        "[2001:db8:cafe:0:0:0:0:17]",
+        "[2001:0Db8:Cafe:0000:0000:0000:0000:0017]",
+        "[2001:0DB8:CAFE:0000:0000:0000:0000:0017]") foreach { serverName =>
+        it(s"should be able to parse the request scheme '$scheme', serverName '$serverName', and port '$port' into a URI") {
+          servletRequest.setScheme(scheme)
+          servletRequest.setServerName(serverName)
+          servletRequest.setServerPort(-1)
+
+          val uri = corsFilter.getHostUri(servletRequest)
+
+          uri.getScheme shouldBe scheme
+          uri.getHost shouldBe "[2001:db8:cafe::17]"
+          uri.getPort shouldBe port
+        }
       }
     }
 
@@ -708,7 +737,9 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
         servletRequest.setScheme("http")
         servletRequest.setServerName(null)
         servletRequest.setServerPort(-1)
-        forwardedHostHeaders foreach { servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, _) }
+        forwardedHostHeaders foreach {
+          servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, _)
+        }
 
         val uri = corsFilter.getHostUri(servletRequest)
 
@@ -931,8 +962,8 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
   }
 
   def createCorsConfig(allowedOrigins: List[String],
-                   allowedMethods: List[String],
-                   resources: List[(String, List[String])]): CorsConfig = {
+                       allowedMethods: List[String],
+                       resources: List[(String, List[String])]): CorsConfig = {
     val config = new CorsConfig
 
     val configOrigins = new Origins
