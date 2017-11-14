@@ -8,7 +8,7 @@ Most of these methods can be used in a production deployment.
 == Intrafilter Logging
 [WARNING]
 ====
-This should be used in a controlled environment (i.e. not production) and should not be used for more than a few minutes at a time due to the amount of logging that occurs.
+This should be used in a controlled environment (i.e., not production) and should not be used for more than a few minutes at a time due to the amount of logging that occurs.
 ====
 
 Intrafilter Logging allows you to see the modified output of each filter as the request goes through the filter chain which makes debugging configurations easier.
@@ -101,10 +101,11 @@ x-default-router-time: 0ms
 ----
 
 == Log All Requests/Responses to the Origin Service and Third Party APIs
-You can view all of the data being sent and received to the origin service and other third party APIs (e.g. Identity) by turning on Apache HttpClient logging.
+You can view all of the data being sent and received to the origin service and other third party APIs (e.g., Identity) by turning on Apache HttpClient logging.
 
 === Enabling
-In `log4j2.xml`, update the `org.apache` logger to the `debug` level. For example:
+In `log4j2.xml`, update the `org.apache` logger to the `debug` level.
+For example:
 
 [source,xml]
 ----

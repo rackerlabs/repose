@@ -111,12 +111,12 @@ This filter does not modify the response code.
 ----
 <1> The `v1_1` element lets the filter know that you'd like to try to process request bodies using the 1.1 contract for auth requests.
     It is optional.
-<2> The `content-body-read-limit` attribute specifies how much of the body you'd like the filter to read before giving up and assuming it's not present.
-    It is optional and defaults to `4096`.
-<3> The `group` element specifies what group name to use in the `X-PP-Groups` header.
-    It is optional and defaults to `Pre_Auth`.
-<4> The `quality` element specifies what quality to apply to the `X-PP-User` and `X-PP-Groups` headers, it should be a value between `0` and `1.0`.
-    It is optional and defaults to `0.6`.
+<2> The `content-body-read-limit` attribute specifies how much of the body you'd like the filter to read before giving up and assuming it's not present. +
+    Default: `4096`
+<3> The `group` element specifies what group name to use in the `X-PP-Groups` header. +
+    Default: `Pre_Auth`
+<4> The `quality` element specifies what quality to apply to the `X-PP-User` and `X-PP-Groups` headers, it should be a value between `0` and `1.0`. +
+    Default: `0.6`
 <5> The `v2_0` element is similar to the `v1_1` element but specifies that the filter should try to process request bodies using the 2.0 contract for auth requests and forgotten password requests.
     It is optional.
     The elements are not exclusive, and you can specify one, both, or neither.

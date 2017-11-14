@@ -100,10 +100,14 @@ This configuration shows explicitly naming the user and group headers to their d
     </group>
 </ip-user>
 ----
-<1> Specifies the header name for the User information (i.e. IP Address). (Default: `X-PP-User`)
-<2> Specifies the quality to associate with the User information. (Default: `0.4`)
-<3> Specifies the header name for the Group information . (Default: `X-PP-Groups`)
-<4> Specifies the quality to associate with the Group information. (Default: `0.4`)
+<1> Specifies the header name for the User information (i.e., IP Address). +
+    Default: `X-PP-User`
+<2> Specifies the quality to associate with the User information. +
+    Default: `0.4`
+<3> Specifies the header name for the Group information. +
+    Default: `X-PP-Groups`
+<4> Specifies the quality to associate with the Group information. +
+    Default: `0.4`
 <5> Group definitions with the required `name` attribute.
 <6> An IPv6 CIDR address definition.
 <7> An IPv4 CIDR address definition.

@@ -9,7 +9,7 @@ Events are recorded even if the API request is rejected by *Repose* before reach
 * *Name:* herp
 * *Released:* v7.0.0.1
 * *Bundle:* repose-filter-bundle
-* *Default configuration:* highly-efficient-record-processor.cfg.xml
+* *Default Configuration:* highly-efficient-record-processor.cfg.xml
 * *Configuration Schema:* link:../schemas/highly-efficient-record-processor.xsd[highly-efficient-record-processor.xsd]
 
 == Prerequisites & Postconditions
@@ -83,7 +83,7 @@ In other words, the `match` elements are logically AND'd and the `filterOut` blo
 
 . Within the match element:
  * Set the `field` attribute to name the event field to be matched.
-   If the `field` is a map (e.g. parameters), then a dot separates the `field` from the map key and both are placed in the `field` attribute.
+   If the `field` is a map (e.g., parameters), then a dot separates the `field` from the map key and both are placed in the `field` attribute.
  * Set the `regex` attribute to determine if the regular expressions match the fields' values.
    The regex is currently considered to match if any part of a field's value matches.
    For example, a regex of `"racker"` would match a value of `"rackerTwo"`.
@@ -174,7 +174,7 @@ In other words, the `match` elements are logically AND'd and the `filterOut` blo
 
 . Within the match element:
  * Set the `field` attribute to name the event field to be matched.
-   If the `field` is a map (e.g. parameters), then a dot separates the `field` from the map key and both are placed in the `field` attribute.
+   If the `field` is a map (e.g., parameters), then a dot separates the `field` from the map key and both are placed in the `field` attribute.
  * Set the `regex` attribute to determine if the regular expressions match the fields' values.
    The regex is currently considered to match if any part of a field's value matches.
    For example, a regex of `"racker"` would match a value of `"rackerTwo"`.

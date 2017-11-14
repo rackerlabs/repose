@@ -117,7 +117,7 @@ For more information about specific response codes that *Repose* will receive fr
 ====
 
 == Account Admins
-If a user has the `account_admin` role in Valkyrie, when `enable-bypass-account-admin` is configured to be `true` (the default is `false`), the Valkyrie filter will pass the request along regardless of whether or not the device permission check fails.
+If a user has the `account_admin` role in Valkyrie, when `enable-bypass-account-admin` is configured to be `true`, the Valkyrie filter will pass the request along regardless of whether or not the device permission check fails.
 Culling will also not be performed when configured in this manner.
 The Valkyrie filter can add the user's permissions to the `X-Roles` header, but it is left to a subsequent filter or the origin service to validate the request.
 
@@ -177,19 +177,21 @@ This configuration will authorize non-admin users, translate permissions to role
     </pre-authorized-roles>
 </valkyrie-authorization>
 ----
-<1> Specifies the time in milliseconds to cache Valkyrie service responses.
-The default is 5 minutes.
+<1> Specifies the time in milliseconds to cache Valkyrie service responses. +
+    Default: `300000` (5 minutes: 5*60*1000)
 <2> Specifies whether or not to translate 403 responses to 404 responses.
 <3> Specifies whether or not to bypass the secondary authorization call.
-If disabled (`false`, the default), then a secondary authorization call will be made when a permission of `account_admin` is found.
-This has the potential to increase the response time.
-If enabled (`true`), then the secondary authorization call is bypassed and no culling of the origin service response will occur.
-<4> Specifies the connection pool to use by ID.
-If not configured, the default connection pool is used.
+    If disabled (`false`), then a secondary authorization call will be made when a permission of `account_admin` is found.
+    This has the potential to increase the response time.
+    If enabled (`true`), then the secondary authorization call is bypassed and no culling of the origin service response will occur. +
+    Default: `false`
+<4> Specifies the connection pool to use by ID. +
+    Default: `default`
 <5> Specifies whether or not to verify that the `X-Tenant-Id` header starts with `hybrid:`.
-If disabled (`false`, the default), this filter will verify that the `X-Tenant-Id` header starts with `hybrid:` (indicating a dedicated tenant) before making a request to Valkyrie.
-If the header does not start with `hybrid:` (indicating a non-dedicated tenant), the request is immediately rejected.
-If enabled (`true`), the filter will be skipped for non-dedicated tenants allowing processing to continue.
+    If disabled (`false`), this filter will verify that the `X-Tenant-Id` header starts with `hybrid:` (indicating a dedicated tenant) before making a request to Valkyrie.
+    If the header does not start with `hybrid:` (indicating a non-dedicated tenant), the request is immediately rejected.
+    If enabled (`true`), the filter will be skipped for non-dedicated tenants allowing processing to continue. +
+    Default: `false`
 <6> Specifies whether or not to send a failing response when an invalid state is reach.
 If present, the filter will not send a failing response.
 Instead, it will add the data relating to the failure to a header and forward the request to be handled by a different filter or service.

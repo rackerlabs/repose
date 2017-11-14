@@ -128,14 +128,15 @@ if len(pathSegments) >= 2: <!--5-->
 filterChain.doFilter(request, response) <!--8-->
 ]]></scripting> <!--9-->
 ----
-<1> Specifies that the scripting language being used is `python`. Also opens the `CDATA` block.
+<1> Specifies that the scripting language being used is `python`.
+    Also opens the `CDATA` block.
 <2> The first line of the Python script.
-Gets the request URI from the request object.
+    Gets the request URI from the request object.
 <3> Removes any leading or trailing `/` characters from the URI.
-Also splits the modified URI on the `/` character.
+    Also splits the modified URI on the `/` character.
 <4> Gets the request query string from the request object.
 <5> For this specific example, we assert that there are at least two path segments.
-If not, no request mutations are performed.
+    If not, no request mutations are performed.
 <6> This conditional block appends the last two path segments as query parameters.
 <7> Sets the modified query string and request URI on the request object.
 <8> Passes the modified request and the response on to the next component in the filter chain.

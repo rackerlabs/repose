@@ -2,7 +2,7 @@
 
 == Overview
 A common use case for *Repose* is rate limiting.
-It limits how many requests per some unit of time (e.g. 10 requests per minute) are allowed to be made.
+It limits how many requests per some unit of time (e.g., 10 requests per minute) are allowed to be made.
 In this recipe, we'll be using the `X-PP-User` header to indicate who we are for rate limiting purposes.
 For additional info on populating that header and on rate limiting by groups, see the <<../filters/rate-limiting.adoc#,Rate Limiting Filter>> documentation.
 
@@ -26,7 +26,7 @@ The filter can be enabled by adding it to the list of filters in the <<../archit
 ----
 
 === Rate Limiting
-After the filter has been added to the <<../architecture/system-model.adoc#,System Model>>, the example configuration can copied/moved from the examples directory to the configuration files directory (i.e. `/etc/repose`).
+After the filter has been added to the <<../architecture/system-model.adoc#,System Model>>, the example configuration can copied/moved from the examples directory to the <<../architecture/configuration.adoc#, configuration files directory>>.
 The example configuration for rate limiting is sufficient for testing and will limit requests to the origin service to 10 times per minute.
 
 [source,xml]

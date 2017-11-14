@@ -19,7 +19,7 @@ The name of the header containing said roles is configurable, but `X-Roles` is t
 === Required Preceding Filters
 This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.
 
-However, due to the nature of this filter, it is typically placed early in the filter chain immediately after any authentication filters (e.g. <<keystone-v2.adoc#, Keystone v2 Filter>>).
+However, due to the nature of this filter, it is typically placed early in the filter chain immediately after any authentication filters (e.g., <<keystone-v2.adoc#, Keystone v2 Filter>>).
 
 === Request Headers Created
 * `X-Relevant-Roles` - Lists the values of the `X-Roles` (or a semantically equivalent) header which match a role value from the configuration for the resource being requested.
@@ -53,12 +53,12 @@ This filter does not create/modify any response headers.
 | `404`
 | The filter determined that the URI is invalid.
 
-  When `mask-rax-roles-403` attribute is enabled (i.e. `true`), this could also indicate the supplied `X-Roles` request header value did not have access to the URI.
+  When `mask-rax-roles-403` attribute is enabled (i.e., `true`), this could also indicate the supplied `X-Roles` request header value did not have access to the URI.
 
 | `405`
 | The URI is valid, but the Method is not appropriate for the URI.
 
-  When `mask-rax-roles-403` attribute is enabled (i.e. `true`), this could also indicate the supplied `X-Roles` request header value had access to the URI, but not the requested Method.
+  When `mask-rax-roles-403` attribute is enabled (i.e., `true`), this could also indicate the supplied `X-Roles` request header value had access to the URI, but not the requested Method.
 |===
 
 == Examples
@@ -118,14 +118,14 @@ It does not, however, cover the resources format, as including resources both in
 </simple-rbac>
 ----
 <1> Specifies the header name of the header which contains the list of user roles. +
-    Defaults to `X-Roles`.
+    Default: `X-Roles`
 <2> If set to true, instead of returning a FORBIDDEN (403), the response will be a NOT FOUND (404) if no methods are accessible or a METHOD NOT ALLOWED (405) if some methods are available. +
-    Defaults to false.
+    Default: `false`
 <3> If set to true, this filter will record, via JMX, the number of times each state in the generated state machine (the underlying mechanism) is accessed.
     These values may be used to determine API usage and coverage.
     The path taken by each request is also logged to the named `api-coverage-logger` logger in the Log4J configuration.
     If that logger is not configured, then they are logged to the default handler. +
-    Defaults to false.
+    Default: `false`
 <4> Specifies the DOT output file for this validator.
     DOT is a plain text graph description language.
     This is a simple way of describing graphs that both humans and computer programs can use..
@@ -134,14 +134,14 @@ It does not, however, cover the resources format, as including resources both in
 <6> Inclusion of this element prevents this filter from returning errors, and directs this filter to populate delegation headers instead.
 <7> Specifies the quality of specific output headers.
     When setting up a chain of delegating filters, the highest quality number will be the one that is eventually output. +
-    Default value is 0.3.
+    Default: `0.3`
 <8> The component name used in the delegation header.
     This is particularly useful when multiple instances of an API-Checker based filter are used in the same filter chain. +
-    Defaults to `simple-rbac`.
+    Default: `simple-rbac`
 <9> Specifies a location to an external file which contains the Simple RBAC resources.
     If the message element has a value and the `href` attribute is configured, the Simple RBAC will use what is configured in the value.
     If the file that the `href` attribute points to is modified, the Simple RBAC will not reload the configuration.
-    So the new RBAC file should be placed in a new file name (e.g. Dated) and the simple-rbac.cfg.xml file updated to point to it in order to guarantee the changes are utilized.
+    So the new RBAC file should be placed in a new file name (e.g., Dated) and the simple-rbac.cfg.xml file updated to point to it in order to guarantee the changes are utilized.
 
 == Additional Information
 

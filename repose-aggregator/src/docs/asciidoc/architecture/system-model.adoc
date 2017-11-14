@@ -58,7 +58,7 @@ This section is only meant to explain certain quirks of the system model, and to
 Other aspects of configuration will be explained through examples. See: <<Repose Deployment Scenarios>>
 
 Since port numbers below 1024 are privileged, *Repose* typically can *not* connect directly to them.
-There are several ways to go about getting around this, but one of the most generally accepted ways is to execute the following commands with root privilege (e.g. sudo):
+There are several ways to go about getting around this, but one of the most generally accepted ways is to execute the following commands with root privilege (e.g., sudo):
 ----
 /sbin/iptables -t nat -I PREROUTING -p tcp --dport  80 -j REDIRECT --to-port 8080
 /sbin/iptables -t nat -I PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 8443
@@ -99,21 +99,24 @@ There are several ways to go about getting around this, but one of the most gene
 <3> Defines the hostname of the *Repose* node.
 If set to localhost, any physical node will match and run the *Repose* node.
 <4> Defines the port for the node to listen on.
-<5> Defines a sequence of filters to run. In this case, no filters are being used.
-<6> Defines a set of services to run. In this case, no services are being used.
-<7> Defines a new endpoint with an ID that must be unique across all defined endpoints in the destinations list. There must be exactly one default destination endpoint.
+<5> Defines a sequence of filters to run.
+    In this case, no filters are being used.
+<6> Defines a set of services to run.
+    In this case, no services are being used.
+<7> Defines a new endpoint with an ID that must be unique across all defined endpoints in the destinations list.
+    There must be exactly one default destination endpoint.
 <8> Defines the endpoint's protocol.
-If the protocol is not specified, then internal dispatch is assumed.
+    If the protocol is not specified, then internal dispatch is assumed.
 <9> Defines the endpoint's host name.
-If not specified, localhost is assumed.
+    If not specified, localhost is assumed.
 <10> Defines the endpoint's base path.
-This will be used in building the URI/path for connecting to the service.
-Any additional URI info will be appended to this.
+     This will be used in building the URI/path for connecting to the service.
+     Any additional URI info will be appended to this.
 <11> Defines the endpoint's port.
-If not specified (or 0), internal dispatch is assumed.
+     If not specified (or 0), internal dispatch is assumed.
 <12> Specifies whether or not this is the default destination endpoint.
-The default destination endpoint will be responsible for handling all traffic that is not explicitly routed to a different destination endpoint.
-Remember that a target can be specified rather than an endpoint if you want to use round-robin routing to a service cluster.
+     The default destination endpoint will be responsible for handling all traffic that is not explicitly routed to a different destination endpoint.
+     Remember that a target can be specified rather than an endpoint if you want to use round-robin routing to a service cluster.
 
 === Nova-API Localhost Deployment
 *IN PROGRESS*

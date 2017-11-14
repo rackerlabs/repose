@@ -26,7 +26,7 @@ Once you have that account, you can verify your credentials by logging in using:
 
 Another issue that may arise is that communication with the Docker Engine is denied do to a lack of permissions.
 This can be fixed by adding the user to the `docker` group.
-On most *NIX systems this can be accomplished by issuing the following command as `root` or another elevated user (e.g. `sudo`):
+On most *NIX systems this can be accomplished by issuing the following command as `root` or another elevated user (e.g., `sudo`):
 
 - `usermod -aG docker $USER`
 
@@ -54,7 +54,7 @@ Let's break that command down and take a closer look at what it is doing:
 <1> This is the part of the command that tells Docker to create and start a container.
 <2> This option will run the container in detached mode.
     In detached mode, the container will run in the background.
-    If we were to run in attached mode (the default) instead of detached mode, the terminal we used to execute this command would receive all of the container output (e.g. STDOUT, and STDERR).
+    If we were to run in the default attached mode instead of detached mode, the terminal we used to execute this command would receive all of the container output (i.e., `STDOUT` and `STDERR`).
 <3> This option defines a port mapping between the host (i.e., the OS running the Docker Engine) and the Docker container itself.
     Doing so allows *Repose* to accept traffic over the specified port from outside of Docker.
     The port mapping format is `HOST_PORT:CONTAINER_PORT`.
