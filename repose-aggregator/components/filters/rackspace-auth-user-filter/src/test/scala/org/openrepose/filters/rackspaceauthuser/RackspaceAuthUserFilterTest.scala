@@ -40,6 +40,7 @@ import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.datastore.distributed.DistributedDatastore
+import org.openrepose.filters.rackspaceauthuser.config.{IdentityV11, IdentityV2, RackspaceAuthUserConfig}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}

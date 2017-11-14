@@ -18,13 +18,12 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 
-package org.openrepose.filters.headertranslation
+package org.openrepose.filters.headertranslation.config
 
 import java.net.URL
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.test.ConfigurationTest
-import org.openrepose.filters.headertranslation.config.ObjectFactory
 import org.scalatest.junit.JUnitRunner
 import org.xml.sax.SAXParseException
 

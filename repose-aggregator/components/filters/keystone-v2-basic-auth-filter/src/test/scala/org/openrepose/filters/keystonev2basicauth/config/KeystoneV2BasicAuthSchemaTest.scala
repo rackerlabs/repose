@@ -17,27 +17,17 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.rms
+package org.openrepose.filters.keystonev2basicauth.config
 
 import java.net.URL
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.test.ConfigurationTest
-import org.openrepose.core.services.rms.config.ObjectFactory
 import org.scalatest.junit.JUnitRunner
-import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class RmsSchemaTest extends ConfigurationTest {
-  override val schema: URL = getClass.getResource("/META-INF/schema/response-messaging/response-messaging.xsd")
-  override val exampleConfig: URL = getClass.getResource("/META-INF/service/rms/response-messaging.cfg.xml")
+class KeystoneV2BasicAuthSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/keystone-v2-basic-auth.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/keystone-v2-basic-auth.cfg.xml")
   override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
-
-  describe("schema validation") {
-    it("should not validate when a message is defined inline and referenced as an external resource") {
-      intercept[SAXParseException] {
-        validator.validateConfigFile("/META-INF/service/rms/response-messaging-assert.cfg.xml")
-      }.getLocalizedMessage should include("Assertion failed for schema type")
-    }
-  }
 }

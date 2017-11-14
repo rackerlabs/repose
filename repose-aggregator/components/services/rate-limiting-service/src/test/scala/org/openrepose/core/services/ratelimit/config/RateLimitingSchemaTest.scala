@@ -161,5 +161,9 @@ class RateLimitingSchemaTest extends ConfigurationTest {
         validator.validateConfigString(config)
       }.getLocalizedMessage should include ("It must be a value from the enumeration.")
     }
+
+    it("should validate against live limits example") {
+      validator.validateConfigFile("/META-INF/schema/examples/limits.xml")
+    }
   }
 }

@@ -35,6 +35,7 @@ import org.openrepose.commons.utils.servlet.http.{HeaderValue, HttpServletReques
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
+import org.openrepose.filters.rackspaceauthuser.config.{IdentityGroupConfig, IdentityV11, RackspaceAuthUserConfig}
 import play.api.libs.json.{JsError, JsSuccess, Json}
 
 import scala.collection.JavaConverters._
@@ -221,7 +222,7 @@ class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationServi
         } else {
           throw UnexpectedContentTypeException(s"Content type was neither xml or json: $contentType")
         }
-      userOpt.map(RackspaceAuthUserGroup(domainOpt, _, config.getGroup, config.quality.toDouble))
+      userOpt.map(RackspaceAuthUserGroup(domainOpt, _, config.getGroup, config.getQuality.toDouble))
     } catch {
       case e: UnexpectedContentTypeException =>
         logger.debug("Unexpected content type: {}", contentType)

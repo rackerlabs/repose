@@ -17,25 +17,17 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.ratelimiting
+package org.openrepose.filters.samlpolicy.config
 
 import java.net.URL
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.test.ConfigurationTest
-import org.openrepose.core.services.ratelimit.config.ObjectFactory
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class RateLimitingSchemaTest extends ConfigurationTest {
-  override val schema: URL = getClass.getResource("/META-INF/schema/config/rate-limiting-configuration.xsd")
-  override val auxiliarySchemas: Seq[URL] = Seq("/META-INF/schema/limits/limits.xsd").map(getClass.getResource)
-  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/rate-limiting.cfg.xml")
+class SamlPolicyTranslationSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/saml-policy.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/saml-policy.cfg.xml")
   override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
-
-  describe("schema validation") {
-    it("should validate against live limits example") {
-      validator.validateConfigFile("/META-INF/schema/examples/limits.xml")
-    }
-  }
 }

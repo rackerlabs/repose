@@ -18,7 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 
-package org.openrepose.filters.compression
+package org.openrepose.filters.compression.config
 
 import java.net.URL
 

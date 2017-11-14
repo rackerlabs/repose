@@ -17,13 +17,12 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.ipuser
+package org.openrepose.filters.ipuser.config
 
 import java.net.URL
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.test.ConfigurationTest
-import org.openrepose.filters.ipuser.config.ObjectFactory
 import org.scalatest.junit.JUnitRunner
 import org.xml.sax.SAXParseException
 

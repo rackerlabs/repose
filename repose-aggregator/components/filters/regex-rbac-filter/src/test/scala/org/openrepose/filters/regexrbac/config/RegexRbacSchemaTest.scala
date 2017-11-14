@@ -17,13 +17,12 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.regexrbac
+package org.openrepose.filters.regexrbac.config
 
 import java.net.URL
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.test.ConfigurationTest
-import org.openrepose.filters.regexrbac.config.ObjectFactory
 import org.scalatest.junit.JUnitRunner
 import org.xml.sax.SAXParseException
 

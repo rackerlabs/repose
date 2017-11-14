@@ -17,18 +17,17 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.samlpolicy
+package org.openrepose.filters.bodyextractortoheader.config
 
 import java.net.URL
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.test.ConfigurationTest
-import org.openrepose.filters.samlpolicy.config.ObjectFactory
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class SamlPolicyTranslationSchemaTest extends ConfigurationTest {
-  override val schema: URL = getClass.getResource("/META-INF/schema/config/saml-policy.xsd")
-  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/saml-policy.cfg.xml")
+class BodyExtractorToHeaderSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/body-extractor-to-header.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/body-extractor-to-header.cfg.xml")
   override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 }
