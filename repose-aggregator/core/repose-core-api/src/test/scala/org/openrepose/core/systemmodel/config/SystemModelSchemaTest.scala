@@ -18,7 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 
-package org.openrepose.core.systemmodel
+package org.openrepose.core.systemmodel.config
 
 import java.net.URL
 

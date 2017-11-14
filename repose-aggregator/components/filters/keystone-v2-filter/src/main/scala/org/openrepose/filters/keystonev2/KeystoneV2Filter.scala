@@ -40,7 +40,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.types.{PatchableSet, SetPatch}
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException, AkkaServiceClientFactory}
-import org.openrepose.core.systemmodel.SystemModel
+import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.config._
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}

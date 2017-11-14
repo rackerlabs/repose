@@ -34,7 +34,7 @@ import org.openrepose.commons.utils.http.media.MimeType
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.{HealthCheckService, HealthCheckServiceProxy, Severity}
 import org.openrepose.core.services.reporting.metrics.MetricsService
-import org.openrepose.core.systemmodel._
+import org.openrepose.core.systemmodel.config._
 import org.openrepose.filters.versioning.config.{MediaType, MediaTypeList, ServiceVersionMapping, ServiceVersionMappingList}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar

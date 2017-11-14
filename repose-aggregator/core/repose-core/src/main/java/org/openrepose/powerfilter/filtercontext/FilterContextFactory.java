@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,7 @@ import com.oracle.javaee6.FilterType;
 import org.openrepose.commons.utils.classloader.EarClassLoaderContext;
 import org.openrepose.core.services.classloader.ClassLoaderManagerService;
 import org.openrepose.core.spring.CoreSpringProvider;
-import org.openrepose.core.systemmodel.Filter;
+import org.openrepose.core.systemmodel.config.Filter;
 import org.openrepose.powerfilter.FilterInitializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +57,7 @@ public class FilterContextFactory {
     public List<FilterContext> buildFilterContexts(ServletContext servletContext, List<Filter> filtersToCreate) throws FilterInitializationException {
         final List<FilterContext> filterContexts = new LinkedList<>();
 
-        for (org.openrepose.core.systemmodel.Filter papiFilter : filtersToCreate) {
+        for (org.openrepose.core.systemmodel.config.Filter papiFilter : filtersToCreate) {
 
             if (classLoaderManagerService.hasFilter(papiFilter.getName())) {
                 final FilterContext context = loadFilterContext(papiFilter, classLoaderManagerService.getLoadedApplications(), servletContext);

@@ -34,7 +34,7 @@ import org.openrepose.commons.utils.http._
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
-import org.openrepose.core.systemmodel.{SystemModel, TracingHeaderConfig}
+import org.openrepose.core.systemmodel.config.{SystemModel, TracingHeaderConfig}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.scalatest.junit.JUnitRunner

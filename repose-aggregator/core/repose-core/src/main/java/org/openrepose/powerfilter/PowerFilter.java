@@ -47,7 +47,7 @@ import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.rms.ResponseMessageService;
 import org.openrepose.core.spring.ReposeSpringProperties;
-import org.openrepose.core.systemmodel.*;
+import org.openrepose.core.systemmodel.config.*;
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService;
 import org.openrepose.nodeservice.httpcomponent.HttpComponentFactory;
 import org.openrepose.nodeservice.response.ResponseHeaderService;

@@ -31,7 +31,7 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.ContainerConfiguration
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.spring.CoreSpringProvider
-import org.openrepose.core.systemmodel.SystemModel
+import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService
 import org.openrepose.valve.ReposeJettyServer
 import org.openrepose.valve.jmx.{ValvePortMXBean, ValvePortMXBeanImpl}
