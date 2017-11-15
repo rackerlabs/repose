@@ -52,8 +52,8 @@ org.apache.logging.log4j                  log4j-flume-ng           2.3          
 org.apache.logging.log4j                  log4j-iostreams          2.3             Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
 org.apache.logging.log4j                  log4j-jul                2.3             Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
 org.apache.logging.log4j                  log4j-slf4j-impl         2.3             Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
-org.eclipse.jetty                         jetty-server             9.3.7.v20160115 Apache License Version 2.0  http://www.eclipse.org/jetty/licenses.php
-org.eclipse.jetty                         jetty-servlet            9.3.7.v20160115 Apache License Version 2.0  http://www.eclipse.org/jetty/licenses.php
+org.eclipse.jetty                         jetty-server             9.3.22.v20171030 Apache License Version 2.0  http://www.eclipse.org/jetty/licenses.php
+org.eclipse.jetty                         jetty-servlet            9.3.22.v20171030 Apache License Version 2.0  http://www.eclipse.org/jetty/licenses.php
 org.gnieh                                 diffson_2.11             2.0.1           Apache License Version 2.0  https://github.com/gnieh/diffson
 org.joda                                  joda-convert             1.7             Apache License Version 2.0  http://www.joda.org/joda-convert/
 org.jvnet.jaxb2_commons                   jaxb2-basics-runtime     0.6.5           CDDL v1.1 and GPL v2        https://jaxb.java.net/
