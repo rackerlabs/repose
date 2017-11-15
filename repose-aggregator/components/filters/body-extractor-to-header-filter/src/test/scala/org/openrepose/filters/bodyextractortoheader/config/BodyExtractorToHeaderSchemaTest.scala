@@ -17,20 +17,17 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.rackspaceauthuser
+package org.openrepose.filters.bodyextractortoheader.config
+
+import java.net.URL
 
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
+import org.openrepose.commons.test.ConfigurationTest
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class RackspaceAuthUserSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/config/rackspace-auth-user-configuration.xsd")
-
-  describe("schema validation") {
-    it("should successfully validate the example config") {
-      validator.validateConfigFile("/META-INF/schema/examples/rackspace-auth-user.cfg.xml")
-    }
-  }
+class BodyExtractorToHeaderSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/body-extractor-to-header.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/body-extractor-to-header.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 }

@@ -22,7 +22,7 @@ package org.openrepose.powerfilter.intrafilterlogging;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.openrepose.core.systemmodel.Filter;
+import org.openrepose.core.systemmodel.config.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

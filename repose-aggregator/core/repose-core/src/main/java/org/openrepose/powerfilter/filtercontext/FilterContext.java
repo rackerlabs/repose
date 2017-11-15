@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 public class FilterContext implements Destroyable {
 
     private final Filter filter;
-    private final org.openrepose.core.systemmodel.Filter filterConfig;
+    private final org.openrepose.core.systemmodel.config.Filter filterConfig;
     private final String name;
     private final String uriRegex;
     private final Pattern uriPattern;
@@ -41,7 +41,7 @@ public class FilterContext implements Destroyable {
         this(filter, filterAppContext, null);
     }
 
-    public FilterContext(Filter filter, AbstractApplicationContext filterAppContext, org.openrepose.core.systemmodel.Filter filterConfig) {
+    public FilterContext(Filter filter, AbstractApplicationContext filterAppContext, org.openrepose.core.systemmodel.config.Filter filterConfig) {
         this.filter = filter;
         this.filterAppContext = filterAppContext;
         this.filterConfig = filterConfig;
@@ -62,7 +62,7 @@ public class FilterContext implements Destroyable {
         return filter;
     }
 
-    public org.openrepose.core.systemmodel.Filter getFilterConfig() {
+    public org.openrepose.core.systemmodel.config.Filter getFilterConfig() {
         return filterConfig;
     }
 

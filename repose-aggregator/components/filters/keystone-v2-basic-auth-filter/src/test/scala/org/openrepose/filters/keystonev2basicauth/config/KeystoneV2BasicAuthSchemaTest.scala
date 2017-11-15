@@ -17,20 +17,17 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.samlpolicy
+package org.openrepose.filters.keystonev2basicauth.config
+
+import java.net.URL
 
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
+import org.openrepose.commons.test.ConfigurationTest
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class SamlPolicyTranslationSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/config/saml-policy.xsd")
-
-  describe("schema validation") {
-    it("should successfully validate the example config") {
-      validator.validateConfigFile("/META-INF/schema/examples/saml-policy.cfg.xml")
-    }
-  }
+class KeystoneV2BasicAuthSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/keystone-v2-basic-auth.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/keystone-v2-basic-auth.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 }

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,7 +27,7 @@ import org.openrepose.core.services.reporting.ReposeInfo;
 import org.openrepose.core.services.reporting.destinations.DestinationInfo;
 import org.openrepose.core.services.reporting.destinations.impl.DestinationInfoLogic;
 import org.openrepose.core.services.reporting.repose.ReposeInfoLogic;
-import org.openrepose.core.systemmodel.*;
+import org.openrepose.core.systemmodel.config.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;

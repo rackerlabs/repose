@@ -22,7 +22,7 @@ package org.openrepose.filters.compression
 
 import java.io.{EOFException, IOException}
 import java.net.URL
-import javax.inject.{Named, Inject}
+import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse
 
@@ -32,6 +32,7 @@ import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.external.pjlcompression.CompressingFilter
 import org.openrepose.filters.compression.CompressionFilter.CompressionParameters.CompressionParameters
+import org.openrepose.filters.compression.config.ContentCompressionConfig
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions

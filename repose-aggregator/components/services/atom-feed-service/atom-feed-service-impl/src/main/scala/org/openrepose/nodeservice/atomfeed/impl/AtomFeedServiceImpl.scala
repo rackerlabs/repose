@@ -29,7 +29,7 @@ import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.httpclient.HttpClientService
 import org.openrepose.core.spring.ReposeSpringProperties
-import org.openrepose.core.systemmodel.SystemModel
+import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.docs.repose.atom_feed_service.v1.{AtomFeedConfigType, AtomFeedServiceConfigType, OpenStackIdentityV2AuthenticationType}
 import org.openrepose.nodeservice.atomfeed.impl.actors.NotifierManager._
 import org.openrepose.nodeservice.atomfeed.impl.actors._

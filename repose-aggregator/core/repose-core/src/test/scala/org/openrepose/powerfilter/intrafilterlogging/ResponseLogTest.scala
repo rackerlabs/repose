@@ -23,7 +23,7 @@ import java.io.ByteArrayInputStream
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper
-import org.openrepose.core.systemmodel.Filter
+import org.openrepose.core.systemmodel.config.Filter
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}

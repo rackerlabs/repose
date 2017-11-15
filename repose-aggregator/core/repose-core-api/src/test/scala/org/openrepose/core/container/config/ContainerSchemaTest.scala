@@ -20,22 +20,21 @@
 
 package org.openrepose.core.container.config
 
+import java.net.URL
+
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
+import org.openrepose.commons.test.ConfigurationTest
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class ContainerSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/container/container-configuration.xsd")
+class ContainerSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/container/container-configuration.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/container.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 
   describe("schema validation") {
-    it("should successfully validate the sample config") {
-      validator.validateConfigFile("/META-INF/schema/examples/container.cfg.xml")
-    }
-
     it("should successfully validate a list of unique ciphers") {
       val config = """<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
                      |    <deployment-config>

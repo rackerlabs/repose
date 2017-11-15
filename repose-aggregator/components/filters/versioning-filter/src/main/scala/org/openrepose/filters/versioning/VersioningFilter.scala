@@ -39,7 +39,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.{HealthCheckService, Severity}
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.spring.ReposeSpringProperties
-import org.openrepose.core.systemmodel.{Destination, SystemModel}
+import org.openrepose.core.systemmodel.config.{Destination, SystemModel}
 import org.openrepose.filters.versioning.config.{ServiceVersionMapping, ServiceVersionMappingList}
 import org.openrepose.filters.versioning.domain.{ConfigurationData, VersionedHostNotFoundException, VersionedRequest}
 import org.openrepose.filters.versioning.schema.ObjectFactory

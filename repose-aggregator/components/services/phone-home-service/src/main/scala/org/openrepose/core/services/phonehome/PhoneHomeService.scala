@@ -31,7 +31,7 @@ import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.core.spring.ReposeSpringProperties
-import org.openrepose.core.systemmodel.{FilterList, PhoneHomeServiceConfig, ServicesList, SystemModel}
+import org.openrepose.core.systemmodel.config.{FilterList, PhoneHomeServiceConfig, ServicesList, SystemModel}
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import play.api.libs.json.Json.JsValueWrapper

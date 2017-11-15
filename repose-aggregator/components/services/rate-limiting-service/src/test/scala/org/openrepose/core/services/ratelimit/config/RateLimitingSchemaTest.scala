@@ -20,23 +20,21 @@
 
 package org.openrepose.core.services.ratelimit.config
 
+import java.net.URL
+
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
-import org.scalatest.{FunSpec, Matchers}
+import org.openrepose.commons.test.ConfigurationTest
 import org.scalatest.junit.JUnitRunner
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class RateLimitingSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator(
-    "/META-INF/schema/limits/limits.xsd",
-    "/META-INF/schema/config/rate-limiting-configuration.xsd")
+class RateLimitingSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/rate-limiting-configuration.xsd")
+  override val auxiliarySchemas: Seq[URL] = Seq("/META-INF/schema/limits/limits.xsd").map(getClass.getResource)
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/rate-limiting.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 
   describe("schema validation") {
-    it("should successfully validate the sample config") {
-      validator.validateConfigFile("/META-INF/schema/examples/rate-limiting.cfg.xml")
-    }
-
     it("should successfully validate the config when the limit groups have unique IDs, groups are unique, and only one limit group is marked as default") {
       val config = """<rate-limiting xmlns='http://docs.openrepose.org/repose/rate-limiting/v1.0'>
                      |    <limit-group id='customer-limits' groups='customer foo' default='true'/>
@@ -162,6 +160,10 @@ class RateLimitingSchemaTest extends FunSpec with Matchers {
       intercept[SAXParseException] {
         validator.validateConfigString(config)
       }.getLocalizedMessage should include ("It must be a value from the enumeration.")
+    }
+
+    it("should validate against live limits example") {
+      validator.validateConfigFile("/META-INF/schema/examples/limits.xml")
     }
   }
 }

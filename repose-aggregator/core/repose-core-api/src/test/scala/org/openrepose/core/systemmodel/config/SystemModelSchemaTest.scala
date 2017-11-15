@@ -18,28 +18,22 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 
-package org.openrepose.core.systemmodel
+package org.openrepose.core.systemmodel.config
+
+import java.net.URL
 
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
+import org.openrepose.commons.test.ConfigurationTest
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class SystemModelSchemaTest extends FunSpec with BeforeAndAfterEach with Matchers {
-  var validator: ConfigValidator = _
-
-  override def beforeEach() = {
-    // for some reason this class requires it to be reinitialized for each test, otherwise it complains about ID reuse
-    validator = ConfigValidator("/META-INF/schema/system-model/system-model.xsd")
-  }
+class SystemModelSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/system-model/system-model.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/system-model.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 
   describe("schema validation") {
-    it("should successfully validate the sample config") {
-      validator.validateConfigFile("/META-INF/schema/examples/system-model.cfg.xml")
-    }
-
     it("should successfully validate the config when each node has a unique ID") {
       val config = """<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
                      |    <repose-cluster id="repose">

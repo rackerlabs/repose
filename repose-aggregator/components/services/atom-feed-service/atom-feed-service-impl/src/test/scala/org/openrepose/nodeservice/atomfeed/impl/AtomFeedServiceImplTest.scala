@@ -32,7 +32,7 @@ import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.httpclient.HttpClientService
-import org.openrepose.core.systemmodel._
+import org.openrepose.core.systemmodel.config._
 import org.openrepose.docs.repose.atom_feed_service.v1.{AtomFeedServiceConfigType, OpenStackIdentityV2AuthenticationType}
 import org.openrepose.nodeservice.atomfeed.impl.actors.NotifierManager.RemoveNotifier
 import org.openrepose.nodeservice.atomfeed.AtomFeedListener

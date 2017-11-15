@@ -18,23 +18,22 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 
-package org.openrepose.filters.headertranslation
+package org.openrepose.filters.headertranslation.config
+
+import java.net.URL
 
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
-import org.scalatest.{FunSpec, Matchers}
+import org.openrepose.commons.test.ConfigurationTest
 import org.scalatest.junit.JUnitRunner
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class HeaderTranslationSchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/config/header-translation.xsd")
+class HeaderTranslationSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/header-translation.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/header-translation.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 
   describe("schema validation") {
-    it("should successfully validate the sample config") {
-      validator.validateConfigFile("/META-INF/schema/examples/header-translation.cfg.xml")
-    }
-
     it("should reject config with non-unique Original Names (case insensitive)") {
       val config = """<header-translation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                      |                    xsi:schemaLocation="http://docs.openrepose.org/repose/header-translation/v1.0"

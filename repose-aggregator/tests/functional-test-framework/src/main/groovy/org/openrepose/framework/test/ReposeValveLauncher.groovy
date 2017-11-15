@@ -23,7 +23,7 @@ import org.linkedin.util.clock.SystemClock
 import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
 import org.openrepose.commons.config.resource.impl.BufferedURLConfigurationResource
 import org.openrepose.core.filter.SystemModelInterrogator
-import org.openrepose.core.systemmodel.SystemModel
+import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.framework.test.client.jmx.JmxClient
 
 import javax.management.ObjectName

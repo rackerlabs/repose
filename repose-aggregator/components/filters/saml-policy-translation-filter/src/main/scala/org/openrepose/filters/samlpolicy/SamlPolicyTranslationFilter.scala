@@ -59,7 +59,7 @@ import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException
 import org.openrepose.core.spring.ReposeSpringProperties
-import org.openrepose.core.systemmodel.SystemModel
+import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.filters.samlpolicy.SamlIdentityClient.{GenericIdentityException, OverLimitException, UnexpectedStatusCodeException, UnsupportedPolicyFormatException}
 import org.openrepose.filters.samlpolicy.config.SamlPolicyConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}

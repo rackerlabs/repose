@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.apivalidator;
 
-import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
+import org.openrepose.filters.apivalidator.config.ValidatorConfiguration;
 import org.openrepose.core.filter.FilterConfigHelper;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;

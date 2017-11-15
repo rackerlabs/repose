@@ -46,7 +46,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.types.SetPatch
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException, AkkaServiceClientFactory}
-import org.openrepose.core.systemmodel.{SystemModel, TracingHeaderConfig}
+import org.openrepose.core.systemmodel.config.{SystemModel, TracingHeaderConfig}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, ServiceEndpointType}
 import org.openrepose.nodeservice.atomfeed.AtomFeedService

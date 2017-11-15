@@ -23,7 +23,7 @@ import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.config.parser.generic.GenericResourceConfigurationParser;
 import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
+import org.openrepose.filters.apivalidator.config.ValidatorConfiguration;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.slf4j.Logger;

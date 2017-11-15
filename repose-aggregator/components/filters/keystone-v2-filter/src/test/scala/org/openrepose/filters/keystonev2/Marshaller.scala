@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets
 import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
 import org.openrepose.commons.config.resource.ConfigurationResource
 import org.openrepose.commons.config.resource.impl.{ByteArrayConfigurationResource, BufferedURLConfigurationResource}
-import org.openrepose.core.systemmodel.SystemModel
+import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.filters.keystonev2.config.KeystoneV2Config
 
 import scala.reflect.ClassTag

@@ -20,21 +20,20 @@
 
 package org.openrepose.filters.openstackidentityv3.config
 
+import java.net.URL
+
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
+import org.openrepose.commons.test.ConfigurationTest
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class OpenStackIdentityV3SchemaTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/config/openstack-identity-v3.xsd")
+class OpenStackIdentityV3SchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/openstack-identity-v3.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/openstack-identity-v3.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 
   describe("schema validation") {
-    it("should successfully validate the sample config") {
-      validator.validateConfigFile("/META-INF/schema/examples/openstack-identity-v3.cfg.xml")
-    }
-
     it("should successfully validate with only a roles-which-bypass-project-id-check defined") {
       val config = """<openstack-identity-v3 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"
                      |                       connection-pool-id="identity-v3-pool">

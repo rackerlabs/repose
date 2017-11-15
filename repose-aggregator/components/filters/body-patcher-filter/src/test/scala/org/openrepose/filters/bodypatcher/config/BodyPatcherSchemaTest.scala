@@ -17,20 +17,23 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.bodypatcher
+package org.openrepose.filters.bodypatcher.config
+
+import java.net.URL
 
 import org.junit.runner.RunWith
-import org.openrepose.commons.test.ConfigValidator
+import org.openrepose.commons.test.ConfigurationTest
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpec, Matchers}
 import org.xml.sax.SAXParseException
 
 /**
   * Created by adrian on 4/29/16.
   */
 @RunWith(classOf[JUnitRunner])
-class SchemaAssertionTest extends FunSpec with Matchers {
-  val validator = ConfigValidator("/META-INF/schema/config/body-patcher.xsd")
+class BodyPatcherSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/body-patcher.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/body-patcher.cfg.xml")
+  override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 
   describe("change") {
     it("should require at least request or response") {
