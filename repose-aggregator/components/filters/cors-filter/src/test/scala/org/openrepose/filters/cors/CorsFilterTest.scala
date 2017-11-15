@@ -737,9 +737,7 @@ class CorsFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
         servletRequest.setScheme("http")
         servletRequest.setServerName(null)
         servletRequest.setServerPort(-1)
-        forwardedHostHeaders foreach {
-          servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, _)
-        }
+        forwardedHostHeaders.foreach(servletRequest.addHeader(CommonHttpHeader.X_FORWARDED_HOST, _))
 
         val uri = corsFilter.getHostUri(servletRequest)
 

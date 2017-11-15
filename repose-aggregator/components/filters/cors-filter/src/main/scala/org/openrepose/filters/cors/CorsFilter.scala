@@ -233,7 +233,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
       .build())
 
   def normalizeHost(host: String): String = {
-    val hostReplaced = host.replaceFirst("""^\[?([0-9A-Fa-f:]+)\]?$""", "$1")
+    val hostReplaced = if (host.startsWith("[") && host.endsWith("]")) host.substring(1, host.length - 1) else host
     if (InetAddresses.isInetAddress(hostReplaced)) InetAddresses.toAddrString(InetAddresses.forString(hostReplaced)) else hostReplaced
   }
 
