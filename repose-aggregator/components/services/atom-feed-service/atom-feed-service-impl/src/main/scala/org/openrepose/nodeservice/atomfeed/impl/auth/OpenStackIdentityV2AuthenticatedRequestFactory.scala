@@ -116,9 +116,6 @@ class OpenStackIdentityV2AuthenticatedRequestFactory @Inject()(feedConfig: AtomF
           case statusCode =>
             logger.error(s"Failed to retrieve token from the identity service, status code: $statusCode")
             Failure(new Exception(s"Failed to retrieve token from the identity service, status code: $statusCode"))
-          case _ =>
-            logger.error("Failed to retrieve token from the identity service.")
-            Failure(new Exception("Failed to retrieve token from the identity service."))
         }
       case Failure(f) =>
         logger.error(s"Failed to retrieve token from the identity service due to: ${f.getLocalizedMessage}")
