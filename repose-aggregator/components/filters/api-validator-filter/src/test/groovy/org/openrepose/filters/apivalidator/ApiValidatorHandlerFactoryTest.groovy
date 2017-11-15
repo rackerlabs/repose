@@ -25,9 +25,9 @@ import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
 import org.openrepose.commons.config.parser.generic.GenericResourceConfigurationParser
 import org.openrepose.commons.config.resource.ConfigurationResource
-import org.openrepose.components.apivalidator.servlet.config.DelegatingType
-import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration
-import org.openrepose.components.apivalidator.servlet.config.ValidatorItem
+import org.openrepose.filters.apivalidator.config.DelegatingType
+import org.openrepose.filters.apivalidator.config.ValidatorConfiguration
+import org.openrepose.filters.apivalidator.config.ValidatorItem
 import org.openrepose.core.services.config.ConfigurationService
 
 import static org.hamcrest.Matchers.equalTo

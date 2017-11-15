@@ -17,18 +17,17 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.filters.apivalidator
+package org.openrepose.filters.apivalidator.config
 
 import java.net.URL
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.test.ConfigurationTest
-import org.openrepose.components.apivalidator.servlet.config.ObjectFactory
 import org.scalatest.junit.JUnitRunner
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class ApiValidatorScemaTest extends ConfigurationTest {
+class ApiValidatorSchemaTest extends ConfigurationTest {
   override val schema: URL = getClass.getResource("/META-INF/schema/config/validator-configuration.xsd")
   override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/validator.cfg.xml")
   override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName

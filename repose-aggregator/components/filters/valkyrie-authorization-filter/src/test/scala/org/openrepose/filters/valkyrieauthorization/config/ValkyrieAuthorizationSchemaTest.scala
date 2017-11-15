@@ -27,7 +27,7 @@ import org.scalatest.junit.JUnitRunner
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class ValkyrieAuthorizationFilterSchemaTest extends ConfigurationTest {
+class ValkyrieAuthorizationSchemaTest extends ConfigurationTest {
   override val schema: URL = getClass.getResource("/META-INF/schema/config/valkyrie-authorization.xsd")
   override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/valkyrie-authorization.cfg.xml")
   override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
