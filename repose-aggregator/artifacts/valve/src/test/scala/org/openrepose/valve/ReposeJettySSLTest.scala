@@ -176,7 +176,6 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       None
     )
     repose.start()
-
     try {
       intercept[SSLHandshakeException] {
         selectiveRequest(Array("TLSv1"))
@@ -186,6 +185,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       repose.shutdown()
     }
   }
+
   it("creates a jetty server including only a list of protocols") {
     val repose = new ReposeJettyServer(
       nodeContext,
@@ -249,8 +249,8 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
     } finally {
       repose.shutdown()
     }
-
   }
+
   it("creates a jetty server that does not allow TLS renegotiation") {
     val repose = new ReposeJettyServer(
       nodeContext,
@@ -347,7 +347,6 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       intercept[SSLHandshakeException] {
         selectiveRequest(ciphers = tlsCiphers.toArray)
       }
-
       selectiveRequest(ciphers = sslCiphers.toArray)
     } finally {
       repose.shutdown()

@@ -211,10 +211,16 @@ A risk assessment should always be performed by the appropriately qualified peop
 Links to industry-standard references are provided in the SSL References section below.
 ====
 
-*Repose* supports whitelisting and blacklisting specific protocols and ciphers by exposing portions of the Jetty's configuration via the `container.cfg.xml` file.
-You can use this feature if a specific protocol or cipher has been compromised and you want to block its usage and secure *Repose*.
+*Repose* supports whitelisting and blacklisting specific protocols and ciphers by exposing portions of the Jetty configuration via the `container.cfg.xml` file.
+You can use this feature if a specific protocol or cipher has been compromised and you want to block its usage and harden your *Repose* instance.
+Any of Jetty's built-in defaults are cleared and then the configured inclusion and exclusion lists are applied if any are defined.
 
-In the following example, the container configuration includes TLS v1.2 and TLS ciphers and excludes SSLv3 and SSL protocols.
+[quote, Jetty, The Definitive Reference]
+____
+When working with Includes / Excludes, it is important to know that Excludes will always win.
+____
+
+In the following example, the container configuration includes the TLS v1.2 protocol and TLS ciphers and excludes then SSLv3 protocol and SSL ciphers.
 
 [source,xml]
 .container.cfg.xml - Protocols and ciphers

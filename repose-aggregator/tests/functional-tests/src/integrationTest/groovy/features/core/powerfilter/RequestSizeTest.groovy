@@ -43,7 +43,7 @@ class RequestSizeTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
     }
 
-    @Unroll("request with header size of #headerSize should respond with 413")
+    @Unroll("request with header size of #headerSize should respond with 431")
     def "max header size allowed is not influenced by content-body-read-limit"() {
 
         given: "I have headers that exceed the header size limit"
@@ -52,8 +52,8 @@ class RequestSizeTest extends ReposeValveTest {
         when: "I send a request to REPOSE with my headers"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: [headerName: header1])
 
-        then: "I get a response of 413"
-        mc.receivedResponse.code == "413"
+        then: "I get a response of 431"
+        mc.receivedResponse.code == "431"
         mc.handlings.size() == 0
 
         where:

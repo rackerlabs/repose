@@ -68,6 +68,8 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        * 7. Remove the Container Configuration's `cluster-config` element's deprecated `via` attribute.
        *    a. This needs done in the XSD.
        *    b. There will also be some tests that should be removed also.
+       *
+       * 8. Allow the Container config to provide empty [in|ex]cluded-[protocols|ciphers].
        */
     }
 
