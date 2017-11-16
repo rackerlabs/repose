@@ -49,6 +49,13 @@
             <xs:element name="require-service-endpoint" type="ServiceEndpointType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="pre-authorized-roles" type="RolesList" minOccurs="0" maxOccurs="1"/>
         </xs:all>
+        <xs:attribute name="ignored-roles" type="xs:string" default="identity:tenant-access" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p> A space separated list of roles that will be ignored when processing the response from the identity provider.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="WhiteListType">

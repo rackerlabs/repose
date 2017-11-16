@@ -1628,6 +1628,92 @@ with HttpDelegationManager {
       response.getErrorMessage shouldBe "Tenant from URI does not match any of the tenants associated with the provided token"
     }
 
+    it("will extract the tenant from the URI and reject if the user only use the tenant on an ignored role") {
+      def configuration = Marshaller.keystoneV2ConfigFromString(
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+          |    <identity-service
+          |            username="username"
+          |            password="password"
+          |            uri="https://some.identity.com"
+          |            set-groups-in-header="false"
+          |            />
+          |    <tenant-handling>
+          |        <validate-tenant>
+          |            <uri-extraction-regex>/(.+)/.*</uri-extraction-regex>
+          |        </validate-tenant>
+          |    </tenant-handling>
+          |</keystone-v2>
+        """.stripMargin)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponseTenantedRoles()))
+
+      val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
+
+      filter.init(mockFilterConfig)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+      filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
+
+      val request = new MockHttpServletRequest()
+      request.setServerName("www.sample.com")
+      request.setRequestURI("/678/foo")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
+
+      val response = new MockHttpServletResponse()
+      val chain = new MockFilterChain()
+
+      filter.doFilter(request, response, chain)
+
+      response.getStatus shouldBe SC_UNAUTHORIZED
+      response.getErrorMessage shouldBe "Tenant from URI does not match any of the tenants associated with the provided token"
+    }
+
+    it("will extract the tenant from the URI and reject if the user only use the tenant on a configured ignored role") {
+      def configuration = Marshaller.keystoneV2ConfigFromString(
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0" ignored-roles="role:234">
+          |    <identity-service
+          |            username="username"
+          |            password="password"
+          |            uri="https://some.identity.com"
+          |            set-groups-in-header="false"
+          |            />
+          |    <tenant-handling>
+          |        <validate-tenant>
+          |            <uri-extraction-regex>/(.+)/.*</uri-extraction-regex>
+          |        </validate-tenant>
+          |    </tenant-handling>
+          |</keystone-v2>
+        """.stripMargin)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+
+      when(mockAkkaServiceClient.get(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), anyString(), argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, "glibglob")), anyBoolean()))
+        .thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponseTenantedRoles()))
+
+      val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
+
+      filter.init(mockFilterConfig)
+      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+      filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
+
+      val request = new MockHttpServletRequest()
+      request.setServerName("www.sample.com")
+      request.setRequestURI("/234/foo")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
+
+      val response = new MockHttpServletResponse()
+      val chain = new MockFilterChain()
+
+      filter.doFilter(request, response, chain)
+
+      response.getStatus shouldBe SC_UNAUTHORIZED
+      response.getErrorMessage shouldBe "Tenant from URI does not match any of the tenants associated with the provided token"
+    }
+
     it("sends all tenant IDs when configured to") {
       val modifiedConfig = configuration
       modifiedConfig.getTenantHandling.setSendTenantIdQuality(null)
@@ -2073,7 +2159,7 @@ with HttpDelegationManager {
   }
 
   describe("Handling tenanted roles") {
-    it("should forward all roles if not in tenanted mode") {
+    it("should forward all roles that are not ignored if not in tenanted mode") {
       def configuration = Marshaller.keystoneV2ConfigFromString(
         """<?xml version="1.0" encoding="UTF-8"?>
           |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
@@ -2111,9 +2197,10 @@ with HttpDelegationManager {
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES) should include("role:123")
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES) should include("role:234")
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES) should include("role:345")
+      postFilterRequest.getHeader(OpenStackServiceHeader.ROLES) should not include("identity:tenant-access")
     }
 
-    it("should forward all roles in tenanted mode if legacy mode is enabled") {
+    it("should forward all roles that are not ignored in tenanted mode if legacy mode is enabled") {
       def configuration = Marshaller.keystoneV2ConfigFromString(
         """<?xml version="1.0" encoding="UTF-8"?>
           |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
@@ -2156,9 +2243,10 @@ with HttpDelegationManager {
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES) should include("role:123")
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES) should include("role:234")
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES) should include("role:345")
+      postFilterRequest.getHeader(OpenStackServiceHeader.ROLES) should not include("identity:tenant-access")
     }
 
-    it("should only forward matching tenant roles if legacy mode is disabled") {
+    it("should only forward matching tenant roles (excluding ignored roles) if legacy mode is disabled") {
       def configuration = Marshaller.keystoneV2ConfigFromString(
         """<?xml version="1.0" encoding="UTF-8"?>
           |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
@@ -2200,6 +2288,7 @@ with HttpDelegationManager {
       val postFilterRequest = chain.getRequest.asInstanceOf[HttpServletRequest]
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES) should include("role:123")
       postFilterRequest.getHeader(OpenStackServiceHeader.ROLES) should include("role:345")
+      postFilterRequest.getHeader(OpenStackServiceHeader.ROLES) should not include("identity:tenant-access")
     }
 
     it("should forward all roles if legacy mode is disabled, but the user is pre-authorized") {

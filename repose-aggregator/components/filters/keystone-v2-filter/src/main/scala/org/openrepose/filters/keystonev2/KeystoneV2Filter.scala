@@ -47,7 +47,6 @@ import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, L
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
-import scala.util.matching.Regex
 import scala.util.{Failure, Random, Success, Try}
 import scala.xml.XML
 
@@ -66,6 +65,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   private val datastore: Datastore = datastoreService.getDefaultDatastore
 
   var keystoneV2Config: KeystoneV2Config = _
+  var ignoredRoles: Set[String] = _
   var akkaServiceClient: AkkaServiceClient = _
 
   private var configurationFile: String = DefaultConfig
@@ -295,14 +295,14 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           Success(validationResult)
         } getOrElse {
           getValidatingToken(authToken, force = false) flatMap { validatingToken =>
-            requestHandler.validateToken(validatingToken, authToken, config.getIdentityService.isApplyRcnRoles) recoverWith {
+            requestHandler.validateToken(validatingToken, authToken, config.getIdentityService.isApplyRcnRoles, ignoredRoles) recoverWith {
               case _: AdminTokenUnauthorizedException =>
                 // Force acquiring of the admin token, and call the validation function again (retry once)
                 logger.trace("Forcing acquisition of new admin token")
                 getValidatingToken(authToken, force = true) match {
                   case Success(newValidatingToken) =>
                     logger.trace("Obtained admin token on second chance")
-                    requestHandler.validateToken(newValidatingToken, authToken, config.getIdentityService.isApplyRcnRoles, checkCache = false)
+                    requestHandler.validateToken(newValidatingToken, authToken, config.getIdentityService.isApplyRcnRoles, ignoredRoles, checkCache = false)
                   case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                 }
             } cacheOnSuccess { validToken =>
@@ -678,6 +678,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       val akkaServiceClientOld = Option(akkaServiceClient)
       akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(keystoneV2Config.getIdentityService.getConnectionPoolId)
       akkaServiceClientOld.foreach(_.destroy())
+
+      ignoredRoles = keystoneV2Config.getIgnoredRoles.split(' ').to[Set]
 
       initialized = true
     }
