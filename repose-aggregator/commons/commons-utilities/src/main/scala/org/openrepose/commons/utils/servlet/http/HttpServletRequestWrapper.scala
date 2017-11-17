@@ -27,6 +27,7 @@ import javax.servlet.ServletInputStream
 import javax.servlet.http.HttpServletRequest
 import javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
 
+import org.apache.commons.lang3.StringUtils
 import org.apache.http.client.utils.DateUtils
 import org.openrepose.commons.utils.io.RawInputStreamReader
 
@@ -129,13 +130,13 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest, val inputSt
 
   def getSplittableHeaderScala(headerName: String): List[String] =
     getHeadersScala(headerName).foldLeft(List.empty[String])((list, s) => list ++ s.split(","))
-      .map(_.trim)
+      .map(_.trim).filter(StringUtils.isNotBlank)
 
   def getHeadersScala(headerName: String): List[String] = {
     if (removedHeaders.contains(headerName)) {
       List.empty[String]
     } else {
-      headerMap.getOrElse(headerName, super.getHeaders(headerName).asScala.toList)
+      headerMap.getOrElse(headerName, super.getHeaders(headerName).asScala.toList).filter(StringUtils.isNotBlank)
     }
   }
 

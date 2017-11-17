@@ -19,7 +19,7 @@
  */
 package features.core.security
 
-import org.apache.http.NoHttpResponseException
+import org.apache.http.client.ClientProtocolException
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.conn.ssl.NoopHostnameVerifier
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory
@@ -89,6 +89,6 @@ class SSLClientAuthenticationTest extends ReposeValveTest {
                 .execute(new HttpGet(reposeEndpoint))
 
         then:
-        thrown NoHttpResponseException
+        thrown ClientProtocolException
     }
 }

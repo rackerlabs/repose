@@ -141,7 +141,7 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         ["Accept": "*/*"]              | "application/json"
     }
 
-    @Unroll("502 error if upstream responds with a media type we don't support")
+    @Unroll("502 error if upstream responds with a media type we don't support with #acceptHeader")
     def "502 error if upstream responds with a media type we don't support"() {
         when:
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service2/limits", method: "GET",

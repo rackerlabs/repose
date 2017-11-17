@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit
 
 class HttpClientStateTest extends ReposeValveTest {
 
-    Server server = null;
+    Server server = null
 
     def cleanup() {
         if (deproxy)
@@ -83,12 +83,10 @@ class HttpClientStateTest extends ReposeValveTest {
 
         waitUntilReadyToServiceRequests()
 
-        //Make a pool, use that pool to do owrk, make sure the sessions are always different!
-
-
+        // Make a pool, use that pool to do work, make sure the sessions are always different!
         def sessionIds = new CopyOnWriteArrayList<String>()
-        when:
 
+        when:
         //Do it as a thread pool, in order to perhaps exercise the clients...
         def pool = Executors.newFixedThreadPool(20)
         def defer = { c -> pool.submit(c as Callable) }
@@ -105,7 +103,7 @@ class HttpClientStateTest extends ReposeValveTest {
                 String content2 = response2.getEntity().getContent().getText()
 
                 //TODO: need to check this somehow in the spock assertions
-                assert content.equals(content2)
+                assert content == content2
 
                 //Lets not use deproxy this time
 //                MessageChain mc = deproxy.makeRequest([url: reposeEndpoint + "/", headers: [
@@ -127,8 +125,7 @@ class HttpClientStateTest extends ReposeValveTest {
 
     }
 
-
-    public static class SimpleServlet extends HttpServlet {
+    static class SimpleServlet extends HttpServlet {
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
             //Get the session in here, and do something to make sure it's always different
@@ -139,7 +136,7 @@ class HttpClientStateTest extends ReposeValveTest {
             def value = session.getAttribute("KEY")
             println("Session ID: ${session.getId()} HEADER COUNT: ${req.getHeader("x-count-thingy")} KEY:${value} cookies: ${cookies}")
             session.setAttribute("KEY", "VALUE")
-            def cookie = new Cookie("TESTCOOKIE", "TEH VALUE")
+            def cookie = new Cookie("TESTCOOKIE", "THE-VALUE")
             resp.addCookie(cookie)
 
             resp.setContentType("text/plain")
@@ -147,5 +144,4 @@ class HttpClientStateTest extends ReposeValveTest {
             resp.getWriter().println(session.getId())
         }
     }
-
 }

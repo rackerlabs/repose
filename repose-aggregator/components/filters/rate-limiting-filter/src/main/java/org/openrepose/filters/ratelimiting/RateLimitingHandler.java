@@ -142,7 +142,7 @@ public class RateLimitingHandler {
 
             /*
              For each supported media type, the most specific acceptable media type that is compatible is found.
-             If no compatible acceptable media type if found, the supported media type will not be used.
+             If no compatible acceptable media type is found, the supported media type will not be used.
              If the quality factor of the most specific acceptable media type compatible with a supported media type is
              set to 0, the supported media type will not be used.
 
