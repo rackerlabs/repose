@@ -1,8 +1,9 @@
 = Release Notes
 
-== In Progress Work
+== 8.7.3.0 (2017-11-17)
 * https://repose.atlassian.net/browse/REP-6159[REP-6159] - Added the new <<filters/regex-rbac.adoc#, RegEx Role Based Access Control (RBAC) Filter>>.
 * https://repose.atlassian.net/browse/REP-6313[REP-6313] - Updated <<filters/keystone-v2.adoc#, Keystone v2 Filter>> to automatically ignore configured roles.
+* https://repose.atlassian.net/browse/REP-6338[REP-6338] https://repose.atlassian.net/browse/REP-6325[REP-6325] https://repose.atlassian.net/browse/REP-6321[REP-6321] - Multiple  documentation improvements.
 
 == 8.7.2.0 (2017-11-01)
 * https://repose.atlassian.net/browse/REP-6294[REP-6294] - Updated dependencies:
