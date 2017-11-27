@@ -1,51 +1,44 @@
 = IRI Validator Filter
 
-include::../_includes/in-progress.adoc[]
+This filter verifies that the request URI has been properly converted from an IRI.
+
+In other words, in the case where a request URI is a valid URI but, after conversion, is an invalid IRI, this filter will reject the request.
 
 == General filter information
-* *Name:* ???
-* *Default Configuration:* ???.cfg.xml
-* *Released:* v?.?.?.?
+* *Name:* iri-validator
+* *Default Configuration:* No configuration
+* *Released:* v6.2.2.0
 * *Bundle:* repose-filter-bundle
 
 == Prerequisites & Postconditions
 === Required Request Headers
-???.
+This filter does not require any request headers.
 
 === Required Preceding Filters
-???.
+This filter has no dependency on any other filter.
 
 === Request Headers Created
-???.
+This filter does not create/modify any request headers.
 
 === Request Body Changes
-???.
+This filter does not modify the request body.
 
 === Recommended Follow-On (Succeeding) Filters
-???.
+This filter is not a dependency of any other filter.
 
 === Response Body Changes
-???.
+This filter does not modify the response body.
 
 === Response Headers Created
-???.
+This filter does not create/modify any response headers.
 
 === Response Status Codes
-???.
+[cols="2", options="header,autowidth"]
+.Status Codes
+|===
+| Status Code
+| Reasons
 
-== Examples
-=== Shows how to ???
-This configuration will ???.
-
-[source,xml]
-.???.cfg.xml
-----
-<??? xmlns="http://docs.openrepose.org/repose/???/v1.0">
-    <???> <!--1-->
-    </???>
-</???>
-----
-<1> Specifies ???.
-
-== Additional Information
-*Remove this section if not needed.*
+| `400`
+a| * When the request URI is not a valid IRI.
+|===

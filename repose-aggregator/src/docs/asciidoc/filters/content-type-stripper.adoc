@@ -1,51 +1,39 @@
 = Content Type Stripper Filter
 
-include::../_includes/in-progress.adoc[]
+This filter removes the `Content-Type` header when no content body is present.
+
+If the first eight bytes of the content body are white space, then the body is considered absent.
+When a content body is present, requests will pass through to the next filter or the origin service without alteration.
 
 == General filter information
-* *Name:* ???
-* *Default Configuration:* ???.cfg.xml
-* *Released:* v?.?.?.?
+* *Name:* content-type-stripper
+* *Default Configuration:* No configuration
+* *Released:* v6.2.1.0
 * *Bundle:* repose-filter-bundle
 
 == Prerequisites & Postconditions
 === Required Request Headers
-???.
+This filter does not require any request headers.
 
 === Required Preceding Filters
-???.
+This filter has no dependency on any other filter.
 
 === Request Headers Created
-???.
+* `Content-Type` -
+  Specifies the content type of the content body.
+  This header is removed when no content body is present.
 
 === Request Body Changes
-???.
+This filter does not modify the request body.
 
 === Recommended Follow-On (Succeeding) Filters
-???.
+This filter is not a dependency of any other filter.
 
 === Response Body Changes
-???.
+This filter does not modify the response body.
 
 === Response Headers Created
-???.
+This filter does not create/modify any response headers.
 
 === Response Status Codes
-???.
-
-== Examples
-=== Shows how to ???
-This configuration will ???.
-
-[source,xml]
-.???.cfg.xml
-----
-<??? xmlns="http://docs.openrepose.org/repose/???/v1.0">
-    <???> <!--1-->
-    </???>
-</???>
-----
-<1> Specifies ???.
-
-== Additional Information
-*Remove this section if not needed.*
+This filter does not modify the response code.

@@ -21,7 +21,7 @@ Patches request/response bodies using methods native to the content type.
 *IN PROGRESS*
 
 == <<content-type-stripper.adoc#,Content Type Stripper Filter>>
-*IN PROGRESS*
+Removes the `Content-Type` header when no content body is present.
 
 == <<cors.adoc#,CORS Filter>>
 Enables users to add support for Cross-Origin Resource Sharing requests.
@@ -57,7 +57,7 @@ Logs a descriptive event for each API request so that usage can be audited.
 Populates a request header with the client’s IP address.
 
 == <<iri-validator.adoc#,IRI Validator Filter>>
-*IN PROGRESS*
+Verifies that the request URI has been properly converted from an IRI.
 
 == <<keystone-v2.adoc#,Keystone v2 Filter>>
 Provides a mechanism for authenticating incoming requests with the OpenStack Keystone v2 Identity service.
