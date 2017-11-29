@@ -1,0 +1,7 @@
+= Jenkins Customization for RSI:Apps (OpenShift Origin)
+
+The purpose of this branch is to contain Jenkins configuration for an internal instance of Jenkins running in RSI:Apps (OpenShift Origin).
+The usage of these files is detailed by the https://github.com/openshift/jenkins#installing-using-s2i-build[source-to-image (S2I) build process for the OpenShift Jenkins image].
+
+By maintaining this branch, we keep a versioned history of the state of our internal Jenkins instance.
+Additionally, we are able to run Jenkins ephemerally (i.e., without keeping any persistent state).
