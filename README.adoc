@@ -5,3 +5,6 @@ The usage of these files is detailed by the https://github.com/openshift/jenkins
 
 By maintaining this branch, we keep a versioned history of the state of our internal Jenkins instance.
 Additionally, we are able to run Jenkins ephemerally (i.e., without keeping any persistent state).
+
+For more information, see the https://docs.openshift.org/latest/using_images/other_images/jenkins.html[OpenShift Jenkins image documentation].
+Specifically, the https://docs.openshift.org/latest/using_images/other_images/jenkins.html#jenkins-as-s2i-builder[Using Jenkins as a Source-To-Image builder section].
