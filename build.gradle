@@ -271,6 +271,7 @@ subprojects {
     codenarc {
         configFile = file("$rootDir/repose-aggregator/src/config/styles/codenarc.xml")
         sourceSets = sourceSets.matching {it.name != 'generated' && it.name != 'scoverage' && it.name != 'testScoverage'}
+        toolVersion = "1.0"
     }
 
     //todo: write a good one of these plugins, because this is garbage
