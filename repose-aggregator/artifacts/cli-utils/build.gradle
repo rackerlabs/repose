@@ -57,7 +57,7 @@ ospackage {
     packageDescription 'CLI Utils for working with a running repose instance'
     priority 'optional'
     packageGroup 'Applications/Internet'
-    maintainer 'Repose Development <repose-development@lists.openrepose.org>'
+    maintainer 'Repose Development <ReposeCore@Rackspace.com>'
     url 'http://openrepose.org'
 
     if(project.hasProperty('signing.keyId') && project.hasProperty('signing.password') && project.hasProperty('signing.secretKeyRingFile')) {
