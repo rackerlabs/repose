@@ -60,3 +60,9 @@ Jenkins should now be running in OpenShift with customizations applied!
 We manage plugins as binaries in the `plugins/` directory rather than including them in the `plugins.txt` file.
 The reason is that when downloading a plugin from the Jenkins plugin repository, the repository may redirect to an insecure mirror (i.e., HTTP (80) instead of HTTPS (443)) which gets blocked by RSI:Apps.
 ====
+
+[NOTE]
+====
+When setting up Jenkins, it may be necessary to reconfigure the Checkmarx user credentials.
+This can be done by simply plugging the credentials into the global Checkmarx plugin configuration in Jenkins.
+====
