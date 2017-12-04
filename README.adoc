@@ -8,3 +8,55 @@ Additionally, we are able to run Jenkins ephemerally (i.e., without keeping any 
 
 For more information, see the https://docs.openshift.org/latest/using_images/other_images/jenkins.html[OpenShift Jenkins image documentation].
 Specifically, the https://docs.openshift.org/latest/using_images/other_images/jenkins.html#jenkins-as-s2i-builder[Using Jenkins as a Source-To-Image builder section].
+
+== Setup
+
+. Create a project in RSI.
+. Add the following placeholder ImageStream to the project.
++
+----
+apiVersion: v1
+kind: ImageStream
+metadata:
+  name: repose-jenkins
+----
+. Add the following source-to-image (S2I) build to the project.
++
+----
+apiVersion: v1
+kind: BuildConfig
+metadata:
+  name: repose-jenkins-build
+spec:
+  source:
+    git:
+      uri: https://github.com/rackerlabs/repose
+      ref: rsi-jenkins
+    type: Git
+  strategy:
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        name: jenkins:latest
+        namespace: openshift
+    type: Source
+  output:
+    to:
+      kind: ImageStreamTag
+      name: repose-jenkins:latest
+----
+. Start an image build.
+. Deploy Jenkins using the `Jenkins (Persistent)` template.
+.. Replace the `Jenkins ImageStream Namespace` parameter with the name of the project (e.g., `jenkins`).
+.. Replace the `Jenkins ImageStreamTag` parameter with `repose-jenkins:latest`.
+
+Congratulations!
+Jenkins should now be running in OpenShift with customizations applied!
+
+== Notes
+
+[NOTE]
+====
+We manage plugins as binaries in the `plugins/` directory rather than including them in the `plugins.txt` file.
+The reason is that when downloading a plugin from the Jenkins plugin repository, the repository may redirect to an insecure mirror (i.e., HTTP (80) instead of HTTPS (443)) which gets blocked by RSI:Apps.
+====
