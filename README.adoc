@@ -12,42 +12,8 @@ Specifically, the https://docs.openshift.org/latest/using_images/other_images/je
 == Setup
 
 . Create a project in RSI.
-. Add the following placeholder ImageStream to the project.
-+
-----
-apiVersion: v1
-kind: ImageStream
-metadata:
-  name: repose-jenkins
-----
-. Add the following source-to-image (S2I) build to the project.
-+
-----
-apiVersion: v1
-kind: BuildConfig
-metadata:
-  name: repose-jenkins-build
-spec:
-  triggers:
-    - type: ImageChange
-      imageChange: {}
-  source:
-    git:
-      uri: https://github.com/rackerlabs/repose
-      ref: rsi-jenkins
-    type: Git
-  strategy:
-    sourceStrategy:
-      from:
-        kind: ImageStreamTag
-        name: jenkins:latest
-        namespace: openshift
-    type: Source
-  output:
-    to:
-      kind: ImageStreamTag
-      name: repose-jenkins:latest
-----
+. Add the link:repose-jenkins.is.yaml[placeholder ImageStream definition] to the project.
+. Add the link:repose-jenkins.bc.yaml[source-to-image (S2I) build definition] to the project.
 . Start an image build.
 . Deploy Jenkins using the `Jenkins (Persistent)` template.
 .. Replace the `Jenkins ImageStream Namespace` parameter with the name of the project (e.g., `jenkins`).
