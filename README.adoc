@@ -28,6 +28,9 @@ kind: BuildConfig
 metadata:
   name: repose-jenkins-build
 spec:
+  triggers:
+    - type: ImageChange
+      imageChange: {}
   source:
     git:
       uri: https://github.com/rackerlabs/repose
