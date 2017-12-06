@@ -89,7 +89,7 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest([method: 'GET', url: distDatastoreEndpoint, path: DD_PATH + KEY_TOO_LARGE, headers: DD_HEADERS])
 
         then:
-        mc.receivedResponse.code == '413'
+        mc.receivedResponse.code == '431'
     }
 
     def "GET of key after time to live has expired should return a 404"() {

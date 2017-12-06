@@ -126,37 +126,32 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
 
         //Handle the Protocols and Ciphers
         //varargs are annoying, so lets deal with this using the scala methods
+        // From https://www.eclipse.org/jetty/documentation/9.4.x/configuring-ssl.html
+        // "When working with Includes / Excludes, it is important to know that Excludes will always win."
         import scala.collection.JavaConversions._
-        Option(ssl.getExcludedProtocols).foreach(xp => cf.addExcludeProtocols(xp.getProtocol.toList: _*))
-        Option(ssl.getIncludedProtocols).foreach { ip =>
-          if (ip.getProtocol.nonEmpty) {
-            cf.setIncludeProtocols(ip.getProtocol.toList: _*)
-          }
-
-        }
-        Option(ssl.getExcludedCiphers).foreach { xc =>
-          cf.addExcludeCipherSuites(xc.getCipher.toList: _*)
-        }
-
-        Option(ssl.getIncludedCiphers).foreach { ic =>
-          if (ic.getCipher.nonEmpty) {
-            cf.setIncludeCipherSuites(ic.getCipher.toList: _*)
-          }
-        }
+        // Clear Jetty defaults that were added in later v9.2.x releases.
+        cf.setIncludeProtocols()
+        cf.setExcludeProtocols()
+        cf.setIncludeCipherSuites()
+        cf.setExcludeCipherSuites()
+        Option(ssl.getIncludedProtocols) foreach { ip => cf.setIncludeProtocols(ip.getProtocol.toList: _*) }
+        Option(ssl.getExcludedProtocols) foreach { ep => cf.setExcludeProtocols(ep.getProtocol.toList: _*) }
+        Option(ssl.getIncludedCiphers) foreach { ic => cf.setIncludeCipherSuites(ic.getCipher.toList: _*) }
+        Option(ssl.getExcludedCiphers) foreach { ec => cf.setExcludeCipherSuites(ec.getCipher.toList: _*) }
 
         cf.setRenegotiationAllowed(Option(ssl.isTlsRenegotiationAllowed).getOrElse(false).asInstanceOf[Boolean])
 
         sslConnector
       } getOrElse {
         //If we didn't have an SSL config, BOMBZ0R
-        throw new ServerInitializationException("HTTPS port was specified, but no SSL config provided")
+        throw ServerInitializationException("HTTPS port was specified, but no SSL config provided")
       }
     }
 
     val connectors = List(httpConnector, httpsConnector).collect { case Some(x) => x }.toArray
 
     if (connectors.isEmpty) {
-      throw new ServerInitializationException("At least one HTTP or HTTPS port must be specified")
+      throw ServerInitializationException("At least one HTTP or HTTPS port must be specified")
     } else {
       connectors foreach { connector =>
         idleTimeout foreach connector.setIdleTimeout
@@ -204,7 +199,7 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
     httpsConnector.map(_.getLocalPort).getOrElse(0)
   }
 
-  def start() = {
+  def start(): Unit = {
     if (isShutdown) {
       throw new Exception("Cannot start again a shutdown ReposeJettyServer")
     }
@@ -224,13 +219,13 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
   /**
     * destroys everything, this class won't be usable again
     */
-  def shutdown() = {
+  def shutdown(): Unit = {
     isShutdown = true
     nodeContext.close()
     stop()
   }
 
-  def stop() = {
+  def stop(): Unit = {
     server.stop()
   }
 }

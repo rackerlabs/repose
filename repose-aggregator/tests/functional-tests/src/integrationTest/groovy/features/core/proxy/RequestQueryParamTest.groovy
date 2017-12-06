@@ -51,25 +51,25 @@ class RequestQueryParamTest extends ReposeValveTest {
 
 
         where: "given a path with query params defined"
-        uriSuffixGiven | uriSuffixExpected | method
-        "/path/to/resource?" | "/path/to/resource" | "GET"
-        "/path/to/resource?" | "/path/to/resource" | "POST"
-        "/path/to/resource?=" | "/path/to/resource" | "GET"
-        "/path/to/resource?=" | "/path/to/resource" | "POST"
-        "/path/to/resource?&" | "/path/to/resource" | "GET"
-        "/path/to/resource?&" | "/path/to/resource" | "POST"
-        "/path/to/resource?=&" | "/path/to/resource" | "GET"
-        "/path/to/resource?=&" | "/path/to/resource" | "POST"
-        "/path/to/resource?=&=" | "/path/to/resource" | "GET"
-        "/path/to/resource?=&=" | "/path/to/resource" | "POST"
-        "/path/to/resource?&=&" | "/path/to/resource" | "GET"
-        "/path/to/resource?&=&" | "/path/to/resource" | "POST"
-        "/path/to/resource?a=12345" | "/path/to/resource?a=12345" | "GET"
-        "/path/to/resource?a=12345" | "/path/to/resource?a=12345" | "POST"
-        "/path/to/resource?&a=12345" | "/path/to/resource?a=12345" | "GET"
-        "/path/to/resource?&a=12345" | "/path/to/resource?a=12345" | "POST"
-        "/path/to/resource/?&a=12345" | "/path/to/resource/?a=12345" | "GET"
-        "/path/to/resource/?&a=12345" | "/path/to/resource/?a=12345" | "POST"
+        uriSuffixGiven                       | uriSuffixExpected                   | method
+        "/path/to/resource?"                 | "/path/to/resource"                 | "GET"
+        "/path/to/resource?"                 | "/path/to/resource"                 | "POST"
+        "/path/to/resource?="                | "/path/to/resource"                 | "GET"
+        "/path/to/resource?="                | "/path/to/resource"                 | "POST"
+        "/path/to/resource?&"                | "/path/to/resource"                 | "GET"
+        "/path/to/resource?&"                | "/path/to/resource"                 | "POST"
+        "/path/to/resource?=&"               | "/path/to/resource"                 | "GET"
+        "/path/to/resource?=&"               | "/path/to/resource"                 | "POST"
+        "/path/to/resource?=&="              | "/path/to/resource"                 | "GET"
+        "/path/to/resource?=&="              | "/path/to/resource"                 | "POST"
+        "/path/to/resource?&=&"              | "/path/to/resource"                 | "GET"
+        "/path/to/resource?&=&"              | "/path/to/resource"                 | "POST"
+        "/path/to/resource?a=12345"          | "/path/to/resource?a=12345"         | "GET"
+        "/path/to/resource?a=12345"          | "/path/to/resource?a=12345"         | "POST"
+        "/path/to/resource?&a=12345"         | "/path/to/resource?a=12345"         | "GET"
+        "/path/to/resource?&a=12345"         | "/path/to/resource?a=12345"         | "POST"
+        "/path/to/resource/?&a=12345"        | "/path/to/resource/?a=12345"        | "GET"
+        "/path/to/resource/?&a=12345"        | "/path/to/resource/?a=12345"        | "POST"
         "/path/to/resource?&a=12345&b=54321" | "/path/to/resource?a=12345&b=54321" | "GET"
         "/path/to/resource?&a=12345&b=54321" | "/path/to/resource?a=12345&b=54321" | "POST"
     }
@@ -78,7 +78,7 @@ class RequestQueryParamTest extends ReposeValveTest {
     def "when given an improperly encoded URI character, Repose should properly encode it"() {
 
         when:
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uriSuffixGiven, method: method)
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uriSuffixGiven)
 
         then:
         messageChain.handlings.size() == 1
@@ -86,31 +86,29 @@ class RequestQueryParamTest extends ReposeValveTest {
         messageChain.handlings[0].request.path.endsWith(uriSuffixExpected)
 
         where:
-        uriSuffixGiven                             | uriSuffixExpected                          | method
-        "/path/to/resource?key=value@%"            | "/path/to/resource?key=value%40%25"        | "GET"
-        "/path/to/resource?key=va%lu@e"            | "/path/to/resource?key=va%25lu%40e"        | "GET"
-        "/path/to/resource?key=value%2Bvalue"      | "/path/to/resource?key=value%2Bvalue"      | "GET"
-        "/path/to/resource?key=value/othervalue"   | "/path/to/resource?key=value%2Fothervalue" | "GET"
-        "/path/to/resource?key=value:value"        | "/path/to/resource?key=value%3Avalue"      | "GET"
-        "/path/to/resource?key=value@value"        | "/path/to/resource?key=value%40value"      | "GET"
-        "/path/to/resource?key=value?value"        | "/path/to/resource?key=value%3Fvalue"      | "GET"
-        "/path/to/resource?key=value[value"        | "/path/to/resource?key=value%5Bvalue"      | "GET"
-        "/path/to/resource?key=value]value"        | "/path/to/resource?key=value%5Dvalue"      | "GET"
-        "/path/to/resource?key=value%2Fothervalue" | "/path/to/resource?key=value%2Fothervalue" | "GET"
-        "/path/to/resource?key=value%3Avalue"      | "/path/to/resource?key=value%3Avalue"      | "GET"
-        "/path/to/resource?key=value%40value"      | "/path/to/resource?key=value%40value"      | "GET"
-        "/path/to/resource?key=value%3Fvalue"      | "/path/to/resource?key=value%3Fvalue"      | "GET"
-        "/path/to/resource?key=value%5Bvalue"      | "/path/to/resource?key=value%5Bvalue"      | "GET"
-        "/path/to/resource?key=value%5Dvalue"      | "/path/to/resource?key=value%5Dvalue"      | "GET"
-        "/path/to/resource?key=value%20value"      | "/path/to/resource?key=value+value"        | "GET"
-        "/path/to/resource?key=value+value"        | "/path/to/resource?key=value+value"        | "GET"
+        uriSuffixGiven                             | uriSuffixExpected
+        "/path/to/resource?key=value%2Bvalue"      | "/path/to/resource?key=value%2Bvalue"
+        "/path/to/resource?key=value/othervalue"   | "/path/to/resource?key=value%2Fothervalue"
+        "/path/to/resource?key=value:value"        | "/path/to/resource?key=value%3Avalue"
+        "/path/to/resource?key=value@value"        | "/path/to/resource?key=value%40value"
+        "/path/to/resource?key=value?value"        | "/path/to/resource?key=value%3Fvalue"
+        "/path/to/resource?key=value[value"        | "/path/to/resource?key=value%5Bvalue"
+        "/path/to/resource?key=value]value"        | "/path/to/resource?key=value%5Dvalue"
+        "/path/to/resource?key=value%2Fothervalue" | "/path/to/resource?key=value%2Fothervalue"
+        "/path/to/resource?key=value%3Avalue"      | "/path/to/resource?key=value%3Avalue"
+        "/path/to/resource?key=value%40value"      | "/path/to/resource?key=value%40value"
+        "/path/to/resource?key=value%3Fvalue"      | "/path/to/resource?key=value%3Fvalue"
+        "/path/to/resource?key=value%5Bvalue"      | "/path/to/resource?key=value%5Bvalue"
+        "/path/to/resource?key=value%5Dvalue"      | "/path/to/resource?key=value%5Dvalue"
+        "/path/to/resource?key=value%20value"      | "/path/to/resource?key=value+value"
+        "/path/to/resource?key=value+value"        | "/path/to/resource?key=value+value"
     }
 
-    @Unroll("when given a URI that contains space, Repose should reject the request with a 400 - #uriSuffixGiven")
-    def "when given a URI that contains space, Repose should reject the request with a 400"() {
+    @Unroll("when given a URI with a malformed query parameter, Repose should reject the request with a 400 - #uriSuffixGiven")
+    def "when given a URI with a malformed query parameter, Repose should reject the request with a 400"() {
 
         when:
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uriSuffixGiven, method: method)
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, path: uriSuffixGiven)
 
         then:
         messageChain.handlings.size() == 0
@@ -118,8 +116,11 @@ class RequestQueryParamTest extends ReposeValveTest {
         messageChain.receivedResponse.code == "400"
 
         where:
-        uriSuffixGiven                      | method
-        "/path/to/resource?key=value value" | "GET"
+        uriSuffixGiven << [
+            "/path/to/resource?key=value value",
+            "/path/to/resource?key=value@%",
+            "/path/to/resource?key=va%lu@e"
+        ]
     }
 
     def "when given a query param name that is encoded, repose shouldn't encode it again"() {
@@ -130,7 +131,7 @@ class RequestQueryParamTest extends ReposeValveTest {
         MessageChain messageChain = deproxy.makeRequest(url: "$reposeEndpoint$pathWithQuery", method: "GET")
 
 
-        then: "after passing through Repose, request path should contain the same paramter list"
+        then: "after passing through Repose, request path should contain the same parameter list"
         messageChain.handlings.size() == 1
         messageChain.handlings[0].request.path.endsWith(pathWithQuery)
     }

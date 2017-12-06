@@ -19,6 +19,7 @@
  */
 package features.core.connectionframework
 
+import org.apache.commons.lang3.StringUtils
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -62,7 +63,7 @@ class ConnectionFrameworkTest extends ReposeValveTest {
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/", headers: headers, addDefaultHeaders: false)
 
         then:
-        messageChain.handlings[0].request.headers.getFirstValue("accept") == null
+        StringUtils.isBlank(messageChain.handlings[0].request.headers.getFirstValue("accept"))
     }
 
     def "When accept header is asterisks"() {

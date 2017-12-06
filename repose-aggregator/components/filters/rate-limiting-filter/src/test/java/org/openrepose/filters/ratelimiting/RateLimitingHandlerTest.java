@@ -167,17 +167,6 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
         }
 
         @Test
-        public void shouldRejectDescribeLimitsCallWithEmptyAcceptType() {
-            mockedRequest.setRequestURI("/v1.0/limits");
-            mockedRequest.addHeader("Accept", "");
-
-            FilterAction filterAction = newHandler().handleRequest(new HttpServletRequestWrapper(mockedRequest), mockedResponse);
-
-            assertEquals("On no accept type, filter must return", FilterAction.RETURN, filterAction);
-            verify(mockedResponse).setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
-        }
-
-        @Test
         public void shouldReturnJsonDescribeLimitsCallWhenHighestQualitySupportedType() {
             mockedRequest.setRequestURI("/v1.0/limits");
             mockedRequest.addHeader("Accept", "application/xml;q=0.5, application/json;q=0.8, text/xml");
