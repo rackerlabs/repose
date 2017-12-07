@@ -10,6 +10,7 @@ dependencies {
     testCompile "org.hamcrest:hamcrest-library"
     testCompile "org.mockito:mockito-core"
     testCompile "org.springframework:spring-test"
+    testCompile "org.springframework:spring-web"
     testCompile "org.slf4j:jcl-over-slf4j"
 }
 
