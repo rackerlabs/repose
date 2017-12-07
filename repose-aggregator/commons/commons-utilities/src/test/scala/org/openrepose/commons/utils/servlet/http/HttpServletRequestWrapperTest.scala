@@ -55,7 +55,7 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfterEach with
     val mockRequest = new MockHttpServletRequest
     mockRequest.setRequestURI("/foo/bar")
     queryParamMap foreach { case (parameterKey, parameterValues) =>
-      mockRequest.addParameter(parameterKey, parameterValues)
+      mockRequest.addParameter(parameterKey, parameterValues: _*)
       mockRequest.setQueryString(Option(mockRequest.getQueryString).map(_ + "&").getOrElse("") + parameterValues.map(value => parameterKey + "=" + value).mkString("&"))
     }
     headerMap foreach { case (headerName, headerValues) =>

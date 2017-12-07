@@ -16,6 +16,7 @@ dependencies {
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.mockito:mockito-all"
     testCompile "org.springframework:spring-test"
+    testCompile "org.springframework:spring-web"
     testCompile "org.slf4j:jcl-over-slf4j"
     testCompile "javax.ws.rs:javax.ws.rs-api"
     testCompile "org.apache.logging.log4j:log4j-core"
