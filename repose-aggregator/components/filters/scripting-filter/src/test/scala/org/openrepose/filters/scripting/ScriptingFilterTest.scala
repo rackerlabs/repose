@@ -209,6 +209,33 @@ class ScriptingFilterTest extends FunSpec with Matchers with MockitoSugar {
     filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") shouldEqual "butts"
   }
 
+  it("can parse some kotlin to add a request header with static value") {
+    val fakeConfigService = new FakeConfigService()
+    val filter = new ScriptingFilter(fakeConfigService)
+    val filterChain = new MockFilterChain()
+
+    val scriptingConfig = new ScriptingConfig()
+    scriptingConfig.setValue(
+      """
+        |import javax.servlet.FilterChain
+        |import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
+        |import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper
+        |
+        |val request = bindings["request"] as HttpServletRequestWrapper
+        |val response = bindings["response"] as HttpServletResponseWrapper
+        |val filterChain = bindings["filterChain"] as FilterChain
+        |
+        |request.addHeader("lol", "butts")
+        |filterChain.doFilter(request, response)
+      """.stripMargin)
+    scriptingConfig.setLanguage(ScriptingLanguages.KOTLIN)
+
+    filter.configurationUpdated(scriptingConfig)
+
+    filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(), filterChain)
+    filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader("lol") shouldEqual "butts"
+  }
+
   it("should return a 500 if the script throws an exception") {
     val filter = new ScriptingFilter(null)
     val filterChain = new MockFilterChain()

@@ -7,6 +7,10 @@ dependencies {
     compile "org.python:jython-standalone"
     compile "org.codehaus.groovy:groovy-all"
     compile "org.luaj:luaj-jse"
+    compile "org.jetbrains.kotlin:kotlin-compiler"
+    compile "org.jetbrains.kotlin:kotlin-script-util"
+    compile "org.jetbrains.kotlin:kotlin-script-runtime"
+    compile "org.jetbrains.kotlin:kotlin-stdlib"
 
     compileOnly "javax.servlet:javax.servlet-api"
     compileOnly "javax.inject:javax.inject"
