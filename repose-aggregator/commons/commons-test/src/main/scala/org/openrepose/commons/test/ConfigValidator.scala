@@ -56,7 +56,7 @@ object ConfigValidator {
       classOf[ConfigValidator].getClassLoader)
     factory.setFeature("http://apache.org/xml/features/validation/cta-full-xpath-checking", true)
     new ConfigValidator(factory
-      .newSchema(schemas.map(_.openStream).map(new StreamSource(_)).toArray[Source])
+      .newSchema(schemas.map(u => new StreamSource(u.toString)).toArray[Source])
       .newValidator())
   }
 }
