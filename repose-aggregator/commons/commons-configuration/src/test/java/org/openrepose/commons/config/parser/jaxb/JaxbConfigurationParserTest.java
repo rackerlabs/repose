@@ -34,60 +34,37 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(Enclosed.class)
 public class JaxbConfigurationParserTest {
     private static final String CFG_DATA = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "\n" +
-            "<element>\n" +
-            "    <hello>Hi there.</hello>\n" +
-            "    <goodbye>See ya.</goodbye>\n" +
-            "</element>\n";
+        "\n" +
+        "<element>\n" +
+        "    <hello>Hi there.</hello>\n" +
+        "    <goodbye>See ya.</goodbye>\n" +
+        "</element>\n";
 
+    @Test
+    public void shouldReadConfigurationResource() throws JAXBException, IOException {
+        final JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
+        ConfigurationParser<Element> parser = new JaxbConfigurationParser<>(Element.class, jaxbContext, null);
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
+        ConfigurationResource cfgResource = mock(ConfigurationResource.class);
+        ByteArrayInputStream cfgStream = new ByteArrayInputStream(CFG_DATA.getBytes());
+        when(cfgResource.newInputStream()).thenReturn(cfgStream);
+
+        Element element = parser.read(cfgResource);
+
+        assertNotNull(element);
     }
 
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
+    @Test(expected = ClassCastException.class)
+    public void testRead() throws JAXBException, IOException {
+        final JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
+        ConfigurationParser<String> parser = new JaxbConfigurationParser<>(String.class, jaxbContext, null);
 
-    @Before
-    public void setUp() throws Exception {
-    }
+        ConfigurationResource cfgResource = mock(ConfigurationResource.class);
+        ByteArrayInputStream cfgStream = new ByteArrayInputStream(CFG_DATA.getBytes());
+        when(cfgResource.newInputStream()).thenReturn(cfgStream);
 
-    @After
-    public void tearDown() throws Exception {
-    }
-
-    public static class WhenUsingJaxbConfigurationObjectParser {
-
-        @Test
-        public void shouldReadConfigurationResource() throws JAXBException, IOException {
-            final JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
-            ConfigurationParser<Element> parser = new JaxbConfigurationParser<>(Element.class, jaxbContext, null);
-
-            ConfigurationResource cfgResource = mock(ConfigurationResource.class);
-            ByteArrayInputStream cfgStream = new ByteArrayInputStream(CFG_DATA.getBytes());
-            when(cfgResource.newInputStream()).thenReturn(cfgStream);
-
-            Element element = parser.read(cfgResource);
-
-            assertNotNull(element);
-        }
-
-        @Test(expected = ClassCastException.class)
-        public void testRead() throws JAXBException, IOException {
-            final JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
-            ConfigurationParser<String> parser = new JaxbConfigurationParser<>(String.class, jaxbContext, null);
-
-            ConfigurationResource cfgResource = mock(ConfigurationResource.class);
-            ByteArrayInputStream cfgStream = new ByteArrayInputStream(CFG_DATA.getBytes());
-            when(cfgResource.newInputStream()).thenReturn(cfgStream);
-
-            parser.read(cfgResource);
-        }
-
-
+        parser.read(cfgResource);
     }
 }
