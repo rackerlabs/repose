@@ -4,6 +4,7 @@ dependencies {
     compile "xerces:xerces-xsd11"
     compile "xalan:xalan:2.7.1"
     compile "org.slf4j:slf4j-api"
+    compile "org.jtwig:jtwig-core"
 
     provided "javax.servlet:javax.servlet-api"
 
