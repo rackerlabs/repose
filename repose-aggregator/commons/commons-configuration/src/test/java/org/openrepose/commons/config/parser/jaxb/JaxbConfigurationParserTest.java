@@ -37,12 +37,6 @@ import static org.mockito.Mockito.when;
 public class JaxbConfigurationParserTest {
     private static final String TEST_USER_ENV_VAR = "TEST_USER";
     private static final String TEST_USER_NAME = "World";
-    private static final String CFG_DATA = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-        "\n" +
-        "<element>\n" +
-        "    <hello>" + createHelloMsg("{$(" + TEST_USER_ENV_VAR + ")$}") + "</hello>\n" +
-        "    <goodbye>See ya.</goodbye>\n" +
-        "</element>\n";
 
     @Test
     public void shouldReadConfigurationResource() throws JAXBException, IOException {
@@ -50,7 +44,7 @@ public class JaxbConfigurationParserTest {
         ConfigurationParser<Element> parser = new JaxbConfigurationParser<>(Element.class, jaxbContext, null);
 
         ConfigurationResource cfgResource = mock(ConfigurationResource.class);
-        ByteArrayInputStream cfgStream = new ByteArrayInputStream(CFG_DATA.getBytes());
+        ByteArrayInputStream cfgStream = new ByteArrayInputStream(createConfig().getBytes());
         when(cfgResource.newInputStream()).thenReturn(cfgStream);
 
         Element element = parser.read(cfgResource);
@@ -64,21 +58,24 @@ public class JaxbConfigurationParserTest {
         ConfigurationParser<String> parser = new JaxbConfigurationParser<>(String.class, jaxbContext, null);
 
         ConfigurationResource cfgResource = mock(ConfigurationResource.class);
-        ByteArrayInputStream cfgStream = new ByteArrayInputStream(CFG_DATA.getBytes());
+        ByteArrayInputStream cfgStream = new ByteArrayInputStream(createConfig().getBytes());
         when(cfgResource.newInputStream()).thenReturn(cfgStream);
 
         parser.read(cfgResource);
     }
 
     @Test
-    public void shouldTemplateConfigurationResource() throws JAXBException, IOException {
-        assumeTrue(TEST_USER_NAME.equals(System.getenv(TEST_USER_ENV_VAR)));
+    public void shouldTemplateEnvironmentVariableInConfigurationResource() throws JAXBException, IOException {
+        assumeTrue(
+            "The " + TEST_USER_ENV_VAR + " environment variable must be set to" + TEST_USER_NAME + " for this test",
+            TEST_USER_NAME.equals(System.getenv(TEST_USER_ENV_VAR))
+        );
 
         final JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
         ConfigurationParser<Element> parser = new JaxbConfigurationParser<>(Element.class, jaxbContext, null);
 
         ConfigurationResource cfgResource = mock(ConfigurationResource.class);
-        ByteArrayInputStream cfgStream = new ByteArrayInputStream(CFG_DATA.getBytes());
+        ByteArrayInputStream cfgStream = new ByteArrayInputStream(createConfig(createHelloMsg("{$(" + TEST_USER_ENV_VAR + ")$}")).getBytes());
         when(cfgResource.newInputStream()).thenReturn(cfgStream);
 
         Element element = parser.read(cfgResource);
@@ -87,7 +84,40 @@ public class JaxbConfigurationParserTest {
         assertEquals(createHelloMsg(TEST_USER_NAME), element.hello);
     }
 
-    private static String createHelloMsg(String s) {
-        return String.format("Hello %s!", s);
+    @Test
+    public void shouldTemplateMissingEnvironmentVariableAsEmptyString() throws JAXBException, IOException {
+        assumeTrue(
+            "The NOT_A_VAR environment variable must NOT be set for this test",
+            System.getenv("NOT_A_VAR") == null
+        );
+
+        final JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
+        ConfigurationParser<Element> parser = new JaxbConfigurationParser<>(Element.class, jaxbContext, null);
+
+        ConfigurationResource cfgResource = mock(ConfigurationResource.class);
+        ByteArrayInputStream cfgStream = new ByteArrayInputStream(createConfig(createHelloMsg("{$(NOT_A_VAR)$}")).getBytes());
+        when(cfgResource.newInputStream()).thenReturn(cfgStream);
+
+        Element element = parser.read(cfgResource);
+
+        assertNotNull(element);
+        assertEquals(createHelloMsg(""), element.hello);
+    }
+
+    private static String createHelloMsg(String name) {
+        return String.format("Hello %s!", name);
+    }
+
+    private static String createConfig() {
+        return createConfig("World");
+    }
+
+    private static String createConfig(String helloMsg) {
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+            "\n" +
+            "<element>\n" +
+            "    <hello>" + helloMsg + "</hello>\n" +
+            "    <goodbye>See ya.</goodbye>\n" +
+            "</element>\n";
     }
 }
