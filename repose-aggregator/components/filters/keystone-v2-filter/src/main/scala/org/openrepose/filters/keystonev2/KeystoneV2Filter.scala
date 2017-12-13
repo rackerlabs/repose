@@ -42,6 +42,7 @@ import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException, AkkaServiceClientFactory}
 import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
+import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationFailed, AuthorizationPassed}
 import org.openrepose.filters.keystonev2.config._
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 
@@ -142,27 +143,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           if (isWhitelisted(request.getRequestURI)) {
             Pass
           } else {
-            val processingResult =
-              getAuthToken flatMap { authToken =>
-                validateToken(authToken) flatMap { validToken =>
-                  val tenantScopedRoles = getTenantScopedRoles(validToken.roles)
-                  val userIsPreAuthed = isUserPreAuthed(tenantScopedRoles)
-                  val scopedRolesToken = if (userIsPreAuthed) validToken else validToken.copy(roles = tenantScopedRoles)
-                  val doTenantCheck = shouldAuthorizeTenant(userIsPreAuthed)
-                  val matchedUriTenant = getMatchingUriTenant(doTenantCheck, scopedRolesToken)
-                  addTokenHeaders(scopedRolesToken, matchedUriTenant)
-                  authorizeTenant(doTenantCheck, matchedUriTenant) flatMap { _ =>
-                    lazy val endpoints = getEndpoints(authToken) // Prevents making call if its not needed
-                    addCatalogHeader(endpoints) flatMap { _ =>
-                      authorizeEndpoints(userIsPreAuthed, endpoints) flatMap { _ =>
-                        addGroupsHeader(getGroups(authToken, scopedRolesToken))
-                      }
-                    }
-                  }
-                }
-              }
-
-            processingResult match {
+            doAuth match {
               case Success(_) => Pass
               case Failure(e: MissingAuthTokenException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
               case Failure(e: NotFoundException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
@@ -285,6 +266,24 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         }
       }
 
+      def doAuth(): Try[Unit.type] = {
+        val token = getAuthToken
+        lazy val endpoints = token.flatMap(authToken => getEndpoints(authToken)) // Prevents making call if its not needed
+        token flatMap { authToken =>
+          validateToken(authToken) flatMap { validToken =>
+            val authResult = KeystoneV2Authorization.doAuthorization(config, tenantFromUri, validToken, endpoints)
+
+            addTokenHeaders(authResult.scopedToken, authResult.matchedTenant)
+            authResult match {
+              case AuthorizationPassed(scopedToken, _) =>
+                addCatalogHeader(endpoints)
+                addGroupsHeader(getGroups(token.get, scopedToken))
+              case AuthorizationFailed(_, _, exception) => Failure(exception)
+            }
+          }
+        }
+      }
+
       def validateToken(authToken: String): Try[ValidToken] = {
         logger.trace(s"Validating token: $authToken")
 
@@ -318,52 +317,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         }
       }
 
-      def getTenantScopedRoles(roles: Seq[Role]): Seq[Role] = {
-        Option(config.getTenantHandling.getValidateTenant) match {
-          case Some(validateTenant) if !validateTenant.isEnableLegacyRolesMode =>
-            roles.filter(role =>
-              role.tenantId.forall(roleTenantId =>
-                roleTenantId.equals(tenantFromUri)))
-          case _ =>
-            roles
-        }
-      }
-
-      def isUserPreAuthed(roles: Seq[Role]): Boolean = {
-        Option(config.getPreAuthorizedRoles) exists { preAuthedRoles =>
-          preAuthedRoles.getRole.asScala.intersect(roles.map(_.name)).nonEmpty
-        }
-      }
-
-      def shouldAuthorizeTenant(preAuthed: Boolean): Boolean = {
-        Option(config.getTenantHandling.getValidateTenant).exists(_ => !preAuthed)
-      }
-
-      def getMatchingUriTenant(doTenantCheck: Boolean, validToken: ValidToken): Option[String] = {
-        if (doTenantCheck) {
-          val tokenTenants = validToken.defaultTenantId.toSet ++ validToken.tenantIds
-          val prefixes = Option(config.getTenantHandling.getValidateTenant.getStripTokenTenantPrefixes).map(_.split('/')).getOrElse(Array.empty[String])
-          tokenTenants find { tokenTenant =>
-            tokenTenant.equals(tenantFromUri) || prefixes.exists(prefix =>
-              tokenTenant.startsWith(prefix) && tokenTenant.substring(prefix.length).equals(tenantFromUri)
-            )
-          }
-        } else {
-          None
-        }
-      }
-
-      def authorizeTenant(doTenantCheck: Boolean, matchedUriTenant: Option[String]): Try[Unit.type] = {
-        logger.trace("Validating tenant")
-
-        if (doTenantCheck) {
-          if (matchedUriTenant.isDefined) Success(Unit)
-          else Failure(InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token"))
-        } else {
-          Success(Unit)
-        }
-      }
-
       def getEndpoints(authToken: String): Try[EndpointsData] = {
         logger.trace(s"Getting endpoints for: $authToken")
 
@@ -389,27 +342,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                 }
               }
             }
-        }
-      }
-
-      def authorizeEndpoints(userIsPreAuthed: Boolean, maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
-        Option(config.getRequireServiceEndpoint) match {
-          case Some(configuredEndpoint) =>
-            logger.trace("Authorizing endpoints")
-
-            maybeEndpoints flatMap { endpoints =>
-              lazy val requiredEndpoint =
-                Endpoint(
-                  publicURL = configuredEndpoint.getPublicUrl,
-                  name = Option(configuredEndpoint.getName),
-                  endpointType = Option(configuredEndpoint.getType),
-                  region = Option(configuredEndpoint.getRegion)
-                )
-
-              if (userIsPreAuthed || endpoints.vector.exists(_.meetsRequirement(requiredEndpoint))) Success(Unit)
-              else Failure(UnauthorizedEndpointException("User did not have the required endpoint"))
-            }
-          case None => Success(Unit)
         }
       }
 

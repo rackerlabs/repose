@@ -834,7 +834,6 @@ with HttpDelegationManager {
 
     it("rejects with 401 if the token is no longer valid when catalog variable is set") {
       val modifiedConfig = configuration
-      modifiedConfig.setRequireServiceEndpoint(null)
       modifiedConfig.getIdentityService.setSetCatalogInHeader(true)
       filter.KeystoneV2ConfigListener.configurationUpdated(modifiedConfig)
 
