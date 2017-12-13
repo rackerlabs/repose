@@ -143,26 +143,27 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           if (isWhitelisted(request.getRequestURI)) {
             Pass
           } else {
-            doAuth match {
-              case Success(_) => Pass
-              case Failure(e: MissingAuthTokenException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
-              case Failure(e: NotFoundException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
-              case Failure(e: InvalidTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
-              case Failure(e: UnparseableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
-              case Failure(e: IdentityCommunicationException) => Reject(SC_BAD_GATEWAY, Some(e.getMessage))
-              case Failure(e: UnauthorizedEndpointException) => Reject(SC_FORBIDDEN, Some(e.getMessage))
-              case Failure(e: OverLimitException) =>
-                response.addHeader(HttpHeaders.RETRY_AFTER, e.retryAfter)
-                if (isSelfValidating) {
-                  Reject(e.statusCode, Some(e.getMessage))
-                } else {
-                  Reject(SC_SERVICE_UNAVAILABLE, Some(e.getMessage))
-                }
-              case Failure(e) if e.getCause.isInstanceOf[AkkaServiceClientException] && e.getCause.getCause.isInstanceOf[TimeoutException] =>
-                Reject(SC_GATEWAY_TIMEOUT, Some(s"Call timed out: ${e.getMessage}"))
-              case Failure(_: AdminTokenUnauthorizedException) if isSelfValidating =>
-                Reject(SC_UNAUTHORIZED, Some("Token unauthorized"))
-              case Failure(e) => Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
+            val authResult = doAuth
+            KeystoneV2Authorization.handleFailures(authResult).getOrElse {
+              authResult match {
+                case Success(_) => Pass
+                case Failure(e: MissingAuthTokenException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+                case Failure(e: NotFoundException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+                case Failure(e: UnparseableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+                case Failure(e: IdentityCommunicationException) => Reject(SC_BAD_GATEWAY, Some(e.getMessage))
+                case Failure(e: OverLimitException) =>
+                  response.addHeader(HttpHeaders.RETRY_AFTER, e.retryAfter)
+                  if (isSelfValidating) {
+                    Reject(e.statusCode, Some(e.getMessage))
+                  } else {
+                    Reject(SC_SERVICE_UNAVAILABLE, Some(e.getMessage))
+                  }
+                case Failure(e) if e.getCause.isInstanceOf[AkkaServiceClientException] && e.getCause.getCause.isInstanceOf[TimeoutException] =>
+                  Reject(SC_GATEWAY_TIMEOUT, Some(s"Call timed out: ${e.getMessage}"))
+                case Failure(_: AdminTokenUnauthorizedException) if isSelfValidating =>
+                  Reject(SC_UNAUTHORIZED, Some("Token unauthorized"))
+                case Failure(e) => Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
+              }
             }
           }
 
@@ -708,9 +709,5 @@ object KeystoneV2Filter {
   case class Reject(status: Int, message: Option[String] = None) extends KeystoneV2Result
 
   case class MissingAuthTokenException(message: String, cause: Throwable = null) extends Exception(message, cause)
-
-  case class UnauthorizedEndpointException(message: String, cause: Throwable = null) extends Exception(message, cause)
-
-  case class InvalidTenantException(message: String, cause: Throwable = null) extends Exception(message, cause)
 
 }

@@ -19,9 +19,11 @@
  */
 package org.openrepose.filters.keystonev2
 
+import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_UNAUTHORIZED}
+
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler.{Endpoint, EndpointsData, Role, ValidToken}
-import org.openrepose.filters.keystonev2.KeystoneV2Filter.{InvalidTenantException, UnauthorizedEndpointException}
+import org.openrepose.filters.keystonev2.KeystoneV2Filter.Reject
 import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, RolesList, ServiceEndpointType, ValidateTenantType}
 
 import scala.collection.JavaConverters._
@@ -43,6 +45,15 @@ object KeystoneV2Authorization extends LazyLogging {
       case Failure(exception) => AuthorizationFailed(scopedRolesToken, matchedTenant, exception)
     }
   }
+
+  def handleFailures(authResult: Try[Unit.type]): Option[Reject] = {
+    authResult match {
+      case Failure(e: InvalidTenantException) => Option(Reject(SC_UNAUTHORIZED, Some(e.getMessage)))
+      case Failure(e: UnauthorizedEndpointException) => Option(Reject(SC_FORBIDDEN, Some(e.getMessage)))
+      case _ => None
+    }
+  }
+
 
   def getTenantScopedRoles(config: ValidateTenantType, tenantFromUri: => String, roles: Seq[Role]): Seq[Role] = {
     Option(config) match {
@@ -117,5 +128,9 @@ object KeystoneV2Authorization extends LazyLogging {
   }
   case class AuthorizationPassed(scopedToken: ValidToken, matchedTenant: Option[String]) extends AuthorizationInfo
   case class AuthorizationFailed(scopedToken: ValidToken, matchedTenant: Option[String], exception: Throwable) extends AuthorizationInfo
+
+  case class UnauthorizedEndpointException(message: String, cause: Throwable = null) extends Exception(message, cause)
+
+  case class InvalidTenantException(message: String, cause: Throwable = null) extends Exception(message, cause)
 
 }
