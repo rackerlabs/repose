@@ -29,7 +29,7 @@ class RateLimitConfigValidationTest extends Specification {
     def rateLimitingXSD = getClass().getResource("/META-INF/schema/config/rate-limiting-configuration.xsd")
 
     private RateLimitingConfiguration configResource(String resource)  {
-        def parser = JaxbConfigurationParser.getXmlConfigurationParser(
+        def parser = new JaxbConfigurationParser(
                 RateLimitingConfiguration.class,
                 rateLimitingXSD,
                 this.getClass().getClassLoader())

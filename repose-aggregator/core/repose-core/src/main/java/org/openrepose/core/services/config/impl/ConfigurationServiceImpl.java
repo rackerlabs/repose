@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,7 +22,7 @@ package org.openrepose.core.services.config.impl;
 import org.openrepose.commons.config.manager.ConfigurationUpdateManager;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.config.parser.common.ConfigurationParser;
-import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser;
+import org.openrepose.commons.config.parser.jaxb.TemplatingJaxbConfigurationParser;
 import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver;
 import org.openrepose.commons.config.resource.impl.FileDirectoryResourceResolver;
@@ -180,7 +180,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         if (parser == null) {
             LOG.debug("Creating new jaxbConfigurationParser for the given configuration class: {}", configurationClass);
             try {
-                parser = JaxbConfigurationParser.getXmlConfigurationParser(configurationClass, xsdStreamSource, loader);
+                parser = new TemplatingJaxbConfigurationParser<>(configurationClass, xsdStreamSource, loader);
             } catch (JAXBException e) {
                 throw new ConfigurationServiceException("Failed to create a JAXB context for a configuration parser!", e);
             }
