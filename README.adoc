@@ -3,8 +3,9 @@
 The purpose of this branch is to contain Jenkins configuration for an internal instance of Jenkins running in RSI:Apps (OpenShift Origin).
 The usage of these files is detailed by the https://github.com/openshift/jenkins#installing-using-s2i-build[source-to-image (S2I) build process for the OpenShift Jenkins image].
 
-By maintaining this branch, we keep a versioned history of the state of our internal Jenkins instance.
-Additionally, we are able to run Jenkins ephemerally (i.e., without keeping any persistent state).
+By maintaining this branch, we keep a versioned history of the configuration of our internal Jenkins instance.
+Doing so makes recovering Jenkins trivial in case of failure.
+However, since some state (e.g., job history) is stored in a persistent volume in OpenShift, it will be lost if OpenShift fails rather than Jenkins.
 
 For more information, see the https://docs.openshift.org/latest/using_images/other_images/jenkins.html[OpenShift Jenkins image documentation].
 Specifically, the https://docs.openshift.org/latest/using_images/other_images/jenkins.html#jenkins-as-s2i-builder[Using Jenkins as a Source-To-Image builder section].
