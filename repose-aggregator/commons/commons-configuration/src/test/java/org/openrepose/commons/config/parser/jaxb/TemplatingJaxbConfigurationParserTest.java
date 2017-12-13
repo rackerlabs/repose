@@ -58,8 +58,8 @@ public class TemplatingJaxbConfigurationParserTest {
         assertEquals(createHelloMsg(TEST_USER_NAME), element.hello);
     }
 
-    @Test
-    public void shouldTemplateMissingEnvironmentVariableAsEmptyString() throws JAXBException, IOException {
+    @Test(expected = ClassCastException.class)
+    public void shouldThrowExceptionWhenMissingEnvironmentVariable() throws JAXBException, IOException {
         assumeTrue(
             "The NOT_A_VAR environment variable must NOT be set for this test",
             System.getenv("NOT_A_VAR") == null
@@ -72,10 +72,7 @@ public class TemplatingJaxbConfigurationParserTest {
         ByteArrayInputStream cfgStream = new ByteArrayInputStream(createConfig(createHelloMsg("{$(NOT_A_VAR)$}")).getBytes());
         when(cfgResource.newInputStream()).thenReturn(cfgStream);
 
-        Element element = parser.read(cfgResource);
-
-        assertNotNull(element);
-        assertEquals(createHelloMsg(""), element.hello);
+        parser.read(cfgResource);
     }
 
     private static String createHelloMsg(String name) {

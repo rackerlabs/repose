@@ -46,6 +46,9 @@ public class TemplatingJaxbConfigurationParser<T> extends JaxbConfigurationParse
                     .withStartOutput(START_OUTPUT_TAG).withEndOutput(END_OUTPUT_TAG)
                 .and()
             .and()
+            .render()
+                .withStrictMode(true)
+            .and()
         .build();
 
     public TemplatingJaxbConfigurationParser(Class<T> configurationClass, JAXBContext jaxbContext, URL xsdStreamSource) {
