@@ -65,7 +65,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   // The local datastore
   private val datastore: Datastore = datastoreService.getDefaultDatastore
 
-  var keystoneV2Config: KeystoneV2Config = _
+  var keystoneV2Config: KeystoneV2AuthenticationConfig = _
   var ignoredRoles: Set[String] = _
   var akkaServiceClient: AkkaServiceClient = _
 
@@ -87,7 +87,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       configurationFile,
       xsdURL,
       KeystoneV2ConfigListener,
-      classOf[KeystoneV2Config]
+      classOf[KeystoneV2AuthenticationConfig]
     )
   }
 
@@ -572,11 +572,11 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     override def isInitialized: Boolean = initialized
   }
 
-  object KeystoneV2ConfigListener extends UpdateListener[KeystoneV2Config] {
+  object KeystoneV2ConfigListener extends UpdateListener[KeystoneV2AuthenticationConfig] {
     private var initialized = false
 
-    override def configurationUpdated(configurationObject: KeystoneV2Config): Unit = {
-      def fixMyDefaults(stupidConfig: KeystoneV2Config): KeystoneV2Config = {
+    override def configurationUpdated(configurationObject: KeystoneV2AuthenticationConfig): Unit = {
+      def fixMyDefaults(stupidConfig: KeystoneV2AuthenticationConfig): KeystoneV2AuthenticationConfig = {
         // LOLJAXB  	(╯°□°）╯︵ ┻━┻
         //This relies on the Default Settings plugin and the fluent_api plugin added to the Jaxb code generation plugin
         // I'm sorry

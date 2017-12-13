@@ -24,14 +24,14 @@ import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_UNAUTHORIZED}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler.{Endpoint, EndpointsData, Role, ValidToken}
 import org.openrepose.filters.keystonev2.KeystoneV2Filter.Reject
-import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, RolesList, ServiceEndpointType, ValidateTenantType}
+import org.openrepose.filters.keystonev2.config._
 
 import scala.collection.JavaConverters._
 import scala.util.{Failure, Success, Try}
 
 object KeystoneV2Authorization extends LazyLogging {
 
-  def doAuthorization(config: KeystoneV2Config, tenantToMatch: => String, validToken: ValidToken, endpoints: => Try[EndpointsData]): AuthorizationInfo = {
+  def doAuthorization(config: KeystoneV2AuthenticationConfig, tenantToMatch: => String, validToken: ValidToken, endpoints: => Try[EndpointsData]): AuthorizationInfo = {
     val tenantScopedRoles = getTenantScopedRoles(config.getTenantHandling.getValidateTenant, tenantToMatch, validToken.roles)
     val userIsPreAuthed = isUserPreAuthed(config.getPreAuthorizedRoles, tenantScopedRoles)
     val scopedRolesToken = if (userIsPreAuthed) validToken else validToken.copy(roles = tenantScopedRoles)

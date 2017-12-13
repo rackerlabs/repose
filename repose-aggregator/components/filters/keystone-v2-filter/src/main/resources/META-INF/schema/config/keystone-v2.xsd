@@ -33,31 +33,30 @@
 
     <xs:include schemaLocation="keystone-v2-common.xsd"/>
 
-    <xs:element name="keystone-v2" type="KeystoneV2Config"/>
+    <xs:element name="keystone-v2" type="KeystoneV2AuthenticationConfig"/>
 
-    <xs:complexType name="KeystoneV2Config">
+    <xs:complexType name="KeystoneV2AuthenticationConfig">
         <xs:annotation>
             <xs:documentation>
                 <html:p>The root config type for the Rackspace Keystone V2 filter configuration file.</html:p>
             </xs:documentation>
         </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="KeystoneV2Config">
+                <xs:all>
+                    <xs:element name="identity-service" type="IdentityServiceType" minOccurs="1" maxOccurs="1"/>
+                    <xs:element name="cache" type="CacheType" minOccurs="0" maxOccurs="1"/>
+                </xs:all>
+                <xs:attribute name="ignored-roles" type="xs:string" default="identity:tenant-access" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p> A space separated list of roles that will be ignored when processing the response from the identity provider.</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
 
-        <xs:all>
-            <xs:element name="identity-service" type="IdentityServiceType" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="delegating" type="DelegatingType" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="white-list" type="WhiteListType" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="cache" type="CacheType" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="tenant-handling" type="TenantHandlingType" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="require-service-endpoint" type="ServiceEndpointType" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="pre-authorized-roles" type="RolesList" minOccurs="0" maxOccurs="1"/>
-        </xs:all>
-        <xs:attribute name="ignored-roles" type="xs:string" default="identity:tenant-access" use="optional">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p> A space separated list of roles that will be ignored when processing the response from the identity provider.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="IdentityServiceType">
@@ -172,30 +171,6 @@
                         This value will be added or subtracted to the cache timeouts to make sure that the cached items
                         have some variability so they don't all expire at the exact same time. (Defaults to no
                         variability)
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-    </xs:complexType>
-
-    <xs:complexType name="DelegatingType">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>
-                    If present, enables delegation. Delegation will cause this filter to pass requests it would
-                    ordinarily reject along with a header detailing why it would have rejected the request.
-                    If not present, delegation is not enabled, and there is no change in behavior.
-                </html:p>
-            </xs:documentation>
-        </xs:annotation>
-        <xs:attribute name="quality" type="QualityType" use="optional" default="0.7">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        What quality you want any output headers to be.
-                        When setting up a chain of delegating filters the highest quality number will be the one that is
-                        eventually output.
-                        Default is 0.7
                     </html:p>
                 </xs:documentation>
             </xs:annotation>

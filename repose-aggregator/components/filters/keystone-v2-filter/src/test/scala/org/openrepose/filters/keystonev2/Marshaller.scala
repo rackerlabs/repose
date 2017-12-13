@@ -24,9 +24,9 @@ import java.nio.charset.StandardCharsets
 
 import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
 import org.openrepose.commons.config.resource.ConfigurationResource
-import org.openrepose.commons.config.resource.impl.{ByteArrayConfigurationResource, BufferedURLConfigurationResource}
+import org.openrepose.commons.config.resource.impl.{BufferedURLConfigurationResource, ByteArrayConfigurationResource}
 import org.openrepose.core.systemmodel.config.SystemModel
-import org.openrepose.filters.keystonev2.config.KeystoneV2Config
+import org.openrepose.filters.keystonev2.config.KeystoneV2AuthenticationConfig
 
 import scala.reflect.ClassTag
 
@@ -51,12 +51,12 @@ object Marshaller {
     parser.read(configResource)
   }
 
-  def keystonev2Config(resource: String): KeystoneV2Config = {
-    configResource[KeystoneV2Config](new BufferedURLConfigurationResource(this.getClass.getResource(resource)), keystoneV2XSD)
+  def keystonev2Config(resource: String): KeystoneV2AuthenticationConfig = {
+    configResource[KeystoneV2AuthenticationConfig](new BufferedURLConfigurationResource(this.getClass.getResource(resource)), keystoneV2XSD)
   }
 
-  def keystoneV2ConfigFromString(content: String): KeystoneV2Config = {
-    configResource[KeystoneV2Config](new ByteArrayConfigurationResource("keystoneV2Config", content.getBytes(StandardCharsets.UTF_8)), keystoneV2XSD)
+  def keystoneV2ConfigFromString(content: String): KeystoneV2AuthenticationConfig = {
+    configResource[KeystoneV2AuthenticationConfig](new ByteArrayConfigurationResource("keystoneV2Config", content.getBytes(StandardCharsets.UTF_8)), keystoneV2XSD)
 
   }
 

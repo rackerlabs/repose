@@ -32,7 +32,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.core.systemmodel.config.{SystemModel, TracingHeaderConfig}
-import org.openrepose.filters.keystonev2.config.KeystoneV2Config
+import org.openrepose.filters.keystonev2.config.KeystoneV2AuthenticationConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -74,7 +74,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
         MockitoMatcher.eq("keystone-v2.cfg.xml"),
         resourceCaptor.capture,
         MockitoMatcher.eq(filter.KeystoneV2ConfigListener),
-        MockitoMatcher.eq(classOf[KeystoneV2Config]))
+        MockitoMatcher.eq(classOf[KeystoneV2AuthenticationConfig]))
       Mockito.verify(mockConfigurationService).subscribeTo(
         MockitoMatcher.eq("system-model.cfg.xml"),
         MockitoMatcher.any(classOf[URL]),
@@ -102,7 +102,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
         MockitoMatcher.eq("some-other-config.xml"),
         resourceCaptor.capture,
         MockitoMatcher.eq(filter.KeystoneV2ConfigListener),
-        MockitoMatcher.eq(classOf[KeystoneV2Config]))
+        MockitoMatcher.eq(classOf[KeystoneV2AuthenticationConfig]))
       Mockito.verify(mockConfigurationService).subscribeTo(
         MockitoMatcher.eq("system-model.cfg.xml"),
         MockitoMatcher.any(classOf[URL]),

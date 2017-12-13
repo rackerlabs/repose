@@ -48,7 +48,7 @@ import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException, AkkaServiceClientFactory}
 import org.openrepose.core.systemmodel.config.{SystemModel, TracingHeaderConfig}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
-import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, ServiceEndpointType}
+import org.openrepose.filters.keystonev2.config.{KeystoneV2AuthenticationConfig, ServiceEndpointType}
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -107,7 +107,7 @@ with HttpDelegationManager {
         anyString(),
         any[URL],
         any(),
-        any[Class[KeystoneV2Config]]
+        any[Class[KeystoneV2AuthenticationConfig]]
       )
       verify(mockConfigurationService).subscribeTo(
         anyString(),
