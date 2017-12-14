@@ -59,33 +59,39 @@ task('publishToPackageRepo', group: 'publishing', description: 'Publishes the de
                     ':repose-aggregator:artifacts:web-application:buildDeb',
                     ':repose-aggregator:artifacts:web-application:buildRpm',
                     ':buildAll',
-        ]) << {
-    ssh.run {
-        session(remotes.packageRepo) {
-            put from: tasks.getByPath(':repose-aggregator:artifacts:cli-utils:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
-            put from: tasks.getByPath(':repose-aggregator:artifacts:cli-utils:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
-            put from: tasks.getByPath(':repose-aggregator:artifacts:experimental-filter-bundle:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
-            put from: tasks.getByPath(':repose-aggregator:artifacts:experimental-filter-bundle:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
-            put from: tasks.getByPath(':repose-aggregator:artifacts:extensions-filter-bundle:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
-            put from: tasks.getByPath(':repose-aggregator:artifacts:extensions-filter-bundle:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
-            put from: tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
-            put from: tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
-            put from: tasks.getByPath(':repose-aggregator:artifacts:repose-lint:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
-            put from: tasks.getByPath(':repose-aggregator:artifacts:repose-lint:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
-            put from: tasks.getByPath(':repose-aggregator:artifacts:valve:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
-            put from: tasks.getByPath(':repose-aggregator:artifacts:valve:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
-            put from: tasks.getByPath(':repose-aggregator:artifacts:web-application:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
-            put from: tasks.getByPath(':repose-aggregator:artifacts:web-application:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
+        ]) {
+    doLast {
+        ssh.run {
+            session(remotes.packageRepo) {
+                put from: tasks.getByPath(':repose-aggregator:artifacts:cli-utils:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
+                put from: tasks.getByPath(':repose-aggregator:artifacts:cli-utils:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
+                put from: tasks.getByPath(':repose-aggregator:artifacts:experimental-filter-bundle:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
+                put from: tasks.getByPath(':repose-aggregator:artifacts:experimental-filter-bundle:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
+                put from: tasks.getByPath(':repose-aggregator:artifacts:extensions-filter-bundle:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
+                put from: tasks.getByPath(':repose-aggregator:artifacts:extensions-filter-bundle:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
+                put from: tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
+                put from: tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
+                put from: tasks.getByPath(':repose-aggregator:artifacts:repose-lint:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
+                put from: tasks.getByPath(':repose-aggregator:artifacts:repose-lint:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
+                put from: tasks.getByPath(':repose-aggregator:artifacts:valve:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
+                put from: tasks.getByPath(':repose-aggregator:artifacts:valve:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
+                put from: tasks.getByPath(':repose-aggregator:artifacts:web-application:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
+                put from: tasks.getByPath(':repose-aggregator:artifacts:web-application:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
+            }
         }
     }
 }
 
-task('tagVersion', description: 'Tag the repository with the current version.', group: 'release', dependsOn: [buildAll]) << {
-    scmFactory.create().tag(version)
+task('tagVersion', description: 'Tag the repository with the current version.', group: 'release', dependsOn: [buildAll]) {
+    doLast {
+        scmFactory.create().tag(version)
+    }
 }
 
-task('exportVersion', description: 'Write the current build version out to a properties file.') << {
-    file("$rootDir/repose-aggregator/build/release-version.properties").text = 'RELEASE_VERSION=' + version + System.lineSeparator()
+task('exportVersion', description: 'Write the current build version out to a properties file.') {
+    doLast {
+        file("$rootDir/repose-aggregator/build/release-version.properties").text = 'RELEASE_VERSION=' + version + System.lineSeparator()
+    }
 }
 
 task('release', description: 'Release the project and publish to all repos.', group: 'release', dependsOn: [exportVersion, tagVersion, publishToPackageRepo])
@@ -210,7 +216,7 @@ subprojects {
     def generatedDir = "${buildDir}/src/generated-sources"
 
     jaxb {
-        xsdDir transformXSDs.outputDir
+        xsdDir = transformXSDs.outputDir
         bindingsDir = transformXSDs.outputDir
         xjc {
             destinationDir = generatedDir
