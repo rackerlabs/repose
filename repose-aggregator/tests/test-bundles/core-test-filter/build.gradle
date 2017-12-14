@@ -1,5 +1,5 @@
 dependencies {
     compile "org.scala-lang:scala-library"
-    provided 'javax.servlet:javax.servlet-api'
-    provided 'javax.inject:javax.inject'
+    compileOnly 'javax.servlet:javax.servlet-api'
+    compileOnly 'javax.inject:javax.inject'
 }

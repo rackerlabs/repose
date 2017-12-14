@@ -1,7 +1,7 @@
 dependencies {
-    provided 'javax.servlet:javax.servlet-api'
-    provided 'javax.inject:javax.inject'
-    provided 'org.apache.commons:commons-lang3'
+    compileOnly 'javax.servlet:javax.servlet-api'
+    compileOnly 'javax.inject:javax.inject'
+    compileOnly 'org.apache.commons:commons-lang3'
     compile project(':repose-aggregator:tests:test-bundles:classloader-dependency-two')
     compile "org.scala-lang:scala-library"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"

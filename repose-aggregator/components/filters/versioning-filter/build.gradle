@@ -12,9 +12,9 @@ dependencies {
     compile "xalan:xalan"
     compile "org.springframework:spring-beans"
 
-    provided "javax.servlet:javax.servlet-api"
-    provided "javax.inject:javax.inject"
-    provided "com.google.code.findbugs:jsr305"
+    compileOnly "javax.servlet:javax.servlet-api"
+    compileOnly "javax.inject:javax.inject"
+    compileOnly "com.google.code.findbugs:jsr305"
 
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"

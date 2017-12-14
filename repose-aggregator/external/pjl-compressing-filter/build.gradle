@@ -3,8 +3,8 @@ dependencies {
     compile "org.slf4j:slf4j-api"
 
 ///todo: swap these as part of REP-3950
-//    provided "javax.servlet:javax.servlet-api"
-    provided "org.glassfish:javax.servlet"
+//    compileOnly "javax.servlet:javax.servlet-api"
+    compileOnly "org.glassfish:javax.servlet"
 
     testCompile "junit:junit"
     testCompile "org.hamcrest:hamcrest-all"

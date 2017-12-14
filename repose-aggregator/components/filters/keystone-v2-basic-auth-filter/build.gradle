@@ -9,9 +9,9 @@ dependencies {
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "org.springframework:spring-web"
 
-    provided "javax.servlet:javax.servlet-api"
-    provided "javax.inject:javax.inject"
-    provided "javax.ws.rs:javax.ws.rs-api"
+    compileOnly "javax.servlet:javax.servlet-api"
+    compileOnly "javax.inject:javax.inject"
+    compileOnly "javax.ws.rs:javax.ws.rs-api"
 
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"

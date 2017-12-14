@@ -5,8 +5,8 @@ dependencies {
     compile "org.slf4j:slf4j-api"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
 
-    provided "javax.servlet:javax.servlet-api"
-    provided "javax.inject:javax.inject"
+    compileOnly "javax.servlet:javax.servlet-api"
+    compileOnly "javax.inject:javax.inject"
 
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"

@@ -10,7 +10,7 @@ dependencies {
     compile "org.springframework:spring-web"
     compile "org.springframework:spring-context"
 
-    provided "javax.servlet:javax.servlet-api"
+    compileOnly "javax.servlet:javax.servlet-api"
 
     testCompile "junit:junit"
     testCompile "org.scala-lang:scala-library"

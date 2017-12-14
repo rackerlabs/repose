@@ -4,7 +4,7 @@ dependencies {
     compile "org.slf4j:slf4j-api"
     compile "org.apache.commons:commons-lang3"
 
-    provided "javax.servlet:javax.servlet-api"
+    compileOnly "javax.servlet:javax.servlet-api"
 
     testCompile project(":repose-aggregator:commons:commons-configuration")
     testCompile project(":repose-aggregator:commons:commons-test")

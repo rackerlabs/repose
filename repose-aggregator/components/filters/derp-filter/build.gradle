@@ -3,8 +3,8 @@ dependencies {
     compile "org.openrepose:http-delegation"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
 
-    provided "javax.servlet:javax.servlet-api"
-    provided "javax.ws.rs:javax.ws.rs-api"
+    compileOnly "javax.servlet:javax.servlet-api"
+    compileOnly "javax.ws.rs:javax.ws.rs-api"
 
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"

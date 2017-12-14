@@ -10,9 +10,9 @@ dependencies {
     compile "com.google.guava:guava"
     compile "org.slf4j:jcl-over-slf4j"
 
-    provided "javax.ws.rs:javax.ws.rs-api"
-    provided "javax.servlet:javax.servlet-api"
-    provided "javax.inject:javax.inject"
+    compileOnly "javax.ws.rs:javax.ws.rs-api"
+    compileOnly "javax.servlet:javax.servlet-api"
+    compileOnly "javax.inject:javax.inject"
 
     testCompile "junit:junit"
     testCompile "org.scala-lang:scala-library"

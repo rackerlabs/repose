@@ -1,5 +1,5 @@
 dependencies {
-    provided "javax.servlet:javax.servlet-api"
+    compileOnly "javax.servlet:javax.servlet-api"
 }
 
 jacocoTestCoverageVerification {

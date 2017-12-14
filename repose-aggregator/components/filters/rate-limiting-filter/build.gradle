@@ -11,8 +11,8 @@ dependencies {
     compile "xalan:xalan"
     compile "org.springframework:spring-web"
 
-    provided "javax.servlet:javax.servlet-api"
-    provided "javax.inject:javax.inject"
+    compileOnly "javax.servlet:javax.servlet-api"
+    compileOnly "javax.inject:javax.inject"
 
     testCompile "junit:junit"
     testCompile "org.hamcrest:hamcrest-all"

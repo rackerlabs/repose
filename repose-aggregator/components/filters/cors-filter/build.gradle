@@ -5,9 +5,9 @@ dependencies {
     compile "com.google.guava:guava"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
 
-    provided "javax.servlet:javax.servlet-api"
-    provided "javax.inject:javax.inject"
-    provided "javax.ws.rs:javax.ws.rs-api"
+    compileOnly "javax.servlet:javax.servlet-api"
+    compileOnly "javax.inject:javax.inject"
+    compileOnly "javax.ws.rs:javax.ws.rs-api"
 
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"

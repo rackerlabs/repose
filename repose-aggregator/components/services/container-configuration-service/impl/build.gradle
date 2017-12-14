@@ -6,7 +6,7 @@ dependencies {
     compile "org.springframework:spring-beans"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
 
-    provided "javax.inject:javax.inject"
+    compileOnly "javax.inject:javax.inject"
 
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "junit:junit"

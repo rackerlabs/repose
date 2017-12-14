@@ -7,8 +7,8 @@ dependencies {
     compile "org.springframework:spring-beans"
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
 
-    provided "javax.inject:javax.inject"
-    provided "javax.ws.rs:javax.ws.rs-api"
+    compileOnly "javax.inject:javax.inject"
+    compileOnly "javax.ws.rs:javax.ws.rs-api"
 
     testCompile "junit:junit"
     testCompile "org.hamcrest:hamcrest-all"
