@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="groovy">
+    request.addHeader("language", "groovy")
+    filterChain.doFilter(request, response)
+    {#-
+        This is a JTwig comment that should not affect processing.
+    -#}
+    {% if ENV_VAL == "Y'all" %}
+        response.addHeader("{$ ENV_KEY $}" , "{$ ENV_VAL $}")
+    {% else %}
+        response.addHeader("{$ ENV_KEY $}" , "???")
+    {% endif %}
+</scripting>
