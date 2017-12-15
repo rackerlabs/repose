@@ -530,7 +530,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
     *
     * @param newConfiguration
     */
-  override def doConfigurationUpdated(newConfiguration: SamlPolicyConfig): Unit = {
+  override def doConfigurationUpdated(newConfiguration: SamlPolicyConfig): SamlPolicyConfig = {
     val requestedFeedId = Option(newConfiguration.getPolicyAcquisition.getCache.getAtomFeedId)
     if (feedId.nonEmpty && (requestedFeedId != Option(configuration.getPolicyAcquisition.getCache.getAtomFeedId))) {
       atomFeedService.unregisterListener(feedId.get)
@@ -581,6 +581,8 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       Option(newConfiguration.getPolicyAcquisition.getKeystoneCredentials.getConnectionPoolId),
       Option(newConfiguration.getPolicyAcquisition.getPolicyEndpoint.getConnectionPoolId)
     )
+
+    newConfiguration
   }
 
   /**

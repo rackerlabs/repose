@@ -50,7 +50,7 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
     * The configuration most recently received by the configurationUpdated method.
     */
   var configuration: T = _
-  var initialized: Boolean = false
+  var listenerInitialized: Boolean = false
   private var configFile: String = _
 
   /**
@@ -93,9 +93,8 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
     */
   override def configurationUpdated(configurationObject: T): Unit = {
     logger.trace("{} received a configuration update", this.getClass.getSimpleName)
-    doConfigurationUpdated(configurationObject)
-    configuration = configurationObject
-    initialized = true
+    configuration = doConfigurationUpdated(configurationObject)
+    listenerInitialized = true
   }
 
   /**
@@ -103,8 +102,9 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
     *
     * @param newConfiguration
     */
-  def doConfigurationUpdated(newConfiguration: T): Unit = {
+  def doConfigurationUpdated(newConfiguration: T): T = {
     logger.trace("{} default doConfigurationUpdated ...", this.getClass.getSimpleName)
+    newConfiguration
   }
 
 
@@ -113,7 +113,14 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
     *
     * @return
     */
-  override def isInitialized: Boolean = initialized
+  override def isInitialized: Boolean = listenerInitialized
+
+  /**
+    * Indicates that the filter has done all initialization and is ready to serve.
+    *
+    * @return
+    */
+  def filterInitialized: Boolean = isInitialized
 
   /**
     * Does an initialization check. Will return 500 if not yet initialized, otherwise calls through to doWork.
@@ -123,7 +130,7 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
     * @param chain
     */
   override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
-    if (!initialized) {
+    if (!filterInitialized) {
       logger.error("{} has not yet initialized...", this.getClass.getSimpleName)
       response.asInstanceOf[HttpServletResponse].sendError(500, "Filter not initialized")
     } else {
