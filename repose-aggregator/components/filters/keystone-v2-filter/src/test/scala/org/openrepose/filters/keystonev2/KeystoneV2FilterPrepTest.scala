@@ -144,22 +144,23 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
       filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
       filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
-      val timeouts = filter.keystoneV2Config.getCache.getTimeouts
+      val config = filter.keystoneV2Config.asInstanceOf[KeystoneV2AuthenticationConfig]
+      val timeouts = config.getCache.getTimeouts
       timeouts.getEndpoints shouldBe 600
       timeouts.getGroup shouldBe 600
       timeouts.getToken shouldBe 600
       timeouts.getVariability shouldBe 0
 
-      filter.keystoneV2Config.getIdentityService.isSetGroupsInHeader shouldBe true
-      filter.keystoneV2Config.getIdentityService.isSetCatalogInHeader shouldBe false
+      config.getIdentityService.isSetGroupsInHeader shouldBe true
+      config.getIdentityService.isSetCatalogInHeader shouldBe false
 
-      filter.keystoneV2Config.getDelegating shouldBe null
+      config.getDelegating shouldBe null
 
-      filter.keystoneV2Config.getWhiteList.getUriRegex.size() shouldBe 0
+      config.getWhiteList.getUriRegex.size() shouldBe 0
 
-      filter.keystoneV2Config.getTenantHandling.getValidateTenant shouldBe null
+      config.getTenantHandling.getValidateTenant shouldBe null
 
-      filter.keystoneV2Config.getRequireServiceEndpoint shouldBe null
+      config.getRequireServiceEndpoint shouldBe null
     }
 
     it("sets the default delegating quality to 0.7") {

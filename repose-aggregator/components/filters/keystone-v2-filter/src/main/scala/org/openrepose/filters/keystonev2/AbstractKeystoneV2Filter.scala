@@ -28,7 +28,6 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.utils.http.{IdentityStatus, OpenStackServiceHeader}
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
-import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.config._
 
 import scala.collection.JavaConverters._
@@ -43,7 +42,7 @@ abstract class AbstractKeystoneV2Filter
 
   var keystoneV2Config: KeystoneV2Config = _
 
-  def doAuth(): Try[Unit.type]
+  def doAuth(request: HttpServletRequestWrapper): Try[Unit.type]
   def handleFailures(authResult: Try[Unit.type]): Option[Reject]
   def isInitialized: Boolean
 
@@ -62,16 +61,6 @@ abstract class AbstractKeystoneV2Filter
         */
       lazy val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
       lazy val response = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], MUTABLE, PASSTHROUGH)
-      lazy val tenantFromUri: String =
-        Option(config.getTenantHandling.getValidateTenant).flatMap(validateTenantConfig =>
-          Option(validateTenantConfig.getUriExtractionRegex).flatMap(uriExtractionRegexList =>
-            uriExtractionRegexList.asScala.toStream.map(_.r).flatMap(uriExtractionRegex =>
-              request.getRequestURI match {
-                case uriExtractionRegex(tenantId, _*) => Option(tenantId)
-                case _ => None
-              }
-            ).headOption
-          )).getOrElse(throw UnparseableTenantException("Could not parse tenant from the URI"))
 
       def isWhitelisted(requestUri: String): Boolean = {
         logger.trace("Comparing request URI to whitelisted URIs")
@@ -93,11 +82,10 @@ abstract class AbstractKeystoneV2Filter
         if (isWhitelisted(request.getRequestURI)) {
           Pass
         } else {
-          val authResult = doAuth()
+          val authResult = doAuth(request)
           handleFailures(authResult).getOrElse {
             authResult match {
               case Success(_) => Pass
-              case Failure(e: UnparseableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
               case Failure(e) => Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
             }
           }
@@ -108,7 +96,8 @@ abstract class AbstractKeystoneV2Filter
           logger.trace("Processing completed, passing to next filter or service")
           addIdentityStatusHeader(confirmed = true)
           chain.doFilter(request, response)
-        case Reject(statusCode, message) =>
+        case Reject(statusCode, message, headers) =>
+          headers foreach { case (name, value) =>  response.addHeader(name, value) }
           Option(config.getDelegating) match {
             case Some(delegating) =>
               logger.debug(s"Delegating with status $statusCode caused by: ${message.getOrElse("unspecified")}")
@@ -141,6 +130,8 @@ abstract class AbstractKeystoneV2Filter
           }
       }
 
+      response.commitToResponse()
+
       def addIdentityStatusHeader(confirmed: Boolean): Unit = {
         if (Option(config.getDelegating).isDefined) {
           if (confirmed) request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.CONFIRMED)
@@ -156,6 +147,6 @@ object AbstractKeystoneV2Filter {
 
   sealed trait KeystoneV2Result
   object Pass extends KeystoneV2Result
-  case class Reject(status: Int, message: Option[String] = None) extends KeystoneV2Result
+  case class Reject(status: Int, message: Option[String] = None, headers: Map[String, String] = Map.empty) extends KeystoneV2Result
 
 }

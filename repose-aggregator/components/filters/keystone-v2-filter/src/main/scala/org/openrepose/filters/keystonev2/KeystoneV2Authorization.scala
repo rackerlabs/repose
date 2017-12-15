@@ -22,8 +22,9 @@ package org.openrepose.filters.keystonev2
 import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_UNAUTHORIZED}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import org.openrepose.filters.keystonev2.KeystoneRequestHandler.{Endpoint, EndpointsData, Role, ValidToken}
-import org.openrepose.filters.keystonev2.KeystoneV2Filter.Reject
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
+import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.Reject
+import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.config._
 
 import scala.collection.JavaConverters._
@@ -31,7 +32,19 @@ import scala.util.{Failure, Success, Try}
 
 object KeystoneV2Authorization extends LazyLogging {
 
-  def doAuthorization(config: KeystoneV2AuthenticationConfig, tenantToMatch: => String, validToken: ValidToken, endpoints: => Try[EndpointsData]): AuthorizationInfo = {
+  def doAuthorization(config: KeystoneV2Config, request: HttpServletRequestWrapper, validToken: ValidToken, endpoints: => Try[EndpointsData]): AuthorizationInfo = {
+    lazy val tenantToMatch: String =
+      Option(config.getTenantHandling.getValidateTenant).flatMap(validateTenantConfig =>
+        Option(validateTenantConfig.getUriExtractionRegex).flatMap(uriExtractionRegexList =>
+          uriExtractionRegexList.asScala.toStream.map(_.r).flatMap(uriExtractionRegex =>
+            request.getRequestURI match {
+              case uriExtractionRegex(tenantId, _*) => Option(tenantId)
+              case _ => None
+            }
+          ).headOption
+        )).getOrElse(throw UnparseableTenantException("Could not parse tenant from the URI"))
+
+
     val tenantScopedRoles = getTenantScopedRoles(config.getTenantHandling.getValidateTenant, tenantToMatch, validToken.roles)
     val userIsPreAuthed = isUserPreAuthed(config.getPreAuthorizedRoles, tenantScopedRoles)
     val scopedRolesToken = if (userIsPreAuthed) validToken else validToken.copy(roles = tenantScopedRoles)
@@ -50,6 +63,7 @@ object KeystoneV2Authorization extends LazyLogging {
     authResult match {
       case Failure(e: InvalidTenantException) => Option(Reject(SC_UNAUTHORIZED, Some(e.getMessage)))
       case Failure(e: UnauthorizedEndpointException) => Option(Reject(SC_FORBIDDEN, Some(e.getMessage)))
+      case Failure(e: UnparseableTenantException) => Option(Reject(SC_UNAUTHORIZED, Some(e.getMessage)))
       case _ => None
     }
   }
