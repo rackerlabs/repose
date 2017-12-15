@@ -92,7 +92,7 @@ class KeystoneV2FilterRcnTest extends FunSpec
       it(s"${shouldOrNot(applyRcnRoles)} append the apply_rcn_roles query parameter to the Identity interactions") {
         filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
         filter.init(mockFilterConfig)
-        filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+        filter.configurationUpdated(configuration)
         filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
         val request = new MockHttpServletRequest()
         request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)

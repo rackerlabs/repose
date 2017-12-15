@@ -171,7 +171,7 @@ with BeforeAndAfterEach {
 
     val config = new MockFilterConfig
     filter.init(config)
-    filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+    filter.configurationUpdated(configuration)
 
     it("removes the token, but doesn't touch the User to Token cache on a TOKEN event") {
       // This was taken from: https://github.com/rackerlabs/standard-usage-schemas/blob/master/message_samples/identity/xml/cloudidentity-token-token-delete-v1-response.xml

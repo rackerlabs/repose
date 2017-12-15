@@ -19,12 +19,11 @@
  */
 package org.openrepose.filters.keystonev2
 
-import java.net.URL
 import java.util.concurrent.{TimeUnit, TimeoutException}
 import javax.inject.{Inject, Named}
 import javax.servlet._
-import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpServletResponse._
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.HttpHeaders
 
 import org.apache.commons.codec.binary.Base64
@@ -33,7 +32,6 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
-import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.types.{PatchableSet, SetPatch}
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
@@ -55,9 +53,13 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
                                  akkaServiceClientFactory: AkkaServiceClientFactory,
                                  atomFeedService: AtomFeedService,
                                  datastoreService: DatastoreService)
-  extends AbstractKeystoneV2Filter {
+  extends AbstractKeystoneV2Filter[KeystoneV2AuthenticationConfig](configurationService) {
 
   import KeystoneV2Filter._
+
+
+  override val DEFAULT_CONFIG = "keystone-v2.cfg.xml"
+  override val SCHEMA_LOCATION = "/META-INF/schema/config/keystone-v2.xsd"
 
   // The local datastore
   private val datastore: Datastore = datastoreService.getDefaultDatastore
@@ -65,49 +67,35 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   var ignoredRoles: Set[String] = _
   var akkaServiceClient: AkkaServiceClient = _
 
-  private var configurationFile: String = DefaultConfig
   private var sendTraceHeader = true
   private var isSelfValidating: Boolean = _
 
-  override def init(filterConfig: FilterConfig): Unit = {
-    configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DefaultConfig)
-    logger.info(s"Initializing Keystone V2 Filter using config $configurationFile")
-    val xsdURL: URL = this.getClass.getResource("/META-INF/schema/config/keystone-v2.xsd")
+  override def doInit(filterConfig: FilterConfig): Unit = {
     configurationService.subscribeTo(
       SystemModelConfig,
       getClass.getResource("/META-INF/schema/system-model/system-model.xsd"),
       SystemModelConfigListener,
       classOf[SystemModel]
     )
-    configurationService.subscribeTo(
-      filterConfig.getFilterName,
-      configurationFile,
-      xsdURL,
-      KeystoneV2ConfigListener,
-      classOf[KeystoneV2AuthenticationConfig]
-    )
   }
 
-  override def destroy(): Unit = {
+  override def doDestroy(): Unit = {
     Option(akkaServiceClient).foreach(_.destroy())
-    configurationService.unsubscribeFrom(configurationFile, KeystoneV2ConfigListener)
     configurationService.unsubscribeFrom(SystemModelConfig, SystemModelConfigListener)
     CacheInvalidationFeedListener.unRegisterFeeds()
   }
 
 
-  override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
-    val response = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], MUTABLE, PASSTHROUGH)
+  override def doWork(servletRequest: HttpServletRequest, servletResponse: HttpServletResponse, chain: FilterChain): Unit = {
+    val response = new HttpServletResponseWrapper(servletResponse, MUTABLE, PASSTHROUGH)
 
-    super.doFilter(servletRequest, response, chain)
+    super.doWork(servletRequest, response, chain)
 
-    if (isInitialized) {
-      val keystoneAuthenticateHeader = s"Keystone uri=${keystoneV2Config.asInstanceOf[KeystoneV2AuthenticationConfig].getIdentityService.getUri}"
+    val keystoneAuthenticateHeader = s"Keystone uri=${configuration.getIdentityService.getUri}"
 
-      response.uncommit()
-      if (response.getStatus == SC_UNAUTHORIZED) {
-        response.addHeader(HttpHeaders.WWW_AUTHENTICATE, keystoneAuthenticateHeader)
-      }
+    response.uncommit()
+    if (response.getStatus == SC_UNAUTHORIZED) {
+      response.addHeader(HttpHeaders.WWW_AUTHENTICATE, keystoneAuthenticateHeader)
     }
     response.commitToResponse()
   }
@@ -116,7 +104,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     /**
       * STATIC REFERENCE TO CONFIG
       */
-    val config = keystoneV2Config.asInstanceOf[KeystoneV2AuthenticationConfig]
+    val config = configuration
 
     /**
       * DECLARE COMMON VALUES
@@ -491,7 +479,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
   }
 
-  def isInitialized: Boolean = SystemModelConfigListener.isInitialized && KeystoneV2ConfigListener.isInitialized
+  override def filterInitialized: Boolean = SystemModelConfigListener.isInitialized && super.filterInitialized
 
   object SystemModelConfigListener extends UpdateListener[SystemModel] {
     private var initialized = false
@@ -504,56 +492,49 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     override def isInitialized: Boolean = initialized
   }
 
-  object KeystoneV2ConfigListener extends UpdateListener[KeystoneV2AuthenticationConfig] {
-    private var initialized = false
-
-    override def configurationUpdated(configurationObject: KeystoneV2AuthenticationConfig): Unit = {
-      def fixMyDefaults(stupidConfig: KeystoneV2AuthenticationConfig): KeystoneV2AuthenticationConfig = {
-        // LOLJAXB  	(╯°□°）╯︵ ┻━┻
-        //This relies on the Default Settings plugin and the fluent_api plugin added to the Jaxb code generation plugin
-        // I'm sorry
-        if (stupidConfig.getTenantHandling == null) {
-          stupidConfig.withTenantHandling(new TenantHandlingType())
-        }
-
-        if (stupidConfig.getWhiteList == null) {
-          stupidConfig.withWhiteList(new WhiteListType())
-        }
-
-        if (stupidConfig.getCache == null) {
-          stupidConfig.withCache(new CacheType().withTimeouts(new CacheTimeoutsType()))
-        } else if (stupidConfig.getCache.getTimeouts == null) {
-          stupidConfig.getCache.withTimeouts(new CacheTimeoutsType())
-          stupidConfig
-        } else {
-          stupidConfig
-        }
+  override def doConfigurationUpdated(configurationObject: KeystoneV2AuthenticationConfig): KeystoneV2AuthenticationConfig = {
+    def fixMyDefaults(stupidConfig: KeystoneV2AuthenticationConfig): KeystoneV2AuthenticationConfig = {
+      // LOLJAXB  	(╯°□°）╯︵ ┻━┻
+      //This relies on the Default Settings plugin and the fluent_api plugin added to the Jaxb code generation plugin
+      // I'm sorry
+      if (stupidConfig.getTenantHandling == null) {
+        stupidConfig.withTenantHandling(new TenantHandlingType())
       }
 
-      val config = fixMyDefaults(configurationObject)
-      keystoneV2Config = config
+      if (stupidConfig.getWhiteList == null) {
+        stupidConfig.withWhiteList(new WhiteListType())
+      }
 
-      // Removes an extra slash at the end of the URI if applicable
-      val serviceUri = config.getIdentityService.getUri
-      config.getIdentityService.setUri(serviceUri.stripSuffix("/"))
-      CacheInvalidationFeedListener.registerFeeds(
-        // This will also force the un-registering of the Atom Feeds if the new config doesn't have a Cache element.
-        Option(config.getCache).getOrElse(new CacheType).getAtomFeed.asScala.toList
-      )
-
-      val akkaServiceClientOld = Option(akkaServiceClient)
-      akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(config.getIdentityService.getConnectionPoolId)
-      akkaServiceClientOld.foreach(_.destroy())
-
-      ignoredRoles = config.getIgnoredRoles.split(' ').to[Set]
-
-      isSelfValidating = Option(config.getIdentityService.getUsername).isEmpty ||
-        Option(config.getIdentityService.getPassword).isEmpty
-
-      initialized = true
+      if (stupidConfig.getCache == null) {
+        stupidConfig.withCache(new CacheType().withTimeouts(new CacheTimeoutsType()))
+      } else if (stupidConfig.getCache.getTimeouts == null) {
+        stupidConfig.getCache.withTimeouts(new CacheTimeoutsType())
+        stupidConfig
+      } else {
+        stupidConfig
+      }
     }
 
-    override def isInitialized: Boolean = initialized
+    val config = fixMyDefaults(configurationObject)
+
+    // Removes an extra slash at the end of the URI if applicable
+    val serviceUri = config.getIdentityService.getUri
+    config.getIdentityService.setUri(serviceUri.stripSuffix("/"))
+    CacheInvalidationFeedListener.registerFeeds(
+      // This will also force the un-registering of the Atom Feeds if the new config doesn't have a Cache element.
+      Option(config.getCache).getOrElse(new CacheType).getAtomFeed.asScala.toList
+    )
+
+    val akkaServiceClientOld = Option(akkaServiceClient)
+    akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(config.getIdentityService.getConnectionPoolId)
+    akkaServiceClientOld.foreach(_.destroy())
+
+    ignoredRoles = config.getIgnoredRoles.split(' ').to[Set]
+
+    isSelfValidating = Option(config.getIdentityService.getUsername).isEmpty ||
+      Option(config.getIdentityService.getPassword).isEmpty
+
+    config
   }
 
   object CacheInvalidationFeedListener extends AtomFeedListener {
@@ -620,7 +601,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 object KeystoneV2Filter {
 
   private final val SystemModelConfig = "system-model.cfg.xml"
-  private final val DefaultConfig = "keystone-v2.cfg.xml"
   private final val XAuthProxy = "Proxy"
 
   val AuthTokenKey = "X-Auth-Token-Key"

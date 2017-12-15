@@ -28,115 +28,110 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.utils.http.{IdentityStatus, OpenStackServiceHeader}
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
+import org.openrepose.core.filter.AbstractConfiguredFilter
+import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.keystonev2.config._
 
 import scala.collection.JavaConverters._
+import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}
 
-abstract class AbstractKeystoneV2Filter
-  extends Filter
+abstract class AbstractKeystoneV2Filter[T <: KeystoneV2Config: ClassTag](configurationService: ConfigurationService)
+  extends AbstractConfiguredFilter[T](configurationService)
     with HttpDelegationManager
     with LazyLogging {
 
   import AbstractKeystoneV2Filter._
 
-  var keystoneV2Config: KeystoneV2Config = _
-
   def doAuth(request: HttpServletRequestWrapper): Try[Unit.type]
   def handleFailures(authResult: Try[Unit.type]): Option[Reject]
-  def isInitialized: Boolean
 
-  override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
-    if (!isInitialized) {
-      logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
-      servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
-    } else {
-      /**
-        * STATIC REFERENCE TO CONFIG
-        */
-      val config = keystoneV2Config
+  def doWork(servletRequest: HttpServletRequest, servletResponse: HttpServletResponse, chain: FilterChain): Unit = {
+    /**
+      * STATIC REFERENCE TO CONFIG
+      */
+    val config = configuration
 
-      /**
-        * DECLARE COMMON VALUES
-        */
-      lazy val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
-      lazy val response = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], MUTABLE, PASSTHROUGH)
+    /**
+      * DECLARE COMMON VALUES
+      */
+    lazy val request = new HttpServletRequestWrapper(servletRequest)
+    lazy val response = new HttpServletResponseWrapper(servletResponse, MUTABLE, PASSTHROUGH)
 
-      def isWhitelisted(requestUri: String): Boolean = {
-        logger.trace("Comparing request URI to whitelisted URIs")
+    def isWhitelisted(requestUri: String): Boolean = {
+      logger.trace("Comparing request URI to whitelisted URIs")
 
-        val whiteListUris: List[String] = config.getWhiteList.getUriRegex.asScala.toList
+      val whiteListUris: List[String] = config.getWhiteList.getUriRegex.asScala.toList
 
-        whiteListUris exists { pattern =>
-          logger.debug(s"checking $requestUri against $pattern")
-          requestUri.matches(pattern)
+      whiteListUris exists { pattern =>
+        logger.debug(s"checking $requestUri against $pattern")
+        requestUri.matches(pattern)
+      }
+    }
+
+    /**
+      * BEGIN PROCESSING
+      */
+    logger.debug("Keystone v2 filter processing request...")
+
+    val filterResult =
+      if (isWhitelisted(request.getRequestURI)) {
+        Pass
+      } else {
+        val authResult = doAuth(request)
+        handleFailures(authResult).getOrElse {
+          authResult match {
+            case Success(_) => Pass
+            case Failure(e) => Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
+          }
         }
       }
 
-      /**
-        * BEGIN PROCESSING
-        */
-      logger.debug("Keystone v2 filter processing request...")
+    filterResult match {
+      case Pass =>
+        logger.trace("Processing completed, passing to next filter or service")
+        addIdentityStatusHeader(confirmed = true)
+        chain.doFilter(request, response)
+      case Reject(statusCode, message, headers) =>
+        headers foreach { case (name, value) =>  response.addHeader(name, value) }
+        Option(config.getDelegating) match {
+          case Some(delegating) =>
+            logger.debug(s"Delegating with status $statusCode caused by: ${message.getOrElse("unspecified")}")
 
-      val filterResult =
-        if (isWhitelisted(request.getRequestURI)) {
-          Pass
-        } else {
-          val authResult = doAuth(request)
-          handleFailures(authResult).getOrElse {
-            authResult match {
-              case Success(_) => Pass
-              case Failure(e) => Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
+            val delegationHeaders = buildDelegationHeaders(statusCode,
+              "keystone-v2",
+              message.getOrElse("Failure in the Keystone v2 filter").replace("\n", " "),
+              delegating.getQuality)
+
+            addIdentityStatusHeader(confirmed = false)
+            delegationHeaders foreach { case (key, values) =>
+              values foreach { value =>
+                request.addHeader(key, value)
+              }
             }
-          }
+
+            chain.doFilter(request, response)
+
+            logger.trace(s"Processing response with status code: $statusCode")
+
+          case None =>
+            logger.debug(s"Rejecting with status $statusCode")
+
+            message match {
+              case Some(m) =>
+                logger.debug(s"Rejection message: $m")
+                response.sendError(statusCode, m)
+              case None => response.sendError(statusCode)
+            }
         }
+    }
 
-      filterResult match {
-        case Pass =>
-          logger.trace("Processing completed, passing to next filter or service")
-          addIdentityStatusHeader(confirmed = true)
-          chain.doFilter(request, response)
-        case Reject(statusCode, message, headers) =>
-          headers foreach { case (name, value) =>  response.addHeader(name, value) }
-          Option(config.getDelegating) match {
-            case Some(delegating) =>
-              logger.debug(s"Delegating with status $statusCode caused by: ${message.getOrElse("unspecified")}")
+    response.commitToResponse()
 
-              val delegationHeaders = buildDelegationHeaders(statusCode,
-                "keystone-v2",
-                message.getOrElse("Failure in the Keystone v2 filter").replace("\n", " "),
-                delegating.getQuality)
-
-              addIdentityStatusHeader(confirmed = false)
-              delegationHeaders foreach { case (key, values) =>
-                values foreach { value =>
-                  request.addHeader(key, value)
-                }
-              }
-
-              chain.doFilter(request, response)
-
-              logger.trace(s"Processing response with status code: $statusCode")
-
-            case None =>
-              logger.debug(s"Rejecting with status $statusCode")
-
-              message match {
-                case Some(m) =>
-                  logger.debug(s"Rejection message: $m")
-                  response.sendError(statusCode, m)
-                case None => response.sendError(statusCode)
-              }
-          }
-      }
-
-      response.commitToResponse()
-
-      def addIdentityStatusHeader(confirmed: Boolean): Unit = {
-        if (Option(config.getDelegating).isDefined) {
-          if (confirmed) request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.CONFIRMED)
-          else request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.INDETERMINATE)
-        }
+    def addIdentityStatusHeader(confirmed: Boolean): Unit = {
+      if (Option(config.getDelegating).isDefined) {
+        if (confirmed) request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.CONFIRMED)
+        else request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.INDETERMINATE)
       }
     }
   }
