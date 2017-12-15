@@ -2,7 +2,7 @@
 
 == In Progress Work
 * https://repose.atlassian.net/browse/REP-5616[REP-5616] - Updated dependencies:
-** Jetty: 9.2.0.v20140526 → 9.4.7.v20170914
+** Jetty: 9.2.0.v20140526 → 9.4.8.v20171121
 *** https://github.com/eclipse/jetty.project/blob/jetty-9.4.x/VERSION.txt
 
 == 8.7.3.0 (2017-11-17)
