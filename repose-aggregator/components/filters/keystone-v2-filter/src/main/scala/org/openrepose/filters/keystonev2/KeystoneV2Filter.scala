@@ -39,7 +39,8 @@ import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaS
 import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.Reject
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
-import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationFailed, AuthorizationPassed}
+import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationFailed, AuthorizationPassed, UnparseableTenantException}
+import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, ValidToken}
 import org.openrepose.filters.keystonev2.config._
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 

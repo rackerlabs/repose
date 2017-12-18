@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_UNAUTHORIZED}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.Reject
-import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
+import org.openrepose.filters.keystonev2.KeystoneV2Common.{Endpoint, EndpointsData, Role, ValidToken}
 import org.openrepose.filters.keystonev2.config._
 
 import scala.collection.JavaConverters._
@@ -146,5 +146,7 @@ object KeystoneV2Authorization extends LazyLogging {
   case class UnauthorizedEndpointException(message: String, cause: Throwable = null) extends Exception(message, cause)
 
   case class InvalidTenantException(message: String, cause: Throwable = null) extends Exception(message, cause)
+
+  case class UnparseableTenantException(message: String, cause: Throwable = null) extends Exception(message, cause)
 
 }
