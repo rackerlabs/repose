@@ -78,11 +78,11 @@ The following table shows the differences.
 
 | Start Comment
 | {#
-| {#
+| {!
 
 | End Comment
 | #}
-| #}
+| !}
 |===
 
 Apart from delimiters, the *Repose* template syntax matches the JTwig syntax.

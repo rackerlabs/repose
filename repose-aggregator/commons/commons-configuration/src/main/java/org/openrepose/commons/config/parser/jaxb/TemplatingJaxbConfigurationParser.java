@@ -39,11 +39,14 @@ public class TemplatingJaxbConfigurationParser<T> extends JaxbConfigurationParse
 
     private static final String START_OUTPUT_TAG = "{$";
     private static final String END_OUTPUT_TAG = "$}";
+    private static final String START_COMMENT_TAG = "{!";
+    private static final String END_COMMENT_TAG = "!}";
     private static final EnvironmentConfiguration ENV_CONF = EnvironmentConfigurationBuilder
         .configuration()
             .parser()
                 .syntax()
                     .withStartOutput(START_OUTPUT_TAG).withEndOutput(END_OUTPUT_TAG)
+                    .withStartComment(START_COMMENT_TAG).withEndComment(END_COMMENT_TAG)
                 .and()
             .and()
             .render()

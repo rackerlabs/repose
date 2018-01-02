@@ -58,6 +58,21 @@ public class TemplatingJaxbConfigurationParserTest {
         assertEquals(createHelloMsg(TEST_USER_NAME), element.hello);
     }
 
+    @Test
+    public void shouldRemoveTemplateCommentInConfigurationResource() throws JAXBException, IOException {
+        final JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
+        ConfigurationParser<Element> parser = new TemplatingJaxbConfigurationParser<>(Element.class, jaxbContext, null);
+
+        ConfigurationResource cfgResource = mock(ConfigurationResource.class);
+        ByteArrayInputStream cfgStream = new ByteArrayInputStream(createConfig(createHelloMsg("{!COMMENT!}")).getBytes());
+        when(cfgResource.newInputStream()).thenReturn(cfgStream);
+
+        Element element = parser.read(cfgResource);
+
+        assertNotNull(element);
+        assertEquals(createHelloMsg(""), element.hello);
+    }
+
     @Test(expected = ClassCastException.class)
     public void shouldThrowExceptionWhenMissingEnvironmentVariable() throws JAXBException, IOException {
         assumeTrue(

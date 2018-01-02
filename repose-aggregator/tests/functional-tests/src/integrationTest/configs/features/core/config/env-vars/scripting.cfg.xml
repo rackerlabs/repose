@@ -4,9 +4,9 @@
            language="groovy">
     request.addHeader("language", "groovy")
     filterChain.doFilter(request, response)
-    {#-
+    {!-
         This is a JTwig comment that should not affect processing.
-    -#}
+    -!}
     {% if ENV_VAL == "Y'all" %}
         response.addHeader("{$ ENV_KEY $}" , "{$ ENV_VAL $}")
     {% else %}
