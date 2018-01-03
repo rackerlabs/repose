@@ -52,7 +52,7 @@ This filter does not modify the response code.
 This configuration will provide the default headers using the client's IP Address.
 
 [source,xml]
-.keystone-v2.cfg.xml
+.ip-user.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <ip-user xmlns="http://docs.openrepose.org/repose/ip-user/v1.0">
@@ -80,7 +80,7 @@ There must be at least one `group` element defined.
 This configuration shows explicitly naming the user and group headers to their default values and setting their qualities to the default also.
 
 [source,xml]
-.keystone-v2.cfg.xml
+.ip-user.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <ip-user xmlns="http://docs.openrepose.org/repose/ip-user/v1.0">
