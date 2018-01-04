@@ -43,6 +43,7 @@ class TestProperties {
     String glassfishJar
     String tomcatJar
     String reposeRootWar
+    String reposeGlassfishRootWar
     String mocksWar
 
     int reposeMajorVersion
@@ -104,6 +105,7 @@ class TestProperties {
                     reposeJar = properties.getProperty("repose.jar")
                     reposeLintJar = properties.getProperty("repose.lint.jar")
                     reposeRootWar = properties.getProperty("repose.root.war")
+                    reposeGlassfishRootWar = properties.getProperty("repose.glassfish.root.war")
 
                     int portStart = properties.getProperty("port.finder.port.start") as int
                     int portMax = properties.getProperty("port.finder.port.max") as int

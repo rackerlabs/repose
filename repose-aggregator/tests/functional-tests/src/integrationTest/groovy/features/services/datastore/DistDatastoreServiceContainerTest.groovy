@@ -97,7 +97,6 @@ class DistDatastoreServiceContainerTest extends Specification {
         reposeLogSearch.cleanLog()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-        def rootWar = properties.getReposeRootWar()
 
         repose1 = new ReposeContainerLauncher(config, serviceContainer, "repose1", "node1", rootWar, reposePort1)
         repose1.enableDebug()
@@ -271,9 +270,9 @@ class DistDatastoreServiceContainerTest extends Specification {
         mc.handlings[0].request.getHeaders().findAll("accept").size() == 2
 
         where:
-        containerName | serviceContainer
-        "Tomcat"      | properties.getTomcatJar()
-        "GlassFish"   | properties.getGlassfishJar()
+        containerName | serviceContainer             | rootWar
+        "Tomcat"      | properties.getTomcatJar()    | properties.getReposeRootWar()
+        "GlassFish"   | properties.getGlassfishJar() | properties.getReposeGlassfishRootWar()
     }
 
     def cleanup() {
