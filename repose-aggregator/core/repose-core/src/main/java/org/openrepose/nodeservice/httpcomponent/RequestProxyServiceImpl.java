@@ -20,6 +20,9 @@
 package org.openrepose.nodeservice.httpcomponent;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableMap;
+import io.opentracing.Scope;
+import io.opentracing.tag.Tags;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -48,6 +51,7 @@ import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.services.httpclient.HttpClientContainer;
 import org.openrepose.core.services.httpclient.HttpClientService;
+import org.openrepose.core.services.opentracing.impl.OpenTracingService;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.core.systemmodel.config.ReposeCluster;
 import org.openrepose.core.systemmodel.config.SystemModel;
@@ -85,6 +89,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private final String clusterId;
     private final String nodeId;
     private final HttpClientService httpClientService;
+    private final OpenTracingService openTracingService;
     private final HealthCheckServiceProxy healthCheckServiceProxy;
     private boolean rewriteHostHeader = false;
 
@@ -92,11 +97,13 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     public RequestProxyServiceImpl(ConfigurationService configurationService,
                                    HealthCheckService healthCheckService,
                                    HttpClientService httpClientService,
+                                   OpenTracingService openTracingService,
                                    @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
                                    @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId) {
 
         this.configurationService = configurationService;
         this.httpClientService = httpClientService;
+        this.openTracingService = openTracingService;
         this.clusterId = clusterId;
         this.nodeId = nodeId;
 
@@ -148,6 +155,16 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
             if (method != null) {
                 HttpRequestBase processedMethod = method.process(processor);
+                LOG.info("DIMA do stuff on open tracing service" + openTracingService);
+
+                if (openTracingService.isEnabled()) {
+                    LOG.info("DIMA IS ABOUT TO GO CRAZY");
+//                    Scope scope = openTracingService.startNewSpan("request", false,
+//                        (Map<String, String>) ImmutableMap.<String, String>builder().
+//                            put(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).
+//                            put(Tags.COMPONENT.getKey(), "repose")
+//                    );
+                }
 
                 return executeProxyRequest(httpClientContainer.getHttpClient(), processedMethod, response);
             }

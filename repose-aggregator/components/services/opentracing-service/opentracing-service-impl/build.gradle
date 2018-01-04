@@ -1,0 +1,20 @@
+dependencies {
+    compile project(":repose-aggregator:core:repose-core-api")
+    compile project(":repose-aggregator:components:services:opentracing-service:opentracing-service-api")
+    compile project(":repose-aggregator:components:services:health-check-service:health-check-service-api")
+    compile "org.slf4j:slf4j-api"
+    compile "org.slf4j:jcl-over-slf4j"
+    compile "org.springframework:spring-beans"
+    compile "io.opentracing:opentracing-api:0.31.0-RC2"
+    compile "io.opentracing:opentracing-util:0.31.0-RC2"
+    compile "com.uber.jaeger:jaeger-core:0.22.0-RC2"
+
+    provided "javax.inject:javax.inject"
+
+    testCompile "junit:junit:4.12"
+    testCompile "org.hamcrest:hamcrest-all"
+    testCompile "org.codehaus.groovy:groovy-all"
+    testCompile "org.eclipse.jetty:jetty-server"
+    testCompile "org.mockito:mockito-all"
+    testCompile "xerces:xerces-xsd11"
+}
