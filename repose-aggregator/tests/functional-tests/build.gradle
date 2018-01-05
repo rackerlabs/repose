@@ -161,3 +161,7 @@ integrationTest {
         }
     }
 }
+
+license {
+    exclude '**/glassfish-web.xml'
+}
