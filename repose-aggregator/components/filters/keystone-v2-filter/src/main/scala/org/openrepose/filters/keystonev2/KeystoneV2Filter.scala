@@ -37,7 +37,7 @@ import org.openrepose.core.services.datastore.types.{PatchableSet, SetPatch}
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException, AkkaServiceClientFactory}
 import org.openrepose.core.systemmodel.config.SystemModel
-import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.Reject
+import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.{KeystoneV2Result, Reject}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationFailed, AuthorizationPassed, UnparseableTenantException}
 import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, ValidToken}
@@ -92,26 +92,19 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
     super.doWork(servletRequest, response, chain)
 
-    val keystoneAuthenticateHeader = s"Keystone uri=${configuration.getIdentityService.getUri}"
-
     response.uncommit()
     if (response.getStatus == SC_UNAUTHORIZED) {
-      response.addHeader(HttpHeaders.WWW_AUTHENTICATE, keystoneAuthenticateHeader)
+      response.addHeader(HttpHeaders.WWW_AUTHENTICATE, s"Keystone uri=${configuration.getIdentityService.getUri}")
     }
     response.commitToResponse()
   }
 
   override def doAuth(request: HttpServletRequestWrapper): Try[Unit.type] = {
     /**
-      * STATIC REFERENCE TO CONFIG
-      */
-    val config = configuration
-
-    /**
       * DECLARE COMMON VALUES
       */
     lazy val traceId = Option(request.getHeader(CommonHttpHeader.TRACE_GUID)).filter(_ => sendTraceHeader)
-    lazy val requestHandler = new KeystoneRequestHandler(config.getIdentityService.getUri, akkaServiceClient, traceId)
+    lazy val requestHandler = new KeystoneRequestHandler(configuration.getIdentityService.getUri, akkaServiceClient, traceId)
 
     /**
       * DEFINING FUNCTIONS IN SCOPE
@@ -119,7 +112,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     def isWhitelisted(requestUri: String): Boolean = {
       logger.trace("Comparing request URI to whitelisted URIs")
 
-      val whiteListUris: List[String] = config.getWhiteList.getUriRegex.asScala.toList
+      val whiteListUris: List[String] = configuration.getWhiteList.getUriRegex.asScala.toList
 
       whiteListUris exists { pattern =>
         logger.debug(s"checking $requestUri against $pattern")
@@ -142,7 +135,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       if (isSelfValidating) {
         Success(authToken)
       } else {
-        getAdminToken(config.getIdentityService.getUsername, config.getIdentityService.getPassword, force)
+        getAdminToken(configuration.getIdentityService.getUsername, configuration.getIdentityService.getPassword, force)
       }
     }
 
@@ -176,18 +169,18 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         Success(validationResult)
       } getOrElse {
         getValidatingToken(authToken, force = false) flatMap { validatingToken =>
-          requestHandler.validateToken(validatingToken, authToken, config.getIdentityService.isApplyRcnRoles, ignoredRoles) recoverWith {
+          requestHandler.validateToken(validatingToken, authToken, configuration.getIdentityService.isApplyRcnRoles, ignoredRoles) recoverWith {
             case _: AdminTokenUnauthorizedException =>
               // Force acquiring of the admin token, and call the validation function again (retry once)
               logger.trace("Forcing acquisition of new admin token")
               getValidatingToken(authToken, force = true) match {
                 case Success(newValidatingToken) =>
                   logger.trace("Obtained admin token on second chance")
-                  requestHandler.validateToken(newValidatingToken, authToken, config.getIdentityService.isApplyRcnRoles, ignoredRoles, checkCache = false)
+                  requestHandler.validateToken(newValidatingToken, authToken, configuration.getIdentityService.isApplyRcnRoles, ignoredRoles, checkCache = false)
                 case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
               }
           } cacheOnSuccess { validToken =>
-            val cacheSettings = config.getCache.getTimeouts
+            val cacheSettings = configuration.getCache.getTimeouts
             val timeToLive = getTtl(cacheSettings.getToken, cacheSettings.getVariability, Some(validToken))
 
             timeToLive foreach { ttl =>
@@ -209,15 +202,15 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
           Success(endpointsData)
         case None =>
           getValidatingToken(authToken, force = false) flatMap { adminToken =>
-            requestHandler.getEndpointsForToken(adminToken, authToken, config.getIdentityService.isApplyRcnRoles) recoverWith {
+            requestHandler.getEndpointsForToken(adminToken, authToken, configuration.getIdentityService.isApplyRcnRoles) recoverWith {
               case _: AdminTokenUnauthorizedException =>
                 // Force acquiring of the admin token, and call the endpoints function again (retry once)
                 getValidatingToken(authToken, force = true) match {
-                  case Success(newAdminToken) => requestHandler.getEndpointsForToken(newAdminToken, authToken, config.getIdentityService.isApplyRcnRoles, checkCache = false)
+                  case Success(newAdminToken) => requestHandler.getEndpointsForToken(newAdminToken, authToken, configuration.getIdentityService.isApplyRcnRoles, checkCache = false)
                   case Failure(x) => Failure(IdentityAdminTokenException("Unable to reacquire admin token", x))
                 }
             } cacheOnSuccess { endpointsJson =>
-              val cacheSettings = config.getCache.getTimeouts
+              val cacheSettings = configuration.getCache.getTimeouts
               val timeToLive = getTtl(cacheSettings.getEndpoints, cacheSettings.getVariability)
               timeToLive foreach { ttl =>
                 datastore.put(s"$ENDPOINTS_KEY_PREFIX$authToken", endpointsJson, ttl, TimeUnit.SECONDS)
@@ -246,7 +239,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
               case _: NotFoundException =>
                 Success(Vector.empty)
             } cacheOnSuccess { groups =>
-              val cacheSettings = config.getCache.getTimeouts
+              val cacheSettings = configuration.getCache.getTimeouts
               val timeToLive = getTtl(cacheSettings.getGroup, cacheSettings.getVariability)
               timeToLive foreach { ttl =>
                 datastore.put(s"$GROUPS_KEY_PREFIX$authToken", groups, ttl, TimeUnit.SECONDS)
@@ -259,8 +252,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     def buildTenantHeader(defaultTenant: Option[String],
                           roleTenants: Seq[String],
                           matchedUriTenant: Option[String]): Vector[String] = {
-      val sendAllTenants = config.getTenantHandling.isSendAllTenantIds
-      val sendTenantIdQuality = Option(config.getTenantHandling.getSendTenantIdQuality)
+      val sendAllTenants = configuration.getTenantHandling.isSendAllTenantIds
+      val sendTenantIdQuality = Option(configuration.getTenantHandling.getSendTenantIdQuality)
       val sendQuality = sendTenantIdQuality.isDefined
       val defaultTenantQuality = sendTenantIdQuality.map(_.getDefaultTenantQuality).getOrElse(0.0)
       val uriTenantQuality = sendTenantIdQuality.map(_.getUriTenantQuality).getOrElse(0.0)
@@ -327,7 +320,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
 
       // If configured, add roles header
-      if (config.getIdentityService.isSetRolesInHeader && token.roles.nonEmpty) {
+      if (configuration.getIdentityService.isSetRolesInHeader && token.roles.nonEmpty) {
         request.addHeader(OpenStackServiceHeader.ROLES, token.roles.map(_.name).mkString(","))
       }
 
@@ -353,7 +346,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
 
     def addCatalogHeader(maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
-      if (config.getIdentityService.isSetCatalogInHeader) {
+      if (configuration.getIdentityService.isSetCatalogInHeader) {
         maybeEndpoints map { endpoints =>
           request.addHeader(PowerApiHeader.X_CATALOG, Base64.encodeBase64String(endpoints.json.getBytes))
           Unit
@@ -364,7 +357,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
 
     def addGroupsHeader(maybeGroups: => Try[Vector[String]]): Try[Unit.type] = {
-      if (config.getIdentityService.isSetGroupsInHeader) {
+      if (configuration.getIdentityService.isSetGroupsInHeader) {
         maybeGroups map { groups =>
           if (groups.nonEmpty) {
             request.addHeader(PowerApiHeader.GROUPS, groups.mkString(","))
@@ -377,7 +370,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
 
     def addIdentityStatusHeader(confirmed: Boolean): Unit = {
-      if (Option(config.getDelegating).isDefined) {
+      if (Option(configuration.getDelegating).isDefined) {
         if (confirmed) request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.CONFIRMED)
         else request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.INDETERMINATE)
       }
@@ -386,42 +379,38 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     /**
       * BEGIN PROCESSING
       */
-    val token = getAuthToken
-    lazy val endpoints = token.flatMap(authToken => getEndpoints(authToken)) // Prevents making call if its not needed
-    token flatMap { authToken =>
+    getAuthToken flatMap { authToken =>
       validateToken(authToken) flatMap { validToken =>
-        val authResult = KeystoneV2Authorization.doAuthorization(config, request, validToken, endpoints)
+        lazy val endpoints = getEndpoints(authToken) // Prevents making call if its not needed
+        val authResult = KeystoneV2Authorization.doAuthorization(configuration, request, validToken, endpoints)
 
         addTokenHeaders(authResult.scopedToken, authResult.matchedTenant)
         authResult match {
           case AuthorizationPassed(scopedToken, _) =>
             addCatalogHeader(endpoints)
-            addGroupsHeader(getGroups(token.get, scopedToken))
+            addGroupsHeader(getGroups(authToken, scopedToken))
           case AuthorizationFailed(_, _, exception) => Failure(exception)
         }
       }
     }
   }
 
-  override def handleFailures(authResult: Try[Unit.type]): Option[Reject] = {
-    KeystoneV2Authorization.handleFailures(authResult).orElse {
-      authResult match {
-        case Failure(e: MissingAuthTokenException) => Option(Reject(SC_UNAUTHORIZED, Some(e.getMessage)))
-        case Failure(e: NotFoundException) => Option(Reject(SC_UNAUTHORIZED, Some(e.getMessage)))
-        case Failure(e: UnparseableTenantException) => Option(Reject(SC_UNAUTHORIZED, Some(e.getMessage)))
-        case Failure(e: IdentityCommunicationException) => Option(Reject(SC_BAD_GATEWAY, Some(e.getMessage)))
-        case Failure(e: OverLimitException) =>
-          if (isSelfValidating) {
-            Option(Reject(e.statusCode, Some(e.getMessage), Map(HttpHeaders.RETRY_AFTER -> e.retryAfter)))
-          } else {
-            Option(Reject(SC_SERVICE_UNAVAILABLE, Some(e.getMessage), Map(HttpHeaders.RETRY_AFTER -> e.retryAfter)))
-          }
-        case Failure(e) if e.getCause.isInstanceOf[AkkaServiceClientException] && e.getCause.getCause.isInstanceOf[TimeoutException] =>
-          Option(Reject(SC_GATEWAY_TIMEOUT, Some(s"Call timed out: ${e.getMessage}")))
-        case Failure(_: AdminTokenUnauthorizedException) if isSelfValidating =>
-          Option(Reject(SC_UNAUTHORIZED, Some("Token unauthorized")))
-        case _ => None
-      }
+  override val handleFailures: PartialFunction[Try[Unit.type], KeystoneV2Result] = {
+    KeystoneV2Authorization.handleFailures orElse {
+      case Failure(e: MissingAuthTokenException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+      case Failure(e: NotFoundException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+      case Failure(e: UnparseableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+      case Failure(e: IdentityCommunicationException) => Reject(SC_BAD_GATEWAY, Some(e.getMessage))
+      case Failure(e: OverLimitException) =>
+        if (isSelfValidating) {
+          Reject(e.statusCode, Some(e.getMessage), Map(HttpHeaders.RETRY_AFTER -> e.retryAfter))
+        } else {
+          Reject(SC_SERVICE_UNAVAILABLE, Some(e.getMessage), Map(HttpHeaders.RETRY_AFTER -> e.retryAfter))
+        }
+      case Failure(e) if e.getCause.isInstanceOf[AkkaServiceClientException] && e.getCause.getCause.isInstanceOf[TimeoutException] =>
+        Reject(SC_GATEWAY_TIMEOUT, Some(s"Call timed out: ${e.getMessage}"))
+      case Failure(_: AdminTokenUnauthorizedException) if isSelfValidating =>
+        Reject(SC_UNAUTHORIZED, Some("Token unauthorized"))
     }
   }
 

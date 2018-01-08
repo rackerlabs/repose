@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_UNAUTHORIZED}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
-import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.Reject
+import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.{KeystoneV2Result, Reject}
 import org.openrepose.filters.keystonev2.KeystoneV2Common.{Endpoint, EndpointsData, Role, ValidToken}
 import org.openrepose.filters.keystonev2.config._
 
@@ -59,13 +59,10 @@ object KeystoneV2Authorization extends LazyLogging {
     }
   }
 
-  def handleFailures(authResult: Try[Unit.type]): Option[Reject] = {
-    authResult match {
-      case Failure(e: InvalidTenantException) => Option(Reject(SC_UNAUTHORIZED, Some(e.getMessage)))
-      case Failure(e: UnauthorizedEndpointException) => Option(Reject(SC_FORBIDDEN, Some(e.getMessage)))
-      case Failure(e: UnparseableTenantException) => Option(Reject(SC_UNAUTHORIZED, Some(e.getMessage)))
-      case _ => None
-    }
+  val handleFailures: PartialFunction[Try[Unit.type], KeystoneV2Result] = {
+    case Failure(e: InvalidTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+    case Failure(e: UnauthorizedEndpointException) => Reject(SC_FORBIDDEN, Some(e.getMessage))
+    case Failure(e: UnparseableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
   }
 
 

@@ -43,8 +43,9 @@ abstract class AbstractKeystoneV2Filter[T <: KeystoneV2Config: ClassTag](configu
 
   import AbstractKeystoneV2Filter._
 
+  val handleFailures: PartialFunction[Try[Unit.type], KeystoneV2Result]
+
   def doAuth(request: HttpServletRequestWrapper): Try[Unit.type]
-  def handleFailures(authResult: Try[Unit.type]): Option[Reject]
 
   def doWork(servletRequest: HttpServletRequest, servletResponse: HttpServletResponse, chain: FilterChain): Unit = {
     /**
@@ -79,12 +80,10 @@ abstract class AbstractKeystoneV2Filter[T <: KeystoneV2Config: ClassTag](configu
         Pass
       } else {
         val authResult = doAuth(request)
-        handleFailures(authResult).getOrElse {
-          authResult match {
-            case Success(_) => Pass
-            case Failure(e) => Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
-          }
-        }
+        handleFailures.applyOrElse(authResult, (t: Try[Unit.type]) => t match {
+          case Success(_) => Pass
+          case Failure(e) => Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
+        })
       }
 
     filterResult match {
