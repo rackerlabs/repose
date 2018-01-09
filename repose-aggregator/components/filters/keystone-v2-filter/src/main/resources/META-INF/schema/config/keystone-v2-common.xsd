@@ -21,6 +21,9 @@
 
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0"
            targetNamespace="http://docs.openrepose.org/repose/keystone-v2/v1.0"
@@ -117,7 +120,7 @@
 
     <xs:complexType name="ValidateTenantType">
         <xs:sequence>
-            <xs:element name="uri-extraction-regex" type="xs:string" minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="uri-extraction-regex" type="xs:string" minOccurs="0" maxOccurs="unbounded">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>
@@ -128,6 +131,17 @@
                 </xs:annotation>
             </xs:element>
         </xs:sequence>
+
+        <xs:attribute name="header-extraction-name" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The name of a HTTP header which contains a corresponding value representing a tenant ID to be
+                        used for authorization.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
 
         <xs:attribute name="strip-token-tenant-prefixes" type="xs:string" use="optional">
             <xs:annotation>
@@ -152,6 +166,12 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="count((@header-extraction-name, uri-extraction-regex)) > 0"
+                   xerces:message="When validating tenants, at least one tenant extraction must be defined"
+                   saxon:message="When validating tenants, at least one tenant extraction must be defined"/>
     </xs:complexType>
 
     <xs:complexType name="RolesList">

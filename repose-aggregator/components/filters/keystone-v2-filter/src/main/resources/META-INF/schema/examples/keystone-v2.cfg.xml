@@ -45,7 +45,7 @@
     </cache>
 
     <tenant-handling send-all-tenant-ids="true">
-        <validate-tenant>
+        <validate-tenant header-extraction-name="x-expected-tenant">
             <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
             <uri-extraction-regex>.*/clients/([-|\w]+)/?.*</uri-extraction-regex>
         </validate-tenant>

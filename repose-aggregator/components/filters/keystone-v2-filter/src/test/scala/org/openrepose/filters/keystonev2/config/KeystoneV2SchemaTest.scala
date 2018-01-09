@@ -88,5 +88,51 @@ class KeystoneV2SchemaTest extends ConfigurationTest {
         validator.validateConfigString(config)
       }.getLocalizedMessage should include ("Atom Feed ID's must be unique")
     }
+
+    it("should successfully validate config if a tenant URI extraction regex is provided") {
+      val config = """<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+                     |    <identity-service uri="https://some.identity.com"/>
+                     |    <tenant-handling>
+                     |        <validate-tenant>
+                     |            <uri-extraction-regex>[^\/]*\/?([^\/]+)</uri-extraction-regex>
+                     |        </validate-tenant>
+                     |    </tenant-handling>
+                     |</keystone-v2>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should successfully validate config if a tenant header extraction name is provided") {
+      val config = """<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+                     |    <identity-service uri="https://some.identity.com"/>
+                     |    <tenant-handling>
+                     |        <validate-tenant header-extraction-name="x-expected-tenant"/>
+                     |    </tenant-handling>
+                     |</keystone-v2>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should successfully validate config if both a tenant URI extraction regex nor a tenant header extraction name are provided") {
+      val config = """<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+                     |    <identity-service uri="https://some.identity.com"/>
+                     |    <tenant-handling>
+                     |        <validate-tenant header-extraction-name="x-expected-tenant">
+                     |            <uri-extraction-regex>[^\/]*\/?([^\/]+)</uri-extraction-regex>
+                     |        </validate-tenant>
+                     |    </tenant-handling>
+                     |</keystone-v2>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should reject config if neither a tenant URI extraction regex nor a tenant header extraction name is provided") {
+      val config = """<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+                     |    <identity-service uri="https://some.identity.com"/>
+                     |    <tenant-handling>
+                     |        <validate-tenant/>
+                     |    </tenant-handling>
+                     |</keystone-v2>""".stripMargin
+      intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }.getLocalizedMessage should include ("When validating tenants, at least one tenant extraction must be defined")
+    }
   }
 }
