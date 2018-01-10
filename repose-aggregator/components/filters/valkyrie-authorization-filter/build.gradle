@@ -7,7 +7,9 @@ dependencies {
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "org.openrepose:http-delegation"
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
-    compile "com.josephpconley:play-jsonpath_$scalaMajDotMin"
+    compile("com.josephpconley:play-jsonpath_$scalaMajDotMin") {
+        transitive = false
+    }
     compile "io.gatling:jsonpath_$scalaMajDotMin"
     compile "com.fasterxml.jackson.core:jackson-core"
 
