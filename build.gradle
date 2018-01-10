@@ -231,29 +231,32 @@ subprojects {
             java {
                 srcDirs += generatedDir
             }
-            output.classesDir = sourceSets.main.output.classesDir
         }
         main {
+            compileClasspath += project.files([sourceSets.generated.java.outputDir])
+            runtimeClasspath += project.files([sourceSets.generated.java.outputDir])
             java {
-                compileClasspath += generated.output
-                runtimeClasspath += generated.output
-            }
-            scoverage {
-                compileClasspath += generated.output
-                runtimeClasspath += generated.output
+                exclude '**/*.jaxb'
+                exclude '**/README'
             }
         }
         test {
-            java {
-                compileClasspath += generated.output
-                runtimeClasspath += generated.output
-            }
-            testScoverage {
-                compileClasspath += generated.output
-                runtimeClasspath += generated.output
-            }
+            compileClasspath += configurations.compileOnly
+            runtimeClasspath += configurations.compileOnly
+            compileClasspath += project.files([sourceSets.generated.java.outputDir])
+            runtimeClasspath += project.files([sourceSets.generated.java.outputDir])
+        }
+        integrationTest {
+            compileClasspath += configurations.compileOnly
+            runtimeClasspath += configurations.compileOnly
+            compileClasspath += project.files([sourceSets.generated.java.outputDir])
+            runtimeClasspath += project.files([sourceSets.generated.java.outputDir])
         }
     }
+
+    compileJava.dependsOn compileGeneratedJava
+    compileScala.dependsOn compileGeneratedJava
+    compileIntegrationTestGroovy.dependsOn compileGeneratedJava
 
     [JavaCompile, ScalaCompile, GroovyCompile].collect { type ->
         tasks.withType(type) {
@@ -339,7 +342,7 @@ subprojects {
     // is currently done on all sub-projects. Sub-projects without any classes, like some of those under
     // :repose-aggregator:artifacts, will break Sonar without this line.
     // TODO: Remove this line once future versions of the Sonar plugin support a missing classes/main/ directory.
-    file("$buildDir/classes/main").mkdirs()
+    file("$buildDir/classes/java/main").mkdirs()
 
     jar {
         manifest {
@@ -356,6 +359,7 @@ subprojects {
                     "Created-By": "Gradle $project.gradle.gradleVersion",
             )
         }
+        from project.files([sourceSets.generated.java.outputDir])
     }
 
     idea {
