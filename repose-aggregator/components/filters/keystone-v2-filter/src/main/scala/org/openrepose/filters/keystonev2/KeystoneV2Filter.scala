@@ -40,7 +40,7 @@ import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.{KeystoneV2Result, Reject}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationFailed, AuthorizationPassed, UnparseableTenantException}
-import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, ValidToken}
+import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, TokenRequestAttributeName, ValidToken}
 import org.openrepose.filters.keystonev2.config._
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 
@@ -363,6 +363,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       */
     getAuthToken flatMap { authToken =>
       validateToken(authToken) flatMap { validToken =>
+        request.setAttribute(TokenRequestAttributeName, validToken)
+
         lazy val endpoints = getEndpoints(authToken) // Prevents making call if its not needed
         val authResult = KeystoneV2Authorization.doAuthorization(configuration, request, validToken, endpoints)
 
