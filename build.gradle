@@ -186,7 +186,7 @@ subprojects {
 
             //Find all XSDs in the src/main/resources/META-INF.schema
             if (file(xsltFile).exists() && file(schemaBaseDir).exists()) {
-                logger.lifecycle("Transforming Schemas")
+                logger.info("Transforming Schemas")
                 ant.xslt(
                         extension: '.xsd',
                         basedir: schemaBaseDir,
@@ -195,7 +195,7 @@ subprojects {
                         destdir: "${outputDir}"
                 )
             } else {
-                logger.lifecycle("NOT Transforming Schemas")
+                logger.info("NOT Transforming Schemas")
                 copy {
                     from schemaBaseDir
                     into outputDir
@@ -204,7 +204,7 @@ subprojects {
             }
 
             //Copy over any bindings.xjb into their appropriate directories
-            logger.lifecycle("Copying xjb's")
+            logger.info("Copying xjb's")
             copy {
                 from schemaBaseDir
                 into outputDir
@@ -285,6 +285,7 @@ subprojects {
         source = "src/main/scala"
         testSource = "src/test/scala"
         failOnWarning = true
+        quiet = true
     }
 
     check.dependsOn scalaStyle
