@@ -55,7 +55,7 @@ class KeystoneV2AuthorizationSchemaTest extends ConfigurationTest {
       validator.validateConfigString(config)
     }
 
-    it("should successfully validate config if both a tenant URI extraction regex nor a tenant header extraction name are provided") {
+    it("should successfully validate config if both a tenant URI extraction regex and a tenant header extraction name are provided") {
       val config =
         """<keystone-v2-authorization xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
           |    <tenant-handling>
