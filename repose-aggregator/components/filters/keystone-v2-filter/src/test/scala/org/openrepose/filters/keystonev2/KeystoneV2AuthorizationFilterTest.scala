@@ -25,11 +25,15 @@ import org.junit.runner.RunWith
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.Reject
 import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{InvalidTenantException, UnauthorizedEndpointException, UnparseableTenantException}
-import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+import org.openrepose.filters.keystonev2.KeystoneV2AuthorizationFilter.{InvalidTokenException, MissingTokenException}
+import org.openrepose.filters.keystonev2.KeystoneV2Common.TokenRequestAttributeName
+import org.openrepose.filters.keystonev2.KeystoneV2TestCommon.createValidToken
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+import org.springframework.mock.web.MockHttpServletRequest
 
-import scala.util.Failure
+import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
 class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach with MockitoSugar with Matchers {
@@ -40,6 +44,39 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
   override def beforeEach(): Unit = {
     mockConfigService = mock[ConfigurationService]
     keystoneV2AuthorizationFilter = new KeystoneV2AuthorizationFilter(mockConfigService)
+  }
+
+  describe("getToken") {
+    it(s"should return a token if a valid token is present at the $TokenRequestAttributeName attribute of the request") {
+      val token = createValidToken()
+      val request = new MockHttpServletRequest
+      request.setAttribute(TokenRequestAttributeName, token)
+
+      val result = keystoneV2AuthorizationFilter.getToken(request)
+
+      result shouldBe a[Success[_]]
+      result.get shouldBe token
+    }
+
+    it(s"should return a Failure if a token is absent at the $TokenRequestAttributeName attribute of the request") {
+      val request = new MockHttpServletRequest
+
+      val result = keystoneV2AuthorizationFilter.getToken(request)
+
+      result shouldBe a[Failure[_]]
+      a[MissingTokenException] should be thrownBy result.get
+    }
+
+    it(s"should return a Failure if the object present at the $TokenRequestAttributeName attribute of the request is not a valid token") {
+      val token = "not-a-token"
+      val request = new MockHttpServletRequest
+      request.setAttribute(TokenRequestAttributeName, token)
+
+      val result = keystoneV2AuthorizationFilter.getToken(request)
+
+      result shouldBe a[Failure[_]]
+      an[InvalidTokenException] should be thrownBy result.get
+    }
   }
 
   describe("handleFailures") {

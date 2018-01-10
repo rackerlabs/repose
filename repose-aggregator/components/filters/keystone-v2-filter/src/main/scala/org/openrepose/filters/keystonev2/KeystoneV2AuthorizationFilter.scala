@@ -20,12 +20,13 @@
 package org.openrepose.filters.keystonev2
 
 import javax.inject.{Inject, Named}
+import javax.servlet.ServletRequest
 
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.KeystoneV2Result
 import org.openrepose.filters.keystonev2.KeystoneV2Authorization.doAuthorization
-import org.openrepose.filters.keystonev2.KeystoneV2Common.ValidToken
+import org.openrepose.filters.keystonev2.KeystoneV2Common.{TokenRequestAttributeName, ValidToken}
 import org.openrepose.filters.keystonev2.config.KeystoneV2Config
 
 import scala.util.Try
@@ -33,6 +34,8 @@ import scala.util.Try
 @Named
 class KeystoneV2AuthorizationFilter @Inject()(configurationService: ConfigurationService)
   extends AbstractKeystoneV2Filter[KeystoneV2Config](configurationService) {
+
+  import KeystoneV2AuthorizationFilter._
 
   override val DEFAULT_CONFIG = "keystone-v2-authorization.cfg.xml"
   override val SCHEMA_LOCATION = "/META-INF/schema/config/keystone-v2-authorization.xsd"
@@ -43,7 +46,17 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
     ???
   }
 
-  def getToken: ValidToken = {
-    ???
+  def getToken(request: ServletRequest): Try[ValidToken] = {
+    Try {
+      Option(request.getAttribute(TokenRequestAttributeName)).get.asInstanceOf[ValidToken]
+    } recover {
+      case nsee: NoSuchElementException => throw MissingTokenException("Token request attribute does not exist", nsee)
+      case cce: ClassCastException => throw InvalidTokenException("Token request attribute is not a valid token", cce)
+    }
   }
+}
+
+object KeystoneV2AuthorizationFilter {
+  case class MissingTokenException(message: String, cause: Throwable = null) extends Exception(message, cause)
+  case class InvalidTokenException(message: String, cause: Throwable = null) extends Exception(message, cause)
 }
