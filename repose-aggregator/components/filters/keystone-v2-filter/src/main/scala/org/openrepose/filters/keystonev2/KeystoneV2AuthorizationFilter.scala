@@ -24,6 +24,7 @@ import javax.inject.{Inject, Named}
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.KeystoneV2Result
+import org.openrepose.filters.keystonev2.KeystoneV2Authorization.doAuthorization
 import org.openrepose.filters.keystonev2.KeystoneV2Common.ValidToken
 import org.openrepose.filters.keystonev2.config.KeystoneV2Config
 
@@ -36,7 +37,7 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
   override val DEFAULT_CONFIG = "keystone-v2-authorization.cfg.xml"
   override val SCHEMA_LOCATION = "/META-INF/schema/config/keystone-v2-authorization.xsd"
 
-  override val handleFailures: PartialFunction[Try[Unit.type], KeystoneV2Result] = ???
+  override val handleFailures: PartialFunction[Try[Unit.type], KeystoneV2Result] = KeystoneV2Authorization.handleFailures
 
   override def doAuth(request: HttpServletRequestWrapper): Try[Unit.type] = {
     ???
