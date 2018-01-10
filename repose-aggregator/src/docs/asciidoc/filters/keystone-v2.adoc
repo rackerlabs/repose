@@ -338,6 +338,11 @@ https://one.rackspace.com/display/auth/Identity+Endpoints#IdentityEndpoints-Endp
 <1> The unique ID of a feed defined in the <<../services/atom-feed-consumption.adoc#, Atom Feed Consumption service>> configuration.
 
 === Tenant ID Validation
+[WARNING]
+====
+Tenant validation has been moved to the <<keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>>, and is considered deprecated in this filter.
+====
+
 Tenant ID Validation is the capability of this filter to parse a tenant ID out of a request URI and validate it against the tenant ID(s) available in the response token from the Keystone v2 Identity service.
 
 [source,xml]
@@ -399,6 +404,11 @@ The elements are evaluated in order from top to bottom and the first successful 
 ====
 
 === Tenant ID Validation Bypass
+[WARNING]
+====
+Pre-authorized roles have been moved to the <<keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>>, and are considered deprecated in this filter.
+====
+
 If Tenant ID Validation is enabled, then a list of roles that are allowed to bypass this check can be configured.
 These configured roles will be compared to the roles returned in a token from the Keystone v2 Identity service, and if there is a match, the Tenant ID check will be skipped.
 
@@ -417,6 +427,11 @@ These configured roles will be compared to the roles returned in a token from th
 <2> Defines a role for which the Tenant ID Validation check is not required.
 
 === Require specific service endpoint for authorization
+[WARNING]
+====
+Service endpoint requirements have been moved to the <<keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>>, and are considered deprecated in this filter.
+====
+
 If endpoint authorization is enabled, then the user must have an endpoint in their catalog meeting the defined criteria.
 
 [source,xml]

@@ -492,6 +492,16 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
     val config = fixMyDefaults(configurationObject)
 
+    Option(config.getTenantHandling).map(_.getValidateTenant) foreach { _ =>
+      logger.warn("Tenant validation has been moved to the keystone-v2-authorization filter, and is considered deprecated in the keystone-v2 filter")
+    }
+    Option(config.getRequireServiceEndpoint) foreach { _ =>
+      logger.warn("Service endpoint requirements have been moved to the keystone-v2-authorization filter, and are considered deprecated in the keystone-v2 filter")
+    }
+    Option(config.getPreAuthorizedRoles) foreach { _ =>
+      logger.warn("Pre-authorized roles have been moved to the keystone-v2-authorization filter, and are considered deprecated in the keystone-v2 filter")
+    }
+
     // Removes an extra slash at the end of the URI if applicable
     val serviceUri = config.getIdentityService.getUri
     config.getIdentityService.setUri(serviceUri.stripSuffix("/"))

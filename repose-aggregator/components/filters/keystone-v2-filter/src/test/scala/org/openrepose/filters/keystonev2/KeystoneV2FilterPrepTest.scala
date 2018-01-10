@@ -44,6 +44,8 @@ import scala.collection.JavaConversions._
 @RunWith(classOf[JUnitRunner])
 class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
+  private val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
+  private val listAppender = ctx.getConfiguration.getAppender("List0").asInstanceOf[ListAppender]
   private val mockDatastoreService = mock[DatastoreService]
   private val mockDatastore = mock[Datastore]
   Mockito.when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
@@ -54,6 +56,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
 
   override def beforeEach(): Unit = {
     Mockito.reset(mockDatastore)
+    listAppender.clear()
   }
 
   describe("when the filter is initialized") {
@@ -256,12 +259,63 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
 
       Mockito.verify(mockAtomFeedService).registerListener(MockitoMatcher.eq("some-feed"), MockitoMatcher.any[AtomFeedListener])
     }
+
+    it("should log a deprecation warning if validate tenant is used") {
+      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mock[AtomFeedService], mockDatastoreService)
+
+      filter.configurationUpdated(Marshaller.keystoneV2ConfigFromString(
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |
+          |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+          |    <identity-service uri="https://lol.com"/>
+          |    <tenant-handling>
+          |        <validate-tenant>
+          |            <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
+          |        </validate-tenant>
+          |    </tenant-handling>
+          |</keystone-v2>
+        """.stripMargin
+      ))
+
+      listAppender.getEvents.map(_.getMessage.getFormattedMessage) should contain("Tenant validation has been moved to the keystone-v2-authorization filter, and is considered deprecated in the keystone-v2 filter")
+    }
+
+    it("should log a deprecation warning if require service endpoint is used") {
+      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mock[AtomFeedService], mockDatastoreService)
+
+      filter.configurationUpdated(Marshaller.keystoneV2ConfigFromString(
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |
+          |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+          |    <identity-service uri="https://lol.com"/>
+          |    <require-service-endpoint public-url="https://someuri" region="ORD" name="OpenStackCompute" type="compute"/>
+          |</keystone-v2>
+        """.stripMargin
+      ))
+
+      listAppender.getEvents.map(_.getMessage.getFormattedMessage) should contain("Service endpoint requirements have been moved to the keystone-v2-authorization filter, and are considered deprecated in the keystone-v2 filter")
+    }
+
+    it("should log a deprecation warning if pre-authorized role is used") {
+      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mock[AtomFeedService], mockDatastoreService)
+
+      filter.configurationUpdated(Marshaller.keystoneV2ConfigFromString(
+        """<?xml version="1.0" encoding="UTF-8"?>
+          |
+          |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+          |    <identity-service uri="https://lol.com"/>
+          |    <pre-authorized-roles>
+          |        <role>racker</role>
+          |    </pre-authorized-roles>
+          |</keystone-v2>
+        """.stripMargin
+      ))
+
+      listAppender.getEvents.map(_.getMessage.getFormattedMessage) should contain("Pre-authorized roles have been moved to the keystone-v2-authorization filter, and are considered deprecated in the keystone-v2 filter")
+    }
   }
 
   it("should fail to unmarshal duplicate Atom Feed ID's") {
-    val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
-    val listAppender = ctx.getConfiguration.getAppender("List0").asInstanceOf[ListAppender]
-    listAppender.clear()
     intercept[ClassCastException] {
       Marshaller.keystoneV2ConfigFromString(
         """<?xml version="1.0" encoding="UTF-8"?>
