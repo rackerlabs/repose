@@ -32,6 +32,12 @@ import scala.util.{Failure, Success, Try}
 
 object KeystoneV2Authorization extends LazyLogging {
 
+  val handleFailures: PartialFunction[Try[Unit.type], KeystoneV2Result] = {
+    case Failure(e: InvalidTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+    case Failure(e: UnauthorizedEndpointException) => Reject(SC_FORBIDDEN, Some(e.getMessage))
+    case Failure(e: UnparseableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+  }
+
   def doAuthorization(config: KeystoneV2Config, request: HttpServletRequestWrapper, validToken: ValidToken, endpoints: => Try[EndpointsData]): AuthorizationInfo = {
     lazy val tenantToMatch: String =
       Option(config.getTenantHandling.getValidateTenant).flatMap(validateTenantConfig =>
@@ -58,13 +64,6 @@ object KeystoneV2Authorization extends LazyLogging {
       case Failure(exception) => AuthorizationFailed(scopedRolesToken, matchedTenant, exception)
     }
   }
-
-  val handleFailures: PartialFunction[Try[Unit.type], KeystoneV2Result] = {
-    case Failure(e: InvalidTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
-    case Failure(e: UnauthorizedEndpointException) => Reject(SC_FORBIDDEN, Some(e.getMessage))
-    case Failure(e: UnparseableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
-  }
-
 
   def getTenantScopedRoles(config: ValidateTenantType, tenantFromUri: => String, roles: Seq[Role]): Seq[Role] = {
     Option(config) match {
