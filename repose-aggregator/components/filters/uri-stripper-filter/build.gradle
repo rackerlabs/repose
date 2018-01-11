@@ -22,4 +22,5 @@ dependencies {
     testCompile "org.mockito:mockito-all"
     testCompile "org.springframework:spring-test"
     testCompile "org.slf4j:jcl-over-slf4j"
+    testCompile "xerces:xerces-xsd11"
 }
