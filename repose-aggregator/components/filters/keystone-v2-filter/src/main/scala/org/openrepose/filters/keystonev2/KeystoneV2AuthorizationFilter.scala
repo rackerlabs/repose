@@ -53,6 +53,7 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
   }
 
   override def doAuth(request: HttpServletRequestWrapper): Try[Unit.type] = {
+    // TODO: Stop using request attributes. Stop using the token. Just use the tenant to roles map, tenant ids, and roles headers.
     getToken(request) flatMap { token =>
       doAuthorization(configuration, request, token, getEndpoints(request)) match {
         case AuthorizationPassed(_, Some(matchedTenant)) =>
