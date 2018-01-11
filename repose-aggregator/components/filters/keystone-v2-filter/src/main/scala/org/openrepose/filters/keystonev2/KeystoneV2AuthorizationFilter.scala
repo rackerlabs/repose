@@ -21,16 +21,17 @@ package org.openrepose.filters.keystonev2
 
 import javax.inject.{Inject, Named}
 import javax.servlet.ServletRequest
+import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 
 import org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.KeystoneV2Result
+import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.{KeystoneV2Result, Reject}
 import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationFailed, AuthorizationPassed, doAuthorization}
 import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, EndpointsRequestAttributeName, TokenRequestAttributeName, ValidToken}
 import org.openrepose.filters.keystonev2.config.KeystoneV2Config
 
-import scala.util.Try
+import scala.util.{Failure, Try}
 
 @Named
 class KeystoneV2AuthorizationFilter @Inject()(configurationService: ConfigurationService)
@@ -41,7 +42,15 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
   override val DEFAULT_CONFIG = "keystone-v2-authorization.cfg.xml"
   override val SCHEMA_LOCATION = "/META-INF/schema/config/keystone-v2-authorization.xsd"
 
-  override val handleFailures: PartialFunction[Try[Unit.type], KeystoneV2Result] = KeystoneV2Authorization.handleFailures
+  override val handleFailures: PartialFunction[Try[Unit.type], KeystoneV2Result] = {
+    KeystoneV2Authorization.handleFailures orElse {
+      case Failure(e@(_: MissingTokenException |
+                      _: MissingEndpointsException |
+                      _: InvalidTokenException |
+                      _: InvalidEndpointsException)) =>
+        Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
+    }
+  }
 
   override def doAuth(request: HttpServletRequestWrapper): Try[Unit.type] = {
     ???
@@ -80,8 +89,13 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
 }
 
 object KeystoneV2AuthorizationFilter {
+
   case class MissingTokenException(message: String, cause: Throwable = null) extends Exception(message, cause)
+
   case class MissingEndpointsException(message: String, cause: Throwable = null) extends Exception(message, cause)
+
   case class InvalidTokenException(message: String, cause: Throwable = null) extends Exception(message, cause)
+
   case class InvalidEndpointsException(message: String, cause: Throwable = null) extends Exception(message, cause)
+
 }

@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.keystonev2
 
-import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_UNAUTHORIZED}
+import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_INTERNAL_SERVER_ERROR, SC_UNAUTHORIZED}
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID
@@ -214,6 +214,34 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
 
       result shouldBe a[Reject]
       result.asInstanceOf[Reject].status shouldEqual SC_UNAUTHORIZED
+    }
+
+    it("should reject as an internal server error when a failure is caused by a missing token") {
+      val result = keystoneV2AuthorizationFilter.handleFailures(Failure(MissingTokenException("Missing token")))
+
+      result shouldBe a[Reject]
+      result.asInstanceOf[Reject].status shouldEqual SC_INTERNAL_SERVER_ERROR
+    }
+
+    it("should reject as an internal server error when a failure is caused by a missing endpoints object") {
+      val result = keystoneV2AuthorizationFilter.handleFailures(Failure(MissingEndpointsException("Missing endpoints")))
+
+      result shouldBe a[Reject]
+      result.asInstanceOf[Reject].status shouldEqual SC_INTERNAL_SERVER_ERROR
+    }
+
+    it("should reject as an internal server error when a failure is caused by an invalid token") {
+      val result = keystoneV2AuthorizationFilter.handleFailures(Failure(InvalidTokenException("Invalid token")))
+
+      result shouldBe a[Reject]
+      result.asInstanceOf[Reject].status shouldEqual SC_INTERNAL_SERVER_ERROR
+    }
+
+    it("should reject as an internal server error when a failure is caused by an invalid endpoints object") {
+      val result = keystoneV2AuthorizationFilter.handleFailures(Failure(InvalidEndpointsException("Invalid endpoints")))
+
+      result shouldBe a[Reject]
+      result.asInstanceOf[Reject].status shouldEqual SC_INTERNAL_SERVER_ERROR
     }
   }
 
