@@ -21,6 +21,7 @@ package org.openrepose.filters.keystonev2
 
 import java.io.{ByteArrayInputStream, InputStream}
 import java.net.URL
+import java.util.Base64
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse.{SC_UNAUTHORIZED, _}
@@ -29,7 +30,6 @@ import javax.ws.rs.core.HttpHeaders._
 import javax.ws.rs.core.MediaType
 
 import com.rackspace.httpdelegation.{HttpDelegationHeaderNames, HttpDelegationManager}
-import org.apache.commons.codec.binary.Base64
 import org.apache.http.Header
 import org.apache.http.client.utils.DateUtils
 import org.apache.http.message.BasicHeader
@@ -2152,7 +2152,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
       filter.configurationUpdated(configuration)
 
-      val encodedEndpoints = Base64.encodeBase64String(endpointsResponse().getBytes)
+      val encodedEndpoints = Base64.getEncoder.encodeToString(endpointsResponse().getBytes)
       filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.X_CATALOG) shouldBe encodedEndpoints
     }
 

@@ -83,6 +83,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       case Success(serviceClientResponse) =>
         serviceClientResponse.getStatus match {
           case statusCode if statusCode >= 200 && statusCode < 300 =>
+            // TODO: Handle character encoding set in the content-type header rather than relying on the default system encoding
             val jsonResponse = Source.fromInputStream(serviceClientResponse.getData).getLines().mkString("")
             val json = Json.parse(jsonResponse)
             Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
@@ -102,6 +103,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
 
   final def validateToken(validatingToken: String, validatableToken: String, applyRcnRoles: Boolean, ignoredRoles: Set[String], checkCache: Boolean = true): Try[ValidToken] = {
     def extractUserInformation(keystoneResponse: InputStream): Try[ValidToken] = {
+      // TODO: Handle character encoding set in the content-type header rather than relying on the default system encoding
       val input: String = Source.fromInputStream(keystoneResponse).getLines mkString ""
       try {
         val json = Json.parse(input)
@@ -166,6 +168,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
           (JsPath \ "publicURL").read[String]
         ) (Endpoint.apply _)
 
+      // TODO: Handle character encoding set in the content-type header rather than relying on the default system encoding
       val jsonString = Source.fromInputStream(inputStream).getLines mkString ""
       val json = Json.parse(jsonString)
 
@@ -193,6 +196,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
   final def getGroups(authenticatingToken: String, forToken: String, checkCache: Boolean = true): Try[Vector[String]] = {
     def extractGroupInfo(inputStream: InputStream): Try[Vector[String]] = {
       Try {
+        // TODO: Handle character encoding set in the content-type header rather than relying on the default system encoding
         val input: String = Source.fromInputStream(inputStream).getLines mkString ""
         val json = Json.parse(input)
 

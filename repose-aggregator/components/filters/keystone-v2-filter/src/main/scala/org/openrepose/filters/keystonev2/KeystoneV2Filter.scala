@@ -19,6 +19,7 @@
  */
 package org.openrepose.filters.keystonev2
 
+import java.util.Base64
 import java.util.concurrent.{TimeUnit, TimeoutException}
 import javax.inject.{Inject, Named}
 import javax.servlet._
@@ -26,7 +27,6 @@ import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.HttpHeaders
 
-import org.apache.commons.codec.binary.Base64
 import org.apache.http.client.utils.DateUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http._
@@ -337,7 +337,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     def addCatalogHeader(maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
       if (configuration.getIdentityService.isSetCatalogInHeader) {
         maybeEndpoints map { endpoints =>
-          request.addHeader(PowerApiHeader.X_CATALOG, Base64.encodeBase64String(endpoints.json.getBytes))
+          // TODO: Sync character encoding with the authorization filter
+          request.addHeader(PowerApiHeader.X_CATALOG, Base64.getEncoder.encodeToString(endpoints.json.getBytes))
           Unit
         }
       } else {
