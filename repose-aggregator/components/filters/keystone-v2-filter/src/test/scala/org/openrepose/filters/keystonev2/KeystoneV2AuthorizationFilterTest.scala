@@ -25,8 +25,8 @@ import org.junit.runner.RunWith
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.Reject
 import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{InvalidTenantException, UnauthorizedEndpointException, UnparseableTenantException}
-import org.openrepose.filters.keystonev2.KeystoneV2AuthorizationFilter.{InvalidTokenException, MissingTokenException}
-import org.openrepose.filters.keystonev2.KeystoneV2Common.TokenRequestAttributeName
+import org.openrepose.filters.keystonev2.KeystoneV2AuthorizationFilter.{InvalidEndpointsException, InvalidTokenException, MissingEndpointsException, MissingTokenException}
+import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, EndpointsRequestAttributeName, TokenRequestAttributeName}
 import org.openrepose.filters.keystonev2.KeystoneV2TestCommon.createValidToken
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -76,6 +76,39 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
 
       result shouldBe a[Failure[_]]
       an[InvalidTokenException] should be thrownBy result.get
+    }
+  }
+
+  describe("getEndpoints") {
+    it(s"should return an endpoints object if valid endpoints are present at the $EndpointsRequestAttributeName attribute of the request") {
+      val endpoints = EndpointsData("", Vector.empty)
+      val request = new MockHttpServletRequest
+      request.setAttribute(EndpointsRequestAttributeName, endpoints)
+
+      val result = keystoneV2AuthorizationFilter.getEndpoints(request)
+
+      result shouldBe a[Success[_]]
+      result.get shouldBe endpoints
+    }
+
+    it(s"should return a Failure if endpoints are absent at the $EndpointsRequestAttributeName attribute of the request") {
+      val request = new MockHttpServletRequest
+
+      val result = keystoneV2AuthorizationFilter.getEndpoints(request)
+
+      result shouldBe a[Failure[_]]
+      a[MissingEndpointsException] should be thrownBy result.get
+    }
+
+    it(s"should return a Failure if the object present at the $EndpointsRequestAttributeName attribute of the request is not a valid endpoints object") {
+      val endpoints = "not-endpoints"
+      val request = new MockHttpServletRequest
+      request.setAttribute(EndpointsRequestAttributeName, endpoints)
+
+      val result = keystoneV2AuthorizationFilter.getEndpoints(request)
+
+      result shouldBe a[Failure[_]]
+      an[InvalidEndpointsException] should be thrownBy result.get
     }
   }
 

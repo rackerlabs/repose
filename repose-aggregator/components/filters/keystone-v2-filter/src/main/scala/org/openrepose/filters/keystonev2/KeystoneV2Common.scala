@@ -22,6 +22,7 @@ package org.openrepose.filters.keystonev2
 object KeystoneV2Common {
 
   final val TokenRequestAttributeName: String = "http://openrepose.org/filters/keystonev2/token"
+  final val EndpointsRequestAttributeName: String = "http://openrepose.org/filters/keystonev2/endpoints"
 
   case class ValidToken(expirationDate: String,
                         userId: String,

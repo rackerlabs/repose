@@ -26,7 +26,7 @@ import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.KeystoneV2Result
 import org.openrepose.filters.keystonev2.KeystoneV2Authorization.doAuthorization
-import org.openrepose.filters.keystonev2.KeystoneV2Common.{TokenRequestAttributeName, ValidToken}
+import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, EndpointsRequestAttributeName, TokenRequestAttributeName, ValidToken}
 import org.openrepose.filters.keystonev2.config.KeystoneV2Config
 
 import scala.util.Try
@@ -54,9 +54,20 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
       case cce: ClassCastException => throw InvalidTokenException("Token request attribute is not a valid token", cce)
     }
   }
+
+  def getEndpoints(request: ServletRequest): Try[EndpointsData] = {
+    Try {
+      Option(request.getAttribute(EndpointsRequestAttributeName)).get.asInstanceOf[EndpointsData]
+    } recover {
+      case nsee: NoSuchElementException => throw MissingEndpointsException("Endpoints request attribute does not exist", nsee)
+      case cce: ClassCastException => throw InvalidEndpointsException("Endpoints request attribute is not a valid endpoints object", cce)
+    }
+  }
 }
 
 object KeystoneV2AuthorizationFilter {
   case class MissingTokenException(message: String, cause: Throwable = null) extends Exception(message, cause)
+  case class MissingEndpointsException(message: String, cause: Throwable = null) extends Exception(message, cause)
   case class InvalidTokenException(message: String, cause: Throwable = null) extends Exception(message, cause)
+  case class InvalidEndpointsException(message: String, cause: Throwable = null) extends Exception(message, cause)
 }

@@ -1951,6 +1951,28 @@ with HttpDelegationManager {
       filterChain.getRequest.getAttribute(TokenRequestAttributeName) shouldBe token
     }
 
+    it(s"forwards the user's endpoints in the $EndpointsRequestAttributeName request attribute") {
+      val modifiedConfig = configuration
+      modifiedConfig.getIdentityService.setSetCatalogInHeader(true)
+      filter.configurationUpdated(modifiedConfig)
+
+      val endpointsData = EndpointsData("", Vector.empty)
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(), Nil: _*)
+      when(mockDatastore.get(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")).thenReturn(Vector("group"), Nil: _*)
+      when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(endpointsData, Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+      filter.configurationUpdated(configuration)
+
+      filterChain.getRequest.getAttribute(EndpointsRequestAttributeName) shouldBe endpointsData
+    }
+
     it("forwards the user information in the x-pp-user, x-user-name, and x-user-id headers") {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
