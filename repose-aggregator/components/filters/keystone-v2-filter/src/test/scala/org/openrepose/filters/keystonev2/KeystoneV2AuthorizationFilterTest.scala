@@ -31,7 +31,7 @@ import org.openrepose.filters.keystonev2.KeystoneV2AuthorizationFilter.{InvalidE
 import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, EndpointsRequestAttributeName, TokenRequestAttributeName}
 import org.openrepose.filters.keystonev2.KeystoneV2TestCommon.createValidToken
 import org.openrepose.filters.keystonev2.config.TenantHandlingType.SendTenantIdQuality
-import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, TenantHandlingType}
+import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, TenantHandlingType, ValidateTenantType}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
@@ -246,8 +246,25 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
   }
 
   describe("doAuth") {
-    it("should ...") {
-      pending
+    it("should pass a request with scoped tenants") {
+      val inputTenantHeaderName = "My-Tenant"
+      val userTenantId = "user1"
+      val miscTenantIds = Seq("hammer2", "bolt3")
+      keystoneV2AuthorizationFilter.configuration = new KeystoneV2Config()
+        .withTenantHandling(new TenantHandlingType()
+          .withValidateTenant(new ValidateTenantType()
+            .withUriExtractionRegex("[^/]*/([^/]+)")))
+
+      val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
+      request.setAttribute(TokenRequestAttributeName, createValidToken(defaultTenantId = Some(userTenantId), tenantIds = miscTenantIds))
+      request.setRequestURI(s"/$userTenantId")
+      request.addHeader(inputTenantHeaderName, userTenantId)
+      miscTenantIds.foreach(request.addHeader(TENANT_ID, _))
+
+      val result = keystoneV2AuthorizationFilter.doAuth(request)
+
+      result shouldBe a[Success[_]]
+      request.getHeadersScala(TENANT_ID) should contain only userTenantId
     }
   }
 }

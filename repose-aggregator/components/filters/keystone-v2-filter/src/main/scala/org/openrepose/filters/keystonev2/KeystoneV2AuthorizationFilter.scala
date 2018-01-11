@@ -31,7 +31,7 @@ import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationF
 import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, EndpointsRequestAttributeName, TokenRequestAttributeName, ValidToken}
 import org.openrepose.filters.keystonev2.config.KeystoneV2Config
 
-import scala.util.{Failure, Try}
+import scala.util.{Failure, Success, Try}
 
 @Named
 class KeystoneV2AuthorizationFilter @Inject()(configurationService: ConfigurationService)
@@ -53,7 +53,15 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
   }
 
   override def doAuth(request: HttpServletRequestWrapper): Try[Unit.type] = {
-    ???
+    getToken(request) flatMap { token =>
+      doAuthorization(configuration, request, token, getEndpoints(request)) match {
+        case AuthorizationPassed(_, Some(matchedTenant)) =>
+          scopeTenantIdHeader(request, matchedTenant)
+          Success(Unit)
+        case AuthorizationPassed(_, None) => Success(Unit)
+        case AuthorizationFailed(_, _, exception) => Failure(exception)
+      }
+    }
   }
 
   def getToken(request: ServletRequest): Try[ValidToken] = {
