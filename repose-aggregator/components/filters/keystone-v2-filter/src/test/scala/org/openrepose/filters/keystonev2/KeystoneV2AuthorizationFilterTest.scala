@@ -22,12 +22,16 @@ package org.openrepose.filters.keystonev2
 import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_UNAUTHORIZED}
 
 import org.junit.runner.RunWith
+import org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.Reject
 import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{InvalidTenantException, UnauthorizedEndpointException, UnparseableTenantException}
 import org.openrepose.filters.keystonev2.KeystoneV2AuthorizationFilter.{InvalidEndpointsException, InvalidTokenException, MissingEndpointsException, MissingTokenException}
 import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, EndpointsRequestAttributeName, TokenRequestAttributeName}
 import org.openrepose.filters.keystonev2.KeystoneV2TestCommon.createValidToken
+import org.openrepose.filters.keystonev2.config.TenantHandlingType.SendTenantIdQuality
+import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, TenantHandlingType}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
@@ -109,6 +113,84 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
 
       result shouldBe a[Failure[_]]
       an[InvalidEndpointsException] should be thrownBy result.get
+    }
+  }
+
+  describe("scopeTenantIdHeader") {
+    it("should add the matching tenant with the configured quality") {
+      val sendAllTenantIds = true
+      val matchedTenantQuality = 0.66
+      keystoneV2AuthorizationFilter.configuration = new KeystoneV2Config()
+        .withTenantHandling(new TenantHandlingType()
+          .withSendAllTenantIds(sendAllTenantIds)
+          .withSendTenantIdQuality(new SendTenantIdQuality()
+            .withUriTenantQuality(matchedTenantQuality)
+          )
+        )
+
+      val tenantIds = Seq("tenant1", "tenant2")
+      val matchedTenantId = "matchedTenant"
+      val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
+      tenantIds.foreach(request.addHeader(TENANT_ID, _))
+
+      keystoneV2AuthorizationFilter.scopeTenantIdHeader(request, matchedTenantId)
+
+      request.getHeadersScala(TENANT_ID) should contain only (tenantIds :+ s"$matchedTenantId;q=$matchedTenantQuality": _*)
+    }
+
+    it("should add the matching tenant with no quality") {
+      val sendAllTenantIds = true
+      keystoneV2AuthorizationFilter.configuration = new KeystoneV2Config()
+        .withTenantHandling(new TenantHandlingType()
+          .withSendAllTenantIds(sendAllTenantIds)
+        )
+
+      val tenantIds = Seq("tenant1;q=0.2", "tenant2;q=0.4")
+      val matchedTenantId = "matchedTenant"
+      val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
+      tenantIds.foreach(request.addHeader(TENANT_ID, _))
+
+      keystoneV2AuthorizationFilter.scopeTenantIdHeader(request, matchedTenantId)
+
+      request.getHeadersScala(TENANT_ID) should contain only (tenantIds :+ matchedTenantId: _*)
+    }
+
+    it("should replace existing tenants with the matching tenant with the configured quality") {
+      val sendAllTenantIds = false
+      val matchedTenantQuality = 0.66
+      keystoneV2AuthorizationFilter.configuration = new KeystoneV2Config()
+        .withTenantHandling(new TenantHandlingType()
+          .withSendAllTenantIds(sendAllTenantIds)
+          .withSendTenantIdQuality(new SendTenantIdQuality()
+            .withUriTenantQuality(matchedTenantQuality)
+          )
+        )
+
+      val tenantIds = Seq("tenant1", "tenant2")
+      val matchedTenantId = "matchedTenant"
+      val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
+      tenantIds.foreach(request.addHeader(TENANT_ID, _))
+
+      keystoneV2AuthorizationFilter.scopeTenantIdHeader(request, matchedTenantId)
+
+      request.getHeadersScala(TENANT_ID) should contain only s"$matchedTenantId;q=$matchedTenantQuality"
+    }
+
+    it("should replace existing tenants with the matching tenant with no quality") {
+      val sendAllTenantIds = false
+      keystoneV2AuthorizationFilter.configuration = new KeystoneV2Config()
+        .withTenantHandling(new TenantHandlingType()
+          .withSendAllTenantIds(sendAllTenantIds)
+        )
+
+      val tenantIds = Seq("tenant1;q=0.2", "tenant2;q=0.4")
+      val matchedTenantId = "matchedTenant"
+      val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
+      tenantIds.foreach(request.addHeader(TENANT_ID, _))
+
+      keystoneV2AuthorizationFilter.scopeTenantIdHeader(request, matchedTenantId)
+
+      request.getHeadersScala(TENANT_ID) should contain only matchedTenantId
     }
   }
 

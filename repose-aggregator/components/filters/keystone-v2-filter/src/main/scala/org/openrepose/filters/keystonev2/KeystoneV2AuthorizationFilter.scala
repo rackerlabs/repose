@@ -22,10 +22,11 @@ package org.openrepose.filters.keystonev2
 import javax.inject.{Inject, Named}
 import javax.servlet.ServletRequest
 
+import org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.KeystoneV2Result
-import org.openrepose.filters.keystonev2.KeystoneV2Authorization.doAuthorization
+import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationFailed, AuthorizationPassed, doAuthorization}
 import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, EndpointsRequestAttributeName, TokenRequestAttributeName, ValidToken}
 import org.openrepose.filters.keystonev2.config.KeystoneV2Config
 
@@ -61,6 +62,19 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
     } recover {
       case nsee: NoSuchElementException => throw MissingEndpointsException("Endpoints request attribute does not exist", nsee)
       case cce: ClassCastException => throw InvalidEndpointsException("Endpoints request attribute is not a valid endpoints object", cce)
+    }
+  }
+
+  def scopeTenantIdHeader(request: HttpServletRequestWrapper, matchedTenant: String): Unit = {
+    val tenantHandling = Option(configuration.getTenantHandling)
+    val sendAllTenantIds = tenantHandling.exists(_.isSendAllTenantIds)
+    val matchedTenantQuality = tenantHandling.map(_.getSendTenantIdQuality).flatMap(Option.apply).map(_.getUriTenantQuality)
+
+    (sendAllTenantIds, matchedTenantQuality) match {
+      case (true, Some(quality)) => request.addHeader(TENANT_ID, matchedTenant, quality)
+      case (true, None) => request.addHeader(TENANT_ID, matchedTenant)
+      case (false, Some(quality)) => request.replaceHeader(TENANT_ID, matchedTenant, quality)
+      case (false, None) => request.replaceHeader(TENANT_ID, matchedTenant)
     }
   }
 }
