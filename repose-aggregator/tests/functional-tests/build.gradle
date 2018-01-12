@@ -45,6 +45,18 @@ dependencies {
     integrationTestBundle project(path: ":repose-aggregator:tests:test-bundles:classloader-bundle-five", configuration: "archives")
 }
 
+// Hack the Repose WAR to make a GlassFish-specific WAR with delegation enabled in the glassfish-web.xml descriptor
+task createGlassfishWar(type: Zip, dependsOn: ':repose-aggregator:artifacts:web-application:war') {
+    File reposeWarFile = tasks.getByPath(':repose-aggregator:artifacts:web-application:war').outputs.files.singleFile
+    inputs.files(reposeWarFile)
+
+    from(zipTree(reposeWarFile))
+    from('src/test/resources/WEB-INF/glassfish-web.xml') {
+        into('WEB-INF/')
+    }
+    archiveName = 'glassfish-' + reposeWarFile.name
+}
+
 task copyArtifacts() {
     dependsOn(":repose-aggregator:artifacts:valve:shadowJar",
               ":repose-aggregator:artifacts:repose-lint:shadowJar",
@@ -60,10 +72,12 @@ task copyArtifacts() {
               ":repose-aggregator:tests:test-bundles:classloader-bundle-two:ear",
               ":repose-aggregator:tests:test-bundles:classloader-bundle-three:ear",
               ":repose-aggregator:tests:test-bundles:classloader-bundle-four:ear",
-              ":repose-aggregator:tests:test-bundles:classloader-bundle-five:ear")
+              ":repose-aggregator:tests:test-bundles:classloader-bundle-five:ear",
+              "createGlassfishWar")
     ext.outputDir = "$buildDir/repose_home"
     inputs.files(configurations.integrationTestRunnable.files,
-                 configurations.integrationTestBundle.files)
+                 configurations.integrationTestBundle.files,
+                 createGlassfishWar.outputs.files)
     outputs.dir outputDir
 
     doLast {
@@ -71,6 +85,7 @@ task copyArtifacts() {
         file(outputDir).mkdirs()
         copy {
             from configurations.integrationTestRunnable.files
+            from createGlassfishWar.outputs.files
             into outputDir
         }
 
@@ -119,6 +134,7 @@ processIntegrationTestResources {
         valveLocation: "${copyArtifacts.outputDir}/$valveFileName",
         lintLocation: "${copyArtifacts.outputDir}/$lintFileName",
         warLocation: "${copyArtifacts.outputDir}/$warFileName",
+        glassfishWarLocation: "${copyArtifacts.outputDir}/${createGlassfishWar.archiveName}",
         glassfishLocation: "${copyArtifacts.outputDir}/$glassfishFileName",
         tomcatLocation: "${copyArtifacts.outputDir}/$tomcatFileName",
         mocksLocation: "${copyArtifacts.outputDir}/$mocksFileName",
@@ -144,4 +160,8 @@ integrationTest {
             showStandardStreams = true
         }
     }
+}
+
+license {
+    exclude '**/glassfish-web.xml'
 }

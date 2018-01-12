@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,26 +41,11 @@ import java.net.URL;
 public class JaxbConfigurationParser<T> extends AbstractConfigurationObjectParser<T> {
 
     private static final Logger LOG = LoggerFactory.getLogger(JaxbConfigurationParser.class);
+
     private final ObjectPool<UnmarshallerValidator> objectPool;
 
     public JaxbConfigurationParser(Class<T> configurationClass, JAXBContext jaxbContext, URL xsdStreamSource) {
         super(configurationClass);
-        objectPool = new SoftReferenceObjectPool<>(new UnmarshallerPoolableObjectFactory(jaxbContext, xsdStreamSource));
-    }
-
-    /**
-     * Creates a jaxb parser for a specific classloader.
-     * Throws up the JAXB exception so that things know they have to handle it.
-     * Moved from a "factory" class that was just a collection of static methods
-     *
-     * @param configurationClass
-     * @param xsdStreamSource
-     * @param loader
-     * @param <T>
-     * @return
-     * @throws javax.xml.bind.JAXBException
-     */
-    public static <T> JaxbConfigurationParser<T> getXmlConfigurationParser(Class<T> configurationClass, URL xsdStreamSource, ClassLoader loader) throws JAXBException {
         if (xsdStreamSource == null) {
             LOG.warn("Creating a JAXB Parser Pool without any schema to validate for {}", configurationClass);
             if (LOG.isDebugEnabled()) {
@@ -68,8 +53,11 @@ public class JaxbConfigurationParser<T> extends AbstractConfigurationObjectParse
                 LOG.debug("Logging the current stack to find where a parser pool is created without a validator", tracer);
             }
         }
-        final JAXBContext context = JAXBContext.newInstance(configurationClass.getPackage().getName(), loader);
-        return new JaxbConfigurationParser<>(configurationClass, context, xsdStreamSource);
+        objectPool = new SoftReferenceObjectPool<>(new UnmarshallerPoolableObjectFactory(jaxbContext, xsdStreamSource));
+    }
+
+    public JaxbConfigurationParser(Class<T> configurationClass, URL xsdStreamSource, ClassLoader loader) throws JAXBException {
+        this(configurationClass, JAXBContext.newInstance(configurationClass.getPackage().getName(), loader), xsdStreamSource);
     }
 
     @Override

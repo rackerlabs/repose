@@ -274,7 +274,7 @@ class ReposeValveLauncher extends ReposeLauncher {
         //Marshal the SystemModel if possible, and try to get information from it about which node we care about....
         def systemModelFile = configurationProvider.getSystemModel()
         def systemModelXSDUrl = getClass().getResource("/META-INF/schema/system-model/system-model.xsd")
-        def parser = JaxbConfigurationParser.getXmlConfigurationParser(SystemModel.class, systemModelXSDUrl, this.getClass().getClassLoader())
+        def parser = new JaxbConfigurationParser(SystemModel.class, systemModelXSDUrl, this.getClass().getClassLoader())
         def systemModel = parser.read(new BufferedURLConfigurationResource(systemModelFile.toURI().toURL()))
 
         //If the systemModel didn't validate, we're going to toss an exception here, which is fine

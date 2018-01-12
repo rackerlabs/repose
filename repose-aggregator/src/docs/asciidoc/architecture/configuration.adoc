@@ -25,3 +25,78 @@ The configuration files are checked for updates every 15 seconds.
 This is not configurable nor can it be manually triggered.
 
 When the config files are invalid, *Repose* will continue using the previous known good configuration, or if *Repose* was just initially starting up, then it will return a 503 until the config files are fixed.
+
+=== Environment Variable Substitution
+To make configuration files more portable, environment variable substitution is supported.
+With this feature, configuration files become semi-dynamic -- the same configuration files can be used to define differing behavior dependent on the environment *Repose* is running in.
+
+Substituting an environment variable into a configuration file is easy!
+Wherever you want the value of an environment variable in your configuration file, simply surround the name of the environment variable with output delimiters.
+
+[source,xml]
+----
+<message-filter>
+    <messages>
+        <message>Hello {$ NAME $}!</message> <!--1-->
+        {$ EXTRA_MESSAGES $} <!--2-->
+    </messages>
+</message-filter>
+----
+<1> The `NAME` environment variable will be substituted into this text node.
+    If `NAME` is set to `World`, then this line will be rendered as `<message>Hello World!</message>`.
+<2> The `EXTRA_MESSAGES` environment variable will be substituted within the `messages` element.
+    If `EXTRA_MESSAGES` is set to `<message>You've got mail!</message>`, that line would be included in the configuration file.
+
+[NOTE]
+====
+Under the hood, the http://jtwig.org/[JTwig] templating engine is used.
+However, *Repose* does not use all of the JTwig default delimiters.
+The following table shows the differences.
+
+[cols="h,2*", options="header,autowidth"]
+.JTwig Default Versus Repose Template Delimiters
+|===
+|
+| JTwig Default
+| Repose
+
+| Start Output
+| {{
+| {$
+
+| End Output
+| }}
+| $}
+
+| Start Code
+| {%
+| {%
+
+| End Code
+| %}
+| %}
+
+| Start Comment
+| {#
+| {!
+
+| End Comment
+| #}
+| !}
+|===
+
+Apart from delimiters, the *Repose* template syntax matches the JTwig syntax.
+
+In addition to simple substitution, JTwig provides a number of other http://jtwig.org/documentation/reference#[well-documented features].
+====
+
+[IMPORTANT]
+====
+When substituting an environment variable, *Repose* strictly requires that the named environment variable exists.
+If not, *Repose* will throw an exception when processing the containing configuration file.
+====
+
+[IMPORTANT]
+====
+Updating an environment variable will *not* cause Repose to reload any configuration which references that environment variable.
+====

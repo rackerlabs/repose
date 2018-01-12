@@ -41,7 +41,7 @@ object Marshaller {
   def configResource[T: ClassTag](resource: String, xsdURL: URL): T = {
     import scala.reflect._
     val ct: ClassTag[T] = classTag[T]
-    val parser = JaxbConfigurationParser.getXmlConfigurationParser(
+    val parser = new JaxbConfigurationParser(
       ct.runtimeClass.asInstanceOf[Class[T]],
       xsdURL,
       this.getClass.getClassLoader)
