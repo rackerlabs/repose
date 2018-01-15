@@ -109,17 +109,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     /**
       * DEFINING FUNCTIONS IN SCOPE
       */
-    def isWhitelisted(requestUri: String): Boolean = {
-      logger.trace("Comparing request URI to whitelisted URIs")
-
-      val whiteListUris: List[String] = configuration.getWhiteList.getUriRegex.asScala.toList
-
-      whiteListUris exists { pattern =>
-        logger.debug(s"checking $requestUri against $pattern")
-        requestUri.matches(pattern)
-      }
-    }
-
     def getAuthToken: Try[String] = {
       logger.trace("Getting the x-auth-token header value")
 
@@ -369,13 +358,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
     }
 
-    def addIdentityStatusHeader(confirmed: Boolean): Unit = {
-      if (Option(configuration.getDelegating).isDefined) {
-        if (confirmed) request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.CONFIRMED)
-        else request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.INDETERMINATE)
-      }
-    }
-
     /**
       * BEGIN PROCESSING
       */
@@ -387,8 +369,9 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         addTokenHeaders(authResult.scopedToken, authResult.matchedTenant)
         authResult match {
           case AuthorizationPassed(scopedToken, _) =>
-            addCatalogHeader(endpoints)
-            addGroupsHeader(getGroups(authToken, scopedToken))
+            addCatalogHeader(endpoints) flatMap { _ =>
+              addGroupsHeader(getGroups(authToken, scopedToken))
+            }
           case AuthorizationFailed(_, _, exception) => Failure(exception)
         }
       }
