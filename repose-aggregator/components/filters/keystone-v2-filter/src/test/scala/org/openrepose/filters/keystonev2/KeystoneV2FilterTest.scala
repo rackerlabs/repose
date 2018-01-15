@@ -1854,7 +1854,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       response.getStatus shouldBe SC_UNAUTHORIZED
-      response.getErrorMessage shouldBe "Could not parse tenant from the URI"
+      response.getErrorMessage shouldBe "Could not parse tenant from the URI and/or the configured header"
     }
 
     it("should send the X-Authorization header with the tenant in the uri") {
@@ -2484,7 +2484,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       response.getStatus shouldBe SC_UNAUTHORIZED
-      response.getErrorMessage shouldBe "Could not parse tenant from the URI"
+      response.getErrorMessage shouldBe "Could not parse tenant from the URI and/or the configured header"
       response.getHeaders(WWW_AUTHENTICATE) should contain("Keystone uri=https://some.identity.com")
     }
   }

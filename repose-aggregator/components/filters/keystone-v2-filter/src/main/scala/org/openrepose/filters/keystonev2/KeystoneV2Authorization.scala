@@ -39,17 +39,7 @@ object KeystoneV2Authorization extends LazyLogging {
   }
 
   def doAuthorization(config: KeystoneV2Config, request: HttpServletRequestWrapper, validToken: ValidToken, endpoints: => Try[EndpointsData]): AuthorizationInfo = {
-    lazy val tenantToMatch: String =
-      Option(config.getTenantHandling.getValidateTenant).flatMap(validateTenantConfig =>
-        Option(validateTenantConfig.getUriExtractionRegex).flatMap(uriExtractionRegexList =>
-          uriExtractionRegexList.asScala.toStream.map(_.r).flatMap(uriExtractionRegex =>
-            request.getRequestURI match {
-              case uriExtractionRegex(tenantId, _*) => Option(tenantId)
-              case _ => None
-            }
-          ).headOption
-        )).getOrElse(throw UnparseableTenantException("Could not parse tenant from the URI"))
-
+    lazy val tenantToMatch = getRequestTenant(config.getTenantHandling.getValidateTenant, request)
 
     val tenantScopedRoles = getTenantScopedRoles(config.getTenantHandling.getValidateTenant, tenantToMatch, validToken.roles)
     val userIsPreAuthed = isUserPreAuthed(config.getPreAuthorizedRoles, tenantScopedRoles)
@@ -63,6 +53,23 @@ object KeystoneV2Authorization extends LazyLogging {
       case Success(_) => AuthorizationPassed(scopedRolesToken, matchedTenant)
       case Failure(exception) => AuthorizationFailed(scopedRolesToken, matchedTenant, exception)
     }
+  }
+
+  def getRequestTenant(config: ValidateTenantType, request: HttpServletRequestWrapper): String = {
+    Option(config).flatMap(validateTenantConfig =>
+      Option(validateTenantConfig.getHeaderExtractionName).flatMap(headerName =>
+        request.getSplittableHeaderScala(headerName).headOption
+      ).orElse(
+        Option(validateTenantConfig.getUriExtractionRegex).flatMap(uriExtractionRegexList =>
+          uriExtractionRegexList.asScala.toStream.map(_.r).flatMap(uriExtractionRegex =>
+            request.getRequestURI match {
+              case uriExtractionRegex(tenantId, _*) => Option(tenantId)
+              case _ => None
+            }
+          ).headOption
+        )
+      )
+    ).getOrElse(throw UnparseableTenantException("Could not parse tenant from the URI and/or the configured header"))
   }
 
   def getTenantScopedRoles(config: ValidateTenantType, tenantFromUri: => String, roles: Seq[Role]): Seq[Role] = {

@@ -22,11 +22,13 @@ package org.openrepose.filters.keystonev2
 import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_UNAUTHORIZED}
 
 import org.junit.runner.RunWith
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.Reject
 import org.openrepose.filters.keystonev2.KeystoneV2Common.{Endpoint, EndpointsData, Role, ValidToken}
 import org.openrepose.filters.keystonev2.config.{RolesList, ServiceEndpointType, ValidateTenantType}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterEach, FunSpec, PartialFunctionValues, TryValues}
+import org.springframework.mock.web.MockHttpServletRequest
 
 import scala.util.{Failure, Success}
 
@@ -47,6 +49,50 @@ class KeystoneV2AuthorizationTest  extends FunSpec
       it(s"should return $statusCode for ${exception.getClass.getSimpleName}") {
         handleFailures.valueAt(Failure(exception)) should matchPattern { case Reject(status, Some(responseMessage), _) if (status == statusCode) && (responseMessage == message) => }
       }
+    }
+  }
+
+  describe("getRequestTenant") {
+    val tenantHeaderName = "X-Tenant-Id-Header"
+
+    it("should return a tenant from the configured tenant header") {
+      val tenantId = "someTenant"
+      val request = new MockHttpServletRequest()
+      val config = new ValidateTenantType()
+        .withHeaderExtractionName(tenantHeaderName)
+      request.addHeader(tenantHeaderName, tenantId)
+
+      getRequestTenant(config, new HttpServletRequestWrapper(request)) shouldEqual tenantId
+    }
+
+    it("should return a tenant from the URI") {
+      val tenantId = "someTenant"
+      val request = new MockHttpServletRequest("GET", s"/$tenantId")
+      val config = new ValidateTenantType()
+          .withUriExtractionRegex("[^/]*/([^/]+)")
+
+      getRequestTenant(config, new HttpServletRequestWrapper(request)) shouldEqual tenantId
+    }
+
+    it("should prefer a tenant from the configured tenant header over the URI") {
+      val headerTenantId = "headerTenant"
+      val uriTenantId = "uriTenant"
+      val request = new MockHttpServletRequest("GET", s"/$uriTenantId")
+      val config = new ValidateTenantType()
+        .withHeaderExtractionName(tenantHeaderName)
+        .withUriExtractionRegex("[^/]*/([^/]+)")
+      request.addHeader(tenantHeaderName, headerTenantId)
+
+      getRequestTenant(config, new HttpServletRequestWrapper(request)) shouldEqual headerTenantId
+    }
+
+    it("should throw an exception if no tenant can be found") {
+      val request = new MockHttpServletRequest()
+      val config = new ValidateTenantType()
+        .withHeaderExtractionName(tenantHeaderName)
+        .withUriExtractionRegex("[^/]*/([^/]+)")
+
+      an[UnparseableTenantException] should be thrownBy getRequestTenant(config, new HttpServletRequestWrapper(request))
     }
   }
 
