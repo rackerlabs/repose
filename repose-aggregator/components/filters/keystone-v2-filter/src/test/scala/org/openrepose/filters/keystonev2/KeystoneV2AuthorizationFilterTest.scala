@@ -32,12 +32,13 @@ import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, Endpoi
 import org.openrepose.filters.keystonev2.KeystoneV2TestCommon.createValidToken
 import org.openrepose.filters.keystonev2.config.TenantHandlingType.SendTenantIdQuality
 import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, TenantHandlingType, ValidateTenantType}
+import org.scalatest.TryValues._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
 
-import scala.util.{Failure, Success}
+import scala.util.Failure
 
 @RunWith(classOf[JUnitRunner])
 class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach with MockitoSugar with Matchers {
@@ -58,8 +59,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
 
       val result = keystoneV2AuthorizationFilter.getToken(request)
 
-      result shouldBe a[Success[_]]
-      result.get shouldBe token
+      result.success.get shouldBe token
     }
 
     it(s"should return a Failure if a token is absent at the $TokenRequestAttributeName attribute of the request") {
@@ -67,8 +67,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
 
       val result = keystoneV2AuthorizationFilter.getToken(request)
 
-      result shouldBe a[Failure[_]]
-      a[MissingTokenException] should be thrownBy result.get
+      result.failure.exception shouldBe a[MissingTokenException]
     }
 
     it(s"should return a Failure if the object present at the $TokenRequestAttributeName attribute of the request is not a valid token") {
@@ -78,8 +77,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
 
       val result = keystoneV2AuthorizationFilter.getToken(request)
 
-      result shouldBe a[Failure[_]]
-      an[InvalidTokenException] should be thrownBy result.get
+      result.failure.exception shouldBe an[InvalidTokenException]
     }
   }
 
@@ -91,8 +89,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
 
       val result = keystoneV2AuthorizationFilter.getEndpoints(request)
 
-      result shouldBe a[Success[_]]
-      result.get shouldBe endpoints
+      result.success.get shouldBe endpoints
     }
 
     it(s"should return a Failure if endpoints are absent at the $EndpointsRequestAttributeName attribute of the request") {
@@ -100,8 +97,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
 
       val result = keystoneV2AuthorizationFilter.getEndpoints(request)
 
-      result shouldBe a[Failure[_]]
-      a[MissingEndpointsException] should be thrownBy result.get
+      result.failure.exception shouldBe a[MissingEndpointsException]
     }
 
     it(s"should return a Failure if the object present at the $EndpointsRequestAttributeName attribute of the request is not a valid endpoints object") {
@@ -111,8 +107,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
 
       val result = keystoneV2AuthorizationFilter.getEndpoints(request)
 
-      result shouldBe a[Failure[_]]
-      an[InvalidEndpointsException] should be thrownBy result.get
+      result.failure.exception shouldBe an[InvalidEndpointsException]
     }
   }
 
@@ -263,7 +258,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
 
       val result = keystoneV2AuthorizationFilter.doAuth(request)
 
-      result shouldBe a[Success[_]]
+      result.success
       request.getHeadersScala(TENANT_ID) should contain only userTenantId
     }
   }
