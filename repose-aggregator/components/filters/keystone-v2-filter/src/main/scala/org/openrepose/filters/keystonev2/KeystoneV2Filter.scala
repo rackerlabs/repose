@@ -474,14 +474,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       // LOLJAXB  	(╯°□°）╯︵ ┻━┻
       //This relies on the Default Settings plugin and the fluent_api plugin added to the Jaxb code generation plugin
       // I'm sorry
-      if (stupidConfig.getTenantHandling == null) {
-        stupidConfig.withTenantHandling(new TenantHandlingType())
-      }
-
-      if (stupidConfig.getWhiteList == null) {
-        stupidConfig.withWhiteList(new WhiteListType())
-      }
-
       if (stupidConfig.getCache == null) {
         stupidConfig.withCache(new CacheType().withTimeouts(new CacheTimeoutsType()))
       } else if (stupidConfig.getCache.getTimeouts == null) {
@@ -492,7 +484,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
     }
 
-    val config = fixMyDefaults(configurationObject)
+    val config = fixMyDefaults(super.doConfigurationUpdated(configurationObject))
 
     Option(config.getTenantHandling).map(_.getValidateTenant) foreach { _ =>
       logger.warn("Tenant validation has been moved to the keystone-v2-authorization filter, and is considered deprecated in the keystone-v2 filter")

@@ -130,6 +130,17 @@ abstract class AbstractKeystoneV2Filter[T <: KeystoneV2Config: ClassTag](configu
     }
   }
 
+  override def doConfigurationUpdated(configurationObject: T): T = {
+    // Fix JAXB defaults
+    if (Option(configurationObject.getTenantHandling).isEmpty) {
+      configurationObject.withTenantHandling(new TenantHandlingType())
+    }
+    if (Option(configurationObject.getWhiteList).isEmpty) {
+      configurationObject.withWhiteList(new WhiteListType())
+    }
+
+    configurationObject
+  }
 }
 
 object AbstractKeystoneV2Filter {
