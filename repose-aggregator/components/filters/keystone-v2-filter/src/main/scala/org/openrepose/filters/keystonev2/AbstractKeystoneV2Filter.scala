@@ -80,7 +80,7 @@ abstract class AbstractKeystoneV2Filter[T <: KeystoneV2Config: ClassTag](configu
         Pass
       } else {
         val authResult = doAuth(request)
-        handleFailures.applyOrElse(authResult, (t: Try[Unit.type]) => t match {
+        handleFailures.applyOrElse(authResult, (_: Try[Unit.type]) match {
           case Success(_) => Pass
           case Failure(e) => Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
         })
