@@ -1,6 +1,6 @@
 = Keystone v2 Filter
 
-Provides a mechanism for authenticating incoming requests with the OpenStack Keystone v2 Identity service.
+Provides a mechanism for authenticating and enriching requests with data from an OpenStack Keystone v2 Identity service.
 
 == General filter information
 * *Name:* keystone-v2
@@ -33,8 +33,8 @@ The following headers are created using the information returned from the authen
 ** If the `validate-tenant` element is present, then *Tenanted Mode* is active and this effects the contents of this header as outlined below:
 *** IF *NOT IN* Tenanted Mode, THEN all roles in the user's token will be forwarded.
 *** IF *IN* Tenanted Mode AND `pre-authorized`, THEN all roles in the user's token will be forwarded.
-**** In order for a user to be `pre-authorized` based on role, the role in question must either not have an associated tenant, or the associated tenant must match the tenant extracted from the URI.
-*** IF *IN* Tenanted Mode AND NOT `pre-authorized`, THEN only roles with no associated tenant or an associated tenant matching the tenant extracted from the URI will be forwarded.
+**** In order for a user to be `pre-authorized` based on role, the role in question must either not have an associated tenant, or the associated tenant must match the tenant extracted from the request.
+*** IF *IN* Tenanted Mode AND NOT `pre-authorized`, THEN only roles with no associated tenant or an associated tenant matching the tenant extracted from the request will be forwarded.
 
 The following headers are added for use by the <<rate-limiting.adoc#, Rate Limiting filter>>:
 
@@ -343,7 +343,7 @@ https://one.rackspace.com/display/auth/Identity+Endpoints#IdentityEndpoints-Endp
 Tenant validation has been moved to the <<keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>>, and is considered deprecated in this filter.
 ====
 
-Tenant ID Validation is the capability of this filter to parse a tenant ID out of a request URI and validate it against the tenant ID(s) available in the response token from the Keystone v2 Identity service.
+Tenant ID Validation is the capability of this filter to parse a tenant ID out of the request and validate it against the tenant ID(s) available in the response token from the Keystone v2 Identity service.
 
 [source,xml]
 .keystone-v2.cfg.xml
@@ -368,7 +368,7 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
     Default: `identity:tenant-access`
 <2> Indicates if all the Tenant IDs from the user and the roles the user has should be sent or not. +
     Default: `false`
-<3> If this element is included, then Tenant ID Validation will be enforced based on the value extracted from the URI.
+<3> If this element is included, then Tenant ID Validation will be enforced based on the value extracted from the request.
 <4> A `/` delimited list of prefixes to attempt to strip from the Tenant ID in the token response from the Keystone v2 Identity service.
     The post-strip Tenant ID is only used in the Tenant Validation check.
 <5> If in legacy roles mode, then all roles associated with a user token are forwarded.
@@ -379,19 +379,19 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
 <7> If this element is included, then include Quality parameters on all the tenant ID headers sent.
 <8> The default tenant has the highest quality by default. +
     Default: `0.9`
-<9> Followed by the one that matches the URI by default (if any). +
+<9> Followed by the one that matches the tenant extracted from the request by default (if any). +
     Default: `0.7`
 <10> Followed by the tenants from the roles by default. +
     Default: `0.5`
 
 [NOTE]
 ====
-If the Default Tenant and the URI Tenant are the same, then the highest quality between the two will be used.
+If the default tenant and the tenant extracted from the request are the same, then the highest quality between the two will be used.
 ====
 
 [NOTE]
 ====
-If the `validate-tenant` element is not present, then this filter will not attempt to validate a Tenant ID from the URI.
+If the `validate-tenant` element is not present, then this filter will not attempt to validate a Tenant ID from the request.
 
 The `uri-extraction-regex` will be used to populate the `X-Tenant-ID` header with the value extracted by the capturing group.
 ====
