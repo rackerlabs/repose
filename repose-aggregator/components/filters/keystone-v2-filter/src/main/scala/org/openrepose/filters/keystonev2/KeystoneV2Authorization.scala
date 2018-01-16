@@ -38,6 +38,7 @@ object KeystoneV2Authorization extends LazyLogging {
     case Failure(e: UnparseableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
   }
 
+  // TODO: Take tenants to roles mapping instead of token to calculate scoped roles.
   def doAuthorization(config: KeystoneV2Config, request: HttpServletRequestWrapper, validToken: ValidToken, endpoints: => Try[EndpointsData]): AuthorizationInfo = {
     lazy val tenantToMatch = getRequestTenant(config.getTenantHandling.getValidateTenant, request)
 
@@ -55,6 +56,7 @@ object KeystoneV2Authorization extends LazyLogging {
     }
   }
 
+  // TODO: Switch to getRequestTenants (plural) and include all tenants extracted. This is a behavior change.
   def getRequestTenant(config: ValidateTenantType, request: HttpServletRequestWrapper): String = {
     Option(config).flatMap(validateTenantConfig =>
       Option(validateTenantConfig.getHeaderExtractionName).flatMap(headerName =>

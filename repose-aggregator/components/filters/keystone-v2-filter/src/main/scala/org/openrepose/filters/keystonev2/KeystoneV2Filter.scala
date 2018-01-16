@@ -285,6 +285,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
 
     def addTokenHeaders(token: ValidToken, matchedUriTenant: Option[String]): Unit = {
+      // TODO: Add tenant to role map header
       // Add standard headers
       request.addHeader(OpenStackServiceHeader.USER_ID, token.userId)
       request.addHeader(OpenStackServiceHeader.X_EXPIRATION, token.expirationDate)
@@ -337,6 +338,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     def addCatalogHeader(maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
       if (configuration.getIdentityService.isSetCatalogInHeader) {
         maybeEndpoints map { endpoints =>
+          // TODO: Remove this and use the catalog header for transport.
           request.setAttribute(EndpointsRequestAttributeName, endpoints)
           // TODO: Sync character encoding with the authorization filter
           request.addHeader(PowerApiHeader.X_CATALOG, Base64.getEncoder.encodeToString(endpoints.json.getBytes))
@@ -365,6 +367,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       */
     getAuthToken flatMap { authToken =>
       validateToken(authToken) flatMap { validToken =>
+        // TODO: Remove this and use the tenant-to-roles map header for transport.
         request.setAttribute(TokenRequestAttributeName, validToken)
 
         lazy val endpoints = getEndpoints(authToken) // Prevents making call if its not needed
