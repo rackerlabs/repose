@@ -1,0 +1,33 @@
+{
+  dir_prefix: "filters/keystonev2authorization",
+  repose: {
+    config: {
+      system_model: {
+        filters: [
+          { name: "keystone-v2" },
+          { name: "keystone-v2-authorization" }
+        ]
+      }
+    },
+    config_files: {
+      templates: [
+        "container.cfg.xml",
+        "system-model.cfg.xml",
+        "{{ dir_prefix }}/keystone-v2.cfg.xml",
+        "{{ dir_prefix }}/keystone-v2-authorization.cfg.xml"
+      ]
+    }
+  },
+  mock: {
+    backends: [
+      "main_backend.js",
+      "auth_backend.js"
+    ]
+  },
+  gatling: {
+    test: {
+      name: "KeystoneV2AuthorizationFilterSimulation",
+      package: "filters.keystonev2"
+    }
+  }
+}
