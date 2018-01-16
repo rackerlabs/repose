@@ -5,6 +5,7 @@
 ** Jetty: 9.2.0.v20140526 → 9.4.8.v20171121
 *** https://github.com/eclipse/jetty.project/blob/jetty-9.4.x/VERSION.txt
 * https://repose.atlassian.net/browse/REP-5401[REP-5401] - Added support for environment variable substitution in configuration files.
+* https://repose.atlassian.net/browse/REP-6390[REP-6390] - Internal changes to the Keystone v2 Filter in anticipation of splitting the authorization portion off into it's own filter.
 
 == 8.7.3.0 (2017-11-17)
 * https://repose.atlassian.net/browse/REP-6159[REP-6159] - Added the new <<filters/regex-rbac.adoc#, RegEx Role Based Access Control (RBAC) Filter>>.

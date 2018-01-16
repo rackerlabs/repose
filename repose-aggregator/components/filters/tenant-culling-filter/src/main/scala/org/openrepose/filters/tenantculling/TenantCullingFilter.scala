@@ -30,7 +30,7 @@ import org.openrepose.commons.utils.http.PowerApiHeader.RELEVANT_ROLES
 import org.openrepose.commons.utils.io.ObjectSerializer
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.datastore.DatastoreService
-import org.openrepose.filters.keystonev2.{KeystoneRequestHandler, KeystoneV2Filter}
+import org.openrepose.filters.keystonev2.{KeystoneV2Common, KeystoneV2Filter}
 import org.slf4j.{Logger, LoggerFactory}
 
 @Named class TenantCullingFilter @Inject()(datastoreService: DatastoreService) extends Filter {
@@ -53,7 +53,7 @@ import org.slf4j.{Logger, LoggerFactory}
       seq.foreach(log.trace(" - {}", _))
     }
 
-    def withDefaultTenant(token: KeystoneRequestHandler.ValidToken, tenants: Seq[String]): Seq[String] = {
+    def withDefaultTenant(token: KeystoneV2Common.ValidToken, tenants: Seq[String]): Seq[String] = {
       logNamedSeq("Tenant ID's", tenants)
       if (token.defaultTenantId.isDefined) {
         log.trace("Adding Default:")
@@ -70,7 +70,7 @@ import org.slf4j.{Logger, LoggerFactory}
     val relevantRoles = request.getSplittableHeaderScala(RELEVANT_ROLES)
     if (cacheKey != null) {
       try {
-        val token = objectSerializer.readObject(objectSerializer.writeObject(datastore.get(cacheKey))).asInstanceOf[KeystoneRequestHandler.ValidToken]
+        val token = objectSerializer.readObject(objectSerializer.writeObject(datastore.get(cacheKey))).asInstanceOf[KeystoneV2Common.ValidToken]
         if (token != null) {
           logNamedSeq("Token Roles", token.roles)
           logNamedSeq("Relevant Roles", relevantRoles)

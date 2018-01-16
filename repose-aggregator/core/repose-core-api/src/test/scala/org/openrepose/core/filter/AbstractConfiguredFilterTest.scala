@@ -21,8 +21,9 @@ package org.openrepose.core.filter
 
 import java.net.URL
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.servlet.{FilterChain, FilterConfig, ServletRequest, ServletResponse}
+import javax.servlet.{FilterChain, FilterConfig}
 
+import org.hamcrest.Matchers.{endsWith, hasProperty}
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, anyString, argThat, same, eq => eql}
 import org.mockito.Mockito.{verify, when}
@@ -31,8 +32,6 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
-import org.hamcrest.Matchers.hasProperty
-import org.hamcrest.Matchers.endsWith
 import org.springframework.mock.web.MockHttpServletResponse
 
 /**
@@ -169,22 +168,20 @@ class AbstractConfiguredFilterTest
     }
 
     it("should call doConfigurationUpdated") {
-      var doConfigurationUpdatedCalled = false
-
       val aFilter = new StubbedFilter(configurationService) {
-        override def doConfigurationUpdated(newConfiguration: String): Unit = doConfigurationUpdatedCalled = true
+        override def doConfigurationUpdated(newConfiguration: String): String = "banana"
       }
 
       aFilter.configurationUpdated("bar")
 
-      doConfigurationUpdatedCalled shouldBe true
+      aFilter.configuration shouldBe "banana"
     }
 
     it("should call doConfigurationUpdated before setting the initialization flag") {
       var doConfigurationUpdatedCalled = false
 
       val aFilter = new StubbedFilter(configurationService) {
-        override def doConfigurationUpdated(newConfiguration: String): Unit = {
+        override def doConfigurationUpdated(newConfiguration: String): String = {
           doConfigurationUpdatedCalled = true
           throw new Exception()
         }
@@ -208,11 +205,38 @@ class AbstractConfiguredFilterTest
     }
   }
 
+  describe("filterInitialized method") {
+    it("should return false before initial config update") {
+      filter.filterInitialized shouldBe false
+    }
+
+    it("should return true after config update") {
+      filter.configurationUpdated("baz")
+
+      filter.filterInitialized shouldBe true
+    }
+  }
+
   describe("doFilter method") {
-    it("should 500 if uninitialized") {
+    it("should 500 if listener is uninitialized") {
       val response: MockHttpServletResponse = new MockHttpServletResponse
 
       filter.doFilter(mock[HttpServletRequest], response, mock[FilterChain])
+
+      response.getStatus shouldBe 500
+      response.getErrorMessage shouldBe "Filter not initialized"
+    }
+
+    it("should 500 if filter says it's not initialized") {
+      val aFilter = new StubbedFilter(configurationService) {
+        override def filterInitialized = false
+      }
+
+      aFilter.configurationUpdated("foo")
+
+      val response: MockHttpServletResponse = new MockHttpServletResponse
+
+      aFilter.doFilter(mock[HttpServletRequest], response, mock[FilterChain])
 
       response.getStatus shouldBe 500
       response.getErrorMessage shouldBe "Filter not initialized"
@@ -242,7 +266,7 @@ class StubbedFilter(configurationService: ConfigurationService) extends Abstract
 
   def getConfig: String = configuration
 
-  def getInitialized: Boolean = initialized
+  def getInitialized: Boolean = listenerInitialized
 
   override def doWork(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse, chain: FilterChain): Unit =
     passedObjects = PassedObjects(httpRequest, httpResponse, chain)

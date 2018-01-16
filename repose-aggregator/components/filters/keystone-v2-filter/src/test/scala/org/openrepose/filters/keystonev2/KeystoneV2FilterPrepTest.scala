@@ -32,7 +32,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.core.systemmodel.config.{SystemModel, TracingHeaderConfig}
-import org.openrepose.filters.keystonev2.config.KeystoneV2Config
+import org.openrepose.filters.keystonev2.config.KeystoneV2AuthenticationConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -73,8 +73,8 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
         MockitoMatcher.eq("KeystoneV2Filter"),
         MockitoMatcher.eq("keystone-v2.cfg.xml"),
         resourceCaptor.capture,
-        MockitoMatcher.eq(filter.KeystoneV2ConfigListener),
-        MockitoMatcher.eq(classOf[KeystoneV2Config]))
+        MockitoMatcher.eq(filter),
+        MockitoMatcher.eq(classOf[KeystoneV2AuthenticationConfig]))
       Mockito.verify(mockConfigurationService).subscribeTo(
         MockitoMatcher.eq("system-model.cfg.xml"),
         MockitoMatcher.any(classOf[URL]),
@@ -101,8 +101,8 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
         MockitoMatcher.eq("KeystoneV2Filter"),
         MockitoMatcher.eq("some-other-config.xml"),
         resourceCaptor.capture,
-        MockitoMatcher.eq(filter.KeystoneV2ConfigListener),
-        MockitoMatcher.eq(classOf[KeystoneV2Config]))
+        MockitoMatcher.eq(filter),
+        MockitoMatcher.eq(classOf[KeystoneV2AuthenticationConfig]))
       Mockito.verify(mockConfigurationService).subscribeTo(
         MockitoMatcher.eq("system-model.cfg.xml"),
         MockitoMatcher.any(classOf[URL]),
@@ -121,7 +121,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
     filter.init(config)
     filter.destroy()
 
-    Mockito.verify(mockConfigurationService).unsubscribeFrom("keystone-v2.cfg.xml", filter.KeystoneV2ConfigListener)
+    Mockito.verify(mockConfigurationService).unsubscribeFrom("keystone-v2.cfg.xml", filter)
   }
 
   describe("when the configuration is updated") {
@@ -141,25 +141,26 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
           |</keystone-v2>
         """.stripMargin)
 
-      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+      filter.configurationUpdated(configuration)
       filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
-      val timeouts = filter.keystoneV2Config.getCache.getTimeouts
+      val config = filter.configuration
+      val timeouts = config.getCache.getTimeouts
       timeouts.getEndpoints shouldBe 600
       timeouts.getGroup shouldBe 600
       timeouts.getToken shouldBe 600
       timeouts.getVariability shouldBe 0
 
-      filter.keystoneV2Config.getIdentityService.isSetGroupsInHeader shouldBe true
-      filter.keystoneV2Config.getIdentityService.isSetCatalogInHeader shouldBe false
+      config.getIdentityService.isSetGroupsInHeader shouldBe true
+      config.getIdentityService.isSetCatalogInHeader shouldBe false
 
-      filter.keystoneV2Config.getDelegating shouldBe null
+      config.getDelegating shouldBe null
 
-      filter.keystoneV2Config.getWhiteList.getUriRegex.size() shouldBe 0
+      config.getWhiteList.getUriRegex.size() shouldBe 0
 
-      filter.keystoneV2Config.getTenantHandling.getValidateTenant shouldBe null
+      config.getTenantHandling.getValidateTenant shouldBe null
 
-      filter.keystoneV2Config.getRequireServiceEndpoint shouldBe null
+      config.getRequireServiceEndpoint shouldBe null
     }
 
     it("sets the default delegating quality to 0.7") {
@@ -179,17 +180,17 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
           |</keystone-v2>
         """.stripMargin)
 
-      filter.KeystoneV2ConfigListener.configurationUpdated(configuration)
+      filter.configurationUpdated(configuration)
       filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
-      filter.keystoneV2Config.getDelegating.getQuality shouldBe 0.7
+      filter.configuration.getDelegating.getQuality shouldBe 0.7
     }
 
     it("should register to listen to the Atom Feed") {
       val mockAtomFeedService = mock[AtomFeedService]
       val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mockAtomFeedService, mockDatastoreService)
 
-      filter.KeystoneV2ConfigListener.configurationUpdated(Marshaller.keystoneV2ConfigFromString(
+      filter.configurationUpdated(Marshaller.keystoneV2ConfigFromString(
         """<?xml version="1.0" encoding="UTF-8"?>
           |
           |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
@@ -220,7 +221,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
       ).thenReturn(mortyId)
       val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mockAtomFeedService, mockDatastoreService)
 
-      filter.KeystoneV2ConfigListener.configurationUpdated(Marshaller.keystoneV2ConfigFromString(
+      filter.configurationUpdated(Marshaller.keystoneV2ConfigFromString(
         s"""<?xml version="1.0" encoding="UTF-8"?>
           |
           |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
@@ -237,7 +238,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
       Mockito.verify(mockAtomFeedService).registerListener(MockitoMatcher.eq(rickFeed), MockitoMatcher.any[AtomFeedListener])
       Mockito.verify(mockAtomFeedService).registerListener(MockitoMatcher.eq(mortyFeed), MockitoMatcher.any[AtomFeedListener])
 
-      filter.KeystoneV2ConfigListener.configurationUpdated(Marshaller.keystoneV2ConfigFromString(
+      filter.configurationUpdated(Marshaller.keystoneV2ConfigFromString(
         """<?xml version="1.0" encoding="UTF-8"?>
           |
           |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">

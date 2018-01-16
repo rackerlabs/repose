@@ -144,7 +144,7 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
     }
   }
 
-  override def doConfigurationUpdated(newConfigurationObject: RegexRbacConfig): Unit = {
+  override def doConfigurationUpdated(newConfigurationObject: RegexRbacConfig): RegexRbacConfig = {
 
     def parseLine(line: String): Option[Resource] = {
       val values = line.trim.split("\\s+")
@@ -185,6 +185,8 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
     parsedResources = rawResources.flatMap { lines =>
       Some(lines.replaceAll("[\r?\n?]", "\n").split('\n').toList.flatMap(parseLine))
     }
+
+    newConfigurationObject
   }
 }
 

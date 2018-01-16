@@ -28,7 +28,7 @@ import org.mockito.ArgumentCaptor;
 import org.openrepose.commons.utils.io.ObjectSerializer;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreService;
-import org.openrepose.filters.keystonev2.KeystoneRequestHandler;
+import org.openrepose.filters.keystonev2.KeystoneV2Common;
 import org.openrepose.filters.keystonev2.KeystoneV2Filter;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -87,7 +87,7 @@ public class TenantCullingFilterTest {
         FilterChain filterChain = mock(FilterChain.class);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(KeystoneV2Filter.AuthTokenKey(), "cachekey");
-        KeystoneRequestHandler.ValidToken token = tokenWithTenant("123456");
+        KeystoneV2Common.ValidToken token = tokenWithTenant("123456");
         when(datastore.get("cachekey")).thenReturn((Serializable) token);
 
         filter.doFilter(request, mock(HttpServletResponse.class), filterChain);
@@ -103,11 +103,11 @@ public class TenantCullingFilterTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(KeystoneV2Filter.AuthTokenKey(), "cachekey");
         request.addHeader(RELEVANT_ROLES, "role-name");
-        List<KeystoneRequestHandler.Role> roles = new ArrayList<>();
-        roles.add(new KeystoneRequestHandler.Role("role-name", Option.apply("123456")));
-        roles.add(new KeystoneRequestHandler.Role("role-name", Option.apply(null)));
-        roles.add(new KeystoneRequestHandler.Role("other-name", Option.apply("098765")));
-        KeystoneRequestHandler.ValidToken token = tokenWithRoles(roles);
+        List<KeystoneV2Common.Role> roles = new ArrayList<>();
+        roles.add(new KeystoneV2Common.Role("role-name", Option.apply("123456")));
+        roles.add(new KeystoneV2Common.Role("role-name", Option.apply(null)));
+        roles.add(new KeystoneV2Common.Role("other-name", Option.apply("098765")));
+        KeystoneV2Common.ValidToken token = tokenWithRoles(roles);
         when(datastore.get("cachekey")).thenReturn((Serializable) token);
 
         filter.doFilter(request, mock(HttpServletResponse.class), filterChain);
@@ -124,10 +124,10 @@ public class TenantCullingFilterTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(KeystoneV2Filter.AuthTokenKey(), "cachekey");
         request.addHeader(RELEVANT_ROLES, "role-name");
-        List<KeystoneRequestHandler.Role> roles = new ArrayList<>();
-        roles.add(new KeystoneRequestHandler.Role("role-name", Option.apply("123456")));
-        roles.add(new KeystoneRequestHandler.Role("role-name", Option.apply("098765")));
-        KeystoneRequestHandler.ValidToken token = tokenWithRoles(roles);
+        List<KeystoneV2Common.Role> roles = new ArrayList<>();
+        roles.add(new KeystoneV2Common.Role("role-name", Option.apply("123456")));
+        roles.add(new KeystoneV2Common.Role("role-name", Option.apply("098765")));
+        KeystoneV2Common.ValidToken token = tokenWithRoles(roles);
         when(datastore.get("cachekey")).thenReturn((Serializable) token);
 
         filter.doFilter(request, mock(HttpServletResponse.class), filterChain);
@@ -144,10 +144,10 @@ public class TenantCullingFilterTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(KeystoneV2Filter.AuthTokenKey(), "cachekey");
         request.addHeader(RELEVANT_ROLES, "role-name,other-name");
-        List<KeystoneRequestHandler.Role> roles = new ArrayList<>();
-        roles.add(new KeystoneRequestHandler.Role("role-name", Option.apply("123456")));
-        roles.add(new KeystoneRequestHandler.Role("other-name", Option.apply("098765")));
-        KeystoneRequestHandler.ValidToken token = tokenWithRoles(roles);
+        List<KeystoneV2Common.Role> roles = new ArrayList<>();
+        roles.add(new KeystoneV2Common.Role("role-name", Option.apply("123456")));
+        roles.add(new KeystoneV2Common.Role("other-name", Option.apply("098765")));
+        KeystoneV2Common.ValidToken token = tokenWithRoles(roles);
         when(datastore.get("cachekey")).thenReturn((Serializable) token);
 
         filter.doFilter(request, mock(HttpServletResponse.class), filterChain);
@@ -164,10 +164,10 @@ public class TenantCullingFilterTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(KeystoneV2Filter.AuthTokenKey(), "cachekey");
         request.addHeader(RELEVANT_ROLES, "role-name");
-        List<KeystoneRequestHandler.Role> roles = new ArrayList<>();
-        roles.add(new KeystoneRequestHandler.Role("role-name", Option.apply("123456")));
-        roles.add(new KeystoneRequestHandler.Role("other-name", Option.apply("098765")));
-        KeystoneRequestHandler.ValidToken token = tokenWithTenantAndRoles("abcdef", roles);
+        List<KeystoneV2Common.Role> roles = new ArrayList<>();
+        roles.add(new KeystoneV2Common.Role("role-name", Option.apply("123456")));
+        roles.add(new KeystoneV2Common.Role("other-name", Option.apply("098765")));
+        KeystoneV2Common.ValidToken token = tokenWithTenantAndRoles("abcdef", roles);
         when(datastore.get("cachekey")).thenReturn((Serializable) token);
 
         filter.doFilter(request, mock(HttpServletResponse.class), filterChain);
@@ -185,7 +185,7 @@ public class TenantCullingFilterTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(KeystoneV2Filter.AuthTokenKey(), "cachekey");
         request.addHeader(TENANT_ID, "abcdef");
-        KeystoneRequestHandler.ValidToken token = tokenWithTenant("123456");
+        KeystoneV2Common.ValidToken token = tokenWithTenant("123456");
         when(datastore.get("cachekey")).thenReturn((Serializable) token);
 
         filter.doFilter(request, mock(HttpServletResponse.class), filterChain);
@@ -233,7 +233,7 @@ public class TenantCullingFilterTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         HttpServletResponse response = new MockHttpServletResponse();
         request.addHeader(KeystoneV2Filter.AuthTokenKey(), "cachekey");
-        KeystoneRequestHandler.ValidToken token = tokenWithTenant("123456");
+        KeystoneV2Common.ValidToken token = tokenWithTenant("123456");
         when(datastore.get("cachekey")).thenReturn((Serializable) token);
 
         filter.doFilter(request, response, filterChain);
@@ -242,16 +242,16 @@ public class TenantCullingFilterTest {
         assertThat(response.getStatus(), equalTo(SC_INTERNAL_SERVER_ERROR));
     }
 
-    private KeystoneRequestHandler.ValidToken tokenWithTenant(String tenant) {
+    private KeystoneV2Common.ValidToken tokenWithTenant(String tenant) {
         return tokenWithTenantAndRoles(tenant, new ArrayList<>());
     }
 
-    private KeystoneRequestHandler.ValidToken tokenWithRoles(List<KeystoneRequestHandler.Role> roles) {
+    private KeystoneV2Common.ValidToken tokenWithRoles(List<KeystoneV2Common.Role> roles) {
         return tokenWithTenantAndRoles(null, roles);
     }
 
-    private KeystoneRequestHandler.ValidToken tokenWithTenantAndRoles(String tenant, List<KeystoneRequestHandler.Role> roles) {
-        return new KeystoneRequestHandler.ValidToken(
+    private KeystoneV2Common.ValidToken tokenWithTenantAndRoles(String tenant, List<KeystoneV2Common.Role> roles) {
+        return new KeystoneV2Common.ValidToken(
             null, null, JavaConverters.asScalaBufferConverter(roles).asScala().toSeq(),
             Option.apply(null), Option.apply(null), Option.apply(tenant),
             JavaConverters.asScalaBufferConverter(new ArrayList<String>()).asScala().toSeq(), Option.apply(null), Option.apply(null),

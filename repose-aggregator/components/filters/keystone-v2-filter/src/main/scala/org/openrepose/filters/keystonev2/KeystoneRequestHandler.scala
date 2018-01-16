@@ -30,6 +30,7 @@ import org.apache.http.client.utils.DateUtils
 import org.joda.time.format.ISODateTimeFormat
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.filters.keystonev2.KeystoneV2Common.{Endpoint, EndpointsData, Role, ValidToken}
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json._
@@ -261,8 +262,6 @@ object KeystoneRequestHandler {
     }
   }
 
-  case class EndpointsData(json: String, vector: Vector[Endpoint])
-
   trait IdentityException
 
   case class AdminTokenUnauthorizedException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
@@ -278,45 +277,5 @@ object KeystoneRequestHandler {
   case class IdentityCommunicationException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
 
   case class OverLimitException(statusCode: Int, retryAfter: String, message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
-
-  case class UnparseableTenantException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
-
-  case class Role(name: String, tenantId: Option[String] = None)
-
-  case class ValidToken(expirationDate: String,
-                        userId: String,
-                        roles: Seq[Role],
-                        username: Option[String],
-                        tenantName: Option[String],
-                        defaultTenantId: Option[String],
-                        tenantIds: Seq[String],
-                        impersonatorId: Option[String],
-                        impersonatorName: Option[String],
-                        impersonatorRoles: Seq[String],
-                        defaultRegion: Option[String],
-                        contactId: Option[String],
-                        authenticatedBy: Option[Seq[String]])
-
-  case class Endpoint(region: Option[String], name: Option[String], endpointType: Option[String], publicURL: String) {
-    /**
-     * Determines whether or not this endpoint meets the requirements set forth by the values contained in
-     * endpointRequirement for the purpose of authorization.
-     *
-     * @param endpointRequirement an endpoint containing fields with required values
-     * @return true if this endpoint has field values matching those in the endpointRequirement, false otherwise
-     */
-    def meetsRequirement(endpointRequirement: Endpoint): Boolean = {
-      def compare(available: Option[String], required: Option[String]) = (available, required) match {
-        case (Some(x), Some(y)) => x == y
-        case (None, Some(_)) => false
-        case _ => true
-      }
-
-      this.publicURL.startsWith(endpointRequirement.publicURL) &&
-        compare(this.region, endpointRequirement.region) &&
-        compare(this.name, endpointRequirement.name) &&
-        compare(this.endpointType, endpointRequirement.endpointType)
-    }
-  }
 
 }
