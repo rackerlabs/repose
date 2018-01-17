@@ -19,17 +19,22 @@
  */
 package org.openrepose.filters.keystonev2
 
+import java.util.Base64
 import javax.inject.{Inject, Named}
 import javax.servlet.ServletRequest
+import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 
+import com.fasterxml.jackson.core.JsonProcessingException
 import org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID
+import org.openrepose.commons.utils.http.PowerApiHeader.X_CATALOG
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.{KeystoneV2Result, Reject}
 import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationFailed, AuthorizationPassed, doAuthorization}
-import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, EndpointsRequestAttributeName, TokenRequestAttributeName, ValidToken}
+import org.openrepose.filters.keystonev2.KeystoneV2Common.{Endpoint, EndpointsData, TokenRequestAttributeName, ValidToken}
 import org.openrepose.filters.keystonev2.config.KeystoneV2Config
+import play.api.libs.json.Json
 
 import scala.util.{Failure, Success, Try}
 
@@ -74,12 +79,22 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
     }
   }
 
-  def getEndpoints(request: ServletRequest): Try[EndpointsData] = {
+  def getEndpoints(request: HttpServletRequest): Try[EndpointsData] = {
     Try {
-      Option(request.getAttribute(EndpointsRequestAttributeName)).get.asInstanceOf[EndpointsData]
+      val jsonString = Option(request.getHeader(X_CATALOG))
+        .map(Base64.getDecoder.decode)
+        .map(new String(_))
+        .get
+      val json = Json.parse(jsonString)
+
+      (json \ "endpoints").validate[Vector[Endpoint]]
+        .map(EndpointsData(jsonString, _))
+        .getOrElse(throw new JsonProcessingException("Could not validate endpoints JSON") {})
     } recover {
-      case nsee: NoSuchElementException => throw MissingEndpointsException("Endpoints request attribute does not exist", nsee)
-      case cce: ClassCastException => throw InvalidEndpointsException("Endpoints request attribute is not a valid endpoints object", cce)
+      case nsee: NoSuchElementException =>
+        throw MissingEndpointsException(s"$X_CATALOG header does not exist", nsee)
+      case e@(_: IllegalArgumentException | _: JsonProcessingException) =>
+        throw InvalidEndpointsException(s"$X_CATALOG header value is not a valid endpoints representation", e)
     }
   }
 

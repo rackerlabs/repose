@@ -19,16 +19,18 @@
  */
 package org.openrepose.filters.keystonev2
 
+import java.util.Base64
 import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_INTERNAL_SERVER_ERROR, SC_UNAUTHORIZED}
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID
+import org.openrepose.commons.utils.http.PowerApiHeader.X_CATALOG
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.Reject
 import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{InvalidTenantException, UnauthorizedEndpointException, UnparseableTenantException}
 import org.openrepose.filters.keystonev2.KeystoneV2AuthorizationFilter.{InvalidEndpointsException, InvalidTokenException, MissingEndpointsException, MissingTokenException}
-import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, EndpointsRequestAttributeName, TokenRequestAttributeName}
+import org.openrepose.filters.keystonev2.KeystoneV2Common.{Endpoint, TokenRequestAttributeName}
 import org.openrepose.filters.keystonev2.KeystoneV2TestCommon.createValidToken
 import org.openrepose.filters.keystonev2.config.TenantHandlingType.SendTenantIdQuality
 import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, TenantHandlingType, ValidateTenantType}
@@ -37,6 +39,8 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
+import play.api.libs.functional.syntax.{unlift, _}
+import play.api.libs.json.{JsPath, Json, Writes}
 
 import scala.util.Failure
 
@@ -82,17 +86,20 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
   }
 
   describe("getEndpoints") {
-    it(s"should return an endpoints object if valid endpoints are present at the $EndpointsRequestAttributeName attribute of the request") {
-      val endpoints = EndpointsData("", Vector.empty)
+    import KeystoneV2AuthorizationFilterTest.endpointWrites
+
+    it(s"should return an endpoints object if valid endpoints are present in the $X_CATALOG header of the request") {
+      val endpoints = Vector(Endpoint(None, None, None, "first"), Endpoint(None, None, None, "second"))
+      val catalog = Base64.getEncoder.encodeToString(Json.stringify(Json.obj("endpoints" -> Json.toJson(endpoints))).getBytes)
       val request = new MockHttpServletRequest
-      request.setAttribute(EndpointsRequestAttributeName, endpoints)
+      request.addHeader(X_CATALOG, catalog)
 
       val result = keystoneV2AuthorizationFilter.getEndpoints(request)
 
-      result.success.get shouldBe endpoints
+      result.success.get.vector should contain theSameElementsAs endpoints
     }
 
-    it(s"should return a Failure if endpoints are absent at the $EndpointsRequestAttributeName attribute of the request") {
+    it(s"should return a Failure if endpoints are absent in the $X_CATALOG header of the request") {
       val request = new MockHttpServletRequest
 
       val result = keystoneV2AuthorizationFilter.getEndpoints(request)
@@ -100,10 +107,22 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
       result.failure.exception shouldBe a[MissingEndpointsException]
     }
 
-    it(s"should return a Failure if the object present at the $EndpointsRequestAttributeName attribute of the request is not a valid endpoints object") {
-      val endpoints = "not-endpoints"
+    it(s"should return a Failure if the value present in the $X_CATALOG header of the request is not base 64 encoded") {
+      val endpoints = Vector(Endpoint(None, None, None, "first"), Endpoint(None, None, None, "second"))
+      val catalog = Json.stringify(Json.obj("endpoints" -> Json.toJson(endpoints))).getBytes
       val request = new MockHttpServletRequest
-      request.setAttribute(EndpointsRequestAttributeName, endpoints)
+      request.addHeader(X_CATALOG, catalog)
+
+      val result = keystoneV2AuthorizationFilter.getEndpoints(request)
+
+      result.failure.exception shouldBe an[InvalidEndpointsException]
+    }
+
+    it(s"should return a Failure if the value present in the $X_CATALOG header of the request is not a valid endpoints representation") {
+      val endpoints = Vector("first", "second")
+      val catalog = Base64.getEncoder.encodeToString(Json.stringify(Json.obj("endpoints" -> Json.toJson(endpoints))).getBytes)
+      val request = new MockHttpServletRequest
+      request.addHeader(X_CATALOG, catalog)
 
       val result = keystoneV2AuthorizationFilter.getEndpoints(request)
 
@@ -262,4 +281,13 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
       request.getHeadersScala(TENANT_ID) should contain only userTenantId
     }
   }
+}
+
+object KeystoneV2AuthorizationFilterTest {
+  implicit val endpointWrites: Writes[Endpoint] = (
+    (JsPath \ "region").writeNullable[String] and
+      (JsPath \ "name").writeNullable[String] and
+      (JsPath \ "type").writeNullable[String] and
+      (JsPath \ "publicURL").write[String]
+    ) (unlift(Endpoint.unapply))
 }

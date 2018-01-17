@@ -31,7 +31,6 @@ import org.joda.time.format.ISODateTimeFormat
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
 import org.openrepose.filters.keystonev2.KeystoneV2Common.{Endpoint, EndpointsData, Role, ValidToken}
-import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json._
 
@@ -40,8 +39,8 @@ import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
 /**
- * Contains the functions which interact with the Keystone API.
- */
+  * Contains the functions which interact with the Keystone API.
+  */
 class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: AkkaServiceClient, traceId: Option[String])
   extends LazyLogging {
 
@@ -161,13 +160,6 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
 
   final def getEndpointsForToken(authenticatingToken: String, forToken: String, applyRcnRoles: Boolean, checkCache: Boolean = true): Try[EndpointsData] = {
     def extractEndpointInfo(inputStream: InputStream): Try[EndpointsData] = {
-      implicit val endpointsReader = (
-        (JsPath \ "region").readNullable[String] and
-          (JsPath \ "name").readNullable[String] and
-          (JsPath \ "type").readNullable[String] and
-          (JsPath \ "publicURL").read[String]
-        ) (Endpoint.apply _)
-
       // TODO: Handle character encoding set in the content-type header rather than relying on the default system encoding
       val jsonString = Source.fromInputStream(inputStream).getLines mkString ""
       val json = Json.parse(jsonString)

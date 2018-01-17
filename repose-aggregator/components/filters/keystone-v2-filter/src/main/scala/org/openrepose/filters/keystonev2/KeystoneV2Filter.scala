@@ -40,7 +40,7 @@ import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.{KeystoneV2Result, Reject}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationFailed, AuthorizationPassed, UnparseableTenantException}
-import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, EndpointsRequestAttributeName, TokenRequestAttributeName, ValidToken}
+import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, TokenRequestAttributeName, ValidToken}
 import org.openrepose.filters.keystonev2.config._
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 
@@ -338,8 +338,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     def addCatalogHeader(maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
       if (configuration.getIdentityService.isSetCatalogInHeader) {
         maybeEndpoints map { endpoints =>
-          // TODO: Remove this and use the catalog header for transport.
-          request.setAttribute(EndpointsRequestAttributeName, endpoints)
           // TODO: Sync character encoding with the authorization filter
           request.addHeader(PowerApiHeader.X_CATALOG, Base64.getEncoder.encodeToString(endpoints.json.getBytes))
           Unit
