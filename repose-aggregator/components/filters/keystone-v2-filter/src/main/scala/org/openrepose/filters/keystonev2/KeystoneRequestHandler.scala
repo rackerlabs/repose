@@ -69,6 +69,8 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       )
     )
 
+    // TODO: add tracing info here and add it to trace guid
+
     val akkaResponse = Try(akkaServiceClient.post(ADMIN_TOKEN_KEY,
       s"$identityServiceUri$TOKEN_ENDPOINT",
       (Map(HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
@@ -147,6 +149,8 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       }
     }
 
+    // TODO: opentracing activity here
+
     val akkaResponse = Try(akkaServiceClient.get(
       s"$TOKEN_KEY_PREFIX$validatableToken",
       s"$identityServiceUri$TOKEN_ENDPOINT/$validatableToken${getApplyRcnRoles(applyRcnRoles)}",
@@ -174,6 +178,8 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       }
     }
 
+    // TODO: opentracing activity here
+
     val akkaResponse = Try(akkaServiceClient.get(
       s"$ENDPOINTS_KEY_PREFIX$forToken",
       s"$identityServiceUri${ENDPOINTS_ENDPOINT(forToken)}${getApplyRcnRoles(applyRcnRoles)}",
@@ -195,6 +201,8 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
         (json \ "RAX-KSGRP:groups" \\ "id").map(_.as[String]).toVector
       }
     }
+
+    // TODO: opentracing activity here
 
     val akkaResponse = Try(akkaServiceClient.get(
       s"$GROUPS_KEY_PREFIX$forToken",

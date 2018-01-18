@@ -58,6 +58,22 @@ object TracingHeaderHelper extends LazyLogging {
     }
   }
 
+  def getTracerId(tracingHeader: String, tracerHeaderName: String): String = {
+    (Option(MDC.get(TracingKey.TRACING_KEY)), Option(tracingHeader)) match {
+      case (Some(tracingGuid), _) if tracingGuid.trim.nonEmpty => tracingGuid
+      case (_, None) => null
+      case (_, Some(header)) =>
+        try {
+          ObjectMapper.readValue[util.HashMap[String, String]](decode(tracingHeader), TypeRef).get(tracerHeaderName)
+        } catch {
+          case e: IOException =>
+            logger.debug("Unable to Base64 decode/JSON parse tracing header: {}", header, e)
+            header
+        }
+    }
+
+  }
+
   def createTracingHeader(requestId: String, origin: String): String = {
     createTracingHeader(requestId, origin, None)
   }

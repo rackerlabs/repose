@@ -20,6 +20,11 @@
 package org.openrepose.powerfilter;
 
 import com.codahale.metrics.MetricRegistry;
+import io.opentracing.ActiveSpan;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
+import io.opentracing.tag.Tags;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.io.BufferedServletInputStream;
@@ -43,6 +48,9 @@ import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.services.jmx.ConfigurationInformation;
+import org.openrepose.core.services.opentracing.HttpHeaderExtractor;
+import org.openrepose.core.services.opentracing.HttpHeaderInjector;
+import org.openrepose.core.services.opentracing.OpenTracingService;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.rms.ResponseMessageService;
@@ -110,6 +118,7 @@ public class PowerFilter extends DelegatingFilterProxy {
     private final PowerFilterRouterFactory powerFilterRouterFactory;
     private final ConfigurationService configurationService;
     private final Optional<MetricsService> metricsService;
+    private final Optional<OpenTracingService> openTracingService;
     private final ConfigurationInformation configurationInformation;
     private final RequestProxyService requestProxyService;
     private final ArtifactManager artifactManager;
@@ -130,6 +139,7 @@ public class PowerFilter extends DelegatingFilterProxy {
      * @param configurationService          For monitoring config files
      * @param eventService                  the event service
      * @param metricsService                the metrics service
+     * @param openTracingService            the tracing service
      * @param containerConfigurationService the container configuration service
      * @param responseMessageService        the response message service
      * @param filterContextFactory          A factory that builds filter contexts
@@ -153,13 +163,15 @@ public class PowerFilter extends DelegatingFilterProxy {
         ConfigurationInformation configurationInformation,
         RequestProxyService requestProxyService,
         ArtifactManager artifactManager,
-        Optional<MetricsService> metricsService
+        Optional<MetricsService> metricsService,
+        Optional<OpenTracingService> openTracingService
     ) {
         this.clusterId = clusterId;
         this.nodeId = nodeId;
         this.powerFilterRouterFactory = powerFilterRouterFactory;
         this.configurationService = configurationService;
         this.metricsService = metricsService;
+        this.openTracingService = openTracingService;
         this.configurationInformation = configurationInformation;
         this.requestProxyService = requestProxyService;
         this.artifactManager = artifactManager;
@@ -328,6 +340,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                 configurationInformation.updateNodeStatus(clusterId, nodeId, false);
             } else {
                 requestFilterChain = new PowerFilterChain(filterChain, chain, router, metricsService,
+                        openTracingService,
                         Optional.ofNullable(currentSystemModel.get().getReposeCluster().stream()
                                 .filter(cluster -> cluster.getId().equals(clusterId)).findFirst()
                                 .get().getFilters()).map(FilterList::getBypassUriRegex));
@@ -388,6 +401,40 @@ public class PowerFilter extends DelegatingFilterProxy {
         }
 
         MDC.put(TracingKey.TRACING_KEY, traceGUID);
+
+        // OpenTracing
+        ActiveSpan activeSpan = null;
+        if (openTracingService.isPresent()) {
+            // get span context from the header.
+            // TODO: extract header from traceGUID
+            SpanContext context = openTracingService.get().getGlobalTracer().extract(
+                Format.Builtin.TEXT_MAP, new HttpHeaderExtractor(wrappedRequest));
+
+            Tracer.SpanBuilder spanBuilder;
+
+            LOG.debug("Got the span context from request: " + context);
+
+            if (context == null)
+                spanBuilder = openTracingService.get().getGlobalTracer()
+                    .buildSpan(openTracingService.get().getServiceName())
+                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
+            else
+                spanBuilder = openTracingService.get().getGlobalTracer()
+                    .buildSpan(openTracingService.get().getServiceName())
+                    .asChildOf(context)
+                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
+
+            // Start the new span
+            activeSpan = spanBuilder.startActive();
+
+            activeSpan.setOperationName(wrappedRequest.getRequestURI());
+
+            // TODO: inject header into traceGUID
+            openTracingService.get().getGlobalTracer().inject(
+                activeSpan.context(), Format.Builtin.TEXT_MAP,
+                new HttpHeaderInjector(wrappedRequest));
+        }
+
         try {
             try {
                 // ensures that the method name exists
@@ -420,15 +467,31 @@ public class PowerFilter extends DelegatingFilterProxy {
             }
         } catch (InvalidMethodException ime) {
             LOG.debug("{}:{} -- Invalid HTTP method requested: {}", clusterId, nodeId, wrappedRequest.getMethod(), ime);
+            if (activeSpan != null) {
+                activeSpan.setTag(Tags.HTTP_STATUS.getKey(), HttpServletResponse.SC_BAD_REQUEST);
+                activeSpan.close();
+            }
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
         } catch (URISyntaxException use) {
             LOG.debug("{}:{} -- Invalid URI requested: {}", clusterId, nodeId, wrappedRequest.getRequestURI(), use);
+            if (activeSpan != null) {
+                activeSpan.setTag(Tags.HTTP_STATUS.getKey(), HttpServletResponse.SC_BAD_REQUEST);
+                activeSpan.close();
+            }
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
         } catch (Exception ex) {
             LOG.error("{}:{} -- Issue encountered while processing filter chain.", clusterId, nodeId, ex);
+            if (activeSpan != null) {
+                activeSpan.setTag(Tags.HTTP_STATUS.getKey(), HttpServletResponse.SC_BAD_GATEWAY);
+                activeSpan.close();
+            }
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error processing request");
         } catch (Error e) {
             LOG.error("{}:{} -- Error encountered while processing filter chain.", clusterId, nodeId, e);
+            if (activeSpan != null) {
+                activeSpan.setTag(Tags.HTTP_STATUS.getKey(), HttpServletResponse.SC_BAD_GATEWAY);
+                activeSpan.close();
+            }
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error processing request");
             throw e;
         } finally {
@@ -436,6 +499,11 @@ public class PowerFilter extends DelegatingFilterProxy {
             // the response. The method itself enables the wrapper to report a committed response as being so, while
             // still allowing the component which wrapped the response to mutate the response.
             wrappedResponse.uncommit();
+
+            if (activeSpan != null) {
+                activeSpan.setTag(Tags.HTTP_STATUS.getKey(), wrappedResponse.getStatus());
+                activeSpan.close();
+            }
 
             // In the case where we pass/route the request, there is a chance that
             // the response will be committed by an underlying service, outside of repose
