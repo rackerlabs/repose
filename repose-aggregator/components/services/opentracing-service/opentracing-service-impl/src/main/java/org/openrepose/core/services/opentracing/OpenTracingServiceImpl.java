@@ -17,21 +17,18 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.opentracing.impl;
+package org.openrepose.core.services.opentracing;
 
-import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.Tracer;
-import io.opentracing.tag.AbstractTag;
 import io.opentracing.util.GlobalTracer;
 import org.openrepose.core.service.opentracing.config.OpenTracingConfig;
-import org.openrepose.core.service.opentracing.config.TracerType;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.openrepose.commons.config.manager.UpdateListener;
-import org.springframework.beans.factory.annotation.Value;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.annotation.PostConstruct;
@@ -40,7 +37,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -62,7 +58,7 @@ public class OpenTracingServiceImpl implements OpenTracingService {
 
     private boolean initialized = false;
 
-    private static Tracer globalTracer;
+    private String serviceName = null;
 
 
     @Inject
@@ -109,44 +105,18 @@ public class OpenTracingServiceImpl implements OpenTracingService {
     public Tracer getGlobalTracer() {
         // if globalTracer is not set, we got a problem.  We're going to throw a null pointer exception once
         // where this was called but update the enabled flag to false so that we never hit that condition again
-        if (globalTracer == null) {
+        if (!GlobalTracer.isRegistered()) {
             LOG.error("Opentracing configuration is missing.  " +
                 "Check that you have opentracing.cfg.xml properly configured with one of the tracers registered");
             this.isEnabled = false;
         }
 
-        return globalTracer;
-    }
-
-
-    /**
-     * Get current ActiveSpan.  This could be either the root span (initial request), a new span of a parent
-     * active span, or a sibling span (a span that's not a direct descendant or a parent span but is related
-     * to it somehow.
-     * <p/>
-     * For more information, https://github.com/opentracing/specification/blob/master/specification.md
-     * <p/>
-     *
-     * Span will have:
-     *
-     * * Operation name
-     * * Start timestamp
-     * * Finish timestamp
-     * * (optional) Span tags
-     * * (optional) Span logs
-     *
-     * @return a ActiveSpan which corresponds to the clientId parameter
-     */
-    @Override
-    public Scope getActiveSpan() {
-        verifyInitialized();
-        throw new NotImplementedException();
+        return GlobalTracer.get();
     }
 
     @Override
-    public Scope startNewSpan(String spanName, boolean ignoreParent, Map<String, String> tags) {
-        verifyInitialized();
-        throw new NotImplementedException();
+    public String getServiceName() {
+        return this.serviceName;
     }
 
 
@@ -170,6 +140,7 @@ public class OpenTracingServiceImpl implements OpenTracingService {
                 this.isEnabled = false;
         }
 
+        this.serviceName = openTracingConfig.getName();
         this.isEnabled = openTracingConfig.isEnabled();
     }
 

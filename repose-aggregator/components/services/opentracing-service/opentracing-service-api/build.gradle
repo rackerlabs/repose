@@ -1,5 +1,6 @@
 dependencies {
-    compile group: 'io.opentracing', name: 'opentracing-api', version: '0.31.0-RC2'
+    compile "io.opentracing:opentracing-api:0.30.0"
+    compile "io.opentracing:opentracing-util:0.30.0"
 }
 
 

@@ -4,7 +4,6 @@
              enabled="true"
              name="test-repose"
              tracer="jaeger"
-             tracer.host="localhost"
-             tracer.port="9411"
->
-</opentracing>
+             tracer.host="jaeger"
+             tracer.port="5775"
+/>

@@ -5,9 +5,6 @@ dependencies {
     compile "org.slf4j:slf4j-api"
     compile "org.slf4j:jcl-over-slf4j"
     compile "org.springframework:spring-beans"
-    compile "io.opentracing:opentracing-api:0.31.0-RC2"
-    compile "io.opentracing:opentracing-util:0.31.0-RC2"
-    compile "com.uber.jaeger:jaeger-core:0.22.0-RC2"
 
     provided "javax.inject:javax.inject"
 

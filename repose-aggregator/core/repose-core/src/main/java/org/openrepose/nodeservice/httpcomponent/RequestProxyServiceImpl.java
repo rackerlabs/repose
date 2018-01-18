@@ -20,14 +20,10 @@
 package org.openrepose.nodeservice.httpcomponent;
 
 import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableMap;
-import io.opentracing.Scope;
+import io.opentracing.ActiveSpan;
 import io.opentracing.tag.Tags;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
+import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
@@ -51,7 +47,7 @@ import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.services.httpclient.HttpClientContainer;
 import org.openrepose.core.services.httpclient.HttpClientService;
-import org.openrepose.core.services.opentracing.impl.OpenTracingService;
+import org.openrepose.core.services.opentracing.OpenTracingService;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.core.systemmodel.config.ReposeCluster;
 import org.openrepose.core.systemmodel.config.SystemModel;
@@ -72,9 +68,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Named
 @Lazy
@@ -159,14 +153,27 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
                 if (openTracingService.isEnabled()) {
                     LOG.info("DIMA IS ABOUT TO GO CRAZY");
-//                    Scope scope = openTracingService.startNewSpan("request", false,
-//                        (Map<String, String>) ImmutableMap.<String, String>builder().
-//                            put(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).
-//                            put(Tags.COMPONENT.getKey(), "repose")
-//                    );
+
+                    // check that the span didn't start yet
+                    ActiveSpan activeSpan = openTracingService.getGlobalTracer().activeSpan();
+
+                    // set the next span as a child of current span
+                    final ActiveSpan span = openTracingService.getGlobalTracer().buildSpan(
+                        request.getRequestURI())
+                        .asChildOf(activeSpan)
+                        .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
+                        .withTag(Tags.HTTP_METHOD.getKey(), request.getMethod())
+                        .withTag(Tags.HTTP_URL.getKey(), request.getRequestURL().toString())
+                        .startActive();
+
+                    span.setOperationName(request.getRequestURI());
+                    request.setAttribute("RequestProxyService.activeSpanContext", span.context());
+
+                    return executeProxyRequest(httpClientContainer.getHttpClient(),
+                        processedMethod, response, span);
                 }
 
-                return executeProxyRequest(httpClientContainer.getHttpClient(), processedMethod, response);
+                return executeProxyRequest(httpClientContainer.getHttpClient(), processedMethod, response, null);
             }
         } catch (URISyntaxException | HttpException ex) {
             LOG.error("Error processing request", ex);
@@ -178,10 +185,18 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         return -1;
     }
 
-    private int executeProxyRequest(HttpClient httpClient, HttpRequestBase httpMethodProxyRequest, HttpServletResponse response) throws IOException, HttpException {
+    private int executeProxyRequest(HttpClient httpClient, HttpRequestBase httpMethodProxyRequest,
+                                    HttpServletResponse response, ActiveSpan span) throws IOException, HttpException {
         try {
             HttpResponse httpResponse = httpClient.execute(httpMethodProxyRequest);
             int responseCode = httpResponse.getStatusLine().getStatusCode();
+
+            // finish up that span if it exists
+            if (span != null) {
+                span.setTag(Tags.HTTP_STATUS.getKey(), responseCode);
+                span.close();
+            }
+
             HttpComponentResponseProcessor responseProcessor = new HttpComponentResponseProcessor(httpResponse, response, responseCode);
 
             if (responseCode >= HttpServletResponse.SC_MULTIPLE_CHOICES && responseCode < HttpServletResponse.SC_NOT_MODIFIED) {
@@ -192,6 +207,10 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
             return responseCode;
         } catch (ClientProtocolException ex) {
+            if (span != null) {
+                span.setTag(Tags.HTTP_STATUS.getKey(), HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                span.close();
+            }
             if (Throwables.getRootCause(ex) instanceof ReadLimitReachedException) {
                 LOG.error("Error reading request content", ex);
                 response.sendError(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Error reading request content");
