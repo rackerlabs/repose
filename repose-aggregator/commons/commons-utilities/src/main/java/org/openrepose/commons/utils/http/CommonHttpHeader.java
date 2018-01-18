@@ -28,9 +28,6 @@ public class CommonHttpHeader {
     public static final String TRACE_GUID = "X-Trans-Id";
     public static final String REQUEST_ID = "X-Request-Id";
 
-    // Dima
-    public static final String SPAN_GUID = "X-Span-Id";
-
     //Standards
     public static final String X_FORWARDED_FOR = "X-Forwarded-For";
     public static final String X_FORWARDED_HOST = "X-Forwarded-Host";
