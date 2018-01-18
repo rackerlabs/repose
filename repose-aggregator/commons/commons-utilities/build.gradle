@@ -11,6 +11,7 @@ dependencies {
     compile "com.fasterxml.jackson.core:jackson-databind"
     compile "org.apache.httpcomponents:httpclient"
     compile "org.jvnet.jaxb2_commons:jaxb2-basics-runtime"
+    compile "io.opentracing:opentracing-api:0.30.0"
 
     compileOnly "javax.ws.rs:javax.ws.rs-api"
     compileOnly "org.glassfish:javax.servlet" //todo: swap these as part of REP-3950

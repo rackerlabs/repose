@@ -48,9 +48,9 @@ dependencies {
     compile "com.google.guava:guava"
     compile "com.typesafe:config"
     compile "javax.ws.rs:javax.ws.rs-api"
-    compile "io.opentracing:opentracing-api:0.31.0-RC2"
-    compile "io.opentracing:opentracing-util:0.31.0-RC2"
-    compile "com.uber.jaeger:jaeger-core:0.22.0-RC2"
+    compile "io.opentracing:opentracing-api:0.30.0"
+    compile "io.opentracing:opentracing-util:0.30.0"
+    compile "com.uber.jaeger:jaeger-core:0.21.0"
 
     compileOnly "javax.servlet:javax.servlet-api"
 

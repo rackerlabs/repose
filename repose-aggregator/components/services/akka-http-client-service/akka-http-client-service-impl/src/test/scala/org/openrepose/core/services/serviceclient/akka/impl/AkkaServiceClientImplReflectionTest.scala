@@ -34,6 +34,7 @@ import org.openrepose.commons.utils.http.ServiceClientResponse
 import org.openrepose.core.service.httpclient.config.{HttpConnectionPoolConfig, PoolType}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.httpclient.{HttpClientContainer, HttpClientService}
+import org.openrepose.core.services.opentracing.OpenTracingService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSpec}
@@ -56,6 +57,7 @@ class AkkaServiceClientImplReflectionTest extends FunSpec with BeforeAndAfterAll
   var httpEntity: HttpEntity = _
   var configurationService: ConfigurationService = _
   var akkaServiceClientImpl: AkkaServiceClientImpl = _
+  var openTracingService: OpenTracingService = _
 
   override def beforeAll(): Unit = {
     val cacheTtlField = FieldUtils.getDeclaredField(classOf[AkkaServiceClientImpl], "FUTURE_CACHE_TTL", true)
@@ -66,6 +68,7 @@ class AkkaServiceClientImplReflectionTest extends FunSpec with BeforeAndAfterAll
   override def beforeEach(): Unit = {
     configurationService = mock[ConfigurationService]
     httpClientService = mock[HttpClientService]
+    openTracingService = mock[OpenTracingService]
     httpClientContainer = mock[HttpClientContainer]
     httpClient = mock[HttpClient]
     httpResponse = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK")
@@ -79,7 +82,8 @@ class AkkaServiceClientImplReflectionTest extends FunSpec with BeforeAndAfterAll
     when(httpClient.execute(MockitoMatchers.any[HttpUriRequest]))
       .thenReturn(httpResponse)
 
-    akkaServiceClientImpl = new AkkaServiceClientImpl(ConnectionPoolId, httpClientService, configurationService)
+    akkaServiceClientImpl = new AkkaServiceClientImpl(
+      ConnectionPoolId, httpClientService, configurationService, openTracingService)
     akkaServiceClientImpl.configurationUpdated(createHttpConnectionPoolConfig(createPool(default = true)))
   }
 

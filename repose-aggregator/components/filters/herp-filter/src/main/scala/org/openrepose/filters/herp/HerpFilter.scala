@@ -38,6 +38,7 @@ import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.commons.utils.servlet.http.{HeaderInteractor, HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.opentracing.OpenTracingService
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.filters.herp.config.HerpConfig
 import org.slf4j.{Logger, LoggerFactory}
@@ -51,6 +52,7 @@ import scala.util.matching.Regex
 
 @Named
 class HerpFilter @Inject()(configurationService: ConfigurationService,
+                           openTracingService: OpenTracingService,
                            @Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
                            @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String)
   extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
@@ -158,6 +160,10 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
       "responseCode" -> httpServletResponse.getStatus,
       "responseMessage" -> Try(HttpStatus.valueOf(httpServletResponse.getStatus).name).getOrElse("UNKNOWN"),
       "guid" -> Option(stripHeaderParams(TracingHeaderHelper.getTraceGuid(httpServletRequest.getHeader(CommonHttpHeader.TRACE_GUID))))
+        .getOrElse("NO_TRANSACTION_ID").concat(":").concat(java.util.UUID.randomUUID.toString),
+      "tracerId" -> Option(stripHeaderParams(TracingHeaderHelper.getTracerId(
+        httpServletRequest.getHeader(CommonHttpHeader.TRACE_GUID), openTracingService.getTracerHeaderName)),
+      )
         .getOrElse("NO_TRANSACTION_ID").concat(":").concat(java.util.UUID.randomUUID.toString),
       "serviceCode" -> serviceCode,
       "region" -> region,

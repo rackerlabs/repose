@@ -17,27 +17,32 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.commons.utils.http;
+package org.openrepose.core.services.opentracing;
 
-public class CommonHttpHeader {
+import java.util.Map;
+import io.opentracing.Span;
+import io.opentracing.Tracer;
 
-    //Auth specific
-    public static final String AUTH_TOKEN = "X-Auth-Token";
+/**
+ * OpenTracingService - service that integrates OpenTracing standards into Repose
+ */
+public interface OpenTracingService {
 
-    //Tracing
-    public static final String TRACE_GUID = "X-Trans-Id";
-    public static final String REQUEST_ID = "X-Request-Id";
+    /**
+     * Check that the service is enabled.  The tracing will only happen if this is enabled.
+     * While configuration might set the service as enabled, there are a couple instances when this might
+     * get turned back to disabled:
+     *
+     * * Invalid tracer specified
+     * * Unable to connect to tracer
+     *
+     * @return a Boolean which corresponds to the clientId parameter
+     */
+    boolean isEnabled();
 
-    // Dima
-    public static final String SPAN_GUID = "X-Span-Id";
+    Tracer getGlobalTracer();
 
-    //Standards
-    public static final String X_FORWARDED_FOR = "X-Forwarded-For";
-    public static final String X_FORWARDED_HOST = "X-Forwarded-Host";
-    public static final String VIA = "Via";
-    public static final String SERVER = "Server";
+    String getServiceName();
 
-    private CommonHttpHeader() {
-        // This class should not be instantiated.
-    }
+    String getTracerHeaderName();
 }

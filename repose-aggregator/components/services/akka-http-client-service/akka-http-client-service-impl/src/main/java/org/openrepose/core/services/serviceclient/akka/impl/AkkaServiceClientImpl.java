@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,6 +30,9 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import io.opentracing.ActiveSpan;
+import io.opentracing.propagation.Format;
+import io.opentracing.tag.Tags;
 import org.openrepose.commons.config.manager.UpdateFailedException;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.http.ServiceClient;
@@ -38,6 +41,8 @@ import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig;
 import org.openrepose.core.service.httpclient.config.PoolType;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.httpclient.HttpClientService;
+import org.openrepose.core.services.opentracing.HttpHeaderInjector;
+import org.openrepose.core.services.opentracing.OpenTracingService;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException;
 import org.slf4j.Logger;
@@ -45,6 +50,7 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 
 import javax.ws.rs.core.MediaType;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -63,6 +69,7 @@ public class AkkaServiceClientImpl implements AkkaServiceClient, UpdateListener<
     private final String connectionPoolId;
     private final ServiceClient serviceClient;
     private final ConfigurationService configurationService;
+    private final OpenTracingService openTracingService;
     private final Cache<Object, Future> quickFutureCache;
 
     private boolean initialized = false;
@@ -73,10 +80,12 @@ public class AkkaServiceClientImpl implements AkkaServiceClient, UpdateListener<
 
     public AkkaServiceClientImpl(String connectionPoolId,
                                  HttpClientService httpClientService,
-                                 ConfigurationService configurationService) {
+                                 ConfigurationService configurationService,
+                                 OpenTracingService openTracingService) {
         this.connectionPoolId = connectionPoolId;
         this.serviceClient = new ServiceClient(connectionPoolId, httpClientService);
         this.configurationService = configurationService;
+        this.openTracingService = openTracingService;
 
         Config customConf = ConfigFactory.load();
         Config baseConf = ConfigFactory.defaultReference();
@@ -103,15 +112,38 @@ public class AkkaServiceClientImpl implements AkkaServiceClient, UpdateListener<
 
     @Override
     public ServiceClientResponse get(String hashKey, String uri, Map<String, String> headers, boolean checkCache) throws AkkaServiceClientException {
-        AuthGetRequest authGetRequest = new AuthGetRequest(hashKey, uri, headers);
+
+        // get active span
+        ActiveSpan parentSpan = openTracingService.getGlobalTracer().activeSpan();
+
         try {
             Timeout timeout = new Timeout(socketTimeout + CONNECTION_TIMEOUT_BUFFER_MILLIS, TimeUnit.MILLISECONDS);
-            Future<ServiceClientResponse> future = getFuture(authGetRequest, timeout, checkCache);
+            Future<ServiceClientResponse> future;
+
+            try (ActiveSpan span = openTracingService.getGlobalTracer().buildSpan(uri)
+                .asChildOf(parentSpan)
+                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
+                .withTag(Tags.HTTP_URL.getKey(), uri)
+                .withTag(Tags.HTTP_METHOD.getKey(), "GET")
+                .startActive()) {
+
+                // this needs to be better ... however, it looks like headers are an immutable map
+                Map<String, String> copiedHeaderMap = new HashMap<>(headers.size() + 1);
+                copiedHeaderMap.putAll(headers);
+
+                // adds the trace guid (tracer specific)
+                openTracingService.getGlobalTracer().inject(
+                    span.context(), Format.Builtin.TEXT_MAP,
+                    new HttpHeaderInjector(copiedHeaderMap));
+
+                AuthGetRequest authGetRequest = new AuthGetRequest(hashKey, uri, copiedHeaderMap);
+                future = getFuture(authGetRequest, timeout, checkCache);
+            }
             return Await.result(future, timeout.duration());
         } catch (Exception e) {
-            LOG.error("Error acquiring value from akka (GET) or the cache. Reason: {}", e.getLocalizedMessage());
+            LOG.error("Error acquiring value from akka (POST) or the cache. Reason: {}", e.getLocalizedMessage());
             LOG.trace("", e);
-            throw new AkkaServiceClientException("Error acquiring value from akka (GET) or the cache.", e);
+            throw new AkkaServiceClientException("Error acquiring value from akka (POST) or the cache.", e);
         }
     }
 
@@ -122,10 +154,34 @@ public class AkkaServiceClientImpl implements AkkaServiceClient, UpdateListener<
 
     @Override
     public ServiceClientResponse post(String hashKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType, boolean checkCache) throws AkkaServiceClientException {
-        AuthPostRequest authPostRequest = new AuthPostRequest(hashKey, uri, headers, payload, contentMediaType);
+
+        // get active span
+        ActiveSpan parentSpan = openTracingService.getGlobalTracer().activeSpan();
+
         try {
             Timeout timeout = new Timeout(socketTimeout + CONNECTION_TIMEOUT_BUFFER_MILLIS, TimeUnit.MILLISECONDS);
-            Future<ServiceClientResponse> future = getFuture(authPostRequest, timeout, checkCache);
+            Future<ServiceClientResponse> future;
+
+            try (ActiveSpan span = openTracingService.getGlobalTracer().buildSpan(uri)
+                .asChildOf(parentSpan)
+                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
+                .withTag(Tags.HTTP_URL.getKey(), uri)
+                .withTag(Tags.HTTP_METHOD.getKey(), "POST")
+                .startActive()) {
+
+                // this needs to be better ... however, it looks like headers are an immutable map
+                Map<String, String> copiedHeaderMap = new HashMap<>(headers.size() + 1);
+                copiedHeaderMap.putAll(headers);
+
+                // adds the trace guid (tracer specific)
+                openTracingService.getGlobalTracer().inject(
+                    span.context(), Format.Builtin.TEXT_MAP,
+                    new HttpHeaderInjector(copiedHeaderMap));
+
+                AuthPostRequest authPostRequest = new AuthPostRequest(
+                    hashKey, uri, copiedHeaderMap, payload, contentMediaType);
+                future = getFuture(authPostRequest, timeout, checkCache);
+            }
             return Await.result(future, timeout.duration());
         } catch (Exception e) {
             LOG.error("Error acquiring value from akka (POST) or the cache. Reason: {}", e.getLocalizedMessage());
