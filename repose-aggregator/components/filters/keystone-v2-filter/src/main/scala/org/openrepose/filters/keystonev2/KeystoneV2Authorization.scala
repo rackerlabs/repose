@@ -74,12 +74,12 @@ object KeystoneV2Authorization extends LazyLogging {
     ).getOrElse(throw UnparseableTenantException("Could not parse tenant from the URI and/or the configured header"))
   }
 
-  def getTenantScopedRoles(config: ValidateTenantType, tenantFromUri: => String, roles: Seq[Role]): Seq[Role] = {
+  def getTenantScopedRoles(config: ValidateTenantType, tenantToMatch: => String, roles: Seq[Role]): Seq[Role] = {
     Option(config) match {
       case Some(validateTenant) if !validateTenant.isEnableLegacyRolesMode =>
         roles.filter(role =>
           role.tenantId.forall(roleTenantId =>
-            roleTenantId.equals(tenantFromUri)))
+            roleTenantId.equals(tenantToMatch)))
       case _ =>
         roles
     }
