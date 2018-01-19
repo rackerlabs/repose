@@ -27,6 +27,10 @@ import org.rackspace.deproxy.MessageChain
 import scaffold.category.Slow
 import spock.lang.Unroll
 
+import static javax.servlet.http.HttpServletResponse.SC_OK
+import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
+
+
 @Category(Slow.class)
 class AuthorizationFilterTest extends ReposeValveTest {
     def static originEndpoint
@@ -72,11 +76,15 @@ class AuthorizationFilterTest extends ReposeValveTest {
             headers: [
                 'X-Auth-Token': fakeIdentityV2Service.client_token,
                 'X-Tenant-ID': fakeIdentityV2Service.client_tenantid])
-        def foundLogs = reposeLogSearch.searchByString("User did not have the required endpoint")
 
         then: "User should receive a 403 FORBIDDEN response"
-        mc.receivedResponse.code == "403"
+        mc.receivedResponse.code as Integer == SC_FORBIDDEN
+
+        and: "The reason should have been logged"
+        def foundLogs = reposeLogSearch.searchByString("User did not have the required endpoint")
         foundLogs.size() == 1
+
+        and: "It should have never made it to the origin service"
         mc.handlings.size() == 0
     }
 
@@ -91,11 +99,15 @@ class AuthorizationFilterTest extends ReposeValveTest {
             headers: [
                 'X-Auth-Token': fakeIdentityV2Service.client_token,
                 'X-Tenant-ID': fakeIdentityV2Service.client_tenantid])
-        def foundLogs = reposeLogSearch.searchByString("User did not have the required endpoint")
 
         then: "User should receive a 403 FORBIDDEN response"
-        mc.receivedResponse.code == "403"
+        mc.receivedResponse.code as Integer == SC_FORBIDDEN
+
+        and: "The reason should have been logged"
+        def foundLogs = reposeLogSearch.searchByString("User did not have the required endpoint")
         foundLogs.size() == 1
+
+        and: "It should have never made it to the origin service"
         mc.handlings.size() == 0
     }
 
@@ -108,7 +120,9 @@ class AuthorizationFilterTest extends ReposeValveTest {
             headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "User should receive a 200 response"
-        mc.receivedResponse.code == "200"
+        mc.receivedResponse.code as Integer == SC_OK
+
+        and: "It should have made it to the origin service"
         mc.handlings.size() == 1
 
         and: "Tenant should be extracted from URI with prefix removed"
@@ -129,7 +143,9 @@ class AuthorizationFilterTest extends ReposeValveTest {
             headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "User should receive a 200 response"
-        mc.receivedResponse.code == "200"
+        mc.receivedResponse.code as Integer == SC_OK
+
+        and: "It should have made it to the origin service"
         mc.handlings.size() == 1
 
         and: "Tenant should be extracted from header"
@@ -146,11 +162,15 @@ class AuthorizationFilterTest extends ReposeValveTest {
             url: reposeEndpoint + "/v2/ss",
             method: 'GET',
             headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
-        def foundLogs = reposeLogSearch.searchByString("User did not have the required endpoint")
 
         then: "User should receive a 403 FORBIDDEN response"
-        mc.receivedResponse.code == "403"
+        mc.receivedResponse.code as Integer == SC_FORBIDDEN
+
+        and: "The reason should have been logged"
+        def foundLogs = reposeLogSearch.searchByString("User did not have the required endpoint")
         foundLogs.size() == 1
+
+        and: "It should have never made it to the origin service"
         mc.handlings.size() == 0
 
         where:
@@ -169,7 +189,9 @@ class AuthorizationFilterTest extends ReposeValveTest {
             headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "should return all roles"
-        mc.receivedResponse.code == "200"
+        mc.receivedResponse.code as Integer == SC_OK
+
+        and: "It should have made it to the origin service"
         mc.handlings.size() == 1
 
         where:
