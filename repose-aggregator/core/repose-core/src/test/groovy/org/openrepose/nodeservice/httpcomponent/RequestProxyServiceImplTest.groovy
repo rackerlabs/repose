@@ -36,6 +36,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.httpclient.HttpClientContainer
 import org.openrepose.core.services.httpclient.HttpClientService
+import org.openrepose.core.services.opentracing.OpenTracingService
 import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.core.systemmodel.config.TracingHeaderConfig
 import org.springframework.mock.web.MockHttpServletRequest
@@ -50,6 +51,7 @@ class RequestProxyServiceImplTest extends Specification {
     RequestProxyServiceImpl requestProxyService
     HttpClient httpClient
     HttpClientService httpClientService
+    OpenTracingService openTracingService
 
     def setup() {
         httpClient = mock(HttpClient)
@@ -62,6 +64,7 @@ class RequestProxyServiceImplTest extends Specification {
                 mock(ConfigurationService.class),
                 mock(HealthCheckService.class),
                 httpClientService,
+                mock(OpenTracingService.class),
                 "cluster",
                 "node")
     }
