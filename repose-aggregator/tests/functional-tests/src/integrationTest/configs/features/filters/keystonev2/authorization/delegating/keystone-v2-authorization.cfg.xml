@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keystone-v2-authorization xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+    <delegating quality="0.8"/>
+    <tenant-handling>
+        <validate-tenant header-extraction-name="X-Tenant-ID" />
+    </tenant-handling>
+    <require-service-endpoint public-url="http://localhost:${targetPort}/v1" region="ORD" name="OpenStackService" type="service"/>
+</keystone-v2-authorization>
