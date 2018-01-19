@@ -19,9 +19,9 @@
  */
 package org.openrepose.core.services.opentracing;
 
-import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.util.GlobalTracer;
+import org.apache.commons.lang3.NotImplementedException;
 import org.openrepose.core.service.opentracing.config.OpenTracingConfig;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
@@ -29,7 +29,6 @@ import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.slf4j.Logger;
 import org.openrepose.commons.config.manager.UpdateListener;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -37,7 +36,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Map;
 
 /**
  * OpenTracingService - service that integrates OpenTracing standards into Repose
@@ -61,6 +59,11 @@ public class OpenTracingServiceImpl implements OpenTracingService {
     private String serviceName = null;
 
 
+    /**
+     * Initial constructor
+     * @param configurationService
+     * @param healthCheckService
+     */
     @Inject
     public OpenTracingServiceImpl(
         ConfigurationService configurationService,
@@ -77,13 +80,18 @@ public class OpenTracingServiceImpl implements OpenTracingService {
     public void init() {
         LOG.debug("Initializing OpenTracingService");
 
-        healthCheckServiceProxy.reportIssue(OPENTRACING_SERVICE_REPORT, "OpenTracing Service Configuration Error", Severity.BROKEN);
+        healthCheckServiceProxy.reportIssue(
+            OPENTRACING_SERVICE_REPORT, "OpenTracing Service Configuration Error",
+            Severity.BROKEN);
         URL xsdURL = getClass().getResource("/META-INF/schema/config/opentracing.xsd");
         configurationService.subscribeTo(DEFAULT_CONFIG_NAME, xsdURL, configurationListener, OpenTracingConfig.class);
 
         try {
-            // this is fine only if we don't want to use opentracing.  By default it's turned off, but we'll have problems if it's on
+
+            LOG.trace("Check to see if opentracing is initialized.  If not, it's ok.");
             if (!configurationListener.isInitialized() && !configurationService.getResourceResolver().resolve(DEFAULT_CONFIG_NAME).exists()) {
+                LOG.trace("this is fine only if we don't want to use opentracing.  " +
+                    "By default it's turned off, but we'll have problems if it's on and the configuration is not correct.");
                 healthCheckServiceProxy.resolveIssue(OPENTRACING_SERVICE_REPORT);
             }
         } catch (IOException io) {
@@ -103,11 +111,11 @@ public class OpenTracingServiceImpl implements OpenTracingService {
 
     @Override
     public Tracer getGlobalTracer() {
-        // if globalTracer is not set, we got a problem.  We're going to throw a null pointer exception once
-        // where this was called but update the enabled flag to false so that we never hit that condition again
+        verifyInitialized();
         if (!GlobalTracer.isRegistered()) {
             LOG.error("Opentracing configuration is missing.  " +
                 "Check that you have opentracing.cfg.xml properly configured with one of the tracers registered");
+            LOG.trace("If we don't disable it, we would through an NPE wherever the tracer is called.  Don't do that.");
             this.isEnabled = false;
         }
 
@@ -119,14 +127,20 @@ public class OpenTracingServiceImpl implements OpenTracingService {
         return this.serviceName;
     }
 
+    @Override
+    public String getTracerHeaderName() {
+        throw new NotImplementedException("Not yet implemented.");
+    }
 
     public void configure(OpenTracingConfig openTracingConfig) {
+        LOG.trace("get the tracer from configuration");
         switch (openTracingConfig.getTracer()) {
             case JAEGER:
+                LOG.debug("register jaeger tracer");
                 GlobalTracer.register(
                     new com.uber.jaeger.Configuration(
                         openTracingConfig.getName(),
-                        new com.uber.jaeger.Configuration.SamplerConfiguration("const", 1),
+                        new com.uber.jaeger.Configuration.SamplerConfiguration("const", 1), // default configuration.  needs to read from config
                         new com.uber.jaeger.Configuration.ReporterConfiguration(
                             true,  // logSpans
                             openTracingConfig.getTracerHost(),

@@ -5,13 +5,19 @@ dependencies {
     compile "org.slf4j:slf4j-api"
     compile "org.slf4j:jcl-over-slf4j"
     compile "org.springframework:spring-beans"
+    compile "io.opentracing:opentracing-api:0.30.0"
+    compile "io.opentracing:opentracing-util:0.30.0"
+    compile "com.uber.jaeger:jaeger-core:0.21.0"
 
     provided "javax.inject:javax.inject"
 
     testCompile "junit:junit:4.12"
     testCompile "org.hamcrest:hamcrest-all"
+    testCompile "org.mockito:mockito-all"
     testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.eclipse.jetty:jetty-server"
-    testCompile "org.mockito:mockito-all"
     testCompile "xerces:xerces-xsd11"
+    testCompile "org.spockframework:spock-core"
+    testCompile "io.opentracing:opentracing-mock:0.30.0"
+
 }
