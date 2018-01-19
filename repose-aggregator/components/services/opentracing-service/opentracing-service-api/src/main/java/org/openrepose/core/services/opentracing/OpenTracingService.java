@@ -19,8 +19,6 @@
  */
 package org.openrepose.core.services.opentracing;
 
-import java.util.Map;
-import io.opentracing.Span;
 import io.opentracing.Tracer;
 
 /**
@@ -40,9 +38,23 @@ public interface OpenTracingService {
      */
     boolean isEnabled();
 
+    /**
+     * Retrieves the global tracer singleton.  This is configured at startup via opentracing.cfg.xml tracer
+     * specific configuration.  If an invalid tracer is provided, the tracer will not be available.
+     * @return io.opentracing.Tracer object that contains Tracer implementation information
+     */
     Tracer getGlobalTracer();
 
+    /**
+     * Retrieves service name.  This is specific for every repose implementation and defines the namespace
+     * for your service.  It should be unique in your company/flow.
+     * @return String object that contains your service name
+     */
     String getServiceName();
 
+    /**
+     * Retrieves tracer header.  This is tracer implementation specific
+     * @return Returns header name for your tracer implementation
+     */
     String getTracerHeaderName();
 }

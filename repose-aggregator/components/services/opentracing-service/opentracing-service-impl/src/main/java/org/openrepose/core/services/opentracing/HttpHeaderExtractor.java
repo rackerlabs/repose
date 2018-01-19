@@ -23,7 +23,6 @@ import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
