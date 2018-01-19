@@ -6,16 +6,15 @@
             header-extraction-name="X-Tenant-ID"
             strip-token-tenant-prefixes="/foo:/bar-"
             enable-legacy-roles-mode="false">
-            <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
-            <uri-extraction-regex>.*/clients/([-|\w]+)/?.*</uri-extraction-regex>
+            <uri-extraction-regex>.*/extract/([-|\w]+)/?.*</uri-extraction-regex>
         </validate-tenant>
         <send-tenant-id-quality
-            default-tenant-quality="0.9"
+            default-tenant-quality="0.8"
             uri-tenant-quality="0.6"
             roles-tenant-quality="0.4"
         />
     </tenant-handling>
-    <require-service-endpoint public-url="http://localhost:${targetPort}/v1/appended" region="ORD" name="OpenStackService" type="service"/>
+    <require-service-endpoint public-url="http://localhost:${targetPort}/v1" region="ORD" name="OpenStackService" type="service"/>
     <white-list>
         <uri-regex>/application\.wadl$</uri-regex>
     </white-list>

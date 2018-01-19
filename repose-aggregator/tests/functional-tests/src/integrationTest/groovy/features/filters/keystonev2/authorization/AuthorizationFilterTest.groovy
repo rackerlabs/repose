@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.keystonev2.authorizationonly.serviceresponse
+package features.filters.keystonev2.authorization
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
@@ -31,7 +31,6 @@ import spock.lang.Unroll
 class AuthorizationFilterTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
-    def static token
 
     static MockIdentityV2Service fakeIdentityV2Service
 
@@ -46,26 +45,33 @@ class AuthorizationFilterTest extends ReposeValveTest {
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
-        identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-            'identity service', null, fakeIdentityV2Service.handler)
+        identityEndpoint = deproxy.addEndpoint(
+            properties.identityPort,
+            'identity service',
+            null,
+            fakeIdentityV2Service.handler)
     }
 
     def setup() {
         fakeIdentityV2Service.resetDefaultParameters()
         fakeIdentityV2Service.resetHandlers()
-        fakeIdentityV2Service.appendedflag = true
-        token = UUID.randomUUID().toString()
-        fakeIdentityV2Service.client_token = token
+        fakeIdentityV2Service.client_tenantid = UUID.randomUUID().toString()
+        fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
         fakeIdentityV2Service.originServicePort = properties.targetPort
         reposeLogSearch.cleanLog()
     }
 
-    def "When user is not authorized should receive a 403 FORBIDDEN response"() {
+    def "User without valid service endpoint Port should receive a 403 FORBIDDEN response "() {
         given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
         fakeIdentityV2Service.originServicePort = 99999
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/appended/" + fakeIdentityV2Service.client_tenantid + "/ss", method: 'GET', headers: ['X-Auth-Token': token])
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint + "/v2/ss",
+            method: 'GET',
+            headers: [
+                'X-Auth-Token': fakeIdentityV2Service.client_token,
+                'X-Tenant-ID': fakeIdentityV2Service.client_tenantid])
         def foundLogs = reposeLogSearch.searchByString("User did not have the required endpoint")
 
         then: "User should receive a 403 FORBIDDEN response"
@@ -74,12 +80,17 @@ class AuthorizationFilterTest extends ReposeValveTest {
         mc.handlings.size() == 0
     }
 
-    def "User's invalid service endpoint should receive a 403 FORBIDDEN response "() {
+    def "User without valid service endpoint URL should receive a 403 FORBIDDEN response "() {
         given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
         fakeIdentityV2Service.endpointUrl = "invalidurl"
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/appended/" + fakeIdentityV2Service.client_tenantid + "/ss", method: 'GET', headers: ['X-Auth-Token': token])
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint + "/v2/ss",
+            method: 'GET',
+            headers: [
+                'X-Auth-Token': fakeIdentityV2Service.client_token,
+                'X-Tenant-ID': fakeIdentityV2Service.client_tenantid])
         def foundLogs = reposeLogSearch.searchByString("User did not have the required endpoint")
 
         then: "User should receive a 403 FORBIDDEN response"
@@ -88,34 +99,53 @@ class AuthorizationFilterTest extends ReposeValveTest {
         mc.handlings.size() == 0
     }
 
-    def "Allow User's the endpoint configured in their endpoints list with tenant appended"() {
+    @Unroll
+    def "User sends the prefixed tenant (#tenantPrefix) in the URI should succeed and be extracted"() {
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/appended/" + fakeIdentityV2Service.client_tenantid + "/ss", method: 'GET', headers: ['X-Auth-Token': token])
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint + "/v2/extract/" + tenantPrefix + fakeIdentityV2Service.client_tenantid + "/ss",
+            method: 'GET',
+            headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "User should receive a 200 response"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
+
+        and: "Tenant should be extracted from URI with prefix removed"
+        mc.handlings[0].request.headers.findAll("x-tenant-id").toString().contains(fakeIdentityV2Service.client_tenantid + ";q=0.6")
+
+        where:
+        tenantPrefix << ["foo:", "bar-", ""]
     }
 
-    def "Not Allow User's the endpoint configured in their endpoints list without tenant appended"() {
-        given: "IdentityService is configured without tenant appended"
-        fakeIdentityV2Service.appendedflag = false
+    def "User with the endpoint configured in their endpoints list with tenant appended"() {
+        given: "IdentityService is configured with tenant appended"
+        fakeIdentityV2Service.appendedflag = true
 
-        when: "User sends a request through repose without append"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/appended/" + fakeIdentityV2Service.client_tenantid + "/ss", method: 'GET', headers: ['X-Auth-Token': token])
+        when: "User sends a request through repose"
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint + "/v1/appended/" + fakeIdentityV2Service.client_tenantid + "/ss",
+            method: 'GET',
+            headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
-        then: "User should receive a 403 response"
-        mc.receivedResponse.code == "403"
-        mc.handlings.size() == 0
+        then: "User should receive a 200 response"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        and: "Tenant should be extracted from header"
+        mc.handlings[0].request.headers.findAll("x-tenant-id").toString().contains(fakeIdentityV2Service.client_tenantid + ";q=0.6")
     }
 
-    @Unroll("User does not have right region: #serviceRegion")
-    def "When user service endpoint doesn't have right region should receive a 403 FORBIDDEN response"() {
+    @Unroll
+    def "User with incorrect region (#serviceRegion) on a configured endpoint should receive a 403 FORBIDDEN response"() {
         given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
         fakeIdentityV2Service.region = serviceRegion
 
         when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/v1/appended/" + fakeIdentityV2Service.client_tenantid + "/ss", method: 'GET', headers: ['X-Auth-Token': token])
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint + "/v2/ss",
+            method: 'GET',
+            headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
         def foundLogs = reposeLogSearch.searchByString("User did not have the required endpoint")
 
         then: "User should receive a 403 FORBIDDEN response"
@@ -125,5 +155,24 @@ class AuthorizationFilterTest extends ReposeValveTest {
 
         where:
         serviceRegion << ["DFW", "RegionOne", null]
+    }
+
+    @Unroll
+    def "Tenanted with pre-authorize role #role"() {
+        given: "IdentityService is configured with allowed endpoints that will differ from the user's requested endpoint"
+        fakeIdentityV2Service.service_admin_role = role
+
+        when: "User passes a request through repose with valid token"
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint + "/v2/ss",
+            method: 'GET',
+            headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then: "should return all roles"
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+
+        where:
+        role << ["serviceAdmin", "racker"]
     }
 }
