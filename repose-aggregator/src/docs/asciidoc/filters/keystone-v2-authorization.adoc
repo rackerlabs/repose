@@ -22,6 +22,10 @@ The following headers are created:
 * `X-Tenant-Id` - The Tenant ID's for the user.
   This header will only be added if this filter is configured to validate tenants.
   If this header already exists, this filter will either add the matching tenant to the header value or replace the header value with just the matching tenant depending on how this filter is configured.
+* `X-Roles` - Identifies roles (e.g., `admin`, `user`).
+  This header will be always be added with a value of all of the user's roles associated with the validated tenant.
+  If no tenant has been validated, then all user roles will be added to this header.
+  If this header already exists, it will be replaced.
 * `X-Identity-Status` - Indicates if identity has been confirmed.
   Identity is considered to be confirmed if authorization succeeds.
   Possible values are `Confirmed` and `Indeterminate`.

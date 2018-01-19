@@ -23,14 +23,15 @@ import java.util.Base64
 import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_INTERNAL_SERVER_ERROR, SC_UNAUTHORIZED}
 
 import org.junit.runner.RunWith
-import org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID
+import org.openrepose.commons.utils.http.OpenStackServiceHeader
+import org.openrepose.commons.utils.http.OpenStackServiceHeader.{ROLES, TENANT_ID}
 import org.openrepose.commons.utils.http.PowerApiHeader.X_CATALOG
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.Reject
 import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{InvalidTenantException, UnauthorizedEndpointException, UnparseableTenantException}
 import org.openrepose.filters.keystonev2.KeystoneV2AuthorizationFilter.{InvalidEndpointsException, InvalidTokenException, MissingEndpointsException, MissingTokenException}
-import org.openrepose.filters.keystonev2.KeystoneV2Common.{Endpoint, TokenRequestAttributeName}
+import org.openrepose.filters.keystonev2.KeystoneV2Common.{Endpoint, Role, TokenRequestAttributeName}
 import org.openrepose.filters.keystonev2.KeystoneV2TestCommon.createValidToken
 import org.openrepose.filters.keystonev2.config.TenantHandlingType.SendTenantIdQuality
 import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, TenantHandlingType, ValidateTenantType}
@@ -205,6 +206,28 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
       keystoneV2AuthorizationFilter.scopeTenantIdHeader(request, matchedTenantId)
 
       request.getHeadersScala(TENANT_ID) should contain only matchedTenantId
+    }
+  }
+
+  describe("scopeRolesHeader") {
+    it(s"should set the $ROLES header to the provided roles") {
+      val tokenRoles = Seq(Role("one"), Role("two"))
+      val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
+
+      keystoneV2AuthorizationFilter.scopeRolesHeader(request, createValidToken(roles = tokenRoles))
+
+      request.getSplittableHeaderScala(ROLES) should contain only (tokenRoles.map(_.name): _*)
+    }
+
+    it(s"should replace existing $ROLES header values") {
+      val requestRoles = Seq("one", "two")
+      val tokenRoles = Seq(Role("three"), Role("four"))
+      val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
+      requestRoles.foreach(request.appendHeader(ROLES, _))
+
+      keystoneV2AuthorizationFilter.scopeRolesHeader(request, createValidToken(roles = tokenRoles))
+
+      request.getSplittableHeaderScala(ROLES) should contain only (tokenRoles.map(_.name): _*)
     }
   }
 

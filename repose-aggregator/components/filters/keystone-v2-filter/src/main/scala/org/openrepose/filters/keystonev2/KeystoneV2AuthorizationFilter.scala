@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 
 import com.fasterxml.jackson.core.JsonProcessingException
-import org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID
+import org.openrepose.commons.utils.http.OpenStackServiceHeader.{ROLES, TENANT_ID}
 import org.openrepose.commons.utils.http.PowerApiHeader.X_CATALOG
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
@@ -61,8 +61,9 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
     // TODO: Stop using request attributes. Stop using the token. Just use the tenant to roles map, tenant ids, and roles headers.
     getToken(request) flatMap { token =>
       doAuthorization(configuration, request, token, getEndpoints(request)) match {
-        case AuthorizationPassed(_, Some(matchedTenant)) =>
+        case AuthorizationPassed(scopedToken, Some(matchedTenant)) =>
           scopeTenantIdHeader(request, matchedTenant)
+          scopeRolesHeader(request, scopedToken)
           Success(Unit)
         case AuthorizationPassed(_, None) => Success(Unit)
         case AuthorizationFailed(_, _, exception) => Failure(exception)
@@ -109,6 +110,11 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
       case (false, Some(quality)) => request.replaceHeader(TENANT_ID, matchedTenant, quality)
       case (false, None) => request.replaceHeader(TENANT_ID, matchedTenant)
     }
+  }
+
+  def scopeRolesHeader(request: HttpServletRequestWrapper, scopedToken: ValidToken): Unit = {
+    request.removeHeader(ROLES)
+    scopedToken.roles.map(_.name).foreach(request.appendHeader(ROLES, _))
   }
 }
 
