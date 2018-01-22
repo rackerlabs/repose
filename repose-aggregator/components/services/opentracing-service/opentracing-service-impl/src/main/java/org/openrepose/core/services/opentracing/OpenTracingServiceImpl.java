@@ -21,16 +21,15 @@ package org.openrepose.core.services.opentracing;
 
 import com.uber.jaeger.Configuration;
 import io.opentracing.Tracer;
-import io.opentracing.propagation.Format;
 import io.opentracing.util.GlobalTracer;
 import org.apache.commons.lang3.NotImplementedException;
+import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.service.opentracing.config.OpenTracingConfig;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.slf4j.Logger;
-import org.openrepose.commons.config.manager.UpdateListener;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
