@@ -40,13 +40,11 @@ import org.openrepose.core.services.healthcheck.Severity
 
 import java.lang.reflect.Field
 
-import static org.hamcrest.Matchers.nullValue
-import static org.mockito.Matchers.any
-import static org.mockito.Matchers.anyString
 import static org.hamcrest.Matchers.instanceOf
 import static org.junit.Assert.*
+import static org.mockito.Matchers.any
+import static org.mockito.Matchers.anyString
 import static org.mockito.Mockito.*
-
 
 class OpenTracingServiceImplTest{
 

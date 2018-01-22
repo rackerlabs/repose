@@ -35,6 +35,7 @@ import io.opentracing.propagation.Format;
 import io.opentracing.tag.Tags;
 import org.openrepose.commons.config.manager.UpdateFailedException;
 import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig;
@@ -113,37 +114,43 @@ public class AkkaServiceClientImpl implements AkkaServiceClient, UpdateListener<
     @Override
     public ServiceClientResponse get(String hashKey, String uri, Map<String, String> headers, boolean checkCache) throws AkkaServiceClientException {
 
-        // get active span
-        ActiveSpan parentSpan = openTracingService.getGlobalTracer().activeSpan();
 
         try {
             Timeout timeout = new Timeout(socketTimeout + CONNECTION_TIMEOUT_BUFFER_MILLIS, TimeUnit.MILLISECONDS);
             Future<ServiceClientResponse> future;
 
-            try (ActiveSpan span = openTracingService.getGlobalTracer().buildSpan(uri)
-                .asChildOf(parentSpan)
-                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
-                .withTag(Tags.HTTP_URL.getKey(), uri)
-                .withTag(Tags.HTTP_METHOD.getKey(), "GET")
-                .startActive()) {
+            if (openTracingService.isEnabled()) {
+                // get active span
+                ActiveSpan parentSpan = openTracingService.getGlobalTracer().activeSpan();
 
-                // this needs to be better ... however, it looks like headers are an immutable map
-                Map<String, String> copiedHeaderMap = new HashMap<>(headers.size() + 1);
-                copiedHeaderMap.putAll(headers);
+                try (ActiveSpan span = openTracingService.getGlobalTracer().buildSpan(uri)
+                    .asChildOf(parentSpan)
+                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
+                    .withTag(Tags.HTTP_URL.getKey(), uri)
+                    .withTag(Tags.HTTP_METHOD.getKey(), "GET")
+                    .startActive()) {
 
-                // adds the trace guid (tracer specific)
-                openTracingService.getGlobalTracer().inject(
-                    span.context(), Format.Builtin.TEXT_MAP,
-                    new TraceGUIDInjector(copiedHeaderMap));
+                    // this needs to be better ... however, it looks like headers are an immutable map
+                    Map<String, String> copiedHeaderMap = new HashMap<>(headers.size() + 1);
+                    copiedHeaderMap.putAll(headers);
 
-                AuthGetRequest authGetRequest = new AuthGetRequest(hashKey, uri, copiedHeaderMap);
+                    // adds the trace guid (tracer specific)
+                    openTracingService.getGlobalTracer().inject(
+                        span.context(), Format.Builtin.TEXT_MAP,
+                        new TraceGUIDInjector(copiedHeaderMap, CommonHttpHeader.TRACE_GUID));
+
+                    AuthGetRequest authGetRequest = new AuthGetRequest(hashKey, uri, copiedHeaderMap);
+                    future = getFuture(authGetRequest, timeout, checkCache);
+                }
+            } else {
+                AuthGetRequest authGetRequest = new AuthGetRequest(hashKey, uri, headers);
                 future = getFuture(authGetRequest, timeout, checkCache);
             }
             return Await.result(future, timeout.duration());
         } catch (Exception e) {
-            LOG.error("Error acquiring value from akka (POST) or the cache. Reason: {}", e.getLocalizedMessage());
+            LOG.error("Error acquiring value from akka (GET) or the cache. Reason: {}", e.getLocalizedMessage());
             LOG.trace("", e);
-            throw new AkkaServiceClientException("Error acquiring value from akka (POST) or the cache.", e);
+            throw new AkkaServiceClientException("Error acquiring value from akka (GET) or the cache.", e);
         }
     }
 
@@ -154,34 +161,40 @@ public class AkkaServiceClientImpl implements AkkaServiceClient, UpdateListener<
 
     @Override
     public ServiceClientResponse post(String hashKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType, boolean checkCache) throws AkkaServiceClientException {
-
-        // get active span
-        ActiveSpan parentSpan = openTracingService.getGlobalTracer().activeSpan();
-
         try {
             Timeout timeout = new Timeout(socketTimeout + CONNECTION_TIMEOUT_BUFFER_MILLIS, TimeUnit.MILLISECONDS);
             Future<ServiceClientResponse> future;
 
-            try (ActiveSpan span = openTracingService.getGlobalTracer().buildSpan(uri)
-                .asChildOf(parentSpan)
-                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
-                .withTag(Tags.HTTP_URL.getKey(), uri)
-                .withTag(Tags.HTTP_METHOD.getKey(), "POST")
-                .startActive()) {
+            if (openTracingService.isEnabled()) {
+                // get active span
+                ActiveSpan parentSpan = openTracingService.getGlobalTracer().activeSpan();
 
-                // this needs to be better ... however, it looks like headers are an immutable map
-                Map<String, String> copiedHeaderMap = new HashMap<>(headers.size() + 1);
-                copiedHeaderMap.putAll(headers);
+                try (ActiveSpan span = openTracingService.getGlobalTracer().buildSpan(uri)
+                    .asChildOf(parentSpan)
+                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
+                    .withTag(Tags.HTTP_URL.getKey(), uri)
+                    .withTag(Tags.HTTP_METHOD.getKey(), "POST")
+                    .startActive()) {
 
-                // adds the trace guid (tracer specific)
-                openTracingService.getGlobalTracer().inject(
-                    span.context(), Format.Builtin.TEXT_MAP,
-                    new TraceGUIDInjector(copiedHeaderMap));
+                    // this needs to be better ... however, it looks like headers are an immutable map
+                    Map<String, String> copiedHeaderMap = new HashMap<>(headers.size() + 1);
+                    copiedHeaderMap.putAll(headers);
 
+                    // adds the trace guid (tracer specific)
+                    openTracingService.getGlobalTracer().inject(
+                        span.context(), Format.Builtin.TEXT_MAP,
+                        new TraceGUIDInjector(copiedHeaderMap, CommonHttpHeader.TRACE_GUID));
+
+                    AuthPostRequest authPostRequest = new AuthPostRequest(
+                        hashKey, uri, copiedHeaderMap, payload, contentMediaType);
+                    future = getFuture(authPostRequest, timeout, checkCache);
+                }
+            } else {
                 AuthPostRequest authPostRequest = new AuthPostRequest(
-                    hashKey, uri, copiedHeaderMap, payload, contentMediaType);
+                    hashKey, uri, headers, payload, contentMediaType);
                 future = getFuture(authPostRequest, timeout, checkCache);
             }
+
             return Await.result(future, timeout.duration());
         } catch (Exception e) {
             LOG.error("Error acquiring value from akka (POST) or the cache. Reason: {}", e.getLocalizedMessage());
