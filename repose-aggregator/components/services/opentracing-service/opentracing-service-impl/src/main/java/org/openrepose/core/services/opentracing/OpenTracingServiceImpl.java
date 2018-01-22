@@ -19,7 +19,9 @@
  */
 package org.openrepose.core.services.opentracing;
 
+import com.uber.jaeger.Configuration;
 import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
 import io.opentracing.util.GlobalTracer;
 import org.apache.commons.lang3.NotImplementedException;
 import org.openrepose.core.service.opentracing.config.OpenTracingConfig;
@@ -106,16 +108,28 @@ public class OpenTracingServiceImpl implements OpenTracingService {
 
     @Override
     public boolean isEnabled(){
+        // this is done because the issue may have been resolved so we try again.
+        if (healthCheckServiceProxy.getDiagnosis(OPENTRACING_SERVICE_REPORT) != null &&
+            healthCheckServiceProxy.getDiagnosis(OPENTRACING_SERVICE_REPORT).getLevel() == Severity.BROKEN)
+            healthCheckServiceProxy.resolveIssue(OPENTRACING_SERVICE_REPORT);
         return this.isEnabled;
     }
 
     @Override
     public Tracer getGlobalTracer() {
-        verifyInitialized();
-        if (!GlobalTracer.isRegistered()) {
-            LOG.error("Opentracing configuration is missing.  " +
-                "Check that you have opentracing.cfg.xml properly configured with one of the tracers registered");
-            LOG.trace("If we don't disable it, we would through an NPE wherever the tracer is called.  Don't do that.");
+        LOG.trace("Retrieve global tracer.");
+        try {
+            verifyInitialized();
+
+            if (!GlobalTracer.isRegistered()) {
+                LOG.error("Opentracing configuration is missing.  " +
+                    "Check that you have opentracing.cfg.xml properly configured with one of the tracers registered");
+                LOG.trace("If we don't disable it, we would through an NPE wherever the tracer is called.  Don't do that.");
+                this.isEnabled = false;
+            }
+        } catch (IllegalStateException ise) {
+            LOG.error("Opentracing was not initialized.  We will turn this off.  Check the logs for the issue. " +
+                "For example, an invalid tracer host/port");
             this.isEnabled = false;
         }
 
@@ -136,18 +150,20 @@ public class OpenTracingServiceImpl implements OpenTracingService {
         LOG.trace("get the tracer from configuration");
         switch (openTracingConfig.getTracer()) {
             case JAEGER:
-                LOG.debug("register jaeger tracer");
-                GlobalTracer.register(
-                    new com.uber.jaeger.Configuration(
-                        openTracingConfig.getName(),
-                        new com.uber.jaeger.Configuration.SamplerConfiguration("const", 1), // default configuration.  needs to read from config
-                        new com.uber.jaeger.Configuration.ReporterConfiguration(
-                            true,  // logSpans
-                            openTracingConfig.getTracerHost(),
-                            openTracingConfig.getTracerPort(),
-                            openTracingConfig.getFlushIntervalMs(),
-                            openTracingConfig.getMaxBufferSize())
-                    ).getTracer());
+                LOG.debug("register Jaeger tracer");
+                Configuration configuration = new com.uber.jaeger.Configuration(
+                    openTracingConfig.getName(),
+                    new com.uber.jaeger.Configuration.SamplerConfiguration("const", 1), // default configuration.  needs to read from config
+                    new com.uber.jaeger.Configuration.ReporterConfiguration(
+                        true,  // logSpans
+                        openTracingConfig.getTracerHost(),
+                        openTracingConfig.getTracerPort(),
+                        openTracingConfig.getFlushIntervalMs(),
+                        openTracingConfig.getMaxBufferSize())
+                );
+
+                LOG.trace("register the tracer with global tracer");
+                GlobalTracer.register(configuration.getTracer());
                 break;
             default:
                 LOG.error("Invalid tracer specified.  Problem with opentracing.xsd enumeration");
