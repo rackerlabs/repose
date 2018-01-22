@@ -1,5 +1,8 @@
 = Release Notes
 
+== In Progress Work
+* OpenTracing support
+
 == 8.8.0.0 (2018-02-05)
 * https://repose.atlassian.net/browse/REP-5616[REP-5616], https://repose.atlassian.net/browse/REP-6436[REP-6436], https://repose.atlassian.net/browse/REP-6274[REP-6274] - Updated dependencies:
 ** Jetty: 9.2.0.v20140526 → 9.4.8.v20171121
