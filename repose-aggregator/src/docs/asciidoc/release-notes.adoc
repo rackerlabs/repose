@@ -23,6 +23,7 @@ The case of the actual header does not matter, but the case of the `rax:roles` t
 ====
 Multi-Tenant support is currently not supported when the mask rax roles feature is enabled.
 ====
+* https://repose.atlassian.net/browse/REP-6654[REP-6654] - Added OpenTracing support.
 
 == 8.8.0.0 (2018-02-05)
 * https://repose.atlassian.net/browse/REP-5616[REP-5616], https://repose.atlassian.net/browse/REP-6436[REP-6436], https://repose.atlassian.net/browse/REP-6274[REP-6274] - Updated dependencies:
