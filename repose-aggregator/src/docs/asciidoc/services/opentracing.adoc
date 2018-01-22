@@ -24,11 +24,11 @@ Explicit action must be taken for the OpenTracing service to be used.
 <?xml version="1.0" encoding="UTF-8"?>
 
 <org.openrepose.core.services.opentracing xmlns="http://docs.openrepose.org/repose/org.openrepose.core.services.opentracing/v1.0"
-             enabled="true"
-             name="my-repose"
-             tracer="jaeger"
-             tracer.host="jaeger.example.com"
-             tracer.port="5775"
+             enabled="true" <!--1-->
+             name="my-repose" <!--2-->
+             tracer="jaeger" <!--3-->
+             tracer.host="jaeger.example.com" <!--4-->
+             tracer.port="5775" <!--5-->
 />
 
 ----

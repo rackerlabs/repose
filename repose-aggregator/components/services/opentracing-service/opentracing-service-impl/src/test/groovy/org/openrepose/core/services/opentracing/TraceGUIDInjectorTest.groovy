@@ -25,17 +25,12 @@ import org.apache.commons.codec.binary.Base64
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.springframework.mock.web.MockHttpServletRequest
 
 import javax.servlet.http.HttpServletRequest
-import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 
-import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertFalse
-import static org.junit.Assert.assertNull
-import static org.junit.Assert.assertThat
-import static org.junit.Assert.assertTrue
-import static org.mockito.Mockito.*
+import static org.junit.Assert.*
 
 class TraceGUIDInjectorTest {
 
@@ -66,7 +61,7 @@ class TraceGUIDInjectorTest {
     @After
     void tearDown() {
         headerMap.clear()
-        for(String header : requestWrapper.headerNamesList)
+        for (String header : requestWrapper.headerNamesList)
             requestWrapper.removeHeader(header)
     }
 
