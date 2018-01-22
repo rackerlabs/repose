@@ -19,10 +19,11 @@
  */
 package org.openrepose.core.services.opentracing
 
-import io.opentracing.NoopTracer
 import io.opentracing.NoopTracerFactory
+import io.opentracing.Tracer
 import io.opentracing.mock.MockTracer
 import io.opentracing.util.GlobalTracer
+import org.apache.commons.lang3.NotImplementedException
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -32,6 +33,7 @@ import org.openrepose.commons.config.resource.ConfigurationResourceResolver
 import org.openrepose.core.service.opentracing.config.OpenTracingConfig
 import org.openrepose.core.service.opentracing.config.TracerType
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.healthcheck.HealthCheckReport
 import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy
 import org.openrepose.core.services.healthcheck.Severity
@@ -214,14 +216,49 @@ class OpenTracingServiceImplTest{
         when(openTracingConfig.getName()).thenReturn("fake-tracer")
 
         openTracingService.configure(openTracingConfig)
+        verify(healthCheckServiceProxy, never()).resolveIssue(anyString())
 
-        assert openTracingService.isEnabled() == true
+        assertTrue("Validate OpenTracing service is enabled", openTracingService.isEnabled())
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
+    void testIsDisabledWithBrokenState() {
+
+        HealthCheckReport healthCheckReport = mock(HealthCheckReport.class)
+        when(healthCheckServiceProxy.getDiagnosis(anyString())).thenReturn(healthCheckReport)
+        when(healthCheckReport.getLevel()).thenReturn(Severity.BROKEN)
+
+        assertFalse("Validate OpenTracing service is disabled (not set)", openTracingService.isEnabled())
+        verify(healthCheckServiceProxy, times(1)).resolveIssue(anyString())
+    }
+
+    @Test
+    void testIsDisabledWithWarningState() {
+
+        HealthCheckReport healthCheckReport = mock(HealthCheckReport.class)
+        when(healthCheckServiceProxy.getDiagnosis(anyString())).thenReturn(healthCheckReport)
+        when(healthCheckReport.getLevel()).thenReturn(Severity.WARNING)
+
+        assertFalse("Validate OpenTracing service is disabled (not set)", openTracingService.isEnabled())
+        verify(healthCheckServiceProxy, never()).resolveIssue(anyString())
+    }
+
+    @Test
+    void testIsDisabledWithNoDiagnosisSet() {
+
+        when(healthCheckServiceProxy.getDiagnosis(anyString())).thenReturn(null)
+
+        assertFalse("Validate OpenTracing service is disabled (not set)", openTracingService.isEnabled())
+        verify(healthCheckServiceProxy, never()).resolveIssue(anyString())
+    }
+
+    @Test
     void verifyGetGlobalTracerUninitialized() {
         openTracingService = new OpenTracingServiceImpl(configurationService, healthCheckService)
-        openTracingService.getGlobalTracer()
+        Tracer tracer = openTracingService.getGlobalTracer()
+
+        assertFalse("OpenTracing is disabled", openTracingService.isEnabled())
+        assertThat(tracer, instanceOf(GlobalTracer.class))
     }
 
     @Test
@@ -243,9 +280,32 @@ class OpenTracingServiceImplTest{
 
         GlobalTracer.register(new MockTracer())
 
-        assertThat(openTracingService.getGlobalTracer(),instanceOf(GlobalTracer.class))
+        assertThat(openTracingService.getGlobalTracer(), instanceOf(GlobalTracer.class))
         assertTrue(openTracingService.isEnabled())
         assertEquals(openTracingService.getServiceName(), "fake-tracer")
+
+    }
+
+    @Test
+    void verifyGetGlobalTracerInitializedNotRegistered() {
+
+        ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class);
+        ConfigurationResource configurationResource = mock(ConfigurationResource.class);
+        when(configurationResource.exists()).thenReturn(true)
+        when(configurationService.getResourceResolver()).thenReturn(resourceResolver);
+        when(resourceResolver.resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+
+        OpenTracingConfig openTracingConfig = mock(OpenTracingConfig.class)
+        when(openTracingConfig.getTracer()).thenReturn(TracerType.ZIPKIN)
+        when(openTracingConfig.isEnabled()).thenReturn(true)
+        when(openTracingConfig.getName()).thenReturn("fake-tracer")
+
+        openTracingService.configurationListener.configurationUpdated(openTracingConfig)
+
+        assertThat("Validate GlobalTracer is an instance of GlobalTracer", openTracingService.getGlobalTracer(), instanceOf(GlobalTracer.class))
+        assertFalse("Validate OpenTracingService is not enabled", openTracingService.isEnabled())
+        assertEquals("Validate ServiceName is set", openTracingService.getServiceName(), "fake-tracer")
 
     }
 
@@ -270,5 +330,10 @@ class OpenTracingServiceImplTest{
 
         openTracingService.configure(openTracingConfig)
 
+    }
+
+    @Test(expected = NotImplementedException.class)
+    void testGetTracerHeaderName() {
+        openTracingService.getTracerHeaderName()
     }
 }

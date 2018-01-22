@@ -48,9 +48,7 @@ import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.services.jmx.ConfigurationInformation;
-import org.openrepose.core.services.opentracing.HttpHeaderExtractor;
-import org.openrepose.core.services.opentracing.HttpHeaderInjector;
-import org.openrepose.core.services.opentracing.OpenTracingService;
+import org.openrepose.core.services.opentracing.*;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.rms.ResponseMessageService;
@@ -402,38 +400,8 @@ public class PowerFilter extends DelegatingFilterProxy {
 
         MDC.put(TracingKey.TRACING_KEY, traceGUID);
 
-        // OpenTracing
+        // OpenTracing - set up activeSpan placeholder
         ActiveSpan activeSpan = null;
-        if (openTracingService.isPresent()) {
-            // get span context from the header.
-            // TODO: extract header from traceGUID
-            SpanContext context = openTracingService.get().getGlobalTracer().extract(
-                Format.Builtin.TEXT_MAP, new HttpHeaderExtractor(wrappedRequest));
-
-            Tracer.SpanBuilder spanBuilder;
-
-            LOG.debug("Got the span context from request: " + context);
-
-            if (context == null)
-                spanBuilder = openTracingService.get().getGlobalTracer()
-                    .buildSpan(openTracingService.get().getServiceName())
-                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
-            else
-                spanBuilder = openTracingService.get().getGlobalTracer()
-                    .buildSpan(openTracingService.get().getServiceName())
-                    .asChildOf(context)
-                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
-
-            // Start the new span
-            activeSpan = spanBuilder.startActive();
-
-            activeSpan.setOperationName(wrappedRequest.getRequestURI());
-
-            // TODO: inject header into traceGUID
-            openTracingService.get().getGlobalTracer().inject(
-                activeSpan.context(), Format.Builtin.TEXT_MAP,
-                new HttpHeaderInjector(wrappedRequest));
-        }
 
         try {
             try {
@@ -447,12 +415,53 @@ public class PowerFilter extends DelegatingFilterProxy {
             // So it is safe to suppress warning squid:S1848
             new URI(wrappedRequest.getRequestURI());
             final PowerFilterChain requestFilterChain = getRequestFilterChain(wrappedResponse, chain);
+
+            // Refactoring this to also include the tracing header if OpenTracing is enabled.  We're
+            // using the header to inject the spans so you can't turn it off.
+            // The tracing header generation should also be higher in the food chain so that we can return
+            // the trace even if the service is not ready to serve data
             if (requestFilterChain != null) {
-                if (currentSystemModel.get().getTracingHeader() == null || currentSystemModel.get().getTracingHeader().isEnabled()) {
+                if (currentSystemModel.get().getTracingHeader() == null ||
+                    currentSystemModel.get().getTracingHeader().isEnabled() ||
+                    (openTracingService.isPresent() && openTracingService.get().isEnabled())) {
+                    if (currentSystemModel.get().getTracingHeader() != null &&
+                        !currentSystemModel.get().getTracingHeader().isEnabled())
+                        LOG.warn("Opentracing is enabled yet the tracing header is turned off.  Repose relies on " +
+                            "the tracing header to pass trace information; therefore, the tracing header will " +
+                            "be populated");
+
                     if (StringUtils.isBlank(wrappedRequest.getHeader(TRACE_GUID))) {
                         wrappedRequest.addHeader(TRACE_GUID,
                                 TracingHeaderHelper.createTracingHeader(traceGUID, wrappedRequest.getHeader(VIA)));
                     }
+
+                    // OpenTracing hotness
+                    SpanContext context = openTracingService.get().getGlobalTracer().extract(
+                        Format.Builtin.TEXT_MAP, new TraceGUIDExtractor(wrappedRequest.getHeader(TRACE_GUID)));
+
+                    Tracer.SpanBuilder spanBuilder;
+
+                    LOG.debug("Got the span context from request: {}", context);
+
+                    if (context == null)
+                        spanBuilder = openTracingService.get().getGlobalTracer()
+                            .buildSpan(openTracingService.get().getServiceName())
+                            .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
+                    else
+                        spanBuilder = openTracingService.get().getGlobalTracer()
+                            .buildSpan(openTracingService.get().getServiceName())
+                            .asChildOf(context)
+                            .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
+
+                    // Start the new span
+                    activeSpan = spanBuilder.startActive();
+
+                    activeSpan.setOperationName(wrappedRequest.getRequestURI());
+
+                    openTracingService.get().getGlobalTracer().inject(
+                        activeSpan.context(), Format.Builtin.TEXT_MAP,
+                        new TraceGUIDInjector(wrappedRequest, TRACE_GUID));
+
                     if ((currentSystemModel.get().getTracingHeader() != null) &&
                             currentSystemModel.get().getTracingHeader().isSecondaryPlainText()) {
                         TRACE_ID_LOG.trace("Adding plain text trans id to request: {}", traceGUID);
