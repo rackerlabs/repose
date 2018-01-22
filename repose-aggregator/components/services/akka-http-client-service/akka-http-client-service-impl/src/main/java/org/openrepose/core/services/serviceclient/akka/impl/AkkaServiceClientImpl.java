@@ -41,8 +41,8 @@ import org.openrepose.core.service.httpclient.config.HttpConnectionPoolConfig;
 import org.openrepose.core.service.httpclient.config.PoolType;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.httpclient.HttpClientService;
-import org.openrepose.core.services.opentracing.HttpHeaderInjector;
 import org.openrepose.core.services.opentracing.OpenTracingService;
+import org.openrepose.core.services.opentracing.TraceGUIDInjector;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient;
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException;
 import org.slf4j.Logger;
@@ -134,7 +134,7 @@ public class AkkaServiceClientImpl implements AkkaServiceClient, UpdateListener<
                 // adds the trace guid (tracer specific)
                 openTracingService.getGlobalTracer().inject(
                     span.context(), Format.Builtin.TEXT_MAP,
-                    new HttpHeaderInjector(copiedHeaderMap));
+                    new TraceGUIDInjector(copiedHeaderMap));
 
                 AuthGetRequest authGetRequest = new AuthGetRequest(hashKey, uri, copiedHeaderMap);
                 future = getFuture(authGetRequest, timeout, checkCache);
@@ -176,7 +176,7 @@ public class AkkaServiceClientImpl implements AkkaServiceClient, UpdateListener<
                 // adds the trace guid (tracer specific)
                 openTracingService.getGlobalTracer().inject(
                     span.context(), Format.Builtin.TEXT_MAP,
-                    new HttpHeaderInjector(copiedHeaderMap));
+                    new TraceGUIDInjector(copiedHeaderMap));
 
                 AuthPostRequest authPostRequest = new AuthPostRequest(
                     hashKey, uri, copiedHeaderMap, payload, contentMediaType);

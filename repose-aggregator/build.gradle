@@ -12,6 +12,7 @@ apply plugin: 'org.openrepose.gradle.plugins.linkchecker'
 
 dependencies {
     asciidoctor 'org.asciidoctor:asciidoctorj-diagram'
+    compile 'org.scala-lang:scala-library:2.11.7'
 }
 
 task aggregateScoverage(type: ScoverageAggregate)

@@ -161,9 +161,6 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
       "responseMessage" -> Try(HttpStatus.valueOf(httpServletResponse.getStatus).name).getOrElse("UNKNOWN"),
       "guid" -> Option(stripHeaderParams(TracingHeaderHelper.getTraceGuid(httpServletRequest.getHeader(CommonHttpHeader.TRACE_GUID))))
         .getOrElse("NO_TRANSACTION_ID").concat(":").concat(java.util.UUID.randomUUID.toString),
-      "tracerId" -> Option(stripHeaderParams(TracingHeaderHelper.getTracerId(
-        httpServletRequest.getHeader(CommonHttpHeader.TRACE_GUID), openTracingService.getTracerHeaderName)))
-        .getOrElse("NO_TRANSACTION_ID").concat(":").concat(java.util.UUID.randomUUID.toString),
       "serviceCode" -> serviceCode,
       "region" -> region,
       "dataCenter" -> dataCenter,
