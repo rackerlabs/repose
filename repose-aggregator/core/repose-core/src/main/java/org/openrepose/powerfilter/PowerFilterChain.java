@@ -33,7 +33,6 @@ import org.openrepose.commons.utils.io.RawInputStreamReader;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.commons.utils.servlet.http.ResponseMode;
-import org.openrepose.core.services.opentracing.OpenTracingService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.powerfilter.filtercontext.FilterContext;
 import org.openrepose.powerfilter.intrafilterlogging.RequestLog;
@@ -74,7 +73,6 @@ public class PowerFilterChain implements FilterChain {
     private final FilterChain containerFilterChain;
     private final PowerFilterRouter router;
     private final Optional<MetricsService> metricsService;
-    private final Optional<OpenTracingService> openTracingService;
     private final SplittableHeaderUtil splittabelHeaderUtil;
     private List<FilterContext> currentFilters;
     private int position;
@@ -86,7 +84,6 @@ public class PowerFilterChain implements FilterChain {
                             FilterChain containerFilterChain,
                             PowerFilterRouter router,
                             Optional<MetricsService> metricsService,
-                            Optional<OpenTracingService> openTracingService,
                             Optional<String> bypassUrl)
             throws PowerFilterChainException {
 
@@ -94,7 +91,6 @@ public class PowerFilterChain implements FilterChain {
         this.containerFilterChain = containerFilterChain;
         this.router = router;
         this.metricsService = metricsService;
-        this.openTracingService = openTracingService;
         this.bypassUrl = bypassUrl;
         splittabelHeaderUtil = new SplittableHeaderUtil(PowerApiHeader.values(), OpenStackServiceHeader.values(),
                 ExtendedHttpHeader.values());

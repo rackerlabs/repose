@@ -59,20 +59,16 @@ class RequestProxyServiceHealthCheckTest extends Specification {
     @Shared
     def HealthCheckServiceProxy healthCheckServiceProxy
 
-    @Shared
-    def OpenTracingService openTracingService
-
     def setup() {
         systemModelInterrogator = mock(SystemModelInterrogator.class)
         configurationService = mock(ConfigurationService.class)
         healthCheckService = mock(HealthCheckService.class)
-        openTracingService = mock(OpenTracingService.class)
         healthCheckServiceProxy = mock(HealthCheckServiceProxy)
 
         when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
 
         this.requestProxyService = new RequestProxyServiceImpl(
-            configurationService, healthCheckService, mock(HttpClientService.class), openTracingService, "cluster", "node")
+            configurationService, healthCheckService, mock(HttpClientService.class), "cluster", "node")
 
     }
 
