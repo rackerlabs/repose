@@ -338,7 +338,6 @@ public class PowerFilter extends DelegatingFilterProxy {
                 configurationInformation.updateNodeStatus(clusterId, nodeId, false);
             } else {
                 requestFilterChain = new PowerFilterChain(filterChain, chain, router, metricsService,
-                        openTracingService,
                         Optional.ofNullable(currentSystemModel.get().getReposeCluster().stream()
                                 .filter(cluster -> cluster.getId().equals(clusterId)).findFirst()
                                 .get().getFilters()).map(FilterList::getBypassUriRegex));
