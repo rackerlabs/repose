@@ -56,6 +56,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec}
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
+import play.api.libs.json.Json
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
@@ -1990,6 +1991,30 @@ with HttpDelegationManager {
 
       filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.ROLES) should include("compute:admin")
       filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.ROLES) should include("object-store:admin")
+    }
+
+    it("forwards the user's tenant-to-roles mapping in the x-map-roles header") {
+      val tenantToRoleMap = Map(
+        Some("tenant1") -> Seq("role1", "role2"),
+        Some("tenant3") -> Seq("role3"),
+        None -> Seq("role4", "role5")
+      )
+      val token = createValidToken(roles = tenantToRoleMap.flatMap({ case (tenantId, roleNames) => roleNames.map(role => Role(role, tenantId)) }).toSeq)
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
+
+      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(token, Nil: _*)
+      when(mockDatastore.get(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")).thenReturn(Vector("group"), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      val tenantRolesMapHeader = filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.TENANT_ROLES_MAP)
+      val headerMap = Json.parse(new String(Base64.getDecoder.decode(tenantRolesMapHeader)))
+
+      headerMap shouldEqual Json.toJson(tenantToRoleMap map { case (tenantId, roleNames) => tenantId.getOrElse("") -> roleNames })
     }
 
     it("forwards the user's contact id information in the x-contact-id header") {

@@ -43,6 +43,7 @@ import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationF
 import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, TokenRequestAttributeName, ValidToken}
 import org.openrepose.filters.keystonev2.config._
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
+import play.api.libs.json.Json
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
@@ -285,7 +286,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
 
     def addTokenHeaders(token: ValidToken, matchedUriTenant: Option[String]): Unit = {
-      // TODO: Add tenant to role map header
       // Add standard headers
       request.addHeader(OpenStackServiceHeader.USER_ID, token.userId)
       request.addHeader(OpenStackServiceHeader.X_EXPIRATION, token.expirationDate)
@@ -311,6 +311,12 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
       // If configured, add roles header
       if (configuration.getIdentityService.isSetRolesInHeader && token.roles.nonEmpty) {
+        val tenantToRolesMapping = token.roles.groupBy(_.tenantId) map {
+          case (key, value) => key.getOrElse("") -> value.map(_.name)
+        }
+        val tenantToRolesJson = Json.stringify(Json.toJson(tenantToRolesMapping))
+        val encodedTenantToRolesJson = Base64.getEncoder.encodeToString(tenantToRolesJson.getBytes())
+        request.addHeader(OpenStackServiceHeader.TENANT_ROLES_MAP, encodedTenantToRolesJson)
         request.addHeader(OpenStackServiceHeader.ROLES, token.roles.map(_.name).mkString(","))
       }
 
