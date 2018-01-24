@@ -52,7 +52,7 @@ class KeystoneV2AuthorizationTest  extends FunSpec
     }
   }
 
-  describe("getRequestTenant") {
+  describe("getRequestTenants") {
     val tenantHeaderName = "X-Tenant-Id-Header"
 
     it("should return a tenant from the configured tenant header") {
@@ -63,31 +63,7 @@ class KeystoneV2AuthorizationTest  extends FunSpec
           new HeaderExtractionType().withValue(tenantHeaderName))
       request.addHeader(tenantHeaderName, tenantId)
 
-      getRequestTenant(config, new HttpServletRequestWrapper(request)) shouldEqual tenantId
-    }
-
-    it("should return the highest quality tenant from the configured tenant header without a quality") {
-      val tenantIds = Seq("lowTenant;q=0.1",  "midTenant;q=0.5", "bestTenant;q=1.0")
-      val request = new MockHttpServletRequest()
-      val config = new ValidateTenantType()
-        .withUriExtractionRegexAndHeaderExtractionName(
-          new HeaderExtractionType().withValue(tenantHeaderName))
-      tenantIds.foreach(request.addHeader(tenantHeaderName, _))
-
-      getRequestTenant(config, new HttpServletRequestWrapper(request)) shouldEqual "bestTenant"
-    }
-
-    it("should return the highest quality tenant from the first configured tenant header") {
-      val xTenantIds = Seq("xTenant1;q=0.1",  "xTenant2;q=0.5", "xTenant3;q=1.0")
-      val myTenantIds = Seq("myTenant1", "myTenant2")
-      val request = new MockHttpServletRequest()
-      val config = new ValidateTenantType()
-        .withUriExtractionRegexAndHeaderExtractionName(
-          new HeaderExtractionType().withValue(tenantHeaderName))
-      xTenantIds.foreach(request.addHeader(tenantHeaderName, _))
-      myTenantIds.foreach(request.addHeader("My-Tenant-Ids", _))
-
-      getRequestTenant(config, new HttpServletRequestWrapper(request)) shouldEqual "xTenant3"
+      getRequestTenants(config, new HttpServletRequestWrapper(request)) should contain only tenantId
     }
 
     it("should return a tenant from the URI") {
@@ -97,10 +73,10 @@ class KeystoneV2AuthorizationTest  extends FunSpec
         .withUriExtractionRegexAndHeaderExtractionName(
           new UriExtractionType().withValue("[^/]*/([^/]+)"))
 
-      getRequestTenant(config, new HttpServletRequestWrapper(request)) shouldEqual tenantId
+      getRequestTenants(config, new HttpServletRequestWrapper(request)) should contain only tenantId
     }
 
-    it("should prefer a tenant from the configured tenant header over the URI") {
+    it("should return all tenants from the URI and configured tenant header") {
       val headerTenantId = "headerTenant"
       val uriTenantId = "uriTenant"
       val request = new MockHttpServletRequest("GET", s"/$uriTenantId")
@@ -110,7 +86,7 @@ class KeystoneV2AuthorizationTest  extends FunSpec
           new UriExtractionType().withValue("[^/]*/([^/]+)"))
       request.addHeader(tenantHeaderName, headerTenantId)
 
-      getRequestTenant(config, new HttpServletRequestWrapper(request)) shouldEqual headerTenantId
+      getRequestTenants(config, new HttpServletRequestWrapper(request)) should contain only (headerTenantId, uriTenantId)
     }
 
     it("should throw an exception if no tenant can be found") {
@@ -120,30 +96,30 @@ class KeystoneV2AuthorizationTest  extends FunSpec
           new HeaderExtractionType().withValue(tenantHeaderName),
           new UriExtractionType().withValue("[^/]*/([^/]+)"))
 
-      an[UnparsableTenantException] should be thrownBy getRequestTenant(config, new HttpServletRequestWrapper(request))
+      an[UnparsableTenantException] should be thrownBy getRequestTenants(config, new HttpServletRequestWrapper(request))
     }
   }
 
   describe("getTenantScopedRoles") {
-    val tenantToValidate = "123456"
-    val listOfRoles = List(Role("foo", None), Role("bar", Option("123456")), Role("baz", Option("789012")))
+    val tenantsToValidate = Set("123456", "654321")
+    val listOfRoles = List(Role("foo", None), Role("bar", Option("123456")), Role("baz", Option("789012")), Role("qux", Option("654321")))
 
     it("should remove unrelated roles when not in legacy mode") {
       val config = new ValidateTenantType
       config.setEnableLegacyRolesMode(false)
 
-      getTenantScopedRoles(config, tenantToValidate, listOfRoles) should contain only (Role("foo", None), Role("bar", Option("123456")))
+      getTenantScopedRoles(config, tenantsToValidate, listOfRoles) should contain only (Role("foo", None), Role("bar", Option("123456")), Role("qux", Option("654321")))
     }
 
     it("shouldn't remove unrelated roles when in legacy mode") {
       val config = new ValidateTenantType
       config.setEnableLegacyRolesMode(true)
 
-      getTenantScopedRoles(config, tenantToValidate, listOfRoles) should contain theSameElementsAs listOfRoles
+      getTenantScopedRoles(config, tenantsToValidate, listOfRoles) should contain theSameElementsAs listOfRoles
     }
 
     it("shouldn't remove any roles when unconfigured") {
-      getTenantScopedRoles(null, tenantToValidate, listOfRoles) should contain theSameElementsAs listOfRoles
+      getTenantScopedRoles(null, tenantsToValidate, listOfRoles) should contain theSameElementsAs listOfRoles
     }
   }
 
@@ -185,68 +161,76 @@ class KeystoneV2AuthorizationTest  extends FunSpec
     val token = ValidToken("", "", Seq.empty, None, None, Some("123456"), Seq("456789","foo:789012", "bar:012345"), None, None, Seq.empty, None, None, None)
     val config = new ValidateTenantType().withStripTokenTenantPrefixes("foo:/baz:")
 
-    it("should return None when a check shouldn't be done") {
-      getMatchingTenant(config, "123456", false, token) shouldBe None
+    it("should return an empty collection when a check shouldn't be done") {
+      getMatchingTenants(config, Set("123456"), false, token) shouldBe empty
     }
 
     it("should return the tenant when it's the default") {
-      getMatchingTenant(config, "123456", true, token) shouldBe Some("123456")
+      getMatchingTenants(config, Set("123456"), true, token) should contain only "123456"
     }
 
     it("should return the tenant when it's in the list") {
-      getMatchingTenant(config, "456789", true, token) shouldBe Some("456789")
+      getMatchingTenants(config, Set("456789"), true, token) should contain only "456789"
     }
 
     it("should return the tenant when it's prefixed and the default") {
-      val validToken = ValidToken("", "", Seq.empty, None, None, Some("baz:098765"), Seq("456789","foo:789012", "bar:012345"), None, None, Seq.empty, None, None, None)
-      getMatchingTenant(config, "098765", true, validToken) shouldBe Some("baz:098765")
+      val validToken = ValidToken("", "", Seq.empty, None, None, Some("baz:098765"), Seq("456789", "foo:789012", "bar:012345"), None, None, Seq.empty, None, None, None)
+      getMatchingTenants(config, Set("098765"), true, validToken) should contain only "baz:098765"
     }
 
     it("should return the tenant when it's prefixed and in the list") {
-      getMatchingTenant(config, "789012", true, token) shouldBe Some("foo:789012")
+      getMatchingTenants(config, Set("789012"), true, token) should contain only "foo:789012"
     }
 
-    it("should return none when the tenant matches but has the wrong prefix") {
-      getMatchingTenant(config, "012345", true, token) shouldBe None
+    it("should return an empty collection when the tenant matches but has the wrong prefix") {
+      getMatchingTenants(config, Set("012345"), true, token) shouldBe empty
     }
 
-    it("should return None when the tenant isn't present") {
-      getMatchingTenant(config, "654321", true, token) shouldBe None
+    it("should return an empty collection when the tenant isn't present") {
+      getMatchingTenants(config, Set("654321"), true, token) shouldBe empty
+    }
+
+    it("should return multiple matching tenants") {
+      getMatchingTenants(config, Set("123456", "456789"), true, token) should contain only("123456", "456789")
     }
   }
 
   describe("authorizeTenant") {
     it("should succeed when a tenant check is unneeded") {
-      authorizeTenant(false, Some("thing")).success
+      authorizeTenant(false, Set("thing"), Set("thing")).success
     }
 
-    it("should succeed when there was a tenant match") {
-      authorizeTenant(true, Some("thing")).success
+    it("should succeed when all tenants had a match") {
+      authorizeTenant(true, Set("thing"), Set("thing")).success
+    }
+
+    it("should fail when not all tenants had a match") {
+      authorizeTenant(true, Set("thing", "other-thing"), Set("thing")).failed.get shouldBe a [InvalidTenantException]
     }
 
     it("should fail when there wasn't a tenant match") {
-      authorizeTenant(true, None).failed.get shouldBe a [InvalidTenantException]
+      authorizeTenant(true, Set("thing"), Set.empty).failed.get shouldBe a [InvalidTenantException]
+    }
+  }
+
+  describe("authorizeEndpoints") {
+    val config = new ServiceEndpointType().withName("banana").withRegion("ord").withPublicUrl("http://foo.com")
+
+    it("should succeed if unconfigured") {
+      authorizeEndpoints(null, false, Success(EndpointsData("", Vector.empty))).success
     }
 
-    describe("authorizeEndpoints") {
-      val config = new ServiceEndpointType().withName("banana").withRegion("ord").withPublicUrl("http://foo.com")
+    it("should succeed if preauthed") {
+      authorizeEndpoints(config, true, Success(EndpointsData("", Vector.empty))).success
+    }
 
-      it("should succeed if unconfigured") {
-        authorizeEndpoints(null, false, Success(EndpointsData("", Vector.empty))).success
-      }
+    it("should succeed if the endpoint matches") {
+      authorizeEndpoints(config, false, Success(EndpointsData("", Vector(Endpoint(Option("ord"), Option("banana"), Option("foo"), "http://foo.com"))))).success
+    }
 
-      it("should succeed if preauthed") {
-        authorizeEndpoints(config, true, Success(EndpointsData("", Vector.empty))).success
-      }
-
-      it("should succeed if the endpoint matches") {
-        authorizeEndpoints(config, false, Success(EndpointsData("", Vector(Endpoint(Option("ord"), Option("banana"), Option("foo"), "http://foo.com"))))).success
-      }
-
-      it("should fail is the endpoint doesn't match"){
-        val endpoints = EndpointsData("", Vector(Endpoint(Option("dfw"), Option("banana"), Option("foo"), "http://foo.com")))
-        authorizeEndpoints(config, false, Success(endpoints)).failed.get shouldBe a [UnauthorizedEndpointException]
-      }
+    it("should fail if the endpoint doesn't match"){
+      val endpoints = EndpointsData("", Vector(Endpoint(Option("dfw"), Option("banana"), Option("foo"), "http://foo.com")))
+      authorizeEndpoints(config, false, Success(endpoints)).failed.get shouldBe a [UnauthorizedEndpointException]
     }
   }
 }

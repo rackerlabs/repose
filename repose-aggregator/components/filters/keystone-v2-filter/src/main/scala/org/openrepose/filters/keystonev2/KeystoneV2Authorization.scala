@@ -40,28 +40,27 @@ object KeystoneV2Authorization extends LazyLogging {
 
   // TODO: Take tenants to roles mapping instead of token to calculate scoped roles.
   def doAuthorization(config: KeystoneV2Config, request: HttpServletRequestWrapper, validToken: ValidToken, endpoints: => Try[EndpointsData]): AuthorizationInfo = {
-    lazy val tenantToMatch = getRequestTenant(config.getTenantHandling.getValidateTenant, request)
+    lazy val tenantsToMatch = getRequestTenants(config.getTenantHandling.getValidateTenant, request)
 
-    val tenantScopedRoles = getTenantScopedRoles(config.getTenantHandling.getValidateTenant, tenantToMatch, validToken.roles)
+    val tenantScopedRoles = getTenantScopedRoles(config.getTenantHandling.getValidateTenant, tenantsToMatch, validToken.roles)
     val userIsPreAuthed = isUserPreAuthed(config.getPreAuthorizedRoles, tenantScopedRoles)
     val scopedRolesToken = if (userIsPreAuthed) validToken else validToken.copy(roles = tenantScopedRoles)
     val doTenantCheck = shouldAuthorizeTenant(config.getTenantHandling.getValidateTenant, userIsPreAuthed)
-    val matchedTenant = getMatchingTenant(config.getTenantHandling.getValidateTenant, tenantToMatch, doTenantCheck, scopedRolesToken)
-    val authResult = authorizeTenant(doTenantCheck, matchedTenant) flatMap { _ =>
+    val matchedTenants = getMatchingTenants(config.getTenantHandling.getValidateTenant, tenantsToMatch, doTenantCheck, scopedRolesToken)
+    val authResult = authorizeTenant(doTenantCheck, tenantsToMatch, matchedTenants) flatMap { _ =>
       authorizeEndpoints(config.getRequireServiceEndpoint, userIsPreAuthed, endpoints)
     }
     authResult match {
-      case Success(_) => AuthorizationPassed(scopedRolesToken, matchedTenant)
-      case Failure(exception) => AuthorizationFailed(scopedRolesToken, matchedTenant, exception)
+      case Success(_) => AuthorizationPassed(scopedRolesToken, matchedTenants)
+      case Failure(exception) => AuthorizationFailed(scopedRolesToken, matchedTenants, exception)
     }
   }
 
-  // TODO: Switch to getRequestTenants (plural) and include all tenants extracted. This is a behavior change.
-  def getRequestTenant(config: ValidateTenantType, request: HttpServletRequestWrapper): String = {
-    Option(config).flatMap(validateTenantConfig =>
-      (validateTenantConfig.getUriExtractionRegexAndHeaderExtractionName.asScala.toStream map {
+  def getRequestTenants(config: ValidateTenantType, request: HttpServletRequestWrapper): Set[String] = {
+    Option(config).map(validateTenantConfig =>
+      validateTenantConfig.getUriExtractionRegexAndHeaderExtractionName.asScala.toSet.flatMap((extraction: ExtractionType) => extraction match {
         case headerExtraction: HeaderExtractionType =>
-          request.getPreferredSplittableHeaders(headerExtraction.getValue).asScala.headOption
+          request.getSplittableHeaderScala(headerExtraction.getValue)
         case uriExtraction: UriExtractionType =>
           val uriRegex = uriExtraction.getValue.r
           request.getRequestURI match {
@@ -71,16 +70,16 @@ object KeystoneV2Authorization extends LazyLogging {
         case _ =>
           logger.error("An unexpected tenant extraction type was encountered")
           None
-      }).find(_.nonEmpty).flatten
-    ).getOrElse(throw UnparsableTenantException("Could not parse tenant from the URI and/or the configured header"))
+      })
+    ).filter(_.nonEmpty).getOrElse(throw UnparsableTenantException("Could not parse tenant from the URI and/or the configured header"))
   }
 
-  def getTenantScopedRoles(config: ValidateTenantType, tenantToMatch: => String, roles: Seq[Role]): Seq[Role] = {
+  def getTenantScopedRoles(config: ValidateTenantType, tenantsToMatch: => Set[String], roles: Seq[Role]): Seq[Role] = {
     Option(config) match {
       case Some(validateTenant) if !validateTenant.isEnableLegacyRolesMode =>
         roles.filter(role =>
           role.tenantId.forall(roleTenantId =>
-            roleTenantId.equals(tenantToMatch)))
+            tenantsToMatch.contains(roleTenantId)))
       case _ =>
         roles
     }
@@ -96,26 +95,27 @@ object KeystoneV2Authorization extends LazyLogging {
     Option(config).exists(_ => !preAuthed)
   }
 
-  def getMatchingTenant(config: ValidateTenantType, tenantToMatch: => String, doTenantCheck: Boolean, validToken: ValidToken): Option[String] = {
+  def getMatchingTenants(config: ValidateTenantType, tenantsToMatch: => Set[String], doTenantCheck: Boolean, validToken: ValidToken): Set[String] = {
     if (doTenantCheck) {
       val tokenTenants = validToken.defaultTenantId.toSet ++ validToken.tenantIds
       val prefixes = Option(config.getStripTokenTenantPrefixes).map(_.split('/')).getOrElse(Array.empty[String])
-      tokenTenants find { tokenTenant =>
-        tokenTenant.equals(tenantToMatch) || prefixes.exists(prefix =>
-          tokenTenant.startsWith(prefix) && tokenTenant.substring(prefix.length).equals(tenantToMatch)
-        )
-      }
+      tenantsToMatch map { tenantToMatch =>
+        tokenTenants find { tokenTenant =>
+          tokenTenant == tenantToMatch || prefixes.exists(prefix =>
+            tokenTenant.startsWith(prefix) && tokenTenant.substring(prefix.length) == tenantToMatch)
+        }
+      } filter (_.nonEmpty) map (_.get)
     } else {
-      None
+      Set.empty
     }
   }
 
-  def authorizeTenant(doTenantCheck: Boolean, matchedTenant: Option[String]): Try[Unit.type] = {
+  def authorizeTenant(doTenantCheck: Boolean, tenantsToMatch: => Set[String], matchedTenants: Set[String]): Try[Unit.type] = {
     logger.trace("Validating tenant")
 
     if (doTenantCheck) {
-      if (matchedTenant.isDefined) Success(Unit)
-      else Failure(InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token"))
+      if (matchedTenants.size == tenantsToMatch.size) Success(Unit)
+      else Failure(InvalidTenantException("A tenant from the URI and/or the configured header does not match any of the user's tenants"))
     } else {
       Success(Unit)
     }
@@ -144,10 +144,10 @@ object KeystoneV2Authorization extends LazyLogging {
 
   sealed trait AuthorizationInfo {
     def scopedToken: ValidToken
-    def matchedTenant: Option[String]
+    def matchedTenants: Set[String]
   }
-  case class AuthorizationPassed(scopedToken: ValidToken, matchedTenant: Option[String]) extends AuthorizationInfo
-  case class AuthorizationFailed(scopedToken: ValidToken, matchedTenant: Option[String], exception: Throwable) extends AuthorizationInfo
+  case class AuthorizationPassed(scopedToken: ValidToken, matchedTenants: Set[String]) extends AuthorizationInfo
+  case class AuthorizationFailed(scopedToken: ValidToken, matchedTenants: Set[String], exception: Throwable) extends AuthorizationInfo
 
   abstract class AuthorizationException(message: String, cause: Throwable) extends Exception(message, cause)
 

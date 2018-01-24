@@ -61,11 +61,11 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
     // TODO: Stop using request attributes. Stop using the token. Just use the tenant to roles map, tenant ids, and roles headers.
     getToken(request) flatMap { token =>
       doAuthorization(configuration, request, token, getEndpoints(request)) match {
-        case AuthorizationPassed(scopedToken, Some(matchedTenant)) =>
-          scopeTenantIdHeader(request, matchedTenant)
+        case AuthorizationPassed(scopedToken, matchedTenants) if matchedTenants.nonEmpty =>
+          scopeTenantIdHeader(request, matchedTenants)
           scopeRolesHeader(request, scopedToken)
           Success(Unit)
-        case AuthorizationPassed(_, None) => Success(Unit)
+        case AuthorizationPassed(_, _) => Success(Unit)
         case AuthorizationFailed(_, _, exception) => Failure(exception)
       }
     }
@@ -99,16 +99,22 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
     }
   }
 
-  def scopeTenantIdHeader(request: HttpServletRequestWrapper, matchedTenant: String): Unit = {
+  def scopeTenantIdHeader(request: HttpServletRequestWrapper, matchedTenants: Set[String]): Unit = {
     val tenantHandling = Option(configuration.getTenantHandling)
     val sendAllTenantIds = tenantHandling.exists(_.isSendAllTenantIds)
     val matchedTenantQuality = tenantHandling.map(_.getSendTenantIdQuality).flatMap(Option.apply).map(_.getUriTenantQuality)
 
     (sendAllTenantIds, matchedTenantQuality) match {
-      case (true, Some(quality)) => request.addHeader(TENANT_ID, matchedTenant, quality)
-      case (true, None) => request.addHeader(TENANT_ID, matchedTenant)
-      case (false, Some(quality)) => request.replaceHeader(TENANT_ID, matchedTenant, quality)
-      case (false, None) => request.replaceHeader(TENANT_ID, matchedTenant)
+      case (true, Some(quality)) =>
+        matchedTenants.foreach(request.appendHeader(TENANT_ID, _, quality))
+      case (true, None) =>
+        matchedTenants.foreach(request.appendHeader(TENANT_ID, _))
+      case (false, Some(quality)) =>
+        request.removeHeader(TENANT_ID)
+        matchedTenants.foreach(request.appendHeader(TENANT_ID, _, quality))
+      case (false, None) =>
+        request.removeHeader(TENANT_ID)
+        matchedTenants.foreach(request.appendHeader(TENANT_ID, _))
     }
   }
 

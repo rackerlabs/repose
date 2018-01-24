@@ -143,13 +143,13 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
         )
 
       val tenantIds = Seq("tenant1", "tenant2")
-      val matchedTenantId = "matchedTenant"
+      val matchedTenantIds = Set("matchedTenant")
       val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
-      tenantIds.foreach(request.addHeader(TENANT_ID, _))
+      tenantIds.foreach(request.appendHeader(TENANT_ID, _))
 
-      keystoneV2AuthorizationFilter.scopeTenantIdHeader(request, matchedTenantId)
+      keystoneV2AuthorizationFilter.scopeTenantIdHeader(request, matchedTenantIds)
 
-      request.getHeadersScala(TENANT_ID) should contain only (tenantIds :+ s"$matchedTenantId;q=$matchedTenantQuality": _*)
+      request.getSplittableHeaderScala(TENANT_ID) should contain only (tenantIds ++ matchedTenantIds.map(t => s"$t;q=$matchedTenantQuality"): _*)
     }
 
     it("should add the matching tenant with no quality") {
@@ -160,13 +160,13 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
         )
 
       val tenantIds = Seq("tenant1;q=0.2", "tenant2;q=0.4")
-      val matchedTenantId = "matchedTenant"
+      val matchedTenantIds = Set("matchedTenant")
       val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
-      tenantIds.foreach(request.addHeader(TENANT_ID, _))
+      tenantIds.foreach(request.appendHeader(TENANT_ID, _))
 
-      keystoneV2AuthorizationFilter.scopeTenantIdHeader(request, matchedTenantId)
+      keystoneV2AuthorizationFilter.scopeTenantIdHeader(request, matchedTenantIds)
 
-      request.getHeadersScala(TENANT_ID) should contain only (tenantIds :+ matchedTenantId: _*)
+      request.getSplittableHeaderScala(TENANT_ID) should contain only (tenantIds ++ matchedTenantIds: _*)
     }
 
     it("should replace existing tenants with the matching tenant with the configured quality") {
@@ -181,13 +181,13 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
         )
 
       val tenantIds = Seq("tenant1", "tenant2")
-      val matchedTenantId = "matchedTenant"
+      val matchedTenantIds = Set("matchedTenant")
       val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
-      tenantIds.foreach(request.addHeader(TENANT_ID, _))
+      tenantIds.foreach(request.appendHeader(TENANT_ID, _))
 
-      keystoneV2AuthorizationFilter.scopeTenantIdHeader(request, matchedTenantId)
+      keystoneV2AuthorizationFilter.scopeTenantIdHeader(request, matchedTenantIds)
 
-      request.getHeadersScala(TENANT_ID) should contain only s"$matchedTenantId;q=$matchedTenantQuality"
+      request.getSplittableHeaderScala(TENANT_ID) should contain only (matchedTenantIds.map(t => s"$t;q=$matchedTenantQuality").toSeq: _*)
     }
 
     it("should replace existing tenants with the matching tenant with no quality") {
@@ -198,13 +198,89 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
         )
 
       val tenantIds = Seq("tenant1;q=0.2", "tenant2;q=0.4")
-      val matchedTenantId = "matchedTenant"
+      val matchedTenantIds = Set("matchedTenant")
       val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
-      tenantIds.foreach(request.addHeader(TENANT_ID, _))
+      tenantIds.foreach(request.appendHeader(TENANT_ID, _))
 
-      keystoneV2AuthorizationFilter.scopeTenantIdHeader(request, matchedTenantId)
+      keystoneV2AuthorizationFilter.scopeTenantIdHeader(request, matchedTenantIds)
 
-      request.getHeadersScala(TENANT_ID) should contain only matchedTenantId
+      request.getSplittableHeaderScala(TENANT_ID) should contain only (matchedTenantIds.toSeq: _*)
+    }
+
+    it("should append multiple matching tenants with the configured quality") {
+      val sendAllTenantIds = true
+      val matchedTenantQuality = 0.66
+      keystoneV2AuthorizationFilter.configuration = new KeystoneV2Config()
+        .withTenantHandling(new TenantHandlingType()
+          .withSendAllTenantIds(sendAllTenantIds)
+          .withSendTenantIdQuality(new SendTenantIdQuality()
+            .withUriTenantQuality(matchedTenantQuality)
+          )
+        )
+
+      val tenantIds = Seq("tenant1;q=0.2", "tenant2;q=0.4")
+      val matchedTenantIds = Set("matchedTenant1", "matchedTenant2")
+      val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
+      tenantIds.foreach(request.appendHeader(TENANT_ID, _))
+
+      keystoneV2AuthorizationFilter.scopeTenantIdHeader(request, matchedTenantIds)
+
+      request.getSplittableHeaderScala(TENANT_ID) should contain only (tenantIds ++ matchedTenantIds.map(t => s"$t;q=$matchedTenantQuality"): _*)
+    }
+
+    it("should append multiple matching tenants with no quality") {
+      val sendAllTenantIds = true
+      keystoneV2AuthorizationFilter.configuration = new KeystoneV2Config()
+        .withTenantHandling(new TenantHandlingType()
+          .withSendAllTenantIds(sendAllTenantIds)
+        )
+
+      val tenantIds = Seq("tenant1;q=0.2", "tenant2;q=0.4")
+      val matchedTenantIds = Set("matchedTenant1", "matchedTenant2")
+      val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
+      tenantIds.foreach(request.appendHeader(TENANT_ID, _))
+
+      keystoneV2AuthorizationFilter.scopeTenantIdHeader(request, matchedTenantIds)
+
+      request.getSplittableHeaderScala(TENANT_ID) should contain only (tenantIds ++ matchedTenantIds: _*)
+    }
+
+    it("should replace existing tenants with multiple matching tenants with the configured quality") {
+      val sendAllTenantIds = false
+      val matchedTenantQuality = 0.66
+      keystoneV2AuthorizationFilter.configuration = new KeystoneV2Config()
+        .withTenantHandling(new TenantHandlingType()
+          .withSendAllTenantIds(sendAllTenantIds)
+          .withSendTenantIdQuality(new SendTenantIdQuality()
+            .withUriTenantQuality(matchedTenantQuality)
+          )
+        )
+
+      val tenantIds = Seq("tenant1;q=0.2", "tenant2;q=0.4")
+      val matchedTenantIds = Set("matchedTenant1", "matchedTenant2")
+      val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
+      tenantIds.foreach(request.appendHeader(TENANT_ID, _))
+
+      keystoneV2AuthorizationFilter.scopeTenantIdHeader(request, matchedTenantIds)
+
+      request.getSplittableHeaderScala(TENANT_ID) should contain only (matchedTenantIds.map(t => s"$t;q=$matchedTenantQuality").toSeq: _*)
+    }
+
+    it("should replace existing tenants with multiple matching tenants with no quality") {
+      val sendAllTenantIds = false
+      keystoneV2AuthorizationFilter.configuration = new KeystoneV2Config()
+        .withTenantHandling(new TenantHandlingType()
+          .withSendAllTenantIds(sendAllTenantIds)
+        )
+
+      val tenantIds = Seq("tenant1;q=0.2", "tenant2;q=0.4")
+      val matchedTenantIds = Set("matchedTenant1", "matchedTenant2")
+      val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
+      tenantIds.foreach(request.appendHeader(TENANT_ID, _))
+
+      keystoneV2AuthorizationFilter.scopeTenantIdHeader(request, matchedTenantIds)
+
+      request.getSplittableHeaderScala(TENANT_ID) should contain only (matchedTenantIds.toSeq: _*)
     }
   }
 

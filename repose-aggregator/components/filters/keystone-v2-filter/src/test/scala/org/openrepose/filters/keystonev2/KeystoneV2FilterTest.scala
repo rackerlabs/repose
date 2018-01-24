@@ -50,7 +50,7 @@ import org.openrepose.core.systemmodel.config.{SystemModel, TracingHeaderConfig}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.KeystoneV2Common._
 import org.openrepose.filters.keystonev2.KeystoneV2TestCommon.createValidToken
-import org.openrepose.filters.keystonev2.config.{KeystoneV2AuthenticationConfig, ServiceEndpointType}
+import org.openrepose.filters.keystonev2.config.{HeaderExtractionType, KeystoneV2AuthenticationConfig, ServiceEndpointType}
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -1627,7 +1627,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       response.getStatus shouldBe SC_UNAUTHORIZED
-      response.getErrorMessage shouldBe "Tenant from URI does not match any of the tenants associated with the provided token"
+      response.getErrorMessage shouldBe "A tenant from the URI and/or the configured header does not match any of the user's tenants"
     }
 
     it("will extract the tenant from the URI and reject if the user only use the tenant on an ignored role") {
@@ -1670,7 +1670,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, chain)
 
       response.getStatus shouldBe SC_UNAUTHORIZED
-      response.getErrorMessage shouldBe "Tenant from URI does not match any of the tenants associated with the provided token"
+      response.getErrorMessage shouldBe "A tenant from the URI and/or the configured header does not match any of the user's tenants"
     }
 
     it("will extract the tenant from the URI and reject if the user only use the tenant on a configured ignored role") {
@@ -1713,7 +1713,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, chain)
 
       response.getStatus shouldBe SC_UNAUTHORIZED
-      response.getErrorMessage shouldBe "Tenant from URI does not match any of the tenants associated with the provided token"
+      response.getErrorMessage shouldBe "A tenant from the URI and/or the configured header does not match any of the user's tenants"
     }
 
     it("sends all tenant IDs when configured to") {
@@ -1818,6 +1818,31 @@ with HttpDelegationManager {
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID) shouldBe "morty"
     }
 
+    it("sends all matching tenants when send all tenants is false") {
+      val modifiedConfig = configuration
+      modifiedConfig.getTenantHandling.setSendAllTenantIds(false)
+      modifiedConfig.getTenantHandling.setSendTenantIdQuality(null)
+      modifiedConfig.getTenantHandling.getValidateTenant.getUriExtractionRegexAndHeaderExtractionName.add(new HeaderExtractionType().withValue("Tenant-Out"))
+      filter.configurationUpdated(modifiedConfig)
+
+      val request = new MockHttpServletRequest()
+      request.setServerName("www.sample.com")
+      request.setRequestURI("/morty/test")
+      request.addHeader("Tenant-Out", "rick")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
+
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("tenant"), tenantIds = Seq("rick", "morty")), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+      filter.configurationUpdated(configuration)
+
+      val processedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
+      processedRequest.getHeaders(OpenStackServiceHeader.TENANT_ID).asScala.size shouldBe 1
+      processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID).split(",") should contain only ("rick", "morty")
+    }
+
     it("sends the user's default tenant, if validate-tenant is not enabled") {
       val modifiedConfig = configuration
       modifiedConfig.getTenantHandling.setValidateTenant(null)
@@ -1874,7 +1899,50 @@ with HttpDelegationManager {
       processedRequest.getHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION) shouldBe "Proxy years"
     }
 
-    it("should send the X-Authorization header without a tenant if tenant handling is not used") {
+    it("should send the X-Authorization header with the default user tenant if no matching tenants exist") {
+      val modifiedConfig = configuration
+      modifiedConfig.getTenantHandling.setValidateTenant(null)
+      filter.configurationUpdated(modifiedConfig)
+
+      val request = new MockHttpServletRequest()
+      request.setServerName("www.sample.com")
+      request.setRequestURI("/foo/test")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
+
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(tenantIds = Seq("hundred", "years"), defaultTenantId = Some("defaultTenant")), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+      filter.configurationUpdated(configuration)
+
+      val processedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
+      processedRequest.getHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION) shouldBe "Proxy defaultTenant"
+    }
+
+    it("should send the X-Authorization header with multiple matching tenants") {
+      val modifiedConfig = configuration
+      modifiedConfig.getTenantHandling.getValidateTenant.getUriExtractionRegexAndHeaderExtractionName.add(new HeaderExtractionType().withValue(OpenStackServiceHeader.TENANT_ID))
+      filter.configurationUpdated(modifiedConfig)
+
+      val request = new MockHttpServletRequest()
+      request.setServerName("www.sample.com")
+      request.setRequestURI("/uriTenant/test")
+      request.addHeader(OpenStackServiceHeader.TENANT_ID, "headerTenant")
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
+
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(tenantIds = Seq("uriTenant", "headerTenant", "nonMatchingTenant")), Nil: _*)
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+      filter.configurationUpdated(configuration)
+
+      val processedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
+      processedRequest.getHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION) should fullyMatch regex """Proxy (uriTenant|headerTenant) (uriTenant|headerTenant)"""
+    }
+
+    it("should send the X-Authorization header without a tenant if tenant handling is not used and no default tenant exists") {
       val modifiedConfig = configuration
       modifiedConfig.setTenantHandling(null)
       filter.configurationUpdated(modifiedConfig)
@@ -1884,7 +1952,7 @@ with HttpDelegationManager {
       request.setRequestURI("/years/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(tenantIds = Seq("hundred", "years"), defaultTenantId = Some("foo")), Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(tenantIds = Seq("hundred", "years")), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1892,10 +1960,10 @@ with HttpDelegationManager {
       filter.configurationUpdated(configuration)
 
       val processedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
-      processedRequest.getHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION) shouldBe "Proxy foo"
+      processedRequest.getHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION) shouldBe "Proxy"
     }
 
-    it("should send the X-Authorization header without a tenant if tenant validation is not used") {
+    it("should send the X-Authorization header without a tenant if tenant validation is not used and no default tenant exists") {
       val modifiedConfig = configuration
       modifiedConfig.getTenantHandling.setValidateTenant(null)
       filter.configurationUpdated(modifiedConfig)
@@ -1905,7 +1973,7 @@ with HttpDelegationManager {
       request.setRequestURI("/years/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(tenantIds = Seq("hundred", "years"), defaultTenantId = Some("foo")), Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(tenantIds = Seq("hundred", "years")), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1913,7 +1981,7 @@ with HttpDelegationManager {
       filter.configurationUpdated(configuration)
 
       val processedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
-      processedRequest.getHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION) shouldBe "Proxy foo"
+      processedRequest.getHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION) shouldBe "Proxy"
     }
   }
 
