@@ -161,7 +161,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                     // set opentracing here
                     ActiveSpan nextSpan = null;
                     if (openTracingService.isPresent() && openTracingService.get().isEnabled()) {
-                        System.out.println("DIMA IS ABOUT TO GO CRAZY");
+                        LOG.trace("OpenTracing is enabled so we're going to create a span");
 
                         // check that the span didn't start yet
                         ActiveSpan activeSpan = openTracingService.get().getGlobalTracer().activeSpan();
