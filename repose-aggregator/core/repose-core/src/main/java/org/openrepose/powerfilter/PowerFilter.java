@@ -435,32 +435,33 @@ public class PowerFilter extends DelegatingFilterProxy {
                     }
 
                     // OpenTracing hotness
-                    SpanContext context = openTracingService.get().getGlobalTracer().extract(
-                        Format.Builtin.TEXT_MAP, new TraceGUIDExtractor(wrappedRequest.getHeader(TRACE_GUID)));
+                    if (openTracingService.isPresent() && openTracingService.get().isEnabled()) {
+                        SpanContext context = openTracingService.get().getGlobalTracer().extract(
+                            Format.Builtin.TEXT_MAP, new TraceGUIDExtractor(wrappedRequest.getHeader(TRACE_GUID)));
 
-                    Tracer.SpanBuilder spanBuilder;
+                        Tracer.SpanBuilder spanBuilder;
 
-                    LOG.debug("Got the span context from request: {}", context);
+                        LOG.debug("Got the span context from request: {}", context);
 
-                    if (context == null)
-                        spanBuilder = openTracingService.get().getGlobalTracer()
-                            .buildSpan(openTracingService.get().getServiceName())
-                            .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
-                    else
-                        spanBuilder = openTracingService.get().getGlobalTracer()
-                            .buildSpan(openTracingService.get().getServiceName())
-                            .asChildOf(context)
-                            .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
+                        if (context == null)
+                            spanBuilder = openTracingService.get().getGlobalTracer()
+                                .buildSpan(openTracingService.get().getServiceName())
+                                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
+                        else
+                            spanBuilder = openTracingService.get().getGlobalTracer()
+                                .buildSpan(openTracingService.get().getServiceName())
+                                .asChildOf(context)
+                                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
 
-                    // Start the new span
-                    activeSpan = spanBuilder.startActive();
+                        // Start the new span
+                        activeSpan = spanBuilder.startActive();
 
-                    activeSpan.setOperationName(wrappedRequest.getRequestURI());
+                        activeSpan.setOperationName(wrappedRequest.getRequestURI());
 
-                    openTracingService.get().getGlobalTracer().inject(
-                        activeSpan.context(), Format.Builtin.TEXT_MAP,
-                        new TraceGUIDInjector(wrappedRequest, TRACE_GUID));
-
+                        openTracingService.get().getGlobalTracer().inject(
+                            activeSpan.context(), Format.Builtin.TEXT_MAP,
+                            new TraceGUIDInjector(wrappedRequest, TRACE_GUID));
+                    }
                     if ((currentSystemModel.get().getTracingHeader() != null) &&
                             currentSystemModel.get().getTracingHeader().isSecondaryPlainText()) {
                         TRACE_ID_LOG.trace("Adding plain text trans id to request: {}", traceGUID);

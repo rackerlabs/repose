@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<opentracing xmlns="http://docs.openrepose.org/repose/opentracing/v1.0"
+              enabled="false"
+              name="repose"
+              tracer="jaeger"
+              tracer.host="localhost"
+              tracer.port="${tracingPort}"
+/>
