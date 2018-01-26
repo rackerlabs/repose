@@ -3,10 +3,10 @@
     <tenant-handling
         send-all-tenant-ids="true">
         <validate-tenant
-            header-extraction-name="X-Tenant-ID"
             strip-token-tenant-prefixes="/foo:/bar-"
             enable-legacy-roles-mode="false">
             <uri-extraction-regex>.*/extract/([-|\w]+)/?.*</uri-extraction-regex>
+            <header-extraction-name>X-Tenant-ID</header-extraction-name>
         </validate-tenant>
         <send-tenant-id-quality
             default-tenant-quality="0.8"

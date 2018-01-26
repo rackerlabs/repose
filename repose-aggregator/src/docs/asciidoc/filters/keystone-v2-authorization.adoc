@@ -77,12 +77,13 @@ This configuration will validate the tenant ID in the request against the tenant
         send-all-tenant-ids="true"> <!--2-->
 
         <validate-tenant <!--3-->
-            header-extraction-name="x-expected-tenant" <!--4-->
-            strip-token-tenant-prefixes="/foo:/bar-" <!--5-->
-            enable-legacy-roles-mode="false"> <!--6-->
+            strip-token-tenant-prefixes="/foo:/bar-" <!--4-->
+            enable-legacy-roles-mode="false"> <!--5-->
 
-            <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex> <!--7-->
+            <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex> <!--6-->
             <uri-extraction-regex>.*/clients/([-|\w]+)/?.*</uri-extraction-regex>
+            <header-extraction-name>x-expected-tenant</header-extraction-name> <!--7-->
+            <header-extraction-name>x-other-tenant</header-extraction-name>
         </validate-tenant>
 
         <send-tenant-id-quality <!--8-->
@@ -96,15 +97,15 @@ This configuration will validate the tenant ID in the request against the tenant
 <2> Indicates if all the Tenant IDs from the user and the roles the user has should be sent or not. +
     Default: `false`
 <3> If included, then the user will be authorized if and only if the user data contains a tenant ID matching the tenant ID extracted from the request.
-<4> Declares that a tenant ID should be extracted from the `x-expected-tenant` header in the request.
-<5> A `/` delimited list of prefixes to attempt to strip from the Tenant ID in the token response from the Keystone v2 Identity service.
+<4> A `/` delimited list of prefixes to attempt to strip from the Tenant ID in the token response from the Keystone v2 Identity service.
     The post-strip Tenant ID is only used in the Tenant Validation check.
-<6> If in legacy roles mode, then all roles associated with a user token are forwarded.
+<5> If in legacy roles mode, then all roles associated with a user token are forwarded.
     If NOT in legacy roles mode, then roles which aren't tied to the tenant provided in the request will NOT be forwarded UNLESS the user has a pre-authorized role. +
     Default: `false`
-<7> Declares that a tenant ID should be extracted from the request URI.
+<6> Declares that a tenant ID should be extracted from the request URI.
     A https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] with at least one capture group.
     The first capture group must be around the portion of the URI to extract the Tenant ID from for validation.
+<7> Declares that a tenant ID should be extracted from the `x-expected-tenant` header in the request.
 <8> If this element is included, then include Quality parameters on all the tenant ID headers sent.
 <9> The default tenant has the highest quality by default. +
     Default: `0.9`
@@ -152,7 +153,9 @@ Otherwise, authorization is performed against the request.
     </white-list>
 
     <tenant-handling>
-        <validate-tenant header-extraction-name="x-expected-tenant"/>
+        <validate-tenant>
+            <header-extraction-name>x-expected-tenant</header-extraction-name>
+        </validate-tenant>
     </tenant-handling>
 </keystone-v2-authorization>
 ----
@@ -171,7 +174,9 @@ Pre-authorized roles can be configured to allow a user to bypass authorization i
     </pre-authorized-roles>
 
     <tenant-handling>
-        <validate-tenant header-extraction-name="x-expected-tenant"/>
+        <validate-tenant>
+            <header-extraction-name>x-expected-tenant</header-extraction-name>
+        </validate-tenant>
     </tenant-handling>
 </keystone-v2-authorization>
 ----
@@ -193,7 +198,9 @@ The the `X-Identity-Status` header is in addition to the regular `X-Delegated` d
     <delegating quality="0.7"/> <!--1--> <!--2-->
 
     <tenant-handling>
-        <validate-tenant header-extraction-name="x-expected-tenant"/>
+        <validate-tenant>
+            <header-extraction-name>x-expected-tenant</header-extraction-name>
+        </validate-tenant>
     </tenant-handling>
 </keystone-v2-authorization>
 ----

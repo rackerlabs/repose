@@ -105,7 +105,9 @@ class KeystoneV2SchemaTest extends ConfigurationTest {
       val config = """<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
                      |    <identity-service uri="https://some.identity.com"/>
                      |    <tenant-handling>
-                     |        <validate-tenant header-extraction-name="x-expected-tenant"/>
+                     |        <validate-tenant>
+                     |            <header-extraction-name>x-expected-tenant</header-extraction-name>
+                     |        </validate-tenant>
                      |    </tenant-handling>
                      |</keystone-v2>""".stripMargin
       validator.validateConfigString(config)
@@ -115,8 +117,9 @@ class KeystoneV2SchemaTest extends ConfigurationTest {
       val config = """<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
                      |    <identity-service uri="https://some.identity.com"/>
                      |    <tenant-handling>
-                     |        <validate-tenant header-extraction-name="x-expected-tenant">
+                     |        <validate-tenant>
                      |            <uri-extraction-regex>[^\/]*\/?([^\/]+)</uri-extraction-regex>
+                     |            <header-extraction-name>x-expected-tenant</header-extraction-name>
                      |        </validate-tenant>
                      |    </tenant-handling>
                      |</keystone-v2>""".stripMargin

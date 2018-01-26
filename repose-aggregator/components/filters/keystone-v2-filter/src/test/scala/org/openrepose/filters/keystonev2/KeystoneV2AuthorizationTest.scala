@@ -75,6 +75,18 @@ class KeystoneV2AuthorizationTest  extends FunSpec
       getRequestTenant(config, new HttpServletRequestWrapper(request)) shouldEqual "bestTenant"
     }
 
+    it("should return the highest quality tenant from the first configured tenant header") {
+      val xTenantIds = Seq("xTenant1;q=0.1",  "xTenant2;q=0.5", "xTenant3;q=1.0")
+      val myTenantIds = Seq("myTenant1", "myTenant2")
+      val request = new MockHttpServletRequest()
+      val config = new ValidateTenantType()
+        .withHeaderExtractionName(tenantHeaderName)
+      xTenantIds.foreach(request.addHeader(tenantHeaderName, _))
+      myTenantIds.foreach(request.addHeader("My-Tenant-Ids", _))
+
+      getRequestTenant(config, new HttpServletRequestWrapper(request)) shouldEqual "xTenant3"
+    }
+
     it("should return a tenant from the URI") {
       val tenantId = "someTenant"
       val request = new MockHttpServletRequest("GET", s"/$tenantId")

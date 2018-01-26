@@ -27,9 +27,10 @@
     </white-list>
 
     <tenant-handling send-all-tenant-ids="true">
-        <validate-tenant header-extraction-name="x-expected-tenant">
+        <validate-tenant>
             <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
             <uri-extraction-regex>.*/clients/([-|\w]+)/?.*</uri-extraction-regex>
+            <header-extraction-name>x-expected-tenant</header-extraction-name>
         </validate-tenant>
         <send-tenant-id-quality default-tenant-quality="1.0" roles-tenant-quality="0.5"/>
     </tenant-handling>
