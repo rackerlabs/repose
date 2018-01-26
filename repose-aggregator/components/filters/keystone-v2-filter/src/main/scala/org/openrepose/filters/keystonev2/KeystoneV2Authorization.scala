@@ -60,7 +60,7 @@ object KeystoneV2Authorization extends LazyLogging {
   def getRequestTenant(config: ValidateTenantType, request: HttpServletRequestWrapper): String = {
     Option(config).flatMap(validateTenantConfig =>
       Option(validateTenantConfig.getHeaderExtractionName).flatMap(headerName =>
-        request.getSplittableHeaderScala(headerName).headOption
+        request.getPreferredSplittableHeaders(headerName).asScala.headOption
       ).orElse(
         Option(validateTenantConfig.getUriExtractionRegex).flatMap(uriExtractionRegexList =>
           uriExtractionRegexList.asScala.toStream.map(_.r).flatMap(uriExtractionRegex =>
