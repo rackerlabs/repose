@@ -39,7 +39,7 @@ import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaS
 import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.{KeystoneV2Result, Reject}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
-import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationFailed, AuthorizationPassed, UnparseableTenantException}
+import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationFailed, AuthorizationPassed, UnparsableTenantException}
 import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, TokenRequestAttributeName, ValidToken}
 import org.openrepose.filters.keystonev2.config._
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
@@ -387,7 +387,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     KeystoneV2Authorization.handleFailures orElse {
       case Failure(e: MissingAuthTokenException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
       case Failure(e: NotFoundException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
-      case Failure(e: UnparseableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+      case Failure(e: UnparsableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
       case Failure(e: IdentityCommunicationException) => Reject(SC_BAD_GATEWAY, Some(e.getMessage))
       case Failure(e: OverLimitException) =>
         if (isSelfValidating) {
@@ -598,6 +598,8 @@ object KeystoneV2Filter {
     }
   }
 
-  case class MissingAuthTokenException(message: String, cause: Throwable = null) extends Exception(message, cause)
+  abstract class AuthenticationException(message: String, cause: Throwable) extends Exception(message, cause)
+
+  case class MissingAuthTokenException(message: String, cause: Throwable = null) extends AuthenticationException(message, cause)
 
 }

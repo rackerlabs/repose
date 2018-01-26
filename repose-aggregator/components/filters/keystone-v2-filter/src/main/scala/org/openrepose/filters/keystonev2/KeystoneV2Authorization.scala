@@ -35,7 +35,7 @@ object KeystoneV2Authorization extends LazyLogging {
   val handleFailures: PartialFunction[Try[Unit.type], KeystoneV2Result] = {
     case Failure(e: InvalidTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
     case Failure(e: UnauthorizedEndpointException) => Reject(SC_FORBIDDEN, Some(e.getMessage))
-    case Failure(e: UnparseableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+    case Failure(e: UnparsableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
   }
 
   // TODO: Take tenants to roles mapping instead of token to calculate scoped roles.
@@ -71,7 +71,7 @@ object KeystoneV2Authorization extends LazyLogging {
           ).headOption
         )
       )
-    ).getOrElse(throw UnparseableTenantException("Could not parse tenant from the URI and/or the configured header"))
+    ).getOrElse(throw UnparsableTenantException("Could not parse tenant from the URI and/or the configured header"))
   }
 
   def getTenantScopedRoles(config: ValidateTenantType, tenantToMatch: => String, roles: Seq[Role]): Seq[Role] = {
@@ -148,10 +148,12 @@ object KeystoneV2Authorization extends LazyLogging {
   case class AuthorizationPassed(scopedToken: ValidToken, matchedTenant: Option[String]) extends AuthorizationInfo
   case class AuthorizationFailed(scopedToken: ValidToken, matchedTenant: Option[String], exception: Throwable) extends AuthorizationInfo
 
-  case class UnauthorizedEndpointException(message: String, cause: Throwable = null) extends Exception(message, cause)
+  abstract class AuthorizationException(message: String, cause: Throwable) extends Exception(message, cause)
 
-  case class InvalidTenantException(message: String, cause: Throwable = null) extends Exception(message, cause)
+  case class UnauthorizedEndpointException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
 
-  case class UnparseableTenantException(message: String, cause: Throwable = null) extends Exception(message, cause)
+  case class InvalidTenantException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
+
+  case class UnparsableTenantException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
 
 }

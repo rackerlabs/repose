@@ -29,7 +29,7 @@ import org.openrepose.commons.utils.http.PowerApiHeader.X_CATALOG
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.Reject
-import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{InvalidTenantException, UnauthorizedEndpointException, UnparseableTenantException}
+import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{InvalidTenantException, UnauthorizedEndpointException, UnparsableTenantException}
 import org.openrepose.filters.keystonev2.KeystoneV2AuthorizationFilter.{InvalidEndpointsException, InvalidTokenException, MissingEndpointsException, MissingTokenException}
 import org.openrepose.filters.keystonev2.KeystoneV2Common.{Endpoint, Role, TokenRequestAttributeName}
 import org.openrepose.filters.keystonev2.KeystoneV2TestCommon.createValidToken
@@ -247,7 +247,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
     }
 
     it("should reject as unauthorized when a failure is caused by an unparseable tenant") {
-      val result = keystoneV2AuthorizationFilter.handleFailures(Failure(UnparseableTenantException("Unparseable tenant")))
+      val result = keystoneV2AuthorizationFilter.handleFailures(Failure(UnparsableTenantException("Unparseable tenant")))
 
       result shouldBe a[Reject]
       result.asInstanceOf[Reject].status shouldEqual SC_UNAUTHORIZED

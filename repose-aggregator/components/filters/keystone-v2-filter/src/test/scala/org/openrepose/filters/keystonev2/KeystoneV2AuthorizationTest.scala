@@ -44,7 +44,7 @@ class KeystoneV2AuthorizationTest  extends FunSpec
   describe("handleFailures") {
     List((InvalidTenantException("Foo"), SC_UNAUTHORIZED, "Foo"),
          (UnauthorizedEndpointException("Bar"), SC_FORBIDDEN, "Bar"),
-         (UnparseableTenantException("Baz"), SC_UNAUTHORIZED, "Baz")).foreach { case(exception, statusCode, message) =>
+         (UnparsableTenantException("Baz"), SC_UNAUTHORIZED, "Baz")).foreach { case(exception, statusCode, message) =>
 
       it(s"should return $statusCode for ${exception.getClass.getSimpleName}") {
         handleFailures.valueAt(Failure(exception)) should matchPattern { case Reject(status, Some(responseMessage), _) if (status == statusCode) && (responseMessage == message) => }
@@ -92,7 +92,7 @@ class KeystoneV2AuthorizationTest  extends FunSpec
         .withHeaderExtractionName(tenantHeaderName)
         .withUriExtractionRegex("[^/]*/([^/]+)")
 
-      an[UnparseableTenantException] should be thrownBy getRequestTenant(config, new HttpServletRequestWrapper(request))
+      an[UnparsableTenantException] should be thrownBy getRequestTenant(config, new HttpServletRequestWrapper(request))
     }
   }
 

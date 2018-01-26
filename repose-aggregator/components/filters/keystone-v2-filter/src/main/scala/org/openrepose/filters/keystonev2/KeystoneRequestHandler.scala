@@ -258,20 +258,20 @@ object KeystoneRequestHandler {
     }
   }
 
-  trait IdentityException
+  abstract class IdentityException(message: String, cause: Throwable) extends Exception(message, cause)
 
-  case class AdminTokenUnauthorizedException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
+  case class AdminTokenUnauthorizedException(message: String, cause: Throwable = null) extends IdentityException(message, cause)
 
-  case class IdentityAdminTokenException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
+  case class IdentityAdminTokenException(message: String, cause: Throwable = null) extends IdentityException(message, cause)
 
-  case class IdentityResponseProcessingException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
+  case class IdentityResponseProcessingException(message: String, cause: Throwable = null) extends IdentityException(message, cause)
 
-  case class NotFoundException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
+  case class NotFoundException(message: String, cause: Throwable = null) extends IdentityException(message, cause)
 
-  case class BadRequestException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
+  case class BadRequestException(message: String, cause: Throwable = null) extends IdentityException(message, cause)
 
-  case class IdentityCommunicationException(message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
+  case class IdentityCommunicationException(message: String, cause: Throwable = null) extends IdentityException(message, cause)
 
-  case class OverLimitException(statusCode: Int, retryAfter: String, message: String, cause: Throwable = null) extends Exception(message, cause) with IdentityException
+  case class OverLimitException(statusCode: Int, retryAfter: String, message: String, cause: Throwable = null) extends IdentityException(message, cause)
 
 }

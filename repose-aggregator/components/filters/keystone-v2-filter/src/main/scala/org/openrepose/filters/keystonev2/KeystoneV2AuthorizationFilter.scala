@@ -31,7 +31,7 @@ import org.openrepose.commons.utils.http.PowerApiHeader.X_CATALOG
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.{KeystoneV2Result, Reject}
-import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationFailed, AuthorizationPassed, doAuthorization}
+import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationException, AuthorizationFailed, AuthorizationPassed, doAuthorization}
 import org.openrepose.filters.keystonev2.KeystoneV2Common.{Endpoint, EndpointsData, TokenRequestAttributeName, ValidToken}
 import org.openrepose.filters.keystonev2.config.KeystoneV2Config
 import play.api.libs.json.Json
@@ -120,12 +120,12 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
 
 object KeystoneV2AuthorizationFilter {
 
-  case class MissingTokenException(message: String, cause: Throwable = null) extends Exception(message, cause)
+  case class MissingTokenException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
 
-  case class MissingEndpointsException(message: String, cause: Throwable = null) extends Exception(message, cause)
+  case class MissingEndpointsException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
 
-  case class InvalidTokenException(message: String, cause: Throwable = null) extends Exception(message, cause)
+  case class InvalidTokenException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
 
-  case class InvalidEndpointsException(message: String, cause: Throwable = null) extends Exception(message, cause)
+  case class InvalidEndpointsException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
 
 }
