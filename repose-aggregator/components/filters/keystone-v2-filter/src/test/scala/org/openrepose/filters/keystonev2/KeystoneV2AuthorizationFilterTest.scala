@@ -23,7 +23,6 @@ import java.util.Base64
 import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_INTERNAL_SERVER_ERROR, SC_UNAUTHORIZED}
 
 import org.junit.runner.RunWith
-import org.openrepose.commons.utils.http.OpenStackServiceHeader
 import org.openrepose.commons.utils.http.OpenStackServiceHeader.{ROLES, TENANT_ID}
 import org.openrepose.commons.utils.http.PowerApiHeader.X_CATALOG
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
@@ -34,7 +33,7 @@ import org.openrepose.filters.keystonev2.KeystoneV2AuthorizationFilter.{InvalidE
 import org.openrepose.filters.keystonev2.KeystoneV2Common.{Endpoint, Role, TokenRequestAttributeName}
 import org.openrepose.filters.keystonev2.KeystoneV2TestCommon.createValidToken
 import org.openrepose.filters.keystonev2.config.TenantHandlingType.SendTenantIdQuality
-import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, TenantHandlingType, ValidateTenantType}
+import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, TenantHandlingType, UriExtractionType, ValidateTenantType}
 import org.scalatest.TryValues._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -290,7 +289,8 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
       keystoneV2AuthorizationFilter.configuration = new KeystoneV2Config()
         .withTenantHandling(new TenantHandlingType()
           .withValidateTenant(new ValidateTenantType()
-            .withUriExtractionRegex("[^/]*/([^/]+)")))
+            .withUriExtractionRegexAndHeaderExtractionName(new UriExtractionType()
+                .withValue("[^/]*/([^/]+)"))))
 
       val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
       request.setAttribute(TokenRequestAttributeName, createValidToken(defaultTenantId = Some(userTenantId), tenantIds = miscTenantIds))

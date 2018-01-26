@@ -121,8 +121,8 @@
     </xs:complexType>
 
     <xs:complexType name="ValidateTenantType">
-        <xs:sequence>
-            <xs:element name="uri-extraction-regex" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+        <xs:sequence maxOccurs="unbounded">
+            <xs:element name="uri-extraction-regex" type="UriExtractionType" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>
@@ -133,7 +133,7 @@
                 </xs:annotation>
             </xs:element>
 
-            <xs:element name="header-extraction-name" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="header-extraction-name" type="HeaderExtractionType" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>
@@ -219,6 +219,24 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ExtractionType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string"/>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="UriExtractionType">
+        <xs:simpleContent>
+            <xs:extension base="ExtractionType"/>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="HeaderExtractionType">
+        <xs:simpleContent>
+            <xs:extension base="ExtractionType"/>
+        </xs:simpleContent>
     </xs:complexType>
 
     <xs:simpleType name="QualityType">

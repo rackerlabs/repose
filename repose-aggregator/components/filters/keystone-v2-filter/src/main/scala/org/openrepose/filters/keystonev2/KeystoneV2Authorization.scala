@@ -59,20 +59,20 @@ object KeystoneV2Authorization extends LazyLogging {
   // TODO: Switch to getRequestTenants (plural) and include all tenants extracted. This is a behavior change.
   def getRequestTenant(config: ValidateTenantType, request: HttpServletRequestWrapper): String = {
     Option(config).flatMap(validateTenantConfig =>
-      Option(validateTenantConfig.getHeaderExtractionName).flatMap(headerExtractionNameList =>
-        headerExtractionNameList.asScala.toStream
-          .map(request.getPreferredSplittableHeaders)
-          .flatMap(_.asScala)
-          .headOption
-      ).orElse(
-        Option(validateTenantConfig.getUriExtractionRegex).flatMap(uriExtractionRegexList =>
-          uriExtractionRegexList.asScala.toStream.map(_.r).flatMap(uriExtractionRegex =>
+      Option(validateTenantConfig.getUriExtractionRegexAndHeaderExtractionName).flatMap(extractions =>
+        (extractions.asScala.toStream map {
+          case headerExtraction: HeaderExtractionType =>
+            request.getPreferredSplittableHeaders(headerExtraction.getValue).asScala.headOption
+          case uriExtraction: UriExtractionType =>
+            val uriRegex = uriExtraction.getValue.r
             request.getRequestURI match {
-              case uriExtractionRegex(tenantId, _*) => Option(tenantId)
+              case uriRegex(tenantId, _*) => Some(tenantId)
               case _ => None
             }
-          ).headOption
-        )
+          case _ =>
+            logger.error("An unexpected tenant extraction type was encountered")
+            None
+        }).find(_.nonEmpty).flatten
       )
     ).getOrElse(throw UnparsableTenantException("Could not parse tenant from the URI and/or the configured header"))
   }

@@ -25,7 +25,7 @@ import org.junit.runner.RunWith
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.Reject
 import org.openrepose.filters.keystonev2.KeystoneV2Common.{Endpoint, EndpointsData, Role, ValidToken}
-import org.openrepose.filters.keystonev2.config.{RolesList, ServiceEndpointType, ValidateTenantType}
+import org.openrepose.filters.keystonev2.config._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterEach, FunSpec, PartialFunctionValues, TryValues}
 import org.springframework.mock.web.MockHttpServletRequest
@@ -59,7 +59,8 @@ class KeystoneV2AuthorizationTest  extends FunSpec
       val tenantId = "someTenant"
       val request = new MockHttpServletRequest()
       val config = new ValidateTenantType()
-        .withHeaderExtractionName(tenantHeaderName)
+        .withUriExtractionRegexAndHeaderExtractionName(
+          new HeaderExtractionType().withValue(tenantHeaderName))
       request.addHeader(tenantHeaderName, tenantId)
 
       getRequestTenant(config, new HttpServletRequestWrapper(request)) shouldEqual tenantId
@@ -69,7 +70,8 @@ class KeystoneV2AuthorizationTest  extends FunSpec
       val tenantIds = Seq("lowTenant;q=0.1",  "midTenant;q=0.5", "bestTenant;q=1.0")
       val request = new MockHttpServletRequest()
       val config = new ValidateTenantType()
-        .withHeaderExtractionName(tenantHeaderName)
+        .withUriExtractionRegexAndHeaderExtractionName(
+          new HeaderExtractionType().withValue(tenantHeaderName))
       tenantIds.foreach(request.addHeader(tenantHeaderName, _))
 
       getRequestTenant(config, new HttpServletRequestWrapper(request)) shouldEqual "bestTenant"
@@ -80,7 +82,8 @@ class KeystoneV2AuthorizationTest  extends FunSpec
       val myTenantIds = Seq("myTenant1", "myTenant2")
       val request = new MockHttpServletRequest()
       val config = new ValidateTenantType()
-        .withHeaderExtractionName(tenantHeaderName)
+        .withUriExtractionRegexAndHeaderExtractionName(
+          new HeaderExtractionType().withValue(tenantHeaderName))
       xTenantIds.foreach(request.addHeader(tenantHeaderName, _))
       myTenantIds.foreach(request.addHeader("My-Tenant-Ids", _))
 
@@ -91,7 +94,8 @@ class KeystoneV2AuthorizationTest  extends FunSpec
       val tenantId = "someTenant"
       val request = new MockHttpServletRequest("GET", s"/$tenantId")
       val config = new ValidateTenantType()
-          .withUriExtractionRegex("[^/]*/([^/]+)")
+        .withUriExtractionRegexAndHeaderExtractionName(
+          new UriExtractionType().withValue("[^/]*/([^/]+)"))
 
       getRequestTenant(config, new HttpServletRequestWrapper(request)) shouldEqual tenantId
     }
@@ -101,8 +105,9 @@ class KeystoneV2AuthorizationTest  extends FunSpec
       val uriTenantId = "uriTenant"
       val request = new MockHttpServletRequest("GET", s"/$uriTenantId")
       val config = new ValidateTenantType()
-        .withHeaderExtractionName(tenantHeaderName)
-        .withUriExtractionRegex("[^/]*/([^/]+)")
+        .withUriExtractionRegexAndHeaderExtractionName(
+          new HeaderExtractionType().withValue(tenantHeaderName),
+          new UriExtractionType().withValue("[^/]*/([^/]+)"))
       request.addHeader(tenantHeaderName, headerTenantId)
 
       getRequestTenant(config, new HttpServletRequestWrapper(request)) shouldEqual headerTenantId
@@ -111,8 +116,9 @@ class KeystoneV2AuthorizationTest  extends FunSpec
     it("should throw an exception if no tenant can be found") {
       val request = new MockHttpServletRequest()
       val config = new ValidateTenantType()
-        .withHeaderExtractionName(tenantHeaderName)
-        .withUriExtractionRegex("[^/]*/([^/]+)")
+        .withUriExtractionRegexAndHeaderExtractionName(
+          new HeaderExtractionType().withValue(tenantHeaderName),
+          new UriExtractionType().withValue("[^/]*/([^/]+)"))
 
       an[UnparsableTenantException] should be thrownBy getRequestTenant(config, new HttpServletRequestWrapper(request))
     }
