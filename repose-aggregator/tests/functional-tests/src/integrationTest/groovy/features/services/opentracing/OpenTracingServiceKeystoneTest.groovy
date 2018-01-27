@@ -83,9 +83,9 @@ class OpenTracingServiceKeystoneTest extends ReposeValveTest {
             def keystoneTransIdByteArray = messageChain.handlings.get(0).request.headers.getFirstValue("x-trans-id").decodeBase64()
             def keystoneTransIdObject = slurper.parse(keystoneTransIdByteArray)
             assert keystoneTransIdObject.keySet().size() == 3
-            keystoneTransIdObject.keySet().contains("requestId")
-            keystoneTransIdObject.keySet().contains("origin")
-            keystoneTransIdObject.keySet().contains("uber-trace-id")
+            assert keystoneTransIdObject.keySet().contains("requestId")
+            assert keystoneTransIdObject.keySet().contains("origin")
+            assert keystoneTransIdObject.keySet().contains("uber-trace-id")
             assert keystoneTransIdObject.requestId != null
             assert keystoneTransIdObject.origin == null
             spanList << keystoneTransIdObject["uber-trace-id"]

@@ -45,6 +45,11 @@
             </xs:documentation>
         </xs:annotation>
 
+        <xs:sequence>
+            <xs:element name="jaeger-sampling-config" type="JaegerSamplingConfiguration" minOccurs="0"/>
+        </xs:sequence>
+
+
 
         <xs:attribute name="enabled" type="xs:boolean" default="true">
             <xs:annotation>
@@ -119,11 +124,118 @@
 
     </xs:complexType>
 
+    <xs:complexType name="JaegerSamplingConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Jaeger sampling configuration.  As of v0.21.0, there are 4 types of configurations:
+
+                    - constant (either sample or not)
+                    - probabilistic (probability of sampling between 0.0 (never) and 1.0 (always)
+                    - rate limiting (maximum traces per second.  Defaults to 1.0 traces per second)
+                    - guaranteed throughput (combination of rate limiting and probabilistic)
+                    - per operation (operation/specific probabilistic sampling.  Samples on names of requests)
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:choice>
+            <xs:element name="jaeger-sampling-const" type="JaegerSamplingConst"/>
+            <xs:element name="jaeger-sampling-probabilistic" type="JaegerSamplingProbabilistic"/>
+            <xs:element name="jaeger-sampling-rate-limiting" type="JaegerSamplingRateLimiting"/>
+        </xs:choice>
+
+        <xs:attribute name="sample-type" type="jaegerSampleType" default="probabilistic">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Sampler type:
+
+                        - constant (either sample or not)
+                        - probabilistic (probability of sampling between 0.0 (never) and 1.0 (always)
+                        - rate limiting (maximum traces per second.  Defaults to 1.0 traces per second)
+                        - guaranteed throughput (combination of rate limiting and probabilistic)
+                        - per operation (operation/specific probabilistic sampling.  Samples on names of requests)
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="JaegerSamplingConst">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Jaeger sampling configuration for const.  Set to either 1 (enabled) or 0 (disabled)
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="value" type="xs:int" default="1">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Set to either 1 (enabled) or 0 (disabled)
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="JaegerSamplingProbabilistic">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Jaeger sampling configuration for probabilistic.  Set to double between 0 and 1.0.  Defaults to 0.001
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="value" type="xs:double" default="0.001">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Set to double between 0 and 1.0.  Defaults to 0.01
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="JaegerSamplingRateLimiting">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Jaeger sampling configuration for rate limited.  Set to double.  If less than 1.0, set to 1.0 in Jaeger.
+                    Defaults to 1.0
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="maxTracesPerSecond" type="xs:double" default="1.0">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Set to double.  If less than 1.0, set to 1.0 in Jaeger. Defaults to 1.0
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
     <!-- Type definitions -->
     <xs:simpleType name="tracerType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="jaeger"/>
             <xs:enumeration value="zipkin"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="jaegerSampleType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="const"/>
+            <xs:enumeration value="probabilistic"/>
+            <xs:enumeration value="rate-limited"/>
         </xs:restriction>
     </xs:simpleType>
 
