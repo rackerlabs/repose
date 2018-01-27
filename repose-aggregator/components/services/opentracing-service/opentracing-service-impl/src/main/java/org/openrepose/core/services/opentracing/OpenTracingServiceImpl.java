@@ -147,26 +147,81 @@ public class OpenTracingServiceImpl implements OpenTracingService {
 
     public void configure(OpenTracingConfig openTracingConfig) {
         LOG.trace("get the tracer from configuration");
-        switch (openTracingConfig.getTracer()) {
-            case JAEGER:
-                LOG.debug("register Jaeger tracer");
-                Configuration configuration = new com.uber.jaeger.Configuration(
-                    openTracingConfig.getName(),
-                    new com.uber.jaeger.Configuration.SamplerConfiguration("const", 1), // default configuration.  needs to read from config
-                    new com.uber.jaeger.Configuration.ReporterConfiguration(
-                        true,  // logSpans
-                        openTracingConfig.getTracerHost(),
-                        openTracingConfig.getTracerPort(),
-                        openTracingConfig.getFlushIntervalMs(),
-                        openTracingConfig.getMaxBufferSize())
-                );
 
-                LOG.trace("register the tracer with global tracer");
-                GlobalTracer.register(configuration.getTracer());
-                break;
-            default:
-                LOG.error("Invalid tracer specified.  Problem with opentracing.xsd enumeration");
-                this.isEnabled = false;
+        if (openTracingConfig.isEnabled()) {
+            switch (openTracingConfig.getTracer()) {
+                case JAEGER:
+                    LOG.debug("register Jaeger tracer");
+
+                    LOG.debug("figure out which sampler we want!");
+                    Configuration.SamplerConfiguration samplerConfiguration;
+
+                    if (openTracingConfig.getJaegerSamplingConfig() == null ) {
+                        // default to const and always on
+                        LOG.trace("no sampling configuration configured.  Default to send everything!");
+                        samplerConfiguration = new Configuration.SamplerConfiguration(
+                            "const", 1
+                        );
+                    } else {
+                        switch (openTracingConfig.getJaegerSamplingConfig().getSampleType()) {
+                            case CONST:
+                                LOG.trace("constant sampling configuration configured.");
+                                LOG.trace("Sampling value set to {}!",
+                                    openTracingConfig.getJaegerSamplingConfig().getJaegerSamplingConst().getValue());
+                                samplerConfiguration = new Configuration.SamplerConfiguration(
+                                    "const",
+                                    openTracingConfig.getJaegerSamplingConfig().getJaegerSamplingConst().getValue()
+                                );
+                                break;
+                            case RATE_LIMITED:
+                                LOG.trace("rate limiting sampling configuration configured.");
+                                LOG.trace("Rate limited to {} samples per second!",
+                                    openTracingConfig.getJaegerSamplingConfig().getJaegerSamplingRateLimiting()
+                                        .getMaxTracesPerSecond());
+                                samplerConfiguration = new Configuration.SamplerConfiguration(
+                                    "ratelimiting",
+                                    openTracingConfig.getJaegerSamplingConfig().getJaegerSamplingRateLimiting()
+                                        .getMaxTracesPerSecond()
+                                );
+                                break;
+                            case PROBABILISTIC:
+                                LOG.trace("probabilistic sampling configuration configured.");
+                                LOG.trace("Probability set t to {}!",
+                                    openTracingConfig.getJaegerSamplingConfig().getJaegerSamplingProbabilistic()
+                                        .getValue());
+                                samplerConfiguration = new Configuration.SamplerConfiguration(
+                                    "probabilistic",
+                                    openTracingConfig.getJaegerSamplingConfig().getJaegerSamplingProbabilistic()
+                                        .getValue()
+                                );
+                                break;
+                            default:
+                                // default to const and always on
+                                LOG.trace("invalid sampling configuration configured.  Default to send everything!");
+                                samplerConfiguration = new Configuration.SamplerConfiguration(
+                                    "const", 1
+                                );
+                        }
+                    }
+                    Configuration configuration = new com.uber.jaeger.Configuration(
+                        openTracingConfig.getName(),
+                        samplerConfiguration,
+                        // default configuration.  needs to read from config
+                        new com.uber.jaeger.Configuration.ReporterConfiguration(
+                            true,  // logSpans
+                            openTracingConfig.getTracerHost(),
+                            openTracingConfig.getTracerPort(),
+                            openTracingConfig.getFlushIntervalMs(),
+                            openTracingConfig.getMaxBufferSize())
+                    );
+
+                    LOG.trace("register the tracer with global tracer");
+                    GlobalTracer.register(configuration.getTracer());
+                    break;
+                default:
+                    LOG.error("Invalid tracer specified.  Problem with opentracing.xsd enumeration");
+                    this.isEnabled = false;
+            }
         }
 
         this.serviceName = openTracingConfig.getName();
