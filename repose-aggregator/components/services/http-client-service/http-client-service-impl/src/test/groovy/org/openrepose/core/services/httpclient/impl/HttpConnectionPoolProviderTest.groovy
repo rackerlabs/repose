@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,11 +35,15 @@ import org.junit.Test
 import org.openrepose.core.service.httpclient.config.HeaderListType
 import org.openrepose.core.service.httpclient.config.HeaderType
 import org.openrepose.core.service.httpclient.config.PoolType
+import org.openrepose.core.services.opentracing.OpenTracingService
 
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import java.nio.charset.Charset
+
+import static org.mockito.Mockito.mock
+
 
 class HttpConnectionPoolProviderTest {
 
@@ -55,6 +59,7 @@ class HttpConnectionPoolProviderTest {
     private final static URL CLIENT_RESOURCE = HttpConnectionPoolProviderTest.class.getResource("/client.jks")
     private final static URL SERVER_RESOURCE = HttpConnectionPoolProviderTest.class.getResource("/server.jks")
     private final static URL SINGLE_RESOURCE = HttpConnectionPoolProviderTest.class.getResource("/single.jks")
+    private OpenTracingService openTracingService = mock(OpenTracingService.class)
 
     private PoolType poolType
     private Server server
@@ -83,7 +88,7 @@ class HttpConnectionPoolProviderTest {
 
     @Test
     public void "should create client with passed-in configuration object"() {
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType) as DefaultHttpClient
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType, openTracingService) as DefaultHttpClient
 
         Map props = client.connectionManager.properties
         assert client.getParams().getParameter(CoreConnectionPNames.MAX_LINE_LENGTH) == MAX_LINE
@@ -111,7 +116,7 @@ class HttpConnectionPoolProviderTest {
                  new HeaderType(name: "serious-business", value: "tomatoes")])
         poolType.setHeaders(headerListType)
 
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType) as DefaultHttpClient
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType, openTracingService) as DefaultHttpClient
 
         def parameter = client.getParams().getParameter(ClientPNames.DEFAULT_HEADERS)
         assert parameter
@@ -129,7 +134,7 @@ class HttpConnectionPoolProviderTest {
     public void "should not add header parameter when not configured"() {
         poolType.setHeaders(null)
 
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType) as DefaultHttpClient
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType, openTracingService) as DefaultHttpClient
 
         assert !client.getParams().getParameter(ClientPNames.DEFAULT_HEADERS)
     }
@@ -184,7 +189,7 @@ class HttpConnectionPoolProviderTest {
         poolType.setTruststoreFilename(SERVER_RESOURCE.file)
         poolType.setTruststorePassword("password")
 
-        def client = HttpConnectionPoolProvider.genClient("", poolType) as DefaultHttpClient
+        def client = HttpConnectionPoolProvider.genClient("", poolType, openTracingService) as DefaultHttpClient
         def httpGet = new HttpGet("https://localhost:" + serverPort)
         def httpResponse = client.execute(httpGet)
 
@@ -239,7 +244,7 @@ class HttpConnectionPoolProviderTest {
         poolType.setKeystorePassword("password")
         poolType.setKeyPassword("password")
 
-        def client = HttpConnectionPoolProvider.genClient("", poolType) as DefaultHttpClient
+        def client = HttpConnectionPoolProvider.genClient("", poolType, openTracingService) as DefaultHttpClient
         def httpGet = new HttpGet("https://localhost:" + serverPort)
         def httpResponse = client.execute(httpGet)
 

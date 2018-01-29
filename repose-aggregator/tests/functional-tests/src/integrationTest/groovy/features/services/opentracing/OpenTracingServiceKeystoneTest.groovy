@@ -34,6 +34,8 @@ class OpenTracingServiceKeystoneTest extends ReposeValveTest {
     static MockTracer fakeTracer
     static MockIdentityV2Service fakeIdentityV2Service
 
+    static String TRACING_HEADER = "uber-trace-id"
+
     def static slurper = new groovy.json.JsonSlurper()
 
 
@@ -53,12 +55,12 @@ class OpenTracingServiceKeystoneTest extends ReposeValveTest {
         identityEndpoint = deproxy.addEndpoint(params.identityPort,
             'identity service', null, fakeIdentityV2Service.handler)
 
-        repose.start()
+        repose.start([waitOnJmxAfterStarting: false])
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
     @Unroll("Should return 200 with #method")
-    def "when OpenTracing config is specified and enabled with keystone-v2, trace information is passed in x-trans-id header"() {
+    def "when OpenTracing config is specified and enabled with keystone-v2, trace information is passed in tracing header"() {
         given:
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
@@ -76,19 +78,14 @@ class OpenTracingServiceKeystoneTest extends ReposeValveTest {
         then: "The request should have reached the origin service"
         messageChain.handlings.size() == 1
 
-        and: "keystone request contains request id, uber-trace-id and origin keys"
+        and: "keystone request contains tracing header"
         def keystoneCalls = messageChain.orphanedHandlings.size()
 
         (0..<keystoneCalls).each {
-            def keystoneTransIdByteArray = messageChain.handlings.get(0).request.headers.getFirstValue("x-trans-id").decodeBase64()
-            def keystoneTransIdObject = slurper.parse(keystoneTransIdByteArray)
-            assert keystoneTransIdObject.keySet().size() == 3
-            assert keystoneTransIdObject.keySet().contains("requestId")
-            assert keystoneTransIdObject.keySet().contains("origin")
-            assert keystoneTransIdObject.keySet().contains("uber-trace-id")
-            assert keystoneTransIdObject.requestId != null
-            assert keystoneTransIdObject.origin == null
-            spanList << keystoneTransIdObject["uber-trace-id"]
+            assert messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER)
+            def traceId = URLDecoder.decode(
+                messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER), "UTF-8")
+            spanList << traceId
         }
 
 
@@ -99,27 +96,16 @@ class OpenTracingServiceKeystoneTest extends ReposeValveTest {
         }
 
 
-        and: "request should have x-trans-id header"
-        messageChain.handlings.get(0).request.headers.contains("x-trans-id")
+        and: "request should have tracing header"
+        messageChain.handlings.get(0).request.headers.contains(TRACING_HEADER)
 
-        and: "request contains request id, uber-trace-id and origin keys"
-        def originTransIdByteArray = messageChain.handlings.get(0).request.headers.getFirstValue("x-trans-id").decodeBase64()
-        def originTransIdObject = slurper.parse(originTransIdByteArray)
-        originTransIdObject.keySet().size() == 3
-        originTransIdObject.keySet().contains("requestId")
-        originTransIdObject.keySet().contains("origin")
-        originTransIdObject.keySet().contains("uber-trace-id")
-        originTransIdObject.requestId != null
-        originTransIdObject.origin == null
-        def originTraceId = originTransIdObject["uber-trace-id"]
-
-        and: "OpenTracingService has logged that origin span was sent to tracer"
-        def originLogLines = reposeLogSearch.searchByString("Span reported: $originTraceId")
-        originLogLines.size() == 1
+        and: "OpenTracingService has logged that span was sent to tracer"
+        def traceId = URLDecoder.decode(messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER), "UTF-8")
+        def logLines = reposeLogSearch.searchByString("Span reported: $traceId")
+        logLines.size() == 1
 
         and: "Repose should return with a 200"
         messageChain.receivedResponse.code == "200"
-
 
         where:
         method << ["GET", "PUT", "POST", "PATCH", "DELETE", "TRACE", "HEAD"]

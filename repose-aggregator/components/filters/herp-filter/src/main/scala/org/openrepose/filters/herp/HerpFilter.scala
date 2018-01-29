@@ -38,7 +38,6 @@ import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.commons.utils.servlet.http.{HeaderInteractor, HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.opentracing.OpenTracingService
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.filters.herp.config.HerpConfig
 import org.slf4j.{Logger, LoggerFactory}
@@ -52,7 +51,6 @@ import scala.util.matching.Regex
 
 @Named
 class HerpFilter @Inject()(configurationService: ConfigurationService,
-                           openTracingService: OpenTracingService,
                            @Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
                            @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String)
   extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {

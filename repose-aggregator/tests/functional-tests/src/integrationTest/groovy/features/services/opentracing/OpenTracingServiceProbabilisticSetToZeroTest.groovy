@@ -25,7 +25,7 @@ import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
 
 /**
- * Tests that sampling const type is set to 0 (nothing gets traced)
+ * Tests that sampling probability type is set to 0 (nothing gets reported)
  */
 class OpenTracingServiceProbabilisticSetToZeroTest extends ReposeValveTest {
 
@@ -33,6 +33,8 @@ class OpenTracingServiceProbabilisticSetToZeroTest extends ReposeValveTest {
     def static identityEndpoint
 
     static MockTracer fakeTracer
+
+    static String TRACING_HEADER = "uber-trace-id"
 
     def static slurper = new groovy.json.JsonSlurper()
 
@@ -55,7 +57,7 @@ class OpenTracingServiceProbabilisticSetToZeroTest extends ReposeValveTest {
     }
 
     @Unroll("Should return 200 with #method")
-    def "when OpenTracing config is specified and enabled, trace information is passed in x-trans-id header"() {
+    def "when OpenTracing config is specified and enabled, trace information is passed in tracing header"() {
 
         when: "Request is sent through repose"
         def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: method)
@@ -63,21 +65,11 @@ class OpenTracingServiceProbabilisticSetToZeroTest extends ReposeValveTest {
         then: "The request should have reached the origin service"
         messageChain.handlings.size() == 1
 
-        and: "request should have x-trans-id header"
-        messageChain.handlings.get(0).request.headers.contains("x-trans-id")
+        and: "request should have tracing header"
+        messageChain.handlings.get(0).request.headers.contains(TRACING_HEADER)
 
-        and: "request contains request id, uber-trace-id and origin keys because sampling is done on collector"
-        def transIdByteArray = messageChain.handlings.get(0).request.headers.getFirstValue("x-trans-id").decodeBase64()
-        def transIdObject = slurper.parse(transIdByteArray)
-        transIdObject.keySet().size() == 3
-        transIdObject.keySet().contains("requestId")
-        transIdObject.keySet().contains("origin")
-        transIdObject.keySet().contains("uber-trace-id")
-        transIdObject.requestId != null
-        transIdObject.origin == null
-        def traceId = transIdObject["uber-trace-id"]
-
-        and: "OpenTracingService has logged that span was not collected in the tracer"
+        and: "OpenTracingService has not logged that span was reported (since probability is set to 0)"
+        def traceId = URLDecoder.decode(messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER), "UTF-8")
         def logLines = reposeLogSearch.searchByString("Span reported: $traceId")
         logLines.size() == 0
 

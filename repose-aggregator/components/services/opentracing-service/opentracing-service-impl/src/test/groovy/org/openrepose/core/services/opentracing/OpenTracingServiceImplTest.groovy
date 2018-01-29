@@ -30,6 +30,11 @@ import org.junit.Test
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.config.resource.ConfigurationResource
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver
+import org.openrepose.core.service.opentracing.config.JaegerSampleType
+import org.openrepose.core.service.opentracing.config.JaegerSamplingConfiguration
+import org.openrepose.core.service.opentracing.config.JaegerSamplingConst
+import org.openrepose.core.service.opentracing.config.JaegerSamplingProbabilistic
+import org.openrepose.core.service.opentracing.config.JaegerSamplingRateLimiting
 import org.openrepose.core.service.opentracing.config.OpenTracingConfig
 import org.openrepose.core.service.opentracing.config.TracerType
 import org.openrepose.core.services.config.ConfigurationService
@@ -327,6 +332,111 @@ class OpenTracingServiceImplTest{
         when(openTracingConfig.getFlushIntervalMs()).thenReturn(10000)
 
         openTracingService.configure(openTracingConfig)
+
+    }
+
+    @Test
+    void testConfigureWithConst() {
+
+        ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class)
+        ConfigurationResource configurationResource = mock(ConfigurationResource.class)
+        when(configurationResource.exists()).thenReturn(true)
+        when(configurationService.getResourceResolver()).thenReturn(resourceResolver)
+        when(resourceResolver.resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+
+        OpenTracingConfig openTracingConfig = mock(OpenTracingConfig.class)
+        when(openTracingConfig.getTracer()).thenReturn(TracerType.JAEGER)
+        when(openTracingConfig.getTracerHost()).thenReturn("localhost")
+        when(openTracingConfig.getTracerPort()).thenReturn(80)
+        when(openTracingConfig.isEnabled()).thenReturn(true)
+        when(openTracingConfig.getName()).thenReturn("fake-tracer")
+        when(openTracingConfig.getMaxBufferSize()).thenReturn(10000)
+        when(openTracingConfig.getFlushIntervalMs()).thenReturn(10000)
+
+        JaegerSamplingConfiguration jaegerSamplingConfiguration = mock(JaegerSamplingConfiguration.class)
+        JaegerSamplingConst jaegerSamplingConst = new JaegerSamplingConst()
+        jaegerSamplingConst.setValue(1)
+        when(openTracingConfig.getJaegerSamplingConfig()).thenReturn(jaegerSamplingConfiguration)
+        when(jaegerSamplingConfiguration.getSampleType()).thenReturn(JaegerSampleType.CONST)
+        when(jaegerSamplingConfiguration.getJaegerSamplingConst()).thenReturn(jaegerSamplingConst)
+
+        openTracingService.configure(openTracingConfig)
+
+        verify(openTracingConfig, times(4)).getJaegerSamplingConfig()
+        verify(jaegerSamplingConfiguration, times(2)).getJaegerSamplingConst()
+        verify(jaegerSamplingConfiguration, never()).getJaegerSamplingProbabilistic()
+        verify(jaegerSamplingConfiguration, never()).getJaegerSamplingRateLimiting()
+
+    }
+
+    @Test
+    void testConfigureWithProbabilistic() {
+
+        ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class)
+        ConfigurationResource configurationResource = mock(ConfigurationResource.class)
+        when(configurationResource.exists()).thenReturn(true)
+        when(configurationService.getResourceResolver()).thenReturn(resourceResolver)
+        when(resourceResolver.resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+
+        OpenTracingConfig openTracingConfig = mock(OpenTracingConfig.class)
+        when(openTracingConfig.getTracer()).thenReturn(TracerType.JAEGER)
+        when(openTracingConfig.getTracerHost()).thenReturn("localhost")
+        when(openTracingConfig.getTracerPort()).thenReturn(80)
+        when(openTracingConfig.isEnabled()).thenReturn(true)
+        when(openTracingConfig.getName()).thenReturn("fake-tracer")
+        when(openTracingConfig.getMaxBufferSize()).thenReturn(10000)
+        when(openTracingConfig.getFlushIntervalMs()).thenReturn(10000)
+
+        JaegerSamplingConfiguration jaegerSamplingConfiguration = mock(JaegerSamplingConfiguration.class)
+        JaegerSamplingProbabilistic jaegerSamplingProbabilistic = new JaegerSamplingProbabilistic()
+        jaegerSamplingProbabilistic.setValue(0.5)
+        when(openTracingConfig.getJaegerSamplingConfig()).thenReturn(jaegerSamplingConfiguration)
+        when(jaegerSamplingConfiguration.getSampleType()).thenReturn(JaegerSampleType.PROBABILISTIC)
+        when(jaegerSamplingConfiguration.getJaegerSamplingProbabilistic()).thenReturn(jaegerSamplingProbabilistic)
+
+        openTracingService.configure(openTracingConfig)
+
+        verify(openTracingConfig, times(4)).getJaegerSamplingConfig()
+        verify(jaegerSamplingConfiguration, never()).getJaegerSamplingConst()
+        verify(jaegerSamplingConfiguration, times(2)).getJaegerSamplingProbabilistic()
+        verify(jaegerSamplingConfiguration, never()).getJaegerSamplingRateLimiting()
+
+    }
+
+    @Test
+    void testConfigureWithRateLimited() {
+
+        ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class)
+        ConfigurationResource configurationResource = mock(ConfigurationResource.class)
+        when(configurationResource.exists()).thenReturn(true)
+        when(configurationService.getResourceResolver()).thenReturn(resourceResolver)
+        when(resourceResolver.resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+
+        OpenTracingConfig openTracingConfig = mock(OpenTracingConfig.class)
+        when(openTracingConfig.getTracer()).thenReturn(TracerType.JAEGER)
+        when(openTracingConfig.getTracerHost()).thenReturn("localhost")
+        when(openTracingConfig.getTracerPort()).thenReturn(80)
+        when(openTracingConfig.isEnabled()).thenReturn(true)
+        when(openTracingConfig.getName()).thenReturn("fake-tracer")
+        when(openTracingConfig.getMaxBufferSize()).thenReturn(10000)
+        when(openTracingConfig.getFlushIntervalMs()).thenReturn(10000)
+
+        JaegerSamplingConfiguration jaegerSamplingConfiguration = mock(JaegerSamplingConfiguration.class)
+        JaegerSamplingRateLimiting jaegerSamplingRateLimiting = new JaegerSamplingRateLimiting()
+        jaegerSamplingRateLimiting.setMaxTracesPerSecond(2.5)
+        when(openTracingConfig.getJaegerSamplingConfig()).thenReturn(jaegerSamplingConfiguration)
+        when(jaegerSamplingConfiguration.getSampleType()).thenReturn(JaegerSampleType.RATE_LIMITED)
+        when(jaegerSamplingConfiguration.getJaegerSamplingRateLimiting()).thenReturn(jaegerSamplingRateLimiting)
+
+        openTracingService.configure(openTracingConfig)
+
+        verify(openTracingConfig, times(4)).getJaegerSamplingConfig()
+        verify(jaegerSamplingConfiguration, never()).getJaegerSamplingConst()
+        verify(jaegerSamplingConfiguration, never()).getJaegerSamplingProbabilistic()
+        verify(jaegerSamplingConfiguration, times(2)).getJaegerSamplingRateLimiting()
 
     }
 
