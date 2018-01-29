@@ -1939,7 +1939,7 @@ with HttpDelegationManager {
       filter.configurationUpdated(configuration)
 
       val processedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
-      processedRequest.getHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION) should fullyMatch regex """Proxy (uriTenant|headerTenant) (uriTenant|headerTenant)"""
+      processedRequest.getHeaders(OpenStackServiceHeader.EXTENDED_AUTHORIZATION).asScala.toSeq should contain only("Proxy uriTenant", "Proxy headerTenant")
     }
 
     it("should send the X-Authorization header without a tenant if tenant handling is not used and no default tenant exists") {

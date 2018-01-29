@@ -310,9 +310,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
 
       // If present, add the tenant from the URI as part of the Proxy header, otherwise use the default tenant id
-      // TODO: Should we write all matching tenants, or just one as before?
       if (matchedTenants.nonEmpty) {
-        request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, s"$XAuthProxy ${matchedTenants.mkString(" ")}")
+        matchedTenants.map(tenant => s"$XAuthProxy $tenant").foreach(request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, _))
       } else {
         token.defaultTenantId match {
           case Some(tenant) =>
