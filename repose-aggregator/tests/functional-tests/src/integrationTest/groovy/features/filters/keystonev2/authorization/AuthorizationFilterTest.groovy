@@ -113,9 +113,13 @@ class AuthorizationFilterTest extends ReposeValveTest {
 
     @Unroll
     def "User sends the prefixed tenant (#tenantPrefix) in the URI should succeed and be extracted"() {
+        given: "User has a prefixed tenant ID"
+        String tenantId = fakeIdentityV2Service.client_tenantid
+        fakeIdentityV2Service.client_tenantid = tenantPrefix + tenantId
+
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(
-            url: reposeEndpoint + "/v2/extract/" + tenantPrefix + fakeIdentityV2Service.client_tenantid + "/ss",
+            url: reposeEndpoint + "/v2/extract/$tenantId/ss",
             method: 'GET',
             headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
@@ -125,7 +129,7 @@ class AuthorizationFilterTest extends ReposeValveTest {
         and: "It should have made it to the origin service"
         mc.handlings.size() == 1
 
-        and: "Tenant should be extracted from URI with prefix removed"
+        and: "Matching user tenant ID should be placed in a header"
         mc.handlings[0].request.headers.findAll("x-tenant-id").toString().contains(fakeIdentityV2Service.client_tenantid + ";q=0.6")
 
         where:
