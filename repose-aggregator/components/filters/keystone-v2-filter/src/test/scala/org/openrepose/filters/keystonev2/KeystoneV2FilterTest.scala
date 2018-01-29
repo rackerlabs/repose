@@ -2062,12 +2062,15 @@ with HttpDelegationManager {
     }
 
     it("forwards the user's tenant-to-roles mapping in the x-map-roles header") {
+      val defaultTenantId = "defTenant"
       val tenantToRoleMap = Map(
         Some("tenant1") -> Seq("role1", "role2"),
         Some("tenant3") -> Seq("role3"),
         None -> Seq("role4", "role5")
       )
-      val token = createValidToken(roles = tenantToRoleMap.flatMap({ case (tenantId, roleNames) => roleNames.map(role => Role(role, tenantId)) }).toSeq)
+      val token = createValidToken(
+        roles = tenantToRoleMap.flatMap({ case (tenantId, roleNames) => roleNames.map(role => Role(role, tenantId)) }).toSeq,
+        defaultTenantId = Some(defaultTenantId))
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
@@ -2082,7 +2085,7 @@ with HttpDelegationManager {
       val tenantRolesMapHeader = filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.TENANT_ROLES_MAP)
       val headerMap = Json.parse(new String(Base64.getDecoder.decode(tenantRolesMapHeader)))
 
-      headerMap shouldEqual Json.toJson(tenantToRoleMap map { case (tenantId, roleNames) => tenantId.getOrElse("") -> roleNames })
+      headerMap shouldEqual Json.toJson(Map(defaultTenantId -> Seq.empty[String]) ++ tenantToRoleMap.map({ case (tenantId, roleNames) => tenantId.getOrElse(DomainRoleTenantKey) -> roleNames }))
     }
 
     it("forwards the user's contact id information in the x-contact-id header") {

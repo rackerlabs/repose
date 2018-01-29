@@ -40,7 +40,7 @@ import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.{KeystoneV2Result, Reject}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationFailed, AuthorizationPassed, UnparsableTenantException}
-import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, TokenRequestAttributeName, ValidToken}
+import org.openrepose.filters.keystonev2.KeystoneV2Common.{DomainRoleTenantKey, EndpointsData, TokenRequestAttributeName, ValidToken}
 import org.openrepose.filters.keystonev2.config._
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 import play.api.libs.json.Json
@@ -301,11 +301,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
       // If configured, add roles header
       if (configuration.getIdentityService.isSetRolesInHeader && token.roles.nonEmpty) {
-        val tenantToRolesMapping = token.roles.groupBy(_.tenantId) map {
-          case (key, value) => key.getOrElse("") -> value.map(_.name)
-        }
+        val tenantToRolesMapping = token.defaultTenantId.map(_ -> Seq.empty[String]).toMap ++
+          token.roles.groupBy(_.tenantId).map({ case (key, value) => key.getOrElse(DomainRoleTenantKey) -> value.map(_.name) })
         val tenantToRolesJson = Json.stringify(Json.toJson(tenantToRolesMapping))
-        val encodedTenantToRolesJson = Base64.getEncoder.encodeToString(tenantToRolesJson.getBytes())
+        val encodedTenantToRolesJson = Base64.getEncoder.encodeToString(tenantToRolesJson.getBytes)
         request.addHeader(OpenStackServiceHeader.TENANT_ROLES_MAP, encodedTenantToRolesJson)
         request.addHeader(OpenStackServiceHeader.ROLES, token.roles.map(_.name).mkString(","))
       }
