@@ -58,7 +58,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
     listAppenderPre = ctx.getConfiguration.getAppender("highly-efficient-record-processor-pre-ListAppender").asInstanceOf[ListAppender].clear
     listAppenderPost = ctx.getConfiguration.getAppender("highly-efficient-record-processor-post-ListAppender").asInstanceOf[ListAppender].clear
 
-    herpFilter = new HerpFilter(null, null, "cluster", "node")
+    herpFilter = new HerpFilter(null, "cluster", "node")
     herpConfig = new HerpConfig
     servletRequest = new MockHttpServletRequest
     servletRequest.setMethod("GET")

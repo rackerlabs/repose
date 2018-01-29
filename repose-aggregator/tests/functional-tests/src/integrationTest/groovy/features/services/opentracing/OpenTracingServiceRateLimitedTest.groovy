@@ -27,7 +27,7 @@ import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 /**
- * Tests that sampling const type is set to 0 (nothing gets traced)
+ * Tests that sampling rate limiting type is set to 5 rps
  */
 class OpenTracingServiceRateLimitedTest extends ReposeValveTest {
 
@@ -35,6 +35,8 @@ class OpenTracingServiceRateLimitedTest extends ReposeValveTest {
     def static identityEndpoint
 
     static MockTracer fakeTracer
+
+    static String TRACING_HEADER = "uber-trace-id"
 
     def static slurper = new groovy.json.JsonSlurper()
 
@@ -56,22 +58,25 @@ class OpenTracingServiceRateLimitedTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    @Unroll("Should contain span 90% of the time with #method")
-    def "when OpenTracing config is specified and enabled, trace information is passed in x-trans-id header"() {
+    @Unroll("Should report at most 5 spans per second with #method")
+    def "when OpenTracing config is specified and enabled, trace information is passed in trace header"() {
         def traceCount = 0
         def traceList = []
 
         List<Thread> clientThreads = new ArrayList<Thread>()
 
         given:
+        // sleep 1 second so that the rate limiter is reset
+        sleep(1000)
         def thread = Thread.start {
             (0..<10).each {
                 def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: method)
-                def transIdByteArray = messageChain.handlings.get(0).request.headers.getFirstValue("x-trans-id").decodeBase64()
-                def transIdObject = slurper.parse(transIdByteArray)
-                if (transIdObject.keySet().contains("uber-trace-id")) {
+                if (messageChain.handlings.get(0).request.headers.contains(TRACING_HEADER)) {
                     traceCount++
-                    traceList << transIdObject["uber-trace-id"]
+                    traceList << URLDecoder.decode(
+                        messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER),
+                        "UTF-8")
+
                 }
             }
         }
@@ -82,6 +87,19 @@ class OpenTracingServiceRateLimitedTest extends ReposeValveTest {
         then: "Request sent to origin should be rate limited"
         clientThreads*.join()
         traceCount == 10
+
+        and: "OpenTracingService has logged that span was reported no more than 5 times"
+        def numberOfTimesReported = 0
+
+        traceList.each {
+            def logLines = reposeLogSearch.searchByString("Span reported: $it")
+            if (logLines.size() == 1)
+                numberOfTimesReported ++
+        }
+
+        assert numberOfTimesReported <= 6 // 6 to give it a variance factor.  Rate limit is set to 5 rps
+
+
 
         where:
         method   | _

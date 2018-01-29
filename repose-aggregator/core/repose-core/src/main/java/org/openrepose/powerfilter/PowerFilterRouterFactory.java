@@ -20,7 +20,6 @@
 package org.openrepose.powerfilter;
 
 import org.openrepose.core.filter.routing.DestinationLocationBuilder;
-import org.openrepose.core.services.opentracing.OpenTracingService;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.routing.RoutingService;
@@ -49,7 +48,6 @@ public class PowerFilterRouterFactory {
     private final RequestHeaderService requestHeaderService;
     private final ResponseHeaderService responseHeaderService;
     private final RoutingService routingService;
-    private final Optional<OpenTracingService> openTracingService;
     private final String nodeId;
     private final String clusterId;
 
@@ -61,8 +59,7 @@ public class PowerFilterRouterFactory {
         RequestHeaderService requestHeaderService,
         ResponseHeaderService responseHeaderService,
         RoutingService routingService,
-        Optional<MetricsService> metricsService,
-        Optional<OpenTracingService> openTracingService
+        Optional<MetricsService> metricsService
     ) {
         LOG.info("Creating Repose Router Factory!");
         this.metricsService = metricsService;
@@ -72,7 +69,6 @@ public class PowerFilterRouterFactory {
         this.routingService = routingService;
         this.nodeId = nodeId;
         this.clusterId = clusterId;
-        this.openTracingService = openTracingService;
     }
 
     public PowerFilterRouter getPowerFilterRouter(ReposeCluster domain,
@@ -115,8 +111,7 @@ public class PowerFilterRouterFactory {
             requestHeaderService,
             responseHeaderService,
             reportingService,
-            metricsService,
-            openTracingService);
+            metricsService);
     }
 
     private void addDestinations(List<? extends Destination> destList, Map<String, Destination> targetList) {

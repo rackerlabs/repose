@@ -29,6 +29,10 @@ import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
+import org.openrepose.core.services.opentracing.interceptors.JaegerRequestInterceptor;
+import org.openrepose.core.services.opentracing.interceptors.JaegerResponseInterceptor;
+import org.openrepose.core.services.opentracing.interceptors.RequestInterceptor;
+import org.openrepose.core.services.opentracing.interceptors.ResponseInterceptor;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -58,6 +62,9 @@ public class OpenTracingServiceImpl implements OpenTracingService {
     private boolean initialized = false;
 
     private String serviceName = null;
+
+    private RequestInterceptor requestInterceptor;
+    private ResponseInterceptor responseInterceptor;
 
 
     /**
@@ -145,6 +152,16 @@ public class OpenTracingServiceImpl implements OpenTracingService {
         throw new NotImplementedException("Not yet implemented.");
     }
 
+    @Override
+    public RequestInterceptor getRequestInterceptor() {
+        return this.requestInterceptor;
+    }
+
+    @Override
+    public ResponseInterceptor getResponseInterceptor() {
+        return this.responseInterceptor;
+    }
+
     public void configure(OpenTracingConfig openTracingConfig) {
         LOG.trace("get the tracer from configuration");
 
@@ -217,6 +234,10 @@ public class OpenTracingServiceImpl implements OpenTracingService {
 
                     LOG.trace("register the tracer with global tracer");
                     GlobalTracer.register(configuration.getTracer());
+
+                    LOG.trace("finally, register Jaeger interceptors");
+                    this.requestInterceptor = new JaegerRequestInterceptor(GlobalTracer.get());
+                    this.responseInterceptor = new JaegerResponseInterceptor();
                     break;
                 default:
                     LOG.error("Invalid tracer specified.  Problem with opentracing.xsd enumeration");

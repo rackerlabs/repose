@@ -21,11 +21,7 @@ package org.openrepose.powerfilter;
 
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
-import io.opentracing.ActiveSpan;
-import io.opentracing.propagation.Format;
-import io.opentracing.tag.Tags;
 import org.openrepose.commons.utils.StringUtilities;
-import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.CommonRequestAttributes;
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
@@ -33,8 +29,6 @@ import org.openrepose.commons.utils.servlet.http.RouteDestination;
 import org.openrepose.core.filter.logic.DispatchPathBuilder;
 import org.openrepose.core.filter.routing.DestinationLocation;
 import org.openrepose.core.filter.routing.DestinationLocationBuilder;
-import org.openrepose.core.services.opentracing.OpenTracingService;
-import org.openrepose.core.services.opentracing.TraceGUIDInjector;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.systemmodel.config.Destination;
@@ -75,7 +69,6 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     private final ResponseHeaderService responseHeaderService;
     private final Optional<MetricsService> metricsService;
     private final ReportingService reportingService;
-    private final Optional<OpenTracingService> openTracingService;
 
     public PowerFilterRouterImpl(DestinationLocationBuilder locationBuilder,
                                  Map<String, Destination> destinations,
@@ -85,8 +78,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                                  RequestHeaderService requestHeaderService,
                                  ResponseHeaderService responseHeaderService,
                                  ReportingService reportingService,
-                                 Optional<MetricsService> metricsService,
-                                 Optional<OpenTracingService> openTracingService
+                                 Optional<MetricsService> metricsService
     ) {
         this.locationBuilder = locationBuilder;
         this.destinations = destinations;
@@ -97,7 +89,6 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         this.responseHeaderService = responseHeaderService;
         this.metricsService = metricsService;
         this.reportingService = reportingService;
-        this.openTracingService = openTracingService;
     }
 
     @Override
@@ -158,30 +149,6 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                     LOG.debug("           Request URI: {}", servletRequest.getRequestURI());
                     LOG.debug("          Context path: {}", targetContext.getContextPath());
 
-                    // set opentracing here
-                    ActiveSpan nextSpan = null;
-                    if (openTracingService.isPresent() && openTracingService.get().isEnabled()) {
-                        LOG.trace("OpenTracing is enabled so we're going to create a span");
-
-                        // check that the span didn't start yet
-                        ActiveSpan activeSpan = openTracingService.get().getGlobalTracer().activeSpan();
-
-                        // set the next span as a child of current span
-                        nextSpan = openTracingService.get().getGlobalTracer().buildSpan(
-                            servletRequest.getRequestURI())
-                            .asChildOf(activeSpan)
-                            .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
-                            .withTag(Tags.HTTP_METHOD.getKey(), servletRequest.getMethod())
-                            .withTag(Tags.HTTP_URL.getKey(), servletRequest.getRequestURL().toString())
-                            .startActive();
-
-                        // adds the trace guid (tracer specific)
-                        openTracingService.get().getGlobalTracer().inject(
-                            nextSpan.context(), Format.Builtin.TEXT_MAP,
-                            new TraceGUIDInjector(servletRequest, CommonHttpHeader.TRACE_GUID));
-
-                    }
-
                     final long startTime = System.currentTimeMillis();
                     try {
                         reportingService.incrementRequestCount(routingDestination.getDestinationId());
@@ -197,30 +164,15 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                             markRequestTimeoutHelper(servletResponse.getStatus(), ALL_ENDPOINTS);
                         });
 
-                        if (nextSpan != null) {
-                            nextSpan.setTag(Tags.HTTP_STATUS.getKey(), servletResponse.getStatus());
-                            nextSpan.close();
-                        }
-
                         final long stopTime = System.currentTimeMillis();
                         reportingService.recordServiceResponse(routingDestination.getDestinationId(), servletResponse.getStatus(), stopTime - startTime);
                         responseHeaderService.fixLocationHeader(originalRequest, servletResponse, routingDestination, location.getUri().toString(), rootPath);
                     } catch (IOException e) {
                         if (e.getCause() instanceof ReadLimitReachedException) {
                             LOG.error("Error reading request content", e);
-                            if (nextSpan != null) {
-                                nextSpan.setTag(Tags.HTTP_STATUS.getKey(), HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
-                                nextSpan.setTag(Tags.ERROR.getKey(), e.getLocalizedMessage());
-                                nextSpan.close();
-                            }
                             servletResponse.sendError(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Error reading request content");
                         } else {
                             LOG.error("Error communicating with {}", location.getUri(), e);
-                            if (nextSpan != null) {
-                                nextSpan.setTag(Tags.HTTP_STATUS.getKey(), HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-                                nextSpan.setTag(Tags.ERROR.getKey(), e.getLocalizedMessage());
-                                nextSpan.close();
-                            }
                             servletResponse.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
                         }
                     }

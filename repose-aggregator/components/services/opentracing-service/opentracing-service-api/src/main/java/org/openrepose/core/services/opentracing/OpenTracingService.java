@@ -20,6 +20,8 @@
 package org.openrepose.core.services.opentracing;
 
 import io.opentracing.Tracer;
+import org.openrepose.core.services.opentracing.interceptors.RequestInterceptor;
+import org.openrepose.core.services.opentracing.interceptors.ResponseInterceptor;
 
 /**
  * OpenTracingService - service that integrates OpenTracing standards into Repose
@@ -54,7 +56,20 @@ public interface OpenTracingService {
 
     /**
      * Retrieves tracer header.  This is tracer implementation specific
-     * @return Returns header name for your tracer implementation
+     * @return String header name for your tracer implementation
      */
     String getTracerHeaderName();
+
+    /**
+     * Retrieves Tracer-specific request interceptor.  Used to add repose specific tags to the span
+     * @return RequestInterceptor
+     */
+    RequestInterceptor getRequestInterceptor();
+
+
+    /**
+     * Retrieves Tracer-specific request interceptor.  Used to add repose specific tags to the span
+     * @return ResponseInterceptor
+     */
+    ResponseInterceptor getResponseInterceptor();
 }
