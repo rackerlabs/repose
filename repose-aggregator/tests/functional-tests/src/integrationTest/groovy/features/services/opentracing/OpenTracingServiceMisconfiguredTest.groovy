@@ -45,7 +45,7 @@ class OpenTracingServiceMisconfiguredTest extends ReposeValveTest {
     }
 
     @Unroll("Should return 503 with #method")
-    def "when OpenTracing config has invalid tracer, no trace information is passed in x-trans-id header"() {
+    def "when OpenTracing config has invalid tracer, no trace information is passed in tracing header"() {
 
         when: "Request is sent through repose"
         def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: method)

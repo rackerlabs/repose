@@ -24,7 +24,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.httpclient.{HttpClientContainer, HttpClientService}
-import org.openrepose.core.services.opentracing.OpenTracingService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
@@ -35,14 +34,13 @@ class AkkaServiceClientFactoryImplTest extends FunSpec with Matchers with Mockit
   val httpClientService = mock[HttpClientService]
   val httpClientContainer = mock[HttpClientContainer]
   val configurationService = mock[ConfigurationService]
-  val openTracingService = mock[OpenTracingService]
 
   describe("the factory will return an instance when") {
     List(null, "", "test_conn_pool").foreach { connectionPoolId =>
       it(s"the specified connection pool id is $connectionPoolId") {
         when(httpClientService.getClient(connectionPoolId)).thenReturn(httpClientContainer)
         val akkaServiceClientFactoryImpl = new AkkaServiceClientFactoryImpl(
-          httpClientService, configurationService, openTracingService)
+          httpClientService, configurationService)
 
         val akkaServiceClient = akkaServiceClientFactoryImpl.newAkkaServiceClient(connectionPoolId)
 
@@ -53,7 +51,7 @@ class AkkaServiceClientFactoryImplTest extends FunSpec with Matchers with Mockit
     it("the default method with no connection pool id is called") {
       when(httpClientService.getClient(null)).thenReturn(httpClientContainer)
       val akkaServiceClientFactoryImpl = new AkkaServiceClientFactoryImpl(
-        httpClientService, configurationService, openTracingService)
+        httpClientService, configurationService)
 
       val akkaServiceClient = akkaServiceClientFactoryImpl.newAkkaServiceClient()
 

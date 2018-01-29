@@ -24,8 +24,6 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.{HttpHeaders, MediaType}
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import io.opentracing.mock.{MockTracer}
-import io.opentracing._
 import org.apache.commons.io.IOUtils
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
@@ -43,7 +41,6 @@ import org.openrepose.commons.utils.http.ServiceClientResponse
 import org.openrepose.core.service.httpclient.config.{HttpConnectionPoolConfig, PoolType}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.httpclient.{HttpClientContainer, HttpClientService}
-import org.openrepose.core.services.opentracing.OpenTracingService
 import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -61,7 +58,6 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfterEach with Mat
   val httpClientService = mock[HttpClientService]
   val httpClientContainer = mock[HttpClientContainer]
   val configurationService = mock[ConfigurationService]
-  val openTracingService = mock[OpenTracingService]
   val originServer = new Server(0)
   val hashKey = "hashKey"
   var request: HttpGet = _
@@ -100,7 +96,6 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfterEach with Mat
     uri = s"http://localhost:$port"
     request = new HttpGet(uri)
     request.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML)
-    when(openTracingService.isEnabled).thenReturn(false)
   }
 
   override def afterEach() = {
@@ -122,7 +117,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfterEach with Mat
           List(null, "", "test_conn_pool").foreach { connectionPoolId =>
             it(s"should validate token with connection pool id $connectionPoolId") {
               val akkaServiceClientImpl = new AkkaServiceClientImpl(
-                connectionPoolId, httpClientService, configurationService, openTracingService)
+                connectionPoolId, httpClientService, configurationService)
               akkaServiceClientImpl.configurationUpdated(createHttpConnectionPoolConfig(Seq(createPool(default = true))))
               val serviceClientResponse = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
               serviceClientResponse should not be null
@@ -132,7 +127,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfterEach with Mat
 
           it("should Reuse Service Response") {
             val akkaServiceClientImpl = new AkkaServiceClientImpl(
-              null, httpClientService, configurationService, openTracingService)
+              null, httpClientService, configurationService)
             akkaServiceClientImpl.configurationUpdated(createHttpConnectionPoolConfig(Seq(createPool(default = true))))
             val serviceClientResponse1 = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
             val serviceClientResponse2 = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
@@ -154,7 +149,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfterEach with Mat
           val headers = Map(HEADER_LOG -> true.toString)
           it("should Expire Item In Future Map") {
             val akkaServiceClientImpl = new AkkaServiceClientImpl(
-              null, httpClientService, configurationService, openTracingService)
+              null, httpClientService, configurationService)
             akkaServiceClientImpl.configurationUpdated(createHttpConnectionPoolConfig(Seq(createPool(default = true))))
             akkaServiceClientImplDo(akkaServiceClientImpl, headers)
 
@@ -165,40 +160,6 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfterEach with Mat
             val events = app.getEvents.toList.map(_.getMessage.getFormattedMessage)
             events.count(_.contains("Origin Server Log Message.")) shouldBe 2
           }
-        }
-
-        describe("with OpenTracing enabled") {
-          val headers = Map[String, String]()
-
-          it("should succeed") {
-
-            // TODO: this test is kinda bad.  Needs more verifications on span
-            val mockTracer = mock[Tracer]
-            val mockActiveSpan = mock[ActiveSpan]
-
-            val tracer = new MockTracer()
-            val spanBuilderMock = tracer.buildSpan("test")
-
-            when(mockTracer.activeSpan()).thenReturn(mockActiveSpan)
-            when(mockTracer.buildSpan(anyString())).thenReturn(spanBuilderMock)
-
-            when(openTracingService.isEnabled).thenReturn(true)
-            when(openTracingService.getGlobalTracer).thenReturn(mockTracer)
-
-            val akkaServiceClientImpl = new AkkaServiceClientImpl(
-              null, httpClientService, configurationService, openTracingService)
-            akkaServiceClientImpl.configurationUpdated(createHttpConnectionPoolConfig(Seq(createPool(default = true))))
-            val serviceClientResponse = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
-
-            val writer = new StringWriter()
-            IOUtils.copy(serviceClientResponse.getData, writer, "UTF-8")
-            val returnString = writer.toString
-
-            returnString.trim shouldBe BODY_STRING
-
-          }
-
-
         }
 
         val timeouts = List(2000 /*, 30000, 45000, 55000, 90000*/)
@@ -214,7 +175,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfterEach with Mat
               httpClientDefault.setParams(params)
               val headers = Map(HEADER_SLEEP -> (timeout - 2000).toString, HttpHeaders.ACCEPT -> MediaType.APPLICATION_XML)
               val akkaServiceClientImpl = new AkkaServiceClientImpl(
-                null, httpClientService, configurationService, openTracingService)
+                null, httpClientService, configurationService)
               akkaServiceClientImpl.configurationUpdated(createHttpConnectionPoolConfig(Seq(createPool(default = true, socketTimeout = timeout))))
               val serviceClientResponse = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
               serviceClientResponse should not be null
@@ -230,7 +191,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfterEach with Mat
               httpClientDefault.setParams(params)
               val headers = Map(HEADER_SLEEP -> (timeout + 5000).toString, HttpHeaders.ACCEPT -> MediaType.APPLICATION_XML)
               val akkaServiceClientImpl = new AkkaServiceClientImpl(
-                null, httpClientService, configurationService, openTracingService)
+                null, httpClientService, configurationService)
               akkaServiceClientImpl.configurationUpdated(createHttpConnectionPoolConfig(Seq(createPool(default = true, socketTimeout = timeout))))
               intercept[AkkaServiceClientException] {
                 val serviceClientResponse = akkaServiceClientImplDo(akkaServiceClientImpl, headers)
@@ -247,7 +208,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfterEach with Mat
   describe("on construction") {
     it("should register a listener for the http connection pool config") {
       val akkaServiceClientImpl = new AkkaServiceClientImpl(
-        "test-pool-id", httpClientService, configurationService, openTracingService)
+        "test-pool-id", httpClientService, configurationService)
 
       verify(configurationService).subscribeTo(anyString(), same(akkaServiceClientImpl), any[Class[HttpConnectionPoolConfig]])
     }
@@ -256,7 +217,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfterEach with Mat
   describe("destroy") {
     it("should unregister a listener for the http connection pool config") {
       val akkaServiceClientImpl = new AkkaServiceClientImpl(
-        "test-pool-id", httpClientService, configurationService, openTracingService)
+        "test-pool-id", httpClientService, configurationService)
       akkaServiceClientImpl.destroy()
 
       verify(configurationService).unsubscribeFrom(anyString(), same(akkaServiceClientImpl))
@@ -266,7 +227,7 @@ class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfterEach with Mat
   describe("configurationUpdated") {
     it("should use the default pool settings if a matching pool id is not present") {
       val akkaServiceClientImpl = new AkkaServiceClientImpl(
-        "test-pool-id", httpClientService, configurationService, openTracingService)
+        "test-pool-id", httpClientService, configurationService)
       akkaServiceClientImpl.configurationUpdated(createHttpConnectionPoolConfig(Seq(createPool(default = true))))
 
       val events = app.getEvents.toList.map(_.getMessage.getFormattedMessage)

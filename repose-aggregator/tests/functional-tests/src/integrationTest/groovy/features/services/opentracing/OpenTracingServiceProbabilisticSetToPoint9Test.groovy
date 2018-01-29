@@ -25,7 +25,7 @@ import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
 
 /**
- * Tests that sampling const type is set to 0 (nothing gets traced)
+ * Tests that sampling probably type is set to 0.9 (90% of requests get reported)
  */
 class OpenTracingServiceProbabilisticSetToPoint9Test extends ReposeValveTest {
 
@@ -33,6 +33,8 @@ class OpenTracingServiceProbabilisticSetToPoint9Test extends ReposeValveTest {
     def static identityEndpoint
 
     static MockTracer fakeTracer
+
+    static String TRACING_HEADER = "uber-trace-id"
 
     def static slurper = new groovy.json.JsonSlurper()
 
@@ -55,15 +57,13 @@ class OpenTracingServiceProbabilisticSetToPoint9Test extends ReposeValveTest {
     }
 
     @Unroll("Should contain span 90% of the time with #method")
-    def "when OpenTracing config is specified and enabled, trace information is passed in x-trans-id header"() {
+    def "when OpenTracing config is specified and enabled, trace information is passed in tracing header"() {
         def traceCount = 0
 
         when: "10 Requests are sent through repose"
         (0..<10).each {
             def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: method)
-            def transIdByteArray = messageChain.handlings.get(0).request.headers.getFirstValue("x-trans-id").decodeBase64()
-            def transIdObject = slurper.parse(transIdByteArray)
-            if (transIdObject.keySet().contains("uber-trace-id")) {
+            if (messageChain.handlings.get(0).request.headers.contains(TRACING_HEADER)) {
                 traceCount++
             }
         }
