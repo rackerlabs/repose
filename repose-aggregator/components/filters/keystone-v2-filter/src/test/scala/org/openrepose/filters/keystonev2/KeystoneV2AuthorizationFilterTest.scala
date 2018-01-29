@@ -23,7 +23,7 @@ import java.util.Base64
 import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_INTERNAL_SERVER_ERROR, SC_UNAUTHORIZED}
 
 import org.junit.runner.RunWith
-import org.openrepose.commons.utils.http.OpenStackServiceHeader.{ROLES, TENANT_ID}
+import org.openrepose.commons.utils.http.OpenStackServiceHeader.{ROLES, TENANT_ID, TENANT_ROLES_MAP}
 import org.openrepose.commons.utils.http.PowerApiHeader.X_CATALOG
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
@@ -303,6 +303,30 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
       keystoneV2AuthorizationFilter.scopeRolesHeader(request, createValidToken(roles = tokenRoles))
 
       request.getSplittableHeaderScala(ROLES) should contain only (tokenRoles.map(_.name): _*)
+    }
+  }
+
+  describe("scopeTenantToRolesMapHeader") {
+    it(s"should set the $TENANT_ROLES_MAP header to the provided map") {
+      val tenantToRoles = Map("tenant1" -> Set("role1", "role2"), "tenant2" -> Set("role3"))
+      val token = createValidToken(roles = tenantToRoles.flatMap({ case (tenantId, roleNames) => roleNames.map(role => Role(role, Some(tenantId))) }).toSeq)
+      val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
+
+      keystoneV2AuthorizationFilter.scopeTenantToRolesMapHeader(request, token)
+
+      Json.parse(new String(Base64.getDecoder.decode(request.getHeader(TENANT_ROLES_MAP)))) shouldEqual Json.toJson(tenantToRoles)
+    }
+
+    it(s"should overwrite any existing value of the $TENANT_ROLES_MAP header") {
+      val tenantToRoles = Map("tenant1" -> Set("role1", "role2"), "tenant2" -> Set("role3"))
+      val token = createValidToken(roles = tenantToRoles.flatMap({ case (tenantId, roleNames) => roleNames.map(role => Role(role, Some(tenantId))) }).toSeq)
+      val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
+      request.addHeader(TENANT_ROLES_MAP, Base64.getEncoder.encodeToString("""{"myTenant":["myRole"]}""".getBytes))
+
+      keystoneV2AuthorizationFilter.scopeTenantToRolesMapHeader(request, token)
+
+      request.getHeadersScala(TENANT_ROLES_MAP) should have size 1
+      Json.parse(new String(Base64.getDecoder.decode(request.getHeader(TENANT_ROLES_MAP)))) shouldEqual Json.toJson(tenantToRoles)
     }
   }
 

@@ -26,13 +26,13 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 
 import com.fasterxml.jackson.core.JsonProcessingException
-import org.openrepose.commons.utils.http.OpenStackServiceHeader.{ROLES, TENANT_ID}
+import org.openrepose.commons.utils.http.OpenStackServiceHeader.{ROLES, TENANT_ID, TENANT_ROLES_MAP}
 import org.openrepose.commons.utils.http.PowerApiHeader.X_CATALOG
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.{KeystoneV2Result, Reject}
 import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationException, AuthorizationFailed, AuthorizationPassed, doAuthorization}
-import org.openrepose.filters.keystonev2.KeystoneV2Common.{Endpoint, EndpointsData, TokenRequestAttributeName, ValidToken}
+import org.openrepose.filters.keystonev2.KeystoneV2Common._
 import org.openrepose.filters.keystonev2.config.KeystoneV2Config
 import play.api.libs.json.Json
 
@@ -64,6 +64,7 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
         case AuthorizationPassed(scopedToken, matchedTenants) if matchedTenants.nonEmpty =>
           scopeTenantIdHeader(request, matchedTenants)
           scopeRolesHeader(request, scopedToken)
+          scopeTenantToRolesMapHeader(request, scopedToken)
           Success(Unit)
         case AuthorizationPassed(_, _) => Success(Unit)
         case AuthorizationFailed(_, _, exception) => Failure(exception)
@@ -121,6 +122,12 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
   def scopeRolesHeader(request: HttpServletRequestWrapper, scopedToken: ValidToken): Unit = {
     request.removeHeader(ROLES)
     scopedToken.roles.map(_.name).foreach(request.appendHeader(ROLES, _))
+  }
+
+  def scopeTenantToRolesMapHeader(request: HttpServletRequestWrapper, scopedToken: ValidToken): Unit = {
+    val tenantToRolesJson = Json.stringify(Json.toJson(getTenantToRolesMap(scopedToken)))
+    val encodedTenantToRolesJson = Base64.getEncoder.encodeToString(tenantToRolesJson.getBytes)
+    request.replaceHeader(TENANT_ROLES_MAP, encodedTenantToRolesJson)
   }
 }
 
