@@ -67,8 +67,7 @@ class RequestProxyServiceHealthCheckTest extends Specification {
 
         when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
 
-        this.requestProxyService = new RequestProxyServiceImpl(
-            configurationService, healthCheckService, mock(HttpClientService.class), "cluster", "node")
+        this.requestProxyService = new RequestProxyServiceImpl(configurationService, healthCheckService, mock(HttpClientService.class), "cluster", "node")
 
     }
 

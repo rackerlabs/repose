@@ -57,7 +57,7 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        *    a. http-port
        *    b. https-port
        *
-       * 4. Remove these values from the chunkedEncodingType enumeration in opentracing.xsd:
+       * 4. Remove these values from the chunkedEncodingType enumeration in http-connection-pool.xsd:
        *    a. 1
        *    b. 0
        *

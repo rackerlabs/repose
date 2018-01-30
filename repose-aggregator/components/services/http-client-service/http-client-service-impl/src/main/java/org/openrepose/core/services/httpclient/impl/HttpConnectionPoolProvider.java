@@ -91,7 +91,7 @@ public final class HttpConnectionPoolProvider {
         //Pass in the params and the connection manager
         DefaultHttpClient client = new DefaultHttpClient(cm, params);
 
-        // OpenTracing capabilities
+        // OpenTracing capabilities.  Only add http interceptors when opentracing service is enabled
         if (openTracingService.isEnabled()) {
             client.addRequestInterceptor(openTracingService.getRequestInterceptor());
             client.addResponseInterceptor(openTracingService.getResponseInterceptor());

@@ -103,11 +103,10 @@ public class AkkaServiceClientImpl implements AkkaServiceClient, UpdateListener<
 
     @Override
     public ServiceClientResponse get(String hashKey, String uri, Map<String, String> headers, boolean checkCache) throws AkkaServiceClientException {
-
+        AuthGetRequest authGetRequest = new AuthGetRequest(hashKey, uri, headers);
 
         try {
             Timeout timeout = new Timeout(socketTimeout + CONNECTION_TIMEOUT_BUFFER_MILLIS, TimeUnit.MILLISECONDS);
-            AuthGetRequest authGetRequest = new AuthGetRequest(hashKey, uri, headers);
             Future<ServiceClientResponse>  future = getFuture(authGetRequest, timeout, checkCache);
             return Await.result(future, timeout.duration());
         } catch (Exception e) {
@@ -124,12 +123,10 @@ public class AkkaServiceClientImpl implements AkkaServiceClient, UpdateListener<
 
     @Override
     public ServiceClientResponse post(String hashKey, String uri, Map<String, String> headers, String payload, MediaType contentMediaType, boolean checkCache) throws AkkaServiceClientException {
+        AuthPostRequest authPostRequest = new AuthPostRequest(hashKey, uri, headers, payload, contentMediaType);
         try {
             Timeout timeout = new Timeout(socketTimeout + CONNECTION_TIMEOUT_BUFFER_MILLIS, TimeUnit.MILLISECONDS);
-            AuthPostRequest authPostRequest = new AuthPostRequest(
-                    hashKey, uri, headers, payload, contentMediaType);
             Future<ServiceClientResponse> future = getFuture(authPostRequest, timeout, checkCache);
-
             return Await.result(future, timeout.duration());
         } catch (Exception e) {
             LOG.error("Error acquiring value from akka (POST) or the cache. Reason: {}", e.getLocalizedMessage());

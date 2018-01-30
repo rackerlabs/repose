@@ -68,14 +68,14 @@ public class TracerExtractor implements TextMap {
         LOG.trace("convert servlet headers to multimap");
         Map<String, List<String>> headersResult = new HashMap<>();
 
-        Enumeration<String> headerNamesIt = httpServletRequest.getHeaderNames();
-        while (headerNamesIt.hasMoreElements()) {
-            String headerName = headerNamesIt.nextElement();
+        Enumeration<String> headerNamesIterator = httpServletRequest.getHeaderNames();
+        while (headerNamesIterator.hasMoreElements()) {
+            String headerName = headerNamesIterator.nextElement();
 
-            Enumeration<String> valuesIt = httpServletRequest.getHeaders(headerName);
+            Enumeration<String> valuesIterator = httpServletRequest.getHeaders(headerName);
             List<String> valuesList = new ArrayList<>();
-            while (valuesIt.hasMoreElements()) {
-                valuesList.add(valuesIt.nextElement());
+            while (valuesIterator.hasMoreElements()) {
+                valuesList.add(valuesIterator.nextElement());
             }
 
             headersResult.put(headerName, valuesList);
