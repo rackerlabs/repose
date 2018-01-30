@@ -196,8 +196,6 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       }
     }
 
-    // TODO: opentracing activity here
-
     val akkaResponse = Try(akkaServiceClient.get(
       s"$GROUPS_KEY_PREFIX$forToken",
       s"$identityServiceUri${GROUPS_ENDPOINT(forToken)}",

@@ -104,10 +104,9 @@ public class AkkaServiceClientImpl implements AkkaServiceClient, UpdateListener<
     @Override
     public ServiceClientResponse get(String hashKey, String uri, Map<String, String> headers, boolean checkCache) throws AkkaServiceClientException {
         AuthGetRequest authGetRequest = new AuthGetRequest(hashKey, uri, headers);
-
         try {
             Timeout timeout = new Timeout(socketTimeout + CONNECTION_TIMEOUT_BUFFER_MILLIS, TimeUnit.MILLISECONDS);
-            Future<ServiceClientResponse>  future = getFuture(authGetRequest, timeout, checkCache);
+            Future<ServiceClientResponse> future = getFuture(authGetRequest, timeout, checkCache);
             return Await.result(future, timeout.duration());
         } catch (Exception e) {
             LOG.error("Error acquiring value from akka (GET) or the cache. Reason: {}", e.getLocalizedMessage());
