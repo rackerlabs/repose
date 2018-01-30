@@ -441,20 +441,12 @@ public class PowerFilter extends DelegatingFilterProxy {
             // So it is safe to suppress warning squid:S1848
             new URI(wrappedRequest.getRequestURI());
             final PowerFilterChain requestFilterChain = getRequestFilterChain(wrappedResponse, chain);
-
-            // Refactoring this to also include the tracing header if OpenTracing is enabled.  We're
-            // using the header to inject the spans so you can't turn it off.
-            // The tracing header generation should also be higher in the food chain so that we can return
-            // the trace even if the service is not ready to serve data
             if (requestFilterChain != null) {
-                if (currentSystemModel.get().getTracingHeader() == null ||
-                    currentSystemModel.get().getTracingHeader().isEnabled()) {
-                    // TODO: this should now be refactored into the json header along with the other stuff
+                if (currentSystemModel.get().getTracingHeader() == null || currentSystemModel.get().getTracingHeader().isEnabled()) {
                     if (StringUtilities.isBlank(wrappedRequest.getHeader(TRACE_GUID))) {
                         wrappedRequest.addHeader(TRACE_GUID,
                                 TracingHeaderHelper.createTracingHeader(traceGUID, wrappedRequest.getHeader(VIA)));
                     }
-
                     if ((currentSystemModel.get().getTracingHeader() != null) &&
                             currentSystemModel.get().getTracingHeader().isSecondaryPlainText()) {
                         TRACE_ID_LOG.trace("Adding plain text trans id to request: {}", traceGUID);
@@ -463,8 +455,6 @@ public class PowerFilter extends DelegatingFilterProxy {
                     String tracingHeader = wrappedRequest.getHeader(TRACE_GUID);
                     TRACE_ID_LOG.info("Tracing header: {}", TracingHeaderHelper.decode(tracingHeader));
                     wrappedResponse.addHeader(TRACE_GUID, tracingHeader);
-
-
                 }
 
                 requestFilterChain.startFilterChain(wrappedRequest, wrappedResponse);
@@ -523,7 +513,6 @@ public class PowerFilter extends DelegatingFilterProxy {
             metricsService.ifPresent(ms -> markResponseCodeHelper(ms, ((HttpServletResponse) response).getStatus(), LOG, "Repose"));
 
             reportingService.incrementReposeStatusCodeCount(((HttpServletResponse) response).getStatus(), stopTime - startTime);
-
         }
         //Clear out the tracing header, now that we're done with this request
         MDC.clear();

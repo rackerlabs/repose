@@ -55,12 +55,6 @@ public interface OpenTracingService {
     String getServiceName();
 
     /**
-     * Retrieves tracer header.  This is tracer implementation specific
-     * @return String header name for your tracer implementation
-     */
-    String getTracerHeaderName();
-
-    /**
      * Retrieves Tracer-specific request interceptor.  Used to add repose specific tags to the span
      * @return RequestInterceptor
      */

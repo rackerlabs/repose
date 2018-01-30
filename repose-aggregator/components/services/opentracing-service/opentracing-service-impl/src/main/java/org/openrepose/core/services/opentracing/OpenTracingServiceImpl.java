@@ -22,7 +22,6 @@ package org.openrepose.core.services.opentracing;
 import com.uber.jaeger.Configuration;
 import io.opentracing.Tracer;
 import io.opentracing.util.GlobalTracer;
-import org.apache.commons.lang3.NotImplementedException;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.core.service.opentracing.config.OpenTracingConfig;
 import org.openrepose.core.services.config.ConfigurationService;
@@ -145,11 +144,6 @@ public class OpenTracingServiceImpl implements OpenTracingService {
     @Override
     public String getServiceName() {
         return this.serviceName;
-    }
-
-    @Override
-    public String getTracerHeaderName() {
-        throw new NotImplementedException("Not yet implemented.");
     }
 
     @Override
