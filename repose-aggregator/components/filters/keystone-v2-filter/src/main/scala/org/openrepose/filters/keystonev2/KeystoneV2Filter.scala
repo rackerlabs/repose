@@ -251,14 +251,14 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
       case class PreferredTenant(id: String, quality: Double)
 
-      // TODO: All matching tenants are now forwarded rather than just one, even if sendAllTenants is false.
       val preferredTenants =
         if (matchedTenants.nonEmpty) {
           matchedTenants.map(PreferredTenant(_, matchedTenantQuality))
         } else if (defaultTenant.nonEmpty) {
           defaultTenant.toSet.map((tenant: String) => PreferredTenant(tenant, defaultTenantQuality))
         } else if (roleTenants.nonEmpty) {
-          roleTenants.toSet.map((tenant: String) => PreferredTenant(tenant, rolesTenantQuality))
+          val tenantsFromRoles = roleTenants.toSet.map((tenant: String) => PreferredTenant(tenant, rolesTenantQuality))
+          if (sendAllTenants) tenantsFromRoles else tenantsFromRoles.take(1)
         } else {
           Set.empty
         }
