@@ -33,8 +33,7 @@ import static org.junit.Assert.*
 
 class TraceExtractorTest {
 
-    public static final String SPAN_KEY = "span-id"
-    final String TRANS_ID_HEADER = "x-trans-id"
+    final String RANDOM_HEADER = "random-header"
 
     final String CONTENT_TYPE = "content-type"
     final String ACCEPT = "accept"
@@ -48,15 +47,15 @@ class TraceExtractorTest {
         headerMap = new HashMap<>()
         headerMap.put(CONTENT_TYPE, "application/json")
         headerMap.put(ACCEPT, "application/xml")
-        String traceHeaderValue = new String(
+        String randomHeaderValue = new String(
             Base64.encodeBase64("{\"id\":12345,\"origin\":null}".bytes))
-        headerMap.put(TRANS_ID_HEADER, traceHeaderValue)
+        headerMap.put(RANDOM_HEADER, randomHeaderValue)
 
         servletRequest = new MockHttpServletRequest()
         requestWrapper = new HttpServletRequestWrapper(servletRequest)
         requestWrapper.addHeader(CONTENT_TYPE, "application/json")
         requestWrapper.addHeader(ACCEPT, "application/xml")
-        requestWrapper.addHeader(TRANS_ID_HEADER, traceHeaderValue)
+        requestWrapper.addHeader(RANDOM_HEADER, randomHeaderValue)
 
     }
 
@@ -86,7 +85,7 @@ class TraceExtractorTest {
             tracerExtractor.headers.size(), 3)
         assertEquals(tracerExtractor.headers.get(CONTENT_TYPE).size(), 1)
         assertEquals(tracerExtractor.headers.get(ACCEPT).size(), 1)
-        assertEquals(tracerExtractor.headers.get(TRANS_ID_HEADER).size(), 1)
+        assertEquals(tracerExtractor.headers.get(RANDOM_HEADER).size(), 1)
 
     }
 
@@ -100,7 +99,7 @@ class TraceExtractorTest {
             tracerExtractor.headers.size(), 3)
         assertEquals(tracerExtractor.headers.get(CONTENT_TYPE).size(), 1)
         assertEquals(tracerExtractor.headers.get(ACCEPT).size(), 2)
-        assertEquals(tracerExtractor.headers.get(TRANS_ID_HEADER).size(), 1)
+        assertEquals(tracerExtractor.headers.get(RANDOM_HEADER).size(), 1)
     }
 
     @Test
