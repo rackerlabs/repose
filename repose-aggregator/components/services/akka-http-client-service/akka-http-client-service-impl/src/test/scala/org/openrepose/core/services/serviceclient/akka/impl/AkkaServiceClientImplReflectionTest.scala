@@ -79,8 +79,7 @@ class AkkaServiceClientImplReflectionTest extends FunSpec with BeforeAndAfterAll
     when(httpClient.execute(MockitoMatchers.any[HttpUriRequest]))
       .thenReturn(httpResponse)
 
-    akkaServiceClientImpl = new AkkaServiceClientImpl(
-      ConnectionPoolId, httpClientService, configurationService)
+    akkaServiceClientImpl = new AkkaServiceClientImpl(ConnectionPoolId, httpClientService, configurationService)
     akkaServiceClientImpl.configurationUpdated(createHttpConnectionPoolConfig(createPool(default = true)))
   }
 

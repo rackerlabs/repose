@@ -439,9 +439,4 @@ class OpenTracingServiceImplTest{
         verify(jaegerSamplingConfiguration, times(2)).getJaegerSamplingRateLimiting()
 
     }
-
-    @Test(expected = NotImplementedException.class)
-    void testGetTracerHeaderName() {
-        openTracingService.getTracerHeaderName()
-    }
 }
