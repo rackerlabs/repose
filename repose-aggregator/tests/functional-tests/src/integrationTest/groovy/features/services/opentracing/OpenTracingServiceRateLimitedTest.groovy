@@ -68,6 +68,8 @@ class OpenTracingServiceRateLimitedTest extends ReposeValveTest {
         given:
         // sleep 1 second so that the rate limiter is reset
         sleep(1000)
+
+        def startTime = System.currentTimeMillis()
         def thread = Thread.start {
             (0..<10).each {
                 def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: method)
@@ -87,6 +89,7 @@ class OpenTracingServiceRateLimitedTest extends ReposeValveTest {
         then: "Request sent to origin should be rate limited"
         clientThreads*.join()
         traceCount == 10
+        def stopTime = System.currentTimeMillis()
 
         and: "OpenTracingService has logged that span was reported no more than 5 times"
         def numberOfTimesReported = 0
@@ -97,9 +100,15 @@ class OpenTracingServiceRateLimitedTest extends ReposeValveTest {
                 numberOfTimesReported ++
         }
 
-        assert numberOfTimesReported <= 6 // 6 to give it a variance factor.  Rate limit is set to 5 rps
+        System.out.println("Total time spent in milliseconds: ${stopTime - startTime}")
+        System.out.println("Total time spent in seconds: ${Math.ceil((stopTime - startTime) / 1000)} -- " +
+            "number of reported traces: $numberOfTimesReported")
 
-
+        // calculate the time spent between start of test and end.  Divide by 1000 to get seconds
+        // get the ceiling since the rate limit is calculated per second
+        // multiply by 5 since we set the rate limit to 5 requests per second
+        // add 1 to get the variance factor
+        assert numberOfTimesReported <= Math.ceil((stopTime - startTime) / 1000) * 5 + 1
 
         where:
         method   | _
