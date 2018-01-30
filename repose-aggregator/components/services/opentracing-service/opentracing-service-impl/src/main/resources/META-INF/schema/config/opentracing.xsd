@@ -195,7 +195,7 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        Set to double between 0 and 1.0.  Defaults to 0.01
+                        Set to double between 0 and 1.0.  Defaults to 0.001
                     </html:p>
                 </xs:documentation>
             </xs:annotation>

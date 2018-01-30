@@ -1,12 +1,11 @@
 = OpenTracing Service
 
 The OpenTracing service (http://opentracing.io/) is a service in *Repose* which allows for sending tracing data to a Tracing service.
-Tracing data is Tracer specific but nicely abstracted via `X-Trans-Id` header.  Currently, the only supported Tracer is Jaeger (http://jaeger.readthedocs.io/en/latest/),
+Tracing data is Tracer specific but nicely abstracted via OpenTracing service.  Currently, the only supported Tracer is Jaeger (http://jaeger.readthedocs.io/en/latest/),
  however other Tracers can be easily integrated in future updates of OpenTracing service.  By default, the service is disabled,
- but can be enabled with opentracing.cfg.xml configuration.  An origin service can utilize the tracing information internally
- by utilizing helper libraries found in https://github.com/opentracing-contrib/repose; however, that is entirely optional.
- The origin service can simply pass the `X-Trans-Id` header to downstream services and, if they're also fronted by Repose or
- if they utilize the same contrib libraries, requests will be traced across application boundaries.
+ but can be enabled with including opentracing.cfg.xml configuration.  An origin service can utilize the tracing information internally
+ by extracting the span context and injecting it into egress requests; however, that is entirely optional.
+ The origin service can simply pass the Tracer-specific header to downstream services and requests will be traced across application boundaries.  Implementation will be covered later in this document.
 
 == Configuration
 * *Default Configuration:* opentracing.cfg.xml
@@ -14,35 +13,54 @@ Tracing data is Tracer specific but nicely abstracted via `X-Trans-Id` header.  
 * link:../schemas/opentracing.xsd[Schema]
 
 === Service Configuration
-The OpenTracing service is activated by adding a `opentracing.cfg.xml` configuration to configuration directory and setting the `enabled` attribute to true.
-This configuration and element are included in the default *Repose* installation, but the flag is disabled.
-Explicit action must be taken for the OpenTracing service to be used.
+The OpenTracing service is activated by adding a `opentracing.cfg.xml` configuration to configuration directory.  By default, simply including the configuration turns the service on; however, the operator can disable the service by setting `enabled="false"` attribute.
+This configuration and element are included in the default *Repose* installation.
+
+By default, all requests that are created by the service are reported (sampled).  The operator can optionally supply other sampling configurations:
+
+* `Constant (const)`.  Default is `1`, which means always sample.  Setting this value to `0` will effectively disabled the service
+* `Probability (probability)`.  Default is `0.001`, which is equivalent to 1 request sampled per 1000 actual requests.  The range is between `0.0` and `1.0`.
+* `Rate limited (rate-limited)`.  Default is `1.0` which is one request per second.
 
 [source,xml]
 .opentracing.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 
-<org.openrepose.core.services.opentracing xmlns="http://docs.openrepose.org/repose/org.openrepose.core.services.opentracing/v1.0"
+<opentracing xmlns="http://docs.openrepose.org/repose/opentracing/v1.0"
              enabled="true" <!--1-->
              name="my-repose" <!--2-->
              tracer="jaeger" <!--3-->
              tracer.host="jaeger.example.com" <!--4-->
-             tracer.port="5775" <!--5-->
-/>
+             tracer.port="5775"> <!--5-->
+    <jaeger-sampling-config sample-type="probabilistic"> <!--6-->
+        <jaeger-sampling-probabilistic value="0.9" /> <!--7-->
+    </jaeger-sampling-config>
+</opentracing>
 
 ----
 <1> The `opentracing` element's `enabled` attribute must be set to `true` to activate this feature.
-<2> The name of the Service/API that this instance of *Repose* is in front of (however, if you are explicitly using OpenTracing in your origin application, you should suffix `-repose` to this configuration
-<3> Tracer can be set to any supported tracer.  Currently, only jaeger is supported
+<2> The name of the Service/API that this instance of *Repose* is in front of (however, if you are explicitly using OpenTracing in your origin application, you should suffix `-repose` to this configuration as best practice.
+<3> Tracer can be set to any supported tracer.  Currently, only `jaeger` is supported
 <4> Tracer host must be set to the host where Tracer can be found.  If Repose is unable to connect to the tracer, it will disable the service
 <5> Tracer host must be set to the port where Tracer can be found.  If Repose is unable to connect to the tracer, it will disable the service
+<6> Optional sampling configuration.  Default is `probabilistic`.  Other options include: `const` and `rate-limited`
+<7> Probability sampling rate.  Ranges from `0.0` (never) to `1.0` (always)
+
+=== Tracer implementation detail
+
+This section will cover all Tracers that are supported by OpenTracing service.  We will be adding to this list as more tracers as supported.
+
+Current support:
+
+.Table Tracer information
+|===
+|Tracer Name |Tracer Header    |Extraction examples
+
+|*Jaeger*
+|`uber-trace-id`
+|https://github.com/jaegertracing/jaeger-client-java/tree/master/jaeger-apachehttpclient
+|===
 
 === Example usage in origin service
-By default, the only thing an origin service needs to do is pass `X-Trans-Id` header as part of its request to downstream systems.
-
-If, however, you'd like to use OpenTracing in origin service internally, check out documentation on how-to in https://github.com/dimtruck/repose-1/blob/31081d7946a4f4cfa2c0dbd292573ec77e8f2489/repose-opentracing-java/README.md.
-
-This is also required if your application is a UI or an API that doesn't have Repose in front but will send requests to systems fronted by Repose.
-
-[ WILL NEED TO BE UPDATED WHEN THE PR LANDS ]
+By default, the only thing an origin service needs to do is pass Tracer specific header (`Tracer Header` in `Table 1`) as part of its request to downstream systems.
