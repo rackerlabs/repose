@@ -21,5 +21,6 @@ dependencies {
     testCompile "xerces:xerces-xsd11"
     testCompile "org.spockframework:spock-core"
     testCompile "org.springframework:spring-test:4.1.4.RELEASE"
+    testCompile "io.opentracing:opentracing-mock:0.30.0"
 
 }
