@@ -235,8 +235,8 @@ subprojects {
             }
         }
         main {
-            compileClasspath += project.files([sourceSets.generated.java.outputDir])
-            runtimeClasspath += project.files([sourceSets.generated.java.outputDir])
+            compileClasspath += files([sourceSets.generated.java.outputDir])
+            runtimeClasspath += files([sourceSets.generated.java.outputDir])
             java {
                 exclude '**/*.jaxb'
                 exclude '**/README'
@@ -245,20 +245,38 @@ subprojects {
         test {
             compileClasspath += configurations.compileOnly
             runtimeClasspath += configurations.compileOnly
-            compileClasspath += project.files([sourceSets.generated.java.outputDir])
-            runtimeClasspath += project.files([sourceSets.generated.java.outputDir])
+            compileClasspath += files([sourceSets.generated.java.outputDir])
+            runtimeClasspath += files([sourceSets.generated.java.outputDir])
         }
         integrationTest {
             compileClasspath += configurations.compileOnly
             runtimeClasspath += configurations.compileOnly
-            compileClasspath += project.files([sourceSets.generated.java.outputDir])
-            runtimeClasspath += project.files([sourceSets.generated.java.outputDir])
+            compileClasspath += files([sourceSets.generated.java.outputDir])
+            runtimeClasspath += files([sourceSets.generated.java.outputDir])
+        }
+        scoverage {
+            compileClasspath += configurations.compileOnly
+            runtimeClasspath += configurations.compileOnly
+            compileClasspath += files([sourceSets.generated.java.outputDir, sourceSets.main.java.outputDir])
+            runtimeClasspath += files([sourceSets.generated.java.outputDir, sourceSets.main.java.outputDir, sourceSets.test.groovy.outputDir])
+        }
+        testScoverage {
+            compileClasspath += configurations.compileOnly
+            runtimeClasspath += configurations.compileOnly
+            compileClasspath += files([sourceSets.generated.java.outputDir, sourceSets.main.java.outputDir])
+            runtimeClasspath += files([sourceSets.generated.java.outputDir,
+                                       sourceSets.main.java.outputDir,
+                                       sourceSets.main.groovy.outputDir,
+                                       sourceSets.test.groovy.outputDir,
+                                       file("${project.buildDir}/resources/scoverage/")
+            ])
         }
     }
 
     compileJava.dependsOn compileGeneratedJava
     compileScala.dependsOn compileGeneratedJava
     compileIntegrationTestGroovy.dependsOn compileGeneratedJava
+    testScoverage.dependsOn compileTestGroovy
 
     [JavaCompile, ScalaCompile, GroovyCompile].collect { type ->
         tasks.withType(type) {
@@ -312,8 +330,11 @@ subprojects {
 
     jacocoTestReport {
         afterEvaluate {
-            sourceDirectories = project.files([sourceSets.main.java.srcDirs])
-            classDirectories = project.files([sourceSets.main.java.outputDir])
+            sourceDirectories = files([sourceSets.main.java.srcDirs, sourceSets.generated.java.srcDirs])
+            classDirectories = files([sourceSets.main.java.outputDir, sourceSets.generated.java.outputDir])
+            classDirectories = files(classDirectories.files.collect { classDirectory ->
+                fileTree(dir: classDirectory, excludes: ['**/ObjectFactory.class'])
+            })
         }
     }
 
@@ -358,7 +379,7 @@ subprojects {
                     "Created-By": "Gradle $project.gradle.gradleVersion",
             )
         }
-        from project.files([sourceSets.generated.java.outputDir])
+        from files([sourceSets.generated.java.outputDir])
     }
 
     idea {
@@ -425,8 +446,11 @@ subprojects {
                 }
             }
             afterEvaluate {
-                sourceDirectories = project.files([sourceSets.main.java.srcDirs])
-                classDirectories = project.files([sourceSets.main.java.outputDir])
+                sourceDirectories = files([sourceSets.main.java.srcDirs, sourceSets.generated.java.srcDirs])
+                classDirectories = files([sourceSets.main.java.outputDir, sourceSets.generated.java.outputDir])
+                classDirectories = files(classDirectories.files.collect { classDirectory ->
+                    fileTree(dir: classDirectory, excludes: ['**/ObjectFactory.class'])
+                })
             }
         }
 
