@@ -63,7 +63,6 @@ public final class HttpConnectionPoolProvider {
     }
 
     public static HttpClient genClient(String configRoot, PoolType poolConf, OpenTracingService openTracingService) {
-        // to enable some of the new features available in Apache HTTP Client 4.3, updating to builder pattern
         PoolingClientConnectionManager cm = new PoolingClientConnectionManager();
 
         cm.setDefaultMaxPerRoute(poolConf.getHttpConnManagerMaxPerRoute());

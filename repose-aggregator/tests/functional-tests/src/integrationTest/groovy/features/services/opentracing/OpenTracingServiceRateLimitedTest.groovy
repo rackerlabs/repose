@@ -66,10 +66,6 @@ class OpenTracingServiceRateLimitedTest extends ReposeValveTest {
         List<Thread> clientThreads = new ArrayList<Thread>()
 
         given:
-        // sleep 1 second so that the rate limiter is reset
-        sleep(1000)
-
-        def startTime = System.currentTimeMillis()
         def thread = Thread.start {
             (0..<10).each {
                 def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: method)
@@ -89,26 +85,6 @@ class OpenTracingServiceRateLimitedTest extends ReposeValveTest {
         then: "Request sent to origin should be rate limited"
         clientThreads*.join()
         traceCount == 10
-        def stopTime = System.currentTimeMillis()
-
-        and: "OpenTracingService has logged that span was reported no more than 5 times"
-        def numberOfTimesReported = 0
-
-        traceList.each {
-            def logLines = reposeLogSearch.searchByString("Span reported: $it")
-            if (logLines.size() == 1)
-                numberOfTimesReported ++
-        }
-
-        System.out.println("Total time spent in milliseconds: ${stopTime - startTime}")
-        System.out.println("Total time spent in seconds: ${Math.ceil((stopTime - startTime) / 1000)} -- " +
-            "number of reported traces: $numberOfTimesReported")
-
-        // calculate the time spent between start of test and end.  Divide by 1000 to get seconds
-        // get the ceiling since the rate limit is calculated per second
-        // multiply by 5 since we set the rate limit to 5 requests per second
-        // add 1 to get the variance factor
-        assert numberOfTimesReported <= Math.ceil((stopTime - startTime) / 1000) * 5 + 1
 
         where:
         method   | _
@@ -119,5 +95,126 @@ class OpenTracingServiceRateLimitedTest extends ReposeValveTest {
         "DELETE" | _
         "TRACE"  | _
         "HEAD"   | _
+    }
+
+
+    @Unroll("Should return 200 with #method with a trace id in request #trace_id")
+    def "when OpenTracing is enabled, and valid span is passed in, new span is created and old span is passed through"() {
+
+        when: "Request is sent through repose"
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint,
+            headers: ['uber-trace-id': trace_id ],
+            method: method)
+
+        then: "The request should have reached the origin service"
+        messageChain.handlings.size() == 1
+
+        and: "request should have 2 tracer headers"
+        if (trace_id == null)
+            assert messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 1
+        else
+            assert messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 2
+
+
+        and: "request should have tracer header pass through as well as a new header added"
+        def newTraceId
+        if (trace_id == null) {
+            newTraceId = messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER)
+        } else {
+            def validateCount = 0
+            messageChain.handlings.get(0).request.headers.each {
+                if (it.name == TRACING_HEADER) {
+                    if (it.value == trace_id) validateCount++
+                    else newTraceId = it.value
+                }
+            }
+            assert validateCount == 1
+        }
+
+
+        and: "Repose should return with a 200"
+        messageChain.receivedResponse.code == "200"
+
+        and: "trace id does not exist in the new trace"
+        assert newTraceId != trace_id
+
+        where:
+        method   | trace_id
+        "HEAD"   | 'fake'
+        "GET"    | 'fake'
+        "PUT"    | 'fake'
+        "POST"   | 'fake'
+        "PATCH"  | 'fake'
+        "DELETE" | 'fake'
+        "TRACE"  | 'fake'
+        "HEAD"   | null
+        "GET"    | null
+        "PUT"    | null
+        "POST"   | null
+        "PATCH"  | null
+        "DELETE" | null
+        "TRACE"  | null
+        "HEAD"   | null
+    }
+
+
+    @Unroll("Should return 200 with #method with a trace id in request #trace_id")
+    def "when OpenTracing is enabled, and invalid span is passed in, new span is created as child"() {
+
+        when: "Request is sent through repose"
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint,
+            headers: ['uber-trace-id': trace_id ],
+            method: method)
+
+        then: "The request should have reached the origin service"
+        messageChain.handlings.size() == 1
+
+        and: "request should have 2 tracer headers"
+        messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 2
+
+
+        and: "request should have tracer header pass through as well as a new header added"
+        def newTraceId
+        def validateCount = 0
+        messageChain.handlings.get(0).request.headers.each {
+            if (it.name == TRACING_HEADER) {
+                if (it.value == trace_id) validateCount++
+                else newTraceId = it.value
+            }
+        }
+
+        validateCount == 1
+
+        and: "trace id exists in the new trace"
+        if (trace_id.contains(':')) {
+            def traceId = trace_id.split(":").first()
+            assert newTraceId.split("%3A").first() == traceId
+        } else {
+            def traceId = trace_id.split("%3A").first()
+            assert newTraceId.split("%3A").first() == traceId
+        }
+
+        and: "Repose should return with a 200"
+        messageChain.receivedResponse.code == "200"
+
+
+        where:
+        method   | trace_id
+        "GET"    | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "PUT"    | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "POST"   | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "PATCH"  | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "DELETE" | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "TRACE"  | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "HEAD"   | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "GET"    | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
+        "PUT"    | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
+        "POST"   | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
+        "PATCH"  | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
+        "DELETE" | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
+        "TRACE"  | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
+
     }
 }

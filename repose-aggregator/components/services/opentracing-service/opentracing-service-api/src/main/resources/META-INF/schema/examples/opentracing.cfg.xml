@@ -4,6 +4,6 @@
              enabled="true"
              name="test-repose"
              tracer="jaeger"
-             tracer.host="jaeger"
-             tracer.port="5775"
+             tracer-host="jaeger"
+             tracer-port="5775"
 />

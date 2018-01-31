@@ -31,8 +31,8 @@ By default, all requests that are created by the service are reported (sampled).
              enabled="true" <!--1-->
              name="my-repose" <!--2-->
              tracer="jaeger" <!--3-->
-             tracer.host="jaeger.example.com" <!--4-->
-             tracer.port="5775"> <!--5-->
+             tracer-host="jaeger.example.com" <!--4-->
+             tracer-port="5775"> <!--5-->
     <jaeger-sampling-config sample-type="probabilistic"> <!--6-->
         <jaeger-sampling-probabilistic value="0.9" /> <!--7-->
     </jaeger-sampling-config>

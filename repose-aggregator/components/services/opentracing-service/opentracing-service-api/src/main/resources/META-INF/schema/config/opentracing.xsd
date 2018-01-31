@@ -82,7 +82,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="tracer.host" type="xs:string" default="localhost">
+        <xs:attribute name="tracer-host" type="xs:string" default="localhost">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -92,7 +92,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="tracer.port" type="PositiveInt" default="9411">
+        <xs:attribute name="tracer-port" type="PositiveInt" default="9411">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -102,7 +102,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="flush.interval.ms" type="PositiveInt" default="1000">
+        <xs:attribute name="flush-interval-ms" type="PositiveInt" default="1000">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -112,7 +112,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="max.buffer.size" type="PositiveInt" default="10000">
+        <xs:attribute name="max-buffer-size" type="PositiveInt" default="10000">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -212,7 +212,7 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:attribute name="maxTracesPerSecond" type="xs:double" default="1.0">
+        <xs:attribute name="max-traces-per-second" type="xs:double" default="1.0">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>

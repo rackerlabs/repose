@@ -389,8 +389,16 @@ public class PowerFilter extends DelegatingFilterProxy {
 
         if (openTracingService.isPresent() && openTracingService.get().isEnabled()) {
             LOG.trace("We enabled OpenTracing service.  Let's see if there are any passed-in spans");
-            SpanContext context = openTracingService.get().getGlobalTracer().extract(
-                Format.Builtin.TEXT_MAP, new TracerExtractor(wrappedRequest));
+
+            SpanContext context = null;
+
+            try {
+                context = openTracingService.get().getGlobalTracer().extract(
+                    Format.Builtin.HTTP_HEADERS, new TracerExtractor(wrappedRequest));
+            } catch (RuntimeException re) {
+                LOG.error("Incoming tracer could not be parsed.  We're going to start a new root span here; even though" +
+                    "this is most likely part of a larger span.  Check out thrown exception for more details", re);
+            }
 
             Tracer.SpanBuilder spanBuilder;
 

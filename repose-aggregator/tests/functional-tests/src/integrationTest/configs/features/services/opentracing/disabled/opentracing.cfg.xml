@@ -4,6 +4,6 @@
               enabled="false"
               name="repose"
               tracer="jaeger"
-              tracer.host="localhost"
-              tracer.port="${tracingPort}"
+              tracer-host="localhost"
+              tracer-port="${tracingPort}"
 />

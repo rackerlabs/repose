@@ -4,7 +4,7 @@
              enabled="true"
              name="repose"
              tracer="jaeger"
-             tracer.host="fakehost"
-             tracer.port="${tracingPort}"
+             tracer-host="fakehost"
+             tracer-port="${tracingPort}"
 
 />

@@ -3,7 +3,7 @@
 <opentracing xmlns="http://docs.openrepose.org/repose/opentracing/v1.0"
              name="repose"
              tracer="jaeger"
-             tracer.port="${tracingPort}">
+             tracer-port="${tracingPort}">
     <jaeger-sampling-config sample-type="probabilistic">
         <jaeger-sampling-probabilistic value="0.0" />
     </jaeger-sampling-config>

@@ -4,7 +4,7 @@
              enabled="true"
              name="repose"
              tracer="unreal"
-             tracer.host="fakehost"
-             tracer.port="${tracingPort}"
+             tracer-host="fakehost"
+             tracer-port="${tracingPort}"
 
 />
