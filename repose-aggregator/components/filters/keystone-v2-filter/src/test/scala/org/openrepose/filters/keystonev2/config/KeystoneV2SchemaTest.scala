@@ -126,6 +126,36 @@ class KeystoneV2SchemaTest extends ConfigurationTest {
       validator.validateConfigString(config)
     }
 
+    it("should successfully validate config if uri extraction precedes header extraction") {
+      val config =
+        """<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+          |    <identity-service uri="https://some.identity.com"/>
+          |    <tenant-handling>
+          |        <validate-tenant>
+          |            <uri-extraction-regex>[^\/]*\/?([^\/]+)</uri-extraction-regex>
+          |            <header-extraction-name>x-expected-tenant</header-extraction-name>
+          |            <uri-extraction-regex>[^\/]*\/?([^\/]+)/2</uri-extraction-regex>
+          |        </validate-tenant>
+          |    </tenant-handling>
+          |</keystone-v2>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should successfully validate config if header extraction precedes uri extraction") {
+      val config =
+        """<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+          |    <identity-service uri="https://some.identity.com"/>
+          |    <tenant-handling>
+          |        <validate-tenant>
+          |            <header-extraction-name>x-expected-tenant</header-extraction-name>
+          |            <uri-extraction-regex>[^\/]*\/?([^\/]+)</uri-extraction-regex>
+          |            <header-extraction-name>x-expected-tenant-2</header-extraction-name>
+          |        </validate-tenant>
+          |    </tenant-handling>
+          |</keystone-v2>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
     it("should reject config if neither a tenant URI extraction regex nor a tenant header extraction name is provided") {
       val config = """<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
                      |    <identity-service uri="https://some.identity.com"/>
