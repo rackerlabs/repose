@@ -4,8 +4,8 @@
 * https://repose.atlassian.net/browse/REP-5616[REP-5616], https://repose.atlassian.net/browse/REP-6436[REP-6436] - Updated dependencies:
 ** Jetty: 9.2.0.v20140526 → 9.4.8.v20171121
 *** https://github.com/eclipse/jetty.project/blob/jetty-9.4.x/VERSION.txt
-** Gradle: 3.4 → 4.4
-*** https://github.com/gradle/gradle/releases/tag/v4.4.0
+** Gradle: 3.4 → 4.5
+*** https://github.com/gradle/gradle/releases/tag/v4.5.0
 ** JSONPath: 2.4.0 → 2.5.0
 *** https://github.com/josephpconley/play-jsonpath/blob/master/README.md
 * https://repose.atlassian.net/browse/REP-5401[REP-5401] - Added support for environment variable substitution in configuration files.
