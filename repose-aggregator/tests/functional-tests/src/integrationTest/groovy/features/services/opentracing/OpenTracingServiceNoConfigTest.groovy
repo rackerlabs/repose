@@ -72,4 +72,63 @@ class OpenTracingServiceNoConfigTest extends ReposeValveTest {
         "TRACE"  | _
         "HEAD"   | _
     }
+
+
+    @Unroll("Should return 200 with #method with a trace id #trace_id")
+    def "when OpenTracing config is not specified, and trace id passed in, new span is not created, and trace id is passed through"() {
+
+        when: "Request is sent through repose"
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint,
+            headers: ['uber-trace-id': trace_id ],
+            method: method)
+
+        then: "The request should have reached the origin service"
+        messageChain.handlings.size() == 1
+
+        and: "request should have tracer header equal to passed in header (we did not create another one in repose)"
+
+        if (trace_id != null) {
+            assert messageChain.handlings.get(0).request.headers.contains(TRACING_HEADER)
+            assert messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER) == trace_id
+        } else {
+            assert !messageChain.handlings.get(0).request.headers.contains(TRACING_HEADER)
+        }
+
+        and: "Repose should return with a 200"
+        messageChain.receivedResponse.code == "200"
+
+
+        where:
+        method   | trace_id
+        "GET"    | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "PUT"    | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "POST"   | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "PATCH"  | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "DELETE" | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "TRACE"  | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "HEAD"   | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "GET"    | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
+        "PUT"    | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
+        "POST"   | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
+        "PATCH"  | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
+        "DELETE" | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
+        "TRACE"  | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
+        "HEAD"   | 'fake'
+        "GET"    | 'fake'
+        "PUT"    | 'fake'
+        "POST"   | 'fake'
+        "PATCH"  | 'fake'
+        "DELETE" | 'fake'
+        "TRACE"  | 'fake'
+        "HEAD"   | null
+        "GET"    | null
+        "PUT"    | null
+        "POST"   | null
+        "PATCH"  | null
+        "DELETE" | null
+        "TRACE"  | null
+        "HEAD"   | null
+    }
 }
+

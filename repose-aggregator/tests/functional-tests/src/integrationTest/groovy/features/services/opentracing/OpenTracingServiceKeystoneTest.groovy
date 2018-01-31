@@ -60,7 +60,7 @@ class OpenTracingServiceKeystoneTest extends ReposeValveTest {
     }
 
     @Unroll("Should return 200 with #method")
-    def "when OpenTracing config is specified and enabled with keystone-v2, trace information is passed in tracing header"() {
+    def "when OpenTracing config is enabled with keystone-v2, trace information is passed in tracing header"() {
         given:
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
@@ -79,12 +79,9 @@ class OpenTracingServiceKeystoneTest extends ReposeValveTest {
         messageChain.handlings.size() == 1
 
         and: "keystone request contains tracing header"
-        def keystoneCalls = messageChain.orphanedHandlings.size()
-
-        (0..<keystoneCalls).each {
-            assert messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER)
-            def traceId = URLDecoder.decode(
-                messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER), "UTF-8")
+        messageChain.orphanedHandlings.each {
+            assert it.request.headers.contains(TRACING_HEADER)
+            def traceId = URLDecoder.decode(it.request.headers.getFirstValue(TRACING_HEADER), "UTF-8")
             spanList << traceId
         }
 
@@ -109,5 +106,195 @@ class OpenTracingServiceKeystoneTest extends ReposeValveTest {
 
         where:
         method << ["GET", "PUT", "POST", "PATCH", "DELETE", "TRACE", "HEAD"]
+    }
+
+    @Unroll("Should return 200 with #method and #trace_id")
+    def "when OpenTracing config is enabled with keystone-v2, with invald parent span, trace information is passed in tracing header"() {
+        given:
+        fakeIdentityV2Service.with {
+            client_token = UUID.randomUUID().toString()
+            client_tenantid = "mytenant"
+            client_tenantname = "mytenantname"
+            client_userid = "12345"
+        }
+
+        def spanList = []
+
+        when: "User passes a request through repose with valid token"
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
+            headers: [
+                'content-type': 'application/json',
+                'X-Auth-Token': fakeIdentityV2Service.client_token,
+                'uber-trace-id': trace_id
+            ])
+
+        then: "The request should have reached the origin service"
+        messageChain.handlings.size() == 1
+
+        and: "keystone request contains tracing header"
+        messageChain.orphanedHandlings.each {
+            assert it.request.headers.getCountByName(TRACING_HEADER) == 1
+            spanList << it.request.headers.getFirstValue(TRACING_HEADER)
+        }
+
+
+        and: "OpenTracingService has logged that keystone span was sent to tracer"
+        spanList.each {
+            def logLines = reposeLogSearch.searchByString(
+                "Span reported: ${URLDecoder.decode(it, "UTF-8")}")
+            assert logLines.size() == 1
+        }
+
+        and: "OpenTracingService passes a new trace id"
+        spanList.each {
+            assert it != trace_id
+
+        }
+
+        and: "request to origin should have 2 tracer headers"
+        if (trace_id == null)
+            assert messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 1
+        else
+            assert messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 2
+
+        and: "request to origin should have tracer header pass through as well as a new header added"
+        def newTraceId
+        if (trace_id == null) {
+            newTraceId = messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER)
+        } else {
+            def validateCount = 0
+            messageChain.handlings.get(0).request.headers.each {
+                if (it.name == TRACING_HEADER) {
+                    if (it.value == trace_id) validateCount++
+                    else newTraceId = it.value
+                }
+            }
+            assert validateCount == 1
+        }
+
+
+        and: "Repose should return with a 200"
+        messageChain.receivedResponse.code == "200"
+
+        and: "trace id does not exist in the new trace in request to origin"
+        assert newTraceId != trace_id
+
+        where:
+        method   | trace_id
+        "HEAD"   | 'fake'
+        "GET"    | 'fake'
+        "PUT"    | 'fake'
+        "POST"   | 'fake'
+        "PATCH"  | 'fake'
+        "DELETE" | 'fake'
+        "TRACE"  | 'fake'
+        "HEAD"   | null
+        "GET"    | null
+        "PUT"    | null
+        "POST"   | null
+        "PATCH"  | null
+        "DELETE" | null
+        "TRACE"  | null
+        "HEAD"   | null
+    }
+
+
+    @Unroll("Should return 200 with #method and #trace_id")
+    def "when OpenTracing config is enabled with keystone-v2, with parent span, trace information is passed in tracing header"() {
+        given:
+        fakeIdentityV2Service.with {
+            client_token = UUID.randomUUID().toString()
+            client_tenantid = "mytenant"
+            client_tenantname = "mytenantname"
+            client_userid = "12345"
+        }
+
+        def spanList = []
+
+        when: "User passes a request through repose with valid token"
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
+            headers: [
+                'content-type': 'application/json',
+                'X-Auth-Token': fakeIdentityV2Service.client_token,
+                'uber-trace-id': trace_id
+            ])
+
+        then: "The request should have reached the origin service"
+        messageChain.handlings.size() == 1
+
+        and: "keystone request contains tracing header"
+        messageChain.orphanedHandlings.each {
+            assert it.request.headers.getCountByName(TRACING_HEADER) == 1
+            spanList << it.request.headers.getFirstValue(TRACING_HEADER)
+        }
+
+
+        and: "OpenTracingService has logged that keystone span was sent to tracer"
+        spanList.each {
+            def logLines = reposeLogSearch.searchByString(
+                "Span reported: ${URLDecoder.decode(it, "UTF-8")}")
+            assert logLines.size() == 1
+        }
+
+        and: "OpenTracingService passes a new trace id"
+        spanList.each {
+            assert it != trace_id
+
+        }
+
+        and: "request to origin should have 2 tracer headers"
+        if (trace_id == null)
+            assert messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 1
+        else
+            assert messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 2
+
+        and: "request to origin should have tracer header pass through as well as a new header added"
+        def newTraceId
+        if (trace_id == null) {
+            newTraceId = messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER)
+        } else {
+            def validateCount = 0
+            messageChain.handlings.get(0).request.headers.each {
+                if (it.name == TRACING_HEADER) {
+                    if (it.value == trace_id) validateCount++
+                    else newTraceId = it.value
+                }
+            }
+            assert validateCount == 1
+        }
+
+
+        and: "Repose should return with a 200"
+        messageChain.receivedResponse.code == "200"
+
+        and: "trace id exists in the new trace"
+        if (trace_id.contains(':')) {
+            def traceId = trace_id.split(":").first()
+            assert newTraceId.split("%3A").first() == traceId
+        } else {
+            def traceId = trace_id.split("%3A").first()
+            assert newTraceId.split("%3A").first() == traceId
+        }
+
+        and: "Repose should return with a 200"
+        messageChain.receivedResponse.code == "200"
+
+
+        where:
+        method   | trace_id
+        "GET"    | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "PUT"    | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "POST"   | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "PATCH"  | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "DELETE" | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "TRACE"  | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "HEAD"   | '5f074a7cedaff647%3A6cfe3defc2e78be5%3A5f074a7cedaff647%3A1'
+        "GET"    | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
+        "PUT"    | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
+        "POST"   | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
+        "PATCH"  | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
+        "DELETE" | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
+        "TRACE"  | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
+
     }
 }
