@@ -49,11 +49,6 @@ abstract class AbstractKeystoneV2Filter[T <: KeystoneV2Config: ClassTag](configu
 
   def doWork(servletRequest: HttpServletRequest, servletResponse: HttpServletResponse, chain: FilterChain): Unit = {
     /**
-      * STATIC REFERENCE TO CONFIG
-      */
-    val config = configuration
-
-    /**
       * DECLARE COMMON VALUES
       */
     lazy val request = new HttpServletRequestWrapper(servletRequest)
@@ -62,7 +57,7 @@ abstract class AbstractKeystoneV2Filter[T <: KeystoneV2Config: ClassTag](configu
     def isWhitelisted(requestUri: String): Boolean = {
       logger.trace("Comparing request URI to whitelisted URIs")
 
-      val whiteListUris: List[String] = config.getWhiteList.getUriRegex.asScala.toList
+      val whiteListUris: List[String] = configuration.getWhiteList.getUriRegex.asScala.toList
 
       whiteListUris exists { pattern =>
         logger.debug(s"checking $requestUri against $pattern")
@@ -80,7 +75,7 @@ abstract class AbstractKeystoneV2Filter[T <: KeystoneV2Config: ClassTag](configu
         Pass
       } else {
         val authResult = doAuth(request)
-        handleFailures.applyOrElse(authResult, (t: Try[Unit.type]) => t match {
+        handleFailures.applyOrElse(authResult, (_: Try[Unit.type]) match {
           case Success(_) => Pass
           case Failure(e) => Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
         })
@@ -93,7 +88,7 @@ abstract class AbstractKeystoneV2Filter[T <: KeystoneV2Config: ClassTag](configu
         chain.doFilter(request, response)
       case Reject(statusCode, message, headers) =>
         headers foreach { case (name, value) =>  response.addHeader(name, value) }
-        Option(config.getDelegating) match {
+        Option(configuration.getDelegating) match {
           case Some(delegating) =>
             logger.debug(s"Delegating with status $statusCode caused by: ${message.getOrElse("unspecified")}")
 
@@ -128,13 +123,24 @@ abstract class AbstractKeystoneV2Filter[T <: KeystoneV2Config: ClassTag](configu
     response.commitToResponse()
 
     def addIdentityStatusHeader(confirmed: Boolean): Unit = {
-      if (Option(config.getDelegating).isDefined) {
+      if (Option(configuration.getDelegating).isDefined) {
         if (confirmed) request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.CONFIRMED)
         else request.addHeader(OpenStackServiceHeader.IDENTITY_STATUS, IdentityStatus.INDETERMINATE)
       }
     }
   }
 
+  override def doConfigurationUpdated(configurationObject: T): T = {
+    // Fix JAXB defaults
+    if (Option(configurationObject.getTenantHandling).isEmpty) {
+      configurationObject.withTenantHandling(new TenantHandlingType())
+    }
+    if (Option(configurationObject.getWhiteList).isEmpty) {
+      configurationObject.withWhiteList(new WhiteListType())
+    }
+
+    configurationObject
+  }
 }
 
 object AbstractKeystoneV2Filter {

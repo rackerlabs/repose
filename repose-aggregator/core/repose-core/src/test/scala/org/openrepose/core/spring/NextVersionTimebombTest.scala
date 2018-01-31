@@ -88,6 +88,13 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        *    c. Remove the deprecated top-level `whitelist` & `blacklist` elements.
        *    d. Remove the `HttpHeaderList` (`whitelist` & `blacklist`) element's id attribute.
        *    e. Remove the old tests and conditional test
+       *
+       * 2. Remove authorization functionality from the Keystone v2 authentication filter.
+       *    a. Push the shared authorization schema stuff into the authorization filter schema.
+       *    b. Push the shared authorization code into the authorization filter itself.
+       *    c. Remove the configuration deprecation warnings.
+       *    d. Remove the versioned documentation deprecation warnings.
+       *    e. Rename the keystone-v2 filter to keystone-v2-authentication.
        */
     }
   }

@@ -19,6 +19,7 @@
  */
 package org.openrepose.filters.keystonev2
 
+import java.util.Base64
 import java.util.concurrent.{TimeUnit, TimeoutException}
 import javax.inject.{Inject, Named}
 import javax.servlet._
@@ -26,7 +27,6 @@ import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.HttpHeaders
 
-import org.apache.commons.codec.binary.Base64
 import org.apache.http.client.utils.DateUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http._
@@ -39,8 +39,8 @@ import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaS
 import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.{KeystoneV2Result, Reject}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
-import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationFailed, AuthorizationPassed, UnparseableTenantException}
-import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, ValidToken}
+import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationFailed, AuthorizationPassed, UnparsableTenantException}
+import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, TokenRequestAttributeName, ValidToken}
 import org.openrepose.filters.keystonev2.config._
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 
@@ -285,6 +285,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
 
     def addTokenHeaders(token: ValidToken, matchedUriTenant: Option[String]): Unit = {
+      // TODO: Add tenant to role map header
       // Add standard headers
       request.addHeader(OpenStackServiceHeader.USER_ID, token.userId)
       request.addHeader(OpenStackServiceHeader.X_EXPIRATION, token.expirationDate)
@@ -337,7 +338,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     def addCatalogHeader(maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
       if (configuration.getIdentityService.isSetCatalogInHeader) {
         maybeEndpoints map { endpoints =>
-          request.addHeader(PowerApiHeader.X_CATALOG, Base64.encodeBase64String(endpoints.json.getBytes))
+          // TODO: Sync character encoding with the authorization filter
+          request.addHeader(PowerApiHeader.X_CATALOG, Base64.getEncoder.encodeToString(endpoints.json.getBytes))
           Unit
         }
       } else {
@@ -363,6 +365,9 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       */
     getAuthToken flatMap { authToken =>
       validateToken(authToken) flatMap { validToken =>
+        // TODO: Remove this and use the tenant-to-roles map header for transport.
+        request.setAttribute(TokenRequestAttributeName, validToken)
+
         lazy val endpoints = getEndpoints(authToken) // Prevents making call if its not needed
         val authResult = KeystoneV2Authorization.doAuthorization(configuration, request, validToken, endpoints)
 
@@ -382,7 +387,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     KeystoneV2Authorization.handleFailures orElse {
       case Failure(e: MissingAuthTokenException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
       case Failure(e: NotFoundException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
-      case Failure(e: UnparseableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+      case Failure(e: UnparsableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
       case Failure(e: IdentityCommunicationException) => Reject(SC_BAD_GATEWAY, Some(e.getMessage))
       case Failure(e: OverLimitException) =>
         if (isSelfValidating) {
@@ -470,14 +475,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       // LOLJAXB  	(╯°□°）╯︵ ┻━┻
       //This relies on the Default Settings plugin and the fluent_api plugin added to the Jaxb code generation plugin
       // I'm sorry
-      if (stupidConfig.getTenantHandling == null) {
-        stupidConfig.withTenantHandling(new TenantHandlingType())
-      }
-
-      if (stupidConfig.getWhiteList == null) {
-        stupidConfig.withWhiteList(new WhiteListType())
-      }
-
       if (stupidConfig.getCache == null) {
         stupidConfig.withCache(new CacheType().withTimeouts(new CacheTimeoutsType()))
       } else if (stupidConfig.getCache.getTimeouts == null) {
@@ -488,7 +485,17 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
     }
 
-    val config = fixMyDefaults(configurationObject)
+    val config = fixMyDefaults(super.doConfigurationUpdated(configurationObject))
+
+    Option(config.getTenantHandling).map(_.getValidateTenant) foreach { _ =>
+      logger.warn("Tenant validation has been moved to the keystone-v2-authorization filter, and is considered deprecated in the keystone-v2 filter")
+    }
+    Option(config.getRequireServiceEndpoint) foreach { _ =>
+      logger.warn("Service endpoint requirements have been moved to the keystone-v2-authorization filter, and are considered deprecated in the keystone-v2 filter")
+    }
+    Option(config.getPreAuthorizedRoles) foreach { _ =>
+      logger.warn("Pre-authorized roles have been moved to the keystone-v2-authorization filter, and are considered deprecated in the keystone-v2 filter")
+    }
 
     // Removes an extra slash at the end of the URI if applicable
     val serviceUri = config.getIdentityService.getUri
@@ -591,6 +598,8 @@ object KeystoneV2Filter {
     }
   }
 
-  case class MissingAuthTokenException(message: String, cause: Throwable = null) extends Exception(message, cause)
+  abstract class AuthenticationException(message: String, cause: Throwable) extends Exception(message, cause)
+
+  case class MissingAuthTokenException(message: String, cause: Throwable = null) extends AuthenticationException(message, cause)
 
 }

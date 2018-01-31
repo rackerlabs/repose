@@ -32,18 +32,15 @@ import scala.util.{Failure, Success, Try}
 
 object KeystoneV2Authorization extends LazyLogging {
 
-  def doAuthorization(config: KeystoneV2Config, request: HttpServletRequestWrapper, validToken: ValidToken, endpoints: => Try[EndpointsData]): AuthorizationInfo = {
-    lazy val tenantToMatch: String =
-      Option(config.getTenantHandling.getValidateTenant).flatMap(validateTenantConfig =>
-        Option(validateTenantConfig.getUriExtractionRegex).flatMap(uriExtractionRegexList =>
-          uriExtractionRegexList.asScala.toStream.map(_.r).flatMap(uriExtractionRegex =>
-            request.getRequestURI match {
-              case uriExtractionRegex(tenantId, _*) => Option(tenantId)
-              case _ => None
-            }
-          ).headOption
-        )).getOrElse(throw UnparseableTenantException("Could not parse tenant from the URI"))
+  val handleFailures: PartialFunction[Try[Unit.type], KeystoneV2Result] = {
+    case Failure(e: InvalidTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+    case Failure(e: UnauthorizedEndpointException) => Reject(SC_FORBIDDEN, Some(e.getMessage))
+    case Failure(e: UnparsableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+  }
 
+  // TODO: Take tenants to roles mapping instead of token to calculate scoped roles.
+  def doAuthorization(config: KeystoneV2Config, request: HttpServletRequestWrapper, validToken: ValidToken, endpoints: => Try[EndpointsData]): AuthorizationInfo = {
+    lazy val tenantToMatch = getRequestTenant(config.getTenantHandling.getValidateTenant, request)
 
     val tenantScopedRoles = getTenantScopedRoles(config.getTenantHandling.getValidateTenant, tenantToMatch, validToken.roles)
     val userIsPreAuthed = isUserPreAuthed(config.getPreAuthorizedRoles, tenantScopedRoles)
@@ -59,19 +56,31 @@ object KeystoneV2Authorization extends LazyLogging {
     }
   }
 
-  val handleFailures: PartialFunction[Try[Unit.type], KeystoneV2Result] = {
-    case Failure(e: InvalidTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
-    case Failure(e: UnauthorizedEndpointException) => Reject(SC_FORBIDDEN, Some(e.getMessage))
-    case Failure(e: UnparseableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
+  // TODO: Switch to getRequestTenants (plural) and include all tenants extracted. This is a behavior change.
+  def getRequestTenant(config: ValidateTenantType, request: HttpServletRequestWrapper): String = {
+    Option(config).flatMap(validateTenantConfig =>
+      (validateTenantConfig.getUriExtractionRegexAndHeaderExtractionName.asScala.toStream map {
+        case headerExtraction: HeaderExtractionType =>
+          request.getPreferredSplittableHeaders(headerExtraction.getValue).asScala.headOption
+        case uriExtraction: UriExtractionType =>
+          val uriRegex = uriExtraction.getValue.r
+          request.getRequestURI match {
+            case uriRegex(tenantId, _*) => Some(tenantId)
+            case _ => None
+          }
+        case _ =>
+          logger.error("An unexpected tenant extraction type was encountered")
+          None
+      }).find(_.nonEmpty).flatten
+    ).getOrElse(throw UnparsableTenantException("Could not parse tenant from the URI and/or the configured header"))
   }
 
-
-  def getTenantScopedRoles(config: ValidateTenantType, tenantFromUri: => String, roles: Seq[Role]): Seq[Role] = {
+  def getTenantScopedRoles(config: ValidateTenantType, tenantToMatch: => String, roles: Seq[Role]): Seq[Role] = {
     Option(config) match {
       case Some(validateTenant) if !validateTenant.isEnableLegacyRolesMode =>
         roles.filter(role =>
           role.tenantId.forall(roleTenantId =>
-            roleTenantId.equals(tenantFromUri)))
+            roleTenantId.equals(tenantToMatch)))
       case _ =>
         roles
     }
@@ -140,10 +149,12 @@ object KeystoneV2Authorization extends LazyLogging {
   case class AuthorizationPassed(scopedToken: ValidToken, matchedTenant: Option[String]) extends AuthorizationInfo
   case class AuthorizationFailed(scopedToken: ValidToken, matchedTenant: Option[String], exception: Throwable) extends AuthorizationInfo
 
-  case class UnauthorizedEndpointException(message: String, cause: Throwable = null) extends Exception(message, cause)
+  abstract class AuthorizationException(message: String, cause: Throwable) extends Exception(message, cause)
 
-  case class InvalidTenantException(message: String, cause: Throwable = null) extends Exception(message, cause)
+  case class UnauthorizedEndpointException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
 
-  case class UnparseableTenantException(message: String, cause: Throwable = null) extends Exception(message, cause)
+  case class InvalidTenantException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
+
+  case class UnparsableTenantException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
 
 }

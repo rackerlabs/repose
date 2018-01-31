@@ -19,7 +19,13 @@
  */
 package org.openrepose.filters.keystonev2
 
+import play.api.libs.functional.syntax._
+import play.api.libs.json.{JsPath, Reads}
+
 object KeystoneV2Common {
+
+  final val TokenRequestAttributeName: String = "http://openrepose.org/filters/keystonev2/token"
+  final val EndpointsRequestAttributeName: String = "http://openrepose.org/filters/keystonev2/endpoints"
 
   case class ValidToken(expirationDate: String,
                         userId: String,
@@ -60,5 +66,14 @@ object KeystoneV2Common {
   }
 
   case class EndpointsData(json: String, vector: Vector[Endpoint])
+
+  object Endpoint {
+    implicit val endpointReads: Reads[Endpoint] = (
+      (JsPath \ "region").readNullable[String] and
+        (JsPath \ "name").readNullable[String] and
+        (JsPath \ "type").readNullable[String] and
+        (JsPath \ "publicURL").read[String]
+      ) (Endpoint.apply _)
+  }
 
 }

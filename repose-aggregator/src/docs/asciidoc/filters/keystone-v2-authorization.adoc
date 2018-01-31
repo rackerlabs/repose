@@ -1,0 +1,211 @@
+= Keystone v2 Authorization Filter
+
+The Keystone v2 Authorization Filter authorizes requests based on data about the user making the request.
+
+== General filter information
+* *Name:* keystone-v2-authorization
+* *Default Configuration:* keystone-v2-authorization.cfg.xml
+* *Released:* TODO
+* *Bundle:* repose-filter-bundle
+* link:../schemas/keystone-v2-authorization.xsd[Schema]
+
+== Prerequisites & Postconditions
+=== Required Request Headers
+This filter does not require any request headers.
+
+=== Required Preceding Filters
+This filter requires that the <<keystone-v2.adoc#, Keystone v2 Filter>> precede it to populate necessary user data.
+
+=== Request Headers Created
+The following headers are created:
+
+* `X-Tenant-Id` - The Tenant ID's for the user.
+  This header will only be added if this filter is configured to validate tenants.
+  If this header already exists, this filter will either add the matching tenant to the header value or replace the header value with just the matching tenant depending on how this filter is configured.
+* `X-Roles` - Identifies roles (e.g., `admin`, `user`).
+  This header will be always be added with a value of all of the user's roles associated with the validated tenant.
+  If no tenant has been validated, then all user roles will be added to this header.
+  If this header already exists, it will be replaced.
+* `X-Identity-Status` - Indicates if identity has been confirmed.
+  Identity is considered to be confirmed if authorization succeeds.
+  Possible values are `Confirmed` and `Indeterminate`.
+
+If delegation is enabled, then the `X-Delegated` header is created.
+This is mainly intended for use by the <<herp.adoc#, Highly Efficient Record Processor (HERP) filter>> and <<derp.adoc#, Delegation Response Processor (DeRP) filter>> for internal delegation processing within *Repose*.
+However, it can be exposed to the origin service under certain configurations.
+
+=== Request Body Changes
+This filter does not modify the request body.
+
+=== Recommended Follow-On (Succeeding) Filters
+This filter is not strictly required by any other filters.
+
+=== Response Body Changes
+This filter does not modify the response body.
+
+=== Response Headers Created
+This filter does not create/modify any response headers.
+
+=== Response Status Codes
+[cols="2", options="header,autowidth"]
+.Status Codes
+|===
+| Status Code
+| Reasons
+
+| `401`
+| Tenant ID validation fails because the request tenant ID does not match any tenant ID in the user data.
+
+| `403`
+| Endpoint validation fails because the user data does not a required endpoint.
+
+| `500`
+| Valid user data (i.e., token and endpoint data) was not found in the request.
+The most likely cause is that the <<keystone-v2.adoc#, Keystone v2 Filter>> which must precede this filter had not been set up correctly.
+|===
+
+== Examples
+=== Tenant Validation
+This configuration will validate the tenant ID in the request against the tenant IDs in the user data.
+
+[source,xml]
+.keystone-v2-authorization.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<keystone-v2-authorization xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+    <tenant-handling <!--1-->
+        send-all-tenant-ids="true"> <!--2-->
+
+        <validate-tenant <!--3-->
+            strip-token-tenant-prefixes="/foo:/bar-" <!--4-->
+            enable-legacy-roles-mode="false"> <!--5-->
+
+            <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex> <!--6-->
+            <uri-extraction-regex>.*/clients/([-|\w]+)/?.*</uri-extraction-regex>
+            <header-extraction-name>x-expected-tenant</header-extraction-name> <!--7-->
+            <header-extraction-name>x-other-tenant</header-extraction-name>
+        </validate-tenant>
+
+        <send-tenant-id-quality <!--8-->
+            default-tenant-quality="1.0" <!--9-->
+            uri-tenant-quality="0.7" <!--10-->
+            roles-tenant-quality="0.5"/> <!--11-->
+    </tenant-handling>
+</keystone-v2-authorization>
+----
+<1> A container for functionality pertaining to tenant handling.
+<2> Indicates if all the Tenant IDs from the user and the roles the user has should be sent or not. +
+    Default: `false`
+<3> If included, then the user will be authorized if and only if the user data contains a tenant ID matching the tenant ID extracted from the request.
+<4> A `/` delimited list of prefixes to attempt to strip from the Tenant ID in the token response from the Keystone v2 Identity service.
+    The post-strip Tenant ID is only used in the Tenant Validation check.
+<5> If in legacy roles mode, then all roles associated with a user token are forwarded.
+    If NOT in legacy roles mode, then roles which aren't tied to the tenant provided in the request will NOT be forwarded UNLESS the user has a pre-authorized role. +
+    Default: `false`
+<6> Declares that a tenant ID should be extracted from the request URI.
+    A https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] with at least one capture group.
+    The first capture group must be around the portion of the URI to extract the Tenant ID from for validation.
+<7> Declares that a tenant ID should be extracted from the `x-expected-tenant` header in the request.
+<8> If this element is included, then include Quality parameters on all the tenant ID headers sent.
+<9> The default tenant has the highest quality by default. +
+    Default: `0.9`
+<10> Followed by the one that matches the URI by default (if any). +
+     Default: `0.7`
+<11> Followed by the tenants from the roles by default. +
+     Default: `0.5`
+
+=== Endpoint Validation
+This configuration will validate that the user data contains a configured edpoint.
+
+[source,xml]
+.keystone-v2-authorization.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<keystone-v2-authorization xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+    <require-service-endpoint <!--1-->
+        public-url="https://service.example.com" <!--2-->
+        region="ORD" <!--3-->
+        name="OpenStackCompute" <!--4-->
+        type="compute"/> <!--5-->
+</keystone-v2-authorization>
+----
+<1> If included, then the user will be authorized if and only if the user data contains an endpoint matching the configured endpoint.
+<2> Public URL to match on the user's endpoint.
+<3> Region to match on the user's endpoint.
+<4> Name of the service to match in the user's endpoint.
+<5> Type to match in the user's endpoint.
+
+=== Whitelisting URIs
+You can configure this filter to allow no-op processing of requests that do not require authorization.
+For example, a service might want all calls authorized with the exception of the call for WADL retrieval.
+In this situation, you can configure the whitelist as shown in the example below.
+The whitelist contains a list of https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expressions] that *Repose* attempts to match against the full request URI.
+If the URI matches an expression in the white list, then the request is passed to the origin service.
+Otherwise, authorization is performed against the request.
+
+[source,xml]
+.keystone-v2-authorization.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<keystone-v2-authorization xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+    <white-list>
+        <uri-regex>/application\.wadl$</uri-regex> <!--1-->
+    </white-list>
+
+    <tenant-handling>
+        <validate-tenant>
+            <header-extraction-name>x-expected-tenant</header-extraction-name>
+        </validate-tenant>
+    </tenant-handling>
+</keystone-v2-authorization>
+----
+<1> The https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] to allow matching URI's to pass without requiring authorization.
+
+=== Pre-authorized Roles
+Pre-authorized roles can be configured to allow a user to bypass authorization if the user data contains a role matching one of the pre-authorized roles.
+
+[source,xml]
+.keystone-v2-authorization.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<keystone-v2-authorization xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+    <pre-authorized-roles> <!--1-->
+        <role>racker</role> <!--2-->
+    </pre-authorized-roles>
+
+    <tenant-handling>
+        <validate-tenant>
+            <header-extraction-name>x-expected-tenant</header-extraction-name>
+        </validate-tenant>
+    </tenant-handling>
+</keystone-v2-authorization>
+----
+<1> Contains pre-authorized roles.
+<2> Defines a role for which authorization is not performed.
+
+=== Delegation
+In some cases, you may want to delegate the decision to reject a request down the chain to either another filter or to the origin service.
+This filter allows a request to pass as either `Confirmed` or `Indeterminate` when configured to run in delegating mode.
+To place the filter in delegating mode, add the `delegating` element to the filter configuration with an optional `quality` attribute that determines the delegation priority.
+When in delegating mode, the filter sets the `X-Identity-Status` header with a value of `Confirmed` when a user has been authorized by the this filter and to `Indeterminate` when a user was not authorized by this filter.
+The the `X-Identity-Status` header is in addition to the regular `X-Delegated` delegation header being created.
+
+[source,xml]
+.keystone-v2-authorization.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<keystone-v2-authorization xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+    <delegating quality="0.7"/> <!--1--> <!--2-->
+
+    <tenant-handling>
+        <validate-tenant>
+            <header-extraction-name>x-expected-tenant</header-extraction-name>
+        </validate-tenant>
+    </tenant-handling>
+</keystone-v2-authorization>
+----
+<1> If this element is present, then delegation is enabled.
+    Delegation will cause this filter to pass requests it would ordinarily reject along with a header detailing why it would have rejected the request.
+<2> Indicates the quality that will be added to any output headers.
+    When setting up a chain of delegating filters the highest quality number will be the one that is eventually output to the logging mechanisms. +
+    Default: `0.7`
