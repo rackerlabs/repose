@@ -322,14 +322,14 @@ class OpenTracingServiceImplTest{
         when(resourceResolver.resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
         when(configurationService.getResourceResolver().resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
 
-        OpenTracingConfig openTracingConfig = mock(OpenTracingConfig.class)
-        when(openTracingConfig.getTracer()).thenReturn(TracerType.JAEGER)
-        when(openTracingConfig.getTracerHost()).thenReturn("localhost")
-        when(openTracingConfig.getTracerPort()).thenReturn(80)
-        when(openTracingConfig.isEnabled()).thenReturn(true)
-        when(openTracingConfig.getName()).thenReturn("fake-tracer")
-        when(openTracingConfig.getMaxBufferSize()).thenReturn(10000)
-        when(openTracingConfig.getFlushIntervalMs()).thenReturn(10000)
+        OpenTracingConfig openTracingConfig = new OpenTracingConfig()
+        openTracingConfig.name = "fake-tracer"
+        openTracingConfig.enabled = true
+        openTracingConfig.tracer = TracerType.JAEGER
+        openTracingConfig.tracerHost = "localhost"
+        openTracingConfig.tracerPort = 80
+        openTracingConfig.maxBufferSize = 10000
+        openTracingConfig.flushIntervalMs = 10000
 
         openTracingService.configure(openTracingConfig)
 
