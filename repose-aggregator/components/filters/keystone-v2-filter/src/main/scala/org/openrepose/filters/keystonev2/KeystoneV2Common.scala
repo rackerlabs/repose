@@ -25,7 +25,7 @@ import play.api.libs.json.{JsPath, Reads}
 object KeystoneV2Common {
 
   final val TokenRequestAttributeName: String = "http://openrepose.org/filters/keystonev2/token"
-  final val DomainRoleTenantKey: String = "http://openrepose.org/filters/keystonev2/user/tenant/default"
+  final val DomainRoleTenantKey: String = "repose/domain/roles"
 
   def getTenantToRolesMap(token: ValidToken): Map[String, Seq[String]] = {
     token.defaultTenantId.map(_ -> Seq.empty[String]).toMap ++
