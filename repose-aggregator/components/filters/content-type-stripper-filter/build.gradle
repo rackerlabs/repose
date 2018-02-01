@@ -4,7 +4,7 @@ dependencies {
     compile "org.apache.commons:commons-lang3"
     compile "org.apache.httpcomponents:httpcore"
 
-    provided "javax.servlet:javax.servlet-api"
+    compileOnly "javax.servlet:javax.servlet-api"
 
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"

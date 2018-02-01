@@ -1,6 +1,6 @@
 dependencies {
-    provided 'javax.servlet:javax.servlet-api'
-    provided 'javax.inject:javax.inject'
+    compileOnly 'javax.servlet:javax.servlet-api'
+    compileOnly 'javax.inject:javax.inject'
     compile 'org.apache.commons:commons-lang3'
     compile project(':repose-aggregator:tests:test-bundles:classloader-dependency-one')
     compile "org.scala-lang:scala-library"

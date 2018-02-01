@@ -16,8 +16,8 @@ dependencies {
     //       "net.sf.ehcache.internal" package. Perhaps the standard "ehcache" should be used instead.
     // compile "io.dropwizard.metrics:metrics-ehcache"
 
-    provided "javax.inject:javax.inject"
-    provided "javax.servlet:javax.servlet-api"
+    compileOnly "javax.inject:javax.inject"
+    compileOnly "javax.servlet:javax.servlet-api"
 
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"

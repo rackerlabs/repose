@@ -21,6 +21,12 @@ processResources {
     )
 }
 
+processScoverageResources {
+    expand(
+        version: version,
+    )
+}
+
 license {
     excludes(['**/credentials.xsd', '**/atom.xsd', '**/xml.xsd'])
 }
@@ -31,7 +37,7 @@ jacocoTestCoverageVerification {
             rule.limits.forEach { limit ->
                 if (limit.counter == 'INSTRUCTION' && limit.value == 'COVEREDRATIO') {
                     // todo: set to the current coverage -- need more coverage, but we don't want the build to fail for the baseline
-                    limit.minimum = 0.0
+                    limit.minimum = 0.00
                 }
             }
         }

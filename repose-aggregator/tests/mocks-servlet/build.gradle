@@ -4,7 +4,7 @@ dependencies {
     compile "com.sun.jersey:jersey-servlet"
     compile "org.slf4j:slf4j-api"
 
-    provided "javax.servlet:javax.servlet-api"
+    compileOnly "javax.servlet:javax.servlet-api"
 
     testCompile "org.codehaus.groovy:groovy-all"
     testCompile "junit:junit"

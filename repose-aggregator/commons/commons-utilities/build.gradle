@@ -12,9 +12,9 @@ dependencies {
     compile "org.apache.httpcomponents:httpclient"
     compile "org.jvnet.jaxb2_commons:jaxb2-basics-runtime"
 
-    provided "javax.ws.rs:javax.ws.rs-api"
-    provided "org.glassfish:javax.servlet" //todo: swap these as part of REP-3950
-//    provided "javax.servlet:javax.servlet-api"
+    compileOnly "javax.ws.rs:javax.ws.rs-api"
+    compileOnly "org.glassfish:javax.servlet" //todo: swap these as part of REP-3950
+//    compileOnly "javax.servlet:javax.servlet-api"
 
     testCompile project(':repose-aggregator:commons:commons-test')
     testCompile "junit:junit"

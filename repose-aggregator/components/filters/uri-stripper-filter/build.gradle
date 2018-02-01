@@ -10,8 +10,8 @@ dependencies {
     compile "com.rackspace.cloud.api:wadl-tools_$scalaMajDotMin"
     compile "net.sf.saxon:Saxon-EE"
 
-    provided "javax.servlet:javax.servlet-api"
-    provided "javax.inject:javax.inject"
+    compileOnly "javax.servlet:javax.servlet-api"
+    compileOnly "javax.inject:javax.inject"
 
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile project(":repose-aggregator:commons:commons-configuration")
@@ -22,4 +22,5 @@ dependencies {
     testCompile "org.mockito:mockito-all"
     testCompile "org.springframework:spring-test"
     testCompile "org.slf4j:jcl-over-slf4j"
+    testCompile "xerces:xerces-xsd11"
 }

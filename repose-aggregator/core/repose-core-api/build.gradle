@@ -6,7 +6,7 @@ dependencies {
     compile "org.scala-lang:scala-library"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
 
-    provided "org.glassfish:javax.servlet"
+    compileOnly "org.glassfish:javax.servlet"
 
     testCompile project(":repose-aggregator:core:repose-core")
     testCompile project(":repose-aggregator:commons:commons-test")

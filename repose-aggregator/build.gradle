@@ -96,56 +96,58 @@ linkchecker {
     ]
 }
 
-task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds the new version of the docs to github pages') << {
-    def workingDir = project.file("${project.buildDir}/gh-pages")
+task('publishDocs', dependsOn: asciidoctor, group: 'release', description: 'Adds the new version of the docs to github pages') {
+    doLast {
+        def workingDir = project.file("${project.buildDir}/gh-pages")
 
-    workingDir.deleteDir()
+        workingDir.deleteDir()
 
-    def repo = Grgit.clone(
+        def repo = Grgit.clone(
             uri: 'git@github.com:rackerlabs/repose.git',
             refToCheckout: 'gh-pages',
             dir: workingDir,
-    )
+        )
 
-    // Amend the versions list
-    def versionsFile = project.file("${project.buildDir}/gh-pages/_includes/versions.json")
-    def versionsJson = new JsonSlurper().parse(versionsFile)
-    def modifiedVersions = versionsJson.versions.collect { new Version(id: it.id, released: it.released) }
-    def newVersionIndex = modifiedVersions.findIndexOf { compareVersions(String.valueOf(version), it.id) > 0 }
-    def date = new SimpleDateFormat('yyyy-MM-dd').format(new Date())
-    newVersionIndex = newVersionIndex == -1 ? modifiedVersions.size() : newVersionIndex
-    modifiedVersions.add(newVersionIndex, new Version(id: String.valueOf(version), released: date))
+        // Amend the versions list
+        def versionsFile = project.file("${project.buildDir}/gh-pages/_includes/versions.json")
+        def versionsJson = new JsonSlurper().parse(versionsFile)
+        def modifiedVersions = versionsJson.versions.collect { new Version(id: it.id, released: it.released) }
+        def newVersionIndex = modifiedVersions.findIndexOf { compareVersions(String.valueOf(version), it.id) > 0 }
+        def date = new SimpleDateFormat('yyyy-MM-dd').format(new Date())
+        newVersionIndex = newVersionIndex == -1 ? modifiedVersions.size() : newVersionIndex
+        modifiedVersions.add(newVersionIndex, new Version(id: String.valueOf(version), released: date))
 
-    // Write the versions list as JSON
-    def jsonWriter = new PrintWriter(versionsFile.newWriter())
-    jsonWriter.println(JsonOutput.prettyPrint(JsonOutput.toJson(versions: modifiedVersions)))
-    jsonWriter.close()
+        // Write the versions list as JSON
+        def jsonWriter = new PrintWriter(versionsFile.newWriter())
+        jsonWriter.println(JsonOutput.prettyPrint(JsonOutput.toJson(versions: modifiedVersions)))
+        jsonWriter.close()
 
-    // Write the versions includes file
-    def includesWriter = new PrintWriter(project.file("${project.buildDir}/gh-pages/_includes/versions.html"))
-    includesWriter.println("""<li><a href="./versions/latest/index.html">Latest</a></li>""")
-    modifiedVersions.forEach { Version v ->
-        includesWriter.println("""<li><a href="./versions/${v.id}/index.html">v${v.id} - ${v.released}</a></li>""")
-    }
-    includesWriter.println("""<li><a href="http://wiki.openrepose.org">Legacy Wiki Docs</a></li>""")
-    includesWriter.close()
+        // Write the versions includes file
+        def includesWriter = new PrintWriter(project.file("${project.buildDir}/gh-pages/_includes/versions.html"))
+        includesWriter.println("""<li><a href="./versions/latest/index.html">Latest</a></li>""")
+        modifiedVersions.forEach { Version v ->
+            includesWriter.println("""<li><a href="./versions/${v.id}/index.html">v${v.id} - ${v.released}</a></li>""")
+        }
+        includesWriter.println("""<li><a href="http://wiki.openrepose.org">Legacy Wiki Docs</a></li>""")
+        includesWriter.close()
 
-    // Update the latest link, if applicable
-    def latestLinkPath = project.buildDir.toPath().resolve(Paths.get('gh-pages', 'versions', 'latest'))
-    if (newVersionIndex == 0) {
-        Files.deleteIfExists(latestLinkPath)
-        Files.createSymbolicLink(latestLinkPath, Paths.get(String.valueOf(version)))
-    }
+        // Update the latest link, if applicable
+        def latestLinkPath = project.buildDir.toPath().resolve(Paths.get('gh-pages', 'versions', 'latest'))
+        if (newVersionIndex == 0) {
+            Files.deleteIfExists(latestLinkPath)
+            Files.createSymbolicLink(latestLinkPath, Paths.get(String.valueOf(version)))
+        }
 
-    copy {
-        from "${asciidoctor.outputDir}/html5"
-        into "${project.buildDir}/gh-pages/versions/$version"
-    }
+        copy {
+            from "${asciidoctor.outputDir}/html5"
+            into "${project.buildDir}/gh-pages/versions/$version"
+        }
 
-    repo.with {
-        add(patterns: ['.'])
-        commit(message: "Adding documentation for $version")
-        push()
+        repo.with {
+            add(patterns: ['.'])
+            commit(message: "Adding documentation for $version")
+            push()
+        }
     }
 }
 

@@ -1,9 +1,13 @@
 = Release Notes
 
 == In Progress Work
-* https://repose.atlassian.net/browse/REP-5616[REP-5616] - Updated dependencies:
+* https://repose.atlassian.net/browse/REP-5616[REP-5616], https://repose.atlassian.net/browse/REP-6436[REP-6436] - Updated dependencies:
 ** Jetty: 9.2.0.v20140526 → 9.4.8.v20171121
 *** https://github.com/eclipse/jetty.project/blob/jetty-9.4.x/VERSION.txt
+** Gradle: 3.4 → 4.5
+*** https://github.com/gradle/gradle/releases/tag/v4.5.0
+** JSONPath: 2.4.0 → 2.5.0
+*** https://github.com/josephpconley/play-jsonpath/blob/master/README.md
 * https://repose.atlassian.net/browse/REP-5401[REP-5401] - Added support for environment variable substitution in configuration files.
 * https://repose.atlassian.net/browse/REP-6390[REP-6390] - Internal changes to the <<filters/keystone-v2.adoc#, Keystone v2 Filter>> in anticipation of splitting the authorization portion off into it's own filter.
 * https://repose.atlassian.net/browse/REP-6400[REP-6400] - Added the new <<filters/keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>> which captures the authorization functionality of the <<filters/keystone-v2.adoc#, Keystone v2 Filter>>.

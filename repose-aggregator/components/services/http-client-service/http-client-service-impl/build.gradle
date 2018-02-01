@@ -6,7 +6,7 @@ dependencies {
     compile "org.slf4j:jcl-over-slf4j"
     compile "org.springframework:spring-beans"
 
-    provided "javax.inject:javax.inject"
+    compileOnly "javax.inject:javax.inject"
 
     testCompile "junit:junit:4.12"
     testCompile "org.hamcrest:hamcrest-all"

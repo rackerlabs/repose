@@ -2,7 +2,7 @@ dependencies {
     compile project(":repose-aggregator:commons:commons-utilities")
     compile "org.slf4j:slf4j-api"
 
-    provided "javax.servlet:javax.servlet-api"
+    compileOnly "javax.servlet:javax.servlet-api"
 }
 
 jacocoTestCoverageVerification {

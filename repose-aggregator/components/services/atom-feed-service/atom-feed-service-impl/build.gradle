@@ -15,10 +15,10 @@ dependencies {
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
     compile "org.apache.httpcomponents:httpclient"
 
-    provided "javax.servlet:javax.servlet-api"
-    provided "javax.inject:javax.inject"
-    provided "javax.ws.rs:javax.ws.rs-api"
-    provided "com.google.code.findbugs:jsr305" //i hate this hack
+    compileOnly "javax.servlet:javax.servlet-api"
+    compileOnly "javax.inject:javax.inject"
+    compileOnly "javax.ws.rs:javax.ws.rs-api"
+    compileOnly "com.google.code.findbugs:jsr305" //i hate this hack
 
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"

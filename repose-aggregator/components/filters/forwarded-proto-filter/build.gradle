@@ -3,7 +3,7 @@ dependencies {
     compile "org.scala-lang:scala-library"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
 
-    provided "javax.servlet:javax.servlet-api"
+    compileOnly "javax.servlet:javax.servlet-api"
 
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
