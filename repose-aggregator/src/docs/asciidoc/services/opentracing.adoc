@@ -31,10 +31,9 @@ By default, all requests that are created by the service are reported (sampled).
              enabled="true" <!--1-->
              name="my-repose" <!--2-->
              tracer="jaeger" <!--3-->
-             tracer-host="jaeger.example.com" <!--4-->
-             tracer-port="5775"> <!--5-->
-    <jaeger-sampling-config sample-type="probabilistic"> <!--6-->
-        <jaeger-sampling-probabilistic value="0.9" /> <!--7-->
+             collector-endpoint="https://jaeger.collector.example.com"> <!--4-->
+    <jaeger-sampling-config sample-type="probabilistic"> <!--5-->
+        <jaeger-sampling-probabilistic value="0.9" /> <!--6-->
     </jaeger-sampling-config>
 </opentracing>
 
@@ -42,10 +41,9 @@ By default, all requests that are created by the service are reported (sampled).
 <1> The `opentracing` element's `enabled` attribute must be set to `true` to activate this feature.
 <2> The name of the Service/API that this instance of *Repose* is in front of (however, if you are explicitly using OpenTracing in your origin application, you should suffix `-repose` to this configuration as best practice.
 <3> Tracer can be set to any supported tracer.  Currently, only `jaeger` is supported
-<4> Tracer host must be set to the host where Tracer can be found.  If Repose is unable to connect to the tracer, it will disable the service
-<5> Tracer host must be set to the port where Tracer can be found.  If Repose is unable to connect to the tracer, it will disable the service
-<6> Optional sampling configuration.  Default is `probabilistic`.  Other options include: `const` and `rate-limited`
-<7> Probability sampling rate.  Ranges from `0.0` (never) to `1.0` (always)
+<4> Collector endpoint must be set to the Tracer collector endpoint.
+<5> Optional sampling configuration.  Default is `probabilistic`.  Other options include: `const` and `rate-limited`
+<6> Probability sampling rate.  Ranges from `0.0` (never) to `1.0` (always)
 
 === Tracer implementation detail
 
@@ -61,6 +59,63 @@ Current support:
 |`uber-trace-id`
 |https://github.com/jaegertracing/jaeger-client-java/tree/master/jaeger-apachehttpclient
 |===
+
+=== Common configurations ===
+
+* Send tracing data to tracer collector for every request:
+
+[source,xml]
+.opentracing.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+
+<opentracing xmlns="http://docs.openrepose.org/repose/opentracing/v1.0"
+             enabled="true" <!--1-->
+             name="my-repose" <!--2-->
+             tracer="jaeger" <!--3-->
+             collector-endpoint="https://jaeger.collector.example.com"> <!--4-->
+    <jaeger-sampling-config sample-type="const"> <!--5-->
+        <jaeger-sampling-const value="1" /> <!--6-->
+    </jaeger-sampling-config>
+</opentracing>
+
+----
+<1> The `opentracing` element's `enabled` attribute must be set to `true` to activate this feature.
+<2> The name of the Service/API that this instance of *Repose* is in front of (however, if you are explicitly using OpenTracing in your origin application, you should suffix `-repose` to this configuration as best practice.
+<3> Tracer can be set to any supported tracer.  Currently, only `jaeger` is supported
+<4> Collector endpoint must be set to the Tracer collector endpoint.
+<5> Optional sampling configuration.  Set to `const`
+<6> Set to `1` to always send traces
+
+
+* Send tracing data to tracer agent for every request:
+
+[source,xml]
+.opentracing.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+
+<opentracing xmlns="http://docs.openrepose.org/repose/opentracing/v1.0"
+             enabled="true" <!--1-->
+             name="my-repose" <!--2-->
+             tracer="jaeger" <!--3-->
+             sender-protocol="udp" <!--4-->
+             agent-host="jaeger.agent.example.com" <!--5-->
+             agent-port="5775"> <!--6-->
+    <jaeger-sampling-config sample-type="const"> <!--7-->
+        <jaeger-sampling-const value="1" /> <!--8-->
+    </jaeger-sampling-config>
+</opentracing>
+
+----
+<1> The `opentracing` element's `enabled` attribute must be set to `true` to activate this feature.
+<2> The name of the Service/API that this instance of *Repose* is in front of (however, if you are explicitly using OpenTracing in your origin application, you should suffix `-repose` to this configuration as best practice.
+<3> Tracer can be set to any supported tracer.  Currently, only `jaeger` is supported
+<4> Sender protocol is set to `udp`.
+<5> Agent host must be set to the Tracer agent host.  Repose will not start if this is misconfigured.
+<6> Agent port must be set to the Tracer agent port.  Repose will not start if this is misconfigured.
+<7> Optional sampling configuration.  Set to `const`
+<8> Set to `1` to always send traces
 
 === Example usage in origin service
 By default, the only thing an origin service needs to do is pass Tracer specific header (`Tracer Header` in `Table 1`) as part of its request to downstream systems.

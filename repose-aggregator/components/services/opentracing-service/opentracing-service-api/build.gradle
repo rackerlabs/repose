@@ -3,16 +3,3 @@ dependencies {
     compile "io.opentracing:opentracing-util:0.30.0"
     compile "org.apache.httpcomponents:httpclient"
 }
-
-
-jacocoTestCoverageVerification {
-    violationRules {
-        rules.forEach { rule ->
-            rule.limits.forEach { limit ->
-                if (limit.counter == 'INSTRUCTION' && limit.value == 'COVEREDRATIO') {
-                    limit.minimum = 0.80
-                }
-            }
-        }
-    }
-}
