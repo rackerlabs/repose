@@ -20,13 +20,9 @@
   -->
 
 
-<xs:schema xmlns:xerces="http://xerces.apache.org"
-           xmlns:saxon="http://saxon.sf.net/"
-           xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+<xs:schema xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns="http://docs.openrepose.org/repose/opentracing/v1.0"
-           attributeFormDefault="unqualified"
            elementFormDefault="qualified"
            targetNamespace="http://docs.openrepose.org/repose/opentracing/v1.0">
 
@@ -49,8 +45,6 @@
             <xs:element name="jaeger-sampling-config" type="JaegerSamplingConfiguration" minOccurs="0"/>
         </xs:sequence>
 
-
-
         <xs:attribute name="enabled" type="xs:boolean" default="true">
             <xs:annotation>
                 <xs:documentation>
@@ -66,7 +60,7 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        Set tracer to use.  Current options are http://zipkin.io/ and http://jaegertracing.io/
+                        Set tracer to use.  Currently, only http://jaegertracing.io/ is supported
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -77,26 +71,6 @@
                 <xs:documentation>
                     <html:p>
                         Service name to use.  Will identify this service (e.g. identity-repose)
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="tracer-host" type="xs:string" default="localhost">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        Tracer host (reporter host for zipkin and jaeger).  Default set to localhost.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="tracer-port" type="PositiveInt" default="9411">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        Tracer port (reporter port for zipkin and jaeger).  Default set to 9411.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -117,6 +91,93 @@
                 <xs:documentation>
                     <html:p>
                         Maximum number of spans in buffer.  Defaults to 10,000.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="log-spans" type="xs:boolean" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Optionally sets up logger for all spans.  Defaults to true (helps with debugging).
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="sender-protocol" type="jaegerSenderProtocol" default="http">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Sender protocol:
+
+                        - udp (uses com.uber.jaeger.senders.UdpSender class to send all traffic over udp)
+                        - http (uses com.uber.jaeger.senders.HttpSender class to send all traffic over http)
+
+                        Default is http
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="agent-host" type="xs:string" default="localhost">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Tracer agent host.  Defaults to localhost.  Used with udp protocol.  Ignored otherwise.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="agent-port" type="PositiveInt" default="6831">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Tracer agent port.  Defaults to 6831.  Used with udp protocol.  Ignored otherwise.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+
+        <xs:attribute name="collector-endpoint" type="xs:string" default="http://localhost:14268">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Tracer collector endpoint.  Defaults to http://localhost:14268.  Used with http protocol.
+                        Ignored otherwise.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="username" type="xs:string" >
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Optional username (will be sent as basicauth).  Used with http protocol.  Ignored otherwise.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="password" type="xs:string" >
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Optional password (will be sent as basicauth).  Used with http protocol.  Ignored otherwise.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="token" type="xs:string" >
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Optional token.  Used with http protocol.  Ignored with udp OR if username and password are.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -236,6 +297,13 @@
             <xs:enumeration value="const"/>
             <xs:enumeration value="probabilistic"/>
             <xs:enumeration value="rate-limited"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="jaegerSenderProtocol">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="http"/>
+            <xs:enumeration value="udp"/>
         </xs:restriction>
     </xs:simpleType>
 

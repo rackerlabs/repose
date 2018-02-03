@@ -184,7 +184,7 @@ subprojects {
         doLast {
             file(outputDir).mkdirs()
 
-            //Find all XSDs in the src/main/resources/META-INF.schema
+            //Find all XSDs in the src/main/resources/schema
             if (file(xsltFile).exists() && file(schemaBaseDir).exists()) {
                 logger.info("Transforming Schemas")
                 ant.xslt(

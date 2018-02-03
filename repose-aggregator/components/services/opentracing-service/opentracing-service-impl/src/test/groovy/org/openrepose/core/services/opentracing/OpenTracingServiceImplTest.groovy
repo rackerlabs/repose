@@ -19,11 +19,14 @@
  */
 package org.openrepose.core.services.opentracing
 
-import io.opentracing.NoopTracerFactory
+import com.uber.jaeger.reporters.CompositeReporter
+import com.uber.jaeger.reporters.RemoteReporter
+import com.uber.jaeger.senders.HttpSender
+import com.uber.jaeger.senders.UdpSender
 import io.opentracing.Tracer
 import io.opentracing.mock.MockTracer
+import io.opentracing.noop.NoopTracerFactory
 import io.opentracing.util.GlobalTracer
-import org.apache.commons.lang3.NotImplementedException
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -35,6 +38,7 @@ import org.openrepose.core.service.opentracing.config.JaegerSamplingConfiguratio
 import org.openrepose.core.service.opentracing.config.JaegerSamplingConst
 import org.openrepose.core.service.opentracing.config.JaegerSamplingProbabilistic
 import org.openrepose.core.service.opentracing.config.JaegerSamplingRateLimiting
+import org.openrepose.core.service.opentracing.config.JaegerSenderProtocol
 import org.openrepose.core.service.opentracing.config.OpenTracingConfig
 import org.openrepose.core.service.opentracing.config.TracerType
 import org.openrepose.core.services.config.ConfigurationService
@@ -285,7 +289,7 @@ class OpenTracingServiceImplTest{
 
         assertThat(openTracingService.getGlobalTracer(), instanceOf(GlobalTracer.class))
         assertTrue(openTracingService.isEnabled())
-        assertEquals(openTracingService.getServiceName(), "fake-tracer")
+        assertEquals("fake-tracer", openTracingService.getServiceName())
 
     }
 
@@ -308,7 +312,7 @@ class OpenTracingServiceImplTest{
 
         assertThat("Validate GlobalTracer is an instance of GlobalTracer", openTracingService.getGlobalTracer(), instanceOf(GlobalTracer.class))
         assertFalse("Validate OpenTracingService is not enabled", openTracingService.isEnabled())
-        assertEquals("Validate ServiceName is set", openTracingService.getServiceName(), "fake-tracer")
+        assertEquals("Validate ServiceName is set", "fake-tracer", openTracingService.getServiceName())
 
     }
 
@@ -326,13 +330,34 @@ class OpenTracingServiceImplTest{
         openTracingConfig.name = "fake-tracer"
         openTracingConfig.enabled = true
         openTracingConfig.tracer = TracerType.JAEGER
-        openTracingConfig.tracerHost = "localhost"
-        openTracingConfig.tracerPort = 80
+        openTracingConfig.logSpans = true
+        openTracingConfig.maxBufferSize = 10000
+        openTracingConfig.flushIntervalMs = 10000
+
+        openTracingService.configure(openTracingConfig)
+    }
+
+    @Test
+    void testConfigureDisabled() {
+
+        ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class);
+        ConfigurationResource configurationResource = mock(ConfigurationResource.class);
+        when(configurationResource.exists()).thenReturn(true)
+        when(configurationService.getResourceResolver()).thenReturn(resourceResolver);
+        when(resourceResolver.resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+
+        OpenTracingConfig openTracingConfig = new OpenTracingConfig()
+        openTracingConfig.name = "fake-tracer"
+        openTracingConfig.enabled = false
+        openTracingConfig.tracer = TracerType.JAEGER
+        openTracingConfig.logSpans = true
         openTracingConfig.maxBufferSize = 10000
         openTracingConfig.flushIntervalMs = 10000
 
         openTracingService.configure(openTracingConfig)
 
+        assertFalse("Service is disabled", openTracingService.isEnabled())
     }
 
     @Test
@@ -347,12 +372,13 @@ class OpenTracingServiceImplTest{
 
         OpenTracingConfig openTracingConfig = mock(OpenTracingConfig.class)
         when(openTracingConfig.getTracer()).thenReturn(TracerType.JAEGER)
-        when(openTracingConfig.getTracerHost()).thenReturn("localhost")
-        when(openTracingConfig.getTracerPort()).thenReturn(80)
+        when(openTracingConfig.isLogSpans()).thenReturn(true)
         when(openTracingConfig.isEnabled()).thenReturn(true)
         when(openTracingConfig.getName()).thenReturn("fake-tracer")
         when(openTracingConfig.getMaxBufferSize()).thenReturn(10000)
         when(openTracingConfig.getFlushIntervalMs()).thenReturn(10000)
+        when(openTracingConfig.getSenderProtocol()).thenReturn(JaegerSenderProtocol.HTTP)
+        when(openTracingConfig.getCollectorEndpoint()).thenReturn("http://localhost:19834")
 
         JaegerSamplingConfiguration jaegerSamplingConfiguration = mock(JaegerSamplingConfiguration.class)
         JaegerSamplingConst jaegerSamplingConst = new JaegerSamplingConst()
@@ -363,8 +389,42 @@ class OpenTracingServiceImplTest{
 
         openTracingService.configure(openTracingConfig)
 
-        verify(openTracingConfig, times(4)).getJaegerSamplingConfig()
-        verify(jaegerSamplingConfiguration, times(2)).getJaegerSamplingConst()
+        verify(openTracingConfig, times(5)).getJaegerSamplingConfig()
+        verify(jaegerSamplingConfiguration, times(3)).getJaegerSamplingConst()
+        verify(jaegerSamplingConfiguration, never()).getJaegerSamplingProbabilistic()
+        verify(jaegerSamplingConfiguration, never()).getJaegerSamplingRateLimiting()
+
+    }
+
+
+    @Test
+    void testConfigureWithConstNoSamplingConst() {
+
+        ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class)
+        ConfigurationResource configurationResource = mock(ConfigurationResource.class)
+        when(configurationResource.exists()).thenReturn(true)
+        when(configurationService.getResourceResolver()).thenReturn(resourceResolver)
+        when(resourceResolver.resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+
+        OpenTracingConfig openTracingConfig = mock(OpenTracingConfig.class)
+        when(openTracingConfig.getTracer()).thenReturn(TracerType.JAEGER)
+        when(openTracingConfig.isLogSpans()).thenReturn(true)
+        when(openTracingConfig.isEnabled()).thenReturn(true)
+        when(openTracingConfig.getName()).thenReturn("fake-tracer")
+        when(openTracingConfig.getMaxBufferSize()).thenReturn(10000)
+        when(openTracingConfig.getFlushIntervalMs()).thenReturn(10000)
+        when(openTracingConfig.getSenderProtocol()).thenReturn(JaegerSenderProtocol.HTTP)
+        when(openTracingConfig.getCollectorEndpoint()).thenReturn("http://localhost:19834")
+
+        JaegerSamplingConfiguration jaegerSamplingConfiguration = mock(JaegerSamplingConfiguration.class)
+        when(openTracingConfig.getJaegerSamplingConfig()).thenReturn(jaegerSamplingConfiguration)
+        when(jaegerSamplingConfiguration.getSampleType()).thenReturn(JaegerSampleType.CONST)
+
+        openTracingService.configure(openTracingConfig)
+
+        verify(openTracingConfig, times(3)).getJaegerSamplingConfig()
+        verify(jaegerSamplingConfiguration, times(1)).getJaegerSamplingConst()
         verify(jaegerSamplingConfiguration, never()).getJaegerSamplingProbabilistic()
         verify(jaegerSamplingConfiguration, never()).getJaegerSamplingRateLimiting()
 
@@ -382,12 +442,13 @@ class OpenTracingServiceImplTest{
 
         OpenTracingConfig openTracingConfig = mock(OpenTracingConfig.class)
         when(openTracingConfig.getTracer()).thenReturn(TracerType.JAEGER)
-        when(openTracingConfig.getTracerHost()).thenReturn("localhost")
-        when(openTracingConfig.getTracerPort()).thenReturn(80)
+        when(openTracingConfig.isLogSpans()).thenReturn(true)
         when(openTracingConfig.isEnabled()).thenReturn(true)
         when(openTracingConfig.getName()).thenReturn("fake-tracer")
         when(openTracingConfig.getMaxBufferSize()).thenReturn(10000)
         when(openTracingConfig.getFlushIntervalMs()).thenReturn(10000)
+        when(openTracingConfig.getSenderProtocol()).thenReturn(JaegerSenderProtocol.HTTP)
+        when(openTracingConfig.getCollectorEndpoint()).thenReturn("http://localhost:19834")
 
         JaegerSamplingConfiguration jaegerSamplingConfiguration = mock(JaegerSamplingConfiguration.class)
         JaegerSamplingProbabilistic jaegerSamplingProbabilistic = new JaegerSamplingProbabilistic()
@@ -398,9 +459,42 @@ class OpenTracingServiceImplTest{
 
         openTracingService.configure(openTracingConfig)
 
-        verify(openTracingConfig, times(4)).getJaegerSamplingConfig()
+        verify(openTracingConfig, times(5)).getJaegerSamplingConfig()
         verify(jaegerSamplingConfiguration, never()).getJaegerSamplingConst()
-        verify(jaegerSamplingConfiguration, times(2)).getJaegerSamplingProbabilistic()
+        verify(jaegerSamplingConfiguration, times(3)).getJaegerSamplingProbabilistic()
+        verify(jaegerSamplingConfiguration, never()).getJaegerSamplingRateLimiting()
+
+    }
+
+    @Test
+    void testConfigureWithProbabilisticNoSamplingProbabilisticConfig() {
+
+        ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class)
+        ConfigurationResource configurationResource = mock(ConfigurationResource.class)
+        when(configurationResource.exists()).thenReturn(true)
+        when(configurationService.getResourceResolver()).thenReturn(resourceResolver)
+        when(resourceResolver.resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+
+        OpenTracingConfig openTracingConfig = mock(OpenTracingConfig.class)
+        when(openTracingConfig.getTracer()).thenReturn(TracerType.JAEGER)
+        when(openTracingConfig.isLogSpans()).thenReturn(true)
+        when(openTracingConfig.isEnabled()).thenReturn(true)
+        when(openTracingConfig.getName()).thenReturn("fake-tracer")
+        when(openTracingConfig.getMaxBufferSize()).thenReturn(10000)
+        when(openTracingConfig.getFlushIntervalMs()).thenReturn(10000)
+        when(openTracingConfig.getSenderProtocol()).thenReturn(JaegerSenderProtocol.HTTP)
+        when(openTracingConfig.getCollectorEndpoint()).thenReturn("http://localhost:19834")
+
+        JaegerSamplingConfiguration jaegerSamplingConfiguration = mock(JaegerSamplingConfiguration.class)
+        when(openTracingConfig.getJaegerSamplingConfig()).thenReturn(jaegerSamplingConfiguration)
+        when(jaegerSamplingConfiguration.getSampleType()).thenReturn(JaegerSampleType.PROBABILISTIC)
+
+        openTracingService.configure(openTracingConfig)
+
+        verify(openTracingConfig, times(3)).getJaegerSamplingConfig()
+        verify(jaegerSamplingConfiguration, never()).getJaegerSamplingConst()
+        verify(jaegerSamplingConfiguration, times(1)).getJaegerSamplingProbabilistic()
         verify(jaegerSamplingConfiguration, never()).getJaegerSamplingRateLimiting()
 
     }
@@ -417,12 +511,13 @@ class OpenTracingServiceImplTest{
 
         OpenTracingConfig openTracingConfig = mock(OpenTracingConfig.class)
         when(openTracingConfig.getTracer()).thenReturn(TracerType.JAEGER)
-        when(openTracingConfig.getTracerHost()).thenReturn("localhost")
-        when(openTracingConfig.getTracerPort()).thenReturn(80)
+        when(openTracingConfig.isLogSpans()).thenReturn(false)
         when(openTracingConfig.isEnabled()).thenReturn(true)
         when(openTracingConfig.getName()).thenReturn("fake-tracer")
         when(openTracingConfig.getMaxBufferSize()).thenReturn(10000)
         when(openTracingConfig.getFlushIntervalMs()).thenReturn(10000)
+        when(openTracingConfig.getSenderProtocol()).thenReturn(JaegerSenderProtocol.HTTP)
+        when(openTracingConfig.getCollectorEndpoint()).thenReturn("http://localhost:19834")
 
         JaegerSamplingConfiguration jaegerSamplingConfiguration = mock(JaegerSamplingConfiguration.class)
         JaegerSamplingRateLimiting jaegerSamplingRateLimiting = new JaegerSamplingRateLimiting()
@@ -433,10 +528,434 @@ class OpenTracingServiceImplTest{
 
         openTracingService.configure(openTracingConfig)
 
-        verify(openTracingConfig, times(4)).getJaegerSamplingConfig()
+        verify(openTracingConfig, times(5)).getJaegerSamplingConfig()
         verify(jaegerSamplingConfiguration, never()).getJaegerSamplingConst()
         verify(jaegerSamplingConfiguration, never()).getJaegerSamplingProbabilistic()
-        verify(jaegerSamplingConfiguration, times(2)).getJaegerSamplingRateLimiting()
+        verify(jaegerSamplingConfiguration, times(3)).getJaegerSamplingRateLimiting()
+
+    }
+
+    @Test
+    void testConfigureWithRateLimitedNoSamplingRateLimitingConfig() {
+
+        ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class)
+        ConfigurationResource configurationResource = mock(ConfigurationResource.class)
+        when(configurationResource.exists()).thenReturn(true)
+        when(configurationService.getResourceResolver()).thenReturn(resourceResolver)
+        when(resourceResolver.resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+
+        OpenTracingConfig openTracingConfig = mock(OpenTracingConfig.class)
+        when(openTracingConfig.getTracer()).thenReturn(TracerType.JAEGER)
+        when(openTracingConfig.isLogSpans()).thenReturn(false)
+        when(openTracingConfig.isEnabled()).thenReturn(true)
+        when(openTracingConfig.getName()).thenReturn("fake-tracer")
+        when(openTracingConfig.getMaxBufferSize()).thenReturn(10000)
+        when(openTracingConfig.getFlushIntervalMs()).thenReturn(10000)
+        when(openTracingConfig.getSenderProtocol()).thenReturn(JaegerSenderProtocol.HTTP)
+        when(openTracingConfig.getCollectorEndpoint()).thenReturn("http://localhost:19834")
+
+        JaegerSamplingConfiguration jaegerSamplingConfiguration = mock(JaegerSamplingConfiguration.class)
+        when(openTracingConfig.getJaegerSamplingConfig()).thenReturn(jaegerSamplingConfiguration)
+        when(jaegerSamplingConfiguration.getSampleType()).thenReturn(JaegerSampleType.RATE_LIMITED)
+
+        openTracingService.configure(openTracingConfig)
+
+        verify(openTracingConfig, times(3)).getJaegerSamplingConfig()
+        verify(jaegerSamplingConfiguration, never()).getJaegerSamplingConst()
+        verify(jaegerSamplingConfiguration, never()).getJaegerSamplingProbabilistic()
+        verify(jaegerSamplingConfiguration, times(1)).getJaegerSamplingRateLimiting()
+
+    }
+
+    @Test
+    void testConfigureWithUdpProtocol() {
+
+        ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class)
+        ConfigurationResource configurationResource = mock(ConfigurationResource.class)
+        when(configurationResource.exists()).thenReturn(true)
+        when(configurationService.getResourceResolver()).thenReturn(resourceResolver)
+        when(resourceResolver.resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+
+        OpenTracingConfig openTracingConfig = new OpenTracingConfig()
+        openTracingConfig.name = "fake-tracer"
+        openTracingConfig.enabled = true
+        openTracingConfig.tracer = TracerType.JAEGER
+        openTracingConfig.logSpans = true
+        openTracingConfig.senderProtocol = JaegerSenderProtocol.UDP
+
+        openTracingService.configure(openTracingConfig)
+
+        GlobalTracer globalTracer = (GlobalTracer) openTracingService.globalTracer
+
+        com.uber.jaeger.Tracer tracer = (com.uber.jaeger.Tracer) globalTracer.tracer
+
+        assertEquals("service name is correctly set", tracer.serviceName, "fake-tracer")
+
+        CompositeReporter compositeReporter = tracer.reporter
+
+        RemoteReporter remoteReporter = compositeReporter.reporters.find {
+            it.class == RemoteReporter.class
+        }
+
+        assertThat("udp sender is set in reporter", remoteReporter.sender, instanceOf(UdpSender.class))
+
+        UdpSender udpSender = remoteReporter.sender
+
+        assertEquals("udp port is set correctly", 6831, udpSender.udpTransport.socket.getPort())
+        assertEquals("inet address is set correctly", "127.0.0.1", udpSender.udpTransport.socket.getInetAddress().hostAddress)
+        assertEquals("Max queue size is correctly set", 10000, remoteReporter.maxQueueSize)
+
+    }
+
+
+    @Test
+    void testConfigureWithUdpProtocolSpecifiedHostPort() {
+
+        ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class)
+        ConfigurationResource configurationResource = mock(ConfigurationResource.class)
+        when(configurationResource.exists()).thenReturn(true)
+        when(configurationService.getResourceResolver()).thenReturn(resourceResolver)
+        when(resourceResolver.resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+
+        OpenTracingConfig openTracingConfig = new OpenTracingConfig()
+        openTracingConfig.name = "fake-tracer"
+        openTracingConfig.enabled = true
+        openTracingConfig.tracer = TracerType.JAEGER
+        openTracingConfig.logSpans = true
+        openTracingConfig.maxBufferSize = 20000
+        openTracingConfig.flushIntervalMs = 10000
+        openTracingConfig.agentHost = "example.com"
+        openTracingConfig.agentPort = 8675
+        openTracingConfig.senderProtocol = JaegerSenderProtocol.UDP
+
+        openTracingService.configure(openTracingConfig)
+
+        GlobalTracer globalTracer = (GlobalTracer) openTracingService.globalTracer
+
+        com.uber.jaeger.Tracer tracer = (com.uber.jaeger.Tracer) globalTracer.tracer
+
+        assertEquals("service name is correctly set", "fake-tracer", tracer.serviceName)
+
+        CompositeReporter compositeReporter = tracer.reporter
+
+        RemoteReporter remoteReporter = compositeReporter.reporters.find {
+            it.class == RemoteReporter.class
+        }
+
+        assertThat("udp sender is set in reporter", remoteReporter.sender, instanceOf(UdpSender.class))
+
+        UdpSender udpSender = remoteReporter.sender
+
+        assertEquals("udp port is set correctly", 8675, udpSender.udpTransport.socket.getPort())
+        assertEquals("inet address is set correctly", "example.com", udpSender.udpTransport.socket.getInetAddress().hostName)
+        assertEquals("Max queue size is correctly set", 20000, remoteReporter.maxQueueSize)
+
+    }
+
+    @Test
+    void testConfigureWithHttpProtocolUnauthed() {
+
+        ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class)
+        ConfigurationResource configurationResource = mock(ConfigurationResource.class)
+        when(configurationResource.exists()).thenReturn(true)
+        when(configurationService.getResourceResolver()).thenReturn(resourceResolver)
+        when(resourceResolver.resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+
+        OpenTracingConfig openTracingConfig = new OpenTracingConfig()
+        openTracingConfig.name = "fake-tracer"
+        openTracingConfig.enabled = true
+        openTracingConfig.tracer = TracerType.JAEGER
+        openTracingConfig.logSpans = true
+        openTracingConfig.maxBufferSize = 10000
+        openTracingConfig.flushIntervalMs = 10000
+
+        openTracingService.configure(openTracingConfig)
+
+        GlobalTracer globalTracer = openTracingService.globalTracer
+
+        com.uber.jaeger.Tracer tracer = globalTracer.tracer
+
+        assertEquals("service name is correctly set", "fake-tracer", tracer.serviceName)
+
+        CompositeReporter compositeReporter = tracer.reporter
+
+        RemoteReporter remoteReporter = compositeReporter.reporters.find {
+            it.class == RemoteReporter.class
+        }
+
+        assertThat("udp sender is set in reporter", remoteReporter.sender, instanceOf(HttpSender.class))
+
+        HttpSender httpSender = remoteReporter.sender
+
+        assertEquals("Validate auth interceptor not added", 0, httpSender.httpClient.interceptors().size())
+
+    }
+
+    @Test
+    void testConfigureWithHttpProtocolBasicAuth() {
+
+        ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class)
+        ConfigurationResource configurationResource = mock(ConfigurationResource.class)
+        when(configurationResource.exists()).thenReturn(true)
+        when(configurationService.getResourceResolver()).thenReturn(resourceResolver)
+        when(resourceResolver.resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+
+        OpenTracingConfig openTracingConfig = new OpenTracingConfig()
+        openTracingConfig.name = "fake-tracer"
+        openTracingConfig.enabled = true
+        openTracingConfig.tracer = TracerType.JAEGER
+        openTracingConfig.logSpans = true
+        openTracingConfig.maxBufferSize = 10000
+        openTracingConfig.flushIntervalMs = 10000
+        openTracingConfig.username = "me"
+        openTracingConfig.password = "pass"
+
+        openTracingService.configure(openTracingConfig)
+
+        GlobalTracer globalTracer = openTracingService.globalTracer
+        com.uber.jaeger.Tracer tracer = globalTracer.tracer
+
+        assertEquals("service name is correctly set", "fake-tracer", tracer.serviceName)
+
+        CompositeReporter compositeReporter = tracer.reporter
+        RemoteReporter remoteReporter = compositeReporter.reporters.find {
+            it.class == RemoteReporter.class
+        }
+
+        assertThat("http sender is set in reporter", remoteReporter.sender, instanceOf(HttpSender.class))
+
+        HttpSender httpSender = remoteReporter.sender
+
+        assertEquals("Validate auth interceptor added", 1, httpSender.httpClient.interceptors().size())
+
+    }
+
+    @Test
+    void testConfigureWithHttpProtocolNoPasswordNoToken() {
+
+        ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class)
+        ConfigurationResource configurationResource = mock(ConfigurationResource.class)
+        when(configurationResource.exists()).thenReturn(true)
+        when(configurationService.getResourceResolver()).thenReturn(resourceResolver)
+        when(resourceResolver.resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+
+        OpenTracingConfig openTracingConfig = new OpenTracingConfig()
+        openTracingConfig.name = "fake-tracer"
+        openTracingConfig.enabled = true
+        openTracingConfig.tracer = TracerType.JAEGER
+        openTracingConfig.logSpans = true
+        openTracingConfig.maxBufferSize = 10000
+        openTracingConfig.flushIntervalMs = 10000
+        openTracingConfig.username = "me"
+
+        openTracingService.configure(openTracingConfig)
+
+        GlobalTracer globalTracer = openTracingService.globalTracer
+        com.uber.jaeger.Tracer tracer = globalTracer.tracer
+
+        assertEquals("service name is correctly set", "fake-tracer", tracer.serviceName)
+
+        CompositeReporter compositeReporter = tracer.reporter
+        RemoteReporter remoteReporter = compositeReporter.reporters.find {
+            it.class == RemoteReporter.class
+        }
+
+        assertThat("http sender is set in reporter", remoteReporter.sender, instanceOf(HttpSender.class))
+
+        HttpSender httpSender = remoteReporter.sender
+
+        assertEquals("Validate no auth interceptor added", 0, httpSender.httpClient.interceptors().size())
+
+    }
+
+    @Test
+    void testConfigureWithHttpProtocolToken() {
+
+        ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class)
+        ConfigurationResource configurationResource = mock(ConfigurationResource.class)
+        when(configurationResource.exists()).thenReturn(true)
+        when(configurationService.getResourceResolver()).thenReturn(resourceResolver)
+        when(resourceResolver.resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+
+        OpenTracingConfig openTracingConfig = new OpenTracingConfig()
+        openTracingConfig.name = "fake-tracer"
+        openTracingConfig.enabled = true
+        openTracingConfig.tracer = TracerType.JAEGER
+        openTracingConfig.logSpans = true
+        openTracingConfig.maxBufferSize = 10000
+        openTracingConfig.flushIntervalMs = 10000
+        openTracingConfig.token = "abc-123"
+        openTracingConfig.collectorEndpoint = "http://localhost:12345"
+
+        openTracingService.configure(openTracingConfig)
+
+        GlobalTracer globalTracer = openTracingService.globalTracer
+        com.uber.jaeger.Tracer tracer = globalTracer.tracer
+
+        assertEquals("service name is correctly set", "fake-tracer", tracer.serviceName)
+
+        CompositeReporter compositeReporter = tracer.reporter
+        RemoteReporter remoteReporter = compositeReporter.reporters.find {
+            it.class == RemoteReporter.class
+        }
+
+        assertThat("http sender is set in reporter", remoteReporter.sender, instanceOf(HttpSender.class))
+
+        HttpSender httpSender = remoteReporter.sender
+
+        assertEquals("Validate no auth interceptor added", 1, httpSender.httpClient.interceptors().size())
+
+    }
+
+    @Test
+    void testConfigureWithHttpProtocolAndConstSampling() {
+
+        ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class)
+        ConfigurationResource configurationResource = mock(ConfigurationResource.class)
+        when(configurationResource.exists()).thenReturn(true)
+        when(configurationService.getResourceResolver()).thenReturn(resourceResolver)
+        when(resourceResolver.resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+
+        OpenTracingConfig openTracingConfig = new OpenTracingConfig()
+        openTracingConfig.name = "fake-tracer"
+        openTracingConfig.enabled = true
+        openTracingConfig.tracer = TracerType.JAEGER
+        openTracingConfig.logSpans = true
+        openTracingConfig.maxBufferSize = 10000
+        openTracingConfig.flushIntervalMs = 10000
+        openTracingConfig.token = "abc-123"
+        openTracingConfig.collectorEndpoint = "http://localhost:12345"
+        openTracingConfig.senderProtocol = JaegerSenderProtocol.fromValue("http")
+
+        JaegerSamplingConfiguration jaegerSamplingConfiguration = new JaegerSamplingConfiguration()
+        JaegerSamplingConst jaegerSamplingConst = new JaegerSamplingConst()
+        jaegerSamplingConst.setValue(1)
+        jaegerSamplingConfiguration.setJaegerSamplingConst(jaegerSamplingConst)
+        jaegerSamplingConfiguration.setSampleType(JaegerSampleType.fromValue("const"))
+
+        openTracingConfig.setJaegerSamplingConfig(jaegerSamplingConfiguration)
+
+        openTracingService.configure(openTracingConfig)
+
+        GlobalTracer globalTracer = openTracingService.globalTracer
+        com.uber.jaeger.Tracer tracer = globalTracer.tracer
+
+        assertEquals("service name is correctly set", "fake-tracer", tracer.serviceName)
+
+        CompositeReporter compositeReporter = tracer.reporter
+        RemoteReporter remoteReporter = compositeReporter.reporters.find {
+            it.class == RemoteReporter.class
+        }
+
+        assertThat("http sender is set in reporter", remoteReporter.sender, instanceOf(HttpSender.class))
+
+        HttpSender httpSender = remoteReporter.sender
+
+        assertEquals("Validate no auth interceptor added", 1, httpSender.httpClient.interceptors().size())
+
+    }
+
+    @Test
+    void testConfigureWithHttpProtocolAndProbabilisticSampling() {
+
+        ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class)
+        ConfigurationResource configurationResource = mock(ConfigurationResource.class)
+        when(configurationResource.exists()).thenReturn(true)
+        when(configurationService.getResourceResolver()).thenReturn(resourceResolver)
+        when(resourceResolver.resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+
+        OpenTracingConfig openTracingConfig = new OpenTracingConfig()
+        openTracingConfig.name = "fake-tracer"
+        openTracingConfig.enabled = true
+        openTracingConfig.tracer = TracerType.JAEGER
+        openTracingConfig.logSpans = true
+        openTracingConfig.maxBufferSize = 10000
+        openTracingConfig.flushIntervalMs = 10000
+        openTracingConfig.token = "abc-123"
+        openTracingConfig.collectorEndpoint = "http://localhost:12345"
+
+        JaegerSamplingConfiguration jaegerSamplingConfiguration = new JaegerSamplingConfiguration()
+        JaegerSamplingProbabilistic jaegerSamplingProbabilistic = new JaegerSamplingProbabilistic()
+        jaegerSamplingProbabilistic.setValue(1.0)
+        jaegerSamplingConfiguration.setJaegerSamplingProbabilistic(jaegerSamplingProbabilistic)
+
+        openTracingConfig.setJaegerSamplingConfig(jaegerSamplingConfiguration)
+        jaegerSamplingConfiguration.setSampleType(JaegerSampleType.PROBABILISTIC)
+
+        openTracingService.configure(openTracingConfig)
+
+        GlobalTracer globalTracer = openTracingService.globalTracer
+        com.uber.jaeger.Tracer tracer = globalTracer.tracer
+
+        assertEquals("service name is correctly set", "fake-tracer", tracer.serviceName)
+
+        CompositeReporter compositeReporter = tracer.reporter
+        RemoteReporter remoteReporter = compositeReporter.reporters.find {
+            it.class == RemoteReporter.class
+        }
+
+        assertThat("http sender is set in reporter", remoteReporter.sender, instanceOf(HttpSender.class))
+
+        HttpSender httpSender = remoteReporter.sender
+
+        assertEquals("Validate no auth interceptor added", 1, httpSender.httpClient.interceptors().size())
+
+    }
+
+    @Test
+    void testConfigureWithHttpProtocolAndRLSampling() {
+
+        ConfigurationResourceResolver resourceResolver = mock(ConfigurationResourceResolver.class)
+        ConfigurationResource configurationResource = mock(ConfigurationResource.class)
+        when(configurationResource.exists()).thenReturn(true)
+        when(configurationService.getResourceResolver()).thenReturn(resourceResolver)
+        when(resourceResolver.resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+        when(configurationService.getResourceResolver().resolve(OpenTracingServiceImpl.DEFAULT_CONFIG_NAME)).thenReturn(configurationResource);
+
+        OpenTracingConfig openTracingConfig = new OpenTracingConfig()
+        openTracingConfig.name = "fake-tracer"
+        openTracingConfig.enabled = true
+        openTracingConfig.tracer = TracerType.JAEGER
+        openTracingConfig.logSpans = true
+        openTracingConfig.maxBufferSize = 10000
+        openTracingConfig.flushIntervalMs = 10000
+        openTracingConfig.token = "abc-123"
+        openTracingConfig.collectorEndpoint = "http://localhost:12345"
+
+        JaegerSamplingConfiguration jaegerSamplingConfiguration = new JaegerSamplingConfiguration()
+        JaegerSamplingRateLimiting jaegerSamplingRateLimiting = new JaegerSamplingRateLimiting()
+        jaegerSamplingRateLimiting.setMaxTracesPerSecond(1.0)
+        jaegerSamplingConfiguration.setJaegerSamplingRateLimiting(jaegerSamplingRateLimiting)
+        jaegerSamplingConfiguration.setSampleType(JaegerSampleType.RATE_LIMITED)
+
+        openTracingConfig.setJaegerSamplingConfig(jaegerSamplingConfiguration)
+
+        openTracingService.configure(openTracingConfig)
+
+        GlobalTracer globalTracer = openTracingService.globalTracer
+        com.uber.jaeger.Tracer tracer = globalTracer.tracer
+
+        assertEquals("service name is correctly set", "fake-tracer", tracer.serviceName)
+
+        CompositeReporter compositeReporter = tracer.reporter
+        RemoteReporter remoteReporter = compositeReporter.reporters.find {
+            it.class == RemoteReporter.class
+        }
+
+        assertThat("http sender is set in reporter", remoteReporter.sender, instanceOf(HttpSender.class))
+
+        HttpSender httpSender = remoteReporter.sender
+
+        assertEquals("Validate no auth interceptor added", 1, httpSender.httpClient.interceptors().size())
 
     }
 }

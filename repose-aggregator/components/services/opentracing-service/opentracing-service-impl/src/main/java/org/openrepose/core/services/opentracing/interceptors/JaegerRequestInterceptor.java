@@ -30,6 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JaegerRequestInterceptor extends TracingRequestInterceptor implements RequestInterceptor {
+    private static final Logger LOG = LoggerFactory.getLogger(JaegerRequestInterceptor.class);
+
+
     public JaegerRequestInterceptor(Tracer tracer) {
         super(tracer);
     }
