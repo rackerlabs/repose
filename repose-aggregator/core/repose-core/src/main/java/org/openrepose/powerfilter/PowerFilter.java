@@ -20,7 +20,8 @@
 package org.openrepose.powerfilter;
 
 import com.codahale.metrics.MetricRegistry;
-import io.opentracing.ActiveSpan;
+import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
@@ -384,8 +385,8 @@ public class PowerFilter extends DelegatingFilterProxy {
         // Re-wrapping the request to reset the inputStream/Reader flag
         wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request, bufferedInputStream);
 
-        // OpenTracing - set up activeSpan placeholder.
-        ActiveSpan activeSpan = null;
+        // OpenTracing - set up scope placeholder.
+        Scope scope = null;
 
         if (openTracingService.isPresent() && openTracingService.get().isEnabled()) {
             LOG.trace("We enabled OpenTracing service.  Let's see if there are any passed-in spans");
@@ -400,26 +401,25 @@ public class PowerFilter extends DelegatingFilterProxy {
                     "this is most likely part of a larger span.  Check out thrown exception for more details", re);
             }
 
-            Tracer.SpanBuilder spanBuilder;
-
             LOG.debug("Got the span context from request: {}", context);
 
+            Span activeSpan;
+
             if (context == null)
-                spanBuilder = openTracingService.get().getGlobalTracer()
+                activeSpan = openTracingService.get().getGlobalTracer()
                     .buildSpan(String.format("%s %s", wrappedRequest.getMethod(),
                         wrappedRequest.getRequestURI()))
-                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
+                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
             else
-                spanBuilder = openTracingService.get().getGlobalTracer()
+                activeSpan = openTracingService.get().getGlobalTracer()
                     .buildSpan(String.format("%s %s", wrappedRequest.getMethod(),
                         wrappedRequest.getRequestURI()))
                     .asChildOf(context)
-                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
+                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
 
+            scope = openTracingService.get().getGlobalTracer().scopeManager().activate(activeSpan, false);
 
-            LOG.trace("Start a new span");
-            activeSpan = spanBuilder.startActive();
-
+            LOG.debug("Start a new span {}", scope.span());
         }
 
         if (currentSystemModel.get().getTracingHeader() != null && currentSystemModel.get().getTracingHeader().isRewriteHeader()) {
@@ -469,30 +469,34 @@ public class PowerFilter extends DelegatingFilterProxy {
             }
         } catch (InvalidMethodException ime) {
             LOG.debug("{}:{} -- Invalid HTTP method requested: {}", clusterId, nodeId, wrappedRequest.getMethod(), ime);
-            if (activeSpan != null) {
-                activeSpan.setTag(Tags.HTTP_STATUS.getKey(), HttpServletResponse.SC_BAD_REQUEST);
-                activeSpan.close();
+            if (scope != null) {
+                scope.span().setTag(Tags.HTTP_STATUS.getKey(), HttpServletResponse.SC_BAD_REQUEST);
+                scope.span().finish();
+                scope.close();
             }
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
         } catch (URISyntaxException use) {
             LOG.debug("{}:{} -- Invalid URI requested: {}", clusterId, nodeId, wrappedRequest.getRequestURI(), use);
-            if (activeSpan != null) {
-                activeSpan.setTag(Tags.HTTP_STATUS.getKey(), HttpServletResponse.SC_BAD_REQUEST);
-                activeSpan.close();
+            if (scope != null) {
+                scope.span().setTag(Tags.HTTP_STATUS.getKey(), HttpServletResponse.SC_BAD_REQUEST);
+                scope.span().finish();
+                scope.close();
             }
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
         } catch (Exception ex) {
             LOG.error("{}:{} -- Issue encountered while processing filter chain.", clusterId, nodeId, ex);
-            if (activeSpan != null) {
-                activeSpan.setTag(Tags.HTTP_STATUS.getKey(), HttpServletResponse.SC_BAD_GATEWAY);
-                activeSpan.close();
+            if (scope != null) {
+                scope.span().setTag(Tags.HTTP_STATUS.getKey(), HttpServletResponse.SC_BAD_GATEWAY);
+                scope.span().finish();
+                scope.close();
             }
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error processing request");
         } catch (Error e) {
             LOG.error("{}:{} -- Error encountered while processing filter chain.", clusterId, nodeId, e);
-            if (activeSpan != null) {
-                activeSpan.setTag(Tags.HTTP_STATUS.getKey(), HttpServletResponse.SC_BAD_GATEWAY);
-                activeSpan.close();
+            if (scope != null) {
+                scope.span().setTag(Tags.HTTP_STATUS.getKey(), HttpServletResponse.SC_BAD_GATEWAY);
+                scope.span().finish();
+                scope.close();
             }
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error processing request");
             throw e;
@@ -502,9 +506,10 @@ public class PowerFilter extends DelegatingFilterProxy {
             // still allowing the component which wrapped the response to mutate the response.
             wrappedResponse.uncommit();
 
-            if (activeSpan != null) {
-                activeSpan.setTag(Tags.HTTP_STATUS.getKey(), wrappedResponse.getStatus());
-                activeSpan.close();
+            if (scope != null) {
+                scope.span().setTag(Tags.HTTP_STATUS.getKey(), wrappedResponse.getStatus());
+                scope.span().finish();
+                scope.close();
             }
 
             // In the case where we pass/route the request, there is a chance that
