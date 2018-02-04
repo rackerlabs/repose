@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <opentracing xmlns="http://docs.openrepose.org/repose/opentracing/v1.0"
-             enabled="true"
              name="test-repose"
              tracer="jaeger"
-             tracer-host="jaeger"
-             tracer-port="5775"
-/>
+             collector-endpoint="http://localhost:8081">
+    <jaeger-sampling-config sample-type="rate-limited">
+        <jaeger-sampling-rate-limiting max-traces-per-second="50"/>
+    </jaeger-sampling-config>
+</opentracing>
