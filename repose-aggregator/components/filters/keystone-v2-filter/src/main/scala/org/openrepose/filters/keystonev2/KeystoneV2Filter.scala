@@ -306,9 +306,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
       // If configured, add roles header
       if (configuration.getIdentityService.isSetRolesInHeader) {
-        // TODO: Account for send-all-tenant-ids
-        if (scopedTenantToRolesMap.nonEmpty){
-          val tenantToRolesJson = Json.stringify(Json.toJson(scopedTenantToRolesMap))
+        val sendAllTenantIds = configuration.getTenantHandling.isSendAllTenantIds
+        val tenantToRolesMap = if (sendAllTenantIds) buildTenantToRolesMap(token) else scopedTenantToRolesMap
+        if (tenantToRolesMap.nonEmpty) {
+          val tenantToRolesJson = Json.stringify(Json.toJson(tenantToRolesMap))
           val encodedTenantToRolesJson = Base64.getEncoder.encodeToString(tenantToRolesJson.getBytes)
           request.addHeader(OpenStackServiceHeader.TENANT_ROLES_MAP, encodedTenantToRolesJson)
         }

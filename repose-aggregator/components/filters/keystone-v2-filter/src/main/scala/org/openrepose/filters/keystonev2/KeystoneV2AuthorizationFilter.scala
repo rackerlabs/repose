@@ -113,9 +113,8 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
   def scopeTenantIdHeader(request: HttpServletRequestWrapper, matchedTenants: Set[String]): Unit = {
     logger.trace("Scoping the tenant ID request header")
 
-    val tenantHandling = Option(configuration.getTenantHandling)
-    val sendAllTenantIds = tenantHandling.exists(_.isSendAllTenantIds)
-    val matchedTenantQuality = tenantHandling.map(_.getSendTenantIdQuality).flatMap(Option.apply).map(_.getUriTenantQuality)
+    val sendAllTenantIds = configuration.getTenantHandling.isSendAllTenantIds
+    val matchedTenantQuality = Option(configuration.getTenantHandling.getSendTenantIdQuality).map(_.getUriTenantQuality)
 
     (sendAllTenantIds, matchedTenantQuality) match {
       case (true, Some(quality)) =>
@@ -140,16 +139,17 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
     }
   }
 
-  // TODO: Account for send-all-tenant-ids configuration
   def scopeTenantToRolesMapHeader(request: HttpServletRequestWrapper, tenantToRolesMap: TenantToRolesMap): Unit = {
     logger.trace("Scoping the tenant to roles mapping request header")
 
-    request.removeHeader(TENANT_ROLES_MAP)
+    if (!configuration.getTenantHandling.isSendAllTenantIds) {
+      request.removeHeader(TENANT_ROLES_MAP)
 
-    if (tenantToRolesMap.nonEmpty) {
-      val tenantToRolesJson = Json.stringify(Json.toJson(tenantToRolesMap))
-      val encodedTenantToRolesJson = Base64.getEncoder.encodeToString(tenantToRolesJson.getBytes)
-      request.addHeader(TENANT_ROLES_MAP, encodedTenantToRolesJson)
+      if (tenantToRolesMap.nonEmpty) {
+        val tenantToRolesJson = Json.stringify(Json.toJson(tenantToRolesMap))
+        val encodedTenantToRolesJson = Base64.getEncoder.encodeToString(tenantToRolesJson.getBytes)
+        request.addHeader(TENANT_ROLES_MAP, encodedTenantToRolesJson)
+      }
     }
   }
 }

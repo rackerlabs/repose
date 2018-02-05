@@ -331,6 +331,9 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
 
   describe("scopeTenantToRolesMapHeader") {
     it(s"should set the $TENANT_ROLES_MAP header to the provided map") {
+      keystoneV2AuthorizationFilter.configuration = new KeystoneV2Config()
+        .withTenantHandling(new TenantHandlingType())
+
       val tenantToRoles = Map("tenant1" -> Set("role1", "role2"), "tenant2" -> Set("role3"))
       val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
 
@@ -340,6 +343,9 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
     }
 
     it(s"should overwrite any existing value of the $TENANT_ROLES_MAP header") {
+      keystoneV2AuthorizationFilter.configuration = new KeystoneV2Config()
+        .withTenantHandling(new TenantHandlingType())
+
       val tenantToRoles = Map("tenant1" -> Set("role1", "role2"), "tenant2" -> Set("role3"))
       val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
       request.addHeader(TENANT_ROLES_MAP, Base64.getEncoder.encodeToString("""{"myTenant":["myRole"]}""".getBytes))
@@ -348,6 +354,23 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
 
       request.getHeadersScala(TENANT_ROLES_MAP) should have size 1
       Json.parse(new String(Base64.getDecoder.decode(request.getHeader(TENANT_ROLES_MAP)))) shouldEqual Json.toJson(tenantToRoles)
+    }
+
+    it(s"should not modify the $TENANT_ROLES_MAP header when configured to send all tenant IDs") {
+      val sendAllTenantIds = true
+      keystoneV2AuthorizationFilter.configuration = new KeystoneV2Config()
+        .withTenantHandling(new TenantHandlingType()
+          .withSendAllTenantIds(sendAllTenantIds))
+
+      val tenantToRoles = Map("tenant1" -> Set("role1", "role2"), "tenant2" -> Set("role3"))
+      val existingHeaderValue = Base64.getEncoder.encodeToString("""{"myTenant":["myRole"]}""".getBytes)
+      val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
+      request.addHeader(TENANT_ROLES_MAP, existingHeaderValue)
+
+      keystoneV2AuthorizationFilter.scopeTenantToRolesMapHeader(request, tenantToRoles)
+
+      request.getHeadersScala(TENANT_ROLES_MAP) should have size 1
+      request.getHeader(TENANT_ROLES_MAP) shouldEqual existingHeaderValue
     }
   }
 

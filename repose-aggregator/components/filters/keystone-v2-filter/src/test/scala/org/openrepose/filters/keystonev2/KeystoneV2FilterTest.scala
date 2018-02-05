@@ -1734,9 +1734,11 @@ with HttpDelegationManager {
       filter.configurationUpdated(configuration)
 
       val processedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
+      val tenantToRolesMap = Json.parse(new String(Base64.getDecoder.decode(processedRequest.getHeader(OpenStackServiceHeader.TENANT_ROLES_MAP)))).as[TenantToRolesMap]
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID) should include("tenant")
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID) should include("rick")
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID) should include("morty")
+      tenantToRolesMap.keySet should contain only ("tenant", "rick", "morty")
     }
 
     it("sends all tenant IDs with a quality when all three are configured") {
@@ -1814,8 +1816,10 @@ with HttpDelegationManager {
       filter.configurationUpdated(configuration)
 
       val processedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
+      val tenantToRolesMap = Json.parse(new String(Base64.getDecoder.decode(processedRequest.getHeader(OpenStackServiceHeader.TENANT_ROLES_MAP)))).as[TenantToRolesMap]
       processedRequest.getHeaders(OpenStackServiceHeader.TENANT_ID).asScala.size shouldBe 1
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID) shouldBe "morty"
+      tenantToRolesMap.keySet should contain only "morty"
     }
 
     it("sends all matching tenants when send all tenants is false") {
