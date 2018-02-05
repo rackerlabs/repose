@@ -71,6 +71,8 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
   }
 
   def getTenantToRolesMap(request: HttpServletRequest): Try[TenantToRolesMap] = {
+    logger.trace("Getting the tenant to roles mapping from a request header")
+
     Try {
       Option(request.getHeader(TENANT_ROLES_MAP))
         .map(Base64.getDecoder.decode)
@@ -88,6 +90,8 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
   }
 
   def getEndpoints(request: HttpServletRequest): Try[EndpointsData] = {
+    logger.trace("Getting the endpoints from a request header")
+
     Try {
       val jsonString = Option(request.getHeader(X_CATALOG))
         .map(Base64.getDecoder.decode)
@@ -107,6 +111,8 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
   }
 
   def scopeTenantIdHeader(request: HttpServletRequestWrapper, matchedTenants: Set[String]): Unit = {
+    logger.trace("Scoping the tenant ID request header")
+
     val tenantHandling = Option(configuration.getTenantHandling)
     val sendAllTenantIds = tenantHandling.exists(_.isSendAllTenantIds)
     val matchedTenantQuality = tenantHandling.map(_.getSendTenantIdQuality).flatMap(Option.apply).map(_.getUriTenantQuality)
@@ -126,6 +132,8 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
   }
 
   def scopeRolesHeader(request: HttpServletRequestWrapper, roles: Set[String]): Unit = {
+    logger.trace("Scoping the roles request header")
+
     Option(configuration.getTenantHandling.getValidateTenant).filter(_.isEnableLegacyRolesMode) getOrElse {
       request.removeHeader(ROLES)
       roles.foreach(request.appendHeader(ROLES, _))
@@ -134,6 +142,8 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
 
   // TODO: Account for send-all-tenant-ids configuration
   def scopeTenantToRolesMapHeader(request: HttpServletRequestWrapper, tenantToRolesMap: TenantToRolesMap): Unit = {
+    logger.trace("Scoping the tenant to roles mapping request header")
+
     request.removeHeader(TENANT_ROLES_MAP)
 
     if (tenantToRolesMap.nonEmpty) {
