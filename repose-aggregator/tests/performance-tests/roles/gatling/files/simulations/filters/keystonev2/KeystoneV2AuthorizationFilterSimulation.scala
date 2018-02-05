@@ -20,6 +20,8 @@
 
 package filters.keystonev2
 
+import java.util.Base64
+
 import com.typesafe.config.ConfigFactory
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
@@ -48,11 +50,27 @@ class KeystoneV2AuthorizationFilterSimulation extends Simulation {
 
   val httpConf = http.baseURL(s"http://$baseUrl")
 
-  val feeder = Iterator.continually(Map("authToken" -> Random.alphanumeric.take(250).mkString))
+  val encodedTenantToRolesMap = Base64.getEncoder.encodeToString(
+    """
+      |{
+      |  "defaultTenant": [
+      |  ],
+      |  "uriTenant": [
+      |    "uriRole1",
+      |    "uriRole2"
+      |  ],
+      |  "headerTenant": [
+      |    "headerRole1",
+      |    "headerRole2",
+      |  ],
+      |  "nonMatchingTenant": [
+      |    "nonMatchingRole"
+      |  ]
+      |}
+    """.stripMargin.getBytes)
 
   // set up the warm up scenario
   val warmup = scenario("Warmup")
-    .feed(feeder)
     .forever() {
       exec(getRequest)
     }
@@ -64,7 +82,6 @@ class KeystoneV2AuthorizationFilterSimulation extends Simulation {
 
   // set up the main scenario
   val mainScenario = scenario("Keystone v2 Filter Test")
-    .feed(feeder)
     .forever() {
       exec(getRequest)
     }
@@ -85,8 +102,9 @@ class KeystoneV2AuthorizationFilterSimulation extends Simulation {
 
   def getRequest: HttpRequestBuilder = {
     http(session => session.scenario)
-      .get("/")
-      .header("x-auth-token", "${authToken}")
+      .get("/uriTenant")
+      .header("x-tenant-id", "headerTenant")
+      .header("x-map-roles", encodedTenantToRolesMap)
       .check(status.is(200))
   }
 }

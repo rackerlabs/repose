@@ -4,24 +4,24 @@
     config: {
       system_model: {
         filters: [
-          { name: "keystone-v2" },
           { name: "keystone-v2-authorization" }
         ]
       }
     },
     config_files: {
+      files: [
+        "log4j2.xml",
+        "{{ dir_prefix }}/keystone-v2-authorization.cfg.xml"
+      ],
       templates: [
         "container.cfg.xml",
-        "system-model.cfg.xml",
-        "{{ dir_prefix }}/keystone-v2.cfg.xml",
-        "{{ dir_prefix }}/keystone-v2-authorization.cfg.xml"
+        "system-model.cfg.xml"
       ]
     }
   },
   mock: {
     backends: [
-      "main_backend.js",
-      "auth_backend.js"
+      "main_backend.js"
     ]
   },
   gatling: {
