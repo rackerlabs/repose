@@ -10,3 +10,16 @@ dependencies {
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
 
 }
+
+// No coverage on the api contracts
+jacocoTestCoverageVerification {
+    violationRules {
+        rules.forEach { rule ->
+            rule.limits.forEach { limit ->
+                if (limit.counter == 'INSTRUCTION' && limit.value == 'COVEREDRATIO') {
+                    limit.minimum = 0.0
+                }
+            }
+        }
+    }
+}
