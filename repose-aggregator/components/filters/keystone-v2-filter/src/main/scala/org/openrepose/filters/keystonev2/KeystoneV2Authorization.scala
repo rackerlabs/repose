@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_UNAUTHORIZED}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.{KeystoneV2Result, Reject}
-import org.openrepose.filters.keystonev2.KeystoneV2Common.{Endpoint, EndpointsData, Role, ValidToken}
+import org.openrepose.filters.keystonev2.KeystoneV2Common._
 import org.openrepose.filters.keystonev2.config._
 
 import scala.collection.JavaConverters._
@@ -38,24 +38,37 @@ object KeystoneV2Authorization extends LazyLogging {
     case Failure(e: UnparsableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
   }
 
-  // TODO: Take tenants to roles mapping instead of token to calculate scoped roles.
-  def doAuthorization(config: KeystoneV2Config, request: HttpServletRequestWrapper, validToken: ValidToken, endpoints: => Try[EndpointsData]): AuthorizationInfo = {
-    lazy val tenantsToMatch = getRequestTenants(config.getTenantHandling.getValidateTenant, request)
+  def doAuthorization(config: KeystoneV2Config, request: HttpServletRequestWrapper, tenantToRolesMap: TenantToRolesMap, endpoints: => Try[EndpointsData]): AuthorizationInfo = {
+    // NOTE TO REVIEWER: Behavior change -- pre-authorization is determined based on all roles, not just those matching the tenant (since that is part of authorization)
+    if (isUserPreAuthed(config.getPreAuthorizedRoles, tenantToRolesMap.values.flatten.toSeq)) {
+      AuthorizationPassed(tenantToRolesMap, Set.empty)
+    } else {
+      val validateTenant = Option(config.getTenantHandling.getValidateTenant)
+      val tenantsToMatch = validateTenant
+        .map(getRequestTenants(_, request))
+        .getOrElse(Set.empty)
+      val scopedTenantToRolesMap = validateTenant
+        .map(getScopedTenantToRolesMap(_, tenantsToMatch, tenantToRolesMap))
+      // val scopedRoles = scopedTenantToRolesMap.getOrElse(tenantToRolesMap).values.flatten.toSet
+      val matchedTenants = (scopedTenantToRolesMap.getOrElse(Map.empty) - DomainRoleTenantKey).keySet
+      val tenantAuthorization = validateTenant
+        .map(authorizeTenant(_, tenantsToMatch, matchedTenants))
+        .getOrElse(Success(Unit))
 
-    val tenantScopedRoles = getTenantScopedRoles(config.getTenantHandling.getValidateTenant, tenantsToMatch, validToken.roles)
-    val userIsPreAuthed = isUserPreAuthed(config.getPreAuthorizedRoles, tenantScopedRoles)
-    val scopedRolesToken = if (userIsPreAuthed) validToken else validToken.copy(roles = tenantScopedRoles)
-    val doTenantCheck = shouldAuthorizeTenant(config.getTenantHandling.getValidateTenant, userIsPreAuthed)
-    val matchedTenants = getMatchingTenants(config.getTenantHandling.getValidateTenant, tenantsToMatch, doTenantCheck, scopedRolesToken)
-    val authResult = authorizeTenant(doTenantCheck, tenantsToMatch, matchedTenants) flatMap { _ =>
-      authorizeEndpoints(config.getRequireServiceEndpoint, userIsPreAuthed, endpoints)
-    }
-    authResult match {
-      case Success(_) => AuthorizationPassed(scopedRolesToken, matchedTenants)
-      case Failure(exception) => AuthorizationFailed(scopedRolesToken, matchedTenants, exception)
+      val endpointAuthorization = Option(config.getRequireServiceEndpoint)
+        .map(requiredEndpoint => authorizeEndpoints(requiredEndpoint, endpoints))
+        .getOrElse(Success(Unit))
+
+      tenantAuthorization.flatMap(_ => endpointAuthorization) match {
+        case Success(_) => AuthorizationPassed(scopedTenantToRolesMap.getOrElse(tenantToRolesMap), matchedTenants)
+        case Failure(e) => AuthorizationFailed(scopedTenantToRolesMap.getOrElse(tenantToRolesMap), matchedTenants, e)
+      }
     }
   }
 
+  // TODO: Rather than throwing an exception, this method should return a Try.
+  // NOTE: Throwing an exception currently works because this method is always called in a [[Try]] stack.
+  @throws[UnparsableTenantException]
   def getRequestTenants(config: ValidateTenantType, request: HttpServletRequestWrapper): Set[String] = {
     Option(config).map(validateTenantConfig =>
       validateTenantConfig.getUriExtractionRegexAndHeaderExtractionName.asScala.toSet.flatMap((extraction: ExtractionType) => extraction match {
@@ -74,80 +87,60 @@ object KeystoneV2Authorization extends LazyLogging {
     ).filter(_.nonEmpty).getOrElse(throw UnparsableTenantException("Could not parse tenant from the URI and/or the configured header"))
   }
 
-  def getTenantScopedRoles(config: ValidateTenantType, tenantsToMatch: => Set[String], roles: Seq[Role]): Seq[Role] = {
-    Option(config) match {
-      case Some(validateTenant) if !validateTenant.isEnableLegacyRolesMode =>
-        roles.filter(role =>
-          role.tenantId.forall(roleTenantId =>
-            tenantsToMatch.contains(roleTenantId)))
-      case _ =>
-        roles
+  // NOTE: Replaces the tenant and roles scoping methods. For the roles scoping, also accounts for tenant prefixes, which was not previously the case.
+  def getScopedTenantToRolesMap(config: ValidateTenantType, tenantsToMatch: Set[String], tenantToRolesMap: TenantToRolesMap): TenantToRolesMap = {
+    val prefixes = Option(config.getStripTokenTenantPrefixes).map(_.split('/')).getOrElse(Array.empty[String])
+    tenantToRolesMap filterKeys { tenant =>
+      tenant == DomainRoleTenantKey || tenantsToMatch.exists(tenantToMatch =>
+        tenant == tenantToMatch || prefixes.exists(prefix =>
+          tenant.startsWith(prefix) && tenant.substring(prefix.length) == tenantToMatch))
     }
   }
 
-  def isUserPreAuthed(config: RolesList, roles: Seq[Role]): Boolean = {
+  def isUserPreAuthed(config: RolesList, roles: Seq[String]): Boolean = {
     Option(config) exists { preAuthedRoles =>
-      preAuthedRoles.getRole.asScala.intersect(roles.map(_.name)).nonEmpty
+      preAuthedRoles.getRole.asScala.intersect(roles).nonEmpty
     }
   }
 
-  def shouldAuthorizeTenant(config: ValidateTenantType, preAuthed: Boolean): Boolean = {
-    Option(config).exists(_ => !preAuthed)
-  }
-
-  def getMatchingTenants(config: ValidateTenantType, tenantsToMatch: => Set[String], doTenantCheck: Boolean, validToken: ValidToken): Set[String] = {
-    if (doTenantCheck) {
-      val tokenTenants = validToken.defaultTenantId.toSet ++ validToken.tenantIds
-      val prefixes = Option(config.getStripTokenTenantPrefixes).map(_.split('/')).getOrElse(Array.empty[String])
-      tenantsToMatch map { tenantToMatch =>
-        tokenTenants find { tokenTenant =>
-          tokenTenant == tenantToMatch || prefixes.exists(prefix =>
-            tokenTenant.startsWith(prefix) && tokenTenant.substring(prefix.length) == tenantToMatch)
-        }
-      } filter (_.nonEmpty) map (_.get)
-    } else {
-      Set.empty
-    }
-  }
-
-  def authorizeTenant(doTenantCheck: Boolean, tenantsToMatch: => Set[String], matchedTenants: Set[String]): Try[Unit.type] = {
+  def authorizeTenant(config: ValidateTenantType, tenantsToMatch: Set[String], userTenants: Set[String]): Try[Unit.type] = {
     logger.trace("Validating tenant")
 
-    if (doTenantCheck) {
-      if (matchedTenants.size == tenantsToMatch.size) Success(Unit)
-      else Failure(InvalidTenantException("A tenant from the URI and/or the configured header does not match any of the user's tenants"))
-    } else {
-      Success(Unit)
+    val prefixes = Option(config.getStripTokenTenantPrefixes).map(_.split('/')).getOrElse(Array.empty[String])
+    val allTenantsMatch = tenantsToMatch forall { tenantToMatch =>
+      userTenants exists { tenant =>
+        tenant == tenantToMatch || prefixes.exists(prefix =>
+          tenant.startsWith(prefix) && tenant.substring(prefix.length) == tenantToMatch)
+      }
     }
+
+    if (allTenantsMatch) Success(Unit)
+    else Failure(InvalidTenantException("A tenant from the URI and/or the configured header does not match any of the user's tenants"))
   }
 
-  def authorizeEndpoints(config: ServiceEndpointType, userIsPreAuthed: Boolean, maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
-    Option(config) match {
-      case Some(configuredEndpoint) =>
-        logger.trace("Authorizing endpoints")
+  def authorizeEndpoints(config: ServiceEndpointType, maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
+    logger.trace("Authorizing endpoints")
 
-        maybeEndpoints flatMap { endpoints =>
-          lazy val requiredEndpoint =
-            Endpoint(
-              publicURL = configuredEndpoint.getPublicUrl,
-              name = Option(configuredEndpoint.getName),
-              endpointType = Option(configuredEndpoint.getType),
-              region = Option(configuredEndpoint.getRegion)
-            )
+    maybeEndpoints flatMap { endpoints =>
+      val requiredEndpointModel =
+        Endpoint(
+          publicURL = config.getPublicUrl,
+          name = Option(config.getName),
+          endpointType = Option(config.getType),
+          region = Option(config.getRegion)
+        )
 
-          if (userIsPreAuthed || endpoints.vector.exists(_.meetsRequirement(requiredEndpoint))) Success(Unit)
-          else Failure(UnauthorizedEndpointException("User did not have the required endpoint"))
-        }
-      case None => Success(Unit)
+      if (endpoints.vector.exists(_.meetsRequirement(requiredEndpointModel))) Success(Unit)
+      else Failure(UnauthorizedEndpointException("User did not have the required endpoint"))
     }
   }
 
   sealed trait AuthorizationInfo {
-    def scopedToken: ValidToken
+    def scopedTenantToRolesMap: TenantToRolesMap
     def matchedTenants: Set[String]
   }
-  case class AuthorizationPassed(scopedToken: ValidToken, matchedTenants: Set[String]) extends AuthorizationInfo
-  case class AuthorizationFailed(scopedToken: ValidToken, matchedTenants: Set[String], exception: Throwable) extends AuthorizationInfo
+  case class AuthorizationPassed(scopedTenantToRolesMap: TenantToRolesMap, matchedTenants: Set[String]) extends AuthorizationInfo
+  case class AuthorizationFailed(scopedTenantToRolesMap: TenantToRolesMap, matchedTenants: Set[String], exception: Throwable) extends AuthorizationInfo
 
   abstract class AuthorizationException(message: String, cause: Throwable) extends Exception(message, cause)
 

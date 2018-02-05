@@ -27,10 +27,7 @@ object KeystoneV2Common {
   final val TokenRequestAttributeName: String = "http://openrepose.org/filters/keystonev2/token"
   final val DomainRoleTenantKey: String = "repose/domain/roles"
 
-  def getTenantToRolesMap(token: ValidToken): Map[String, Seq[String]] = {
-    token.defaultTenantId.map(_ -> Seq.empty[String]).toMap ++
-      token.roles.groupBy(_.tenantId).map({ case (key, value) => key.getOrElse(DomainRoleTenantKey) -> value.map(_.name) })
-  }
+  type TenantToRolesMap = Map[String, Set[String]]
 
   case class ValidToken(expirationDate: String,
                         userId: String,

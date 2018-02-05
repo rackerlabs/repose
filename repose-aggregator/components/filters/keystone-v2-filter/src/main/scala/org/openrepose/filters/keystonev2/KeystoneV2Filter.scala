@@ -239,6 +239,11 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
     }
 
+    def buildTenantToRolesMap(token: ValidToken): TenantToRolesMap = {
+      token.defaultTenantId.map(_ -> Set.empty[String]).toMap ++
+        token.roles.groupBy(_.tenantId).map({ case (key, value) => key.getOrElse(DomainRoleTenantKey) -> value.map(_.name).toSet })
+    }
+
     def buildTenantHeader(defaultTenant: Option[String],
                           roleTenants: Seq[String],
                           matchedTenants: Set[String]): Vector[String] = {
@@ -277,7 +282,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
     }
 
-    def addTokenHeaders(token: ValidToken, matchedTenants: Set[String]): Unit = {
+    def addTokenHeaders(token: ValidToken, scopedTenantToRolesMap: TenantToRolesMap, matchedTenants: Set[String]): Unit = {
       // Add standard headers
       request.addHeader(OpenStackServiceHeader.USER_ID, token.userId)
       request.addHeader(OpenStackServiceHeader.X_EXPIRATION, token.expirationDate)
@@ -300,11 +305,18 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         .foreach(request.appendHeader(OpenStackServiceHeader.TENANT_ID, _))
 
       // If configured, add roles header
-      if (configuration.getIdentityService.isSetRolesInHeader && token.roles.nonEmpty) {
-        val tenantToRolesJson = Json.stringify(Json.toJson(getTenantToRolesMap(token)))
-        val encodedTenantToRolesJson = Base64.getEncoder.encodeToString(tenantToRolesJson.getBytes)
-        request.addHeader(OpenStackServiceHeader.TENANT_ROLES_MAP, encodedTenantToRolesJson)
-        request.addHeader(OpenStackServiceHeader.ROLES, token.roles.map(_.name).mkString(","))
+      if (configuration.getIdentityService.isSetRolesInHeader) {
+        // TODO: Account for send-all-tenant-ids
+        if (scopedTenantToRolesMap.nonEmpty){
+          val tenantToRolesJson = Json.stringify(Json.toJson(scopedTenantToRolesMap))
+          val encodedTenantToRolesJson = Base64.getEncoder.encodeToString(tenantToRolesJson.getBytes)
+          request.addHeader(OpenStackServiceHeader.TENANT_ROLES_MAP, encodedTenantToRolesJson)
+        }
+
+        Option(configuration.getTenantHandling.getValidateTenant).map(_.isEnableLegacyRolesMode) match {
+          case Some(true) => token.roles.map(_.name).foreach(request.appendHeader(OpenStackServiceHeader.ROLES, _))
+          case _ => scopedTenantToRolesMap.values.flatten.foreach(request.appendHeader(OpenStackServiceHeader.ROLES, _))
+        }
       }
 
       // If present, add the tenant from the URI as part of the Proxy header, otherwise use the default tenant id
@@ -357,17 +369,15 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       */
     getAuthToken flatMap { authToken =>
       validateToken(authToken) flatMap { validToken =>
-        // TODO: Remove this and use the tenant-to-roles map header for transport.
-        request.setAttribute(TokenRequestAttributeName, validToken)
-
         lazy val endpoints = getEndpoints(authToken) // Prevents making call if its not needed
-        val authResult = KeystoneV2Authorization.doAuthorization(configuration, request, validToken, endpoints)
+        val tenantToRolesMap = buildTenantToRolesMap(validToken)
+        val authResult = KeystoneV2Authorization.doAuthorization(configuration, request, tenantToRolesMap, endpoints)
 
-        addTokenHeaders(authResult.scopedToken, authResult.matchedTenants)
+        addTokenHeaders(validToken, authResult.scopedTenantToRolesMap, authResult.matchedTenants)
         authResult match {
-          case AuthorizationPassed(scopedToken, _) =>
+          case AuthorizationPassed(_, _) =>
             addCatalogHeader(endpoints) flatMap { _ =>
-              addGroupsHeader(getGroups(authToken, scopedToken))
+              addGroupsHeader(getGroups(authToken, validToken))
             }
           case AuthorizationFailed(_, _, exception) => Failure(exception)
         }

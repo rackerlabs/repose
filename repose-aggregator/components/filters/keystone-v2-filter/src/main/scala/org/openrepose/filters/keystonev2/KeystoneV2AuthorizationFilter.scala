@@ -21,7 +21,6 @@ package org.openrepose.filters.keystonev2
 
 import java.util.Base64
 import javax.inject.{Inject, Named}
-import javax.servlet.ServletRequest
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 
@@ -49,22 +48,21 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
 
   override val handleFailures: PartialFunction[Try[Unit.type], KeystoneV2Result] = {
     KeystoneV2Authorization.handleFailures orElse {
-      case Failure(e@(_: MissingTokenException |
+      case Failure(e@(_: MissingTenantToRolesMapException |
                       _: MissingEndpointsException |
-                      _: InvalidTokenException |
+                      _: InvalidTenantToRolesMapException |
                       _: InvalidEndpointsException)) =>
         Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
     }
   }
 
   override def doAuth(request: HttpServletRequestWrapper): Try[Unit.type] = {
-    // TODO: Stop using request attributes. Stop using the token. Just use the tenant to roles map, tenant ids, and roles headers.
-    getToken(request) flatMap { token =>
-      doAuthorization(configuration, request, token, getEndpoints(request)) match {
-        case AuthorizationPassed(scopedToken, matchedTenants) if matchedTenants.nonEmpty =>
+    getTenantToRolesMap(request) flatMap { tenantToRolesMap =>
+      doAuthorization(configuration, request, tenantToRolesMap, getEndpoints(request)) match {
+        case AuthorizationPassed(scopedTenantToRolesMap, matchedTenants) if scopedTenantToRolesMap.nonEmpty =>
           scopeTenantIdHeader(request, matchedTenants)
-          scopeRolesHeader(request, scopedToken)
-          scopeTenantToRolesMapHeader(request, scopedToken)
+          scopeRolesHeader(request, scopedTenantToRolesMap.values.flatten.toSet)
+          scopeTenantToRolesMapHeader(request, scopedTenantToRolesMap)
           Success(Unit)
         case AuthorizationPassed(_, _) => Success(Unit)
         case AuthorizationFailed(_, _, exception) => Failure(exception)
@@ -72,12 +70,20 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
     }
   }
 
-  def getToken(request: ServletRequest): Try[ValidToken] = {
+  def getTenantToRolesMap(request: HttpServletRequest): Try[TenantToRolesMap] = {
     Try {
-      Option(request.getAttribute(TokenRequestAttributeName)).get.asInstanceOf[ValidToken]
+      Option(request.getHeader(TENANT_ROLES_MAP))
+        .map(Base64.getDecoder.decode)
+        .map(new String(_))
+        .map(Json.parse)
+        .get
+        .validate[TenantToRolesMap]
+        .getOrElse(throw new JsonProcessingException("Could not validate tenant to roles map JSON") {})
     } recover {
-      case nsee: NoSuchElementException => throw MissingTokenException("Token request attribute does not exist", nsee)
-      case cce: ClassCastException => throw InvalidTokenException("Token request attribute is not a valid token", cce)
+      case nsee: NoSuchElementException =>
+        throw MissingTenantToRolesMapException(s"$TENANT_ROLES_MAP header does not exist", nsee)
+      case e@(_: IllegalArgumentException | _: JsonProcessingException) =>
+        throw InvalidTenantToRolesMapException(s"$TENANT_ROLES_MAP header value is not a valid tenant to roles map representation", e)
     }
   }
 
@@ -119,25 +125,32 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
     }
   }
 
-  def scopeRolesHeader(request: HttpServletRequestWrapper, scopedToken: ValidToken): Unit = {
-    request.removeHeader(ROLES)
-    scopedToken.roles.map(_.name).foreach(request.appendHeader(ROLES, _))
+  def scopeRolesHeader(request: HttpServletRequestWrapper, roles: Set[String]): Unit = {
+    Option(configuration.getTenantHandling.getValidateTenant).filter(_.isEnableLegacyRolesMode) getOrElse {
+      request.removeHeader(ROLES)
+      roles.foreach(request.appendHeader(ROLES, _))
+    }
   }
 
-  def scopeTenantToRolesMapHeader(request: HttpServletRequestWrapper, scopedToken: ValidToken): Unit = {
-    val tenantToRolesJson = Json.stringify(Json.toJson(getTenantToRolesMap(scopedToken)))
-    val encodedTenantToRolesJson = Base64.getEncoder.encodeToString(tenantToRolesJson.getBytes)
-    request.replaceHeader(TENANT_ROLES_MAP, encodedTenantToRolesJson)
+  // TODO: Account for send-all-tenant-ids configuration
+  def scopeTenantToRolesMapHeader(request: HttpServletRequestWrapper, tenantToRolesMap: TenantToRolesMap): Unit = {
+    request.removeHeader(TENANT_ROLES_MAP)
+
+    if (tenantToRolesMap.nonEmpty) {
+      val tenantToRolesJson = Json.stringify(Json.toJson(tenantToRolesMap))
+      val encodedTenantToRolesJson = Base64.getEncoder.encodeToString(tenantToRolesJson.getBytes)
+      request.addHeader(TENANT_ROLES_MAP, encodedTenantToRolesJson)
+    }
   }
 }
 
 object KeystoneV2AuthorizationFilter {
 
-  case class MissingTokenException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
+  case class MissingTenantToRolesMapException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
 
   case class MissingEndpointsException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
 
-  case class InvalidTokenException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
+  case class InvalidTenantToRolesMapException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
 
   case class InvalidEndpointsException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
 

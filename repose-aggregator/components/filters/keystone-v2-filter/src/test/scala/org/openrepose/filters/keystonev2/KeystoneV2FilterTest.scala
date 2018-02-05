@@ -1556,7 +1556,7 @@ with HttpDelegationManager {
       request.setRequestURI("/tenant/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(tenantIds = Seq("tenant")), Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(roles = Seq(Role("role1", Some("tenant"))), tenantIds = Seq("tenant")), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1604,7 +1604,7 @@ with HttpDelegationManager {
       request.setRequestURI("/tenant/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("oof"), tenantIds = Seq("foo:tenant", "rab")), Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("oof"), roles = Seq(Role("role1", Some("foo:tenant")), Role("role2", Some("rab"))), tenantIds = Seq("foo:tenant", "rab")), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1726,7 +1726,7 @@ with HttpDelegationManager {
       request.setRequestURI("/tenant/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("tenant"), tenantIds = Seq("rick", "morty")), Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("tenant"), roles = Seq(Role("role1", Some("rick")), Role("role2", Some("morty"))), tenantIds = Seq("rick", "morty")), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1745,7 +1745,7 @@ with HttpDelegationManager {
       request.setRequestURI("/rick/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("tenant"), tenantIds = Seq("rick", "morty")), Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("tenant"), roles = Seq(Role("role1", Some("rick")), Role("role2", Some("morty"))), tenantIds = Seq("rick", "morty")), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1767,7 +1767,7 @@ with HttpDelegationManager {
       request.setRequestURI("/rick/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(tenantIds = Seq("rick", "morty")), Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(roles = Seq(Role("role1", Some("rick")), Role("role2", Some("morty"))), tenantIds = Seq("rick", "morty")), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1785,7 +1785,7 @@ with HttpDelegationManager {
       request.setRequestURI("/tenant/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("not-tenant"), roles = Seq(Role("racker"))), Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("not-tenant"), roles = Seq(Role("racker")), tenantIds = Seq("racker")), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1806,7 +1806,7 @@ with HttpDelegationManager {
       request.setRequestURI("/morty/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("tenant"), tenantIds = Seq("rick", "morty")), Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("tenant"), roles = Seq(Role("role1", Some("rick")), Role("role2", Some("morty"))), tenantIds = Seq("rick", "morty")), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1831,7 +1831,7 @@ with HttpDelegationManager {
       request.addHeader("Tenant-Out", "rick")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("tenant"), tenantIds = Seq("rick", "morty")), Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("tenant"), roles = Seq(Role("role1", Some("rick")), Role("role2", Some("morty"))), tenantIds = Seq("rick", "morty")), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1855,7 +1855,7 @@ with HttpDelegationManager {
       request.setRequestURI("/years/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("one"), tenantIds = Seq("hundred", "years")), Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("one"), roles = Seq(Role("role1", Some("hundred")), Role("role2", Some("years"))), tenantIds = Seq("hundred", "years")), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1889,7 +1889,7 @@ with HttpDelegationManager {
       request.setRequestURI("/years/test")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(tenantIds = Seq("hundred", "years")), Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(roles = Seq(Role("role1", Some("hundred")), Role("role2", Some("years"))), tenantIds = Seq("hundred", "years")), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1931,7 +1931,7 @@ with HttpDelegationManager {
       request.addHeader(OpenStackServiceHeader.TENANT_ID, "headerTenant")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(tenantIds = Seq("uriTenant", "headerTenant", "nonMatchingTenant")), Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(roles = Seq(Role("role1", Some("uriTenant")), Role("role2", Some("headerTenant")), Role("role3", Some("nonMatchingTenant"))), tenantIds = Seq("uriTenant", "headerTenant", "nonMatchingTenant")), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2003,22 +2003,6 @@ with HttpDelegationManager {
     filter.init(mockFilterConfig)
     filter.configurationUpdated(configuration)
     filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
-
-    it(s"forwards the user token in the $TokenRequestAttributeName request attribute") {
-      val token = createValidToken()
-      val request = new MockHttpServletRequest()
-      request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
-
-      when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(token, Nil: _*)
-      when(mockDatastore.get(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")).thenReturn(Vector("group"), Nil: _*)
-
-      val response = new MockHttpServletResponse
-      val filterChain = new MockFilterChain()
-      filter.doFilter(request, response, filterChain)
-
-      filterChain.getRequest.getAttribute(TokenRequestAttributeName) shouldBe token
-    }
 
     it("forwards the user information in the x-pp-user, x-user-name, and x-user-id headers") {
       val request = new MockHttpServletRequest()

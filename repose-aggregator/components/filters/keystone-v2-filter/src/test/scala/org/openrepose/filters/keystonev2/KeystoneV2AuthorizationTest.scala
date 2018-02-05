@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_UNAUTHORIZED}
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.Reject
-import org.openrepose.filters.keystonev2.KeystoneV2Common.{Endpoint, EndpointsData, Role, ValidToken}
+import org.openrepose.filters.keystonev2.KeystoneV2Common._
 import org.openrepose.filters.keystonev2.config._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterEach, FunSpec, PartialFunctionValues, TryValues}
@@ -33,7 +33,7 @@ import org.springframework.mock.web.MockHttpServletRequest
 import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
-class KeystoneV2AuthorizationTest  extends FunSpec
+class KeystoneV2AuthorizationTest extends FunSpec
   with org.scalatest.Matchers
   with BeforeAndAfterEach
   with PartialFunctionValues
@@ -100,31 +100,46 @@ class KeystoneV2AuthorizationTest  extends FunSpec
     }
   }
 
-  describe("getTenantScopedRoles") {
+  describe("getScopedTenantToRolesMap") {
     val tenantsToValidate = Set("123456", "654321")
-    val listOfRoles = List(Role("foo", None), Role("bar", Option("123456")), Role("baz", Option("789012")), Role("qux", Option("654321")))
+    val tenantToRolesMap = Map("123456" -> Set("bar"), "789012" -> Set("baz"), "654321" -> Set("qux"))
 
-    it("should remove unrelated roles when not in legacy mode") {
+    it("should remove unrelated tenants and roles") {
       val config = new ValidateTenantType
-      config.setEnableLegacyRolesMode(false)
 
-      getTenantScopedRoles(config, tenantsToValidate, listOfRoles) should contain only (Role("foo", None), Role("bar", Option("123456")), Role("qux", Option("654321")))
+      getScopedTenantToRolesMap(config, tenantsToValidate, tenantToRolesMap) should contain only("123456" -> Set("bar"), "654321" -> Set("qux"))
     }
 
-    it("shouldn't remove unrelated roles when in legacy mode") {
-      val config = new ValidateTenantType
-      config.setEnableLegacyRolesMode(true)
+    it("should return an empty collection when the no tenant matches") {
+      val config = new ValidateTenantType()
 
-      getTenantScopedRoles(config, tenantsToValidate, listOfRoles) should contain theSameElementsAs listOfRoles
+      getScopedTenantToRolesMap(config, Set("13579"), tenantToRolesMap) shouldBe empty
     }
 
-    it("shouldn't remove any roles when unconfigured") {
-      getTenantScopedRoles(null, tenantsToValidate, listOfRoles) should contain theSameElementsAs listOfRoles
+    it("should retain tenant-less (domain-level) roles") {
+      val config = new ValidateTenantType
+      val domainTenantToRoles = DomainRoleTenantKey -> Set("97531")
+
+      getScopedTenantToRolesMap(config, tenantsToValidate, tenantToRolesMap + domainTenantToRoles) should contain(DomainRoleTenantKey -> Set("97531"))
+    }
+
+    it("should retain a matching prefixed tenant with associated roles") {
+      val config = new ValidateTenantType().withStripTokenTenantPrefixes("buzz:")
+      val prefixedTenantEntry = "buzz:13579" -> Set("97531")
+
+      getScopedTenantToRolesMap(config, Set("13579"), tenantToRolesMap + prefixedTenantEntry) should contain(prefixedTenantEntry)
+    }
+
+    it("should return an empty collection when the tenant matches but has the wrong prefix") {
+      val config = new ValidateTenantType().withStripTokenTenantPrefixes("fizz:")
+      val prefixedTenantEntry = "buzz:13579" -> Set("97531")
+
+      getScopedTenantToRolesMap(config, Set("13579"), tenantToRolesMap + prefixedTenantEntry) shouldBe empty
     }
   }
 
   describe("isUserPreAuthed") {
-    val listOfRoles = List(Role("foo", None), Role("bar", Option("123456")), Role("baz", Option("789012")))
+    val listOfRoles = List("foo", "bar", "baz")
 
     it("should be true when the role is present in the list") {
       val config = new RolesList().withRole("bar")
@@ -143,94 +158,36 @@ class KeystoneV2AuthorizationTest  extends FunSpec
     }
   }
 
-  describe("shouldAuthorizeTenant") {
-    it("should return false when unconfigured") {
-      shouldAuthorizeTenant(null, false) shouldBe false
-    }
-
-    it("should return false when pre-authorized") {
-      shouldAuthorizeTenant(new ValidateTenantType, true) shouldBe false
-    }
-
-    it("should return true when not pre-authorized") {
-      shouldAuthorizeTenant(new ValidateTenantType, false) shouldBe true
-    }
-  }
-
-  describe("getMatchingTenant") {
-    val token = ValidToken("", "", Seq.empty, None, None, Some("123456"), Seq("456789","foo:789012", "bar:012345"), None, None, Seq.empty, None, None, None)
-    val config = new ValidateTenantType().withStripTokenTenantPrefixes("foo:/baz:")
-
-    it("should return an empty collection when a check shouldn't be done") {
-      getMatchingTenants(config, Set("123456"), false, token) shouldBe empty
-    }
-
-    it("should return the tenant when it's the default") {
-      getMatchingTenants(config, Set("123456"), true, token) should contain only "123456"
-    }
-
-    it("should return the tenant when it's in the list") {
-      getMatchingTenants(config, Set("456789"), true, token) should contain only "456789"
-    }
-
-    it("should return the tenant when it's prefixed and the default") {
-      val validToken = ValidToken("", "", Seq.empty, None, None, Some("baz:098765"), Seq("456789", "foo:789012", "bar:012345"), None, None, Seq.empty, None, None, None)
-      getMatchingTenants(config, Set("098765"), true, validToken) should contain only "baz:098765"
-    }
-
-    it("should return the tenant when it's prefixed and in the list") {
-      getMatchingTenants(config, Set("789012"), true, token) should contain only "foo:789012"
-    }
-
-    it("should return an empty collection when the tenant matches but has the wrong prefix") {
-      getMatchingTenants(config, Set("012345"), true, token) shouldBe empty
-    }
-
-    it("should return an empty collection when the tenant isn't present") {
-      getMatchingTenants(config, Set("654321"), true, token) shouldBe empty
-    }
-
-    it("should return multiple matching tenants") {
-      getMatchingTenants(config, Set("123456", "456789"), true, token) should contain only("123456", "456789")
-    }
-  }
-
   describe("authorizeTenant") {
-    it("should succeed when a tenant check is unneeded") {
-      authorizeTenant(false, Set("thing"), Set("thing")).success
-    }
+    val config = new ValidateTenantType().withStripTokenTenantPrefixes("foo:")
 
     it("should succeed when all tenants had a match") {
-      authorizeTenant(true, Set("thing"), Set("thing")).success
+      authorizeTenant(config, Set("thing"), Set("thing")).success
+    }
+
+    it("should succeed when a prefixed tenant had a match") {
+      authorizeTenant(config, Set("thing"), Set("foo:thing")).success
     }
 
     it("should fail when not all tenants had a match") {
-      authorizeTenant(true, Set("thing", "other-thing"), Set("thing")).failed.get shouldBe a [InvalidTenantException]
+      authorizeTenant(config, Set("thing", "other-thing"), Set("thing")).failed.get shouldBe a [InvalidTenantException]
     }
 
     it("should fail when there wasn't a tenant match") {
-      authorizeTenant(true, Set("thing"), Set.empty).failed.get shouldBe a [InvalidTenantException]
+      authorizeTenant(config, Set("thing"), Set.empty).failed.get shouldBe a [InvalidTenantException]
     }
   }
 
   describe("authorizeEndpoints") {
     val config = new ServiceEndpointType().withName("banana").withRegion("ord").withPublicUrl("http://foo.com")
 
-    it("should succeed if unconfigured") {
-      authorizeEndpoints(null, false, Success(EndpointsData("", Vector.empty))).success
-    }
-
-    it("should succeed if preauthed") {
-      authorizeEndpoints(config, true, Success(EndpointsData("", Vector.empty))).success
-    }
-
     it("should succeed if the endpoint matches") {
-      authorizeEndpoints(config, false, Success(EndpointsData("", Vector(Endpoint(Option("ord"), Option("banana"), Option("foo"), "http://foo.com"))))).success
+      authorizeEndpoints(config, Success(EndpointsData("", Vector(Endpoint(Option("ord"), Option("banana"), Option("foo"), "http://foo.com"))))).success
     }
 
     it("should fail if the endpoint doesn't match"){
       val endpoints = EndpointsData("", Vector(Endpoint(Option("dfw"), Option("banana"), Option("foo"), "http://foo.com")))
-      authorizeEndpoints(config, false, Success(endpoints)).failed.get shouldBe a [UnauthorizedEndpointException]
+      authorizeEndpoints(config, Success(endpoints)).failed.get shouldBe a [UnauthorizedEndpointException]
     }
   }
 }
