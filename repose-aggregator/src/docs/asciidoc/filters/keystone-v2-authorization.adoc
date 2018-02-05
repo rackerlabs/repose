@@ -5,7 +5,7 @@ The Keystone v2 Authorization Filter authorizes requests based on data about the
 == General filter information
 * *Name:* keystone-v2-authorization
 * *Default Configuration:* keystone-v2-authorization.cfg.xml
-* *Released:* TODO
+* *Released:* v8.8.0.0
 * *Bundle:* repose-filter-bundle
 * link:../schemas/keystone-v2-authorization.xsd[Schema]
 
