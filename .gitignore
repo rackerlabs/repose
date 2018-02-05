@@ -28,6 +28,7 @@ classes/
 # Gradle bits from: https://github.com/github/gitignore/blob/master/Gradle.gitignore
 .gradle
 build/
+out/
 .gradletasknamecache
 
 # Ignore Gradle GUI config
