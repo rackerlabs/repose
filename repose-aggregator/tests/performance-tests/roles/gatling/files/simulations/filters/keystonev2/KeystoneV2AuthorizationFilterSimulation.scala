@@ -61,7 +61,7 @@ class KeystoneV2AuthorizationFilterSimulation extends Simulation {
       |  ],
       |  "headerTenant": [
       |    "headerRole1",
-      |    "headerRole2",
+      |    "headerRole2"
       |  ],
       |  "nonMatchingTenant": [
       |    "nonMatchingRole"
