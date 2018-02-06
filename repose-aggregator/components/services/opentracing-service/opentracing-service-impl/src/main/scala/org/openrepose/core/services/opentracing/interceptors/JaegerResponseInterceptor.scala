@@ -17,9 +17,11 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.opentracing.interceptors;
+package org.openrepose.core.services.opentracing.interceptors
 
-import com.uber.jaeger.httpclient.TracingResponseInterceptor;
+import com.uber.jaeger.httpclient.TracingResponseInterceptor
 
-public class JaegerResponseInterceptor extends TracingResponseInterceptor implements ResponseInterceptor {
+class JaegerResponseInterceptor extends TracingResponseInterceptor
+  with ResponseInterceptor {
+
 }
