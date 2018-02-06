@@ -71,7 +71,7 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
   }
 
   def getTenantToRolesMap(request: HttpServletRequest): Try[TenantToRolesMap] = {
-    logger.trace("Getting the tenant to roles mapping from a request header")
+    logger.trace("Getting the tenant-to-roles mapping from a request header")
 
     Try {
       Option(request.getHeader(TENANT_ROLES_MAP))
@@ -80,12 +80,12 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
         .map(Json.parse)
         .get
         .validate[TenantToRolesMap]
-        .getOrElse(throw new JsonProcessingException("Could not validate tenant to roles map JSON") {})
+        .getOrElse(throw new JsonProcessingException("Could not validate tenant-to-roles map JSON") {})
     } recover {
       case nsee: NoSuchElementException =>
         throw MissingTenantToRolesMapException(s"$TENANT_ROLES_MAP header does not exist", nsee)
       case e@(_: IllegalArgumentException | _: JsonProcessingException) =>
-        throw InvalidTenantToRolesMapException(s"$TENANT_ROLES_MAP header value is not a valid tenant to roles map representation", e)
+        throw InvalidTenantToRolesMapException(s"$TENANT_ROLES_MAP header value is not a valid tenant-to-roles map representation", e)
     }
   }
 
@@ -140,7 +140,7 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
   }
 
   def scopeTenantToRolesMapHeader(request: HttpServletRequestWrapper, tenantToRolesMap: TenantToRolesMap): Unit = {
-    logger.trace("Scoping the tenant to roles mapping request header")
+    logger.trace("Scoping the tenant-to-roles mapping request header")
 
     if (!configuration.getTenantHandling.isSendAllTenantIds) {
       request.removeHeader(TENANT_ROLES_MAP)
