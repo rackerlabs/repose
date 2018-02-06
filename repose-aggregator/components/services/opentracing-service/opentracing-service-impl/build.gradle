@@ -2,7 +2,6 @@ dependencies {
     compile project(":repose-aggregator:commons:commons-utilities")
     compile project(":repose-aggregator:core:repose-core-api")
     compile project(":repose-aggregator:components:services:opentracing-service:opentracing-service-api")
-    compile project(":repose-aggregator:components:services:health-check-service:health-check-service-api")
     compile "org.slf4j:slf4j-api"
     compile "org.slf4j:jcl-over-slf4j"
     compile "org.springframework:spring-beans"
@@ -13,6 +12,7 @@ dependencies {
 
     provided "javax.inject:javax.inject"
 
+    testCompile project(":repose-aggregator:components:services:opentracing-service:opentracing-service-api")
     testCompile "junit:junit:4.12"
     testCompile "org.hamcrest:hamcrest-all"
     testCompile "org.mockito:mockito-all"
@@ -21,6 +21,10 @@ dependencies {
     testCompile "xerces:xerces-xsd11"
     testCompile "org.spockframework:spock-core"
     testCompile "org.springframework:spring-test:4.1.4.RELEASE"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "io.opentracing:opentracing-mock:0.31.0"
+    testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
+    testCompile "org.apache.logging.log4j:log4j-core"
+    testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', classifier: 'tests'
 
 }
