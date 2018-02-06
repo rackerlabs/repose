@@ -4,7 +4,7 @@
     config: {
       system_model: {
         filters: [
-          { name: "keystone-v2-authorization" }
+          { name: "keystone-v2-authorization", uri_regex: '.*/uriTenant' }
         ]
       }
     },
