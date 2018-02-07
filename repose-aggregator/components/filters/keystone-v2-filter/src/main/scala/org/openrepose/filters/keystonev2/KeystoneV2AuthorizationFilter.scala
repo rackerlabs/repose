@@ -57,6 +57,7 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
   }
 
   override def doAuth(request: HttpServletRequestWrapper): Try[Unit.type] = {
+    // TODO: Support performing endpoint authorization without requiring the `X-Map-Roles` header
     getTenantToRolesMap(request) flatMap { tenantToRolesMap =>
       doAuthorization(configuration, request, tenantToRolesMap, getEndpoints(request)) match {
         case AuthorizationPassed(scopedTenantToRolesMap, matchedTenants) if scopedTenantToRolesMap.nonEmpty =>

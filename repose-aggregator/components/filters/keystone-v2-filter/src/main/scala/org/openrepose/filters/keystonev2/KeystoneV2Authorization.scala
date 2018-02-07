@@ -38,6 +38,7 @@ object KeystoneV2Authorization extends LazyLogging {
     case Failure(e: UnparsableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
   }
 
+  // TODO: Break this into separate authorizeTenants/authorizeEndpoints calls to separate concerns
   def doAuthorization(config: KeystoneV2Config, request: HttpServletRequestWrapper, tenantToRolesMap: TenantToRolesMap, endpoints: => Try[EndpointsData]): AuthorizationInfo = {
     // NOTE TO REVIEWER: Behavior change -- pre-authorization is determined based on all roles, not just those matching the tenant (since that is part of authorization).
     //                   This change actually makes the behavior consistent with documentation.
