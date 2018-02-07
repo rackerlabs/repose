@@ -12,21 +12,23 @@ The filter looks at all the tenants that Keystone returns for a user to creates 
 
 == Prerequisites & Postconditions
 === Required Request Headers
-* `X-Auth-Token-Key` - The datastore cache key that contains the users token information.
+* `X-Map-Roles` - A mapping between tenants and the roles on them.
+The value of this header is a JSON object that has been base 64 encoded.
 * `X-Relevant-Roles` - The roles this user was granted access based on.
 
 === Required Preceding Filters
 The following filters are used to populate the <<Required Request Headers>>:
 
-* <<keystone-v2.adoc#, Keystone v2 filter>> - Sets the user's tenant info in the datastore as well as sets the `X-Auth-Token-Key` header.
+* <<keystone-v2.adoc#, Keystone v2 filter>> - Populates the `X-Map-Roles` header needed to determine the appropriate tenant ids.
 * <<simple-rbac.adoc#, Simple RBAC filter>> / <<api-validator.adoc#, API Validator filter>> - Either one is required because they set the `X-Relevant-Roles` header.
 
 === Request Headers Created
-* `X-Tenant-Id` - The tenants that match the roles this request was authorized with as well as the default if present.
+* `X-Tenant-Id` - The tenants that match the roles this request was authorized with.
+* `X-Map-Roles` - The mapping will be updated to only contain those tenants that have a role that matched against relevant roles.
 
 [NOTE]
 ====
-This header will be replaced if previously present.
+These headers prior values will be overwritten where existent.
 ====
 
 === Request Body Changes
@@ -46,9 +48,7 @@ Changes to response headers vary based on configuration.
 |===
 |Response Code |Reason
 
-|401
-|
-* `X-Auth-Token-Key` is missing
-* The datastore fails to find an entry matching the presented key, typically because the TTL for the cached info has expired.
+|500
+|`X-Map-Roles` is missing, can't be decoded, or is a malformed JSON object.
 
 |===
