@@ -39,7 +39,8 @@ object KeystoneV2Authorization extends LazyLogging {
   }
 
   def doAuthorization(config: KeystoneV2Config, request: HttpServletRequestWrapper, tenantToRolesMap: TenantToRolesMap, endpoints: => Try[EndpointsData]): AuthorizationInfo = {
-    // NOTE TO REVIEWER: Behavior change -- pre-authorization is determined based on all roles, not just those matching the tenant (since that is part of authorization)
+    // NOTE TO REVIEWER: Behavior change -- pre-authorization is determined based on all roles, not just those matching the tenant (since that is part of authorization).
+    //                   This change actually makes the behavior consistent with documentation.
     if (isUserPreAuthed(config.getPreAuthorizedRoles, tenantToRolesMap.values.flatten.toSeq)) {
       AuthorizationPassed(tenantToRolesMap, Set.empty)
     } else {
