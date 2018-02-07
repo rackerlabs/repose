@@ -75,6 +75,8 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        *
        * 10. For Keystone Authorization, when the default tenant ID matches a request tenant, use the configured request tenant quality rather than using the higher of the request tenant and default tenant qualities.
        *     Before doing so, verify that this behavior is not useful.
+       *
+       * 11. Remove the population of X-Auth-Token-Key from Keystone v2 Filter.
        */
     }
 

@@ -20,23 +20,20 @@
 package org.openrepose.filters.tenantculling
 
 import java.io.IOException
-import javax.inject.{Inject, Named}
+import java.util.Base64
 import javax.servlet._
-import javax.servlet.http.HttpServletResponse.{SC_INTERNAL_SERVER_ERROR, SC_UNAUTHORIZED}
+import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID
+import com.fasterxml.jackson.core.JsonParseException
+import com.typesafe.scalalogging.slf4j.LazyLogging
+import org.openrepose.commons.utils.http.OpenStackServiceHeader.{TENANT_ID, TENANT_ROLES_MAP}
 import org.openrepose.commons.utils.http.PowerApiHeader.RELEVANT_ROLES
-import org.openrepose.commons.utils.io.ObjectSerializer
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
-import org.openrepose.core.services.datastore.DatastoreService
-import org.openrepose.filters.keystonev2.{KeystoneV2Common, KeystoneV2Filter}
-import org.slf4j.{Logger, LoggerFactory}
+import org.openrepose.filters.tenantculling.TenantCullingFilter.{packMap, unpackMap}
+import play.api.libs.json.Json
 
-@Named class TenantCullingFilter @Inject()(datastoreService: DatastoreService) extends Filter {
-  private val log: Logger = LoggerFactory.getLogger(classOf[TenantCullingFilter])
-  private val datastore = datastoreService.getDefaultDatastore
-  private val objectSerializer = new ObjectSerializer(getClass.getClassLoader)
+class TenantCullingFilter extends Filter with LazyLogging {
 
   @Override
   @throws[ServletException]
@@ -48,61 +45,41 @@ import org.slf4j.{Logger, LoggerFactory}
   @throws[IOException]
   @throws[ServletException]
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, chain: FilterChain): Unit = {
-    def logNamedSeq(name: String, seq: Seq[Any]): Unit = {
-      log.trace("{} :", name)
-      seq.foreach(log.trace(" - {}", _))
-    }
-
-    def withDefaultTenant(token: KeystoneV2Common.ValidToken, tenants: Seq[String]): Seq[String] = {
-      logNamedSeq("Tenant ID's", tenants)
-      if (token.defaultTenantId.isDefined) {
-        log.trace("Adding Default:")
-        log.trace(" - {}", token.defaultTenantId.get)
-        tenants :+ token.defaultTenantId.get
-      } else {
-        tenants
-      }
-    }
-
     val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
     val response = servletResponse.asInstanceOf[HttpServletResponse]
-    val cacheKey = request.getHeader(KeystoneV2Filter.AuthTokenKey)
-    val relevantRoles = request.getSplittableHeaderScala(RELEVANT_ROLES)
-    if (cacheKey != null) {
-      try {
-        val token = objectSerializer.readObject(objectSerializer.writeObject(datastore.get(cacheKey))).asInstanceOf[KeystoneV2Common.ValidToken]
-        if (token != null) {
-          logNamedSeq("Token Roles", token.roles)
-          logNamedSeq("Relevant Roles", relevantRoles)
-          val tenants: Seq[String] = token.roles
-            .filter(role => relevantRoles.contains(role.name))
-            .filter(_.tenantId.isDefined)
-            .map(_.tenantId.get)
-          request.removeHeader(TENANT_ID)
-          val withDefault = withDefaultTenant(token, tenants)
-          log.debug("Adding {}:", TENANT_ID)
-          withDefault.foreach { tenant =>
-            log.debug(" - {}", tenant)
-            request.addHeader(TENANT_ID, tenant)
-          }
+    val rolesMap = Option(request.getHeader(TENANT_ROLES_MAP))
+    val relevantRoles = request.getSplittableHeaderScala(RELEVANT_ROLES).map(_.split('/').head)
+    rolesMap match {
+      case Some(tenantToRolesMap) =>
+        try {
+          val culledMap = unpackMap(tenantToRolesMap).filter({ case(tenant, roles) => roles.toList.intersect(relevantRoles).nonEmpty })
+          request.replaceHeader(TENANT_ROLES_MAP, packMap(culledMap))
+          request.replaceHeader(TENANT_ID, culledMap.keySet.filterNot("repose/domain/roles".equals).mkString(","))
           chain.doFilter(request, response)
+        } catch {
+          case e@(_: IllegalArgumentException | _: JsonParseException) =>
+            logger.error("A problem occurred while trying to parse the role map.", e)
+            response.sendError(SC_INTERNAL_SERVER_ERROR)
         }
-        else {
-          log.debug("Cache miss for key: {}", cacheKey)
-          response.sendError(SC_UNAUTHORIZED)
-        }
-      } catch {
-        case cnfe: ClassNotFoundException =>
-          log.error("This shouldn't have been possible, somehow the item that came back from datastore doesn't match a class available in the current classloader", cnfe)
-          response.sendError(SC_INTERNAL_SERVER_ERROR)
-      }
-    }
-    else {
-      log.debug("Cache key header not found")
-      response.sendError(SC_UNAUTHORIZED)
+      case None =>
+        logger.debug("Tenant to roles map header not found")
+        response.sendError(SC_INTERNAL_SERVER_ERROR)
     }
   }
 
   @Override override def destroy(): Unit = {
+  }
+}
+
+object TenantCullingFilter {
+  type TenantToRolesMap = Map[String, Set[String]]
+
+  def packMap(tenantToRolesMap: TenantToRolesMap): String = {
+    val tenantToRolesJson = Json.stringify(Json.toJson(tenantToRolesMap))
+    Base64.getEncoder.encodeToString(tenantToRolesJson.getBytes)
+  }
+
+  def unpackMap(tenantToRolesMap: String): TenantToRolesMap = {
+    Json.parse(new String(Base64.getDecoder.decode(tenantToRolesMap))).validate[TenantToRolesMap].get
   }
 }
