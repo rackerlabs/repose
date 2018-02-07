@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keystone-v2-authorization xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+    <pre-authorized-roles>
+        <role>racker</role>
+    </pre-authorized-roles>
+    <tenant-handling send-all-tenant-ids="false">
+        <validate-tenant>
+            <uri-extraction-regex>.*/extract/([-|\w]+)/?.*</uri-extraction-regex>
+            <header-extraction-name>x-expected-tenant</header-extraction-name>
+        </validate-tenant>
+        <send-tenant-id-quality
+            default-tenant-quality="1.0"
+            uri-tenant-quality="0.8"
+            roles-tenant-quality="0.6"/>
+    </tenant-handling>
+    <require-service-endpoint
+        public-url="https://service.example.com"
+        region="ORD"
+        name="OpenStackCompute"
+        type="compute"/>
+</keystone-v2-authorization>
