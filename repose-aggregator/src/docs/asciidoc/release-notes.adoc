@@ -1,5 +1,8 @@
 = Release Notes
 
+== Future Releases
+* https://repose.atlassian.net/browse/REP-6447[REP-6447] - Added multi-tenant support in the <<filters/keystone-v2.adoc#, Keystone v2>> and <<filters/keystone-v2-authorization.adoc#, Keystone v2 Authorization>> filters.
+
 == 8.8.0.0 (2018-02-05)
 * https://repose.atlassian.net/browse/REP-5616[REP-5616], https://repose.atlassian.net/browse/REP-6436[REP-6436], https://repose.atlassian.net/browse/REP-6274[REP-6274] - Updated dependencies:
 ** Jetty: 9.2.0.v20140526 → 9.4.8.v20171121

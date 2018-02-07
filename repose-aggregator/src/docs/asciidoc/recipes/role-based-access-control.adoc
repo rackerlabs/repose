@@ -26,6 +26,8 @@ To prevent users from submitting their own roles, you will need to blacklist hea
             <header id="X-Tenant-Name"/>
             <header id="X-User-Id"/>
             <header id="X-User-Name"/>
+            <header id="X-Map-Roles"/>
+            <header id="X-Catalog"/>
         </blacklist>
     <target>
 </header-filters>
@@ -39,7 +41,15 @@ The Authentication filter will grab the user's roles from their authentication t
 
 Please refer to the <<../filters/keystone-v2.adoc#,Keystone v2 filter>> documentation for more information about the available configuration options.
 
-== 3. Configure the RBAC filter
+== 3. Configure the Authorization filter
+
+The Authorization filter will validate that the user has access to the tenanted resource being requested.
+If the user is authorized to access a tenanted resource, the user's data in the request (e.g., the `X-Roles`, `X-Tenant-Id`, and `X-Map-Roles` headers) will be culled to those relevant to the requested resource.
+Endpoint validation can also be performed, if desired, but is outside the scope of RBAC.
+
+Please refer to the <<../filters/keystone-v2-authorization.adoc#,Keystone v2 Authorization filter>> documentation for more information about the available configuration options.
+
+== 4. Configure the RBAC filter
 
 There are two mechanisms for doing the Authorization side.
 If your API is minimal or your just getting started with it, then you might find the <<../filters/simple-rbac.adoc#,Simple RBAC filter>> most useful.
