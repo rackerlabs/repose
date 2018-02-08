@@ -146,11 +146,9 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
     if (!configuration.getTenantHandling.isSendAllTenantIds) {
       request.removeHeader(TENANT_ROLES_MAP)
 
-      if (tenantToRolesMap.nonEmpty) {
-        val tenantToRolesJson = Json.stringify(Json.toJson(tenantToRolesMap))
-        val encodedTenantToRolesJson = Base64.getEncoder.encodeToString(tenantToRolesJson.getBytes)
-        request.addHeader(TENANT_ROLES_MAP, encodedTenantToRolesJson)
-      }
+      val tenantToRolesJson = Json.stringify(Json.toJson(tenantToRolesMap))
+      val encodedTenantToRolesJson = Base64.getEncoder.encodeToString(tenantToRolesJson.getBytes)
+      request.addHeader(TENANT_ROLES_MAP, encodedTenantToRolesJson)
     }
   }
 }
