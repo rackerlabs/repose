@@ -19,6 +19,8 @@
  */
 package features.filters.tenantculling
 
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 import org.apache.commons.lang3.RandomStringUtils
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
@@ -34,23 +36,30 @@ import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON
 import static org.openrepose.commons.utils.http.CommonHttpHeader.AUTH_TOKEN
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID
+import static org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ROLES_MAP
 import static org.openrepose.commons.utils.http.PowerApiHeader.RELEVANT_ROLES
 
-class TenantCullingFilterFunctionalTest extends ReposeValveTest {
+class TenantCullingFilterWithAuthenticationFunctionalTest extends ReposeValveTest {
     static final def BODY_CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz '
+
+    static jsonSlurper = new JsonSlurper()
 
     @Shared
     MockIdentityV2Service fakeIdentityService
-    @Shared
-    def roleNameOne = 'role-name-one'
-    @Shared
-    def roleNameTwo = 'role-name-two'
     @Shared
     def tenantIdDef = 'tenant-id-default'
     @Shared
     def tenantIdOne = 'tenant-id-one'
     @Shared
     def tenantIdTwo = 'tenant-id-two'
+    @Shared
+    def roleNameOne = 'role-name-one'
+    @Shared
+    def tenantedRoleNameOne = "role-name-one/$tenantIdOne"
+    @Shared
+    def roleNameTwo = 'role-name-two'
+    @Shared
+    def tenantedRoleNameTwo = "role-name-one/$tenantIdTwo"
     @Shared
     def oneRole = [[name: roleNameOne, tenantId: tenantIdOne]]
     @Shared
@@ -91,6 +100,7 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.receivedResponse.code as Integer == SC_OK
         mc.handlings[0].request.headers.findAll(TENANT_ID).isEmpty()
+        decodeTenantToRolesMap(mc.handlings[0].request.headers.findAll(TENANT_ROLES_MAP).first()).isEmpty()
     }
 
     @Unroll
@@ -106,25 +116,40 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
         when: "the request is made"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
-        then: "the origin service should receive the appropriate tenant(s)"
+        then: "the origin service should respond to the request"
         mc.handlings.size() == 1
         mc.receivedResponse.code as Integer == SC_OK
-        def tenantIds = mc.handlings[0].request.headers.findAll(TENANT_ID)
+
+        and: "the tenant header should contain the appropriate tenant(s)"
+        def tenantIds = mc.handlings[0].request.headers.findAll(TENANT_ID).collect { it.split(",") }.flatten()
         tenantIds.size() == expected.size()
         tenantIds.containsAll(expected)
         tenantIds.disjoint(notExpected)
 
+        when: "the tenant-to-roles map is decoded from the header"
+        Map tenantToRolesMap = decodeTenantToRolesMap(mc.handlings[0].request.headers.findAll(TENANT_ROLES_MAP).first())
+        Map expectedTenantToRolesMap = roles['roles'].groupBy { it.tenantId }.collectEntries {
+            [(it.key): it.value.collect { it.name }]
+        }.findAll { expected.contains(it.key) }
+
+        then: "the tenant-to-roles map header should contain the appropriate entries"
+        tenantToRolesMap == expectedTenantToRolesMap
+
         where:
-        testName                                                       | clientTenantId | roles              | relevant                    | expected                   | notExpected
-        "Sends Tenant that matches a role"                             | null           | [roles: oneRole]   | roleNameOne                 | [tenantIdOne]              | [tenantIdDef]
-        "Sends Default and Tenant that matches a role"                 | tenantIdDef    | [roles: oneRole]   | roleNameOne                 | [tenantIdOne]              | [tenantIdDef]
-        "Sends only Default with role mismatch"                        | tenantIdDef    | [roles: oneRole]   | roleNameTwo                 | []                         | [tenantIdDef, tenantIdOne]
-        "Sends Tenant that matches single role"                        | null           | [roles: twoRoles]  | roleNameOne                 | [tenantIdOne]              | [tenantIdDef, tenantIdTwo]
-        "Sends multiple Tenants that match single role"                | null           | [roles: sameRoles] | roleNameOne                 | [tenantIdOne, tenantIdTwo] | [tenantIdDef]
-        "Sends multiple Tenants that match multiple roles"             | null           | [roles: twoRoles]  | "$roleNameOne,$roleNameTwo" | [tenantIdOne, tenantIdTwo] | [tenantIdDef]
-        "Sends Tenants with and without roles"                         | tenantIdDef    | [roles: twoRoles]  | roleNameOne                 | [tenantIdOne]              | [tenantIdDef, tenantIdTwo]
-        "Sends Default and multiple Tenants that match single role"    | tenantIdDef    | [roles: sameRoles] | roleNameOne                 | [tenantIdOne, tenantIdTwo] | [tenantIdDef]
-        "Sends Default and multiple Tenants that match multiple roles" | tenantIdDef    | [roles: twoRoles]  | "$roleNameOne,$roleNameTwo" | [tenantIdOne, tenantIdTwo] | [tenantIdDef]
+        testName                                                        | clientTenantId | roles              | relevant                                    | expected                   | notExpected
+        "Sends Tenant that matches a role"                              | null           | [roles: oneRole]   | roleNameOne                                 | [tenantIdOne]              | [tenantIdDef]
+        "Sends Tenant that matches a role with default tenant"          | tenantIdDef    | [roles: oneRole]   | roleNameOne                                 | [tenantIdOne]              | [tenantIdDef]
+        "Sends no Tenant with role mismatch"                            | tenantIdDef    | [roles: oneRole]   | roleNameTwo                                 | []                         | [tenantIdDef, tenantIdOne]
+        "Sends Tenant that matches single role"                         | null           | [roles: twoRoles]  | roleNameOne                                 | [tenantIdOne]              | [tenantIdDef, tenantIdTwo]
+        "Sends multiple Tenants that match single role"                 | null           | [roles: sameRoles] | roleNameOne                                 | [tenantIdOne, tenantIdTwo] | [tenantIdDef]
+        "Sends multiple Tenants that match multiple roles"              | null           | [roles: twoRoles]  | "$roleNameOne,$roleNameTwo"                 | [tenantIdOne, tenantIdTwo] | [tenantIdDef]
+        "Sends Tenants with and without roles"                          | tenantIdDef    | [roles: twoRoles]  | roleNameOne                                 | [tenantIdOne]              | [tenantIdDef, tenantIdTwo]
+        "Sends multiple Tenants that match single role"                 | tenantIdDef    | [roles: sameRoles] | roleNameOne                                 | [tenantIdOne, tenantIdTwo] | [tenantIdDef]
+        "Sends multiple Tenants that match multiple roles"              | tenantIdDef    | [roles: twoRoles]  | "$roleNameOne,$roleNameTwo"                 | [tenantIdOne, tenantIdTwo] | [tenantIdDef]
+        "Sends Tenant that matches a tenanted role"                     | null           | [roles: twoRoles]  | tenantedRoleNameOne                         | [tenantIdOne]              | [tenantIdDef, tenantIdTwo]
+        "Sends Tenant that matches a tenanted role with default tenant" | tenantIdDef    | [roles: twoRoles]  | tenantedRoleNameOne                         | [tenantIdOne]              | [tenantIdDef, tenantIdTwo]
+        "Sends multiples Tenants that match a tenanted role"            | null           | [roles: sameRoles] | tenantedRoleNameOne                         | [tenantIdOne, tenantIdTwo] | [tenantIdDef]
+        "Sends multiples Tenants that match multiple tenanted roles"    | null           | [roles: twoRoles]  | "$tenantedRoleNameOne,$tenantedRoleNameTwo" | [tenantIdOne, tenantIdTwo] | [tenantIdDef]
     }
 
     def "Replaces Tenant"() {
@@ -138,13 +163,13 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
         when: "the request is made"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: headers)
 
-        then: "the origin service should receive only the default tenant"
+        then: "the origin service should not receive any tenants"
         mc.handlings.size() == 1
         mc.receivedResponse.code as Integer == SC_OK
         def tenantIds = mc.handlings[0].request.headers.findAll(TENANT_ID)
-        tenantIds.size() == 1
-        tenantIds.contains(fakeIdentityService.client_tenantid)
+        tenantIds.isEmpty()
         !tenantIds.contains(tenantIdOne)
+        decodeTenantToRolesMap(mc.handlings[0].request.headers.findAll(TENANT_ROLES_MAP).first()).isEmpty()
     }
 
     @Unroll
@@ -165,7 +190,8 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.receivedResponse.code as Integer == SC_OK
         def tenantIds = mc.handlings[0].request.headers.findAll(TENANT_ID)
-        tenantIds.size() == 0
+        tenantIds.isEmpty()
+        decodeTenantToRolesMap(mc.handlings[0].request.headers.findAll(TENANT_ROLES_MAP).first()).isEmpty()
 
         where:
         testName                                    | roles
@@ -194,7 +220,13 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
             defaultHandler: { new Response(SC_OK, null, null, responseBody) }
         )
 
-        then: "the origin service should receive the appropriate tenant(s)"
+        and: "the tenant-to-roles map is decoded from the header"
+        Map tenantToRolesMap = decodeTenantToRolesMap(mc.handlings[0].request.headers.findAll(TENANT_ROLES_MAP).first())
+
+        then: "the tenant-to-roles map header should contain the appropriate entries"
+        tenantToRolesMap == [(tenantIdOne): [roleNameOne]]
+
+        and: "the origin service should receive the appropriate tenant(s)"
         mc.handlings.size() == 1
         mc.receivedResponse.code as Integer == SC_OK
         def tenantIds = mc.handlings[0].request.headers.findAll(TENANT_ID)
@@ -218,5 +250,13 @@ class TenantCullingFilterFunctionalTest extends ReposeValveTest {
             def body = fakeIdentityService.createAccessJsonWithValues(params)
             new Response(SC_OK, null, headers, body)
         }
+    }
+
+    Map decodeTenantToRolesMap(String encodedTenantToRolesMap) {
+        jsonSlurper.parse(Base64.decoder.decode(encodedTenantToRolesMap)) as Map
+    }
+
+    String encodeTenantToRolesMap(Map tenantToRolesMap) {
+        Base64.encoder.encodeToString(JsonOutput.toJson(tenantToRolesMap).bytes)
     }
 }
