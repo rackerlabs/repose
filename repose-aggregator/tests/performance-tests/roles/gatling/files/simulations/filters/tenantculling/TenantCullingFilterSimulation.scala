@@ -24,6 +24,7 @@ import com.typesafe.config.ConfigFactory
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
+import java.util.Base64
 
 import scala.concurrent.duration._
 import scala.util.Random
@@ -44,14 +45,14 @@ class TenantCullingFilterSimulation extends Simulation {
   val rampUpDuration = conf.getInt(s"$confRoot.ramp_up_users.duration_in_sec")
   val percentile3ResponseTimeUpperBound = conf.getInt(s"$confRoot.expectations.percentile3_response_time_upper_bound")
   val percentSuccessfulRequest = conf.getInt(s"$confRoot.expectations.percent_successful_requests")
-  val tenantToRolesMap = Map(
+  val tenantToRolesMap = Map[String, Set[String]](
     "defaultTenant" -> Set.empty,
     "resourceTenant" -> Set("object-store:default", "compute:default"),
     "otherTenant" -> Set("other:default"),
     DomainRoleKeyName -> Set("identity:user-admin")
   )
   val tenantToRolesJson =
-    "{" + tenantToRolesMap.map({ case tenant -> roles => s""""$tenant":[${roles.map('"' + _ + '"').mkString(",")}]""" }).mkString(",") + "}"
+    "{" + tenantToRolesMap.map({ case (tenant, roles) => s""""$tenant":[${roles.map('"' + _ + '"').mkString(",")}]""" }).mkString(",") + "}"
   val encodedTenantToRolesJson = base64Encode(tenantToRolesJson)
 
   // this value is provided through a Java property on the command line when Gatling is run
@@ -118,6 +119,6 @@ object TenantCullingFilterSimulation {
   val DomainRoleKeyName = "repose/domain/roles"
 
   def base64Encode(tenantToRolesMap: String): String = {
-    Base64.encoder.encodeToString(tenantToRolesMap.bytes)
+    Base64.getEncoder.encodeToString(tenantToRolesMap.getBytes)
   }
 }
