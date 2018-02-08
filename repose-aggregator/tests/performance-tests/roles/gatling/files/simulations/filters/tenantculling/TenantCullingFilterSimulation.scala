@@ -44,9 +44,15 @@ class TenantCullingFilterSimulation extends Simulation {
   val rampUpDuration = conf.getInt(s"$confRoot.ramp_up_users.duration_in_sec")
   val percentile3ResponseTimeUpperBound = conf.getInt(s"$confRoot.expectations.percentile3_response_time_upper_bound")
   val percentSuccessfulRequest = conf.getInt(s"$confRoot.expectations.percent_successful_requests")
-  val defaultRole = "identity:user-admin"
-  val availableRoles = Seq(defaultRole, "object-store:default", "compute:default")
-  val availableRolesLength = availableRoles.length
+  val tenantToRolesMap = Map(
+    "defaultTenant" -> Set.empty,
+    "resourceTenant" -> Set("object-store:default", "compute:default"),
+    "otherTenant" -> Set("other:default"),
+    DomainRoleKeyName -> Set("identity:user-admin")
+  )
+  val tenantToRolesJson =
+    "{" + tenantToRolesMap.map({ case tenant -> roles => s""""$tenant":[${roles.map('"' + _ + '"').mkString(",")}]""" }).mkString(",") + "}"
+  val encodedTenantToRolesJson = base64Encode(tenantToRolesJson)
 
   // this value is provided through a Java property on the command line when Gatling is run
   val baseUrl = conf.getString("test.base_url")
@@ -54,7 +60,6 @@ class TenantCullingFilterSimulation extends Simulation {
   val httpConf = http.baseURL(s"http://$baseUrl")
 
   val feeder = Iterator.continually(Map(
-    "authToken" -> Random.alphanumeric.take(10).mkString,
     "relevantRoles" -> getRelevantRoles
   ))
 
@@ -93,20 +98,26 @@ class TenantCullingFilterSimulation extends Simulation {
 
   def getRequest: HttpRequestBuilder = {
     http(session => session.scenario)
-      .get("/")
-      .header("x-auth-token", "${authToken}")
+      .get("/test")
       .header("X-Relevant-Roles", "${relevantRoles}")
+      .header("X-Tenant-Id", tenantToRolesMap.keySet.-(DomainRoleKeyName).mkString(","))
+      .header("X-Map-Roles", encodedTenantToRolesJson)
       .header("Mock-Origin-Res-Status", s"$ExpectedResponseStatusCode")
       .check(status.is(ExpectedResponseStatusCode))
   }
 
   def getRelevantRoles: String = {
-    val roles = for (i <- 0 to Random.nextInt(availableRolesLength)) yield (availableRoles(Random.nextInt(availableRolesLength)))
-    roles mkString (", ")
+    val allRoles = tenantToRolesMap.values.flatten
+    Random.shuffle(allRoles).take(Random.nextInt(allRoles.size) + 1).mkString(",")
   }
 }
 
 object TenantCullingFilterSimulation {
   // This is a bogus value that wouldn't occur naturally.
   val ExpectedResponseStatusCode = 210
+  val DomainRoleKeyName = "repose/domain/roles"
+
+  def base64Encode(tenantToRolesMap: String): String = {
+    Base64.encoder.encodeToString(tenantToRolesMap.bytes)
+  }
 }
