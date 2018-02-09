@@ -211,7 +211,7 @@ class CorsFilter @Inject()(configurationService: ConfigurationService)
     val maybeForwardedHostUri = Try(maybeForwardedHost
       .map(forwardedHost => new URIBuilder(s"${request.getScheme}://$forwardedHost"))
       .map(uri => uri.setPort(normalizePort(uri.getPort, uri.getScheme)).setHost(normalizeHost(uri.getHost)).build()))
-    lazy val hostUri = new URIBuilder().setScheme(request.getScheme).setHost(normalizeHost(request.getServerName))
+    lazy val hostUri = new URIBuilder("").setScheme(request.getScheme).setHost(normalizeHost(request.getServerName))
       .setPort(normalizePort(request.getServerPort, request.getScheme)).build()
     maybeForwardedHostUri match {
       case Success(None) =>
