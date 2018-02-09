@@ -45,6 +45,7 @@ import org.openrepose.filters.keystonev2.config._
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 import play.api.libs.json.Json
 
+import scala.Function.tupled
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 import scala.util.{Failure, Random, Success, Try}
@@ -245,8 +246,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     }
 
     def buildTenantHeader(defaultTenant: Option[String],
-                          roleTenants: Seq[String],
-                          matchedTenants: Set[String]): Vector[String] = {
+                          roleTenants: Set[String],
+                          matchedTenants: Set[String]): Set[ValueWithQuality] = {
       val sendAllTenants = configuration.getTenantHandling.isSendAllTenantIds
       val sendTenantIdQuality = Option(configuration.getTenantHandling.getSendTenantIdQuality)
       val sendQuality = sendTenantIdQuality.isDefined
@@ -254,31 +255,29 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       val matchedTenantQuality = sendTenantIdQuality.map(_.getUriTenantQuality).getOrElse(0.0)
       val rolesTenantQuality = sendTenantIdQuality.map(_.getRolesTenantQuality).getOrElse(0.0)
 
-      case class PreferredTenant(id: String, quality: Double)
-
       val preferredTenants =
         if (matchedTenants.nonEmpty) {
-          matchedTenants.map(PreferredTenant(_, matchedTenantQuality))
+          matchedTenants.map(_ -> matchedTenantQuality)
         } else if (defaultTenant.nonEmpty) {
-          defaultTenant.toSet.map((tenant: String) => PreferredTenant(tenant, defaultTenantQuality))
+          defaultTenant.toSet[String].map(_ -> defaultTenantQuality)
         } else if (roleTenants.nonEmpty) {
-          val tenantsFromRoles = roleTenants.toSet.map((tenant: String) => PreferredTenant(tenant, rolesTenantQuality))
+          val tenantsFromRoles = roleTenants.map(_ -> rolesTenantQuality)
           if (sendAllTenants) tenantsFromRoles else tenantsFromRoles.take(1)
         } else {
           Set.empty
         }
 
       if (sendAllTenants && sendQuality) {
-        val matched = matchedTenants.map(matched => s"$matched;q=$matchedTenantQuality")
-        val default = defaultTenant.map(default => s"$default;q=$defaultTenantQuality")
-        val roles = roleTenants.map(role => s"$role;q=$rolesTenantQuality")
-        (matched ++ default ++ roles).toVector
+        val matched = matchedTenants.map(_ -> Some(matchedTenantQuality))
+        val default = defaultTenant.map(_ -> Some(defaultTenantQuality))
+        val roles = roleTenants.map(_ -> Some(rolesTenantQuality))
+        matched ++ default ++ roles
       } else if (sendAllTenants && !sendQuality) {
-        (defaultTenant.toSet ++ roleTenants).toVector
+        (defaultTenant.toSet ++ roleTenants).map(_ -> None)
       } else if (!sendAllTenants && sendQuality) {
-        preferredTenants.map(tenant => s"${tenant.id};q=${tenant.quality}").toVector
+        preferredTenants.map(tupled((tenant, quality) => tenant -> Some(quality)))
       } else {
-        preferredTenants.map(_.id).toVector
+        preferredTenants.map(tupled((tenant, _) => tenant -> None))
       }
     }
 
@@ -301,8 +300,10 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
 
       // Construct and add the tenant id header
-      buildTenantHeader(token.defaultTenantId, token.tenantIds, matchedTenants)
-        .foreach(request.appendHeader(OpenStackServiceHeader.TENANT_ID, _))
+      buildTenantHeader(token.defaultTenantId, token.tenantIds.toSet, matchedTenants) foreach {
+        case (tenant, Some(quality)) => request.appendHeader(OpenStackServiceHeader.TENANT_ID, tenant, quality)
+        case (tenant, None) => request.appendHeader(OpenStackServiceHeader.TENANT_ID, tenant)
+      }
 
       // If configured, add roles header
       if (configuration.getIdentityService.isSetRolesInHeader) {
@@ -587,6 +588,8 @@ object KeystoneV2Filter {
   private final val XAuthProxy = "Proxy"
 
   val AuthTokenKey = "X-Auth-Token-Key"
+
+  type ValueWithQuality = (String, Option[Double])
 
   implicit def toCachingTry[T](tryToWrap: Try[T]): CachingTry[T] = new CachingTry(tryToWrap)
 
