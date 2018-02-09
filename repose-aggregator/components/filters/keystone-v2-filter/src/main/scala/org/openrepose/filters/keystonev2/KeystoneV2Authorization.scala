@@ -72,21 +72,22 @@ object KeystoneV2Authorization extends LazyLogging {
   // NOTE: Throwing an exception currently works because this method is always called in a [[Try]] stack.
   @throws[UnparsableTenantException]
   def getRequestTenants(config: ValidateTenantType, request: HttpServletRequestWrapper): Set[String] = {
-    Option(config).map(validateTenantConfig =>
-      validateTenantConfig.getUriExtractionRegexAndHeaderExtractionName.asScala.toSet.flatMap((extraction: ExtractionType) => extraction match {
-        case headerExtraction: HeaderExtractionType =>
-          request.getSplittableHeaderScala(headerExtraction.getValue)
-        case uriExtraction: UriExtractionType =>
-          val uriRegex = uriExtraction.getValue.r
-          request.getRequestURI match {
-            case uriRegex(tenantId, _*) => Some(tenantId)
-            case _ => None
-          }
-        case _ =>
-          logger.error("An unexpected tenant extraction type was encountered")
-          None
-      })
-    ).filter(_.nonEmpty).getOrElse(throw UnparsableTenantException("Could not parse tenant from the URI and/or the configured header"))
+    config.getUriExtractionRegexAndHeaderExtractionName.asScala.toSet[ExtractionType] flatMap {
+      case headerExtraction: HeaderExtractionType =>
+        request.getSplittableHeaderScala(headerExtraction.getValue)
+      case uriExtraction: UriExtractionType =>
+        val uriRegex = uriExtraction.getValue.r
+        request.getRequestURI match {
+          case uriRegex(tenantId, _*) => Some(tenantId)
+          case _ => None
+        }
+      case _ =>
+        logger.error("An unexpected tenant extraction type was encountered")
+        None
+    } match {
+      case extractedTenants if extractedTenants.nonEmpty => extractedTenants
+      case _ => throw UnparsableTenantException("Could not parse tenant from the URI and/or the configured header")
+    }
   }
 
   // NOTE: Replaces the tenant and roles scoping methods. For the roles scoping, also accounts for tenant prefixes, which was not previously the case.
