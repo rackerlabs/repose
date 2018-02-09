@@ -39,22 +39,26 @@ object KeystoneV2Authorization extends LazyLogging {
   }
 
   // TODO: Break this into separate authorizeTenants/authorizeEndpoints calls to separate concerns
-  def doAuthorization(config: KeystoneV2Config, request: HttpServletRequestWrapper, tenantToRolesMap: TenantToRolesMap, endpoints: => Try[EndpointsData]): AuthorizationInfo = {
+  def doAuthorization(config: KeystoneV2Config, request: HttpServletRequestWrapper, userTenantToRolesMap: TenantToRolesMap, endpoints: => Try[EndpointsData]): AuthorizationInfo = {
     // NOTE TO REVIEWER: Behavior change -- pre-authorization is determined based on all roles, not just those matching the tenant (since that is part of authorization).
     //                   This change actually makes the behavior consistent with documentation.
-    if (isUserPreAuthed(config.getPreAuthorizedRoles, tenantToRolesMap.values.flatten.toSeq)) {
-      AuthorizationPassed(tenantToRolesMap, Set.empty)
+    if (isUserPreAuthed(config.getPreAuthorizedRoles, userTenantToRolesMap.values.flatten.toSeq)) {
+      AuthorizationPassed(userTenantToRolesMap, Set.empty)
     } else {
       val validateTenant = Option(config.getTenantHandling.getValidateTenant)
-      val tenantsToMatch = validateTenant
+      val requestTenants = validateTenant
         .map(getRequestTenants(_, request))
         .getOrElse(Set.empty)
+      val tenantPrefixes = validateTenant
+        .map(_.getStripTokenTenantPrefixes)
+        .flatMap(Option.apply)
+        .map(_.split('/'))
+        .getOrElse(Array.empty)
       val scopedTenantToRolesMap = validateTenant
-        .map(getScopedTenantToRolesMap(_, tenantsToMatch, tenantToRolesMap))
-      // val scopedRoles = scopedTenantToRolesMap.getOrElse(tenantToRolesMap).values.flatten.toSet
+        .map(_ => getScopedTenantToRolesMap(tenantPrefixes, userTenantToRolesMap, requestTenants))
       val matchedTenants = (scopedTenantToRolesMap.getOrElse(Map.empty) - DomainRoleTenantKey).keySet
       val tenantAuthorization = validateTenant
-        .map(authorizeTenant(_, tenantsToMatch, matchedTenants))
+        .map(_ => authorizeTenant(tenantPrefixes, matchedTenants, requestTenants))
         .getOrElse(Success(Unit))
 
       val endpointAuthorization = Option(config.getRequireServiceEndpoint)
@@ -62,8 +66,8 @@ object KeystoneV2Authorization extends LazyLogging {
         .getOrElse(Success(Unit))
 
       tenantAuthorization.flatMap(_ => endpointAuthorization) match {
-        case Success(_) => AuthorizationPassed(scopedTenantToRolesMap.getOrElse(tenantToRolesMap), matchedTenants)
-        case Failure(e) => AuthorizationFailed(scopedTenantToRolesMap.getOrElse(tenantToRolesMap), matchedTenants, e)
+        case Success(_) => AuthorizationPassed(scopedTenantToRolesMap.getOrElse(userTenantToRolesMap), matchedTenants)
+        case Failure(e) => AuthorizationFailed(scopedTenantToRolesMap.getOrElse(userTenantToRolesMap), matchedTenants, e)
       }
     }
   }
@@ -91,12 +95,11 @@ object KeystoneV2Authorization extends LazyLogging {
   }
 
   // NOTE: Replaces the tenant and roles scoping methods. For the roles scoping, also accounts for tenant prefixes, which was not previously the case.
-  def getScopedTenantToRolesMap(config: ValidateTenantType, tenantsToMatch: Set[String], tenantToRolesMap: TenantToRolesMap): TenantToRolesMap = {
-    val prefixes = Option(config.getStripTokenTenantPrefixes).map(_.split('/')).getOrElse(Array.empty[String])
-    tenantToRolesMap filterKeys { tenant =>
-      tenant == DomainRoleTenantKey || tenantsToMatch.exists(tenantToMatch =>
-        tenant == tenantToMatch || prefixes.exists(prefix =>
-          tenant.startsWith(prefix) && tenant.substring(prefix.length) == tenantToMatch))
+  def getScopedTenantToRolesMap(prefixes: Array[String], userTenantToRolesMap: TenantToRolesMap, requestTenants: Set[String]): TenantToRolesMap = {
+    userTenantToRolesMap filterKeys { userTenant =>
+      userTenant == DomainRoleTenantKey || requestTenants.exists { requestTenant =>
+        prefixableTenantEquals(prefixes, userTenant, requestTenant)
+      }
     }
   }
 
@@ -106,14 +109,12 @@ object KeystoneV2Authorization extends LazyLogging {
     }
   }
 
-  def authorizeTenant(config: ValidateTenantType, tenantsToMatch: Set[String], userTenants: Set[String]): Try[Unit.type] = {
+  def authorizeTenant(prefixes: Array[String], userTenants: Set[String], requestTenants: Set[String]): Try[Unit.type] = {
     logger.trace("Validating tenant")
 
-    val prefixes = Option(config.getStripTokenTenantPrefixes).map(_.split('/')).getOrElse(Array.empty[String])
-    val allTenantsMatch = tenantsToMatch forall { tenantToMatch =>
-      userTenants exists { tenant =>
-        tenant == tenantToMatch || prefixes.exists(prefix =>
-          tenant.startsWith(prefix) && tenant.substring(prefix.length) == tenantToMatch)
+    val allTenantsMatch = requestTenants forall { requestTenant =>
+      userTenants exists { userTenant =>
+        prefixableTenantEquals(prefixes, userTenant, requestTenant)
       }
     }
 
@@ -136,6 +137,11 @@ object KeystoneV2Authorization extends LazyLogging {
       if (endpoints.vector.exists(_.meetsRequirement(requiredEndpointModel))) Success(Unit)
       else Failure(UnauthorizedEndpointException("User did not have the required endpoint"))
     }
+  }
+
+  private def prefixableTenantEquals(prefixes: Array[String], prefixableTenant: String, otherTenant: String): Boolean = {
+    prefixableTenant == otherTenant || prefixes.exists(prefix =>
+      prefixableTenant.startsWith(prefix) && prefixableTenant.substring(prefix.length) == otherTenant)
   }
 
   sealed trait AuthorizationInfo {

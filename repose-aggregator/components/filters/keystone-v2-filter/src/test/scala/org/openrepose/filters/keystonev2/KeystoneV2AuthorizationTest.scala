@@ -105,36 +105,29 @@ class KeystoneV2AuthorizationTest extends FunSpec
     val tenantToRolesMap = Map("123456" -> Set("bar"), "789012" -> Set("baz"), "654321" -> Set("qux"))
 
     it("should remove unrelated tenants and roles") {
-      val config = new ValidateTenantType
-
-      getScopedTenantToRolesMap(config, tenantsToValidate, tenantToRolesMap) should contain only("123456" -> Set("bar"), "654321" -> Set("qux"))
+      getScopedTenantToRolesMap(Array.empty, tenantToRolesMap, tenantsToValidate) should contain only("123456" -> Set("bar"), "654321" -> Set("qux"))
     }
 
     it("should return an empty collection when the no tenant matches") {
-      val config = new ValidateTenantType()
-
-      getScopedTenantToRolesMap(config, Set("13579"), tenantToRolesMap) shouldBe empty
+      getScopedTenantToRolesMap(Array.empty, tenantToRolesMap, Set("13579")) shouldBe empty
     }
 
     it("should retain tenant-less (domain-level) roles") {
-      val config = new ValidateTenantType
       val domainTenantToRoles = DomainRoleTenantKey -> Set("97531")
 
-      getScopedTenantToRolesMap(config, tenantsToValidate, tenantToRolesMap + domainTenantToRoles) should contain(DomainRoleTenantKey -> Set("97531"))
+      getScopedTenantToRolesMap(Array.empty, tenantToRolesMap + domainTenantToRoles, tenantsToValidate) should contain(DomainRoleTenantKey -> Set("97531"))
     }
 
     it("should retain a matching prefixed tenant with associated roles") {
-      val config = new ValidateTenantType().withStripTokenTenantPrefixes("buzz:")
       val prefixedTenantEntry = "buzz:13579" -> Set("97531")
 
-      getScopedTenantToRolesMap(config, Set("13579"), tenantToRolesMap + prefixedTenantEntry) should contain(prefixedTenantEntry)
+      getScopedTenantToRolesMap(Array("buzz:"), tenantToRolesMap + prefixedTenantEntry, Set("13579")) should contain(prefixedTenantEntry)
     }
 
     it("should return an empty collection when the tenant matches but has the wrong prefix") {
-      val config = new ValidateTenantType().withStripTokenTenantPrefixes("fizz:")
       val prefixedTenantEntry = "buzz:13579" -> Set("97531")
 
-      getScopedTenantToRolesMap(config, Set("13579"), tenantToRolesMap + prefixedTenantEntry) shouldBe empty
+      getScopedTenantToRolesMap(Array("fizz:"), tenantToRolesMap + prefixedTenantEntry, Set("13579")) shouldBe empty
     }
   }
 
@@ -159,22 +152,20 @@ class KeystoneV2AuthorizationTest extends FunSpec
   }
 
   describe("authorizeTenant") {
-    val config = new ValidateTenantType().withStripTokenTenantPrefixes("foo:")
-
     it("should succeed when all tenants had a match") {
-      authorizeTenant(config, Set("thing"), Set("thing")).success
+      authorizeTenant(Array("foo:"), Set("thing"), Set("thing")).success
     }
 
     it("should succeed when a prefixed tenant had a match") {
-      authorizeTenant(config, Set("thing"), Set("foo:thing")).success
+      authorizeTenant(Array("foo:"), Set("foo:thing"), Set("thing")).success
     }
 
     it("should fail when not all tenants had a match") {
-      authorizeTenant(config, Set("thing", "other-thing"), Set("thing")).failed.get shouldBe a [InvalidTenantException]
+      authorizeTenant(Array("foo:"), Set("thing"), Set("thing", "other-thing")).failed.get shouldBe a [InvalidTenantException]
     }
 
     it("should fail when there wasn't a tenant match") {
-      authorizeTenant(config, Set("thing"), Set.empty).failed.get shouldBe a [InvalidTenantException]
+      authorizeTenant(Array("foo:"), Set.empty, Set("thing")).failed.get shouldBe a [InvalidTenantException]
     }
   }
 
