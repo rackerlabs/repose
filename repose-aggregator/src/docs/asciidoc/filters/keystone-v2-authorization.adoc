@@ -119,7 +119,7 @@ All tenants extracted from the request _must_ have at least one matching tenant 
     Default: `false`
 <6> Declares that a tenant ID should be extracted from the request URI.
     A https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] with at least one capture group.
-    The first capture group must be around the portion of the URI to extract the Tenant ID from for validation.
+    The text from each capture group will be treated as a Tenant ID for validation.
 <7> Declares that a tenant ID should be extracted from the `x-expected-tenant` header in the request.
 <8> If this element is included, then include Quality parameters on all the tenant ID headers sent.
 <9> The default tenant has the highest quality by default.
@@ -130,6 +130,14 @@ All tenants extracted from the request _must_ have at least one matching tenant 
 <11> Followed by the tenants from the roles by default.
      Since this filter does not set the roles tenants, this value is not currently used by the this filter. +
      Default: `0.5`
+
+ [NOTE]
+ ====
+ There can be multiple `uri-extraction-regex` elements.
+ This fascilitates complex Origin Service API's where the extraction point is not always in the same place.
+ A `uri-extraction-regex` may also have multiple capture groups.
+ All captured values will be validated.
+ ====
 
 === Endpoint Validation
 This configuration will validate that the user data contains a configured endpoint.
