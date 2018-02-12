@@ -144,7 +144,7 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(
-            url: """$reposeEndpoint/extract/${Math.abs(random.nextInt())}/ss""",
+            url: """$reposeEndpoint/extract/${++tenantIdGenerator}/ss""",
             method: "GET",
             headers: [
                 "X-Catalog"  : xCatalog,
@@ -207,7 +207,7 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
                 "X-Map-Roles"      : base64EncodeUtf8("""{"tenant1":["role1","role2","role3"],"$tenantId":["role3"],"repose/domain/roles":["role4"]}"""),
                 "X-Tenant-Id"      : """$tenantId;q=1,tenant1;q=0.5""",
                 "X-Roles"          : "role1,role2,role3,role4",
-                "X-Expected-Tenant": Math.abs(random.nextInt())])
+                "X-Expected-Tenant": ++tenantIdGenerator])
 
         then: "User should receive a 401 response"
         mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
