@@ -1,8 +1,17 @@
 = Release Notes
 
-== Future Releases
+== In Progress Work
 * https://repose.atlassian.net/browse/REP-6447[REP-6447] - Added multi-tenant support in the <<filters/keystone-v2.adoc#, Keystone v2>> and <<filters/keystone-v2-authorization.adoc#, Keystone v2 Authorization>> filters.
 * https://repose.atlassian.net/browse/REP-6578[REP-6578] - Updated <<filters/tenant-culling#, Tenant Culling>> filter to utilize the tenant to roles map now being populated by the <<filters/keystone-v2.adoc#, Keystone v2>> filter.
+=======
+* https://repose.atlassian.net/browse/REP-6470[REP-6470] - Updated dependencies:
+** API Checker: 2.5.1 → 2.6.0
+*** https://github.com/rackerlabs/api-checker/blob/api-checker-2.6.0/RELEASE.md[API Checker v2.6.0 release notes]
++
+[NOTE]
+====
+Multi-Tenant support is currently not supported when the mask rax roles feature is enabled.
+====
 
 == 8.8.0.0 (2018-02-05)
 * https://repose.atlassian.net/browse/REP-5616[REP-5616], https://repose.atlassian.net/browse/REP-6436[REP-6436], https://repose.atlassian.net/browse/REP-6274[REP-6274] - Updated dependencies:
