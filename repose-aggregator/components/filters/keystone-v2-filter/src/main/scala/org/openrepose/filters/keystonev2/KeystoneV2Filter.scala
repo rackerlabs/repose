@@ -257,7 +257,12 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
 
       val preferredTenants =
         if (matchedTenants.nonEmpty) {
-          matchedTenants.map(_ -> matchedTenantQuality)
+          matchedTenants map {
+            case matchedTenant if defaultTenant.exists(matchedTenant.equals) =>
+              matchedTenant -> Math.max(matchedTenantQuality, defaultTenantQuality)
+            case matchedTenant =>
+              matchedTenant -> matchedTenantQuality
+          }
         } else if (defaultTenant.nonEmpty) {
           defaultTenant.toSet[String].map(_ -> defaultTenantQuality)
         } else if (roleTenants.nonEmpty) {
