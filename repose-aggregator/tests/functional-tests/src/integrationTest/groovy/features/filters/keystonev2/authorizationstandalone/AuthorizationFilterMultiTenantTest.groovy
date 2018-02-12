@@ -39,6 +39,20 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
     def static xCatalog = AuthorizationFilterMultiTenantTest.base64Encode(
         """{ "endpoints": [ { "publicURL":"https://service.example.com", "region":"ORD", "name":"OpenStackCompute", "type":"compute" } ] }""")
 
+    def static tenantIdGenerator = new Iterator<Integer>() {
+        def seed = Math.abs(random.nextInt())
+
+        @Override
+        boolean hasNext() {
+            true
+        }
+
+        @Override
+        Integer next() {
+            this.seed++
+        }
+    }
+
     def setupSpec() {
         deproxy = new Deproxy()
 
@@ -56,7 +70,7 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
 
     def "User with Pre-Authorized Role should receive a 200 OK response"() {
         given: "a configured tenant"
-        def tenantId = Math.abs(random.nextInt())
+        def tenantId = ++tenantIdGenerator
         def mapRoles = """{"tenant1":["role1","role2","role3"],"$tenantId":["role3"],"repose/domain/roles":["role4"],"tenantPreAuth":["racker"]}"""
 
         when: "User sends a request through repose"
@@ -89,7 +103,7 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
 
     def "User with Multiple Tenants and URI extraction should receive a 200 OK response"() {
         given: "a configured tenant"
-        def tenantId = Math.abs(random.nextInt())
+        def tenantId = ++tenantIdGenerator
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(
@@ -126,7 +140,7 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
 
     def "User with Multiple Tenants and invalid URI extraction should receive a 401 UNAUTHORIZED response"() {
         given: "a configured tenant"
-        def tenantId = Math.abs(random.nextInt())
+        def tenantId = ++tenantIdGenerator
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(
@@ -151,7 +165,7 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
 
     def "User with Multiple Tenants and header extraction should receive a 200 OK response"() {
         given: "a configured tenant"
-        def tenantId = Math.abs(random.nextInt())
+        def tenantId = ++tenantIdGenerator
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(
@@ -182,7 +196,7 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
 
     def "User with Multiple Tenants and invalid header extraction should receive a 401 UNAUTHORIZED response"() {
         given: "a configured tenant"
-        def tenantId = Math.abs(random.nextInt())
+        def tenantId = ++tenantIdGenerator
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(
@@ -208,7 +222,7 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
 
     def "User with Multiple Tenants and no header or URI extraction should receive a 401 UNAUTHORIZED response"() {
         given: "a configured tenant"
-        def tenantId = Math.abs(random.nextInt())
+        def tenantId = ++tenantIdGenerator
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(
@@ -233,7 +247,7 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
 
     def "User without the required catalog endpoint should receive a 403 FORBIDDEN response"() {
         given: "a configured tenant"
-        def tenantId = Math.abs(random.nextInt())
+        def tenantId = ++tenantIdGenerator
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(
@@ -259,7 +273,7 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
 
     def "Request without X-Catalog header should receive a 500 INTERNAL SERVER ERROR response"() {
         given: "a configured tenant"
-        def tenantId = Math.abs(random.nextInt())
+        def tenantId = ++tenantIdGenerator
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(
@@ -284,7 +298,7 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
 
     def "Request with an invalid X-Catalog header should receive a 500 INTERNAL SERVER ERROR response"() {
         given: "a configured tenant"
-        def tenantId = Math.abs(random.nextInt())
+        def tenantId = ++tenantIdGenerator
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(
@@ -310,7 +324,7 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
 
     def "Request without X-Map-Roles header should receive a 500 INTERNAL SERVER ERROR response"() {
         given: "a configured tenant"
-        def tenantId = Math.abs(random.nextInt())
+        def tenantId = ++tenantIdGenerator
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(
@@ -335,7 +349,7 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
 
     def "Request with an invalid X-Map-Roles header should receive a 500 INTERNAL SERVER ERROR response"() {
         given: "a configured tenant"
-        def tenantId = Math.abs(random.nextInt())
+        def tenantId = ++tenantIdGenerator
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(
