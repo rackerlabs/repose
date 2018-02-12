@@ -78,9 +78,6 @@ class TenantCullingRBACRecipeTest extends ReposeValveTest {
         messageChain.handlings.size() == 1
         messageChain.receivedResponse.code as Integer == 200
 
-        and: "all of the user roles will be present in the X-Roles header"
-        messageChain.handlings[0].request.headers.findAll('X-Roles') == [['an:admin', 'a:chump'].join(',')]
-
         and: "only the role that granted access to the resource will be present in the X-Relevant-Roles header"
         messageChain.handlings[0].request.headers.findAll('X-Relevant-Roles') == ['an:admin']
 
@@ -89,6 +86,13 @@ class TenantCullingRBACRecipeTest extends ReposeValveTest {
 
         and: "only the default tenant name will be present in the X-Tenant-Name header"
         messageChain.handlings[0].request.headers.findAll('X-Tenant-Name') == [fakeIdentityService.client_tenantid]
+
+        when: "the x-roles header is parsed at the origin service"
+        def roles = messageChain.handlings[0].request.headers.findAll('X-Roles').collect { it.split(',') }.flatten()
+
+        then: "all of the user roles will be present in the X-Roles header"
+        roles.size() == 2
+        roles.containsAll(['an:admin', 'a:chump'])
     }
 
     @Unroll
@@ -151,10 +155,6 @@ class TenantCullingRBACRecipeTest extends ReposeValveTest {
         messageChain.receivedResponse.code as Integer == SC_OK
 
         and: "all of the user roles will be present in the X-Roles header"
-        messageChain.handlings[0].request.headers.findAll('X-Roles') == [userRoles.collect { it.name }.join(',')]
-
-        and: "only the role that granted access to the resource will be present in the X-Relevant-Roles header"
-        messageChain.handlings[0].request.headers.findAll('X-Relevant-Roles') == relevantRoles.collect { it.name }
 
         and: "only the default tenant ID and any tenant ID associated with a relevant role will be present in the X-Tenant-Id header"
         messageChain.handlings[0].request.headers.findAll('X-Tenant-Id') == relevantRoles.collect {
@@ -163,6 +163,20 @@ class TenantCullingRBACRecipeTest extends ReposeValveTest {
 
         and: "only the default tenant name will be present in the X-Tenant-Name header"
         messageChain.handlings[0].request.headers.findAll('X-Tenant-Name') == [defaultTenantId] - null
+
+        when: "the x-relevant-roles header is parsed at the origin service"
+        def relRoles = messageChain.handlings[0].request.headers.findAll('X-Relevant-Roles').collect { it.split(',') }.flatten()
+
+        then: "all of the user roles will be present in the X-Roles header"
+        relRoles.size() == relevantRoles.size()
+        relRoles.containsAll(relevantRoles.collect { it.name })
+
+        when: "the x-roles header is parsed at the origin service"
+        def roles = messageChain.handlings[0].request.headers.findAll('X-Roles').collect { it.split(',') }.flatten()
+
+        then: "all of the user roles will be present in the X-Roles header"
+        roles.size() == userRoles.size()
+        roles.containsAll(userRoles.collect { it.name })
 
         where:
         userRoles                                                                                                                 | defaultTenantId | relevantRoles
