@@ -28,6 +28,7 @@ import org.rackspace.deproxy.MessageChain
 import scaffold.category.Slow
 
 import static javax.servlet.http.HttpServletResponse.SC_OK
+import static org.openrepose.commons.utils.string.Base64Helper.base64DecodeUtf8
 
 @Category(Slow.class)
 class AuthorizationHeadersTest extends ReposeValveTest {
@@ -79,7 +80,7 @@ class AuthorizationHeadersTest extends ReposeValveTest {
         and: "It should have an encoded X-Map-Roles header"
         def mapRolesRequestHeaders = mc.handlings[0].request.getHeaders().findAll("X-Map-Roles")
         mapRolesRequestHeaders.size() == 1
-        def mapRolesDecode = AuthorizationFilterMultiTenantTest.base64Decode(mapRolesRequestHeaders[0]).split("[\\[\\]{}:,\"]") as Set
+        def mapRolesDecode = base64DecodeUtf8(mapRolesRequestHeaders[0]).split("[\\[\\]{}:,\"]") as Set
         if (mapRolesDecode.contains("")) {
             mapRolesDecode.remove("")
         }
@@ -90,7 +91,7 @@ class AuthorizationHeadersTest extends ReposeValveTest {
         and: "It should have an encoded X-Catalog header"
         def catalogRequestHeaders = mc.handlings[0].request.getHeaders().findAll("X-Catalog")
         catalogRequestHeaders.size() == 1
-        def catalogDecode = AuthorizationFilterMultiTenantTest.base64Decode(catalogRequestHeaders[0])
+        def catalogDecode = base64DecodeUtf8(catalogRequestHeaders[0])
         catalogDecode.contains("/tokens/${fakeIdentityV2Service.client_token}/endpoints?'marker=5&limit=10'")
         catalogDecode.contains(""""internalURL": "http://localhost:${fakeIdentityV2Service.originServicePort}/",""")
         catalogDecode.contains(""""name": "swift",""")

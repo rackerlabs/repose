@@ -25,18 +25,18 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import scaffold.category.Slow
 
-import java.nio.charset.StandardCharsets
-
 import static javax.servlet.http.HttpServletResponse.SC_OK
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+import static org.openrepose.commons.utils.string.Base64Helper.base64EncodeUtf8
+import static org.openrepose.commons.utils.string.Base64Helper.base64DecodeUtf8
 
 @Category(Slow.class)
 class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
     def static originEndpoint
     def static random = new Random()
-    def static xCatalog = AuthorizationFilterMultiTenantTest.base64Encode(
+    def static xCatalog = base64EncodeUtf8(
         """{ "endpoints": [ { "publicURL":"https://service.example.com", "region":"ORD", "name":"OpenStackCompute", "type":"compute" } ] }""")
 
     def static tenantIdGenerator = new Iterator<Integer>() {
@@ -78,10 +78,10 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
             url: """$reposeEndpoint/ss""",
             method: "GET",
             headers: [
-                "X-Catalog": xCatalog,
-                "X-Map-Roles": base64Encode(mapRoles),
+                "X-Catalog"  : xCatalog,
+                "X-Map-Roles": base64EncodeUtf8(mapRoles),
                 "X-Tenant-Id": """$tenantId;q=1,tenant1;q=0.5""",
-                "X-Roles": "role1,role2,role3,role4,racker"])
+                "X-Roles"    : "role1,role2,role3,role4,racker"])
 
         then: "User should receive a 200 response"
         mc.receivedResponse.code as Integer == SC_OK
@@ -98,7 +98,7 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
         rolesRequestHeaders as Set == ["role1", "role2", "role3", "role4", "racker"] as Set
         def mapRolesRequestHeaders = mc.handlings[0].request.getHeaders().findAll("X-Map-Roles")
         mapRolesRequestHeaders.size() == 1
-        base64Decode(mapRolesRequestHeaders[0]) == mapRoles
+        base64DecodeUtf8(mapRolesRequestHeaders[0]) == mapRoles
     }
 
     def "User with Multiple Tenants and URI extraction should receive a 200 OK response"() {
@@ -110,10 +110,10 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
             url: """$reposeEndpoint/extract/$tenantId/ss""",
             method: "GET",
             headers: [
-                "X-Catalog": xCatalog,
-                "X-Map-Roles": base64Encode("""{"tenant1":["role1","role2","role3"],"$tenantId":["role3"],"repose/domain/roles":["role4"]}"""),
+                "X-Catalog"  : xCatalog,
+                "X-Map-Roles": base64EncodeUtf8("""{"tenant1":["role1","role2","role3"],"$tenantId":["role3"],"repose/domain/roles":["role4"]}"""),
                 "X-Tenant-Id": "tenant1;q=0.5",
-                "X-Roles": "role1,role2,role3,role4"])
+                "X-Roles"    : "role1,role2,role3,role4"])
 
         then: "User should receive a 200 response"
         mc.receivedResponse.code as Integer == SC_OK
@@ -131,7 +131,7 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
         rolesRequestHeaders as Set == ["role3", "role4"] as Set
         def mapRolesRequestHeaders = mc.handlings[0].request.getHeaders().findAll("X-Map-Roles")
         mapRolesRequestHeaders.size() == 1
-        def mapRolesDecode = base64Decode(mapRolesRequestHeaders[0]).split("[\\[\\]{}:,\"]") as Set
+        def mapRolesDecode = base64DecodeUtf8(mapRolesRequestHeaders[0]).split("[\\[\\]{}:,\"]") as Set
         if (mapRolesDecode.contains("")) {
             mapRolesDecode.remove("")
         }
@@ -147,10 +147,10 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
             url: """$reposeEndpoint/extract/${Math.abs(random.nextInt())}/ss""",
             method: "GET",
             headers: [
-                "X-Catalog": xCatalog,
-                "X-Map-Roles": base64Encode("""{"tenant1":["role1","role2","role3"],"$tenantId":["role3"],"repose/domain/roles":["role4"]}"""),
+                "X-Catalog"  : xCatalog,
+                "X-Map-Roles": base64EncodeUtf8("""{"tenant1":["role1","role2","role3"],"$tenantId":["role3"],"repose/domain/roles":["role4"]}"""),
                 "X-Tenant-Id": """$tenantId;q=1,tenant1;q=0.5""",
-                "X-Roles": "role1,role2,role3,role4"])
+                "X-Roles"    : "role1,role2,role3,role4"])
 
         then: "User should receive a 401 response"
         mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
@@ -172,10 +172,10 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
             url: """$reposeEndpoint/ss""",
             method: "GET",
             headers: [
-                "X-Catalog": xCatalog,
-                "X-Map-Roles": base64Encode("""{"tenant1":["role1","role2","role3"],"$tenantId":["role3"],"repose/domain/roles":["role4"]}"""),
-                "X-Tenant-Id": "tenant1;q=0.5",
-                "X-Roles": "role1,role2,role3,role4",
+                "X-Catalog"        : xCatalog,
+                "X-Map-Roles"      : base64EncodeUtf8("""{"tenant1":["role1","role2","role3"],"$tenantId":["role3"],"repose/domain/roles":["role4"]}"""),
+                "X-Tenant-Id"      : "tenant1;q=0.5",
+                "X-Roles"          : "role1,role2,role3,role4",
                 "X-Expected-Tenant": tenantId])
 
         then: "User should receive a 200 response"
@@ -203,10 +203,10 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
             url: """$reposeEndpoint/ss""",
             method: "GET",
             headers: [
-                "X-Catalog": xCatalog,
-                "X-Map-Roles": base64Encode("""{"tenant1":["role1","role2","role3"],"$tenantId":["role3"],"repose/domain/roles":["role4"]}"""),
-                "X-Tenant-Id": """$tenantId;q=1,tenant1;q=0.5""",
-                "X-Roles": "role1,role2,role3,role4",
+                "X-Catalog"        : xCatalog,
+                "X-Map-Roles"      : base64EncodeUtf8("""{"tenant1":["role1","role2","role3"],"$tenantId":["role3"],"repose/domain/roles":["role4"]}"""),
+                "X-Tenant-Id"      : """$tenantId;q=1,tenant1;q=0.5""",
+                "X-Roles"          : "role1,role2,role3,role4",
                 "X-Expected-Tenant": Math.abs(random.nextInt())])
 
         then: "User should receive a 401 response"
@@ -229,10 +229,10 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
             url: """$reposeEndpoint/ss""",
             method: "GET",
             headers: [
-                "X-Catalog": xCatalog,
-                "X-Map-Roles": base64Encode("""{"tenant1":["role1","role2","role3"],"$tenantId":["role3"],"repose/domain/roles":["role4"]}"""),
+                "X-Catalog"  : xCatalog,
+                "X-Map-Roles": base64EncodeUtf8("""{"tenant1":["role1","role2","role3"],"$tenantId":["role3"],"repose/domain/roles":["role4"]}"""),
                 "X-Tenant-Id": """$tenantId;q=1,tenant1;q=0.5""",
-                "X-Roles": "role1,role2,role3,role4"])
+                "X-Roles"    : "role1,role2,role3,role4"])
 
         then: "User should receive a 401 response"
         mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
@@ -254,10 +254,10 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
             url: """$reposeEndpoint/ss""",
             method: "GET",
             headers: [
-                "X-Catalog": base64Encode("""{"endpoints":[{"publicURL":"https://service.example.com","region":"BAD","name":"OpenStackCompute","type":"compute"}]}"""),
-                "X-Map-Roles": base64Encode("""{"tenant1":["role1","role2","role3"],"$tenantId":["role3"],"repose/domain/roles":["role4"]}"""),
-                "X-Tenant-Id": "tenant1;q=0.5",
-                "X-Roles": "role1,role2,role3,role4",
+                "X-Catalog"        : base64EncodeUtf8("""{"endpoints":[{"publicURL":"https://service.example.com","region":"BAD","name":"OpenStackCompute","type":"compute"}]}"""),
+                "X-Map-Roles"      : base64EncodeUtf8("""{"tenant1":["role1","role2","role3"],"$tenantId":["role3"],"repose/domain/roles":["role4"]}"""),
+                "X-Tenant-Id"      : "tenant1;q=0.5",
+                "X-Roles"          : "role1,role2,role3,role4",
                 "X-Expected-Tenant": tenantId])
 
         then: "User should receive a 403 response"
@@ -280,9 +280,9 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
             url: """$reposeEndpoint/ss""",
             method: "GET",
             headers: [
-                "X-Map-Roles": base64Encode("""{"tenant1":["role1","role2","role3"],"$tenantId":["role3"],"repose/domain/roles":["role4"]}"""),
-                "X-Tenant-Id": "tenant1;q=0.5",
-                "X-Roles": "role1,role2,role3,role4",
+                "X-Map-Roles"      : base64EncodeUtf8("""{"tenant1":["role1","role2","role3"],"$tenantId":["role3"],"repose/domain/roles":["role4"]}"""),
+                "X-Tenant-Id"      : "tenant1;q=0.5",
+                "X-Roles"          : "role1,role2,role3,role4",
                 "X-Expected-Tenant": tenantId])
 
         then: "User should receive a 500 response"
@@ -305,10 +305,10 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
             url: """$reposeEndpoint/ss""",
             method: "GET",
             headers: [
-                "X-Catalog": "Totally Bogus",
-                "X-Map-Roles": base64Encode("""{"tenant1":["role1","role2","role3"],"$tenantId":["role3"],"repose/domain/roles":["role4"]}"""),
-                "X-Tenant-Id": "tenant1;q=0.5",
-                "X-Roles": "role1,role2,role3,role4",
+                "X-Catalog"        : "Totally Bogus",
+                "X-Map-Roles"      : base64EncodeUtf8("""{"tenant1":["role1","role2","role3"],"$tenantId":["role3"],"repose/domain/roles":["role4"]}"""),
+                "X-Tenant-Id"      : "tenant1;q=0.5",
+                "X-Roles"          : "role1,role2,role3,role4",
                 "X-Expected-Tenant": tenantId])
 
         then: "User should receive a 500 response"
@@ -331,9 +331,9 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
             url: """$reposeEndpoint/ss""",
             method: "GET",
             headers: [
-                "X-Catalog": xCatalog,
-                "X-Tenant-Id": "tenant1;q=0.5",
-                "X-Roles": "role1,role2,role3,role4",
+                "X-Catalog"        : xCatalog,
+                "X-Tenant-Id"      : "tenant1;q=0.5",
+                "X-Roles"          : "role1,role2,role3,role4",
                 "X-Expected-Tenant": tenantId])
 
         then: "User should receive a 500 response"
@@ -356,10 +356,10 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
             url: """$reposeEndpoint/ss""",
             method: "GET",
             headers: [
-                "X-Catalog": xCatalog,
-                "X-Map-Roles": "Totally Bogus",
-                "X-Tenant-Id": "tenant1;q=0.5",
-                "X-Roles": "role1,role2,role3,role4",
+                "X-Catalog"        : xCatalog,
+                "X-Map-Roles"      : "Totally Bogus",
+                "X-Tenant-Id"      : "tenant1;q=0.5",
+                "X-Roles"          : "role1,role2,role3,role4",
                 "X-Expected-Tenant": tenantId])
 
         then: "User should receive a 500 response"
@@ -371,13 +371,5 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
         and: "The reason should have been logged"
         def foundLogs = reposeLogSearch.searchByString("X-Map-Roles header value is not a valid tenant-to-roles map representation")
         foundLogs.size() == 1
-    }
-
-    private static String base64Encode(String encodeString) {
-        new String(Base64.getEncoder().encodeToString(encodeString.getBytes(StandardCharsets.UTF_8)))
-    }
-
-    private static String base64Decode(String decodeString) {
-        new String(Base64.getDecoder().decode(decodeString), StandardCharsets.UTF_8)
     }
 }
