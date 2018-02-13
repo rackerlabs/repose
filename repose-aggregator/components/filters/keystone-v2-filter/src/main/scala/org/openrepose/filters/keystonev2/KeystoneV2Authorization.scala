@@ -82,12 +82,12 @@ object KeystoneV2Authorization extends LazyLogging {
       case uriExtraction: UriExtractionType =>
         val uriRegex = uriExtraction.getValue.r
         request.getRequestURI match {
-          case uriRegex(tenantId, _*) => Some(tenantId)
-          case _ => None
+          case uriRegex(tenantId, _*) => List(tenantId)
+          case _ => List.empty
         }
       case _ =>
         logger.error("An unexpected tenant extraction type was encountered")
-        None
+        List.empty
     } match {
       case extractedTenants if extractedTenants.nonEmpty => extractedTenants
       case _ => throw UnparsableTenantException("Could not parse tenant from the URI and/or the configured header")

@@ -393,7 +393,7 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
 
 [NOTE]
 ====
-If the default tenant and the tenant extracted from the request are the same, then the highest quality between the two will be used.
+If the default tenant and a tenant extracted from the request are the same, then the highest quality between the two will be used.
 ====
 
 [NOTE]
@@ -407,7 +407,7 @@ The `uri-extraction-regex` will be used to populate the `X-Tenant-ID` header wit
 ====
 There can be multiple `uri-extraction-regex` elements.
 This fascilitates complex Origin Service API's where the extraction point is not always in the same place.
-The elements are evaluated in order from top to bottom and the first successful extraction wins.
+All values captured from the request will be validated.
 ====
 
 === Tenant ID Validation Bypass
