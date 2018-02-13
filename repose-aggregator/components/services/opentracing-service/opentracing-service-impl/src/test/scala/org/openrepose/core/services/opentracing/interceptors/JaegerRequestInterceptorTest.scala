@@ -73,7 +73,27 @@ class JaegerRequestInterceptorTest extends FunSpec with Matchers with MockitoSug
 
       jaegerRequestInterceptor.process(httpRequest, httpContext)
 
-      verify(span, times(1)).setTag(any[String](), any[String]())
+      verify(span, times(1)).setTag(CommonHttpHeader.REQUEST_ID, "1234")
+    }
+
+    it("with via header") {
+      val httpRequest = mock[HttpRequest]
+      val httpContext = mock[HttpContext]
+      val tracer = mock[Tracer]
+      val scopeManager = mock[ScopeManager]
+      val scope = mock[Scope]
+      val span = mock[Span]
+
+      when(httpRequest.getFirstHeader(any())).thenReturn(new BasicHeader(CommonHttpHeader.VIA, "1234"))
+      when(scope.span()).thenReturn(span)
+      when(scopeManager.active()).thenReturn(scope)
+      when(tracer.scopeManager()).thenReturn(scopeManager)
+
+      val jaegerRequestInterceptor = new JaegerRequestInterceptor(tracer)
+
+      jaegerRequestInterceptor.process(httpRequest, httpContext)
+
+      verify(span, times(1)).setTag(CommonHttpHeader.VIA, "1234")
     }
   }
 
