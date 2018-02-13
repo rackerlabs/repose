@@ -30,7 +30,9 @@ class JaegerRequestInterceptor(tracer: Tracer) extends TracingRequestInterceptor
 
   override protected def onSpanStarted(clientSpan: Span, httpRequest: HttpRequest, httpContext: HttpContext): Unit = {
     val traceRequestHeader = httpRequest.getFirstHeader(CommonHttpHeader.REQUEST_ID)
+    val viaRequestHeader = httpRequest.getFirstHeader(CommonHttpHeader.VIA)
     if (traceRequestHeader != null) clientSpan.setTag(CommonHttpHeader.REQUEST_ID, traceRequestHeader.getValue)
+    if (viaRequestHeader != null) clientSpan.setTag(CommonHttpHeader.VIA, viaRequestHeader.getValue)
     super.onSpanStarted(clientSpan, httpRequest, httpContext)
   }
 

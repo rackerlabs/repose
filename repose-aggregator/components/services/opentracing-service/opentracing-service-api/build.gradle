@@ -1,5 +1,5 @@
 dependencies {
-    compile "io.opentracing:opentracing-api:0.31.0"
+    compile "io.opentracing:opentracing-api"
     compile "org.apache.httpcomponents:httpclient"
 
     testCompile project(":repose-aggregator:commons:commons-configuration")
