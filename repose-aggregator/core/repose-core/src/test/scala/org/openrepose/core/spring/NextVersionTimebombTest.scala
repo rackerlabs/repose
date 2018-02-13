@@ -72,6 +72,9 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        * 8. Allow the Container config to provide empty [in|ex]cluded-[protocols|ciphers].
        *
        * 9. Remove the uri-extraction-regex attribute from the Keystone filters' configuration.
+       *
+       * 10. For Keystone Authorization, when the default tenant ID matches a request tenant, use the configured request tenant quality rather than using the higher of the request tenant and default tenant qualities.
+       *     Before doing so, verify that this behavior is not useful.
        */
     }
 
