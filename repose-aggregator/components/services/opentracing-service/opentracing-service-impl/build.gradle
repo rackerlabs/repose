@@ -5,29 +5,23 @@ dependencies {
     compile "org.slf4j:slf4j-api"
     compile "org.slf4j:jcl-over-slf4j"
     compile "org.springframework:spring-beans"
-    compile "io.opentracing:opentracing-api:0.31.0"
-    compile "io.opentracing:opentracing-util:0.31.0"
-    compile "com.uber.jaeger:jaeger-core:0.24.0"
-    compile "com.uber.jaeger:jaeger-apachehttpclient:0.24.0"
+    compile "io.opentracing:opentracing-api"
+    compile "io.opentracing:opentracing-util"
+    compile "com.uber.jaeger:jaeger-core"
+    compile "com.uber.jaeger:jaeger-apachehttpclient"
 
     compileOnly "javax.servlet:javax.servlet-api"
     compileOnly "javax.inject:javax.inject"
     compileOnly "javax.ws.rs:javax.ws.rs-api"
-    compileOnly "com.google.code.findbugs:jsr305" //i hate this hack
 
-    testCompile project(":repose-aggregator:components:services:opentracing-service:opentracing-service-api")
     testCompile "junit:junit:4.12"
     testCompile "org.hamcrest:hamcrest-all"
     testCompile "org.mockito:mockito-all"
-    testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.eclipse.jetty:jetty-server"
     testCompile "xerces:xerces-xsd11"
     testCompile "org.spockframework:spock-core"
     testCompile "org.springframework:spring-test:4.1.4.RELEASE"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
-    testCompile "io.opentracing:opentracing-mock:0.31.0"
-    testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
-    testCompile "org.apache.logging.log4j:log4j-core"
-    testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', classifier: 'tests'
+    testCompile "io.opentracing:opentracing-mock"
 
 }

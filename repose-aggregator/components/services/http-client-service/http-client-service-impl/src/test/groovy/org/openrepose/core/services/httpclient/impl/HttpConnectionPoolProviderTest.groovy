@@ -36,13 +36,15 @@ import org.openrepose.core.service.httpclient.config.HeaderListType
 import org.openrepose.core.service.httpclient.config.HeaderType
 import org.openrepose.core.service.httpclient.config.PoolType
 import org.openrepose.core.services.opentracing.OpenTracingService
+import org.openrepose.core.services.opentracing.interceptors.RequestInterceptor
+import org.openrepose.core.services.opentracing.interceptors.ResponseInterceptor
 
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import java.nio.charset.Charset
 
-import static org.mockito.Mockito.mock
+import static org.mockito.Mockito.*
 
 
 class HttpConnectionPoolProviderTest {
@@ -247,6 +249,83 @@ class HttpConnectionPoolProviderTest {
         def client = HttpConnectionPoolProvider.genClient("", poolType, openTracingService) as DefaultHttpClient
         def httpGet = new HttpGet("https://localhost:" + serverPort)
         def httpResponse = client.execute(httpGet)
+
+        assert httpResponse.statusLine.statusCode == statusCode
+        assert httpResponse.entity.contentType.value == contentType
+        assert Arrays.equals(httpResponse.entity.content.bytes, responseContent)
+    }
+
+    @Test
+    public void "should add interceptor if OpenTracing service is available"() {
+        server = new Server()
+
+        // SSL Context Factory
+        def sslContextFactory = new SslContextFactory()
+        sslContextFactory.keyStoreResource = Resource.newClassPathResource("single.jks")
+        sslContextFactory.keyStorePassword = "password"
+        sslContextFactory.keyManagerPassword = "password"
+        sslContextFactory.needClientAuth = true
+
+        // SSL HTTP Configuration
+        def httpConfiguration = new HttpConfiguration()
+        httpConfiguration.addCustomizer new SecureRequestCustomizer()
+
+        // SSL Connector
+        def sslConnector = new ServerConnector(
+            server,
+            new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()),
+            new HttpConnectionFactory(httpConfiguration)
+        )
+        sslConnector.setPort(0)
+
+        // Start the server
+        def statusCode = HttpServletResponse.SC_OK
+        def responseContent = "The is the plain text test body data.\n".getBytes(CHARSET_UTF8)
+        def contentType = "text/plain;charset=utf-8"
+        // Make this the only endpoint for the server
+        server.connectors = [sslConnector] as Connector[]
+        server.handler = new AbstractHandler() {
+            @Override
+            void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+                response.status = statusCode
+                response.contentType = contentType
+                baseRequest.handled = true
+                response.outputStream.write responseContent
+            }
+        }
+        server.start()
+        def serverPort = ((ServerConnector) server.connectors[0]).getLocalPort()
+
+        // Add the client creds to the connection pool
+        poolType.setKeystoreFilename(SINGLE_RESOURCE.file)
+        poolType.setKeystorePassword("password")
+        poolType.setKeyPassword("password")
+
+        when(openTracingService.isEnabled()).thenReturn(true)
+
+        RequestInterceptor requestInterceptor = mock(RequestInterceptor.class)
+        ResponseInterceptor responseInterceptor = mock(ResponseInterceptor.class)
+        when(openTracingService.getRequestInterceptor()).thenReturn(requestInterceptor)
+        when(openTracingService.getResponseInterceptor()).thenReturn(responseInterceptor)
+
+        def client = HttpConnectionPoolProvider.genClient("", poolType, openTracingService) as DefaultHttpClient
+        def httpGet = new HttpGet("https://localhost:" + serverPort)
+        def httpResponse = client.execute(httpGet)
+
+        assert client.getRequestInterceptor(client.requestInterceptorCount - 1) == requestInterceptor
+        assert client.getResponseInterceptor(client.responseInterceptorCount - 1) == responseInterceptor
+        (0..client.requestInterceptorCount).each {
+            System.out.println("req $it")
+            System.out.println(client.getRequestInterceptor(it))
+        }
+
+        (0..client.responseInterceptorCount).each {
+            System.out.println("resp $it")
+            System.out.println(client.getResponseInterceptor(it))
+        }
+
+        verify(openTracingService, times(1)).getResponseInterceptor()
+        verify(openTracingService, times(1)).getRequestInterceptor()
 
         assert httpResponse.statusLine.statusCode == statusCode
         assert httpResponse.entity.contentType.value == contentType

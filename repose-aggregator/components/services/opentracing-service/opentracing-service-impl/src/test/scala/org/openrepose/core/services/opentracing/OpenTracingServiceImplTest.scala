@@ -27,8 +27,6 @@ import java.lang.reflect
 import java.lang.reflect.Field
 
 import io.opentracing.util.GlobalTracer
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.core.LoggerContext
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{eq => isEq, _}
 import org.mockito.Mockito.verify
