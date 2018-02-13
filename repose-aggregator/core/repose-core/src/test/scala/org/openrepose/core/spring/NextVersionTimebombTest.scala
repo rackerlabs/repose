@@ -70,6 +70,8 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        *    b. There will also be some tests that should be removed also.
        *
        * 8. Allow the Container config to provide empty [in|ex]cluded-[protocols|ciphers].
+       *
+       * 9. Remove the uri-extraction-regex attribute from the Keystone filters' configuration.
        */
     }
 

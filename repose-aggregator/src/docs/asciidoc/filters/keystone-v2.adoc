@@ -391,6 +391,12 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
 <10> Followed by the tenants from the roles by default. +
     Default: `0.5`
 
+[WARNING]
+====
+The `uri-extraction-regex` attribute is considered deprecated.
+Consider using the <<url-extractor-to-header.adoc#, URL Extractor to Header Filter>> instead.
+====
+
 [NOTE]
 ====
 If the default tenant and a tenant extracted from the request are the same, then the highest quality between the two will be used.

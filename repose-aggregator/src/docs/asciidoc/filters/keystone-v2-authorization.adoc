@@ -131,6 +131,12 @@ All tenants extracted from the request _must_ have at least one matching tenant 
      Since this filter does not set the roles tenants, this value is not currently used by the this filter. +
      Default: `0.5`
 
+ [WARNING]
+ ====
+ The `uri-extraction-regex` attribute is considered deprecated.
+ Consider using the <<url-extractor-to-header.adoc#, URL Extractor to Header Filter>> instead.
+ ====
+
 === Endpoint Validation
 This configuration will validate that the user data contains a configured endpoint.
 
