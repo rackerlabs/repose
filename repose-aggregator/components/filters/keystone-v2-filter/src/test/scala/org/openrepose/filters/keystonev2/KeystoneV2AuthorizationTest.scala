@@ -76,18 +76,6 @@ class KeystoneV2AuthorizationTest extends FunSpec
       getRequestTenants(config, new HttpServletRequestWrapper(request)) should contain only tenantId
     }
 
-    it("should return multiple tenants from the URI with a single extraction") {
-      val tenantId1 = "aTenant"
-      val tenantId2 = "otherTenant"
-      val tenantId3 = "ignoredTenant"
-      val request = new MockHttpServletRequest("GET", s"/$tenantId1/$tenantId2/$tenantId3")
-      val config = new ValidateTenantType()
-        .withUriExtractionRegexAndHeaderExtractionName(
-          new UriExtractionType().withValue("[^/]*/([^/]+)/([^/]+)/(?:[^/]+)"))
-
-      getRequestTenants(config, new HttpServletRequestWrapper(request)) should contain only(tenantId1, tenantId2)
-    }
-
     it("should return all tenants from the URI and configured tenant header") {
       val headerTenantId = "headerTenant"
       val uriTenantId = "uriTenant"
