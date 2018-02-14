@@ -74,8 +74,8 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    @Unroll("Should succeed on GET /v1/resource/other when appropriate headers are set (#tenants)")
-    def "Should succeed when appropriate headers are set"() {
+    @Unroll
+    def"Should succeed on GET /v1/resource/other when appropriate headers are set (#tenants)"() {
         when:
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint/v1/resource/other",
@@ -96,8 +96,8 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         tenants << ["1,5", "4", "4,2", "1,2,3", "5,2", "1,3", "5,3", "1", "1,5,7", "1,5,6"]
     }
 
-    @Unroll("Should succeed on #method #url when appropriate headers are set (1, 5)")
-    def "Should succeed when appropriate headers are set (1, 5)"() {
+    @Unroll
+    def "Should succeed on #method #url when appropriate headers are set (1, 5)"() {
         when:
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
@@ -135,8 +135,8 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         relevantRolesValues.isEmpty()
     }
 
-    @Unroll("Should fail on #method #url when appropriate headers are set but there's no tenant access (#tenants)")
-    def "Should fail on when appropriate headers are set but there's no tenant access"() {
+    @Unroll
+    def "Should fail on #method #url when appropriate headers are set but there's no tenant access (#tenants)"() {
         when:
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
@@ -162,8 +162,8 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         tenants = b
     }
 
-    @Unroll("Should fail on #method #url when appropriate headers are set but there's no tenant access (#tenants) too")
-    def "Should fail on when appropriate headers are set but there's no tenant access too"() {
+    @Unroll
+    def "Should fail on #method #url when appropriate headers are set but there's no tenant access (#tenants) too"() {
         when:
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
@@ -187,8 +187,8 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         tenants = b[0]
     }
 
-    @Unroll("Should succeed on GET /v1/resource when appropriate headers are set (#tenants)")
-    def "Should succeed on GET /v1/resource when appropriate headers are set"() {
+    @Unroll
+    def "Should succeed on GET /v1/resource when appropriate headers are set (#tenants)"() {
         when:
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint/v1/resource",
@@ -209,8 +209,8 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         tenants << ["4", "4,2"]
     }
 
-    @Unroll("Should fail on #method #url when appropriate headers are set but it's an observer only tenant (#tenants)")
-    def "Should fail when appropriate headers are set but it's an observer only tenant"() {
+    @Unroll
+    def "Should fail on #method #url when appropriate headers are set but it's an observer only tenant (#tenants)"() {
         when:
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
@@ -236,8 +236,8 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         tenants = b
     }
 
-    @Unroll("Should succeed on #method #url when appropriate headers are set (#tenants)")
-    def "Should succeed when appropriate headers are set also"() {
+    @Unroll
+    def "Should succeed on #method #url when appropriate headers are set (#tenants)"() {
         when:
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
@@ -265,8 +265,8 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         tenants = b
     }
 
-    @Unroll("Should succeed on #method #url when appropriate headers are set (#tenants) two")
-    def "Should succeed when appropriate headers are set again"() {
+    @Unroll
+    def "Should succeed on #method #url when appropriate headers are set (#tenants) two"() {
         when:
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
@@ -294,8 +294,8 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         tenants = b
     }
 
-    @Unroll("Should succeed on #method #url when appropriate headers are set (#tenants) too")
-    def "Should succeed when appropriate headers are set another"() {
+    @Unroll
+    def "Should succeed on #method #url when appropriate headers are set (#tenants) too"() {
         when:
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
@@ -323,8 +323,8 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         tenants = b
     }
 
-    @Unroll("Should succeed on #method #url when appropriate headers are set (#tenants) also")
-    def "Should succeed when appropriate headers are set yet again"() {
+    @Unroll
+    def "Should succeed on #method #url when appropriate headers are set (#tenants) also"() {
         when:
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
@@ -352,8 +352,8 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         tenants = b
     }
 
-    @Unroll("Should fail on #method #url when appropriate headers are set but there is a tenant role mismatch (#tenants)")
-    def "Should fail when appropriate headers are set but there is a tenant role mismatch"() {
+    @Unroll
+    def "Should fail on #method #url when appropriate headers are set but there is a tenant role mismatch (#tenants)"() {
         when:
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
@@ -379,8 +379,8 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         tenants = b
     }
 
-    @Unroll("Should fail on #method #url when appropriate headers are set but there is a tenant role mismatch (#tenants) two")
-    def "Should fail when appropriate headers are set but there is a tenant role mismatch two"() {
+    @Unroll
+    def "Should fail on #method #url when appropriate headers are set but there is a tenant role mismatch (#tenants) two"() {
         when:
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
@@ -406,8 +406,8 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         tenants = b
     }
 
-    @Unroll("Should fail on #method #url when appropriate headers are set but there is a tenant role mismatch (#tenants) too")
-    def "Should fail when appropriate headers are set but there is a tenant role mismatch too"() {
+    @Unroll
+    def "Should fail on #method #url when appropriate headers are set but there is a tenant role mismatch (#tenants) too"() {
         when:
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
@@ -433,8 +433,8 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         tenants = b
     }
 
-    @Unroll("Should succeed on PATCH in /v1/resource/other if a role with a:patcher is specified (#tenants)")
-    def "Should succeed on PATCH in /v1/resource/other if a role with a:patcher is specified"() {
+    @Unroll
+    def "Should succeed on PATCH in /v1/resource/other if a role with a:patcher is specified (#tenants)"() {
         when:
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint/v1/resource/other",
