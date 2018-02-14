@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 object Base64Helper {
   def base64EncodeUtf8(encodeString: String): String = {
-    new String(Base64.getEncoder.encodeToString(encodeString.getBytes(UTF_8)))
+    Base64.getEncoder.encodeToString(encodeString.getBytes(UTF_8))
   }
 
   def base64DecodeUtf8(decodeString: String): String = {
