@@ -81,8 +81,8 @@ class TenantCullingRBACRecipeTest extends ReposeValveTest {
         and: "only the role that granted access to the resource will be present in the X-Relevant-Roles header"
         messageChain.handlings[0].request.headers.findAll('X-Relevant-Roles') == ['an:admin']
 
-        and: "only the default tenant ID and the tenant-id associated with the admin role will be present in the X-Tenant-Id header"
-        messageChain.handlings[0].request.headers.findAll('X-Tenant-Id') == ['admin-tenant-id', fakeIdentityService.client_tenantid]
+        and: "only the tenant-id associated with the admin role will be present in the X-Tenant-Id header"
+        messageChain.handlings[0].request.headers.findAll('X-Tenant-Id') == ['admin-tenant-id']
 
         and: "only the default tenant name will be present in the X-Tenant-Name header"
         messageChain.handlings[0].request.headers.findAll('X-Tenant-Name') == [fakeIdentityService.client_tenantid]
@@ -156,10 +156,10 @@ class TenantCullingRBACRecipeTest extends ReposeValveTest {
 
         and: "all of the user roles will be present in the X-Roles header"
 
-        and: "only the default tenant ID and any tenant ID associated with a relevant role will be present in the X-Tenant-Id header"
-        messageChain.handlings[0].request.headers.findAll('X-Tenant-Id') == relevantRoles.collect {
+        and: "only any tenant ID associated with a relevant role will be present in the X-Tenant-Id header"
+        messageChain.handlings[0].request.headers.findAll('X-Tenant-Id').collect({it.split(',')}).flatten() == relevantRoles.collect {
             it.tenantId
-        } + [defaultTenantId] - null
+        } - null
 
         and: "only the default tenant name will be present in the X-Tenant-Name header"
         messageChain.handlings[0].request.headers.findAll('X-Tenant-Name') == [defaultTenantId] - null

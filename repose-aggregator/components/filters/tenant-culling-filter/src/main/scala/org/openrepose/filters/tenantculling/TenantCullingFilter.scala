@@ -80,6 +80,6 @@ object TenantCullingFilter {
   }
 
   def unpackMap(tenantToRolesMap: String): TenantToRolesMap = {
-    Json.parse(new String(Base64.getDecoder.decode(tenantToRolesMap))).validate[TenantToRolesMap].get
+    Json.parse(new String(Base64.getDecoder.decode(tenantToRolesMap))).as[TenantToRolesMap]
   }
 }

@@ -55,11 +55,11 @@ class TenantCullingFilterWithAuthenticationFunctionalTest extends ReposeValveTes
     @Shared
     def roleNameOne = 'role-name-one'
     @Shared
-    def tenantedRoleNameOne = "role-name-one/$tenantIdOne"
+    def tenantedRoleNameOne = "$roleNameOne/$tenantIdOne"
     @Shared
     def roleNameTwo = 'role-name-two'
     @Shared
-    def tenantedRoleNameTwo = "role-name-one/$tenantIdTwo"
+    def tenantedRoleNameTwo = "$roleNameTwo/$tenantIdTwo"
     @Shared
     def oneRole = [[name: roleNameOne, tenantId: tenantIdOne]]
     @Shared
