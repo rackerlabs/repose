@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<application xmlns="http://wadl.dev.java.net/2009/02"
+             xmlns:rax="http://docs.rackspace.com/api"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <resources base="https://test.api.openstack.com">
+        <resource path="/v1/resource" rax:roles="a:admin/{X-TENANT}">
+            <param name="X-OTHER"
+                   style="header"
+                   required="true"
+                   type="xsd:string"
+                   repeating="false"/>
+            <method name="POST" rax:roles="a:creator/{X-TENANT}">
+                <request>
+                    <param name="X-TENANT"
+                           style="header"
+                           required="true"
+                           type="xsd:int"
+                           repeating="true"
+                           rax:isTenant="true"/>
+                    <param name="X-TENANT"
+                           style="header"
+                           required="true"
+                           type="xsd:boolean"
+                           repeating="true"
+                           rax:isTenant="true"/>
+                </request>
+            </method>
+            <method name="GET" rax:roles="a:observer/{X-TENANT}">
+                <request>
+                    <param name="X-TENANT"
+                           style="header"
+                           required="true"
+                           type="xsd:int"
+                           repeating="true"
+                           rax:isTenant="true"/>
+                    <param name="X-TENANT"
+                           style="header"
+                           required="true"
+                           type="xsd:boolean"
+                           repeating="true"
+                           rax:isTenant="true"/>
+
+                </request>
+            </method>
+            <method name="PUT" rax:roles="a:updater/{X-TENANT}">
+                <request>
+                    <param name="X-TENANT"
+                           style="header"
+                           required="true"
+                           type="xsd:int"
+                           repeating="true"
+                           rax:isTenant="true"/>
+                    <param name="X-TENANT"
+                           style="header"
+                           required="true"
+                           type="xsd:boolean"
+                           repeating="true"
+                           rax:isTenant="true"/>
+                </request>
+            </method>
+            <method name="DELETE">
+                <request>
+                    <param name="X-TENANT"
+                           style="header"
+                           required="true"
+                           type="xsd:int"
+                           repeating="true"
+                           rax:isTenant="true"/>
+                    <param name="X-TENANT"
+                           style="header"
+                           required="true"
+                           type="xsd:boolean"
+                           repeating="true"
+                           rax:isTenant="true"/>
+                </request>
+            </method>
+            <resource path="other">
+                <method name="POST" rax:roles="a:creator/{X-TENANT}">
+                    <request>
+                        <param name="X-TENANT"
+                               style="header"
+                               required="true"
+                               type="xsd:int"
+                               repeating="true"
+                               rax:isTenant="true"/>
+                        <param name="X-TENANT"
+                               style="header"
+                               required="true"
+                               type="xsd:boolean"
+                               repeating="true"
+                               rax:isTenant="true"/>
+                    </request>
+                </method>
+                <method name="GET" rax:roles="#all">
+                    <request>
+                        <param name="X-TENANT"
+                               style="header"
+                               required="true"
+                               type="xsd:int"
+                               repeating="true"
+                               rax:isTenant="true"/>
+                        <param name="X-TENANT"
+                               style="header"
+                               required="true"
+                               type="xsd:boolean"
+                               repeating="true"
+                               rax:isTenant="true"/>
+                    </request>
+                </method>
+                <method name="PUT" rax:roles="a:updater/{X-TENANT}">
+                    <request>
+                        <param name="X-TENANT"
+                               style="header"
+                               required="true"
+                               type="xsd:int"
+                               repeating="true"
+                               rax:isTenant="true"/>
+                        <param name="X-TENANT"
+                               style="header"
+                               required="true"
+                               type="xsd:boolean"
+                               repeating="true"
+                               rax:isTenant="true"/>
+                    </request>
+                </method>
+                <method name="DELETE">
+                    <request>
+                        <param name="X-TENANT"
+                               style="header"
+                               required="true"
+                               type="xsd:int"
+                               repeating="true"
+                               rax:isTenant="true"/>
+                        <param name="X-TENANT"
+                               style="header"
+                               required="true"
+                               type="xsd:boolean"
+                               repeating="true"
+                               rax:isTenant="true"/>
+                    </request>
+                </method>
+                <method name="PATCH" rax:roles="role&#xA0;with&#xA0;spaces/{X-TENANT} a:patcher/{X-TENANT}">
+                    <request>
+                        <param name="X-TENANT"
+                               style="header"
+                               required="true"
+                               type="xsd:int"
+                               repeating="true"
+                               rax:isTenant="true"/>
+                        <param name="X-TENANT"
+                               style="header"
+                               required="true"
+                               type="xsd:boolean"
+                               repeating="true"
+                               rax:isTenant="true"/>
+                    </request>
+                </method>
+            </resource>
+        </resource>
+    </resources>
+</application>
