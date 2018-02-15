@@ -55,9 +55,6 @@ dependencies {
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.mockito:mockito-all"
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', classifier: 'tests'
-    testCompile "org.powermock:powermock-core"
-    testCompile "org.powermock:powermock-module-junit4"
-    testCompile "org.powermock:powermock-api-mockito"
     testCompile "org.springframework:spring-test"
     testCompile "org.spockframework:spock-core"
     testCompile "org.jetbrains:annotations"
