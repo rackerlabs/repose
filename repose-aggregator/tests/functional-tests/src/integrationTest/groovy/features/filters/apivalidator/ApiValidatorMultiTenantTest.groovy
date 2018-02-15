@@ -26,11 +26,14 @@ import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
 import static javax.servlet.http.HttpServletResponse.SC_OK
-import static org.openrepose.commons.utils.http.OpenStackServiceHeader.ROLES
+import static org.openrepose.commons.utils.http.OpenStackServiceHeader.*
 import static org.openrepose.commons.utils.http.PowerApiHeader.RELEVANT_ROLES
 import static org.openrepose.commons.utils.string.Base64Helper.base64EncodeUtf8
 
 class ApiValidatorMultiTenantTest extends ReposeValveTest {
+
+    static def HDR_OTHER = "X-Other"
+    static def VAL_OTHER = "other"
 
     static def mapHeaderValue = base64EncodeUtf8("""{
       |   "1" : ["a:admin","foo","bar"],
@@ -43,6 +46,12 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
       |   "8" : ["a:patcher"]
       |}
       |""".stripMargin())
+
+    static def standardHeaders = [
+        (HDR_OTHER)       : VAL_OTHER,
+        (ROLES)           : "foo,bar",
+        (TENANT_ROLES_MAP): mapHeaderValue
+    ]
 
     static def observerRequests = [
         ["GET", "/v1/resource"]
@@ -61,7 +70,6 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         ["DELETE", "/v1/resource/other"]
     ]
 
-
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
@@ -75,16 +83,12 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
     }
 
     @Unroll
-    def"Should succeed on GET /v1/resource/other when appropriate headers are set (#tenants)"() {
+    def "Should succeed on GET /v1/resource/other when appropriate headers are set (#tenants)"() {
         when:
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint/v1/resource/other",
             method: "GET",
-            headers: [
-                "X-Tenant"   : tenants,
-                "X-Other"    : "other",
-                (ROLES)      : "foo,bar",
-                "X-Map-Roles": mapHeaderValue])
+            headers: ([(TENANT_ID): tenants] + standardHeaders))
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_OK
@@ -102,17 +106,13 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
             method: method,
-            headers: [
-                "X-Tenant"   : "1,5",
-                "X-Other"    : "other",
-                (ROLES)      : "foo,bar",
-                "X-Map-Roles": mapHeaderValue])
+            headers: ([(TENANT_ID): "1,5"] + standardHeaders))
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_OK
         mc.handlings.size() == 1
         List<String> relevantRolesValues = mc.handlings[0].request.headers.findAll(RELEVANT_ROLES)
-        relevantRolesValues.contains("a:admin/{X-TENANT}")
+        relevantRolesValues.contains("a:admin/{X-TENANT-ID}")
 
         where:
         [method, url] << observerRequests + creatorRequests + updaterRequests + adminOnlyRequests
@@ -124,9 +124,9 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
             url: "$reposeEndpoint/v1/resource/other",
             method: "GET",
             headers: [
-                "X-Tenant"   : "1,5",
-                "X-Other"    : "other",
-                "X-Map-Roles": mapHeaderValue])
+                (TENANT_ID)       : "1,5",
+                (HDR_OTHER)       : VAL_OTHER,
+                (TENANT_ROLES_MAP): mapHeaderValue])
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_OK
@@ -141,11 +141,7 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
             method: method,
-            headers: [
-                "X-Tenant"   : tenants,
-                "X-Other"    : "other",
-                (ROLES)      : "foo,bar",
-                "X-Map-Roles": mapHeaderValue])
+            headers: ([(TENANT_ID): tenants] + standardHeaders))
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_FORBIDDEN
@@ -169,8 +165,8 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
             url: "$reposeEndpoint$url",
             method: method,
             headers: [
-                "X-Tenant": tenants,
-                "X-Other" : "other"])
+                (TENANT_ID): tenants,
+                (HDR_OTHER): VAL_OTHER])
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_FORBIDDEN
@@ -193,17 +189,13 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint/v1/resource",
             method: "GET",
-            headers: [
-                "X-Tenant"   : tenants,
-                "X-Other"    : "other",
-                (ROLES)      : "foo,bar",
-                "X-Map-Roles": mapHeaderValue])
+            headers: ([(TENANT_ID): tenants] + standardHeaders))
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_OK
         mc.handlings.size() == 1
         List<String> relevantRolesValues = mc.handlings[0].request.headers.findAll(RELEVANT_ROLES)
-        relevantRolesValues.contains("a:observer/{X-TENANT}")
+        relevantRolesValues.contains("a:observer/{X-TENANT-ID}")
 
         where:
         tenants << ["4", "4,2"]
@@ -215,11 +207,7 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
             method: method,
-            headers: [
-                "X-Tenant"   : tenants,
-                "X-Other"    : "other",
-                (ROLES)      : "foo,bar",
-                "X-Map-Roles": mapHeaderValue])
+            headers: ([(TENANT_ID): tenants] + standardHeaders))
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_FORBIDDEN
@@ -242,17 +230,13 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
             method: method,
-            headers: [
-                "X-Tenant"   : tenants,
-                "X-Other"    : "other",
-                (ROLES)      : "foo,bar",
-                "X-Map-Roles": mapHeaderValue])
+            headers: ([(TENANT_ID): tenants] + standardHeaders))
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_OK
         mc.handlings.size() == 1
         List<String> relevantRolesValues = mc.handlings[0].request.headers.findAll(RELEVANT_ROLES)
-        relevantRolesValues.containsAll(["a:creator/{X-TENANT}", "a:admin/{X-TENANT}"])
+        relevantRolesValues.containsAll(["a:creator/{X-TENANT-ID}", "a:admin/{X-TENANT-ID}"])
 
         where:
         [a, b] << [
@@ -271,17 +255,13 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
             method: method,
-            headers: [
-                "X-Tenant"   : tenants,
-                "X-Other"    : "other",
-                (ROLES)      : "foo,bar",
-                "X-Map-Roles": mapHeaderValue])
+            headers: ([(TENANT_ID): tenants] + standardHeaders))
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_OK
         mc.handlings.size() == 1
         List<String> relevantRolesValues = mc.handlings[0].request.headers.findAll(RELEVANT_ROLES)
-        relevantRolesValues.containsAll(["a:updater/{X-TENANT}", "a:admin/{X-TENANT}"])
+        relevantRolesValues.containsAll(["a:updater/{X-TENANT-ID}", "a:admin/{X-TENANT-ID}"])
 
         where:
         [a, b] << [
@@ -300,17 +280,13 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
             method: method,
-            headers: [
-                "X-Tenant"   : tenants,
-                "X-Other"    : "other",
-                (ROLES)      : "foo,bar",
-                "X-Map-Roles": mapHeaderValue])
+            headers: ([(TENANT_ID): tenants] + standardHeaders))
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_OK
         mc.handlings.size() == 1
         List<String> relevantRolesValues = mc.handlings[0].request.headers.findAll(RELEVANT_ROLES)
-        relevantRolesValues.contains("a:admin/{X-TENANT}")
+        relevantRolesValues.contains("a:admin/{X-TENANT-ID}")
 
         where:
         [a, b] << [
@@ -329,17 +305,13 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
             method: method,
-            headers: [
-                "X-Tenant"   : tenants,
-                "X-Other"    : "other",
-                (ROLES)      : "foo,bar",
-                "X-Map-Roles": mapHeaderValue])
+            headers: ([(TENANT_ID): tenants] + standardHeaders))
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_OK
         mc.handlings.size() == 1
         List<String> relevantRolesValues = mc.handlings[0].request.headers.findAll(RELEVANT_ROLES)
-        relevantRolesValues.contains("a:admin/{X-TENANT}")
+        relevantRolesValues.contains("a:admin/{X-TENANT-ID}")
 
         where:
         [a, b] << [
@@ -358,11 +330,7 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
             method: method,
-            headers: [
-                "X-Tenant"   : tenants,
-                "X-Other"    : "other",
-                (ROLES)      : "foo,bar",
-                "X-Map-Roles": mapHeaderValue])
+            headers: ([(TENANT_ID): tenants] + standardHeaders))
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_FORBIDDEN
@@ -385,11 +353,7 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
             method: method,
-            headers: [
-                "X-Tenant"   : tenants,
-                "X-Other"    : "other",
-                (ROLES)      : "foo,bar",
-                "X-Map-Roles": mapHeaderValue])
+            headers: ([(TENANT_ID): tenants] + standardHeaders))
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_FORBIDDEN
@@ -412,11 +376,7 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
             method: method,
-            headers: [
-                "X-Tenant"   : tenants,
-                "X-Other"    : "other",
-                (ROLES)      : "foo,bar",
-                "X-Map-Roles": mapHeaderValue])
+            headers: ([(TENANT_ID): tenants] + standardHeaders))
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_FORBIDDEN
@@ -439,11 +399,7 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint/v1/resource/other",
             method: "PATCH",
-            headers: [
-                "X-Tenant"   : tenants,
-                "X-Other"    : "other",
-                (ROLES)      : "foo,bar",
-                "X-Map-Roles": mapHeaderValue])
+            headers: ([(TENANT_ID): tenants] + standardHeaders))
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_OK
@@ -453,8 +409,8 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
 
         where:
         tenants | relevant
-        "7"     | ["role with spaces/{X-TENANT}"]
-        "7,8"   | ["role with spaces/{X-TENANT}", "a:patcher/{X-TENANT}"]
+        "7"     | ["role with spaces/{X-TENANT-ID}"]
+        "7,8"   | ["role with spaces/{X-TENANT-ID}", "a:patcher/{X-TENANT-ID}"]
     }
 
     def "Should fail on PATCH in /v1/resource/other if a tenant without an appropriate role is specified"() {
@@ -462,11 +418,7 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint/v1/resource/other",
             method: "PATCH",
-            headers: [
-                "X-Tenant"   : "7,8,4",
-                "X-Other"    : "other",
-                (ROLES)      : "foo,bar",
-                "X-Map-Roles": mapHeaderValue])
+            headers: ([(TENANT_ID): "7,8,4"] + standardHeaders))
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_FORBIDDEN
