@@ -123,10 +123,8 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint/v1/resource/other",
             method: "GET",
-            headers: [
-                (TENANT_ID)       : "1,5",
-                (HDR_OTHER)       : VAL_OTHER,
-                (TENANT_ROLES_MAP): mapHeaderValue])
+            headers: ([(TENANT_ID): "1,5"] + standardHeaders
+                - [(ROLES): "foo,bar"]))
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_OK
@@ -164,9 +162,8 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
             method: method,
-            headers: [
-                (TENANT_ID): tenants,
-                (HDR_OTHER): VAL_OTHER])
+            headers: ([(TENANT_ID): "1,5"] + standardHeaders
+                - [(ROLES): "foo,bar", (TENANT_ROLES_MAP): mapHeaderValue]))
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_FORBIDDEN
