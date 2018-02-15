@@ -20,7 +20,6 @@
 package org.openrepose.filters.tenantculling
 
 import java.io.IOException
-import java.util.Base64
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -29,11 +28,12 @@ import com.fasterxml.jackson.core.JsonParseException
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.utils.http.OpenStackServiceHeader.{TENANT_ID, TENANT_ROLES_MAP}
 import org.openrepose.commons.utils.http.PowerApiHeader.RELEVANT_ROLES
+import org.openrepose.commons.utils.json.JsonHeaderHelper
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
-import org.openrepose.filters.tenantculling.TenantCullingFilter.{packMap, unpackMap}
-import play.api.libs.json.Json
 
 class TenantCullingFilter extends Filter with LazyLogging {
+
+  import TenantCullingFilter._
 
   @Override
   @throws[ServletException]
@@ -52,8 +52,8 @@ class TenantCullingFilter extends Filter with LazyLogging {
     rolesMap match {
       case Some(tenantToRolesMap) =>
         try {
-          val culledMap = unpackMap(tenantToRolesMap).filter({ case(tenant, roles) => roles.toList.intersect(relevantRoles).nonEmpty })
-          request.replaceHeader(TENANT_ROLES_MAP, packMap(culledMap))
+          val culledMap = JsonHeaderHelper.jsonHeaderToValue(tenantToRolesMap).as[TenantToRolesMap].filter({ case (_, roles) => roles.toList.intersect(relevantRoles).nonEmpty })
+          request.replaceHeader(TENANT_ROLES_MAP, JsonHeaderHelper.anyToJsonHeader(culledMap))
           request.replaceHeader(TENANT_ID, culledMap.keySet.filterNot("repose/domain/roles".equals).mkString(","))
           chain.doFilter(request, response)
         } catch {
@@ -73,13 +73,4 @@ class TenantCullingFilter extends Filter with LazyLogging {
 
 object TenantCullingFilter {
   type TenantToRolesMap = Map[String, Set[String]]
-
-  def packMap(tenantToRolesMap: TenantToRolesMap): String = {
-    val tenantToRolesJson = Json.stringify(Json.toJson(tenantToRolesMap))
-    Base64.getEncoder.encodeToString(tenantToRolesJson.getBytes)
-  }
-
-  def unpackMap(tenantToRolesMap: String): TenantToRolesMap = {
-    Json.parse(new String(Base64.getDecoder.decode(tenantToRolesMap))).as[TenantToRolesMap]
-  }
 }

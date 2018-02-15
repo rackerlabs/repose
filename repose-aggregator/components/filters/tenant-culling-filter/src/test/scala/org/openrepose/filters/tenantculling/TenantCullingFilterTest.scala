@@ -27,8 +27,9 @@ import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.http.OpenStackServiceHeader.{TENANT_ID, TENANT_ROLES_MAP}
 import org.openrepose.commons.utils.http.PowerApiHeader.RELEVANT_ROLES
+import org.openrepose.commons.utils.json.JsonHeaderHelper
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
-import org.openrepose.filters.tenantculling.TenantCullingFilter.{packMap, unpackMap}
+import org.openrepose.filters.tenantculling.TenantCullingFilter.TenantToRolesMap
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
@@ -48,7 +49,7 @@ class TenantCullingFilterTest extends FunSpec with Matchers with MockitoSugar {
 
       filter.doFilter(request, mock[HttpServletResponse], filterChain)
       val forwardedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequestWrapper]
-      val resultMap = unpackMap(forwardedRequest.getHeader(TENANT_ROLES_MAP))
+      val resultMap = JsonHeaderHelper.jsonHeaderToValue(forwardedRequest.getHeader(TENANT_ROLES_MAP)).as[TenantToRolesMap]
 
       resultMap should contain only ("123456" -> Set("foo", "bar", "baz"))
       forwardedRequest.getSplittableHeaderScala(TENANT_ID) should contain only "123456"
@@ -62,7 +63,7 @@ class TenantCullingFilterTest extends FunSpec with Matchers with MockitoSugar {
 
       filter.doFilter(request, mock[HttpServletResponse], filterChain)
       val forwardedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequestWrapper]
-      val resultMap = unpackMap(forwardedRequest.getHeader(TENANT_ROLES_MAP))
+      val resultMap = JsonHeaderHelper.jsonHeaderToValue(forwardedRequest.getHeader(TENANT_ROLES_MAP)).as[TenantToRolesMap]
 
       resultMap should contain only ("123456" -> Set("foo", "bar", "baz"))
       forwardedRequest.getSplittableHeaderScala(TENANT_ID) should contain only "123456"
@@ -76,7 +77,7 @@ class TenantCullingFilterTest extends FunSpec with Matchers with MockitoSugar {
 
       filter.doFilter(request, mock[HttpServletResponse], filterChain)
       val forwardedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequestWrapper]
-      val resultMap = unpackMap(forwardedRequest.getHeader(TENANT_ROLES_MAP))
+      val resultMap = JsonHeaderHelper.jsonHeaderToValue(forwardedRequest.getHeader(TENANT_ROLES_MAP)).as[TenantToRolesMap]
 
       resultMap should contain ("123456" -> Set("foo", "bar", "baz"))
       resultMap should contain ("456789" -> Set("baz"))
@@ -94,7 +95,7 @@ class TenantCullingFilterTest extends FunSpec with Matchers with MockitoSugar {
 
       filter.doFilter(request, mock[HttpServletResponse], filterChain)
       val forwardedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequestWrapper]
-      val resultMap = unpackMap(forwardedRequest.getHeader(TENANT_ROLES_MAP))
+      val resultMap = JsonHeaderHelper.jsonHeaderToValue(forwardedRequest.getHeader(TENANT_ROLES_MAP)).as[TenantToRolesMap]
 
       resultMap should contain ("123456" -> Set("foo", "bar", "baz"))
       resultMap should not contain ("456789" -> Set("baz"))
@@ -112,7 +113,7 @@ class TenantCullingFilterTest extends FunSpec with Matchers with MockitoSugar {
 
       filter.doFilter(request, mock[HttpServletResponse], filterChain)
       val forwardedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequestWrapper]
-      val resultMap = unpackMap(forwardedRequest.getHeader(TENANT_ROLES_MAP))
+      val resultMap = JsonHeaderHelper.jsonHeaderToValue(forwardedRequest.getHeader(TENANT_ROLES_MAP)).as[TenantToRolesMap]
 
       resultMap shouldBe empty
       forwardedRequest.getSplittableHeaderScala(TENANT_ID) shouldBe empty
@@ -126,7 +127,7 @@ class TenantCullingFilterTest extends FunSpec with Matchers with MockitoSugar {
 
       filter.doFilter(request, mock[HttpServletResponse], filterChain)
       val forwardedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequestWrapper]
-      val resultMap = unpackMap(forwardedRequest.getHeader(TENANT_ROLES_MAP))
+      val resultMap = JsonHeaderHelper.jsonHeaderToValue(forwardedRequest.getHeader(TENANT_ROLES_MAP)).as[TenantToRolesMap]
 
       resultMap should contain only ("123456" -> Set("foo", "bar", "baz"))
       forwardedRequest.getSplittableHeaderScala(TENANT_ID) should contain only "123456"
@@ -170,6 +171,6 @@ class TenantCullingFilterTest extends FunSpec with Matchers with MockitoSugar {
                                "456789" -> Set("baz"),
                                "789012" -> Set("wizard"))
     request.addHeader(TENANT_ID, tenants)
-    request.addHeader(TENANT_ROLES_MAP, packMap(tenantToRolesMap))
+    request.addHeader(TENANT_ROLES_MAP, JsonHeaderHelper.anyToJsonHeader(tenantToRolesMap))
   }
 }
