@@ -19,7 +19,6 @@
  */
 package org.openrepose.filters.keystonev2
 
-import java.util.Base64
 import javax.inject.{Inject, Named}
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
@@ -28,6 +27,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import org.openrepose.commons.utils.http.OpenStackServiceHeader.{ROLES, TENANT_ID, TENANT_ROLES_MAP}
 import org.openrepose.commons.utils.http.PowerApiHeader.X_CATALOG
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
+import org.openrepose.commons.utils.string.Base64Helper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.{KeystoneV2Result, Reject}
 import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationException, AuthorizationFailed, AuthorizationPassed, doAuthorization}
@@ -75,8 +75,7 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
 
     Try {
       Option(request.getHeader(TENANT_ROLES_MAP))
-        .map(Base64.getDecoder.decode)
-        .map(new String(_))
+        .map(Base64Helper.base64DecodeUtf8)
         .map(Json.parse)
         .get
         .validate[TenantToRolesMap]
@@ -94,8 +93,7 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
 
     Try {
       val jsonString = Option(request.getHeader(X_CATALOG))
-        .map(Base64.getDecoder.decode)
-        .map(new String(_))
+        .map(Base64Helper.base64DecodeUtf8)
         .get
       val json = Json.parse(jsonString)
 
@@ -146,7 +144,7 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
       request.removeHeader(TENANT_ROLES_MAP)
 
       val tenantToRolesJson = Json.stringify(Json.toJson(tenantToRolesMap))
-      val encodedTenantToRolesJson = Base64.getEncoder.encodeToString(tenantToRolesJson.getBytes)
+      val encodedTenantToRolesJson = Base64Helper.base64EncodeUtf8(tenantToRolesJson)
       request.addHeader(TENANT_ROLES_MAP, encodedTenantToRolesJson)
     }
   }

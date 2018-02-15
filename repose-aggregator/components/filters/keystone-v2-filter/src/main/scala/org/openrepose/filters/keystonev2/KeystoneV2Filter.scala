@@ -19,7 +19,6 @@
  */
 package org.openrepose.filters.keystonev2
 
-import java.util.Base64
 import java.util.concurrent.{TimeUnit, TimeoutException}
 import javax.inject.{Inject, Named}
 import javax.servlet._
@@ -32,6 +31,7 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
+import org.openrepose.commons.utils.string.Base64Helper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.types.{PatchableSet, SetPatch}
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
@@ -316,7 +316,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         val tenantToRolesMap = if (sendAllTenantIds) buildTenantToRolesMap(token) else scopedTenantToRolesMap
         if (tenantToRolesMap.nonEmpty) {
           val tenantToRolesJson = Json.stringify(Json.toJson(tenantToRolesMap))
-          val encodedTenantToRolesJson = Base64.getEncoder.encodeToString(tenantToRolesJson.getBytes)
+          val encodedTenantToRolesJson = Base64Helper.base64EncodeUtf8(tenantToRolesJson)
           request.addHeader(OpenStackServiceHeader.TENANT_ROLES_MAP, encodedTenantToRolesJson)
         }
 
@@ -350,7 +350,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       if (configuration.getIdentityService.isSetCatalogInHeader) {
         maybeEndpoints map { endpoints =>
           // TODO: Sync character encoding with the authorization filter
-          request.addHeader(PowerApiHeader.X_CATALOG, Base64.getEncoder.encodeToString(endpoints.json.getBytes))
+          request.addHeader(PowerApiHeader.X_CATALOG, Base64Helper.base64EncodeUtf8(endpoints.json))
           Unit
         }
       } else {

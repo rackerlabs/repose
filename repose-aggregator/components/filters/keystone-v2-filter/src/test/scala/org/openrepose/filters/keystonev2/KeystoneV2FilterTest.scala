@@ -21,7 +21,6 @@ package org.openrepose.filters.keystonev2
 
 import java.io.{ByteArrayInputStream, InputStream}
 import java.net.URL
-import java.util.Base64
 import java.util.concurrent.TimeUnit
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse.{SC_UNAUTHORIZED, _}
@@ -42,6 +41,7 @@ import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.commons.utils.http._
+import org.openrepose.commons.utils.string.Base64Helper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.types.SetPatch
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
@@ -1734,7 +1734,7 @@ with HttpDelegationManager {
       filter.configurationUpdated(configuration)
 
       val processedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
-      val tenantToRolesMap = Json.parse(new String(Base64.getDecoder.decode(processedRequest.getHeader(OpenStackServiceHeader.TENANT_ROLES_MAP)))).as[TenantToRolesMap]
+      val tenantToRolesMap = Json.parse(Base64Helper.base64DecodeUtf8(processedRequest.getHeader(OpenStackServiceHeader.TENANT_ROLES_MAP))).as[TenantToRolesMap]
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID) should include("tenant")
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID) should include("rick")
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID) should include("morty")
@@ -1816,7 +1816,7 @@ with HttpDelegationManager {
       filter.configurationUpdated(configuration)
 
       val processedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
-      val tenantToRolesMap = Json.parse(new String(Base64.getDecoder.decode(processedRequest.getHeader(OpenStackServiceHeader.TENANT_ROLES_MAP)))).as[TenantToRolesMap]
+      val tenantToRolesMap = Json.parse(Base64Helper.base64DecodeUtf8(processedRequest.getHeader(OpenStackServiceHeader.TENANT_ROLES_MAP))).as[TenantToRolesMap]
       processedRequest.getHeaders(OpenStackServiceHeader.TENANT_ID).asScala.size shouldBe 1
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID) shouldBe "morty"
       tenantToRolesMap.keySet should contain only "morty"
@@ -2071,7 +2071,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       val tenantRolesMapHeader = filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.TENANT_ROLES_MAP)
-      val headerMap = Json.parse(new String(Base64.getDecoder.decode(tenantRolesMapHeader)))
+      val headerMap = Json.parse(Base64Helper.base64DecodeUtf8(tenantRolesMapHeader))
 
       headerMap shouldEqual Json.toJson(Map(defaultTenantId -> Seq.empty[String]) ++ tenantToRoleMap.map({ case (tenantId, roleNames) => tenantId.getOrElse(DomainRoleTenantKey) -> roleNames }))
     }
@@ -2236,7 +2236,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
       filter.configurationUpdated(configuration)
 
-      val encodedEndpoints = Base64.getEncoder.encodeToString(endpointsResponse().getBytes)
+      val encodedEndpoints = Base64Helper.base64EncodeUtf8(endpointsResponse())
       filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.X_CATALOG) shouldBe encodedEndpoints
     }
 

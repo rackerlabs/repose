@@ -19,13 +19,13 @@
  */
 package org.openrepose.filters.keystonev2
 
-import java.util.Base64
 import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_INTERNAL_SERVER_ERROR, SC_UNAUTHORIZED}
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.http.OpenStackServiceHeader.{ROLES, TENANT_ID, TENANT_ROLES_MAP}
 import org.openrepose.commons.utils.http.PowerApiHeader.X_CATALOG
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
+import org.openrepose.commons.utils.string.Base64Helper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.Reject
 import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{InvalidTenantException, UnauthorizedEndpointException, UnparsableTenantException}
@@ -58,7 +58,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
     it(s"should return a tenant to roles map if a valid map is present in the $TENANT_ROLES_MAP header of the request") {
       val tenantToRolesMap = Map("tenant1" -> Set("role1", "role2"), "tenant3" -> Set("role3"))
       val tenantToRolesJson = Json.stringify(Json.toJson(tenantToRolesMap))
-      val encodedTenantToRolesJson = Base64.getEncoder.encodeToString(tenantToRolesJson.getBytes)
+      val encodedTenantToRolesJson = Base64Helper.base64EncodeUtf8(tenantToRolesJson)
       val request = new MockHttpServletRequest
       request.addHeader(TENANT_ROLES_MAP, encodedTenantToRolesJson)
 
@@ -91,7 +91,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
 
     it(s"should return an endpoints object if valid endpoints are present in the $X_CATALOG header of the request") {
       val endpoints = Vector(Endpoint(None, None, None, "first"), Endpoint(None, None, None, "second"))
-      val catalog = Base64.getEncoder.encodeToString(Json.stringify(Json.obj("endpoints" -> Json.toJson(endpoints))).getBytes)
+      val catalog = Base64Helper.base64EncodeUtf8(Json.stringify(Json.obj("endpoints" -> Json.toJson(endpoints))))
       val request = new MockHttpServletRequest
       request.addHeader(X_CATALOG, catalog)
 
@@ -121,7 +121,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
 
     it(s"should return a Failure if the value present in the $X_CATALOG header of the request is not a valid endpoints representation") {
       val endpoints = Vector("first", "second")
-      val catalog = Base64.getEncoder.encodeToString(Json.stringify(Json.obj("endpoints" -> Json.toJson(endpoints))).getBytes)
+      val catalog = Base64Helper.base64EncodeUtf8(Json.stringify(Json.obj("endpoints" -> Json.toJson(endpoints))))
       val request = new MockHttpServletRequest
       request.addHeader(X_CATALOG, catalog)
 
@@ -339,7 +339,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
 
       keystoneV2AuthorizationFilter.scopeTenantToRolesMapHeader(request, tenantToRoles)
 
-      Json.parse(new String(Base64.getDecoder.decode(request.getHeader(TENANT_ROLES_MAP)))) shouldEqual Json.toJson(tenantToRoles)
+      Json.parse(Base64Helper.base64DecodeUtf8(request.getHeader(TENANT_ROLES_MAP))) shouldEqual Json.toJson(tenantToRoles)
     }
 
     it(s"should overwrite any existing value of the $TENANT_ROLES_MAP header") {
@@ -348,12 +348,12 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
 
       val tenantToRoles = Map("tenant1" -> Set("role1", "role2"), "tenant2" -> Set("role3"))
       val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
-      request.addHeader(TENANT_ROLES_MAP, Base64.getEncoder.encodeToString("""{"myTenant":["myRole"]}""".getBytes))
+      request.addHeader(TENANT_ROLES_MAP, Base64Helper.base64EncodeUtf8("""{"myTenant":["myRole"]}"""))
 
       keystoneV2AuthorizationFilter.scopeTenantToRolesMapHeader(request, tenantToRoles)
 
       request.getHeadersScala(TENANT_ROLES_MAP) should have size 1
-      Json.parse(new String(Base64.getDecoder.decode(request.getHeader(TENANT_ROLES_MAP)))) shouldEqual Json.toJson(tenantToRoles)
+      Json.parse(Base64Helper.base64DecodeUtf8(request.getHeader(TENANT_ROLES_MAP))) shouldEqual Json.toJson(tenantToRoles)
     }
 
     it(s"should overwrite any existing value of the $TENANT_ROLES_MAP header even if the new map is empty") {
@@ -362,12 +362,12 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
 
       val tenantToRoles = Map.empty[String, Set[String]]
       val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
-      request.addHeader(TENANT_ROLES_MAP, Base64.getEncoder.encodeToString("""{"myTenant":["myRole"]}""".getBytes))
+      request.addHeader(TENANT_ROLES_MAP, Base64Helper.base64EncodeUtf8("""{"myTenant":["myRole"]}"""))
 
       keystoneV2AuthorizationFilter.scopeTenantToRolesMapHeader(request, tenantToRoles)
 
       request.getHeadersScala(TENANT_ROLES_MAP) should have size 1
-      Json.parse(new String(Base64.getDecoder.decode(request.getHeader(TENANT_ROLES_MAP)))) shouldEqual Json.toJson(tenantToRoles)
+      Json.parse(Base64Helper.base64DecodeUtf8(request.getHeader(TENANT_ROLES_MAP))) shouldEqual Json.toJson(tenantToRoles)
     }
 
     it(s"should not modify the $TENANT_ROLES_MAP header when configured to send all tenant IDs") {
@@ -377,7 +377,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
           .withSendAllTenantIds(sendAllTenantIds))
 
       val tenantToRoles = Map("tenant1" -> Set("role1", "role2"), "tenant2" -> Set("role3"))
-      val existingHeaderValue = Base64.getEncoder.encodeToString("""{"myTenant":["myRole"]}""".getBytes)
+      val existingHeaderValue = Base64Helper.base64EncodeUtf8("""{"myTenant":["myRole"]}""")
       val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
       request.addHeader(TENANT_ROLES_MAP, existingHeaderValue)
 
@@ -452,7 +452,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
 
       val tenantToRolesMap = Map(userTenantId -> Set.empty[String])
       val tenantToRolesJson = Json.stringify(Json.toJson(tenantToRolesMap))
-      val encodedTenantToRolesJson = Base64.getEncoder.encodeToString(tenantToRolesJson.getBytes)
+      val encodedTenantToRolesJson = Base64Helper.base64EncodeUtf8(tenantToRolesJson)
       val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
       request.addHeader(TENANT_ROLES_MAP, encodedTenantToRolesJson)
       request.setRequestURI(s"/$userTenantId")
