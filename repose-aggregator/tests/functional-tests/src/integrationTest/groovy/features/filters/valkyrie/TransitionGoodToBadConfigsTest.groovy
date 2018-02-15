@@ -96,7 +96,7 @@ class TransitionGoodToBadConfigsTest extends ReposeValveTest {
         def logSearch = reposeLogSearch.awaitByString(
                 "If the http-methods attribute is present, then it must not be empty.",
                 1,
-                10,
+                25,
                 TimeUnit.SECONDS
         )
         !logSearch.empty
