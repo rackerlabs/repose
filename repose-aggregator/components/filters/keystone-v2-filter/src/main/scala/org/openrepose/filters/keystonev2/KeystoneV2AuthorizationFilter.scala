@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import com.fasterxml.jackson.core.JsonProcessingException
 import org.openrepose.commons.utils.http.OpenStackServiceHeader.{ROLES, TENANT_ID, TENANT_ROLES_MAP}
 import org.openrepose.commons.utils.http.PowerApiHeader.X_CATALOG
+import org.openrepose.commons.utils.json.JsonHeaderHelper
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.commons.utils.string.Base64Helper
 import org.openrepose.core.services.config.ConfigurationService
@@ -33,7 +34,7 @@ import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.{KeystoneV2Res
 import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationException, AuthorizationFailed, AuthorizationPassed, doAuthorization}
 import org.openrepose.filters.keystonev2.KeystoneV2Common._
 import org.openrepose.filters.keystonev2.config.KeystoneV2Config
-import play.api.libs.json.Json
+import play.api.libs.json.{JsResultException, Json}
 
 import scala.util.{Failure, Success, Try}
 
@@ -75,15 +76,13 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
 
     Try {
       Option(request.getHeader(TENANT_ROLES_MAP))
-        .map(Base64Helper.base64DecodeUtf8)
-        .map(Json.parse)
+        .map(JsonHeaderHelper.jsonHeaderToValue)
         .get
-        .validate[TenantToRolesMap]
-        .getOrElse(throw new JsonProcessingException("Could not validate tenant-to-roles map JSON") {})
+        .as[TenantToRolesMap]
     } recover {
       case nsee: NoSuchElementException =>
         throw MissingTenantToRolesMapException(s"$TENANT_ROLES_MAP header does not exist", nsee)
-      case e@(_: IllegalArgumentException | _: JsonProcessingException) =>
+      case e@(_: IllegalArgumentException | _: JsonProcessingException | _: JsResultException) =>
         throw InvalidTenantToRolesMapException(s"$TENANT_ROLES_MAP header value is not a valid tenant-to-roles map representation", e)
     }
   }
@@ -142,10 +141,7 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
 
     if (!configuration.getTenantHandling.isSendAllTenantIds) {
       request.removeHeader(TENANT_ROLES_MAP)
-
-      val tenantToRolesJson = Json.stringify(Json.toJson(tenantToRolesMap))
-      val encodedTenantToRolesJson = Base64Helper.base64EncodeUtf8(tenantToRolesJson)
-      request.addHeader(TENANT_ROLES_MAP, encodedTenantToRolesJson)
+      request.addHeader(TENANT_ROLES_MAP, JsonHeaderHelper.anyToJsonHeader(tenantToRolesMap))
     }
   }
 }

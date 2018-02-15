@@ -29,6 +29,7 @@ import javax.ws.rs.core.HttpHeaders
 import org.apache.http.client.utils.DateUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http._
+import org.openrepose.commons.utils.json.JsonHeaderHelper
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.commons.utils.string.Base64Helper
@@ -43,7 +44,6 @@ import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationF
 import org.openrepose.filters.keystonev2.KeystoneV2Common._
 import org.openrepose.filters.keystonev2.config._
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
-import play.api.libs.json.Json
 
 import scala.Function.tupled
 import scala.collection.JavaConverters._
@@ -315,9 +315,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         val sendAllTenantIds = configuration.getTenantHandling.isSendAllTenantIds
         val tenantToRolesMap = if (sendAllTenantIds) buildTenantToRolesMap(token) else scopedTenantToRolesMap
         if (tenantToRolesMap.nonEmpty) {
-          val tenantToRolesJson = Json.stringify(Json.toJson(tenantToRolesMap))
-          val encodedTenantToRolesJson = Base64Helper.base64EncodeUtf8(tenantToRolesJson)
-          request.addHeader(OpenStackServiceHeader.TENANT_ROLES_MAP, encodedTenantToRolesJson)
+          request.addHeader(OpenStackServiceHeader.TENANT_ROLES_MAP, JsonHeaderHelper.anyToJsonHeader(tenantToRolesMap))
         }
 
         Option(configuration.getTenantHandling.getValidateTenant).map(_.isEnableLegacyRolesMode) match {
@@ -349,7 +347,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     def addCatalogHeader(maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
       if (configuration.getIdentityService.isSetCatalogInHeader) {
         maybeEndpoints map { endpoints =>
-          // TODO: Sync character encoding with the authorization filter
           request.addHeader(PowerApiHeader.X_CATALOG, Base64Helper.base64EncodeUtf8(endpoints.json))
           Unit
         }
