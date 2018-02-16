@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.recipes.tenantCullingRbac
+package features.recipes.tenantcullingrbac
 
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
@@ -42,7 +42,7 @@ class TenantCullingRBACRecipeTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs('common', params)
-        repose.configurationProvider.applyConfigs('features/recipes/tenantCullingRbac/common', params)
+        repose.configurationProvider.applyConfigs('features/recipes/tenantcullingrbac/common', params)
         repose.start()
     }
 

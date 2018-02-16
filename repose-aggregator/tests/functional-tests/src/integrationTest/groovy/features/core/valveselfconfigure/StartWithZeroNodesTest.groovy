@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.core.valveSelfConfigure
+package features.core.valveselfconfigure
 
 import org.openrepose.framework.test.ReposeValveTest
 import scaffold.category.Slow
@@ -48,9 +48,9 @@ class StartWithZeroNodesTest extends ReposeValveTest {
 
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/core/valveSelfConfigure/common", params)
-        repose.configurationProvider.applyConfigs("features/core/valveSelfConfigure/container-no-port", params)
-        repose.configurationProvider.applyConfigs("features/core/valveSelfConfigure/zero-nodes", params)
+        repose.configurationProvider.applyConfigs("features/core/valveselfconfigure/common", params)
+        repose.configurationProvider.applyConfigs("features/core/valveselfconfigure/container-no-port", params)
+        repose.configurationProvider.applyConfigs("features/core/valveselfconfigure/zero-nodes", params)
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
         sleep(sleep_duration)
@@ -73,7 +73,7 @@ class StartWithZeroNodesTest extends ReposeValveTest {
                 'host': 'localhost',
                 'port': port,
         ]
-        repose.configurationProvider.applyConfigs('features/core/valveSelfConfigure/one-node', params)
+        repose.configurationProvider.applyConfigs('features/core/valveselfconfigure/one-node', params)
         sleep(sleep_duration)
         then:
         1 == 1

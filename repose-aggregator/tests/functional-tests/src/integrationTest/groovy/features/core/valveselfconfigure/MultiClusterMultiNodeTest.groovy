@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.core.valveSelfConfigure
+package features.core.valveselfconfigure
 
 import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
@@ -66,9 +66,9 @@ class MultiClusterMultiNodeTest extends ReposeValveTest {
         ]
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/core/valveSelfConfigure/common", params)
-        repose.configurationProvider.applyConfigs("features/core/valveSelfConfigure/container-no-port", params)
-        repose.configurationProvider.applyConfigs("features/core/valveSelfConfigure/two-clusters-two-nodes-each", params)
+        repose.configurationProvider.applyConfigs("features/core/valveselfconfigure/common", params)
+        repose.configurationProvider.applyConfigs("features/core/valveselfconfigure/container-no-port", params)
+        repose.configurationProvider.applyConfigs("features/core/valveselfconfigure/two-clusters-two-nodes-each", params)
 
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
