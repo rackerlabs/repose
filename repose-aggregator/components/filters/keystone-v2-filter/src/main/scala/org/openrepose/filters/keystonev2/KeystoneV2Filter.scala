@@ -19,7 +19,6 @@
  */
 package org.openrepose.filters.keystonev2
 
-import java.util.Base64
 import java.util.concurrent.{TimeUnit, TimeoutException}
 import javax.inject.{Inject, Named}
 import javax.servlet._
@@ -30,8 +29,10 @@ import javax.ws.rs.core.HttpHeaders
 import org.apache.http.client.utils.DateUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http._
+import org.openrepose.commons.utils.json.JsonHeaderHelper
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
+import org.openrepose.commons.utils.string.Base64Helper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.types.{PatchableSet, SetPatch}
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
@@ -40,10 +41,11 @@ import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.{KeystoneV2Result, Reject}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationFailed, AuthorizationPassed, UnparsableTenantException}
-import org.openrepose.filters.keystonev2.KeystoneV2Common.{EndpointsData, TokenRequestAttributeName, ValidToken}
+import org.openrepose.filters.keystonev2.KeystoneV2Common._
 import org.openrepose.filters.keystonev2.config._
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 
+import scala.Function.tupled
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 import scala.util.{Failure, Random, Success, Try}
@@ -238,54 +240,53 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
     }
 
+    def buildTenantToRolesMap(token: ValidToken): TenantToRolesMap = {
+      token.defaultTenantId.map(_ -> Set.empty[String]).toMap ++
+        token.roles.groupBy(_.tenantId).map({ case (key, value) => key.getOrElse(DomainRoleTenantKey) -> value.map(_.name).toSet })
+    }
+
     def buildTenantHeader(defaultTenant: Option[String],
-                          roleTenants: Seq[String],
-                          matchedUriTenant: Option[String]): Vector[String] = {
+                          roleTenants: Set[String],
+                          matchedTenants: Set[String]): Set[ValueWithQuality] = {
       val sendAllTenants = configuration.getTenantHandling.isSendAllTenantIds
       val sendTenantIdQuality = Option(configuration.getTenantHandling.getSendTenantIdQuality)
       val sendQuality = sendTenantIdQuality.isDefined
       val defaultTenantQuality = sendTenantIdQuality.map(_.getDefaultTenantQuality).getOrElse(0.0)
-      val uriTenantQuality = sendTenantIdQuality.map(_.getUriTenantQuality).getOrElse(0.0)
+      val matchedTenantQuality = sendTenantIdQuality.map(_.getUriTenantQuality).getOrElse(0.0)
       val rolesTenantQuality = sendTenantIdQuality.map(_.getRolesTenantQuality).getOrElse(0.0)
 
-      case class PreferredTenant(id: String, quality: Double)
-
-      val preferredTenant = (defaultTenant, matchedUriTenant) match {
-        case (Some(default), Some(uri)) =>
-          val quality = if (default.equals(uri)) {
-            math.max(defaultTenantQuality, uriTenantQuality)
-          } else {
-            uriTenantQuality
+      val preferredTenants =
+        if (matchedTenants.nonEmpty) {
+          matchedTenants map {
+            case matchedTenant if defaultTenant.exists(matchedTenant.equals) =>
+              matchedTenant -> Math.max(matchedTenantQuality, defaultTenantQuality)
+            case matchedTenant =>
+              matchedTenant -> matchedTenantQuality
           }
-          Some(PreferredTenant(uri, quality))
-        case (None, Some(uri)) =>
-          Some(PreferredTenant(uri, uriTenantQuality))
-        case (Some(default), None) =>
-          Some(PreferredTenant(default, defaultTenantQuality))
-        case (None, None) =>
-          if (roleTenants.nonEmpty) Some(PreferredTenant(roleTenants.head, rolesTenantQuality))
-          else None
-      }
+        } else if (defaultTenant.nonEmpty) {
+          defaultTenant.toSet[String].map(_ -> defaultTenantQuality)
+        } else if (roleTenants.nonEmpty) {
+          val tenantsFromRoles = roleTenants.map(_ -> rolesTenantQuality)
+          if (sendAllTenants) tenantsFromRoles else tenantsFromRoles.take(1)
+        } else {
+          Set.empty
+        }
 
       if (sendAllTenants && sendQuality) {
-        val priorityTenants = (defaultTenant, matchedUriTenant) match {
-          case (Some(default), Some(uri)) => Vector(s"$default;q=$defaultTenantQuality", s"$uri;q=$uriTenantQuality")
-          case (Some(default), None) => Vector(s"$default;q=$defaultTenantQuality")
-          case (None, Some(uri)) => Vector(s"$uri;q=$uriTenantQuality")
-          case (None, None) => Vector.empty[String]
-        }
-        priorityTenants ++ roleTenants.map(tid => s"$tid;q=$rolesTenantQuality")
+        val matched = matchedTenants.map(_ -> Some(matchedTenantQuality))
+        val default = defaultTenant.map(_ -> Some(defaultTenantQuality))
+        val roles = roleTenants.map(_ -> Some(rolesTenantQuality))
+        matched ++ default ++ roles
       } else if (sendAllTenants && !sendQuality) {
-        (defaultTenant.toSet ++ roleTenants).toVector
+        (defaultTenant.toSet ++ roleTenants).map(_ -> None)
       } else if (!sendAllTenants && sendQuality) {
-        preferredTenant.map(tenant => Vector(s"${tenant.id};q=${tenant.quality}")).getOrElse(Vector.empty)
+        preferredTenants.map(tupled((tenant, quality) => tenant -> Some(quality)))
       } else {
-        preferredTenant.map(tenant => Vector(s"${tenant.id}")).getOrElse(Vector.empty)
+        preferredTenants.map(tupled((tenant, _) => tenant -> None))
       }
     }
 
-    def addTokenHeaders(token: ValidToken, matchedUriTenant: Option[String]): Unit = {
-      // TODO: Add tenant to role map header
+    def addTokenHeaders(token: ValidToken, scopedTenantToRolesMap: TenantToRolesMap, matchedTenants: Set[String]): Unit = {
       // Add standard headers
       request.addHeader(OpenStackServiceHeader.USER_ID, token.userId)
       request.addHeader(OpenStackServiceHeader.X_EXPIRATION, token.expirationDate)
@@ -304,27 +305,35 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
 
       // Construct and add the tenant id header
-      val tenantsToPass = buildTenantHeader(token.defaultTenantId, token.tenantIds, matchedUriTenant)
-      if (tenantsToPass.nonEmpty) {
-        request.addHeader(OpenStackServiceHeader.TENANT_ID, tenantsToPass.mkString(","))
+      buildTenantHeader(token.defaultTenantId, token.tenantIds.toSet, matchedTenants) foreach {
+        case (tenant, Some(quality)) => request.appendHeader(OpenStackServiceHeader.TENANT_ID, tenant, quality)
+        case (tenant, None) => request.appendHeader(OpenStackServiceHeader.TENANT_ID, tenant)
       }
 
       // If configured, add roles header
-      if (configuration.getIdentityService.isSetRolesInHeader && token.roles.nonEmpty) {
-        request.addHeader(OpenStackServiceHeader.ROLES, token.roles.map(_.name).mkString(","))
+      if (configuration.getIdentityService.isSetRolesInHeader) {
+        val sendAllTenantIds = configuration.getTenantHandling.isSendAllTenantIds
+        val tenantToRolesMap = if (sendAllTenantIds) buildTenantToRolesMap(token) else scopedTenantToRolesMap
+        if (tenantToRolesMap.nonEmpty) {
+          request.addHeader(OpenStackServiceHeader.TENANT_ROLES_MAP, JsonHeaderHelper.anyToJsonHeader(tenantToRolesMap))
+        }
+
+        Option(configuration.getTenantHandling.getValidateTenant).map(_.isEnableLegacyRolesMode) match {
+          case Some(true) => token.roles.map(_.name).foreach(request.appendHeader(OpenStackServiceHeader.ROLES, _))
+          case _ => scopedTenantToRolesMap.values.flatten.foreach(request.appendHeader(OpenStackServiceHeader.ROLES, _))
+        }
       }
 
       // If present, add the tenant from the URI as part of the Proxy header, otherwise use the default tenant id
-      matchedUriTenant match {
-        case Some(uriTenant) =>
-          request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, s"$XAuthProxy $uriTenant")
-        case None =>
-          token.defaultTenantId match {
-            case Some(tenant) =>
-              request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, s"$XAuthProxy $tenant")
-            case None =>
-              request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, XAuthProxy)
-          }
+      if (matchedTenants.nonEmpty) {
+        matchedTenants.map(tenant => s"$XAuthProxy $tenant").foreach(request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, _))
+      } else {
+        token.defaultTenantId match {
+          case Some(tenant) =>
+            request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, s"$XAuthProxy $tenant")
+          case None =>
+            request.addHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION, XAuthProxy)
+        }
       }
 
       // Construct and add authenticatedBy, if available
@@ -338,8 +347,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
     def addCatalogHeader(maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
       if (configuration.getIdentityService.isSetCatalogInHeader) {
         maybeEndpoints map { endpoints =>
-          // TODO: Sync character encoding with the authorization filter
-          request.addHeader(PowerApiHeader.X_CATALOG, Base64.getEncoder.encodeToString(endpoints.json.getBytes))
+          request.addHeader(PowerApiHeader.X_CATALOG, Base64Helper.base64EncodeUtf8(endpoints.json))
           Unit
         }
       } else {
@@ -365,17 +373,15 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       */
     getAuthToken flatMap { authToken =>
       validateToken(authToken) flatMap { validToken =>
-        // TODO: Remove this and use the tenant-to-roles map header for transport.
-        request.setAttribute(TokenRequestAttributeName, validToken)
-
         lazy val endpoints = getEndpoints(authToken) // Prevents making call if its not needed
-        val authResult = KeystoneV2Authorization.doAuthorization(configuration, request, validToken, endpoints)
+        val tenantToRolesMap = buildTenantToRolesMap(validToken)
+        val authResult = KeystoneV2Authorization.doAuthorization(configuration, request, tenantToRolesMap, endpoints)
 
-        addTokenHeaders(authResult.scopedToken, authResult.matchedTenant)
+        addTokenHeaders(validToken, authResult.scopedTenantToRolesMap, authResult.matchedTenants)
         authResult match {
-          case AuthorizationPassed(scopedToken, _) =>
+          case AuthorizationPassed(_, _) =>
             addCatalogHeader(endpoints) flatMap { _ =>
-              addGroupsHeader(getGroups(authToken, scopedToken))
+              addGroupsHeader(getGroups(authToken, validToken))
             }
           case AuthorizationFailed(_, _, exception) => Failure(exception)
         }
@@ -584,6 +590,8 @@ object KeystoneV2Filter {
   private final val XAuthProxy = "Proxy"
 
   val AuthTokenKey = "X-Auth-Token-Key"
+
+  type ValueWithQuality = (String, Option[Double])
 
   implicit def toCachingTry[T](tryToWrap: Try[T]): CachingTry[T] = new CachingTry(tryToWrap)
 

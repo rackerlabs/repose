@@ -25,7 +25,9 @@ import play.api.libs.json.{JsPath, Reads}
 object KeystoneV2Common {
 
   final val TokenRequestAttributeName: String = "http://openrepose.org/filters/keystonev2/token"
-  final val EndpointsRequestAttributeName: String = "http://openrepose.org/filters/keystonev2/endpoints"
+  final val DomainRoleTenantKey: String = "repose/domain/roles"
+
+  type TenantToRolesMap = Map[String, Set[String]]
 
   case class ValidToken(expirationDate: String,
                         userId: String,

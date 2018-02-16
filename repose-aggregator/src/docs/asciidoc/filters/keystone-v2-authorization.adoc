@@ -11,10 +11,17 @@ The Keystone v2 Authorization Filter authorizes requests based on data about the
 
 == Prerequisites & Postconditions
 === Required Request Headers
-This filter does not require any request headers.
+The following headers are expected to be populated by the <<keystone-v2.adoc#, Keystone v2 Filter>>.
+
+* `X-Map-Roles`
+* `X-Catalog` (Only required for endpoint authorization)
+* `X-Tenant-Id` (Configurable, and only required for tenant authorization if configured to extract the tenant from a header)
 
 === Required Preceding Filters
-This filter requires that the <<keystone-v2.adoc#, Keystone v2 Filter>> precede it to populate necessary user data.
+This filter expects that the <<keystone-v2.adoc#, Keystone v2 Filter>> precede it to populate necessary user data.
+Be aware, however, that the necessary user data is transported via request header, and thus, could could be populated elsewhere.
+
+It is best practice to prevent spoofing by putting the <<header-normalization.adoc#, Header Normalization filter>> before any authentication and/or authorization filters so that it can remove any headers that would be populated by them.
 
 === Request Headers Created
 The following headers are created:
@@ -26,6 +33,10 @@ The following headers are created:
   This header will be always be added with a value of all of the user's roles associated with the validated tenant.
   If no tenant has been validated, then all user roles will be added to this header.
   If this header already exists, it will be replaced.
+* `X-Map-Roles` - The tenant-to-roles mapping for the user's tenants which are validated and roles associated with those tenants.
+  This header will not be modified if the `send-all-tenant-ids` configuration attribute is set to `true`.
+  This header will be a base 64 encoded JSON map of strings to arrays of strings (e.g., the base 64 encoding of `{"someTenant": ["someRole", "sharedRole"], "otherTenant": ["otherRole", "sharedRole"]}`).
+  Roles without a tenant association will be mapped to the `repose/domain/roles` key (e.g., `{"repose/domain/roles": ["tenantlessRole"]}`).
 * `X-Identity-Status` - Indicates if identity has been confirmed.
   Identity is considered to be confirmed if authorization succeeds.
   Possible values are `Confirmed` and `Indeterminate`.
@@ -39,6 +50,10 @@ This filter does not modify the request body.
 
 === Recommended Follow-On (Succeeding) Filters
 This filter is not strictly required by any other filters.
+However, the following filters may be useful:
+
+* <<simple-rbac.adoc#, Simple RBAC filter>> - Provides role-based access control to the origin service's API, making use of the culled `X-Roles` and `X-Map-Roles` headers.
+* <<api-validator.adoc#, API Validator filter>> - Provides role-based access control to the origin service's API, making use of the culled `X-Roles` and `X-Map-Roles` headers.
 
 === Response Body Changes
 This filter does not modify the response body.
@@ -57,16 +72,18 @@ This filter does not create/modify any response headers.
 | Tenant ID validation fails because the request tenant ID does not match any tenant ID in the user data.
 
 | `403`
-| Endpoint validation fails because the user data does not a required endpoint.
+| Endpoint validation fails because the user data does not contain a required endpoint.
 
 | `500`
-| Valid user data (i.e., token and endpoint data) was not found in the request.
-The most likely cause is that the <<keystone-v2.adoc#, Keystone v2 Filter>> which must precede this filter had not been set up correctly.
+| Valid user data (i.e., tenant-to-roles map and endpoint data) was not found in the request.
+The most likely cause is that the <<keystone-v2.adoc#, Keystone v2 Filter>> had not been set up correctly.
+Note that the `set-roles-in-header` and `set-catalog-in-header` attributes must be set to true for the tenant-to-roles map and endpoints to be forwarded respectively.
 |===
 
 == Examples
 === Tenant Validation
-This configuration will validate the tenant ID in the request against the tenant IDs in the user data.
+This configuration will validate the tenant ID(s) in the request against the tenant ID(s) in the user data.
+All tenants extracted from the request _must_ have at least one matching tenant in the user data.
 
 [source,xml]
 .keystone-v2-authorization.cfg.xml
@@ -107,15 +124,23 @@ This configuration will validate the tenant ID in the request against the tenant
     The first capture group must be around the portion of the URI to extract the Tenant ID from for validation.
 <7> Declares that a tenant ID should be extracted from the `x-expected-tenant` header in the request.
 <8> If this element is included, then include Quality parameters on all the tenant ID headers sent.
-<9> The default tenant has the highest quality by default. +
+<9> The default tenant has the highest quality by default.
+    Since this filter does not set the default tenant, this value is not currently used by the this filter. +
     Default: `0.9`
-<10> Followed by the one that matches the URI by default (if any). +
+<10> Followed by matching request tenants by default (if any). +
      Default: `0.7`
-<11> Followed by the tenants from the roles by default. +
+<11> Followed by the tenants from the roles by default.
+     Since this filter does not set the roles tenants, this value is not currently used by the this filter. +
      Default: `0.5`
 
+ [WARNING]
+ ====
+ The `uri-extraction-regex` attribute is considered deprecated.
+ Consider using the <<url-extractor-to-header.adoc#, URL Extractor to Header Filter>> instead.
+ ====
+
 === Endpoint Validation
-This configuration will validate that the user data contains a configured edpoint.
+This configuration will validate that the user data contains a configured endpoint.
 
 [source,xml]
 .keystone-v2-authorization.cfg.xml

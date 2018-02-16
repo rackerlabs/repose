@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_UNAUTHORIZED}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.{KeystoneV2Result, Reject}
-import org.openrepose.filters.keystonev2.KeystoneV2Common.{Endpoint, EndpointsData, Role, ValidToken}
+import org.openrepose.filters.keystonev2.KeystoneV2Common._
 import org.openrepose.filters.keystonev2.config._
 
 import scala.collection.JavaConverters._
@@ -38,116 +38,118 @@ object KeystoneV2Authorization extends LazyLogging {
     case Failure(e: UnparsableTenantException) => Reject(SC_UNAUTHORIZED, Some(e.getMessage))
   }
 
-  // TODO: Take tenants to roles mapping instead of token to calculate scoped roles.
-  def doAuthorization(config: KeystoneV2Config, request: HttpServletRequestWrapper, validToken: ValidToken, endpoints: => Try[EndpointsData]): AuthorizationInfo = {
-    lazy val tenantToMatch = getRequestTenant(config.getTenantHandling.getValidateTenant, request)
-
-    val tenantScopedRoles = getTenantScopedRoles(config.getTenantHandling.getValidateTenant, tenantToMatch, validToken.roles)
-    val userIsPreAuthed = isUserPreAuthed(config.getPreAuthorizedRoles, tenantScopedRoles)
-    val scopedRolesToken = if (userIsPreAuthed) validToken else validToken.copy(roles = tenantScopedRoles)
-    val doTenantCheck = shouldAuthorizeTenant(config.getTenantHandling.getValidateTenant, userIsPreAuthed)
-    val matchedTenant = getMatchingTenant(config.getTenantHandling.getValidateTenant, tenantToMatch, doTenantCheck, scopedRolesToken)
-    val authResult = authorizeTenant(doTenantCheck, matchedTenant) flatMap { _ =>
-      authorizeEndpoints(config.getRequireServiceEndpoint, userIsPreAuthed, endpoints)
-    }
-    authResult match {
-      case Success(_) => AuthorizationPassed(scopedRolesToken, matchedTenant)
-      case Failure(exception) => AuthorizationFailed(scopedRolesToken, matchedTenant, exception)
-    }
-  }
-
-  // TODO: Switch to getRequestTenants (plural) and include all tenants extracted. This is a behavior change.
-  def getRequestTenant(config: ValidateTenantType, request: HttpServletRequestWrapper): String = {
-    Option(config).flatMap(validateTenantConfig =>
-      (validateTenantConfig.getUriExtractionRegexAndHeaderExtractionName.asScala.toStream map {
-        case headerExtraction: HeaderExtractionType =>
-          request.getPreferredSplittableHeaders(headerExtraction.getValue).asScala.headOption
-        case uriExtraction: UriExtractionType =>
-          val uriRegex = uriExtraction.getValue.r
-          request.getRequestURI match {
-            case uriRegex(tenantId, _*) => Some(tenantId)
-            case _ => None
-          }
-        case _ =>
-          logger.error("An unexpected tenant extraction type was encountered")
-          None
-      }).find(_.nonEmpty).flatten
-    ).getOrElse(throw UnparsableTenantException("Could not parse tenant from the URI and/or the configured header"))
-  }
-
-  def getTenantScopedRoles(config: ValidateTenantType, tenantToMatch: => String, roles: Seq[Role]): Seq[Role] = {
-    Option(config) match {
-      case Some(validateTenant) if !validateTenant.isEnableLegacyRolesMode =>
-        roles.filter(role =>
-          role.tenantId.forall(roleTenantId =>
-            roleTenantId.equals(tenantToMatch)))
-      case _ =>
-        roles
-    }
-  }
-
-  def isUserPreAuthed(config: RolesList, roles: Seq[Role]): Boolean = {
-    Option(config) exists { preAuthedRoles =>
-      preAuthedRoles.getRole.asScala.intersect(roles.map(_.name)).nonEmpty
-    }
-  }
-
-  def shouldAuthorizeTenant(config: ValidateTenantType, preAuthed: Boolean): Boolean = {
-    Option(config).exists(_ => !preAuthed)
-  }
-
-  def getMatchingTenant(config: ValidateTenantType, tenantToMatch: => String, doTenantCheck: Boolean, validToken: ValidToken): Option[String] = {
-    if (doTenantCheck) {
-      val tokenTenants = validToken.defaultTenantId.toSet ++ validToken.tenantIds
-      val prefixes = Option(config.getStripTokenTenantPrefixes).map(_.split('/')).getOrElse(Array.empty[String])
-      tokenTenants find { tokenTenant =>
-        tokenTenant.equals(tenantToMatch) || prefixes.exists(prefix =>
-          tokenTenant.startsWith(prefix) && tokenTenant.substring(prefix.length).equals(tenantToMatch)
-        )
-      }
+  // TODO: Break this into separate authorizeTenants/authorizeEndpoints calls to separate concerns
+  def doAuthorization(config: KeystoneV2Config, request: HttpServletRequestWrapper, userTenantToRolesMap: TenantToRolesMap, endpoints: => Try[EndpointsData]): AuthorizationInfo = {
+    // NOTE TO REVIEWER: Behavior change -- pre-authorization is determined based on all roles, not just those matching the tenant (since that is part of authorization).
+    //                   This change actually makes the behavior consistent with documentation.
+    if (isUserPreAuthed(config.getPreAuthorizedRoles, userTenantToRolesMap.values.flatten.toSeq)) {
+      AuthorizationPassed(userTenantToRolesMap, Set.empty)
     } else {
-      None
+      val validateTenant = Option(config.getTenantHandling.getValidateTenant)
+      val requestTenants = validateTenant
+        .map(getRequestTenants(_, request))
+        .getOrElse(Set.empty)
+      val tenantPrefixes = validateTenant
+        .map(_.getStripTokenTenantPrefixes)
+        .flatMap(Option.apply)
+        .map(_.split('/'))
+        .getOrElse(Array.empty)
+      val scopedTenantToRolesMap = validateTenant
+        .map(_ => getScopedTenantToRolesMap(tenantPrefixes, userTenantToRolesMap, requestTenants))
+      val matchedTenants = (scopedTenantToRolesMap.getOrElse(Map.empty) - DomainRoleTenantKey).keySet
+      val tenantAuthorization = validateTenant
+        .map(_ => authorizeTenant(tenantPrefixes, matchedTenants, requestTenants))
+        .getOrElse(Success(Unit))
+
+      val endpointAuthorization = Option(config.getRequireServiceEndpoint)
+        .map(requiredEndpoint => authorizeEndpoints(requiredEndpoint, endpoints))
+        .getOrElse(Success(Unit))
+
+      tenantAuthorization.flatMap(_ => endpointAuthorization) match {
+        case Success(_) => AuthorizationPassed(scopedTenantToRolesMap.getOrElse(userTenantToRolesMap), matchedTenants)
+        case Failure(e) => AuthorizationFailed(scopedTenantToRolesMap.getOrElse(userTenantToRolesMap), matchedTenants, e)
+      }
     }
   }
 
-  def authorizeTenant(doTenantCheck: Boolean, matchedTenant: Option[String]): Try[Unit.type] = {
+  // TODO: Rather than throwing an exception, this method should return a Try.
+  // NOTE: Throwing an exception currently works because this method is always called in a [[Try]] stack.
+  @throws[UnparsableTenantException]
+  def getRequestTenants(config: ValidateTenantType, request: HttpServletRequestWrapper): Set[String] = {
+    config.getUriExtractionRegexAndHeaderExtractionName.asScala.toSet[ExtractionType] flatMap {
+      case headerExtraction: HeaderExtractionType =>
+        request.getSplittableHeaderScala(headerExtraction.getValue)
+      case uriExtraction: UriExtractionType =>
+        val uriRegex = uriExtraction.getValue.r
+        request.getRequestURI match {
+          case uriRegex(tenantId, _*) => List(tenantId)
+          case _ => List.empty
+        }
+      case _ =>
+        logger.error("An unexpected tenant extraction type was encountered")
+        List.empty
+    } match {
+      case extractedTenants if extractedTenants.nonEmpty => extractedTenants
+      case _ => throw UnparsableTenantException("Could not parse tenant from the URI and/or the configured header")
+    }
+  }
+
+  // NOTE: Replaces the tenant and roles scoping methods. For the roles scoping, also accounts for tenant prefixes, which was not previously the case.
+  def getScopedTenantToRolesMap(prefixes: Array[String], userTenantToRolesMap: TenantToRolesMap, requestTenants: Set[String]): TenantToRolesMap = {
+    userTenantToRolesMap filterKeys { userTenant =>
+      userTenant == DomainRoleTenantKey || requestTenants.exists { requestTenant =>
+        prefixableTenantEquals(prefixes, userTenant, requestTenant)
+      }
+    }
+  }
+
+  def isUserPreAuthed(config: RolesList, roles: Seq[String]): Boolean = {
+    Option(config) exists { preAuthedRoles =>
+      preAuthedRoles.getRole.asScala.intersect(roles).nonEmpty
+    }
+  }
+
+  def authorizeTenant(prefixes: Array[String], userTenants: Set[String], requestTenants: Set[String]): Try[Unit.type] = {
     logger.trace("Validating tenant")
 
-    if (doTenantCheck) {
-      if (matchedTenant.isDefined) Success(Unit)
-      else Failure(InvalidTenantException("Tenant from URI does not match any of the tenants associated with the provided token"))
-    } else {
-      Success(Unit)
+    val allTenantsMatch = requestTenants forall { requestTenant =>
+      userTenants exists { userTenant =>
+        prefixableTenantEquals(prefixes, userTenant, requestTenant)
+      }
+    }
+
+    if (allTenantsMatch) Success(Unit)
+    else Failure(InvalidTenantException("A tenant from the URI and/or the configured header does not match any of the user's tenants"))
+  }
+
+  def authorizeEndpoints(config: ServiceEndpointType, maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
+    logger.trace("Authorizing endpoints")
+
+    maybeEndpoints flatMap { endpoints =>
+      val requiredEndpointModel =
+        Endpoint(
+          publicURL = config.getPublicUrl,
+          name = Option(config.getName),
+          endpointType = Option(config.getType),
+          region = Option(config.getRegion)
+        )
+
+      if (endpoints.vector.exists(_.meetsRequirement(requiredEndpointModel))) Success(Unit)
+      else Failure(UnauthorizedEndpointException("User did not have the required endpoint"))
     }
   }
 
-  def authorizeEndpoints(config: ServiceEndpointType, userIsPreAuthed: Boolean, maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {
-    Option(config) match {
-      case Some(configuredEndpoint) =>
-        logger.trace("Authorizing endpoints")
-
-        maybeEndpoints flatMap { endpoints =>
-          lazy val requiredEndpoint =
-            Endpoint(
-              publicURL = configuredEndpoint.getPublicUrl,
-              name = Option(configuredEndpoint.getName),
-              endpointType = Option(configuredEndpoint.getType),
-              region = Option(configuredEndpoint.getRegion)
-            )
-
-          if (userIsPreAuthed || endpoints.vector.exists(_.meetsRequirement(requiredEndpoint))) Success(Unit)
-          else Failure(UnauthorizedEndpointException("User did not have the required endpoint"))
-        }
-      case None => Success(Unit)
-    }
+  private def prefixableTenantEquals(prefixes: Array[String], prefixableTenant: String, otherTenant: String): Boolean = {
+    prefixableTenant == otherTenant || prefixes.exists(prefix =>
+      prefixableTenant.startsWith(prefix) && prefixableTenant.substring(prefix.length) == otherTenant)
   }
 
   sealed trait AuthorizationInfo {
-    def scopedToken: ValidToken
-    def matchedTenant: Option[String]
+    def scopedTenantToRolesMap: TenantToRolesMap
+    def matchedTenants: Set[String]
   }
-  case class AuthorizationPassed(scopedToken: ValidToken, matchedTenant: Option[String]) extends AuthorizationInfo
-  case class AuthorizationFailed(scopedToken: ValidToken, matchedTenant: Option[String], exception: Throwable) extends AuthorizationInfo
+  case class AuthorizationPassed(scopedTenantToRolesMap: TenantToRolesMap, matchedTenants: Set[String]) extends AuthorizationInfo
+  case class AuthorizationFailed(scopedTenantToRolesMap: TenantToRolesMap, matchedTenants: Set[String], exception: Throwable) extends AuthorizationInfo
 
   abstract class AuthorizationException(message: String, cause: Throwable) extends Exception(message, cause)
 

@@ -28,6 +28,9 @@ The following headers are created using the information returned from the authen
 * `X-User-Name` - Identifies user name. (ex. "jjenkins")
 * `X-User-ID` - Identifies user ID. (ex. "12345")
 * `X-Authenticated-By` - Identifies the method(s) by which the request was authenticated.  (ex. "password")
+* `X-Map-Roles` - Identifies the tenant-to-role mapping for all of the user's tenants and roles.
+  This header will be a base 64 encoded JSON map of strings to arrays of strings (e.g., the base 64 encoding of `{"someTenant": ["someRole", "sharedRole"], "otherTenant": ["otherRole", "sharedRole"]}`).
+  Roles without a tenant association will be mapped to the `repose/domain/roles` key (e.g., `{"repose/domain/roles": ["tenantlessRole"]}`).
 * `X-Roles` - Identifies roles. (ex. "admin", "user")
 ** This header is only populated if the `set-roles-in-header` attribute is `true` and there are roles returned from the authentication service.
 ** If the `validate-tenant` element is present, then *Tenanted Mode* is active and this effects the contents of this header as outlined below:
@@ -81,6 +84,7 @@ However, the following filters may be useful:
 * <<simple-rbac.adoc#, Simple RBAC filter>> - Provides role-based access control to the origin service's API, which can be configured to directly use the `X-PP-Groups`.
 * <<api-validator.adoc#, API Validator filter>> - Provides role-based access control to the origin service's API, making use of the `X-PP-Groups` header.
 * <<rate-limiting.adoc#, Rate Limiting filter>> - Provides rate limiting, making use of the `X-PP-User` header.
+* <<keystone-v2-authorization.adoc#, Keystone v2 Authorization filter>> - Provides authorization (e.g., tenant, endpoint) for the request based on user data.
 
 === Response Body Changes
 This filter does not modify the response body.
@@ -367,6 +371,11 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
 <1> The `ignored-roles` attribute indicates which roles from the keystone validation response should be ignored during all further processing. +
     Default: `identity:tenant-access`
 <2> Indicates if all the Tenant IDs from the user and the roles the user has should be sent or not. +
+    If true, all tenants associated with the user are sent.
+    If false, only the matching tenants from the request are sent.
+    If no request tenants match any user tenants, then the default user tenant is sent.
+    If not default user tenant exists, then a random tenant from the set of role tenants is sent.
+    If no role tenants exist, then no tenant is sent.
     Default: `false`
 <3> If this element is included, then Tenant ID Validation will be enforced based on the value extracted from the request.
 <4> A `/` delimited list of prefixes to attempt to strip from the Tenant ID in the token response from the Keystone v2 Identity service.
@@ -384,9 +393,15 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
 <10> Followed by the tenants from the roles by default. +
     Default: `0.5`
 
+[WARNING]
+====
+The `uri-extraction-regex` attribute is considered deprecated.
+Consider using the <<url-extractor-to-header.adoc#, URL Extractor to Header Filter>> instead.
+====
+
 [NOTE]
 ====
-If the default tenant and the tenant extracted from the request are the same, then the highest quality between the two will be used.
+If the default tenant and a tenant extracted from the request are the same, then the highest quality between the two will be used.
 ====
 
 [NOTE]
@@ -400,7 +415,7 @@ The `uri-extraction-regex` will be used to populate the `X-Tenant-ID` header wit
 ====
 There can be multiple `uri-extraction-regex` elements.
 This fascilitates complex Origin Service API's where the extraction point is not always in the same place.
-The elements are evaluated in order from top to bottom and the first successful extraction wins.
+All values captured from the request will be validated.
 ====
 
 === Tenant ID Validation Bypass

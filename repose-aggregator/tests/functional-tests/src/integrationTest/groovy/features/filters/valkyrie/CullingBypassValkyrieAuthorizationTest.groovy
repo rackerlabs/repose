@@ -137,8 +137,7 @@ class CullingBypassValkyrieAuthorizationTest extends ReposeValveTest {
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityV2Service.client_token,
-                        'x-contact-id': '123456',
-                        'x-tenant-id' : tenantID
+                        'x-contact-id': '123456'
                 ],
                 defaultHandler: jsonResp
         )

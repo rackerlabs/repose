@@ -131,8 +131,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
-                        'x-contact-id': '123456',
-                        'x-tenant-id' : tenantID
+                        'x-contact-id': '123456'
                 ],
                 defaultHandler: jsonResp
         )
@@ -185,8 +184,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
-                        'x-contact-id': '123456',
-                        'x-tenant-id' : tenantID
+                        'x-contact-id': '123456'
                 ],
                 defaultHandler: jsonResp
         )
@@ -232,8 +230,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
-                        'x-contact-id': '123456',
-                        'x-tenant-id' : tenantID
+                        'x-contact-id': '123456'
                 ],
                 defaultHandler: jsonResp
         )
@@ -273,8 +270,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
-                        'x-contact-id': '123456',
-                        'x-tenant-id' : tenantID
+                        'x-contact-id': '123456'
                 ],
                 defaultHandler: jsonResp
         )
@@ -326,8 +322,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + '/resources', method: 'GET',
                 headers: [
                         'X-Auth-Token': fakeIdentityService.client_token,
-                        'x-contact-id': '123456',
-                        'x-tenant-id' : tenantId],
+                        'x-contact-id': '123456'],
                 defaultHandler: responseClosure)
         Map result = new JsonSlurper().parseText(new String(mc.receivedResponse.body as byte[], charset)) as Map
 
@@ -363,8 +358,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
                 headers: [
                         'content-type': 'application/json',
                         'X-Auth-Token': fakeIdentityService.client_token,
-                        'x-contact-id': '123456',
-                        'x-tenant-id' : tenantID
+                        'x-contact-id': '123456'
                 ],
                 defaultHandler: jsonResp
         )
