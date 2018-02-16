@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           xmlns="http://docs.openrepose.org/repose/header-user/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/header-user/v1.0">
+
+    <xs:element name="header-user" type="HeaderUserConfig"/>
+
+    <xs:complexType name="HeaderUserConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Header User can be configured by editing the header-user.cfg.xml file. The user can
+                    specify the following information:
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:all>
+            <xs:element name="source-headers" type="HttpHeaderList" minOccurs="1" maxOccurs="1"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="HttpHeaderList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>List of headers to identify the incoming user.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="header" type="HttpHeader" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:assert vc:minVersion="1.1"
+                   test="count(distinct-values(header/@id)) = count(header/@id)"
+                   xpathDefaultNamespace="##targetNamespace"
+                   xerces:message="Headers must have ids unique within their containing header list"
+                   saxon:message="Headers must have ids unique within their containing header list"/>
+    </xs:complexType>
+
+
+    <xs:complexType name="HttpHeader">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Header to identify incoming user.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>This header key is applied to the x-pp-group header. The header value associated with this
+                        key is applied to the x-pp-user header.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="quality" type="doubleBetweenZeroandOne" use="optional" default="0.1">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Quality assigned to users found in the request headers.
+                        If no quality is set, Repose will default this value to 0.1
+                    </html:p>
+                    <html:p>
+                        Quality factors are defined in the
+                        <html:a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.9">HTTP RFC -
+                            Section-3.9
+                        </html:a>
+                        (for usage examples, see<html:a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html">
+                        HTTP RFC - Section 14.1</html:a>)
+                        as a mechanism for weighting values in multi-value headers.
+                        Possible values for quality are 0 to 1.0.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="doubleBetweenZeroandOne">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0.0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
