@@ -68,7 +68,8 @@ If any of this information is provided, then it will be passed in the following 
 ** The value of this header is governed by `send-all-tenant-ids` attribute and what is provided by the Keystone v2 Identity service.
 * `X-Tenant-Name` - The Tenant Name for the user.
 * `X-Token-Expires` - The date/time of when the token provided by the Keystone v2 Identity service expires.
-* `X-Auth-Token-Key` - The key for the parsed version of the token response that is contained in the datastore service
+* `X-Auth-Token-Key` - The key for the parsed version of the token response that is contained in the datastore service.
+*Deprecated* and marked for removal in *Repose* 9+.
 
 If delegation is enabled, then the `X-Delegated` header is created.
 This is mainly intended for use by the <<herp.adoc#, Highly Efficient Record Processor (HERP) filter>> and <<derp.adoc#, Delegation Response Processor (DeRP) filter>> for internal delegation processing within *Repose*.

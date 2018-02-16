@@ -2,6 +2,7 @@
 
 == Future Releases
 * https://repose.atlassian.net/browse/REP-6447[REP-6447] - Added multi-tenant support in the <<filters/keystone-v2.adoc#, Keystone v2>> and <<filters/keystone-v2-authorization.adoc#, Keystone v2 Authorization>> filters.
+* https://repose.atlassian.net/browse/REP-6578[REP-6578] - Updated <<filters/tenant-culling#, Tenant Culling>> filter to utilize the tenant to roles map now being populated by the <<filters/keystone-v2.adoc#, Keystone v2>> filter.
 
 == 8.8.0.0 (2018-02-05)
 * https://repose.atlassian.net/browse/REP-5616[REP-5616], https://repose.atlassian.net/browse/REP-6436[REP-6436], https://repose.atlassian.net/browse/REP-6274[REP-6274] - Updated dependencies:
