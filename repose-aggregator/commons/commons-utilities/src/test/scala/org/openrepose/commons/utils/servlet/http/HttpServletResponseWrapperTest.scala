@@ -2226,15 +2226,21 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
     it("should call sendError on the wrapped response if sendError was called (one argument)") {
       val errorCode = 404
       val mockResponse = mock[HttpServletResponse]
+      val mockOutputStream = mock[ServletOutputStream]
 
       when(mockResponse.getStatus).thenReturn(404)
-      when(mockResponse.getOutputStream).thenReturn(mock[ServletOutputStream])
+      when(mockResponse.getOutputStream).thenReturn(mockOutputStream)
 
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE)
 
+      wrappedResponse.getOutputStream.print("test")
+      wrappedResponse.addHeader("test", "test")
       wrappedResponse.sendError(errorCode)
       wrappedResponse.commitToResponse()
 
+      verifyZeroInteractions(mockOutputStream)
+      verify(mockResponse, never).setContentLength(anyInt)
+      verify(mockResponse, never).addHeader(anyString, anyString)
       verify(mockResponse).sendError(errorCode)
     }
 
@@ -2242,15 +2248,21 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       val errorCode = 404
       val errorMsg = "lorem ipsum"
       val mockResponse = mock[HttpServletResponse]
+      val mockOutputStream = mock[ServletOutputStream]
 
       when(mockResponse.getStatus).thenReturn(404)
-      when(mockResponse.getOutputStream).thenReturn(mock[ServletOutputStream])
+      when(mockResponse.getOutputStream).thenReturn(mockOutputStream)
 
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE)
 
+      wrappedResponse.getOutputStream.print("test")
+      wrappedResponse.addHeader("test", "test")
       wrappedResponse.sendError(errorCode, errorMsg)
       wrappedResponse.commitToResponse()
 
+      verifyZeroInteractions(mockOutputStream)
+      verify(mockResponse, never).setContentLength(anyInt)
+      verify(mockResponse, never).addHeader(anyString, anyString)
       verify(mockResponse).sendError(errorCode, errorMsg)
     }
   }

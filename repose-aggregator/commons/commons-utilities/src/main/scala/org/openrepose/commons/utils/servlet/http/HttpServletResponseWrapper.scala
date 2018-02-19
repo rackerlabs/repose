@@ -495,28 +495,30 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
       bodyOutputStream.commit()
     }
 
-    (headerMode, bodyMode) match {
-      case (ResponseMode.MUTABLE, ResponseMode.MUTABLE) =>
-        // The headers are being written first so that they are available for processing by upstream
-        // output streams. The Compressing filter output stream, for example, depends on the content-type header
-        // being set before the output stream is written to.
-        writeHeaders()
-        writeBody()
-      case (ResponseMode.MUTABLE, _) =>
-        writeHeaders()
-      case (_, ResponseMode.MUTABLE) =>
-        writeBody()
-      case (_, _) =>
-        throw new IllegalStateException("method should not be called if the ResponseMode is not set to MUTABLE")
-    }
-
     if (sentError) {
       reason match {
         case Some(msg) => originalResponse.sendError(getStatus, msg)
         case None => originalResponse.sendError(getStatus)
       }
-    } else if (flushedBuffer) {
-      originalResponse.flushBuffer()
+    } else {
+      (headerMode, bodyMode) match {
+        case (ResponseMode.MUTABLE, ResponseMode.MUTABLE) =>
+          // The headers are being written first so that they are available for processing by upstream
+          // output streams. The Compressing filter output stream, for example, depends on the content-type header
+          // being set before the output stream is written to.
+          writeHeaders()
+          writeBody()
+        case (ResponseMode.MUTABLE, _) =>
+          writeHeaders()
+        case (_, ResponseMode.MUTABLE) =>
+          writeBody()
+        case (_, _) =>
+          throw new IllegalStateException("method should not be called if the ResponseMode is not set to MUTABLE")
+      }
+
+      if (flushedBuffer) {
+        originalResponse.flushBuffer()
+      }
     }
 
     committed = true
