@@ -37,14 +37,19 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import io.gatling.jsonpath.AST.{Field, PathToken, RootNode}
 import io.gatling.jsonpath.Parser
 import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.commons.utils.http.CommonHttpHeader.{AUTH_TOKEN, TRACE_GUID}
+import org.openrepose.commons.utils.http.OpenStackServiceHeader.{CONTACT_ID, ROLES, TENANT_ID}
+import org.openrepose.commons.utils.http.ServiceClientResponse
 import org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TOO_MANY_REQUESTS
-import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader, ServiceClientResponse}
-import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
+import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
+import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.commons.utils.string.RegexStringOperators
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
+import org.openrepose.filters.valkyrieauthorization.ValkyrieAuthorizationFilter._
+import org.openrepose.filters.valkyrieauthorization.config.DeviceIdMismatchAction.{FAIL, KEEP, REMOVE}
 import org.openrepose.filters.valkyrieauthorization.config._
 import play.api.libs.json._
 
@@ -63,8 +68,6 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     with LazyLogging {
 
   private final val DEFAULT_CONFIG = "valkyrie-authorization.cfg.xml"
-  private final val ACCOUNT_ADMIN = "account_admin"
-  private final val CACHE_PREFIX = "VALKYRIE-FILTER"
 
   val datastore = datastoreService.getDefaultDatastore
 
@@ -94,17 +97,17 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     if (!isInitialized) {
       logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
-      servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
+      servletResponse.asInstanceOf[HttpServletResponse].sendError(SC_SERVICE_UNAVAILABLE)
     } else {
       val httpRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
-      val httpResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+      val httpResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], PASSTHROUGH, MUTABLE)
 
       def nullOrWhitespace(str: Option[String]): Option[String] = str.map(_.trim).filter(!"".equals(_))
 
-      val requestedTenantId = nullOrWhitespace(Option(httpRequest.getHeader(OpenStackServiceHeader.TENANT_ID)))
-      val requestedDeviceId = nullOrWhitespace(Option(httpRequest.getHeader("X-Device-Id")))
-      val requestedContactId = nullOrWhitespace(Option(httpRequest.getHeader("X-Contact-Id")))
-      val tracingHeader = nullOrWhitespace(Option(httpRequest.getHeader(CommonHttpHeader.TRACE_GUID)))
+      val requestedTenantId = nullOrWhitespace(Option(httpRequest.getHeader(TENANT_ID)))
+      val requestedDeviceId = nullOrWhitespace(Option(httpRequest.getHeader(DeviceId)))
+      val requestedContactId = nullOrWhitespace(Option(httpRequest.getHeader(CONTACT_ID)))
+      val tracingHeader = nullOrWhitespace(Option(httpRequest.getHeader(TRACE_GUID)))
       val urlPath: String = new URL(httpRequest.getRequestURL.toString).getPath
       val matchingResources: Seq[Resource] = Option(configuration.getCollectionResources)
         .map(_.getResource.asScala.filter(resource => {
@@ -122,8 +125,8 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         (requestedTenantId, requestedContactId) match {
           case (None, _) => ResponseResult(SC_UNAUTHORIZED, "No tenant ID specified")
           case (Some(tenant), _) if "(hybrid:.*)".r.findFirstIn(tenant).isEmpty =>
-            if (configuration.isPassNonDedicatedTenant) ResponseResult(200, "Pass non-dedicated tenant")
-            else ResponseResult(403, "Not Authorized")
+            if (configuration.isPassNonDedicatedTenant) ResponseResult(SC_OK, "Pass non-dedicated tenant")
+            else ResponseResult(SC_FORBIDDEN, "Not Authorized")
           case (_, None) => ResponseResult(SC_UNAUTHORIZED, "No contact ID specified")
           case (Some(tenant), Some(contact)) => UserInfo(tenant.substring(tenant.indexOf(":") + 1), contact)
         }
@@ -166,7 +169,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
           case UserInfo(tenant, contact) =>
             //  authorize device            || cull list                  || translate account permissions
             if (requestedDeviceId.isDefined || matchingResources.nonEmpty || translateAccountPermissions.isDefined) {
-              datastoreValue(tenant, contact, "any", configuration.getValkyrieServer, Option(httpRequest.getHeader("x-auth-token")), _.asInstanceOf[UserPermissions], parsePermissions, tracingHeader)
+              datastoreValue(tenant, contact, "any", configuration.getValkyrieServer, Option(httpRequest.getHeader(AUTH_TOKEN)), _.asInstanceOf[UserPermissions], parsePermissions, tracingHeader)
             } else {
               ResponseResult(SC_OK)
             }
@@ -185,7 +188,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
               val currentItem: JsValue = values.head
               (currentItem \ "id").as[Int] match {
                 case id if id > 0 =>
-                  parseJson(DeviceToPermission(id, ACCOUNT_ADMIN) +: deviceToPermissions, values.tail)
+                  parseJson(DeviceToPermission(id, AccountAdmin) +: deviceToPermissions, values.tail)
                 case _ => parseJson(deviceToPermissions, values.tail)
               }
             }
@@ -205,10 +208,10 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
         userPermissions match {
           case UserPermissions(deviceRoles, devicePermissions) =>
-            if (!configuration.isEnableBypassAccountAdmin && deviceRoles.contains(ACCOUNT_ADMIN)) {
+            if (!configuration.isEnableBypassAccountAdmin && deviceRoles.contains(AccountAdmin)) {
               val inventoryResult = checkHeader match {
                 case UserInfo(tenant, contact) =>
-                  datastoreValue(tenant, contact, ACCOUNT_ADMIN, configuration.getValkyrieServer, Option(httpRequest.getHeader("x-auth-token")), _.asInstanceOf[DevicePermissions], parseInventory, tracingHeader)
+                  datastoreValue(tenant, contact, AccountAdmin, configuration.getValkyrieServer, Option(httpRequest.getHeader(AUTH_TOKEN)), _.asInstanceOf[DevicePermissions], parseInventory, tracingHeader)
                 case _ => userPermissions
               }
               inventoryResult match {
@@ -231,7 +234,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
               case "view_product" if List("GET", "HEAD").contains(method) => permissionsWithDevicePermissions
               case "edit_product" => permissionsWithDevicePermissions
               case "admin_product" => permissionsWithDevicePermissions
-              case ACCOUNT_ADMIN => permissionsWithDevicePermissions
+              case AccountAdmin => permissionsWithDevicePermissions
               case _ => ResponseResult(SC_FORBIDDEN, "Not Authorized")
             }
           } getOrElse {
@@ -240,7 +243,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
           deviceBasedResult match {
             case ResponseResult(SC_FORBIDDEN, _, _) =>
-              if (permissions.roles.contains(ACCOUNT_ADMIN) && configuration.isEnableBypassAccountAdmin) {
+              if (permissions.roles.contains(AccountAdmin) && configuration.isEnableBypassAccountAdmin) {
                 permissions
               } else {
                 deviceBasedResult
@@ -258,7 +261,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       def addRoles(result: ValkyrieResult): ResponseResult = {
         (result, translateAccountPermissions) match {
           case (UserPermissions(roles, _), Some(_)) =>
-            roles.foreach(httpRequest.addHeader("X-Roles", _))
+            roles.foreach(httpRequest.addHeader(ROLES, _))
             ResponseResult(SC_OK)
           case (UserPermissions(_, _), None) => ResponseResult(SC_OK)
           case (responseResult: ResponseResult, _) => responseResult
@@ -275,7 +278,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       val preAuthRoles = Option(configuration.getPreAuthorizedRoles)
         .map(_.getRole.asScala)
         .getOrElse(List.empty)
-      val reqAuthRoles = httpRequest.getHeaders(OpenStackServiceHeader.ROLES).asScala.toSeq
+      val reqAuthRoles = httpRequest.getHeaders(ROLES).asScala.toSeq
         .foldLeft(List.empty[String])((list: List[String], value: String) => list ++ value.split(","))
 
       if (preAuthRoles.intersect(reqAuthRoles).nonEmpty) {
@@ -323,8 +326,8 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
                      tracingHeader: Option[String] = None): ValkyrieResult = {
     def tryValkyrieCall(): Try[ServiceClientResponse] = {
       import collection.JavaConversions._
-      val requestTracingHeader = tracingHeader.map(guid => Map(CommonHttpHeader.TRACE_GUID -> guid)).getOrElse(Map())
-      val uri = if (callType.equals(ACCOUNT_ADMIN)) {
+      val requestTracingHeader = tracingHeader.map(guid => Map(TRACE_GUID -> guid)).getOrElse(Map())
+      val uri = if (callType.equals(AccountAdmin)) {
         s"/account/$transformedTenant/inventory"
       } else {
         s"/account/$transformedTenant/permissions/contacts/$callType/by_contact/$contactId/effective"
@@ -338,7 +341,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         case _ =>
           Try(akkaServiceClient.get(cacheKey(callType, transformedTenant, contactId),
             valkyrieServer.getUri + uri,
-            authToken.map(token => Map("X-Auth-Token" -> token)).getOrElse(Map.empty) ++ requestTracingHeader)
+            authToken.map(token => Map(AUTH_TOKEN -> token)).getOrElse(Map.empty) ++ requestTracingHeader)
           )
       }
     }
@@ -392,7 +395,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   }
 
   def cacheKey(typeOfCall: String, transformedTenant: String, contactId: String): String = {
-    CACHE_PREFIX + typeOfCall + transformedTenant + contactId
+    CachePrefix + typeOfCall + transformedTenant + contactId
   }
 
   def cullResponse(response: HttpServletResponseWrapper, potentialUserPermissions: ValkyrieResult,
@@ -448,9 +451,9 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         } recover {
           case e@(_: InvalidJsonTypeException | _: NonMatchingRegexException) =>
             configuration.getCollectionResources.getDeviceIdMismatchAction match {
-              case DeviceIdMismatchAction.KEEP => true
-              case DeviceIdMismatchAction.REMOVE => false
-              case DeviceIdMismatchAction.FAIL => throw e
+              case KEEP => true
+              case REMOVE => false
+              case FAIL => throw e
             }
         } get
       }
@@ -473,7 +476,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
     potentialUserPermissions match {
       case UserPermissions(roles, devicePermissions) =>
-        if (!configuration.isEnableBypassAccountAdmin || !roles.contains(ACCOUNT_ADMIN)) {
+        if (!configuration.isEnableBypassAccountAdmin || !roles.contains(AccountAdmin)) {
           if (matchingResources.nonEmpty) {
             val input: String = Source.fromInputStream(response.getOutputStreamAsInputStream, response.getCharacterEncoding).getLines() mkString ""
             val initialJson: JsValue = Try(Json.parse(input))
@@ -526,16 +529,18 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
   override def isInitialized: Boolean = initialized
 
-  trait ValkyrieResult
+}
 
+object ValkyrieAuthorizationFilter {
+  final val DeviceId = "X-Device-Id"
+  final val AccountAdmin = "account_admin"
+  final val CachePrefix = "VALKYRIE-FILTER"
+
+  sealed trait ValkyrieResult
   case class UserInfo(tenantId: String, contactId: String) extends ValkyrieResult
-
   case class UserPermissions(roles: Vector[String], devices: Vector[DeviceToPermission]) extends ValkyrieResult
-
   case class DevicePermissions(devices: Vector[DeviceToPermission]) extends ValkyrieResult
-
-  case class DeviceToPermission(device: Int, permission: String)
-
   case class ResponseResult(statusCode: Int, message: String = "", retryTime: Option[String] = None) extends ValkyrieResult
 
+  case class DeviceToPermission(device: Int, permission: String)
 }
