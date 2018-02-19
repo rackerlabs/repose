@@ -478,6 +478,18 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   }
 
   /**
+    * Writes headers and the body to the underlying response object.
+    * Calling this method commits the response.
+    *
+    * If [[sendError]] has been called but [[resetError]] has not, neither headers nor the body will be written.
+    * Instead, [[sendError]] will be called on the underlying response object.
+    *
+    * If [[flushBuffer]] has been called, [[flushBuffer]] will be called on the underlying response object after
+    * headers and the body have been written.
+    *
+    * This method gives the caller the ability to modify the response when it would otherwise be committed by
+    * a downstream component.
+    *
     * @throws IllegalStateException when neither headerMode nor bodyMode is ResponseMode.MUTABLE
     */
   def commitToResponse(): Unit = {
