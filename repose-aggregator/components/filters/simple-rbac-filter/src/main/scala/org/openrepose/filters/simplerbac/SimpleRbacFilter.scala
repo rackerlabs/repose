@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -225,12 +225,34 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
     }
 
     parsed.flatMap { values =>
-        val header = s"""<application xmlns:rax="http://docs.rackspace.com/api"
-                        |         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-                        |         xmlns="http://wadl.dev.java.net/2009/02"
-                        |    >
-                        |  <resources base="http://localhost">""".stripMargin
-        val resources = values.map { value =>
+        val header = s"""<application xmlns="http://wadl.dev.java.net/2009/02"
+                        |             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                        |             xmlns:rax="http://docs.rackspace.com/api"
+                        |>
+                        |  <resources base="http://localhost">
+                        |""".stripMargin
+        val tenants = Option(configuration.getTenantsHeaderName) match {
+          case Some(tenantsHeader) =>
+            s""">
+               |        <request>
+               |          <param name="$tenantsHeader"
+               |                 style="header"
+               |                 required="true"
+               |                 type="xsd:int"
+               |                 repeating="true"
+               |                 rax:isTenant="true"/>
+               |          <param name="$tenantsHeader"
+               |                 style="header"
+               |                 required="true"
+               |                 type="xsd:boolean"
+               |                 repeating="true"
+               |                 rax:isTenant="true"/>
+               |        </request>
+               |      </method>""".stripMargin
+          case _ =>
+            "/>"
+        }
+      val resources = values.map { value =>
           def toParams(resource: Resource) =
             """\{[^\}]*\}""".r.findAllIn(resource.path).map { param =>
               val name = param.substring(1, param.length-1)
@@ -245,13 +267,13 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
             resource.methods.map {
               _ match {
                 case anyAll if anyAll.equalsIgnoreCase("ANY") || anyAll.equalsIgnoreCase("ALL") =>
-                  s"""      <method name="GET"    id="_$uuid-GET"    $raxRoles/>
-                     |      <method name="PUT"    id="_$uuid-PUT"    $raxRoles/>
-                     |      <method name="POST"   id="_$uuid-POST"   $raxRoles/>
-                     |      <method name="DELETE" id="_$uuid-DELETE" $raxRoles/>""".stripMargin
+                  s"""      <method name="GET"    id="_$uuid-GET"    $raxRoles$tenants
+                     |      <method name="PUT"    id="_$uuid-PUT"    $raxRoles$tenants
+                     |      <method name="POST"   id="_$uuid-POST"   $raxRoles$tenants
+                     |      <method name="DELETE" id="_$uuid-DELETE" $raxRoles$tenants""".stripMargin
                 case method =>
                   val methodToUpper = (method.toUpperCase+"\"").padTo(7,' ')
-                  s"""      <method name="$methodToUpper id="_$uuid-$methodToUpper $raxRoles/>"""
+                  s"""      <method name="$methodToUpper id="_$uuid-$methodToUpper $raxRoles$tenants"""
               }
             }.mkString("\n")
           }
@@ -263,10 +285,11 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
              |$params$methods
              |    </resource>""".stripMargin
         }.mkString("\n")
-        val footer = s"""  </resources>
+        val footer = s"""
+                        |  </resources>
                         |</application>""".stripMargin
 
-        Some(s"$header\n$resources\n$footer")
+        Some(s"$header$resources$footer")
     }
   }
 
