@@ -276,7 +276,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
             } catch {
               case rce: ResponseCullingException =>
                 logger.debug("Failed to cull response, wiping out response.", rce)
-                sendError(httpResponse, SC_INTERNAL_SERVER_ERROR, rce.getMessage)
+                httpResponse.sendError(SC_INTERNAL_SERVER_ERROR, rce.getMessage)
             }
           }
         case ResponseResult(code, message, retryTime) if Option(configuration.getDelegating).isDefined =>
@@ -286,7 +286,8 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
           filterChain.doFilter(httpRequest, httpResponse)
           retryTime.foreach(httpResponse.addHeader(RETRY_AFTER, _))
         case ResponseResult(code, message, retryTime) =>
-          sendError(httpResponse, code, message, retryTime)
+          retryTime.foreach(httpResponse.addHeader(RETRY_AFTER, _))
+          httpResponse.sendError(code, message)
       }
     }
 
@@ -483,15 +484,6 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         }
       case _ =>
     }
-  }
-
-  // todo: remove this function when the HttpServletResponseWrapper supports sendError without writing through
-  private def sendError(response: HttpServletResponseWrapper, statusCode: Int, message: String, retryTime: Option[String] = None): Unit = {
-    retryTime.foreach(response.addHeader(RETRY_AFTER, _))
-    response.setStatus(statusCode)
-    response.setOutput(null)
-    response.setContentType(MediaType.TEXT_PLAIN)
-    response.getOutputStream.print(message)
   }
 
   override def doConfigurationUpdated(newConfig: ValkyrieAuthorizationConfig): ValkyrieAuthorizationConfig = {
