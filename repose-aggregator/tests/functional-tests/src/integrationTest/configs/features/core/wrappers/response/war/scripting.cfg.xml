@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="groovy">
+response.addHeader("${headerName}", "Game over");
+response.getOutputStream().print("Strongly worded error message!");
+response.sendError(${errorCode}, "Your request is bad and you should feel bad.");
+</scripting>
