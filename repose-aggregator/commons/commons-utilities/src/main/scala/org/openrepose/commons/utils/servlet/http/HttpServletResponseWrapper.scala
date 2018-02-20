@@ -507,30 +507,33 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
       bodyOutputStream.commit()
     }
 
+    if (headerMode != ResponseMode.MUTABLE && bodyMode != ResponseMode.MUTABLE) {
+      throw new IllegalStateException("method should not be called if the ResponseMode is not set to MUTABLE")
+    }
+
+    // The headers are being written first so that they are available for processing by upstream
+    // output streams. The Compressing filter output stream, for example, depends on the content-type header
+    // being set before the output stream is written to.
+    if (headerMode == ResponseMode.MUTABLE) {
+      writeHeaders()
+    }
+
+    // Only write the body if an error was not sent to avoid issues with the Catalina response implementation
+    // which considers a response to be committed if content is written and the Content-length header is set.
+    // Since sendError clears the buffer anyway, this is a branching condition.
     if (sentError) {
       reason match {
         case Some(msg) => originalResponse.sendError(getStatus, msg)
         case None => originalResponse.sendError(getStatus)
       }
-    } else {
-      (headerMode, bodyMode) match {
-        case (ResponseMode.MUTABLE, ResponseMode.MUTABLE) =>
-          // The headers are being written first so that they are available for processing by upstream
-          // output streams. The Compressing filter output stream, for example, depends on the content-type header
-          // being set before the output stream is written to.
-          writeHeaders()
-          writeBody()
-        case (ResponseMode.MUTABLE, _) =>
-          writeHeaders()
-        case (_, ResponseMode.MUTABLE) =>
-          writeBody()
-        case (_, _) =>
-          throw new IllegalStateException("method should not be called if the ResponseMode is not set to MUTABLE")
-      }
+    } else if (bodyMode == ResponseMode.MUTABLE) {
+      writeBody()
+    }
 
-      if (flushedBuffer) {
-        originalResponse.flushBuffer()
-      }
+    // Flush the buffer if told to do so. This should not conflict with the sendError call -- if the response is
+    // already committed, this call should be a no-op.
+    if (flushedBuffer) {
+      originalResponse.flushBuffer()
     }
 
     committed = true

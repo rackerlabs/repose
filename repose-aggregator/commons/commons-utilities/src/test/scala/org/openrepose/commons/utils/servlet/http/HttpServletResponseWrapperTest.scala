@@ -2240,7 +2240,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       verifyZeroInteractions(mockOutputStream)
       verify(mockResponse, never).setContentLength(anyInt)
-      verify(mockResponse, never).addHeader(anyString, anyString)
+      verify(mockResponse).addHeader("test", "test")
       verify(mockResponse).sendError(errorCode)
     }
 
@@ -2262,7 +2262,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
       verifyZeroInteractions(mockOutputStream)
       verify(mockResponse, never).setContentLength(anyInt)
-      verify(mockResponse, never).addHeader(anyString, anyString)
+      verify(mockResponse).addHeader("test", "test")
       verify(mockResponse).sendError(errorCode, errorMsg)
     }
   }
