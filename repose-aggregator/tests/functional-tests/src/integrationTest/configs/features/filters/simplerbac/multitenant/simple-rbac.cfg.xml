@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<simple-rbac xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0"
+             roles-header-name="X-Roles"
+             tenants-header-name="X-Tenant-Id"
+             wadl-output="test.wadl.xml"
+             dot-output="test.dot">
+    <resources>
+        /path/to/this  GET       super/{X-TENANT-ID},useradmin/{X-TENANT-ID},admin/{X-TENANT-ID},user/{X-TENANT-ID}
+        /path/to/this  PUT       super/{X-TENANT-ID},useradmin/{X-TENANT-ID},admin/{X-TENANT-ID}
+        /path/to/this  POST      super/{X-TENANT-ID},useradmin/{X-TENANT-ID}
+        /path/to/this  DELETE    super/{X-TENANT-ID}
+
+        /path/to/that  get,put   any
+        /path/to/that  all       super
+
+        /path/to/test  get,post  user,useradmin
+        /path/to/space GET       super wsp/{X-TENANT-ID} , useradmin wsp/{X-TENANT-ID},admin wsp/{X-TENANT-ID}
+    </resources>
+</simple-rbac>
