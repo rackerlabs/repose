@@ -28,7 +28,6 @@ import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.HttpHeaders.RETRY_AFTER
-import javax.ws.rs.core.MediaType
 
 import com.fasterxml.jackson.core.JsonParseException
 import com.josephpconley.jsonpath.JSONPath
@@ -82,7 +81,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
     def nullOrWhitespace(str: Option[String]): Option[String] = str.map(_.trim).filter(!"".equals(_))
 
-    val requestedTenantId = nullOrWhitespace(Option(httpRequest.getHeader(TENANT_ID)))
+    val requestedTenantId = nullOrWhitespace(httpRequest.getPreferredSplittableHeaders(TENANT_ID).asScala.headOption)
     val requestedDeviceId = nullOrWhitespace(Option(httpRequest.getHeader(DeviceId)))
     val requestedContactId = nullOrWhitespace(Option(httpRequest.getHeader(CONTACT_ID)))
     val tracingHeader = nullOrWhitespace(Option(httpRequest.getHeader(TRACE_GUID)))

@@ -115,11 +115,11 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     case class ValkyrieResponse(code: Int, payload: String)
     case class Result(code: Int, message: String)
 
-    List((RequestProcessor("GET", Map(TENANT_ID -> "hybrid:someTenant", DeviceId -> "123456", CONTACT_ID -> "123456")), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "view_product")))), //View role
-      (RequestProcessor("HEAD", Map(TENANT_ID -> "hybrid:someTenant", DeviceId -> "123456", CONTACT_ID -> "123456")), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "view_product")))), //Without colon in tenant
-      (RequestProcessor("POST", Map(TENANT_ID -> "hybrid:someTenant", DeviceId -> "123456", CONTACT_ID -> "123456")), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "edit_product")))), //Edit role
-      (RequestProcessor("PUT", Map(TENANT_ID -> "hybrid:someTenant", DeviceId -> "123456", CONTACT_ID -> "123456")), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "admin_product")))), //Admin role
-      (RequestProcessor("PUT", Map(TENANT_ID -> "hybrid:someTenant", DeviceId -> "98765", CONTACT_ID -> "123456")), ValkyrieResponse(SC_OK, createValkyrieResponse(accountPermissions(AccountAdmin, "butts_permission"), devicePermissions("123456", "admin_product")))) //account Admin role
+    List((RequestProcessor("GET", Map(TENANT_ID -> "someOtherTenant;q=0.5,hybrid:someTenant;q=0.98", DeviceId -> "123456", CONTACT_ID -> "123456")), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "view_product")))), //View role
+      (RequestProcessor("HEAD", Map(TENANT_ID -> "someOtherTenant;q=0.5,hybrid:someTenant;q=0.98", DeviceId -> "123456", CONTACT_ID -> "123456")), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "view_product")))), //Without colon in tenant
+      (RequestProcessor("POST", Map(TENANT_ID -> "someOtherTenant;q=0.5,hybrid:someTenant;q=0.98", DeviceId -> "123456", CONTACT_ID -> "123456")), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "edit_product")))), //Edit role
+      (RequestProcessor("PUT", Map(TENANT_ID -> "someOtherTenant;q=0.5,hybrid:someTenant", DeviceId -> "123456", CONTACT_ID -> "123456")), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "admin_product")))), //Admin role
+      (RequestProcessor("PUT", Map(TENANT_ID -> "someOtherTenant;q=0.5,hybrid:someTenant", DeviceId -> "98765", CONTACT_ID -> "123456")), ValkyrieResponse(SC_OK, createValkyrieResponse(accountPermissions(AccountAdmin, "butts_permission"), devicePermissions("123456", "admin_product")))) //account Admin role
     ).foreach { case (request, valkyrie) =>
       it(s"should allow requests for $request with Valkyrie response of $valkyrie") {
         setMockAkkaBehavior("someTenant", request.headers.getOrElse(CONTACT_ID, "ThisIsMissingAContact"), valkyrie.code, valkyrie.payload)
