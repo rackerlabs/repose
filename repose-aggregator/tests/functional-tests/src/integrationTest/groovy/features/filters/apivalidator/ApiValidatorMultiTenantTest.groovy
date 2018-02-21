@@ -88,7 +88,7 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint/v1/resource/other",
             method: "GET",
-            headers: ([(TENANT_ID): tenants] + standardHeaders))
+            headers: ([(TENANT_ID.toUpperCase()): tenants] + standardHeaders))
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_OK
@@ -106,7 +106,7 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint$url",
             method: method,
-            headers: ([(TENANT_ID): "1,5"] + standardHeaders))
+            headers: ([(TENANT_ID.toLowerCase()): "1,5"] + standardHeaders))
 
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_OK
