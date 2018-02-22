@@ -444,6 +444,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                 responseHeaderService.setVia(wrappedRequest, wrappedResponse);
             }
 
+            wrappedResponse.resetError();
             wrappedResponse.commitToResponse();
 
             final long stopTime = System.currentTimeMillis();
