@@ -46,7 +46,6 @@ import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
-import org.openrepose.filters.valkyrieauthorization.ValkyrieAuthorizationFilter._
 import org.openrepose.filters.valkyrieauthorization.config.DeviceIdMismatchAction.{FAIL, KEEP, REMOVE}
 import org.openrepose.filters.valkyrieauthorization.config._
 import play.api.libs.json._
@@ -64,6 +63,8 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     with RegexStringOperators
     with LazyLogging {
 
+  import org.openrepose.filters.valkyrieauthorization.ValkyrieAuthorizationFilter._
+
   override val DEFAULT_CONFIG = "valkyrie-authorization.cfg.xml"
   override val SCHEMA_LOCATION = "/META-INF/schema/config/valkyrie-authorization.xsd"
 
@@ -79,7 +80,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     val httpRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
     val httpResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], PASSTHROUGH, MUTABLE)
 
-    def nullOrWhitespace(str: Option[String]): Option[String] = str.map(_.trim).filter(!"".equals(_))
+    def nullOrWhitespace(str: Option[String]): Option[String] = str.map(_.trim).filter(_.nonEmpty)
 
     val requestedTenantId = nullOrWhitespace(httpRequest.getPreferredSplittableHeaders(TENANT_ID).asScala.headOption)
     val requestedDeviceId = nullOrWhitespace(Option(httpRequest.getHeader(DeviceId)))
@@ -107,7 +108,6 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         case (_, None) => ResponseResult(SC_UNAUTHORIZED, "No contact ID specified")
         case (Some(tenant), Some(contact)) => UserInfo(tenant.substring(tenant.indexOf(":") + 1), contact)
       }
-
     }
 
     def getPermissions(headerResult: ValkyrieResult): ValkyrieResult = {
