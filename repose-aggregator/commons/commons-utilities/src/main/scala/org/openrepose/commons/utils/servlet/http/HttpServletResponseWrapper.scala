@@ -87,6 +87,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     case ResponseMode.MUTABLE => new MutableServletOutputStream(desiredOutputStream)
   }
 
+  private var statusCode: Int = originalResponse.getStatus
   private var reason: Option[String] = None
   private var committed: Boolean = false
   private var flushedBuffer: Boolean = false
@@ -107,25 +108,31 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   def this(originalResponse: HttpServletResponse, headerMode: ResponseMode, bodyMode: ResponseMode) =
     this(originalResponse, headerMode, bodyMode, originalResponse.getOutputStream)
 
+  override def getStatus: Int = {
+    logger.trace("getStatus called")
+    statusCode
+  }
+
   override def setStatus(i: Int): Unit = {
     logger.trace(s"setStatus called with status code: $i")
-
-    if (isCommitted) {
-      throw new IllegalStateException("Cannot call sendError or setStatus after the response has been committed")
-    } else {
-      super.setStatus(i)
-      reason = None
-    }
+    setStatusCommon(i)(originalResponse.setStatus(i))
   }
 
   override def setStatus(i: Int, s: String): Unit = {
     logger.trace(s"setStatus called with status code: $i, message: $s")
+    setStatusCommon(i, s)(originalResponse.setStatus(i, s))
+  }
 
+  private def setStatusCommon(i: Int, s: String = null)(setStatusFunc: => Unit): Unit = {
     if (isCommitted) {
       throw new IllegalStateException("Cannot call setStatus after the response has been committed")
-    } else {
-      super.setStatus(i, s)
-      reason = Option(s)
+    }
+
+    statusCode = i
+    reason = Option(s)
+
+    if (headerMode != ResponseMode.MUTABLE && bodyMode != ResponseMode.MUTABLE) {
+      setStatusFunc
     }
   }
 
@@ -139,7 +146,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     */
   override def sendError(i: Int): Unit = {
     logger.trace(s"sendError called with status code: $i")
-    sendError(i, null)
+    sendErrorCommon(i)(originalResponse.sendError(i))
   }
 
   /** See [[sendError(i)]].
@@ -150,15 +157,16 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     */
   override def sendError(i: Int, s: String): Unit = {
     logger.trace(s"sendError called with status code: $i, message: $s")
+    sendErrorCommon(i, s)(originalResponse.sendError(i, s))
+  }
 
+  private def sendErrorCommon(i: Int, s: String = null)(sendErrorFunc: => Unit): Unit = {
     if (isCommitted) {
       throw new IllegalStateException("Cannot call sendError after the response has been committed")
     }
 
-    // Set the status.
-    setStatus(i)
-
-    // Set the reason phrase.
+    // Set the status and reason phrase.
+    statusCode = i
     reason = Option(s)
 
     // Call resetBuffer() so that we can write directly to a clean output stream, even if the client has previously
@@ -171,7 +179,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
     // If we are not in a mutable mode, immediately send error to the wrapped response.
     if (headerMode != ResponseMode.MUTABLE && bodyMode != ResponseMode.MUTABLE) {
-      originalResponse.sendError(i, s)
+      sendErrorFunc
     }
   }
 
@@ -558,7 +566,6 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
       throw new IllegalStateException("Cannot call resetError after the response has been committed")
     }
 
-    reason = None
     sentError = false
   }
 
@@ -632,13 +639,21 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     // Only write the body if an error was not sent to avoid issues with the Catalina response implementation
     // which considers a response to be committed if content is written and the Content-length header is set.
     // Since sendError clears the buffer anyway, this is a branching condition.
+    // If no error was sent, just set the status on the underlying response.
     if (sentError) {
       reason match {
-        case Some(msg) => originalResponse.sendError(getStatus, msg)
-        case None => originalResponse.sendError(getStatus)
+        case Some(msg) => originalResponse.sendError(statusCode, msg)
+        case None => originalResponse.sendError(statusCode)
       }
-    } else if (bodyMode == ResponseMode.MUTABLE) {
-      writeBody()
+    } else {
+      reason match {
+        case Some(msg) => originalResponse.setStatus(statusCode, msg)
+        case None => originalResponse.setStatus(statusCode)
+      }
+
+      if (bodyMode == ResponseMode.MUTABLE) {
+        writeBody()
+      }
     }
 
     // Flush the buffer if told to do so. This should not conflict with the sendError call -- if the response is

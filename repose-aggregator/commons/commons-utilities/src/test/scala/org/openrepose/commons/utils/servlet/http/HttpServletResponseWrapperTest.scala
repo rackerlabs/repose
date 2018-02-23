@@ -2140,12 +2140,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
   }
 
   describe("commitToResponse") {
-    Seq(
-      (ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH),
-      (ResponseMode.PASSTHROUGH, ResponseMode.READONLY),
-      (ResponseMode.READONLY, ResponseMode.PASSTHROUGH),
-      (ResponseMode.READONLY, ResponseMode.READONLY)
-    ) foreach { case (headerMode, bodyMode) =>
+    modePermutations.diff(modePermutationsMutable) foreach { case (headerMode, bodyMode) =>
       it(s"should throw an IllegalStateException if the header mode is set to ${headerMode.name()} and body mode is set to ${bodyMode.name()}") {
         val wrappedResponse = new HttpServletResponseWrapper(originalResponse, headerMode, bodyMode)
 
@@ -2228,7 +2223,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       val mockResponse = mock[HttpServletResponse]
       val mockOutputStream = mock[ServletOutputStream]
 
-      when(mockResponse.getStatus).thenReturn(404)
+      when(mockResponse.getStatus).thenReturn(200)
       when(mockResponse.getOutputStream).thenReturn(mockOutputStream)
 
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE)
@@ -2250,7 +2245,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       val mockResponse = mock[HttpServletResponse]
       val mockOutputStream = mock[ServletOutputStream]
 
-      when(mockResponse.getStatus).thenReturn(404)
+      when(mockResponse.getStatus).thenReturn(200)
       when(mockResponse.getOutputStream).thenReturn(mockOutputStream)
 
       val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE)
@@ -2264,6 +2259,39 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       verify(mockResponse, never).setContentLength(anyInt)
       verify(mockResponse).addHeader("test", "test")
       verify(mockResponse).sendError(errorCode, errorMsg)
+    }
+
+    it("should call setStatus on the wrapped response if sendError was not called (one argument)") {
+      val statusCode = 201
+      val mockResponse = mock[HttpServletResponse]
+      val mockOutputStream = mock[ServletOutputStream]
+
+      when(mockResponse.getStatus).thenReturn(200)
+      when(mockResponse.getOutputStream).thenReturn(mockOutputStream)
+
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE)
+
+      wrappedResponse.setStatus(statusCode)
+      wrappedResponse.commitToResponse()
+
+      verify(mockResponse).setStatus(statusCode)
+    }
+
+    it("should call setStatus on the wrapped response if sendError was not called (two arguments)") {
+      val statusCode = 201
+      val reasonPhrase = "lorem ipsum"
+      val mockResponse = mock[HttpServletResponse]
+      val mockOutputStream = mock[ServletOutputStream]
+
+      when(mockResponse.getStatus).thenReturn(200)
+      when(mockResponse.getOutputStream).thenReturn(mockOutputStream)
+
+      val wrappedResponse = new HttpServletResponseWrapper(mockResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE)
+
+      wrappedResponse.setStatus(statusCode, reasonPhrase)
+      wrappedResponse.commitToResponse()
+
+      verify(mockResponse).setStatus(statusCode, reasonPhrase)
     }
   }
 
@@ -2308,6 +2336,57 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       verify(mockResponse).setStatus(418, "TEAPOT")
       verify(mockResponse).setStatus(200)
       wrappedResponse.getReason shouldBe null
+    }
+
+    modePermutationsMutable foreach { case (headerMode, bodyMode) =>
+      it(s"should not immediately call through to the underlying response with $headerMode header mode and $bodyMode body mode (one argument)") {
+        val mockResponse = mock[HttpServletResponse]
+        when(mockResponse.isCommitted).thenReturn(false)
+
+        val wrappedResponse = new HttpServletResponseWrapper(mockResponse, headerMode, bodyMode)
+
+        wrappedResponse.setStatus(418)
+
+        verifyZeroInteractions(mockResponse)
+        wrappedResponse.getStatus shouldEqual 418
+        wrappedResponse.getReason shouldBe null
+      }
+
+      it(s"should not immediately call through to the underlying response with $headerMode header mode and $bodyMode body mode (two arguments)") {
+        val mockResponse = mock[HttpServletResponse]
+        when(mockResponse.isCommitted).thenReturn(false)
+
+        val wrappedResponse = new HttpServletResponseWrapper(mockResponse, headerMode, bodyMode)
+
+        wrappedResponse.setStatus(418, "TEAPOT")
+
+        verifyZeroInteractions(mockResponse)
+        wrappedResponse.getStatus shouldEqual 418
+        wrappedResponse.getReason shouldBe "TEAPOT"
+      }
+    }
+  }
+
+  describe("getStatus") {
+    modePermutations foreach { case (headerMode, bodyMode) =>
+      it("should return the status code of the underlying response") {
+        val mockResponse = mock[HttpServletResponse]
+        when(mockResponse.getStatus).thenReturn(418)
+
+        val wrappedResponse = new HttpServletResponseWrapper(mockResponse, headerMode, bodyMode)
+
+        wrappedResponse.getStatus shouldEqual 418
+      }
+
+      it("should return the set status code") {
+        val mockResponse = mock[HttpServletResponse]
+        when(mockResponse.getStatus).thenReturn(418)
+
+        val wrappedResponse = new HttpServletResponseWrapper(mockResponse, headerMode, bodyMode)
+        wrappedResponse.setStatus(814)
+
+        wrappedResponse.getStatus shouldEqual 814
+      }
     }
   }
 

@@ -30,6 +30,8 @@ class GlassfishResponseWrapperTest extends Specification {
 
     static final int ERROR_CODE = 419
     static final String ERROR_HEADER_NAME = "Error"
+    static final String ERROR_MESSAGE = "OHJEEZ"
+    static final String ERROR_BODY = "Your request is bad and you should feel bad!"
 
     @Shared
     Deproxy deproxy
@@ -45,10 +47,12 @@ class GlassfishResponseWrapperTest extends Specification {
 
         def params = properties.defaultTemplateParams
         params += [
-            clusterId : 'cluster1',
-            nodeId    : 'node1',
-            errorCode : ERROR_CODE,
-            headerName: ERROR_HEADER_NAME
+            clusterId   : 'cluster1',
+            nodeId      : 'node1',
+            errorCode   : ERROR_CODE,
+            errorMessage: ERROR_MESSAGE,
+            errorBody   : ERROR_BODY,
+            headerName  : ERROR_HEADER_NAME
         ]
         configurationProvider.applyConfigs("common", params)
         configurationProvider.applyConfigs("features/core/wrappers/response/war", params)
@@ -79,8 +83,12 @@ class GlassfishResponseWrapperTest extends Specification {
         then: "the response code should be the error code, not a 500"
         messageChain.receivedResponse.code as Integer == ERROR_CODE
 
-        and: "the response body should not be written"
-        (messageChain.receivedResponse.body as String).length() == 0
+        and: "the status line message should be the error message"
+        messageChain.receivedResponse.message == ERROR_MESSAGE
+
+        and: "the response body should be the container-server error page"
+        (messageChain.receivedResponse.body as String).length() != 0
+        messageChain.receivedResponse.body as String != ERROR_BODY
 
         and: "the header should be written"
         messageChain.receivedResponse.headers.findAll(ERROR_HEADER_NAME).size() == 1
