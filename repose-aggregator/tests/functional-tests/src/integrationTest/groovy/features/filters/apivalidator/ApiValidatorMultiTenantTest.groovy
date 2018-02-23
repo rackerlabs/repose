@@ -34,6 +34,7 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
 
     static def HDR_OTHER = "X-Other"
     static def VAL_OTHER = "other"
+    static def HDR_CASED_ID = "X-Cased-Id"
 
     static def mapHeaderValue = base64EncodeUtf8("""{
       |   "1" : ["a:admin","foo","bar"],
@@ -76,11 +77,18 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/multitenant", params)
         repose.start()
 
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // NOTE:
+    // The case of the rax:roles tenant must match the case of the param name.
+    // The case of the actual header does not matter.
+    ////////////////////////////////////////////////////////////////////////////////
 
     @Unroll
     def "Should succeed on GET /v1/resource/other when appropriate headers are set (#tenants)"() {
@@ -112,7 +120,7 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         mc.getReceivedResponse().getCode() as Integer == SC_OK
         mc.handlings.size() == 1
         List<String> relevantRolesValues = mc.handlings[0].request.headers.findAll(RELEVANT_ROLES)
-        relevantRolesValues.contains("a:admin/{X-TENANT-ID}")
+        relevantRolesValues.contains("a:admin/{X-Tenant-Id}")
 
         where:
         [method, url] << observerRequests + creatorRequests + updaterRequests + adminOnlyRequests
@@ -192,7 +200,7 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         mc.getReceivedResponse().getCode() as Integer == SC_OK
         mc.handlings.size() == 1
         List<String> relevantRolesValues = mc.handlings[0].request.headers.findAll(RELEVANT_ROLES)
-        relevantRolesValues.contains("a:observer/{X-TENANT-ID}")
+        relevantRolesValues.contains("a:observer/{X-Tenant-Id}")
 
         where:
         tenants << ["4", "4,2"]
@@ -233,7 +241,7 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         mc.getReceivedResponse().getCode() as Integer == SC_OK
         mc.handlings.size() == 1
         List<String> relevantRolesValues = mc.handlings[0].request.headers.findAll(RELEVANT_ROLES)
-        relevantRolesValues.containsAll(["a:creator/{X-TENANT-ID}", "a:admin/{X-TENANT-ID}"])
+        relevantRolesValues.containsAll(["a:creator/{X-Tenant-Id}", "a:admin/{X-Tenant-Id}"])
 
         where:
         [a, b] << [
@@ -258,7 +266,7 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         mc.getReceivedResponse().getCode() as Integer == SC_OK
         mc.handlings.size() == 1
         List<String> relevantRolesValues = mc.handlings[0].request.headers.findAll(RELEVANT_ROLES)
-        relevantRolesValues.containsAll(["a:updater/{X-TENANT-ID}", "a:admin/{X-TENANT-ID}"])
+        relevantRolesValues.containsAll(["a:updater/{X-Tenant-Id}", "a:admin/{X-Tenant-Id}"])
 
         where:
         [a, b] << [
@@ -283,7 +291,7 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         mc.getReceivedResponse().getCode() as Integer == SC_OK
         mc.handlings.size() == 1
         List<String> relevantRolesValues = mc.handlings[0].request.headers.findAll(RELEVANT_ROLES)
-        relevantRolesValues.contains("a:admin/{X-TENANT-ID}")
+        relevantRolesValues.contains("a:admin/{X-Tenant-Id}")
 
         where:
         [a, b] << [
@@ -308,7 +316,7 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         mc.getReceivedResponse().getCode() as Integer == SC_OK
         mc.handlings.size() == 1
         List<String> relevantRolesValues = mc.handlings[0].request.headers.findAll(RELEVANT_ROLES)
-        relevantRolesValues.contains("a:admin/{X-TENANT-ID}")
+        relevantRolesValues.contains("a:admin/{X-Tenant-Id}")
 
         where:
         [a, b] << [
@@ -406,8 +414,8 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
 
         where:
         tenants | relevant
-        "7"     | ["role with spaces/{X-TENANT-ID}"]
-        "7,8"   | ["role with spaces/{X-TENANT-ID}", "a:patcher/{X-TENANT-ID}"]
+        "7"     | ["role with spaces/{X-Tenant-Id}"]
+        "7,8"   | ["role with spaces/{X-Tenant-Id}", "a:patcher/{X-Tenant-Id}"]
     }
 
     def "Should fail on PATCH in /v1/resource/other if a tenant without an appropriate role is specified"() {
@@ -420,5 +428,73 @@ class ApiValidatorMultiTenantTest extends ReposeValveTest {
         then:
         mc.getReceivedResponse().getCode() as Integer == SC_FORBIDDEN
         mc.handlings.size() == 0
+    }
+
+    @Unroll
+    def "Should succeed on GET in /v2/cased if a role with a:observer is specified (#tenants)"() {
+        when:
+        MessageChain mc = deproxy.makeRequest(
+            url: "$reposeEndpoint/v2/cased",
+            method: "GET",
+            headers: ([(HDR_CASED_ID): tenants] + standardHeaders))
+
+        then:
+        mc.getReceivedResponse().getCode() as Integer == SC_OK
+        mc.handlings.size() == 1
+        List<String> relevantRolesValues = mc.handlings[0].request.headers.findAll(RELEVANT_ROLES)
+        relevantRolesValues.contains("a:observer/{x-cased-id}")
+
+        where:
+        tenants << ["2", "4"]
+    }
+
+    def "Should succeed on PUT in /v2/cased if a role with a:updater is specified (3)"() {
+        when:
+        MessageChain mc = deproxy.makeRequest(
+            url: "$reposeEndpoint/v2/cased",
+            method: "PUT",
+            headers: ([(HDR_CASED_ID): "3"] + standardHeaders))
+
+        then:
+        mc.getReceivedResponse().getCode() as Integer == SC_OK
+        mc.handlings.size() == 1
+        List<String> relevantRolesValues = mc.handlings[0].request.headers.findAll(RELEVANT_ROLES)
+        relevantRolesValues.contains("a:updater/{X-Cased-Id}")
+    }
+
+    @Unroll
+    def "Should succeed on POST in /v2/cased if a role with a:creator is specified (#tenants)"() {
+        when:
+        MessageChain mc = deproxy.makeRequest(
+            url: "$reposeEndpoint/v2/cased",
+            method: "POST",
+            headers: ([(HDR_CASED_ID): tenants] + standardHeaders))
+
+        then:
+        mc.getReceivedResponse().getCode() as Integer == SC_OK
+        mc.handlings.size() == 1
+        List<String> relevantRolesValues = mc.handlings[0].request.headers.findAll(RELEVANT_ROLES)
+        relevantRolesValues.contains("a:creator/{x-cASED-iD}")
+
+        where:
+        tenants << ["2", "3", "5"]
+    }
+
+    @Unroll
+    def "Should succeed on DELETE in /v2/cased if a role with a:admin is specified (#tenants)"() {
+        when:
+        MessageChain mc = deproxy.makeRequest(
+            url: "$reposeEndpoint/v2/cased",
+            method: "DELETE",
+            headers: ([(HDR_CASED_ID): tenants] + standardHeaders))
+
+        then:
+        mc.getReceivedResponse().getCode() as Integer == SC_OK
+        mc.handlings.size() == 1
+        List<String> relevantRolesValues = mc.handlings[0].request.headers.findAll(RELEVANT_ROLES)
+        relevantRolesValues.contains("a:admin/{X-CASED-ID}")
+
+        where:
+        tenants << ["1", "5"]
     }
 }

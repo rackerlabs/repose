@@ -3,15 +3,17 @@
              xmlns:rax="http://docs.rackspace.com/api"
              xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <resources base="https://test.api.openstack.com">
-        <resource path="/v1/resource" rax:roles="a:admin/{X-TENANT-ID}">
+        <!-- The case of the rax:roles tenant must match the case of the param name. -->
+        <!-- The case of the actual header does not matter. -->
+        <!-- See the /v2/cased resource below for an example. -->
+        <resource path="/v1/resource" rax:roles="a:admin/{X-Tenant-Id}">
             <param name="X-OTHER"
                    style="header"
                    required="true"
-                   type="xsd:string"
-                   repeating="false"/>
-            <method name="POST" rax:roles="a:creator/{X-TENANT-ID}">
+                   type="xsd:string"/>
+            <method name="POST" rax:roles="a:creator/{X-Tenant-Id}">
                 <request>
-                    <param name="x-tenant-id"
+                    <param name="X-Tenant-Id"
                            style="header"
                            required="true"
                            type="xsd:int"
@@ -25,15 +27,15 @@
                            rax:isTenant="true"/>
                 </request>
             </method>
-            <method name="GET" rax:roles="a:observer/{X-TENANT-ID}">
+            <method name="GET" rax:roles="a:observer/{X-Tenant-Id}">
                 <request>
-                    <param name="x-tENANT-iD"
+                    <param name="X-Tenant-Id"
                            style="header"
                            required="true"
                            type="xsd:int"
                            repeating="true"
                            rax:isTenant="true"/>
-                    <param name="X-TENANT-ID"
+                    <param name="X-Tenant-Id"
                            style="header"
                            required="true"
                            type="xsd:boolean"
@@ -41,15 +43,15 @@
                            rax:isTenant="true"/>
                 </request>
             </method>
-            <method name="PUT" rax:roles="a:updater/{X-TENANT-ID}">
+            <method name="PUT" rax:roles="a:updater/{X-Tenant-Id}">
                 <request>
-                    <param name="x-tenant-id"
+                    <param name="X-Tenant-Id"
                            style="header"
                            required="true"
                            type="xsd:int"
                            repeating="true"
                            rax:isTenant="true"/>
-                    <param name="X-TENANT-ID"
+                    <param name="X-Tenant-Id"
                            style="header"
                            required="true"
                            type="xsd:boolean"
@@ -65,7 +67,7 @@
                            type="xsd:int"
                            repeating="true"
                            rax:isTenant="true"/>
-                    <param name="x-tENANT-iD"
+                    <param name="X-Tenant-Id"
                            style="header"
                            required="true"
                            type="xsd:boolean"
@@ -74,15 +76,15 @@
                 </request>
             </method>
             <resource path="other">
-                <method name="POST" rax:roles="a:creator/{X-TENANT-ID}">
+                <method name="POST" rax:roles="a:creator/{X-Tenant-Id}">
                     <request>
-                        <param name="x-tenant-id"
+                        <param name="X-Tenant-Id"
                                style="header"
                                required="true"
                                type="xsd:int"
                                repeating="true"
                                rax:isTenant="true"/>
-                        <param name="x-tENANT-iD"
+                        <param name="X-Tenant-Id"
                                style="header"
                                required="true"
                                type="xsd:boolean"
@@ -98,7 +100,7 @@
                                type="xsd:int"
                                repeating="true"
                                rax:isTenant="true"/>
-                        <param name="X-TENANT-ID"
+                        <param name="X-Tenant-Id"
                                style="header"
                                required="true"
                                type="xsd:boolean"
@@ -106,15 +108,15 @@
                                rax:isTenant="true"/>
                     </request>
                 </method>
-                <method name="PUT" rax:roles="a:updater/{X-TENANT-ID}">
+                <method name="PUT" rax:roles="a:updater/{X-Tenant-Id}">
                     <request>
-                        <param name="X-TENANT-ID"
+                        <param name="X-Tenant-Id"
                                style="header"
                                required="true"
                                type="xsd:int"
                                repeating="true"
                                rax:isTenant="true"/>
-                        <param name="X-TENANT-ID"
+                        <param name="X-Tenant-Id"
                                style="header"
                                required="true"
                                type="xsd:boolean"
@@ -124,13 +126,13 @@
                 </method>
                 <method name="DELETE">
                     <request>
-                        <param name="X-TENANT-ID"
+                        <param name="X-Tenant-Id"
                                style="header"
                                required="true"
                                type="xsd:int"
                                repeating="true"
                                rax:isTenant="true"/>
-                        <param name="X-TENANT-ID"
+                        <param name="X-Tenant-Id"
                                style="header"
                                required="true"
                                type="xsd:boolean"
@@ -138,15 +140,15 @@
                                rax:isTenant="true"/>
                     </request>
                 </method>
-                <method name="PATCH" rax:roles="role&#xA0;with&#xA0;spaces/{X-TENANT-ID} a:patcher/{X-TENANT-ID}">
+                <method name="PATCH" rax:roles="role&#xA0;with&#xA0;spaces/{X-Tenant-Id} a:patcher/{X-Tenant-Id}">
                     <request>
-                        <param name="X-TENANT-ID"
+                        <param name="X-Tenant-Id"
                                style="header"
                                required="true"
                                type="xsd:int"
                                repeating="true"
                                rax:isTenant="true"/>
-                        <param name="X-TENANT-ID"
+                        <param name="X-Tenant-Id"
                                style="header"
                                required="true"
                                type="xsd:boolean"
@@ -155,6 +157,50 @@
                     </request>
                 </method>
             </resource>
+        </resource>
+        <resource path="/v2/cased">
+            <!-- The case of the rax:roles tenant must match the case of the param name. -->
+            <!-- The case of the actual header does not matter. -->
+            <method name="GET" rax:roles="a:observer/{x-cased-id}">
+                <request>
+                    <param name="x-cased-id"
+                           style="header"
+                           required="true"
+                           type="xsd:int"
+                           repeating="true"
+                           rax:isTenant="true"/>
+                </request>
+            </method>
+            <method name="PUT" rax:roles="a:updater/{X-Cased-Id}">
+                <request>
+                    <param name="X-Cased-Id"
+                           style="header"
+                           required="true"
+                           type="xsd:int"
+                           repeating="true"
+                           rax:isTenant="true"/>
+                </request>
+            </method>
+            <method name="POST" rax:roles="a:creator/{x-cASED-iD}">
+                <request>
+                    <param name="x-cASED-iD"
+                           style="header"
+                           required="true"
+                           type="xsd:int"
+                           repeating="true"
+                           rax:isTenant="true"/>
+                </request>
+            </method>
+            <method name="DELETE" rax:roles="a:admin/{X-CASED-ID}">
+                <request>
+                    <param name="X-CASED-ID"
+                           style="header"
+                           required="true"
+                           type="xsd:int"
+                           repeating="true"
+                           rax:isTenant="true"/>
+                </request>
+            </method>
         </resource>
     </resources>
 </application>
