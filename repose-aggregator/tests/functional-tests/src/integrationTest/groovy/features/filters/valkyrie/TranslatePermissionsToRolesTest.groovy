@@ -19,13 +19,16 @@
  */
 package features.filters.valkyrie
 
+import groovy.json.JsonSlurper
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.openrepose.framework.test.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
+import static java.nio.charset.StandardCharsets.UTF_8
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.ROLES
+import static org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ROLES_MAP
 
 /**
  * Created by jennyvo on 8/31/15.
@@ -63,7 +66,7 @@ class TranslatePermissionsToRolesTest extends ReposeValveTest {
         valkyrieEndpoint = deproxy.addEndpoint(properties.valkyriePort, 'valkyrie service', null, fakeValkyrie.handler)
     }
 
-    def "Get Account level permissions and translate to roles" () {
+    def "Get Account level permissions and translate to roles"() {
         given:
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
@@ -71,34 +74,48 @@ class TranslatePermissionsToRolesTest extends ReposeValveTest {
             client_tenantid = tenantID
         }
         fakeValkyrie.with {
-                    account_perm = "test_perm"
+            account_perm = "test_perm"
         }
+
+        and: "Valkyrie user permissions"
+        def permissions = [
+            "test_perm",
+            "upgrade_account",
+            "edit_ticket",
+            "edit_domain",
+            "manage_users",
+            "view_domain",
+            "view_reports"
+        ]
 
         when: "a request is made against a device with Valkyrie set permissions"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/account/permissions", method: method,
-                headers: [
-                        'content-type': 'application/json',
-                        'X-Auth-Token': fakeIdentityService.client_token,
-                ]
+            headers: [
+                'content-type': 'application/json',
+                'X-Auth-Token': fakeIdentityService.client_token,
+            ]
         )
 
-        then:
+        then: "the response has the expected response code"
         mc.receivedResponse.code == responseCode
-        mc.handlings[0].request.headers.findAll(ROLES).contains("test_perm")
-        mc.handlings[0].request.headers.findAll(ROLES).contains("upgrade_account")
-        mc.handlings[0].request.headers.findAll(ROLES).contains("edit_ticket")
-        mc.handlings[0].request.headers.findAll(ROLES).contains("edit_domain")
-        mc.handlings[0].request.headers.findAll(ROLES).contains("manage_users")
-        mc.handlings[0].request.headers.findAll(ROLES).contains("view_domain")
-        mc.handlings[0].request.headers.findAll(ROLES).contains("view_reports")
 
-        //**This for tracing header on failed response REP-2147
+        and: "the tracing header is sent on all requests"
         mc.receivedResponse.headers.contains("x-trans-id")
-        //**This part for tracing header test REP-1704**
-        // any requests send to identity also include tracing header
         mc.orphanedHandlings.each {
             e -> assert e.request.headers.contains("x-trans-id")
         }
+
+        when: "headers are parsed at the origin service"
+        def roles = mc.handlings[0].request.headers.findAll(ROLES)
+        def tenantToRolesHeader = mc.handlings[0].request.headers.getFirstValue(TENANT_ROLES_MAP)
+        def tenantToRoles = new JsonSlurper().parseText(new String(Base64.decoder.decode(tenantToRolesHeader), UTF_8))
+
+        and: "the roles are scoped to those associated with the requested tenant"
+        def tenantScopedRoles = tenantToRoles[tenantID] as List
+
+        then: "permissions are added to the request as roles"
+        roles.containsAll(permissions)
+        tenantScopedRoles.containsAll(permissions)
 
         where:
         method | tenantID       | responseCode
