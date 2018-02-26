@@ -14,7 +14,7 @@ Currently, only JSON bodies are supported.
 If you would like to request XML support, please http://www.openrepose.org/#contact-us[contact us]!
 ====
 * **Account Permission to Role Translation**:
-Takes the user's account level permissions and translates their names into the standard `X-Roles` header allowing <<../recipes/role-based-access-control.adoc#,Role-based access control (RBAC)>> to be used on the request.
+Takes the user's account level permissions and translates their names into the standard `X-Roles` and `X-Map-Roles` headers allowing <<../recipes/role-based-access-control.adoc#,Role-based access control (RBAC)>> to be used on the request.
 This includes translating the user's device permission for the device specified in the `X-Device-Id` header (when the request contains one).
 
 Each function is optional, and as many or as few as desired can be used.
@@ -44,6 +44,9 @@ While there are no preceding filters that are strictly required, the following f
 === Request Headers Created
 * `X-Roles` - Only created if this filter is configured to `translate-permissions-to-roles`.
 The value of this header will be the names of the user's permissions.
+* `X-Map-Roles` - Only created if this filter is configured to `translate-permissions-to-roles`.
+The value of this header will be a base 64 encoded JSON map between the presented tenant id and the user's permissions.
+If this header already exists the new values will be added to the existing map.
 
 === Request Body Changes
 This filter does not modify the request body.

@@ -1,7 +1,8 @@
 = Release Notes
 
 == In Progress Work
-* https://repose.atlassian.net/browse/REP-6550[REP-6550] - Update the <<filters/valkyrie-authorization.adoc#, Valkyrie Filter>> to care about quality when selected a tenant ID for talking to the Valkyrie service.
+* https://repose.atlassian.net/browse/REP-6550[REP-6550] - Update to the <<filters/valkyrie-authorization.adoc#, Valkyrie Filter>> to care about quality when selected a tenant ID for talking to the Valkyrie service.
+* https://repose.atlassian.net/browse/REP-66040[REP-660450] - Update to the <<filters/valkyrie-authorization.adoc#, Valkyrie Filter>> to add roles to the `X-Map-Roles` header when role translation is configured.
 
 == 8.8.1.0 (2018-02-15)
 * https://repose.atlassian.net/browse/REP-6447[REP-6447] - Added multi-tenant support in the <<filters/keystone-v2.adoc#, Keystone v2>> and <<filters/keystone-v2-authorization.adoc#, Keystone v2 Authorization>> filters.
