@@ -25,6 +25,8 @@ import org.openrepose.framework.test.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
+import static org.openrepose.commons.utils.http.OpenStackServiceHeader.ROLES
+
 /**
  * Created by jennyvo on 9/11/15.
  *  Bypass the calls to Valkyrie if configured roles exist.
@@ -87,13 +89,13 @@ class TranslateRolesBypassValkyrieTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == responseCode
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("test_perm")
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("upgrade_account")
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("edit_ticket")
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("edit_domain")
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("manage_users")
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("view_domain")
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("view_reports")
+        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("test_perm")
+        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("upgrade_account")
+        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("edit_ticket")
+        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("edit_domain")
+        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("manage_users")
+        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("view_domain")
+        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("view_reports")
 
         //**This for tracing header on failed response REP-2147
         mc.receivedResponse.headers.contains("x-trans-id")

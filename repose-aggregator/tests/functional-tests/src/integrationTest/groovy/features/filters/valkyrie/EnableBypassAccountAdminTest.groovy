@@ -26,6 +26,8 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
+import static org.openrepose.commons.utils.http.OpenStackServiceHeader.ROLES
+
 /**
  * Created by jennyvo on 11/10/15.
  *  Enable bypass Account Admin test
@@ -94,7 +96,7 @@ class EnableBypassAccountAdminTest extends ReposeValveTest {
         then: "the response should be #responseCode and #permission should be in the Requests the X-Roles header"
         mc.receivedResponse.code == "200"
         // user device permission translate to roles
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("account_admin")
+        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("account_admin")
         mc.getHandlings().get(0).getRequest().headers.getFirstValue("x-device-id") == "99999"
 
         where:

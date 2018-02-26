@@ -26,6 +26,8 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
+import static org.openrepose.commons.utils.http.OpenStackServiceHeader.ROLES
+
 /**
  * Created by jennyvo on 10/7/15.
  * Update on 01/28/15
@@ -96,18 +98,18 @@ class DeviceLevelPermissionToRolesTest extends ReposeValveTest {
         then: "check response"
         mc.receivedResponse.code == responseCode
         // account permissions are added to x-roles
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("upgrade_account")
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("edit_ticket")
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("edit_domain")
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("manage_users")
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("view_domain")
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("view_reports")
+        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("upgrade_account")
+        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("edit_ticket")
+        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("edit_domain")
+        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("manage_users")
+        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("view_domain")
+        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("view_reports")
         // user device permission translate to roles
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains(permission)
+        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains(permission)
         mc.getHandlings().get(0).getRequest().headers.getFirstValue("x-device-id") == deviceID
         // other device permissions not included
-        !mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains(notincluderoles[0])
-        !mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains(notincluderoles[1])
+        !mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains(notincluderoles[0])
+        !mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains(notincluderoles[1])
 
         where:
         method   | tenantID       | deviceID | permission      | notincluderoles                   | responseCode
