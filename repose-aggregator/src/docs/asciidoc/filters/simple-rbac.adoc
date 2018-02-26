@@ -106,39 +106,42 @@ It does not, however, cover the resources format, as including resources both in
 .simple-rbac.cfg.xml
 ----
 <simple-rbac xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0"
-             roles-header-name="X-ROLES" <!--1-->
-             mask-rax-roles-403="false" <!--2-->
-             enable-api-coverage="false" <!--3-->
-             dot-output="/path/to/dot" <!--4-->
-             wadl-output="/path/to/wadl"> <!--5-->
-    <delegating <!--6-->
-        quality="0.3" <!--7-->
-        component-name="simple-rbac"/> <!--8-->
-    <resources href="/path/to/resources"/> <!--9-->
+             roles-header-name="X-Roles" <!--1-->
+             tenants-header-name="X-Tenant-Id" <!--2-->
+             mask-rax-roles-403="false" <!--3-->
+             enable-api-coverage="false" <!--4-->
+             dot-output="/path/to/dot" <!--5-->
+             wadl-output="/path/to/wadl"> <!--6-->
+    <delegating <!--7-->
+        quality="0.3" <!--8-->
+        component-name="simple-rbac"/> <!--9-->
+    <resources href="/path/to/resources"/> <!--10-->
 </simple-rbac>
 ----
-<1> Specifies the header name of the header which contains the list of user roles. +
+<1> Specifies the name of the header which contains the list of user roles. +
     Default: `X-Roles`
-<2> If set to true, instead of returning a FORBIDDEN (403), the response will be a NOT FOUND (404) if no methods are accessible or a METHOD NOT ALLOWED (405) if some methods are available. +
+<2> Specifies the name of the header which contains the list of user tenants. +
+    Default: `NONE`
+<3> If set to true, instead of returning a FORBIDDEN (403), the response will be a NOT FOUND (404) if no methods are accessible or a METHOD NOT ALLOWED (405) if some methods are available. +
     Default: `false`
-<3> If set to true, this filter will record, via JMX, the number of times each state in the generated state machine (the underlying mechanism) is accessed.
+<4> If set to true, this filter will record, via JMX, the number of times each state in the generated state machine (the underlying mechanism) is accessed.
     These values may be used to determine API usage and coverage.
     The path taken by each request is also logged to the named `api-coverage-logger` logger in the Log4J configuration.
     If that logger is not configured, then they are logged to the default handler. +
     Default: `false`
-<4> Specifies the DOT output file for this validator.
+<5> Specifies the DOT output file for this validator.
     DOT is a plain text graph description language.
     This is a simple way of describing graphs that both humans and computer programs can use..
-<5> Specifies the Web Application Description Language (WADL) output file for this validator.
+<6> Specifies the Web Application Description Language (WADL) output file for this validator.
     This is a way of describing the API of a Web Application that both humans and computer programs can use.
-<6> Inclusion of this element prevents this filter from returning errors, and directs this filter to populate delegation headers instead.
-<7> Specifies the quality of specific output headers.
+<7> Inclusion of this element prevents this filter from returning errors, and directs this filter to populate delegation headers instead.
+<8> Specifies the quality of specific output headers.
     When setting up a chain of delegating filters, the highest quality number will be the one that is eventually output. +
     Default: `0.3`
-<8> The component name used in the delegation header.
+<9> The component name used in the delegation header.
     This is particularly useful when multiple instances of an API-Checker based filter are used in the same filter chain. +
     Default: `simple-rbac`
-<9> Specifies a location to an external file which contains the Simple RBAC resources.
+<10> Specifies a location to an external file which contains the Simple RBAC resources.
     If the message element has a value and the `href` attribute is configured, the Simple RBAC will use what is configured in the value.
     If the file that the `href` attribute points to is modified, the Simple RBAC will not reload the configuration.
     So the new RBAC file should be placed in a new file name (e.g., Dated) and the simple-rbac.cfg.xml file updated to point to it in order to guarantee the changes are utilized.
