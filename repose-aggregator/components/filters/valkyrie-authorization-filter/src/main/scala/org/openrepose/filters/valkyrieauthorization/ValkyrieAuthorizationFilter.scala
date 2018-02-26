@@ -36,9 +36,10 @@ import com.typesafe.scalalogging.slf4j.LazyLogging
 import io.gatling.jsonpath.AST.{Field, PathToken, RootNode}
 import io.gatling.jsonpath.Parser
 import org.openrepose.commons.utils.http.CommonHttpHeader.{AUTH_TOKEN, TRACE_GUID}
-import org.openrepose.commons.utils.http.OpenStackServiceHeader.{CONTACT_ID, ROLES, TENANT_ID}
+import org.openrepose.commons.utils.http.OpenStackServiceHeader.{CONTACT_ID, ROLES, TENANT_ID, TENANT_ROLES_MAP}
 import org.openrepose.commons.utils.http.ServiceClientResponse
 import org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TOO_MANY_REQUESTS
+import org.openrepose.commons.utils.json.JsonHeaderHelper.{anyToJsonHeader, jsonHeaderToValue}
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.commons.utils.string.RegexStringOperators
@@ -77,8 +78,8 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   }
 
   override def doWork(servletRequest: HttpServletRequest, servletResponse: HttpServletResponse, filterChain: FilterChain): Unit = {
-    val httpRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
-    val httpResponse = new HttpServletResponseWrapper(servletResponse.asInstanceOf[HttpServletResponse], PASSTHROUGH, MUTABLE)
+    val httpRequest = new HttpServletRequestWrapper(servletRequest)
+    val httpResponse = new HttpServletResponseWrapper(servletResponse, PASSTHROUGH, MUTABLE)
 
     def nullOrWhitespace(str: Option[String]): Option[String] = str.map(_.trim).filter(_.nonEmpty)
 
@@ -238,8 +239,19 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     def addRoles(result: ValkyrieResult): ResponseResult = {
       (result, translateAccountPermissions) match {
         case (UserPermissions(roles, _), Some(_)) =>
-          roles.foreach(httpRequest.addHeader(ROLES, _))
-          ResponseResult(SC_OK)
+          try {
+            val a = Option(httpRequest.getHeader(TENANT_ROLES_MAP))
+            val b = a.map(jsonHeaderToValue(_).as[Map[String, Set[String]]])
+            val rolesMap = b.getOrElse(Map.empty)
+            val currentRoles = rolesMap.getOrElse(requestedTenantId.get, Set.empty)
+            httpRequest.replaceHeader(TENANT_ROLES_MAP, anyToJsonHeader(rolesMap.updated(requestedTenantId.get, currentRoles ++ roles)))
+            roles.foreach(httpRequest.addHeader(ROLES, _))
+            ResponseResult(SC_OK)
+          } catch {
+            case e@(_: IllegalArgumentException | _: JsonParseException) =>
+              logger.error("A problem occurred while trying to parse the tenant to role map.", e)
+              ResponseResult(SC_INTERNAL_SERVER_ERROR, e.getMessage)
+          }
         case (UserPermissions(_, _), None) => ResponseResult(SC_OK)
         case (responseResult: ResponseResult, _) => responseResult
       }

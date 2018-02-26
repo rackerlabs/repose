@@ -39,9 +39,10 @@ import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.mockito.{ArgumentCaptor, Matchers, Mockito}
 import org.openrepose.commons.utils.http.CommonHttpHeader.AUTH_TOKEN
-import org.openrepose.commons.utils.http.OpenStackServiceHeader.{CONTACT_ID, ROLES, TENANT_ID}
+import org.openrepose.commons.utils.http.OpenStackServiceHeader.{CONTACT_ID, ROLES, TENANT_ID, TENANT_ROLES_MAP}
 import org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TOO_MANY_REQUESTS
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
+import org.openrepose.commons.utils.json.JsonHeaderHelper.{anyToJsonHeader, jsonHeaderToValue}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException, AkkaServiceClientFactory}
@@ -479,6 +480,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       mockServletRequest.setRequestURI("/")
       mockServletRequest.addHeader(TENANT_ID, tenantId)
       mockServletRequest.addHeader(CONTACT_ID, contactId)
+      mockServletRequest.addHeader(TENANT_ROLES_MAP, anyToJsonHeader(Map(tenantId -> Set("banana"))))
 
       mockServletResponse = new MockHttpServletResponse
 
@@ -498,9 +500,10 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         Mockito.verify(filterChain).doFilter(captor.capture(), Matchers.any(classOf[ServletResponse]))
         val roles = captor.getValue.getHeaders(ROLES).asScala.toList
-        assert(roles.contains("some_permission"))
-        assert(roles.contains("a_different_permission"))
-        assert(roles.contains(devicePermission))
+        val roleMap = jsonHeaderToValue(captor.getValue.getHeader(TENANT_ROLES_MAP)).as[Map[String,Set[String]]]
+
+        roles should contain allOf ("some_permission", "a_different_permission", devicePermission)
+        roleMap should contain (tenantId -> Set("banana", "some_permission", "a_different_permission", devicePermission))
       }
     }
 
@@ -516,6 +519,26 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
         mockServletResponse.getStatus shouldBe SC_FORBIDDEN
       }
+    }
+
+    it("should fail with a 500 when the roles aren't parseable") {
+      mockServletRequest = new MockHttpServletRequest
+      mockServletRequest.setMethod("GET")
+      mockServletRequest.setServerName("foo.com")
+      mockServletRequest.setServerPort(8080)
+      mockServletRequest.setRequestURI("/")
+      mockServletRequest.addHeader(TENANT_ID, tenantId)
+      mockServletRequest.addHeader(CONTACT_ID, contactId)
+      mockServletRequest.addHeader(TENANT_ROLES_MAP, "this is bad json")
+      mockServletRequest.addHeader(DeviceId, deviceId)
+      mockServletResponse = new MockHttpServletResponse
+      val devices = devicePermissions(deviceId, "admin_product")
+      setMockAkkaBehavior(transformedTenant, contactId, SC_OK,
+        createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
+
+      filter.doWork(mockServletRequest, mockServletResponse, filterChain)
+
+      mockServletResponse.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
     }
   }
 
