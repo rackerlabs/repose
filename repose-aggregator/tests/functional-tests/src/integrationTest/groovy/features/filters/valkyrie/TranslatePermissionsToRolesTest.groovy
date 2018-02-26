@@ -84,13 +84,13 @@ class TranslatePermissionsToRolesTest extends ReposeValveTest {
 
         then:
         mc.receivedResponse.code == responseCode
-        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("test_perm")
-        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("upgrade_account")
-        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("edit_ticket")
-        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("edit_domain")
-        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("manage_users")
-        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("view_domain")
-        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("view_reports")
+        mc.handlings[0].request.headers.findAll(ROLES).contains("test_perm")
+        mc.handlings[0].request.headers.findAll(ROLES).contains("upgrade_account")
+        mc.handlings[0].request.headers.findAll(ROLES).contains("edit_ticket")
+        mc.handlings[0].request.headers.findAll(ROLES).contains("edit_domain")
+        mc.handlings[0].request.headers.findAll(ROLES).contains("manage_users")
+        mc.handlings[0].request.headers.findAll(ROLES).contains("view_domain")
+        mc.handlings[0].request.headers.findAll(ROLES).contains("view_reports")
 
         //**This for tracing header on failed response REP-2147
         mc.receivedResponse.headers.contains("x-trans-id")

@@ -96,8 +96,8 @@ class EnableBypassAccountAdminTest extends ReposeValveTest {
         then: "the response should be #responseCode and #permission should be in the Requests the X-Roles header"
         mc.receivedResponse.code == "200"
         // user device permission translate to roles
-        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("account_admin")
-        mc.getHandlings().get(0).getRequest().headers.getFirstValue("x-device-id") == "99999"
+        mc.handlings[0].request.headers.findAll(ROLES).contains("account_admin")
+        mc.handlings[0].request.headers.getFirstValue("x-device-id") == "99999"
 
         where:
         method << ["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"]

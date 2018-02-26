@@ -98,18 +98,18 @@ class DeviceLevelPermissionToRolesTest extends ReposeValveTest {
         then: "check response"
         mc.receivedResponse.code == responseCode
         // account permissions are added to x-roles
-        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("upgrade_account")
-        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("edit_ticket")
-        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("edit_domain")
-        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("manage_users")
-        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("view_domain")
-        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains("view_reports")
+        mc.handlings[0].request.headers.findAll(ROLES).contains("upgrade_account")
+        mc.handlings[0].request.headers.findAll(ROLES).contains("edit_ticket")
+        mc.handlings[0].request.headers.findAll(ROLES).contains("edit_domain")
+        mc.handlings[0].request.headers.findAll(ROLES).contains("manage_users")
+        mc.handlings[0].request.headers.findAll(ROLES).contains("view_domain")
+        mc.handlings[0].request.headers.findAll(ROLES).contains("view_reports")
         // user device permission translate to roles
-        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains(permission)
-        mc.getHandlings().get(0).getRequest().headers.getFirstValue("x-device-id") == deviceID
+        mc.handlings[0].request.headers.findAll(ROLES).contains(permission)
+        mc.handlings[0].request.headers.getFirstValue("x-device-id") == deviceID
         // other device permissions not included
-        !mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains(notincluderoles[0])
-        !mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains(notincluderoles[1])
+        !mc.handlings[0].request.headers.findAll(ROLES).contains(notincluderoles[0])
+        !mc.handlings[0].request.headers.findAll(ROLES).contains(notincluderoles[1])
 
         where:
         method   | tenantID       | deviceID | permission      | notincluderoles                   | responseCode

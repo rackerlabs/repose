@@ -111,8 +111,8 @@ class AccountAdminTest extends ReposeValveTest {
         then: "the response should be #responseCode and #permission should be in the Requests the X-Roles header"
         mc.receivedResponse.code == "200"
         // user device permission translate to roles
-        mc.getHandlings().get(0).getRequest().headers.findAll(ROLES).contains(permission)
-        mc.getHandlings().get(0).getRequest().headers.getFirstValue("x-device-id") == deviceId
+        mc.handlings[0].request.headers.findAll(ROLES).contains(permission)
+        mc.handlings[0].request.headers.getFirstValue("x-device-id") == deviceId
         // orphanedhandlings should include the original call + account inventoty call
         mc.orphanedHandlings.request.path.toString().contains("/account/" + accountid + "/permissions/contacts/any/by_contact/" + contactid + "/effective")
         mc.orphanedHandlings.request.path.toString().contains("/account/" + accountid + "/inventory")
@@ -148,7 +148,7 @@ class AccountAdminTest extends ReposeValveTest {
         then: "the response should be #responseCode and #permission should be in the Requests the X-Roles header"
         mc.receivedResponse.code == "403"
         // the request didn't make it to the origin service
-        mc.getHandlings().isEmpty()
+        mc.handlings.isEmpty()
         // orphanedhandlings should include the original call + account inventoty call
         mc.orphanedHandlings.request.path.toString().contains("/account/" + accountid + "/permissions/contacts/any/by_contact/" + contactid + "/effective")
         mc.orphanedHandlings.request.path.toString().contains("/account/" + accountid + "/inventory")
