@@ -2,7 +2,7 @@
 
 <simple-rbac xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0"
              roles-header-name="X-Roles"
-             tenants-header-name="X-Tenant-Id"
+             tenants-header-name="X-TENANT-ID"
              wadl-output="test.wadl.xml"
              dot-output="test.dot">
     <resources>
