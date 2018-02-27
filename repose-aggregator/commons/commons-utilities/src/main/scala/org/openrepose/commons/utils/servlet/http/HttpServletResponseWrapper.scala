@@ -75,8 +75,13 @@ import scala.io.Source
   * @param desiredOutputStream the underlying output stream to be presented to callers of getOutputStream, maybe wrapped
   *                            depending on mode selection of the body
   */
-class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMode: ResponseMode, bodyMode: ResponseMode, desiredOutputStream: ServletOutputStream)
-  extends javax.servlet.http.HttpServletResponseWrapper(originalResponse) with HeaderInteractor with LazyLogging {
+class HttpServletResponseWrapper(originalResponse: HttpServletResponse,
+                                 headerMode: ResponseMode,
+                                 bodyMode: ResponseMode,
+                                 desiredOutputStream: ServletOutputStream)
+  extends javax.servlet.http.HttpServletResponseWrapper(originalResponse)
+    with HeaderInteractor
+    with LazyLogging {
 
   private val headerWarningLogger = LoggerFactory.getLogger(s"${classOf[HttpServletResponseWrapper].getName}.headerWarning")
 
