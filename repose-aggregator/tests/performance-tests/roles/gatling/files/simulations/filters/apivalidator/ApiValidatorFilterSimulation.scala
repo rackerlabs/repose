@@ -45,44 +45,40 @@ class ApiValidatorFilterSimulation extends Simulation {
   val httpConf = http.baseURL(s"http://$baseUrl")
 
   var feederGet: Array[Map[String, Any]] =
-    (0 until ScenariosGet.length).toArray map (i => {
-      val (path, roles, respcode) = ScenariosGet(i)
+    ScenariosGet map { case (path, roles, respcode) =>
       Map(
         "getPath" -> path,
         "getRoles" -> roles,
         "getRespCode" -> respcode
       )
-    })
+    }
 
   var feederPut: Array[Map[String, Any]] =
-    (0 until ScenariosPut.length).toArray map (i => {
-      val (path, roles, respcode) = ScenariosPut(i)
+    ScenariosPut map { case (path, roles, respcode) =>
       Map(
         "putPath" -> path,
         "putRoles" -> roles,
         "putRespCode" -> respcode
       )
-    })
+    }
 
   var feederPost: Array[Map[String, Any]] =
-    (0 until ScenariosPost.length).toArray map (i => {
-      val (path, roles, respcode) = ScenariosPost(i)
+    ScenariosPost map { case (path, roles, respcode) =>
       Map(
         "postPath" -> path,
         "postRoles" -> roles,
         "postRespCode" -> respcode
       )
-    })
+    }
 
   var feederDelete: Array[Map[String, Any]] =
-    (0 until ScenariosDelete.length).toArray map (i => {
-      val (path, roles, respcode) = ScenariosDelete(i)
+    ScenariosDelete map { case (path, roles, respcode) =>
       Map(
         "deletePath" -> path,
         "deleteRoles" -> roles,
         "deleteRespCode" -> respcode
       )
-    })
+    }
 
   // set up the warm up scenario
   val warmup = scenario("Warmup")
@@ -176,7 +172,7 @@ object ApiValidatorFilterSimulation {
 
   // @formatter:off
   //(path: String        , roles: String  , respcode: Int             )
-  val ScenariosGet = Seq(
+  val ScenariosGet = Array[(String, String, Int)](
     ("/path/to/this"     , "super"        , StatusCodeOk              ),
     ("/path/to/this"     , "useradmin"    , StatusCodeOk              ),
     ("/path/to/this"     , "admin"        , StatusCodeOk              ),
@@ -196,8 +192,7 @@ object ApiValidatorFilterSimulation {
     ("/path/to/space"    , "useradmin"    , StatusCodeForbidden       ),
     ("/path/to/space"    , "admin"        , StatusCodeForbidden       ),
     ("/path/to/space"    , "wsp"          , StatusCodeForbidden       ))
-  //(path: String        , roles: String  , respcode: Int             )
-  val ScenariosPut = Seq(
+  val ScenariosPut = Array[(String, String, Int)](
     ("/path/to/this"     , "super"        , StatusCodeOk              ),
     ("/path/to/this"     , "useradmin"    , StatusCodeOk              ),
     ("/path/to/this"     , "admin"        , StatusCodeOk              ),
@@ -207,8 +202,7 @@ object ApiValidatorFilterSimulation {
     ("/path/to/that"     , "useradmin"    , StatusCodeOk              ),
     ("/path/to/test"     , "user"         , StatusCodeMethodNotAllowed),
     ("/path/to/something", "useradmin"    , StatusCodeNotFound        ))
-  //(path: String        , roles: String  , respcode: Int             )
-  val ScenariosPost = Seq(
+  val ScenariosPost = Array[(String, String, Int)](
     ("/path/to/this"     , "super"        , StatusCodeOk              ),
     ("/path/to/this"     , "useradmin"    , StatusCodeOk              ),
     ("/path/to/this"     , "admin"        , StatusCodeForbidden       ),
@@ -220,8 +214,7 @@ object ApiValidatorFilterSimulation {
     ("/path/to/test"     , "useradmin"    , StatusCodeOk              ),
     ("/path/to/test"     , "super"        , StatusCodeForbidden       ),
     ("/path/to/something", "none"         , StatusCodeNotFound        ))
-  //(path: String        , roles: String  , respcode: Int             )
-  val ScenariosDelete = Seq(
+  val ScenariosDelete = Array[(String, String, Int)](
     ("/path/to/this"     , "super"        , StatusCodeOk              ),
     ("/path/to/this"     , "useradmin"    , StatusCodeForbidden       ),
     ("/path/to/this"     , "admin"        , StatusCodeForbidden       ),
