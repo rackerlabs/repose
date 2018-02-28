@@ -83,9 +83,8 @@ class TomcatResponseWrapperTest extends Specification {
         then: "the response code should be the error code, not a 500"
         messageChain.receivedResponse.code as Integer == ERROR_CODE
 
-        // TODO: For some reason, Tomcat is not sending any reason phrase in this case
-        // and: "the status line message should be the error message"
-        // messageChain.receivedResponse.message == ERROR_MESSAGE
+        and: "the status line message should empty"
+        messageChain.receivedResponse.message.isEmpty()
 
         and: "the response body should be the container-server error page"
         (messageChain.receivedResponse.body as String).length() != 0
