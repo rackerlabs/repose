@@ -68,7 +68,7 @@ class TomcatResponseWrapperTest extends Specification {
             properties.reposeRootWar,
             properties.reposePort)
         tomcatLauncher.start()
-        tomcatLauncher.waitForDesiredResponseCodeFromUrl(reposeEndpoint, 200)
+        tomcatLauncher.waitForDesiredResponseCodeFromUrl(properties.getReposeEndpoint(), 200)
     }
 
     def cleanupSpec() {
@@ -78,7 +78,7 @@ class TomcatResponseWrapperTest extends Specification {
 
     def "a filter writes a header and response body then calls sendError on the response"() {
         when: "a request is made to Repose"
-        def messageChain = deproxy.makeRequest(reposeEndpoint + "/scripting")
+        def messageChain = deproxy.makeRequest(properties.getReposeEndpoint() + "/scripting")
 
         then: "the response code should be the error code, not a 500"
         messageChain.receivedResponse.code as Integer == ERROR_CODE
@@ -92,9 +92,5 @@ class TomcatResponseWrapperTest extends Specification {
 
         and: "the header should be written"
         messageChain.receivedResponse.headers.findAll(ERROR_HEADER_NAME).size() == 1
-    }
-
-    def getReposeEndpoint() {
-        return properties.getReposeEndpoint()
     }
 }
