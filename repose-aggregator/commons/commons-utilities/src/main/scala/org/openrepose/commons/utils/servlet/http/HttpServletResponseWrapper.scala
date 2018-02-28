@@ -120,15 +120,15 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse,
 
   override def setStatus(i: Int): Unit = {
     logger.trace(s"setStatus called with status code: $i")
-    setStatusCommon(i)(originalResponse.setStatus(i))
+    doSetStatus(i)(originalResponse.setStatus(i))
   }
 
   override def setStatus(i: Int, s: String): Unit = {
     logger.trace(s"setStatus called with status code: $i, message: $s")
-    setStatusCommon(i, s)(originalResponse.setStatus(i, s))
+    doSetStatus(i, s)(originalResponse.setStatus(i, s))
   }
 
-  private def setStatusCommon(i: Int, s: String = null)(setStatusFunc: => Unit): Unit = {
+  private def doSetStatus(i: Int, s: String = null)(setStatusFunc: => Unit): Unit = {
     if (isCommitted) {
       throw new IllegalStateException("Cannot call setStatus after the response has been committed")
     }
@@ -151,7 +151,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse,
     */
   override def sendError(i: Int): Unit = {
     logger.trace(s"sendError called with status code: $i")
-    sendErrorCommon(i)(originalResponse.sendError(i))
+    doSendError(i)(originalResponse.sendError(i))
   }
 
   /** See [[sendError(i)]].
@@ -162,10 +162,10 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse,
     */
   override def sendError(i: Int, s: String): Unit = {
     logger.trace(s"sendError called with status code: $i, message: $s")
-    sendErrorCommon(i, s)(originalResponse.sendError(i, s))
+    doSendError(i, s)(originalResponse.sendError(i, s))
   }
 
-  private def sendErrorCommon(i: Int, s: String = null)(sendErrorFunc: => Unit): Unit = {
+  private def doSendError(i: Int, s: String = null)(sendErrorFunc: => Unit): Unit = {
     if (isCommitted) {
       throw new IllegalStateException("Cannot call sendError after the response has been committed")
     }
