@@ -238,13 +238,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
                |          <param name="$tenantsHeader"
                |                 style="header"
                |                 required="true"
-               |                 type="xsd:int"
-               |                 repeating="true"
-               |                 rax:isTenant="true"/>
-               |          <param name="$tenantsHeader"
-               |                 style="header"
-               |                 required="true"
-               |                 type="xsd:boolean"
+               |                 type="xsd:string"
                |                 repeating="true"
                |                 rax:isTenant="true"/>
                |        </request>
