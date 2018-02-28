@@ -22,8 +22,11 @@ package org.openrepose.commons.utils.servlet.http
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
 import javax.servlet.ServletOutputStream
 
+import com.typesafe.scalalogging.slf4j.LazyLogging
+
 class ReadOnlyServletOutputStream(servletOutputStream: ServletOutputStream)
-  extends ExtendedServletOutputStream {
+  extends ExtendedServletOutputStream
+    with LazyLogging {
 
   private val byteArrayOutputStream = new ByteArrayOutputStream()
 
@@ -44,14 +47,22 @@ class ReadOnlyServletOutputStream(servletOutputStream: ServletOutputStream)
 
   override def getOutputStreamAsInputStream: InputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray)
 
-  override def setOutput(in: InputStream): Unit =
+  override def setOutput(in: InputStream): Unit = {
+    logger.error("setOutput not available on {}", classOf[ReadOnlyServletOutputStream].getSimpleName)
     throw new IllegalStateException("Method not available for READONLY response mode")
+  }
 
-  override def commit(): Unit =
+  override def commit(): Unit = {
+    logger.error("commit not available on {}", classOf[ReadOnlyServletOutputStream].getSimpleName)
     throw new IllegalStateException("Method not available for READONLY response mode")
+  }
 
-  override def resetBuffer(): Unit = byteArrayOutputStream.reset()
+  override def resetBuffer(): Unit = {
+    logger.debug("Discarding accumulated buffered output")
+    byteArrayOutputStream.reset()
+  }
 
+  // Close the underlying ByteArrayOutputStream, which is a no-op.
   override def close(): Unit = byteArrayOutputStream.close()
 
   override def toString: String = byteArrayOutputStream.toString

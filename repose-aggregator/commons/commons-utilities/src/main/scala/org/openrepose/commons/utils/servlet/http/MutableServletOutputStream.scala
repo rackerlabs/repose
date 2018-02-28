@@ -22,10 +22,12 @@ package org.openrepose.commons.utils.servlet.http
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
 import javax.servlet.ServletOutputStream
 
+import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.commons.io.IOUtils
 
 class MutableServletOutputStream(servletOutputStream: ServletOutputStream)
-  extends ExtendedServletOutputStream {
+  extends ExtendedServletOutputStream
+    with LazyLogging {
 
   private val byteArrayOutputStream = new ByteArrayOutputStream()
 
@@ -36,6 +38,7 @@ class MutableServletOutputStream(servletOutputStream: ServletOutputStream)
   override def write(b: Array[Byte], off: Int, len: Int): Unit = byteArrayOutputStream.write(b, off, len)
 
   override def setOutput(in: InputStream): Unit = {
+    logger.debug("Replacing accumulated buffered output with new output")
     byteArrayOutputStream.reset()
     // Account for Java null being passed in
     Option(in).foreach(IOUtils.copy(_, byteArrayOutputStream))
@@ -43,10 +46,17 @@ class MutableServletOutputStream(servletOutputStream: ServletOutputStream)
 
   override def getOutputStreamAsInputStream: InputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray)
 
-  override def commit(): Unit = byteArrayOutputStream.writeTo(servletOutputStream)
+  override def commit(): Unit = {
+    logger.debug("Writing buffered output to the underlying output stream")
+    byteArrayOutputStream.writeTo(servletOutputStream)
+  }
 
-  override def resetBuffer(): Unit = byteArrayOutputStream.reset()
+  override def resetBuffer(): Unit = {
+    logger.debug("Discarding accumulated buffered output")
+    byteArrayOutputStream.reset()
+  }
 
+  // Close the underlying ByteArrayOutputStream, which is a no-op.
   override def close(): Unit = byteArrayOutputStream.close()
 
   override def toString: String = byteArrayOutputStream.toString

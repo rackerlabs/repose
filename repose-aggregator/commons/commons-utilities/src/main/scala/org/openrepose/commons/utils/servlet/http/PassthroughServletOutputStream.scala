@@ -22,7 +22,11 @@ package org.openrepose.commons.utils.servlet.http
 import java.io.InputStream
 import javax.servlet.ServletOutputStream
 
-class PassthroughServletOutputStream(servletOutputStream: ServletOutputStream) extends ExtendedServletOutputStream {
+import com.typesafe.scalalogging.slf4j.LazyLogging
+
+class PassthroughServletOutputStream(servletOutputStream: ServletOutputStream)
+  extends ExtendedServletOutputStream
+    with LazyLogging  {
 
   override def write(b: Int): Unit = servletOutputStream.write(b)
 
@@ -30,14 +34,20 @@ class PassthroughServletOutputStream(servletOutputStream: ServletOutputStream) e
 
   override def write(b: Array[Byte], off: Int, len: Int): Unit = servletOutputStream.write(b, off, len)
 
-  override def getOutputStreamAsInputStream: InputStream =
+  override def getOutputStreamAsInputStream: InputStream = {
+    logger.error("getOutputStreamAsInputStream not available on {}", classOf[PassthroughServletOutputStream].getSimpleName)
     throw new IllegalStateException("Method not available for PASSTHROUGH response mode")
+  }
 
-  override def setOutput(in: InputStream): Unit =
+  override def setOutput(in: InputStream): Unit = {
+    logger.error("setOutput not available on {}", classOf[PassthroughServletOutputStream].getSimpleName)
     throw new IllegalStateException("Method not available for PASSTHROUGH response mode")
+  }
 
-  override def commit(): Unit =
+  override def commit(): Unit ={
+    logger.error("commit not available on {}", classOf[PassthroughServletOutputStream].getSimpleName)
     throw new IllegalStateException("Method not available for PASSTHROUGH response mode")
+  }
 
   // Since this OutputStream does not maintain a buffer, do nothing
   override def resetBuffer(): Unit = {}
