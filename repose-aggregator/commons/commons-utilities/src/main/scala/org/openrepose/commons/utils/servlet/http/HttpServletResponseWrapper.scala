@@ -581,6 +581,8 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse,
       throw new IllegalStateException("Cannot call reset after the response has been committed")
     } else {
       super.reset()
+      statusCode = originalResponse.getStatus
+      reason = None
       headerMap = new TreeMap[String, Seq[String]]()(caseInsensitiveOrdering)
       resetBuffer()
     }
