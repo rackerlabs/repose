@@ -299,7 +299,7 @@ class ResponseWrapperTest extends ReposeValveTest {
         and: "the response code is correctly set"
         messageChain.receivedResponse.code as Integer == responseCode
 
-        and: "the response received by the user should be empty correct content type"
+        and: "the response received by the user should be empty without a content type"
         (messageChain.receivedResponse.body as String).isEmpty()
         !messageChain.receivedResponse.headers.contains(HttpHeaders.CONTENT_TYPE)
         messageChain.receivedResponse.headers.contains(HttpHeaders.CONTENT_LENGTH)
