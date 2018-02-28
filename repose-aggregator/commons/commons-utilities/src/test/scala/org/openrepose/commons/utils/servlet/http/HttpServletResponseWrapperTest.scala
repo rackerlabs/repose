@@ -2616,13 +2616,13 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.isCommitted shouldBe true
     }
 
-    it("should thrown an exception after uncommit is called while in PASSTHROUGH mode following a sendError on a non-wrapped HttpServletResponse") {
+    it("should throw an exception after uncommit is called while in PASSTHROUGH mode following a sendError on a non-wrapped HttpServletResponse") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.sendError(HttpServletResponse.SC_NOT_FOUND)
       val exception = the[IllegalStateException] thrownBy wrappedResponse.uncommit()
 
-      exception.getMessage shouldBe "the wrapped response has already been committed"
+      exception.getMessage shouldBe "Cannot call uncommit after the response has been committed"
     }
 
     modePermutationsMutable.foreach {
@@ -2648,13 +2648,13 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       an[IllegalStateException] should be thrownBy wrappedResponse.uncommit()
     }
 
-    it("should thrown an exception after uncommit is called while in PASSTHROUGH mode following a flushBuffer on a non-wrapped HttpServletResponse") {
+    it("should throw an exception after uncommit is called while in PASSTHROUGH mode following a flushBuffer on a non-wrapped HttpServletResponse") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.PASSTHROUGH)
 
       wrappedResponse.flushBuffer()
       val exception = the[IllegalStateException] thrownBy wrappedResponse.uncommit()
 
-      exception.getMessage shouldBe "the wrapped response has already been committed"
+      exception.getMessage shouldBe "Cannot call uncommit after the response has been committed"
     }
 
     modePermutationsMutable.foreach {
