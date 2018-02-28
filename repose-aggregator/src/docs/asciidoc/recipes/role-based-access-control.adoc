@@ -286,7 +286,10 @@ Please refer to the <<../filters/api-validator.adoc#,API Validator filter>> docu
 The case of the actual header does not matter, but the case of the `rax:roles` tenant must match the case of the `param` element's `name` attribute.
 ====
 
-The difference between the regular RAX-Roles and the Tenanted RAX-Roles is subtle from a configuration standpoint, but has
+The difference between the regular RAX-Roles and the Tenanted RAX-Roles is subtle from a configuration standpoint, but they have very different expectations and outcomes.
+The regular RAX-Roles uses the `X-Roles` header which is simply a plain text splitable header that contains all of the roles associated with the user.
+The Tenanted RAX-Roles uses the `X-Map-Roles` header which is a base 64 encoded JSON map of strings to arrays of strings (e.g., the base 64 encoding of `{"someTenant": ["someRole", "sharedRole"], "otherTenant": ["otherRole", "sharedRole"]}`).
+This allows for much more precise control over what access a user has to an API based on the current context (i.e. tenant) they are accessing it for.
 
 == 4. Enable Tenant Culling based on Relevant Roles
 
