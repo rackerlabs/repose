@@ -13,8 +13,22 @@ The <<../recipes/role-based-access-control.adoc#,Role-Based Access Control (RBAC
 
 == Prerequisites & Postconditions
 === Required Request Headers
+In the original super simple legacy mode:
+
 * `X-Roles` - A header containing the roles belonging to the user making the request.
-The name of the header containing said roles is configurable, but `X-Roles` is the default.
+  The name of the header containing said roles is configurable, but `X-Roles` is the default.
+
+OR
+
+In the newer multi-tenant mode:
+
+* `X-Tenant-Id` - A header containing the Tenant ID's associated with the current request.
+  The name of this header is configurable, but `X-Tenant-Id` is typically created by other filters.
+* `X-Map-Roles` - Identifies the tenant-to-role mapping for all of the user's tenants and roles.
+  This header is a base 64 encoded JSON map of strings to arrays of strings (e.g., the base 64 encoding of `{"someTenant": ["someRole", "sharedRole"], "otherTenant": ["otherRole", "sharedRole"]}`).
+  Roles without a tenant association will be mapped to the `repose/domain/roles` key (e.g., `{"repose/domain/roles": ["tenantlessRole"]}`).
+
+The most common use of a request header by this filter is for <<../recipes/role-based-access-control.adoc#,Role-Based Access Control (RBAC)>> using the `X-Roles`, `X-Tenant-Id`, and/or `X-Map-Roles` headers populated by either the <<../filters/keystone-v2.adoc#,Keystone v2 filter>> or the <<../filters/keystone-v2-authorization.adoc#,Keystone v2 Authorization filter>>.
 
 === Required Preceding Filters
 This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.
