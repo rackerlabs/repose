@@ -186,7 +186,7 @@ class ValkyrieAuthorizationQualityTest extends ReposeValveTest {
             method: method,
             headers: [
                 (AUTH_TOKEN)   : mockValkyrie.valid_auth,
-                (TENANT_ID)    : "$otherTenantId;q=0.98,hybrid:${mockValkyrie.tenant_id}$quality",
+                (TENANT_ID)    : "$otherTenantId$quality,hybrid:${mockValkyrie.tenant_id};q=0.5",
                 (CONTACT_ID)   : mockValkyrie.contact_id,
                 (HDR_DEVICE_ID): mockValkyrie.device_id])
 
@@ -198,7 +198,7 @@ class ValkyrieAuthorizationQualityTest extends ReposeValveTest {
         [a, b, c] << [
             ["GET", "HEAD", "PUT", "POST", "DELETE", "PATCH"],
             ["edit_product", "admin_product", "account_admin"],
-            [";q=0.5", ""]
+            [";q=0.98", ""]
         ].combinations()
 
         method = a
