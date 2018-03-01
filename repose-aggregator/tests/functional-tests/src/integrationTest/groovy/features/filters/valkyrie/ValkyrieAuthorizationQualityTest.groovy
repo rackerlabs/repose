@@ -38,6 +38,9 @@ class ValkyrieAuthorizationQualityTest extends ReposeValveTest {
     @Shared
     MockValkyrie mockValkyrie
 
+    @Shared
+    def tenant = Math.abs(new Random().nextInt())
+
     def setupSpec() {
         Map params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
@@ -52,30 +55,26 @@ class ValkyrieAuthorizationQualityTest extends ReposeValveTest {
         deproxy.addEndpoint(port: properties.valkyriePort, name: "valkyrie service", defaultHandler: mockValkyrie.getHandler())
     }
 
+
     def setup() {
-        mockValkyrie.resetCounts()
-        mockValkyrie.resetHandlers()
-        mockValkyrie.resetParameters()
+        mockValkyrie.with {
+            valid_auth = UUID.randomUUID().toString()
+            contact_id = ++tenant as String
+        }
     }
 
     @Unroll
     def "should allow #method calls with permission '#devicePermission' and quality '#quality'"() {
         given:
-        def authToken = UUID.randomUUID().toString()
-        mockValkyrie.with {
-            valid_auth = authToken
-            contact_id = "$contactId"
-            device_perm = devicePermission
-        }
-
+        mockValkyrie.device_perm = devicePermission
 
         when:
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint/",
             method: method,
             headers: [
-                (AUTH_TOKEN)   : authToken,
-                (TENANT_ID)    : "someOtherTenant;q=0.5,hybrid:$contactId$quality",
+                (AUTH_TOKEN)   : mockValkyrie.valid_auth,
+                (TENANT_ID)    : "someOtherTenant;q=0.5,hybrid:${mockValkyrie.contact_id}$quality",
                 (CONTACT_ID)   : mockValkyrie.contact_id,
                 (HDR_DEVICE_ID): mockValkyrie.device_id])
 
@@ -83,20 +82,18 @@ class ValkyrieAuthorizationQualityTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].request.path == "/"
         List<String> tenantIdValues = mc.handlings[0].request.headers.findAll(TENANT_ID)
-        tenantIdValues.contains("hybrid:$contactId$quality" as String)
+        tenantIdValues.contains("hybrid:${mockValkyrie.contact_id}$quality" as String)
         mc.receivedResponse.code as Integer == SC_OK
 
         where:
-        [a, b, c] << [["GET", "HEAD", "PUT", "POST", "DELETE", "PATCH"],
-                      [["edit_product", 1234],
-                       ["admin_product", 2345],
-                       ["account_admin", 3456]],
-                      [";q=0.98", ""]
+        [a, b, c] << [
+            ["GET", "HEAD", "PUT", "POST", "DELETE", "PATCH"],
+            ["edit_product", "admin_product", "account_admin"],
+            [";q=0.98", ""]
         ].combinations()
 
         method = a
-        devicePermission = b[0]
-        contactId = b[1]
+        devicePermission = b
         quality = c
 
     }
@@ -104,12 +101,7 @@ class ValkyrieAuthorizationQualityTest extends ReposeValveTest {
     @Unroll
     def "should allow #method calls with permission 'view_product' and quality '#quality'"() {
         given:
-        def authToken = UUID.randomUUID().toString()
-        mockValkyrie.with {
-            valid_auth = authToken
-            contact_id = "4567"
-            device_perm = "view_product"
-        }
+        mockValkyrie.device_perm = "view_product"
 
 
         when:
@@ -117,8 +109,8 @@ class ValkyrieAuthorizationQualityTest extends ReposeValveTest {
             url: "$reposeEndpoint/",
             method: method,
             headers: [
-                (AUTH_TOKEN)   : authToken,
-                (TENANT_ID)    : "someOtherTenant;q=0.5,hybrid:4567$quality",
+                (AUTH_TOKEN)   : mockValkyrie.valid_auth,
+                (TENANT_ID)    : "someOtherTenant;q=0.5,hybrid:${mockValkyrie.contact_id}$quality",
                 (CONTACT_ID)   : mockValkyrie.contact_id,
                 (HDR_DEVICE_ID): mockValkyrie.device_id])
 
@@ -126,12 +118,13 @@ class ValkyrieAuthorizationQualityTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].request.path == "/"
         List<String> tenantIdValues = mc.handlings[0].request.headers.findAll(TENANT_ID)
-        tenantIdValues.contains("hybrid:4567$quality" as String)
+        tenantIdValues.contains("hybrid:${mockValkyrie.contact_id}$quality" as String)
         mc.receivedResponse.code as Integer == SC_OK
 
         where:
-        [a, b] << [["GET", "HEAD"],
-                   [";q=0.98", ""]
+        [a, b] << [
+            ["GET", "HEAD"],
+            [";q=0.98", ""]
         ].combinations()
 
         method = a
@@ -142,12 +135,7 @@ class ValkyrieAuthorizationQualityTest extends ReposeValveTest {
     @Unroll
     def "should not allow #method calls with permission 'view_product' and quality '#quality'"() {
         given:
-        def authToken = UUID.randomUUID().toString()
-        mockValkyrie.with {
-            valid_auth = authToken
-            contact_id = "4567"
-            device_perm = "view_product"
-        }
+        mockValkyrie.device_perm = "view_product"
 
 
         when:
@@ -155,8 +143,8 @@ class ValkyrieAuthorizationQualityTest extends ReposeValveTest {
             url: "$reposeEndpoint/",
             method: method,
             headers: [
-                (AUTH_TOKEN)   : authToken,
-                (TENANT_ID)    : "someOtherTenant;q=0.5,hybrid:4567$quality",
+                (AUTH_TOKEN)   : mockValkyrie.valid_auth,
+                (TENANT_ID)    : "someOtherTenant;q=0.5,hybrid:${mockValkyrie.contact_id}$quality",
                 (CONTACT_ID)   : mockValkyrie.contact_id,
                 (HDR_DEVICE_ID): mockValkyrie.device_id])
 
@@ -165,8 +153,9 @@ class ValkyrieAuthorizationQualityTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == SC_FORBIDDEN
 
         where:
-        [a, b] << [["PUT", "POST", "DELETE", "PATCH"],
-                   [";q=0.98", ""]
+        [a, b] << [
+            ["PUT", "POST", "DELETE", "PATCH"],
+            [";q=0.98", ""]
         ].combinations()
 
         method = a
