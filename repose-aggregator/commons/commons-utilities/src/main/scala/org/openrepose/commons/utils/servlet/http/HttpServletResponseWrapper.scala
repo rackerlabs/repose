@@ -178,6 +178,9 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse,
     // written to the output stream.
     resetBuffer()
 
+    // Since the content buffer has been reset, the Content-Length should also be reset.
+    setContentLength(0)
+
     // Track that the user intended to send an error.
     sentError = true
     committed = true
