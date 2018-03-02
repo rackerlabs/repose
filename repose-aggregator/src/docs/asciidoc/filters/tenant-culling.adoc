@@ -12,8 +12,9 @@ The filter looks at all the tenants that Keystone returns for a user to creates 
 
 == Prerequisites & Postconditions
 === Required Request Headers
-* `X-Map-Roles` - A mapping between tenants and the roles on them.
-The value of this header is a JSON object that has been base 64 encoded.
+* `X-Map-Roles` - Identifies the tenant-to-role mapping for all of the user's tenants and roles.
+  This header is a base 64 encoded JSON map of strings to array of strings (e.g., the base 64 encoding of `{"someTenant": ["someRole", "sharedRole"], "otherTenant": ["otherRole", "sharedRole"]}`).
+  Roles without a tenant association will be mapped to the `repose/domain/roles` key (e.g., `{"repose/domain/roles": ["tenantlessRole"]}`).
 * `X-Relevant-Roles` - The roles this user was granted access based on.
 
 === Required Preceding Filters

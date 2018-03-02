@@ -1,10 +1,10 @@
 <?xml version="1.1" encoding="UTF-8"?>
-<validators multi-role-match="false" xmlns='http://docs.openrepose.org/repose/validator/v1.0'>
+<validators xmlns='http://docs.openrepose.org/repose/validator/v1.0'>
     <validator
         role="default"
         default="true"
-        wadl="headerAllAtMethodTenantExplicit.wadl.xml"
-        dot-output="../logs/headerAllAtMethodTenantExplicit.dot"
+        wadl="validator.wadl"
+        dot-output="validator.dot"
         enable-api-coverage="true"
         check-headers="true"
         check-elements="true"
@@ -13,6 +13,5 @@
         check-well-formed="true"
         check-grammars="true"
         join-xpath-checks="false"
-        remove-dups="true"
     />
 </validators>

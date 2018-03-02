@@ -29,7 +29,7 @@ Most of the ideas described in this conference session are implemented in this f
 This filter does not require any request headers.
 
 However, the configuration can require specific headers and/or values be present in order to successfully exit this filter.
-The most common use of a request header by this filter is for <<../recipes/role-based-access-control.adoc#,Role-Based Access Control (RBAC)>> using the `X-Roles` header populated by the <<../filters/keystone-v2.adoc#,Keystone v2 filter>>.
+The most common use of a request header by this filter is for <<../recipes/role-based-access-control.adoc#,Role-Based Access Control (RBAC)>> using the `X-Roles`, `X-Tenant-Id`, and/or `X-Map-Roles` headers populated by either the <<../filters/keystone-v2.adoc#,Keystone v2 filter>> or the <<../filters/keystone-v2-authorization.adoc#,Keystone v2 Authorization filter>>.
 
 === Required Preceding Filters
 This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.
@@ -210,7 +210,7 @@ This configuration expands the basic example in order to show off all of the fea
      The name is used as the MBean name when connecting to *Repose* via JMX.
 <19> If set to true and the WADL defines required headers then the filter will check that those required headers are present. +
      Default: `false`
-<20> Enables the use of `rax:roles` in WADL files to determine resource access. +
+<20> Enables use of the `rax:roles` extension in WADL files for determining resource access. +
      Default: `false` +
      *NOTE:* _IF_ `true`, _THEN_ `rax:roles` defined in the supplied WADL files will be used to determine resource access. +
      *NOTE:* _IF_ `true`, _THEN_ `check-headers` will also be enabled regardless of it's setting.
