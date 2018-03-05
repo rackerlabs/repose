@@ -19,22 +19,22 @@
  */
 package org.openrepose.filters.keystonev2
 
-import java.util.Base64
 import javax.inject.{Inject, Named}
-import javax.servlet.ServletRequest
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 
 import com.fasterxml.jackson.core.JsonProcessingException
-import org.openrepose.commons.utils.http.OpenStackServiceHeader.{ROLES, TENANT_ID}
+import org.openrepose.commons.utils.http.OpenStackServiceHeader.{ROLES, TENANT_ID, TENANT_ROLES_MAP}
 import org.openrepose.commons.utils.http.PowerApiHeader.X_CATALOG
+import org.openrepose.commons.utils.json.JsonHeaderHelper
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
+import org.openrepose.commons.utils.string.Base64Helper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.{KeystoneV2Result, Reject}
 import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{AuthorizationException, AuthorizationFailed, AuthorizationPassed, doAuthorization}
-import org.openrepose.filters.keystonev2.KeystoneV2Common.{Endpoint, EndpointsData, TokenRequestAttributeName, ValidToken}
+import org.openrepose.filters.keystonev2.KeystoneV2Common._
 import org.openrepose.filters.keystonev2.config.KeystoneV2Config
-import play.api.libs.json.Json
+import play.api.libs.json.{JsResultException, Json}
 
 import scala.util.{Failure, Success, Try}
 
@@ -49,42 +49,50 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
 
   override val handleFailures: PartialFunction[Try[Unit.type], KeystoneV2Result] = {
     KeystoneV2Authorization.handleFailures orElse {
-      case Failure(e@(_: MissingTokenException |
+      case Failure(e@(_: MissingTenantToRolesMapException |
                       _: MissingEndpointsException |
-                      _: InvalidTokenException |
+                      _: InvalidTenantToRolesMapException |
                       _: InvalidEndpointsException)) =>
         Reject(SC_INTERNAL_SERVER_ERROR, Some(e.getMessage))
     }
   }
 
   override def doAuth(request: HttpServletRequestWrapper): Try[Unit.type] = {
-    // TODO: Stop using request attributes. Stop using the token. Just use the tenant to roles map, tenant ids, and roles headers.
-    getToken(request) flatMap { token =>
-      doAuthorization(configuration, request, token, getEndpoints(request)) match {
-        case AuthorizationPassed(scopedToken, Some(matchedTenant)) =>
-          scopeTenantIdHeader(request, matchedTenant)
-          scopeRolesHeader(request, scopedToken)
+    getTenantToRolesMap(request) flatMap { tenantToRolesMap =>
+      doAuthorization(configuration, request, tenantToRolesMap, getEndpoints(request)) match {
+        case AuthorizationPassed(scopedTenantToRolesMap, matchedTenants) if scopedTenantToRolesMap.nonEmpty =>
+          scopeTenantIdHeader(request, matchedTenants)
+          scopeRolesHeader(request, scopedTenantToRolesMap.values.flatten.toSet)
+          scopeTenantToRolesMapHeader(request, scopedTenantToRolesMap)
           Success(Unit)
-        case AuthorizationPassed(_, None) => Success(Unit)
+        case AuthorizationPassed(_, _) => Success(Unit)
         case AuthorizationFailed(_, _, exception) => Failure(exception)
       }
     }
   }
 
-  def getToken(request: ServletRequest): Try[ValidToken] = {
+  def getTenantToRolesMap(request: HttpServletRequest): Try[TenantToRolesMap] = {
+    logger.trace("Getting the tenant-to-roles mapping from a request header")
+
     Try {
-      Option(request.getAttribute(TokenRequestAttributeName)).get.asInstanceOf[ValidToken]
+      Option(request.getHeader(TENANT_ROLES_MAP))
+        .map(JsonHeaderHelper.jsonHeaderToValue)
+        .get
+        .as[TenantToRolesMap]
     } recover {
-      case nsee: NoSuchElementException => throw MissingTokenException("Token request attribute does not exist", nsee)
-      case cce: ClassCastException => throw InvalidTokenException("Token request attribute is not a valid token", cce)
+      case nsee: NoSuchElementException =>
+        throw MissingTenantToRolesMapException(s"$TENANT_ROLES_MAP header does not exist", nsee)
+      case e@(_: IllegalArgumentException | _: JsonProcessingException | _: JsResultException) =>
+        throw InvalidTenantToRolesMapException(s"$TENANT_ROLES_MAP header value is not a valid tenant-to-roles map representation", e)
     }
   }
 
   def getEndpoints(request: HttpServletRequest): Try[EndpointsData] = {
+    logger.trace("Getting the endpoints from a request header")
+
     Try {
       val jsonString = Option(request.getHeader(X_CATALOG))
-        .map(Base64.getDecoder.decode)
-        .map(new String(_))
+        .map(Base64Helper.base64DecodeUtf8)
         .get
       val json = Json.parse(jsonString)
 
@@ -99,32 +107,52 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
     }
   }
 
-  def scopeTenantIdHeader(request: HttpServletRequestWrapper, matchedTenant: String): Unit = {
-    val tenantHandling = Option(configuration.getTenantHandling)
-    val sendAllTenantIds = tenantHandling.exists(_.isSendAllTenantIds)
-    val matchedTenantQuality = tenantHandling.map(_.getSendTenantIdQuality).flatMap(Option.apply).map(_.getUriTenantQuality)
+  def scopeTenantIdHeader(request: HttpServletRequestWrapper, matchedTenants: Set[String]): Unit = {
+    logger.trace("Scoping the tenant ID request header")
+
+    val sendAllTenantIds = configuration.getTenantHandling.isSendAllTenantIds
+    val matchedTenantQuality = Option(configuration.getTenantHandling.getSendTenantIdQuality).map(_.getUriTenantQuality)
 
     (sendAllTenantIds, matchedTenantQuality) match {
-      case (true, Some(quality)) => request.addHeader(TENANT_ID, matchedTenant, quality)
-      case (true, None) => request.addHeader(TENANT_ID, matchedTenant)
-      case (false, Some(quality)) => request.replaceHeader(TENANT_ID, matchedTenant, quality)
-      case (false, None) => request.replaceHeader(TENANT_ID, matchedTenant)
+      case (true, Some(quality)) =>
+        matchedTenants.foreach(request.appendHeader(TENANT_ID, _, quality))
+      case (true, None) =>
+        matchedTenants.foreach(request.appendHeader(TENANT_ID, _))
+      case (false, Some(quality)) =>
+        request.removeHeader(TENANT_ID)
+        matchedTenants.foreach(request.appendHeader(TENANT_ID, _, quality))
+      case (false, None) =>
+        request.removeHeader(TENANT_ID)
+        matchedTenants.foreach(request.appendHeader(TENANT_ID, _))
     }
   }
 
-  def scopeRolesHeader(request: HttpServletRequestWrapper, scopedToken: ValidToken): Unit = {
-    request.removeHeader(ROLES)
-    scopedToken.roles.map(_.name).foreach(request.appendHeader(ROLES, _))
+  def scopeRolesHeader(request: HttpServletRequestWrapper, roles: Set[String]): Unit = {
+    logger.trace("Scoping the roles request header")
+
+    Option(configuration.getTenantHandling.getValidateTenant).filter(_.isEnableLegacyRolesMode) getOrElse {
+      request.removeHeader(ROLES)
+      roles.foreach(request.appendHeader(ROLES, _))
+    }
+  }
+
+  def scopeTenantToRolesMapHeader(request: HttpServletRequestWrapper, tenantToRolesMap: TenantToRolesMap): Unit = {
+    logger.trace("Scoping the tenant-to-roles mapping request header")
+
+    if (!configuration.getTenantHandling.isSendAllTenantIds) {
+      request.removeHeader(TENANT_ROLES_MAP)
+      request.addHeader(TENANT_ROLES_MAP, JsonHeaderHelper.anyToJsonHeader(tenantToRolesMap))
+    }
   }
 }
 
 object KeystoneV2AuthorizationFilter {
 
-  case class MissingTokenException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
+  case class MissingTenantToRolesMapException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
 
   case class MissingEndpointsException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
 
-  case class InvalidTokenException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
+  case class InvalidTenantToRolesMapException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
 
   case class InvalidEndpointsException(message: String, cause: Throwable = null) extends AuthorizationException(message, cause)
 

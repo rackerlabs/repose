@@ -26,6 +26,8 @@ To prevent users from submitting their own roles, you will need to blacklist hea
             <header id="X-Tenant-Name"/>
             <header id="X-User-Id"/>
             <header id="X-User-Name"/>
+            <header id="X-Map-Roles"/>
+            <header id="X-Catalog"/>
         </blacklist>
     <target>
 </header-filters>
@@ -33,19 +35,24 @@ To prevent users from submitting their own roles, you will need to blacklist hea
 
 Please refer to the <<../filters/header-normalization.adoc#,Header Normalization filter>> documentation for more information about the available configuration options.
 
-== 2. Configure then Authentication filter
+== 2. Configure the Authentication filter
 
 The Authentication filter will grab the user's roles from their authentication token and return those roles to *Repose*.
 
 Please refer to the <<../filters/keystone-v2.adoc#,Keystone v2 filter>> documentation for more information about the available configuration options.
 
-== 3. Configure the RBAC filter
+== 3. Configure the Authorization filter
 
-There are two mechanisms for doing the Authorization side.
-If your API is minimal or your just getting started with it, then you might find the <<../filters/simple-rbac.adoc#,Simple RBAC filter>> most useful.
-It uses a very simple Domain Specific Language (DSL) that is similar to what other tools use for this basic mechanism.
-Another easy to configure powerful tool is the <<../filters/regex-rbac.adoc#,RegEx RBAC filter>> which uses a similar configuration, but the resources are defined with http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expressions].
-If on the other had your API is large and/or your authorizations are complex, then you will need the heavy lifting of the <<../filters/api-validator.adoc#,API Validator filter>>.
+The Authorization filter will validate that the user has access to the tenanted resource being requested.
+If the user is authorized to access a tenanted resource, the user's data in the request (e.g., the `X-Roles`, `X-Tenant-Id`, and `X-Map-Roles` headers) will be culled to those relevant to the requested resource.
+Endpoint validation can also be performed, if desired, but is outside the scope of RBAC.
+
+Please refer to the <<../filters/keystone-v2-authorization.adoc#,Keystone v2 Authorization filter>> documentation for more information about the available configuration options.
+
+== 4. Configure the RBAC filter
+
+There are are a few mechanisms for performing the enforcement.
+The decision will come down to how complex your API is and the complexity of the authorization scheme.
 
 === 1. What do you need?
 We recommend that you build a table similar to the example below that contains endpoints and the roles that you wish to allow access to those endpoints.
@@ -62,8 +69,12 @@ We recommend that you build a table similar to the example below that contains e
 
 === 2. Decide on the right filter for you.
 From here you have to decide which filter you want to use.
-There are two options and they both use the same underlying mechanism for enforcement.
-The only real difference between them is the first option is simple and easy, while the second option has more features which require a little extra configuration.
+If your API is minimal or your just getting started with it, then you might find the <<../filters/simple-rbac.adoc#,Simple RBAC filter>> most useful.
+It uses a very simple Domain Specific Language (DSL) that is similar to what other tools use for this basic mechanism.
+Another powerful, but easy to configure tool is the <<../filters/regex-rbac.adoc#,RegEx RBAC filter>>.
+This filter uses a similar configuration, but the resources are defined with http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expressions].
+If on the other had your API is large and/or your authorizations are complex, then you will need the heavy lifting of the <<../filters/api-validator.adoc#,API Validator filter>> which uses a WADL to fully define the API.
+As with anything, the more bells and whistles you need, the more complex the configuration will be.
 
 ==== 1. Simple RBAC filter
 The Simple RBAC filter is configured using a Domain Specific Language (DSL) similar to the table above.
@@ -104,9 +115,9 @@ The RegEx RBAC filter is configured using a Domain Specific Language (DSL) simil
 /path/[^/]+/this   POST    role1,role2
 /path/[^/]+/this   DELETE  role1
 /path/[^/]+/that   get,PUT ANY
-/Path/[^/]+    GET       admin,role1
-/Path/[^/]+    GET       admin,role2
-/Path/[^/]+/.* ALL       admin,role with space
+/Path/[^/]+        GET     admin,role1
+/Path/[^/]+        GET     admin,role2
+/Path/[^/]+/.*     ALL     admin,role with space
     </resources>
 </regex-rbac>
 ----
@@ -140,8 +151,7 @@ In the WADL, include `rax:roles` with appropriate values to ensure access is con
 When defining `rax:roles` at the resource level, be aware that all sub-resources and methods will inherit the roles allowed at the resource level.
 Multiple roles can be specified by separating the role names with a space.
 If multiple roles are authorized for a resource and method, the user must have one of the allowed roles but is not required to have all roles.
-Example API Validator filter configuration for RBAC.
-The following example shows a section of the API Validator filter and WADL that is configured for RBAC.
+The following example shows a WADL for use with the API Validator filter that is configured for RBAC.
 
 [source,xml]
 .api_with_roles.wadl
@@ -174,7 +184,7 @@ The following example shows a section of the API Validator filter and WADL that 
 </application>
 ----
 
-With the above WADL and API Validator filter configuration, the following behavior will apply with a request with a user that has the `a:observer` role.
+With the above WADL and API Validator filter configuration, the following behavior will apply for a request given the user has the `a:observer` role in the `X-Roles` header.
 
 * GET or PUT is allowed.
 * DELETE will return **Forbidden** (403) as the DELETE method inherits the `a:admin` role from its parent resource.
@@ -195,6 +205,91 @@ Please refer to the <<../filters/api-validator.adoc#,API Validator filter>> docu
 ====
 The status codes returned by authorization failures, via `rax:roles` extensions (403), differs from the statuses returned when roles are defined directly in the `validator.cfg.xml` (404 and 405).
 ====
+
+===== 3. Utilize Tenanted RAX-Roles
+In the WADL, add to the `rax:roles` the name of appropriate values to ensure access is controlled as expected.
+As always, `rax:roles` is a space separated list of names.
+Also if they are defined at the resource level, all sub-resources and methods will inherit the roles allowed at the resource level.
+If multiple roles are authorized for a resource and method, the user must have one of the allowed roles but is not required to have all roles.
+The following example shows a WADL for use with the API Validator filter that is configured for Tenanted RBAC.
+
+[source,xml]
+.api_with_tenanted_roles.wadl
+----
+<application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api">
+    <resources base="https://test.api.openstack.com">
+        <resource path="/a" rax:roles="a:admin/{X-TENANT-ID}">
+            <method name="POST" rax:roles="a:creator/{X-TENANT-ID}">
+                <request>
+                    <param name="X-TENANT-ID"
+                           style="header"
+                           required="true"
+                           type="xsd:int"
+                           repeating="true"
+                           rax:isTenant="true"/>
+                </request>
+            </method>
+            <method name="GET" rax:roles="a:observer/{X-TENANT-ID}">
+                <request>
+                    <param name="X-TENANT-ID"
+                           style="header"
+                           required="true"
+                           type="xsd:int"
+                           repeating="true"
+                           rax:isTenant="true"/>
+                </request>
+            </method>
+            <method name="PUT" rax:roles="a:observer/{X-TENANT-ID} a:creator/{X-TENANT-ID}">
+                <request>
+                    <param name="X-TENANT-ID"
+                           style="header"
+                           required="true"
+                           type="xsd:int"
+                           repeating="true"
+                           rax:isTenant="true"/>
+                </request>
+            </method>
+            <method name="DELETE">
+                <request>
+                    <param name="X-TENANT-ID"
+                           style="header"
+                           required="true"
+                           type="xsd:int"
+                           repeating="true"
+                           rax:isTenant="true"/>
+                </request>
+            </method>
+        </resource>
+    </resources>
+</application>
+----
+
+With the above WADL and API Validator filter configuration, the following behavior will apply for a request given the user has the `a:observer` role in the `X-Map-Roles` header for a tenant identified in `X-Tenant-Id` header.
+
+* GET or PUT is allowed.
+* DELETE will return **Forbidden** (403) as the DELETE method inherits the `a:admin` role from its parent resource.
+* PATCH will return **Method Not Allowed** (405).
+* POST will return a **Forbidden** (403), as the method is allowed for the resource but the user does not have the `a:admin` or the `a:creator` role.
+
+Please refer to the <<../filters/api-validator.adoc#,API Validator filter>> documentation for more information about the available configuration options.
+
+.Return codes and conditions
+[cols="8", options="header, autowidth"]
+|===
+2+s| Description        2+^s| Response Code 4+s| Returned When:
+ 2+| Forbidden           2+^| 403            4+| A requested resource or method requires a specific X-Roles header and that header is not found.
+ 2+| Method Not Allowed  2+^| 405            4+| The URI is valid, but the method is not appropriate for the URI.
+|===
+
+[NOTE]
+====
+The case of the actual header does not matter, but the case of the `rax:roles` tenant must match the case of the `param` element's `name` attribute.
+====
+
+The difference between the regular RAX-Roles and the Tenanted RAX-Roles is subtle from a configuration standpoint, but they have very different expectations and outcomes.
+The regular RAX-Roles uses the `X-Roles` header which is simply a plain text splitable header that contains all of the roles associated with the user.
+The Tenanted RAX-Roles uses the `X-Map-Roles` header which is a base 64 encoded JSON map of strings to arrays of strings (e.g., the base 64 encoding of `{"someTenant": ["someRole", "sharedRole"], "otherTenant": ["otherRole", "sharedRole"]}`).
+This allows for much more precise control over what access a user has to an API based on the current context (i.e. tenant) they are accessing it for.
 
 == 4. Enable Tenant Culling based on Relevant Roles
 
@@ -235,7 +330,7 @@ Simply by including the <<../filters/tenant-culling.adoc#,Tenant Culling filter>
 
 [NOTE]
 ====
-Even though the <<../filters/header-normalization.adoc#,Header Normalization filter>> isn't strictly required for tenant culling to work, it is a good idea to always include it before any Authentication filters.
+Even though the <<../filters/header-normalization.adoc#,Header Normalization filter>> isn't strictly required for tenant culling to work, it is a good idea to always include it before the first Authentication or Authorization filter.
 ====
 
 Please refer to the <<../filters/tenant-culling.adoc#,Tenant Culling filter>> documentation for more information about this feature.

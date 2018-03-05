@@ -102,7 +102,7 @@ class MultiTenantswQualityTest extends ReposeValveTest {
     @Unroll("Request Tenant: #requestTenant")
     def "With legacy xsd namespace: when user token have multi-tenant will retrieve all tenants in the header"() {
         given:
-        repose.configurationProvider.applyConfigs("features/filters/keystonev2/multitenantswquality/oldnamespace", params, /*sleepTime*/ 10)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/multitenantswquality/oldnamespace", params, /*sleepTime*/ 25)
         fakeIdentityService.with {
             client_token = clientToken
             tokenExpiresAt = (new DateTime()).plusDays(1)

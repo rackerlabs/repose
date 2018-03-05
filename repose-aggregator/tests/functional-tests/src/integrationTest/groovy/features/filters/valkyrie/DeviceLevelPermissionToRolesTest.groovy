@@ -19,12 +19,17 @@
  */
 package features.filters.valkyrie
 
+import groovy.json.JsonSlurper
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.openrepose.framework.test.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
+
+import static java.nio.charset.StandardCharsets.UTF_8
+import static org.openrepose.commons.utils.http.OpenStackServiceHeader.ROLES
+import static org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ROLES_MAP
 
 /**
  * Created by jennyvo on 10/7/15.
@@ -85,6 +90,17 @@ class DeviceLevelPermissionToRolesTest extends ReposeValveTest {
             device_perm = permission
         }
 
+        and: "Valkyrie user permissions"
+        def permissions = [
+            permission,
+            "upgrade_account",
+            "edit_ticket",
+            "edit_domain",
+            "manage_users",
+            "view_domain",
+            "view_reports"
+        ]
+
         when: "a request is made against a device with Valkyrie set permissions"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + deviceID, method: method,
                 headers: [
@@ -95,19 +111,23 @@ class DeviceLevelPermissionToRolesTest extends ReposeValveTest {
 
         then: "check response"
         mc.receivedResponse.code == responseCode
-        // account permissions are added to x-roles
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("upgrade_account")
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("edit_ticket")
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("edit_domain")
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("manage_users")
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("view_domain")
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains("view_reports")
-        // user device permission translate to roles
-        mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains(permission)
-        mc.getHandlings().get(0).getRequest().headers.getFirstValue("x-device-id") == deviceID
-        // other device permissions not included
-        !mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains(notincluderoles[0])
-        !mc.getHandlings().get(0).getRequest().headers.findAll("x-roles").contains(notincluderoles[1])
+        mc.handlings[0].request.headers.getFirstValue("x-device-id") == deviceID
+
+        when: "headers are parsed at the origin service"
+        def roles = mc.handlings[0].request.headers.findAll(ROLES)
+        def tenantToRolesHeader = mc.handlings[0].request.headers.getFirstValue(TENANT_ROLES_MAP)
+        def tenantToRoles = new JsonSlurper().parseText(new String(Base64.decoder.decode(tenantToRolesHeader), UTF_8))
+
+        and: "the roles are scoped to those associated with the requested tenant"
+        def tenantScopedRoles = tenantToRoles[tenantID] as List
+
+        then: "in-scope permissions are added to the request as roles"
+        roles.containsAll(permissions)
+        tenantScopedRoles.containsAll(permissions)
+
+        and: "out-of-scope permissions are not added to the request"
+        roles.intersect(notincluderoles).isEmpty()
+        tenantScopedRoles.intersect(notincluderoles).isEmpty()
 
         where:
         method   | tenantID       | deviceID | permission      | notincluderoles                   | responseCode

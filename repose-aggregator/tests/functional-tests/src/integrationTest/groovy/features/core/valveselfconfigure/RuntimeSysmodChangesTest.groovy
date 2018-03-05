@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.core.valveSelfConfigure
+package features.core.valveselfconfigure
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.PortFinder
@@ -63,9 +63,9 @@ class RuntimeSysmodChangesTest extends ReposeValveTest {
         repose.configurationProvider.cleanConfigDirectory()
 
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/core/valveSelfConfigure/common", params)
-        repose.configurationProvider.applyConfigs("features/core/valveSelfConfigure/container-no-port", params)
-        repose.configurationProvider.applyConfigs("features/core/valveSelfConfigure/single-node-with-proto", params)
+        repose.configurationProvider.applyConfigs("features/core/valveselfconfigure/common", params)
+        repose.configurationProvider.applyConfigs("features/core/valveselfconfigure/container-no-port", params)
+        repose.configurationProvider.applyConfigs("features/core/valveselfconfigure/single-node-with-proto", params)
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
         repose.waitForNon500FromUrl("http://localhost:${port1}")
@@ -101,7 +101,7 @@ class RuntimeSysmodChangesTest extends ReposeValveTest {
                 'node1port' : port1,
                 'node2port' : port2,
         ]
-        repose.configurationProvider.applyConfigs('features/core/valveSelfConfigure/two-nodes', params)
+        repose.configurationProvider.applyConfigs('features/core/valveselfconfigure/two-nodes', params)
         println("Change config to two-nodes")
         sleep(sleep_duration)
         repose.waitForNon500FromUrl("http://localhost:${port1}")
@@ -135,7 +135,7 @@ class RuntimeSysmodChangesTest extends ReposeValveTest {
                 'proto'     : 'http',
                 'sysmodPort': port2,
         ]
-        repose.configurationProvider.applyConfigs('features/core/valveSelfConfigure/single-node-with-proto', params)
+        repose.configurationProvider.applyConfigs('features/core/valveselfconfigure/single-node-with-proto', params)
         println("changed configs to single-node-with-proto")
         sleep(sleep_duration)
         repose.waitForNon500FromUrl("http://localhost:${port2}")
@@ -172,7 +172,7 @@ class RuntimeSysmodChangesTest extends ReposeValveTest {
                 'node2port' : port2,
                 'node3port' : port3,
         ]
-        repose.configurationProvider.applyConfigs('features/core/valveSelfConfigure/three-nodes', params)
+        repose.configurationProvider.applyConfigs('features/core/valveselfconfigure/three-nodes', params)
         println("changed to three-nodes config")
         sleep(sleep_duration)
         repose.waitForNon500FromUrl("http://localhost:${port1}")
@@ -210,7 +210,7 @@ class RuntimeSysmodChangesTest extends ReposeValveTest {
                 'node2port' : port2,
                 'node3port' : port3,
         ]
-        repose.configurationProvider.applyConfigs('features/core/valveSelfConfigure/three-nodes', params)
+        repose.configurationProvider.applyConfigs('features/core/valveselfconfigure/three-nodes', params)
         println("changed to three-nodes config again, but a different hostname")
         sleep(sleep_duration)
         repose.waitForNon500FromUrl("http://localhost:${port2}")

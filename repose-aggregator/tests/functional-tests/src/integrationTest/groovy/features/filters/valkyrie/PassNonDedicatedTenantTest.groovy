@@ -109,13 +109,13 @@ class PassNonDedicatedTenantTest extends ReposeValveTest {
 
         then:
         mockValkyrie.getAuthorizationCount() == 0
-        mc.getOrphanedHandlings().size() == 0
-        mc.getHandlings().size() == 1
-        mc.getHandlings().get(0).getRequest().getPath() == "/resources/foo"
-        mc.getHandlings().get(0).getRequest().getHeaders().contains("X-Tenant-Id")
-        mc.getHandlings().get(0).getRequest().getHeaders().getFirstValue("X-Tenant-Id") == tenantId
-        mc.getReceivedResponse().getCode().toInteger() == 200
-        mc.getReceivedResponse().getBody() == responseBody
+        mc.orphanedHandlings.size() == 0
+        mc.handlings.size() == 1
+        mc.handlings[0].request.path == "/resources/foo"
+        mc.handlings[0].request.headers.contains("X-Tenant-Id")
+        mc.handlings[0].request.headers.getFirstValue("X-Tenant-Id") == tenantId
+        mc.receivedResponse.code.toInteger() == 200
+        mc.receivedResponse.body == responseBody
     }
 
     def "when handling a request for a dedicated tenant's resource, authorization and culling are performed"() {
@@ -142,9 +142,9 @@ class PassNonDedicatedTenantTest extends ReposeValveTest {
 
         then:
         mockValkyrie.getAuthorizationCount() == 1
-        mc.getOrphanedHandlings().size() == 1
-        mc.getHandlings().size() == 1
-        mc.getReceivedResponse().getCode().toInteger() == 200
+        mc.orphanedHandlings.size() == 1
+        mc.handlings.size() == 1
+        mc.receivedResponse.code.toInteger() == 200
         result.values.size == 1
         result.metadata.count == 1
     }
