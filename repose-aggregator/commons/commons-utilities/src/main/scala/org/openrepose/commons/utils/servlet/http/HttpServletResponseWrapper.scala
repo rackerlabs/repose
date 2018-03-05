@@ -203,7 +203,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse,
 
   def getReason: String = reason.orNull
 
-  override def isCommitted: Boolean = super.isCommitted || committed
+  override def isCommitted: Boolean = originalResponse.isCommitted || committed
 
   override def getResponse: ServletResponse = {
     logger.error("getResponse is not supported")
@@ -280,7 +280,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse,
     if (headerMode != ResponseMode.MUTABLE) {
       // Write through to the wrapped response immediately
       logger.debug("Adding the header to the underlying response -- {}: {}", name, value)
-      super.addHeader(name, value)
+      originalResponse.addHeader(name, value)
     }
   }
 
@@ -358,7 +358,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse,
     if (headerMode != ResponseMode.MUTABLE) {
       // Write through to the wrapped response immediately
       logger.debug("Setting the header on the underlying response -- {}: {}", name, value)
-      super.setHeader(name, value)
+      originalResponse.setHeader(name, value)
     }
   }
 
@@ -535,7 +535,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse,
       logger.error("Cannot call reset after the response has been committed")
       throw new IllegalStateException("Cannot call reset after the response has been committed")
     } else {
-      super.reset()
+      originalResponse.reset()
       statusCode = originalResponse.getStatus
       reason = None
       headerMap = new TreeMap[String, Seq[String]]()(caseInsensitiveOrdering)
@@ -550,7 +550,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse,
       logger.error("Cannot call resetBuffer after the response has been committed")
       throw new IllegalStateException("Cannot call resetBuffer after the response has been committed")
     } else {
-      super.resetBuffer()
+      originalResponse.resetBuffer()
       responseBodyType = ResponseBodyType.Available
       bodyOutputStream.resetBuffer()
     }
@@ -578,7 +578,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse,
       headerMap foreach { case (name, values) =>
         values foreach { value =>
           logger.debug("Adding the header to the underlying response -- {}: {}", name, value)
-          super.addHeader(name, value)
+          originalResponse.addHeader(name, value)
         }
       }
     }
@@ -588,7 +588,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse,
 
       logger.debug("Setting the Content-Length on the underlying response to: {}", Integer.valueOf(contentLength))
       // Since headers may have already been written, we set the content length on the wrapped response directly.
-      super.setContentLength(contentLength)
+      originalResponse.setContentLength(contentLength)
 
       bodyOutputStream.commit()
     }
