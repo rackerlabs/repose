@@ -178,8 +178,15 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse,
     // written to the output stream.
     resetBuffer()
 
-    // Since the content buffer has been reset, the Content-Length should also be reset.
-    setContentLength(0)
+    // Since the content buffer has been reset, the Content-Length header should be removed.
+    if (headerMode == ResponseMode.MUTABLE) {
+      // Remove it from our the wrapper which prevents it from being written to the underlying response.
+      removeHeader(HttpHeaders.CONTENT_LENGTH)
+    } else {
+      if (Option(getHeader(HttpHeaders.CONTENT_LENGTH)).isDefined) {
+        logger.warn("Could not remove the Content-Length header on call to sendError")
+      }
+    }
 
     // Track that the user intended to send an error.
     sentError = true

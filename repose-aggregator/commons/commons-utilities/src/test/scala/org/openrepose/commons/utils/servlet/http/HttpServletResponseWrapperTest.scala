@@ -2446,8 +2446,8 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.getOutputStreamAsString shouldEqual ""
     }
 
-    it("should reset the content-length") {
-      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.MUTABLE)
+    it("should reset the content-length in mutable mode") {
+      val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.MUTABLE, ResponseMode.MUTABLE)
       val msg = "foo"
 
       wrappedResponse.setContentLength(msg.length)
@@ -2455,7 +2455,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       wrappedResponse.getWriter.flush()
       wrappedResponse.sendError(404)
 
-      wrappedResponse.getHeader(CONTENT_LENGTH).toInt shouldEqual 0
+      wrappedResponse.getHeader(CONTENT_LENGTH) shouldBe null
     }
 
     it("should mark the wrapped as committed when given a single argument") {
