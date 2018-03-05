@@ -35,7 +35,7 @@ The following headers are created:
   If this header already exists, it will be replaced.
 * `X-Map-Roles` - The tenant-to-roles mapping for the user's tenants which are validated and roles associated with those tenants.
   This header will not be modified if the `send-all-tenant-ids` configuration attribute is set to `true`.
-  This header will be a base 64 encoded JSON map of strings to arrays of strings (e.g., the base 64 encoding of `{"someTenant": ["someRole", "sharedRole"], "otherTenant": ["otherRole", "sharedRole"]}`).
+  This header is a base 64 encoded JSON map of strings to arrays of strings (e.g., the base 64 encoding of `{"someTenant": ["someRole", "sharedRole"], "otherTenant": ["otherRole", "sharedRole"]}`).
   Roles without a tenant association will be mapped to the `repose/domain/roles` key (e.g., `{"repose/domain/roles": ["tenantlessRole"]}`).
 * `X-Identity-Status` - Indicates if identity has been confirmed.
   Identity is considered to be confirmed if authorization succeeds.

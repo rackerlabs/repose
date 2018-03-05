@@ -29,7 +29,7 @@ The following headers are created using the information returned from the authen
 * `X-User-ID` - Identifies user ID. (ex. "12345")
 * `X-Authenticated-By` - Identifies the method(s) by which the request was authenticated.  (ex. "password")
 * `X-Map-Roles` - Identifies the tenant-to-role mapping for all of the user's tenants and roles.
-  This header will be a base 64 encoded JSON map of strings to arrays of strings (e.g., the base 64 encoding of `{"someTenant": ["someRole", "sharedRole"], "otherTenant": ["otherRole", "sharedRole"]}`).
+  This header is a base 64 encoded JSON map of strings to arrays of strings (e.g., the base 64 encoding of `{"someTenant": ["someRole", "sharedRole"], "otherTenant": ["otherRole", "sharedRole"]}`).
   Roles without a tenant association will be mapped to the `repose/domain/roles` key (e.g., `{"repose/domain/roles": ["tenantlessRole"]}`).
 * `X-Roles` - Identifies roles. (ex. "admin", "user")
 ** This header is only populated if the `set-roles-in-header` attribute is `true` and there are roles returned from the authentication service.
