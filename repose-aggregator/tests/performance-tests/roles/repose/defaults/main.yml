@@ -44,6 +44,10 @@
           key_name: "server",
           key_password: "password"
         }
+      },
+      opentracing: {
+        tracer_collector_hostname: "localhost",
+        tracer_collector_port: 10000
       }
     },
     config_files: {

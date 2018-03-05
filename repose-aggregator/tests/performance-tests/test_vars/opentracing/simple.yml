@@ -1,0 +1,48 @@
+{
+  dir_prefix: "opentracing/simple",
+  repose: {
+    config: {
+      system_model: {
+        filters: [
+          { name: "keystone-v2" },
+          { name: "slf4j-http-logging" },
+          { name: "rate-limiting" }
+        ],
+        services: [
+          "dist-datastore",
+          "opentracing"
+        ]
+      },
+      container: {
+        read_limit: 2097152
+      }
+    },
+    config_files: {
+      templates: [
+        "container.cfg.xml",
+        "system-model.cfg.xml",
+        "{{ dir_prefix }}/dist-datastore.cfg.xml",
+        "{{ dir_prefix }}/opentracing.cfg.xml",
+        "{{ dir_prefix }}/keystone-v2.cfg.xml"
+      ],
+      files: [
+        "log4j2.xml",
+        "{{ dir_prefix }}/rate-limiting.cfg.xml",
+        "{{ dir_prefix }}/slf4j-http-logging.cfg.xml"
+      ]
+    }
+  },
+  mock: {
+    backends: [
+      "main_backend.js",
+      "auth_backend.js",
+      "tracer_collector_backend.js"
+    ]
+  },
+  gatling: {
+    test: {
+      name: "SimpleOpentracingSimulation",
+      package: "opentracing.simple"
+    }
+  }
+}

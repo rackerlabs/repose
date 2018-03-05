@@ -62,6 +62,8 @@ class TestProperties {
     int atomPort
     int atomPort2
     int phonehomePort
+    int collectorTracingPort
+    int agentTracingPort
     String targetHostname
 
     PortFinder portFinder = PortFinder.instance
@@ -128,6 +130,8 @@ class TestProperties {
                     atomPort = portFinder.getNextOpenPort()
                     atomPort2 = portFinder.getNextOpenPort()
                     phonehomePort = portFinder.getNextOpenPort()
+                    collectorTracingPort = portFinder.getNextOpenPort()
+                    agentTracingPort = portFinder.getNextOpenPort()
                     targetHostname = properties.getProperty("target.hostname")
                     reposeVersion = properties.getProperty("repose.version")
 

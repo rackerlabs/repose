@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,8 @@ package org.openrepose.core.services.httpclient.impl;
 
 import org.apache.http.Header;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.conn.scheme.Scheme;
@@ -28,6 +30,7 @@ import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
@@ -36,6 +39,7 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.openrepose.core.service.httpclient.config.HeaderType;
 import org.openrepose.core.service.httpclient.config.PoolType;
+import org.openrepose.core.services.opentracing.OpenTracingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,8 +62,7 @@ public final class HttpConnectionPoolProvider {
     private HttpConnectionPoolProvider() {
     }
 
-    public static HttpClient genClient(String configRoot, PoolType poolConf) {
-
+    public static HttpClient genClient(String configRoot, PoolType poolConf, OpenTracingService openTracingService) {
         PoolingClientConnectionManager cm = new PoolingClientConnectionManager();
 
         cm.setDefaultMaxPerRoute(poolConf.getHttpConnManagerMaxPerRoute());
@@ -86,6 +89,12 @@ public final class HttpConnectionPoolProvider {
 
         //Pass in the params and the connection manager
         DefaultHttpClient client = new DefaultHttpClient(cm, params);
+
+        // OpenTracing capabilities.  Only add http interceptors when opentracing service is enabled
+        if (openTracingService.isEnabled()) {
+            client.addRequestInterceptor(openTracingService.getRequestInterceptor());
+            client.addResponseInterceptor(openTracingService.getResponseInterceptor());
+        }
 
         SSLContext sslContext = ProxyUtilities.getTrustingSslContext();
 
