@@ -38,21 +38,46 @@ import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaS
 import org.openrepose.core.systemmodel.config._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import play.api.libs.json.{JsNull, Json}
 
 @RunWith(classOf[JUnitRunner])
-class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
+class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
-  val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
-  val filterListAppender = ctx.getConfiguration.getAppender("filterList").asInstanceOf[ListAppender]
-  val msgListAppender = ctx.getConfiguration.getAppender("messageList").asInstanceOf[ListAppender]
+  import PhoneHomeServiceTest._
+
+  val ctx: LoggerContext = LogManager.getContext(false).asInstanceOf[LoggerContext]
+  val filterListAppender: ListAppender = ctx.getConfiguration.getAppender("filterList").asInstanceOf[ListAppender]
+  val msgListAppender: ListAppender = ctx.getConfiguration.getAppender("messageList").asInstanceOf[ListAppender]
+
+  var mockTracer: Tracer = mock[Tracer]
+  var mockSpanBuilder: SpanBuilder = mock[SpanBuilder]
+  var mockScope: Scope = mock[Scope]
+  var mockSpan: Span = mock[Span]
+  var mockConfigurationService: ConfigurationService = mock[ConfigurationService]
+  var mockAkkaServiceClient: AkkaServiceClient = mock[AkkaServiceClient]
+  var mockAkkaServiceClientFactory: AkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+
+  override def beforeEach(): Unit = {
+    mockTracer = mock[Tracer]
+    mockSpanBuilder = mock[SpanBuilder]
+    mockScope = mock[Scope]
+    mockSpan = mock[Span]
+    mockConfigurationService = mock[ConfigurationService]
+    mockAkkaServiceClient = mock[AkkaServiceClient]
+    mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+
+    when(mockTracer.buildSpan(anyString())).thenReturn(mockSpanBuilder)
+    when(mockSpanBuilder.withTag(anyString(), anyString())).thenReturn(mockSpanBuilder)
+    when(mockSpanBuilder.ignoreActiveSpan()).thenReturn(mockSpanBuilder)
+    when(mockSpanBuilder.startActive(anyBoolean())).thenReturn(mockScope)
+    when(mockScope.span()).thenReturn(mockSpan)
+
+    when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
+  }
 
   describe("init") {
     it("should register a system model configuration listener") {
-      val mockTracer = mock[Tracer]
-      val mockConfigurationService = mock[ConfigurationService]
-      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
         mockTracer,
@@ -66,13 +91,6 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
     }
 
     it("should use the factory to get an instance of the akka service client") {
-      val mockTracer = mock[Tracer]
-      val mockConfigurationService = mock[ConfigurationService]
-      val mockAkkaServiceClient = mock[AkkaServiceClient]
-      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
-
-      when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
-
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
         mockTracer,
@@ -87,38 +105,10 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
   describe("configurationUpdated") {
     it("should call sendUpdate if the service is enabled") {
-      val collectionUri = "http://phonehome.openrepose.org"
-
-      val systemModel = new SystemModel()
-      val reposeCluster = new ReposeCluster()
-      val filterList = new FilterList()
-      val servicesList = new ServicesList()
-      val phoneHomeConfig = new PhoneHomeServiceConfig()
-
-      phoneHomeConfig.setEnabled(true)
-
-      reposeCluster.setFilters(filterList)
-      reposeCluster.setServices(servicesList)
-      phoneHomeConfig.setCollectionUri(collectionUri)
-      phoneHomeConfig.setOriginServiceId("foo-service")
-      systemModel.getReposeCluster.add(reposeCluster)
-      systemModel.setPhoneHome(phoneHomeConfig)
-
-      val mockTracer = mock[Tracer]
-      val mockSpanBuilder = mock[SpanBuilder]
-      val mockScope = mock[Scope]
-      val mockSpan = mock[Span]
-      val mockConfigurationService = mock[ConfigurationService]
-      val mockAkkaServiceClient = mock[AkkaServiceClient]
-      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
-
-      when(mockTracer.buildSpan(anyString())).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.withTag(anyString(), anyString())).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.ignoreActiveSpan()).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.startActive(anyBoolean())).thenReturn(mockScope)
-      when(mockScope.span()).thenReturn(mockSpan)
-
-      when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
+      val systemModel = basicSystemModel()
+      systemModel.getPhoneHome.setEnabled(true)
+      systemModel.getPhoneHome.setCollectionUri(CollectionUri)
+      systemModel.getPhoneHome.setOriginServiceId("foo-service")
 
       when(
         mockAkkaServiceClient.post(anyString(),
@@ -139,45 +129,17 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       verify(mockAkkaServiceClient).post(
         anyString(),
-        mockitoEq(collectionUri),
+        mockitoEq(CollectionUri),
         anyMapOf(classOf[String], classOf[String]),
         anyString(),
         mockitoEq(MediaType.APPLICATION_JSON_TYPE))
     }
 
     it("should not call sendUpdate if the service is not enabled") {
-      val collectionUri = "http://phonehome.openrepose.org"
-
-      val systemModel = new SystemModel()
-      val reposeCluster = new ReposeCluster()
-      val filterList = new FilterList()
-      val servicesList = new ServicesList()
-      val phoneHomeConfig = new PhoneHomeServiceConfig()
-
-      phoneHomeConfig.setEnabled(false)
-
-      reposeCluster.setFilters(filterList)
-      reposeCluster.setServices(servicesList)
-      phoneHomeConfig.setCollectionUri(collectionUri)
-      phoneHomeConfig.setOriginServiceId("foo-service")
-      systemModel.getReposeCluster.add(reposeCluster)
-      systemModel.setPhoneHome(phoneHomeConfig)
-
-      val mockTracer = mock[Tracer]
-      val mockSpanBuilder = mock[SpanBuilder]
-      val mockScope = mock[Scope]
-      val mockSpan = mock[Span]
-      val mockConfigurationService = mock[ConfigurationService]
-      val mockAkkaServiceClient = mock[AkkaServiceClient]
-      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
-
-      when(mockTracer.buildSpan(anyString())).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.withTag(anyString(), anyString())).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.ignoreActiveSpan()).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.startActive(anyBoolean())).thenReturn(mockScope)
-      when(mockScope.span()).thenReturn(mockSpan)
-
-      when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
+      val systemModel = basicSystemModel()
+      systemModel.getPhoneHome.setEnabled(false)
+      systemModel.getPhoneHome.setCollectionUri(CollectionUri)
+      systemModel.getPhoneHome.setOriginServiceId("foo-service")
 
       when(
         mockAkkaServiceClient.post(anyString(),
@@ -198,37 +160,15 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       verify(mockAkkaServiceClient, never()).post(
         anyString(),
-        mockitoEq(collectionUri),
+        mockitoEq(CollectionUri),
         anyMapOf(classOf[String], classOf[String]),
         anyString(),
         mockitoEq(MediaType.APPLICATION_JSON_TYPE))
     }
 
     it("should log the message if the phone-home element is not present") {
-      val systemModel = new SystemModel()
-      val reposeCluster = new ReposeCluster()
-      val filterList = new FilterList()
-      val servicesList = new ServicesList()
-
-      reposeCluster.setFilters(filterList)
-      reposeCluster.setServices(servicesList)
-      systemModel.getReposeCluster.add(reposeCluster)
-
-      val mockTracer = mock[Tracer]
-      val mockSpanBuilder = mock[SpanBuilder]
-      val mockScope = mock[Scope]
-      val mockSpan = mock[Span]
-      val mockConfigurationService = mock[ConfigurationService]
-      val mockAkkaServiceClient = mock[AkkaServiceClient]
-      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
-
-      when(mockTracer.buildSpan(anyString())).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.withTag(anyString(), anyString())).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.ignoreActiveSpan()).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.startActive(anyBoolean())).thenReturn(mockScope)
-      when(mockScope.span()).thenReturn(mockSpan)
-
-      when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
+      val systemModel = basicSystemModel()
+      systemModel.setPhoneHome(null)
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
@@ -252,35 +192,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
     }
 
     it("should log the message if the phone-home element enabled attribute is false") {
-      val systemModel = new SystemModel()
-      val reposeCluster = new ReposeCluster()
-      val filterList = new FilterList()
-      val servicesList = new ServicesList()
-      val phoneHomeConfig = new PhoneHomeServiceConfig()
-
-      phoneHomeConfig.setEnabled(false)
-
-      reposeCluster.setFilters(filterList)
-      reposeCluster.setServices(servicesList)
-      phoneHomeConfig.setOriginServiceId("foo-service")
-      systemModel.getReposeCluster.add(reposeCluster)
-      systemModel.setPhoneHome(phoneHomeConfig)
-
-      val mockTracer = mock[Tracer]
-      val mockSpanBuilder = mock[SpanBuilder]
-      val mockScope = mock[Scope]
-      val mockSpan = mock[Span]
-      val mockConfigurationService = mock[ConfigurationService]
-      val mockAkkaServiceClient = mock[AkkaServiceClient]
-      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
-
-      when(mockTracer.buildSpan(anyString())).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.withTag(anyString(), anyString())).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.ignoreActiveSpan()).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.startActive(anyBoolean())).thenReturn(mockScope)
-      when(mockScope.span()).thenReturn(mockSpan)
-
-      when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
+      val systemModel = basicSystemModel()
+      systemModel.getPhoneHome.setEnabled(false)
+      systemModel.getPhoneHome.setOriginServiceId("foo-service")
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
@@ -304,35 +218,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
     }
 
     it("should log the message if the post to the collection service fails") {
-      val systemModel = new SystemModel()
-      val reposeCluster = new ReposeCluster()
-      val filterList = new FilterList()
-      val servicesList = new ServicesList()
-      val phoneHomeConfig = new PhoneHomeServiceConfig()
-
-      phoneHomeConfig.setEnabled(true)
-
-      reposeCluster.setFilters(filterList)
-      reposeCluster.setServices(servicesList)
-      phoneHomeConfig.setOriginServiceId("foo-service")
-      systemModel.getReposeCluster.add(reposeCluster)
-      systemModel.setPhoneHome(phoneHomeConfig)
-
-      val mockTracer = mock[Tracer]
-      val mockSpanBuilder = mock[SpanBuilder]
-      val mockScope = mock[Scope]
-      val mockSpan = mock[Span]
-      val mockConfigurationService = mock[ConfigurationService]
-      val mockAkkaServiceClient = mock[AkkaServiceClient]
-      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
-
-      when(mockTracer.buildSpan(anyString())).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.withTag(anyString(), anyString())).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.ignoreActiveSpan()).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.startActive(anyBoolean())).thenReturn(mockScope)
-      when(mockScope.span()).thenReturn(mockSpan)
-
-      when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
+      val systemModel = basicSystemModel()
+      systemModel.getPhoneHome.setEnabled(true)
+      systemModel.getPhoneHome.setOriginServiceId("foo-service")
 
       when(
         mockAkkaServiceClient.post(anyString(),
@@ -369,41 +257,13 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
     }
 
     it("should send a tracing header to the data collection point if configured to") {
-      val collectionUri = "http://phonehome.openrepose.org"
-
-      val systemModel = new SystemModel()
-      val reposeCluster = new ReposeCluster()
-      val filterList = new FilterList()
-      val servicesList = new ServicesList()
-      val phoneHomeConfig = new PhoneHomeServiceConfig()
-
+      val systemModel = basicSystemModel()
       val tracingHeader = new TracingHeaderConfig
       systemModel.setTracingHeader(tracingHeader)
       tracingHeader.setEnabled(true)
-      phoneHomeConfig.setEnabled(true)
-
-      reposeCluster.setFilters(filterList)
-      reposeCluster.setServices(servicesList)
-      phoneHomeConfig.setCollectionUri(collectionUri)
-      phoneHomeConfig.setOriginServiceId("foo-service")
-      systemModel.getReposeCluster.add(reposeCluster)
-      systemModel.setPhoneHome(phoneHomeConfig)
-
-      val mockTracer = mock[Tracer]
-      val mockSpanBuilder = mock[SpanBuilder]
-      val mockScope = mock[Scope]
-      val mockSpan = mock[Span]
-      val mockConfigurationService = mock[ConfigurationService]
-      val mockAkkaServiceClient = mock[AkkaServiceClient]
-      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
-
-      when(mockTracer.buildSpan(anyString())).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.withTag(anyString(), anyString())).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.ignoreActiveSpan()).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.startActive(anyBoolean())).thenReturn(mockScope)
-      when(mockScope.span()).thenReturn(mockSpan)
-
-      when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
+      systemModel.getPhoneHome.setEnabled(true)
+      systemModel.getPhoneHome.setCollectionUri(CollectionUri)
+      systemModel.getPhoneHome.setOriginServiceId("foo-service")
 
       when(
         mockAkkaServiceClient.post(anyString(),
@@ -424,48 +284,20 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       verify(mockAkkaServiceClient).post(
         anyString(),
-        mockitoEq(collectionUri),
+        mockitoEq(CollectionUri),
         argThat(HMatchers.hasKey(CommonHttpHeader.TRACE_GUID).asInstanceOf[Matcher[java.util.Map[String, String]]]),
         anyString(),
         any[MediaType]())
     }
 
     it("should not send a tracing header to the data collection point if configured not to") {
-      val collectionUri = "http://phonehome.openrepose.org"
-
-      val systemModel = new SystemModel()
-      val reposeCluster = new ReposeCluster()
-      val filterList = new FilterList()
-      val servicesList = new ServicesList()
-      val phoneHomeConfig = new PhoneHomeServiceConfig()
-
+      val systemModel = basicSystemModel()
       val tracingHeader = new TracingHeaderConfig
       systemModel.setTracingHeader(tracingHeader)
       tracingHeader.setEnabled(false)
-      phoneHomeConfig.setEnabled(true)
-
-      reposeCluster.setFilters(filterList)
-      reposeCluster.setServices(servicesList)
-      phoneHomeConfig.setCollectionUri(collectionUri)
-      phoneHomeConfig.setOriginServiceId("foo-service")
-      systemModel.getReposeCluster.add(reposeCluster)
-      systemModel.setPhoneHome(phoneHomeConfig)
-
-      val mockTracer = mock[Tracer]
-      val mockSpanBuilder = mock[SpanBuilder]
-      val mockScope = mock[Scope]
-      val mockSpan = mock[Span]
-      val mockConfigurationService = mock[ConfigurationService]
-      val mockAkkaServiceClient = mock[AkkaServiceClient]
-      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
-
-      when(mockTracer.buildSpan(anyString())).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.withTag(anyString(), anyString())).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.ignoreActiveSpan()).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.startActive(anyBoolean())).thenReturn(mockScope)
-      when(mockScope.span()).thenReturn(mockSpan)
-
-      when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
+      systemModel.getPhoneHome.setEnabled(true)
+      systemModel.getPhoneHome.setCollectionUri(CollectionUri)
+      systemModel.getPhoneHome.setOriginServiceId("foo-service")
 
       when(
         mockAkkaServiceClient.post(anyString(),
@@ -486,15 +318,13 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       verify(mockAkkaServiceClient).post(
         anyString(),
-        mockitoEq(collectionUri),
+        mockitoEq(CollectionUri),
         argThat(HMatchers.not(HMatchers.hasKey(CommonHttpHeader.TRACE_GUID)).asInstanceOf[Matcher[java.util.Map[String, String]]]),
         anyString(),
         any[MediaType]())
     }
 
     it("should send a JSON message to the data collection point") {
-      val collectionUri = "http://phonehome.openrepose.org"
-
       val systemModel = new SystemModel()
       val reposeCluster = new ReposeCluster()
       val filterList = new FilterList()
@@ -520,26 +350,10 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       reposeCluster.setFilters(filterList)
       reposeCluster.setServices(servicesList)
-      phoneHomeConfig.setCollectionUri(collectionUri)
+      phoneHomeConfig.setCollectionUri(CollectionUri)
       phoneHomeConfig.setOriginServiceId("foo-service")
       systemModel.getReposeCluster.add(reposeCluster)
       systemModel.setPhoneHome(phoneHomeConfig)
-
-      val mockTracer = mock[Tracer]
-      val mockSpanBuilder = mock[SpanBuilder]
-      val mockScope = mock[Scope]
-      val mockSpan = mock[Span]
-      val mockConfigurationService = mock[ConfigurationService]
-      val mockAkkaServiceClient = mock[AkkaServiceClient]
-      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
-
-      when(mockTracer.buildSpan(anyString())).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.withTag(anyString(), anyString())).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.ignoreActiveSpan()).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.startActive(anyBoolean())).thenReturn(mockScope)
-      when(mockScope.span()).thenReturn(mockSpan)
-
-      when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
 
       when(
         mockAkkaServiceClient.post(anyString(),
@@ -575,7 +389,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       // Escape all the JSON to make it RegEx Compatible.
       val expectedBuilder = new StringBuilder(expectedMessage.replaceAll("\\{", "\\\\{").replaceAll("\\}", "\\\\}").replaceAll("\\[", "\\\\[").replaceAll("\\]", "\\\\]"))
-      val idx = expectedBuilder.indexOf("foo-service")+"""foo-service",""".length
+      val idx = expectedBuilder.indexOf("foo-service") + """foo-service",""".length
       // Insert the Date/Time/Version RegEx.
       expectedBuilder.insert(idx, """"createdAt":"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}Z","createdAtMillis":[0-9]{13},"jreVersion":".*","jvmName":".*",""")
 
@@ -584,42 +398,17 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
 
       verify(mockAkkaServiceClient).post(
         anyString(),
-        mockitoEq(collectionUri),
+        mockitoEq(CollectionUri),
         anyMapOf(classOf[String], classOf[String]),
         org.mockito.Matchers.matches(expectedBuilder.toString()),
         mockitoEq(MediaType.APPLICATION_JSON_TYPE))
     }
 
     it("should start a new span when sending an update to the data collection point") {
-      val systemModel = new SystemModel()
-      val reposeCluster = new ReposeCluster()
-      val filterList = new FilterList()
-      val servicesList = new ServicesList()
-      val phoneHomeConfig = new PhoneHomeServiceConfig()
+      val systemModel = basicSystemModel()
+      systemModel.getPhoneHome.setEnabled(true)
+      systemModel.getPhoneHome.setOriginServiceId("foo-service")
 
-      phoneHomeConfig.setEnabled(true)
-
-      reposeCluster.setFilters(filterList)
-      reposeCluster.setServices(servicesList)
-      phoneHomeConfig.setOriginServiceId("foo-service")
-      systemModel.getReposeCluster.add(reposeCluster)
-      systemModel.setPhoneHome(phoneHomeConfig)
-
-      val mockTracer = mock[Tracer]
-      val mockSpanBuilder = mock[SpanBuilder]
-      val mockScope = mock[Scope]
-      val mockSpan = mock[Span]
-      val mockConfigurationService = mock[ConfigurationService]
-      val mockAkkaServiceClient = mock[AkkaServiceClient]
-      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
-
-      when(mockTracer.buildSpan(anyString())).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.withTag(anyString(), anyString())).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.ignoreActiveSpan()).thenReturn(mockSpanBuilder)
-      when(mockSpanBuilder.startActive(anyBoolean())).thenReturn(mockScope)
-      when(mockScope.span()).thenReturn(mockSpan)
-
-      when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
       when(
         mockAkkaServiceClient.post(anyString(),
           anyString(),
@@ -641,5 +430,25 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar {
       verify(mockSpanBuilder).startActive(true)
       verify(mockScope).close()
     }
+  }
+}
+
+object PhoneHomeServiceTest {
+
+  final val CollectionUri = "http://phonehome.openrepose.org"
+
+  def basicSystemModel(): SystemModel = {
+    val systemModel = new SystemModel()
+    val reposeCluster = new ReposeCluster()
+    val filterList = new FilterList()
+    val servicesList = new ServicesList()
+    val phoneHomeConfig = new PhoneHomeServiceConfig()
+
+    reposeCluster.setFilters(filterList)
+    reposeCluster.setServices(servicesList)
+    systemModel.getReposeCluster.add(reposeCluster)
+    systemModel.setPhoneHome(phoneHomeConfig)
+
+    systemModel
   }
 }
