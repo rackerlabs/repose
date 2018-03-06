@@ -398,23 +398,14 @@ public class PowerFilter extends DelegatingFilterProxy {
         }
         LOG.debug("Got the span context from request: {}", context);
 
-        Span activeSpan = null;
-        if (context == null) {
-            activeSpan = tracer.buildSpan(String.format("%s %s", wrappedRequest.getMethod(), wrappedRequest.getRequestURI()))
-                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
-                .start();
-        } else if (!(context instanceof NoopSpanContext)) {
-            activeSpan = tracer.buildSpan(String.format("%s %s", wrappedRequest.getMethod(), wrappedRequest.getRequestURI()))
-                .asChildOf(context)
-                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
-                .start();
-        } // else the context is an instance of NoopSpanContext, so do nothing.
+        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(String.format("%s %s", wrappedRequest.getMethod(), wrappedRequest.getRequestURI()));
+        if (context != null) {
+            spanBuilder = spanBuilder.asChildOf(context);
+        }
+        Span activeSpan = spanBuilder.withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
 
-        Scope scope = null;
-        if(activeSpan != null && !(activeSpan instanceof NoopSpan)) {
-            scope = tracer.scopeManager().activate(activeSpan, false);
-            LOG.debug("Start a new span {}", scope.span());
-        } // else the activeSpan is NULL or it is an instance of NoopSpan, so do nothing.
+        Scope scope = tracer.scopeManager().activate(activeSpan, false);
+        LOG.debug("Start a new span {}", scope.span());
 
         if (currentSystemModel.get().getTracingHeader() != null && currentSystemModel.get().getTracingHeader().isRewriteHeader()) {
             wrappedRequest.removeHeader(TRACE_GUID);
@@ -505,11 +496,9 @@ public class PowerFilter extends DelegatingFilterProxy {
     }
 
     private static void closeScope(Scope scope, Number value) {
-        if (scope != null) {
-            scope.span().setTag(Tags.HTTP_STATUS.getKey(), value);
-            scope.span().finish();
-            scope.close();
-        }
+        scope.span().setTag(Tags.HTTP_STATUS.getKey(), value);
+        scope.span().finish();
+        scope.close();
     }
 
     private class ApplicationDeploymentEventListener implements EventListener<ApplicationDeploymentEvent, List<String>> {
