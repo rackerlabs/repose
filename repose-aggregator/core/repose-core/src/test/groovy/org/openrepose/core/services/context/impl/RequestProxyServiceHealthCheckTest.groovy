@@ -30,6 +30,7 @@ import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy
 import org.openrepose.core.services.healthcheck.Severity
 import org.openrepose.core.services.httpclient.HttpClientService
+import org.openrepose.core.services.opentracing.OpenTracingService
 import org.openrepose.core.systemmodel.config.Node
 import org.openrepose.core.systemmodel.config.NodeList
 import org.openrepose.core.systemmodel.config.ReposeCluster

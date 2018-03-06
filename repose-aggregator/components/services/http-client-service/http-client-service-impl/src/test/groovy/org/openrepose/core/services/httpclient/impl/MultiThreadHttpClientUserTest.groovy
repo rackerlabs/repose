@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,6 +29,7 @@ import org.openrepose.core.service.httpclient.config.PoolType
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.httpclient.HttpClientContainer
+import org.openrepose.core.services.opentracing.OpenTracingService
 
 import static org.junit.Assert.assertEquals
 import static org.mockito.Mockito.mock
@@ -45,7 +46,8 @@ class MultiThreadHttpClientUserTest {
         poolCfg = new HttpConnectionPoolConfig();
         poolCfg.pool.addAll(pools);
 
-        httpClientService = new HttpConnectionPoolServiceImpl(mock(ConfigurationService.class), mock(HealthCheckService.class), "");
+        httpClientService = new HttpConnectionPoolServiceImpl(
+            mock(ConfigurationService.class), mock(HealthCheckService.class), mock(OpenTracingService.class), "");
         httpClientService.configure(poolCfg);
     }
 

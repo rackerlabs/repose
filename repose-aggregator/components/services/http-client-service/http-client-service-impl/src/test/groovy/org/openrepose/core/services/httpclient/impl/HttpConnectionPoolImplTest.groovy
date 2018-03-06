@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,6 +28,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy
 import org.openrepose.core.services.healthcheck.Severity
+import org.openrepose.core.services.opentracing.OpenTracingService
 
 import static org.mockito.Matchers.any
 import static org.mockito.Matchers.anyString
@@ -39,6 +40,7 @@ class HttpConnectionPoolImplTest {
     HealthCheckService healthCheckService
     HealthCheckServiceProxy healthCheckServiceProxy
     ConfigurationService configurationService
+    OpenTracingService openTracingService
     String configurationRoot
 
 
@@ -49,7 +51,8 @@ class HttpConnectionPoolImplTest {
         healthCheckServiceProxy = mock(HealthCheckServiceProxy)
         when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
 
-        httpConnectionPoolService = new HttpConnectionPoolServiceImpl(configurationService, healthCheckService, configurationRoot)
+        httpConnectionPoolService = new HttpConnectionPoolServiceImpl(
+            configurationService, healthCheckService, openTracingService, configurationRoot)
     }
 
     @Test

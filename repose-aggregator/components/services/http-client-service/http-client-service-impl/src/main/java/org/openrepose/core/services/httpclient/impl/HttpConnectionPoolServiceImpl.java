@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,6 +31,7 @@ import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.services.httpclient.HttpClientContainer;
 import org.openrepose.core.services.httpclient.HttpClientService;
+import org.openrepose.core.services.opentracing.OpenTracingService;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,6 +59,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     private final ConfigurationService configurationService;
     private final HttpClientUserManager httpClientUserManager;
     private final HealthCheckServiceProxy healthCheckServiceProxy;
+    private final OpenTracingService openTracingService;
     private final ConfigurationListener configurationListener;
     private final String configRoot;
 
@@ -70,11 +72,13 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     public HttpConnectionPoolServiceImpl(
             ConfigurationService configurationService,
             HealthCheckService healthCheckService,
+            OpenTracingService openTracingService,
             @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configRoot
     ) {
         LOG.debug("Creating New HTTP Connection Pool Service");
 
         this.configurationService = configurationService;
+        this.openTracingService = openTracingService;
         this.healthCheckServiceProxy = healthCheckService.register();
         this.configRoot = configRoot;
         this.poolMap = new HashMap<>();
@@ -187,7 +191,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     }
 
     private HttpClient clientGenerator(String configRoot, PoolType poolType) {
-        return HttpConnectionPoolProvider.genClient(configRoot, poolType);
+        return HttpConnectionPoolProvider.genClient(configRoot, poolType, openTracingService);
     }
 
     private class ConfigurationListener implements UpdateListener<HttpConnectionPoolConfig> {

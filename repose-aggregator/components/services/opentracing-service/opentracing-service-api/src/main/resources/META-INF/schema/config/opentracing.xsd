@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://docs.openrepose.org/repose/opentracing/v1.0"
+           elementFormDefault="qualified"
+           targetNamespace="http://docs.openrepose.org/repose/opentracing/v1.0">
+
+    <xs:element name="opentracing" type="OpenTracingConfig"/>
+
+    <xs:complexType name="OpenTracingConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>OpenTracing configuration settings.</html:p>
+                <html:p>
+                    Please refer to
+                    <html:a href="https://github.com/opentracing/specification/blob/master/specification.md">
+                        OpenTracing specification
+                    </html:a>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="jaeger-sampling-config" type="JaegerSamplingConfiguration" minOccurs="0"/>
+        </xs:sequence>
+
+        <xs:attribute name="enabled" type="xs:boolean" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Enable opentracing.  Defaulted to TRUE, which means every span is sent to
+                        an opentracing service to be consumed/aggregated.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="tracer" type="tracerType" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Set tracer to use.  Currently, only http://jaegertracing.io/ is supported
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Service name to use.  Will identify this service (e.g. identity-repose)
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="flush-interval-ms" type="PositiveInt" default="1000">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Flush interval in milliseconds.  How often to send span data to tracer.  Defaults to 1 second.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="max-buffer-size" type="PositiveInt" default="10000">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Maximum number of spans in buffer.  Defaults to 10,000.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="log-spans" type="xs:boolean" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Optionally sets up logger for all spans.  Defaults to true (helps with debugging).
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="sender-protocol" type="jaegerSenderProtocol" default="http">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Sender protocol:
+
+                        - udp (uses com.uber.jaeger.senders.UdpSender class to send all traffic over udp)
+                        - http (uses com.uber.jaeger.senders.HttpSender class to send all traffic over http)
+
+                        Default is http
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="agent-host" type="xs:string" default="localhost">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Tracer agent host.  Defaults to localhost.  Used with udp protocol.  Ignored otherwise.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="agent-port" type="PositiveInt" default="6831">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Tracer agent port.  Defaults to 6831.  Used with udp protocol.  Ignored otherwise.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+
+        <xs:attribute name="collector-endpoint" type="xs:string" default="http://localhost:14268">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Tracer collector endpoint.  Defaults to http://localhost:14268.  Used with http protocol.
+                        Ignored otherwise.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="username" type="xs:string" >
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Optional username (will be sent as basicauth).  Used with http protocol.  Ignored otherwise.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="password" type="xs:string" >
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Optional password (will be sent as basicauth).  Used with http protocol.  Ignored otherwise.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="token" type="xs:string" >
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Optional token.  Used with http protocol.  Ignored with udp OR if username and password are.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+    </xs:complexType>
+
+    <xs:complexType name="JaegerSamplingConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Jaeger sampling configuration.  As of v0.21.0, there are 4 types of configurations:
+
+                    - constant (either sample or not)
+                    - probabilistic (probability of sampling between 0.0 (never) and 1.0 (always)
+                    - rate limiting (maximum traces per second.  Defaults to 1.0 traces per second)
+                    - guaranteed throughput (combination of rate limiting and probabilistic)
+                    - per operation (operation/specific probabilistic sampling.  Samples on names of requests)
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:choice>
+            <xs:element name="jaeger-sampling-const" type="JaegerSamplingConst"/>
+            <xs:element name="jaeger-sampling-probabilistic" type="JaegerSamplingProbabilistic"/>
+            <xs:element name="jaeger-sampling-rate-limiting" type="JaegerSamplingRateLimiting"/>
+        </xs:choice>
+
+        <xs:attribute name="sample-type" type="jaegerSampleType" default="probabilistic">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Sampler type:
+
+                        - constant (either sample or not)
+                        - probabilistic (probability of sampling between 0.0 (never) and 1.0 (always)
+                        - rate limiting (maximum traces per second.  Defaults to 1.0 traces per second)
+                        - guaranteed throughput (combination of rate limiting and probabilistic)
+                        - per operation (operation/specific probabilistic sampling.  Samples on names of requests)
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="JaegerSamplingConst">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Jaeger sampling configuration for const.  Set to either 1 (enabled) or 0 (disabled)
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="value" type="xs:int" default="1">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Set to either 1 (enabled) or 0 (disabled)
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="JaegerSamplingProbabilistic">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Jaeger sampling configuration for probabilistic.  Set to double between 0 and 1.0.  Defaults to 0.001
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="value" type="xs:double" default="0.001">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Set to double between 0 and 1.0.  Defaults to 0.001
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="JaegerSamplingRateLimiting">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Jaeger sampling configuration for rate limited.  Set to double.  If less than 1.0, set to 1.0 in Jaeger.
+                    Defaults to 1.0
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="max-traces-per-second" type="xs:double" default="1.0">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Set to double.  If less than 1.0, set to 1.0 in Jaeger. Defaults to 1.0
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <!-- Type definitions -->
+    <xs:simpleType name="tracerType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="jaeger"/>
+            <xs:enumeration value="zipkin"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="jaegerSampleType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="const"/>
+            <xs:enumeration value="probabilistic"/>
+            <xs:enumeration value="rate-limited"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="jaegerSenderProtocol">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="http"/>
+            <xs:enumeration value="udp"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="PositiveInt">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

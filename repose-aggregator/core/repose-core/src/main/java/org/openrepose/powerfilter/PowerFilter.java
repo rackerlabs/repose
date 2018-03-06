@@ -20,6 +20,12 @@
 package org.openrepose.powerfilter;
 
 import com.codahale.metrics.MetricRegistry;
+import io.opentracing.Scope;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+import io.opentracing.propagation.Format;
+import io.opentracing.tag.Tags;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUtilities;
 import org.openrepose.commons.utils.io.BufferedServletInputStream;
@@ -43,6 +49,7 @@ import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.services.jmx.ConfigurationInformation;
+import org.openrepose.core.services.opentracing.*;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.rms.ResponseMessageService;
@@ -110,6 +117,7 @@ public class PowerFilter extends DelegatingFilterProxy {
     private final PowerFilterRouterFactory powerFilterRouterFactory;
     private final ConfigurationService configurationService;
     private final Optional<MetricsService> metricsService;
+    private final Optional<OpenTracingService> openTracingService;
     private final ConfigurationInformation configurationInformation;
     private final RequestProxyService requestProxyService;
     private final ArtifactManager artifactManager;
@@ -130,6 +138,7 @@ public class PowerFilter extends DelegatingFilterProxy {
      * @param configurationService          For monitoring config files
      * @param eventService                  the event service
      * @param metricsService                the metrics service
+     * @param openTracingService            the tracing service
      * @param containerConfigurationService the container configuration service
      * @param responseMessageService        the response message service
      * @param filterContextFactory          A factory that builds filter contexts
@@ -153,13 +162,15 @@ public class PowerFilter extends DelegatingFilterProxy {
         ConfigurationInformation configurationInformation,
         RequestProxyService requestProxyService,
         ArtifactManager artifactManager,
-        Optional<MetricsService> metricsService
+        Optional<MetricsService> metricsService,
+        Optional<OpenTracingService> openTracingService
     ) {
         this.clusterId = clusterId;
         this.nodeId = nodeId;
         this.powerFilterRouterFactory = powerFilterRouterFactory;
         this.configurationService = configurationService;
         this.metricsService = metricsService;
+        this.openTracingService = openTracingService;
         this.configurationInformation = configurationInformation;
         this.requestProxyService = requestProxyService;
         this.artifactManager = artifactManager;
@@ -374,6 +385,43 @@ public class PowerFilter extends DelegatingFilterProxy {
         // Re-wrapping the request to reset the inputStream/Reader flag
         wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request, bufferedInputStream);
 
+        // OpenTracing - set up scope placeholder.
+        Scope scope = null;
+
+        if (openTracingService.isPresent() && openTracingService.get().isEnabled()) {
+            LOG.trace("We enabled OpenTracing service.  Let's see if there are any passed-in spans");
+
+            SpanContext context = null;
+
+            try {
+                context = openTracingService.get().getGlobalTracer().extract(
+                    Format.Builtin.HTTP_HEADERS, new TracerExtractor(wrappedRequest));
+            } catch (RuntimeException re) {
+                LOG.error("Incoming tracer could not be parsed.  We're going to start a new root span here; even though" +
+                    "this is most likely part of a larger span.  Check out thrown exception for more details", re);
+            }
+
+            LOG.debug("Got the span context from request: {}", context);
+
+            Span activeSpan;
+
+            if (context == null)
+                activeSpan = openTracingService.get().getGlobalTracer()
+                    .buildSpan(String.format("%s %s", wrappedRequest.getMethod(),
+                        wrappedRequest.getRequestURI()))
+                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
+            else
+                activeSpan = openTracingService.get().getGlobalTracer()
+                    .buildSpan(String.format("%s %s", wrappedRequest.getMethod(),
+                        wrappedRequest.getRequestURI()))
+                    .asChildOf(context)
+                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
+
+            scope = openTracingService.get().getGlobalTracer().scopeManager().activate(activeSpan, false);
+
+            LOG.debug("Start a new span {}", scope.span());
+        }
+
         if (currentSystemModel.get().getTracingHeader() != null && currentSystemModel.get().getTracingHeader().isRewriteHeader()) {
             wrappedRequest.removeHeader(TRACE_GUID);
         }
@@ -388,6 +436,7 @@ public class PowerFilter extends DelegatingFilterProxy {
         }
 
         MDC.put(TracingKey.TRACING_KEY, traceGUID);
+
         try {
             try {
                 // ensures that the method name exists
@@ -420,15 +469,35 @@ public class PowerFilter extends DelegatingFilterProxy {
             }
         } catch (InvalidMethodException ime) {
             LOG.debug("{}:{} -- Invalid HTTP method requested: {}", clusterId, nodeId, wrappedRequest.getMethod(), ime);
+            if (scope != null) {
+                scope.span().setTag(Tags.HTTP_STATUS.getKey(), HttpServletResponse.SC_BAD_REQUEST);
+                scope.span().finish();
+                scope.close();
+            }
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
         } catch (URISyntaxException use) {
             LOG.debug("{}:{} -- Invalid URI requested: {}", clusterId, nodeId, wrappedRequest.getRequestURI(), use);
+            if (scope != null) {
+                scope.span().setTag(Tags.HTTP_STATUS.getKey(), HttpServletResponse.SC_BAD_REQUEST);
+                scope.span().finish();
+                scope.close();
+            }
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
         } catch (Exception ex) {
             LOG.error("{}:{} -- Issue encountered while processing filter chain.", clusterId, nodeId, ex);
+            if (scope != null) {
+                scope.span().setTag(Tags.HTTP_STATUS.getKey(), HttpServletResponse.SC_BAD_GATEWAY);
+                scope.span().finish();
+                scope.close();
+            }
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error processing request");
         } catch (Error e) {
             LOG.error("{}:{} -- Error encountered while processing filter chain.", clusterId, nodeId, e);
+            if (scope != null) {
+                scope.span().setTag(Tags.HTTP_STATUS.getKey(), HttpServletResponse.SC_BAD_GATEWAY);
+                scope.span().finish();
+                scope.close();
+            }
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error processing request");
             throw e;
         } finally {
@@ -436,6 +505,12 @@ public class PowerFilter extends DelegatingFilterProxy {
             // the response. The method itself enables the wrapper to report a committed response as being so, while
             // still allowing the component which wrapped the response to mutate the response.
             wrappedResponse.uncommit();
+
+            if (scope != null) {
+                scope.span().setTag(Tags.HTTP_STATUS.getKey(), wrappedResponse.getStatus());
+                scope.span().finish();
+                scope.close();
+            }
 
             // In the case where we pass/route the request, there is a chance that
             // the response will be committed by an underlying service, outside of repose
