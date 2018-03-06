@@ -61,9 +61,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
                                  akkaServiceClientFactory: AkkaServiceClientFactory)
   extends LazyLogging {
 
-  private final val TracingOperationName = "phone_home"
-  private final val msgLogger = LoggerFactory.getLogger("phone-home-message")
-  private final val defaultCollectionUri = new PhoneHomeServiceConfig().getCollectionUri
+  import PhoneHomeService._
 
   private var systemModel: SystemModel = _
   private var akkaServiceClient: AkkaServiceClient = _
@@ -104,7 +102,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
         logger.warn(buildLogMessage(
           "Did not attempt to send usage data on update -- the phone home service is not enabled",
           updateMessage,
-          defaultCollectionUri
+          DefaultCollectionUri
         ))
     }
 
@@ -158,7 +156,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
         )
       ))
 
-      msgLogger.info(updateMessage)
+      MsgLogger.info(updateMessage)
 
       updateMessage
     }
@@ -219,4 +217,10 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
     override def isInitialized: Boolean = initialized
   }
 
+}
+
+object PhoneHomeService {
+  private final val TracingOperationName = "phone_home"
+  private final val MsgLogger = LoggerFactory.getLogger("phone-home-message")
+  private final val DefaultCollectionUri = new PhoneHomeServiceConfig().getCollectionUri
 }
