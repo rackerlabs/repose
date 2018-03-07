@@ -52,6 +52,7 @@ dependencies {
     compile "io.opentracing:opentracing-util"
     compile "com.uber.jaeger:jaeger-core"
 
+    compileOnly "javax.inject:javax.inject"
     compileOnly "javax.servlet:javax.servlet-api"
 
     testCompile "junit:junit"
