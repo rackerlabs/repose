@@ -82,6 +82,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.openrepose.commons.utils.http.CommonHttpHeader.*;
+import static org.openrepose.core.opentracing.ScopeHelper.closeSpan;
+import static org.openrepose.core.opentracing.ScopeHelper.startSpan;
 
 /**
  * This class implements the Filter API and is managed by the servlet container.  This filter then loads
@@ -384,26 +386,7 @@ public class PowerFilter extends DelegatingFilterProxy {
         // Re-wrapping the request to reset the inputStream/Reader flag
         wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request, bufferedInputStream);
 
-        LOG.trace("Let's see if there are any OpenTracing spans passed-in");
-        SpanContext context = null;
-        try {
-            context = tracer.extract(Format.Builtin.HTTP_HEADERS, new TracerExtractor(wrappedRequest));
-        } catch (RuntimeException re) {
-            LOG.error("{} {} {}",
-                "Incoming tracer could not be parsed.",
-                "We're going to start a new root span here; even though this is most likely part of a larger span.",
-                "Check out following exception for more details:",
-                re);
-        }
-        LOG.debug("The span context obtained from the request: {}", context);
-
-        Tracer.SpanBuilder spanBuilder = tracer.buildSpan(String.format("%s %s", wrappedRequest.getMethod(), wrappedRequest.getRequestURI()));
-        if (context != null) {
-            spanBuilder = spanBuilder.asChildOf(context);
-        }
-        Scope scope = spanBuilder.withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
-            .startActive(true);
-        LOG.debug("Start a new span {}", scope.span());
+        Scope scope = startSpan(wrappedRequest, tracer, LOG);
 
         if (currentSystemModel.get().getTracingHeader() != null && currentSystemModel.get().getTracingHeader().isRewriteHeader()) {
             wrappedRequest.removeHeader(TRACE_GUID);
@@ -469,8 +452,7 @@ public class PowerFilter extends DelegatingFilterProxy {
             // still allowing the component which wrapped the response to mutate the response.
             wrappedResponse.uncommit();
 
-            scope.span().setTag(Tags.HTTP_STATUS.getKey(), wrappedResponse.getStatus());
-            scope.close();
+            closeSpan(wrappedResponse, scope);
 
             // In the case where we pass/route the request, there is a chance that
             // the response will be committed by an underlying service, outside of repose
