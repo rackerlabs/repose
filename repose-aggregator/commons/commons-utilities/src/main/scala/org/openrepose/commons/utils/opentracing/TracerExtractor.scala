@@ -17,26 +17,26 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.opentracing
+package org.openrepose.core.opentracing
 
 import java.util
 import java.util.AbstractMap.SimpleImmutableEntry
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import io.opentracing.propagation.TextMap
-import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
+import javax.servlet.http.HttpServletRequest
 
 import scala.collection.mutable.ListBuffer
 
 class TracerExtractor() extends TextMap with LazyLogging {
   var headers: Map[String, List[String]] = _
 
-  def this(httpServletRequestWrapper: HttpServletRequestWrapper) = {
+  def this(httpServletRequest: HttpServletRequest) = {
     this()
 
-    headers = servletHeadersToMultiMap(httpServletRequestWrapper)
+    headers = servletHeadersToMultiMap(httpServletRequest)
 
-    def servletHeadersToMultiMap(httpServletRequest: HttpServletRequestWrapper): Map[String, List[String]] = {
+    def servletHeadersToMultiMap(httpServletRequest: HttpServletRequest): Map[String, List[String]] = {
       val headersResult = scala.collection.mutable.HashMap.empty[String, List[String]]
       if (httpServletRequest != null) {
         val headerNamesIterator = httpServletRequest.getHeaderNames
