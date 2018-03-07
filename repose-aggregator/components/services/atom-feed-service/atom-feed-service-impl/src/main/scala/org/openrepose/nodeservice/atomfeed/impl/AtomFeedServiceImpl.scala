@@ -24,6 +24,7 @@ import javax.inject.{Inject, Named}
 
 import akka.actor._
 import com.typesafe.scalalogging.slf4j.LazyLogging
+import io.opentracing.Tracer
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.services.config.ConfigurationService
@@ -51,7 +52,8 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
                                     @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String,
                                     httpClientService: HttpClientService,
                                     configurationService: ConfigurationService,
-                                    applicationContext: ApplicationContext)
+                                    applicationContext: ApplicationContext,
+                                    tracer: Tracer)
   extends AtomFeedService with LazyLogging {
 
   import AtomFeedServiceImpl._
@@ -217,6 +219,7 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
             FeedReader.props(
               newFeedConfig.getUri,
               httpClientService,
+              tracer,
               newFeedConfig.getConnectionPoolId,
               authenticationConfig.map(buildAuthenticatedRequestFactory(newFeedConfig, _)),
               authenticationConfig.map(_.getTimeout).filterNot(_ == 0).map(_.milliseconds).getOrElse(Duration.Inf),
