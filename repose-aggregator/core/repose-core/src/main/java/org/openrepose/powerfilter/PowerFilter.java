@@ -24,8 +24,6 @@ import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import io.opentracing.noop.NoopSpan;
-import io.opentracing.noop.NoopSpanContext;
 import io.opentracing.propagation.Format;
 import io.opentracing.tag.Tags;
 import org.openrepose.commons.config.manager.UpdateListener;
@@ -396,15 +394,14 @@ public class PowerFilter extends DelegatingFilterProxy {
             LOG.error("We're going to start a new root span here; even though this is most likely part of a larger span.");
             LOG.error("Check out following exception for more details:", re);
         }
-        LOG.debug("Got the span context from request: {}", context);
+        LOG.debug("The span context obtained from the request: {}", context);
 
         Tracer.SpanBuilder spanBuilder = tracer.buildSpan(String.format("%s %s", wrappedRequest.getMethod(), wrappedRequest.getRequestURI()));
         if (context != null) {
             spanBuilder = spanBuilder.asChildOf(context);
         }
-        Span activeSpan = spanBuilder.withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT).start();
-
-        Scope scope = tracer.scopeManager().activate(activeSpan, false);
+        Scope scope = spanBuilder.withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
+            .startActive(true);
         LOG.debug("Start a new span {}", scope.span());
 
         if (currentSystemModel.get().getTracingHeader() != null && currentSystemModel.get().getTracingHeader().isRewriteHeader()) {
@@ -453,19 +450,15 @@ public class PowerFilter extends DelegatingFilterProxy {
             }
         } catch (InvalidMethodException ime) {
             LOG.debug("{}:{} -- Invalid HTTP method requested: {}", clusterId, nodeId, wrappedRequest.getMethod(), ime);
-            closeScope(scope, HttpServletResponse.SC_BAD_REQUEST);
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
         } catch (URISyntaxException use) {
             LOG.debug("{}:{} -- Invalid URI requested: {}", clusterId, nodeId, wrappedRequest.getRequestURI(), use);
-            closeScope(scope, HttpServletResponse.SC_BAD_REQUEST);
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
         } catch (Exception ex) {
             LOG.error("{}:{} -- Issue encountered while processing filter chain.", clusterId, nodeId, ex);
-            closeScope(scope, HttpServletResponse.SC_BAD_GATEWAY);
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error processing request");
         } catch (Error e) {
             LOG.error("{}:{} -- Error encountered while processing filter chain.", clusterId, nodeId, e);
-            closeScope(scope, HttpServletResponse.SC_BAD_GATEWAY);
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error processing request");
             throw e;
         } finally {
@@ -474,7 +467,8 @@ public class PowerFilter extends DelegatingFilterProxy {
             // still allowing the component which wrapped the response to mutate the response.
             wrappedResponse.uncommit();
 
-            closeScope(scope, wrappedResponse.getStatus());
+            Tags.HTTP_STATUS.set(scope.span(), wrappedResponse.getStatus());
+            scope.close();
 
             // In the case where we pass/route the request, there is a chance that
             // the response will be committed by an underlying service, outside of repose
@@ -493,12 +487,6 @@ public class PowerFilter extends DelegatingFilterProxy {
         }
         //Clear out the tracing header, now that we're done with this request
         MDC.clear();
-    }
-
-    private static void closeScope(Scope scope, Number value) {
-        scope.span().setTag(Tags.HTTP_STATUS.getKey(), value);
-        scope.span().finish();
-        scope.close();
     }
 
     private class ApplicationDeploymentEventListener implements EventListener<ApplicationDeploymentEvent, List<String>> {
