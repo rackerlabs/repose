@@ -48,7 +48,7 @@ import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.services.jmx.ConfigurationInformation;
-import org.openrepose.core.services.opentracing.TracerExtractor;
+import org.openrepose.core.opentracing.TracerExtractor;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.rms.ResponseMessageService;
