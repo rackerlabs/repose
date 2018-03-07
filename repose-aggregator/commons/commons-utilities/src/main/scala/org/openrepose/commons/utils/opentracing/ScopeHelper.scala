@@ -34,7 +34,7 @@ object ScopeHelper {
     logger.trace("Let's see if there were any OpenTracing spans passed-in")
     val context: Option[SpanContext] =
       Try(tracer.extract(Format.Builtin.HTTP_HEADERS, new TracerExtractor(req))) match {
-        case Success(_) => _
+        case s: Success[SpanContext] => s.toOption
         case Failure(exception) =>
           logger.error("{} {} {}",
             "Incoming tracer could not be parsed.",
