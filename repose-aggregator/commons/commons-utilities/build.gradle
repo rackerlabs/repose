@@ -12,7 +12,7 @@ dependencies {
     compile "org.apache.httpcomponents:httpclient"
     compile "org.jvnet.jaxb2_commons:jaxb2-basics-runtime"
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
-    compile "io.opentracing:opentracing-api:0.31.0"
+    compile "io.opentracing:opentracing-api"
 
     compileOnly "javax.ws.rs:javax.ws.rs-api"
     compileOnly "org.glassfish:javax.servlet" //todo: swap these as part of REP-3950
