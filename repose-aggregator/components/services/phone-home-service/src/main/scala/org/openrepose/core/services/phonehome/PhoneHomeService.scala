@@ -26,8 +26,8 @@ import javax.inject.{Inject, Named}
 import javax.ws.rs.core.MediaType
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
-import io.opentracing.Tracer
 import io.opentracing.tag.Tags
+import io.opentracing.{Scope, Tracer}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.core.services.config.ConfigurationService
@@ -77,7 +77,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
     )
   }
 
-  private def sendUpdate(): Unit = {
+  private def sendUpdate(scope: Scope): Unit = {
     logger.trace("sendUpdate method called")
 
     val staticSystemModel = systemModel // Pin the system model in case an update occurs while processing
@@ -164,11 +164,6 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
     def sendUpdateMessage(collectionUri: String, message: String): Unit = {
       logger.trace("sendUpdateMessage method called")
 
-      val scope = tracer.buildSpan(TracingOperationName)
-        .withTag(Tags.HTTP_URL.getKey, collectionUri)
-        .ignoreActiveSpan()
-        .startActive(true)
-
       try {
         val updateHeaders = if (Option(staticSystemModel.getTracingHeader).isEmpty || staticSystemModel.getTracingHeader.isEnabled) {
           Map(CommonHttpHeader.TRACE_GUID -> UUID.randomUUID().toString).asJava
@@ -184,8 +179,6 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
           MediaType.APPLICATION_JSON_TYPE
         )
 
-        Tags.HTTP_STATUS.set(scope.span, akkaResponse.getStatus)
-
         // Handle error status codes
         if (akkaResponse.getStatus < 200 || akkaResponse.getStatus > 299) {
           logger.error(buildLogMessage(
@@ -197,9 +190,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
       } catch {
         case e: Exception =>
           logger.error("Could not send an update to the collection service", e)
-          Tags.ERROR.set(scope.span, true)
-      } finally {
-        scope.close()
+          scope.span.setTag(Tags.ERROR.getKey, true)
       }
     }
   }
@@ -208,10 +199,18 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
     private var initialized = false
 
     override def configurationUpdated(configurationObject: SystemModel): Unit = {
-      systemModel = configurationObject
-      initialized = true
+      val scope = tracer.buildSpan(TracingOperationName).ignoreActiveSpan().startActive(true)
 
-      sendUpdate()
+      try {
+        systemModel = configurationObject
+        initialized = true
+
+        sendUpdate(scope)
+      } catch {
+        case e: Exception => scope.span.setTag(Tags.ERROR.getKey, true)
+      } finally {
+        scope.close()
+      }
     }
 
     override def isInitialized: Boolean = initialized
