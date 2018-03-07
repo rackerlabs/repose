@@ -404,7 +404,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
         mockitoEq(MediaType.APPLICATION_JSON_TYPE))
     }
 
-    it("should start a new span when sending an update to the data collection point") {
+    it("should start a new span when configuration is updated") {
       val systemModel = basicSystemModel()
       systemModel.getPhoneHome.setEnabled(true)
       systemModel.getPhoneHome.setOriginServiceId("foo-service")
