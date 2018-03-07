@@ -17,12 +17,13 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.opentracing
+package org.openrepose.commons.utils.opentracing
 
 import io.opentracing.propagation.Format
 import io.opentracing.tag.Tags
 import io.opentracing.{Scope, SpanContext, Tracer}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+
 import org.slf4j.Logger
 
 import scala.util.{Failure, Success, Try}
