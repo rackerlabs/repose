@@ -48,7 +48,6 @@ import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.services.jmx.ConfigurationInformation;
-import org.openrepose.core.opentracing.TracerExtractor;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.rms.ResponseMessageService;
@@ -82,8 +81,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.openrepose.commons.utils.http.CommonHttpHeader.*;
-import static org.openrepose.core.opentracing.ScopeHelper.closeSpan;
-import static org.openrepose.core.opentracing.ScopeHelper.startSpan;
+import static org.openrepose.commons.utils.opentracing.ScopeHelper.closeSpan;
+import static org.openrepose.commons.utils.opentracing.ScopeHelper.startSpan;
 
 /**
  * This class implements the Filter API and is managed by the servlet container.  This filter then loads

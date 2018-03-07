@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.opentracing
+package org.openrepose.commons.utils.opentracing
 
 import java.util
 import java.util.AbstractMap.SimpleImmutableEntry
