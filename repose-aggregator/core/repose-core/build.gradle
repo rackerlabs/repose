@@ -3,8 +3,8 @@ configurations {
 }
 
 dependencies {
-    compile project(":repose-aggregator:components:services:opentracing-service:opentracing-service-api")
-    compile project(":repose-aggregator:components:services:opentracing-service:opentracing-service-impl")
+    compile project(":repose-aggregator:components:services:open-tracing-service:open-tracing-service-api")
+    compile project(":repose-aggregator:components:services:open-tracing-service:open-tracing-service-impl")
     compile project(":repose-aggregator:components:services:phone-home-service")
     compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-impl")
     compile project(":repose-aggregator:components:services:http-client-service:http-client-service-impl")
