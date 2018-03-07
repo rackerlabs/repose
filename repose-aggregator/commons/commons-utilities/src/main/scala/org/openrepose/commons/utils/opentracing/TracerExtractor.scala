@@ -20,86 +20,28 @@
 package org.openrepose.commons.utils.opentracing
 
 import java.util
-import java.util.AbstractMap.SimpleImmutableEntry
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import io.opentracing.propagation.TextMap
 import javax.servlet.http.HttpServletRequest
 
-import scala.collection.mutable.ListBuffer
+import scala.Function.tupled
+import scala.collection.JavaConverters._
 
-class TracerExtractor() extends TextMap with LazyLogging {
-  var headers: Map[String, List[String]] = _
+class TracerExtractor(httpServletRequest: HttpServletRequest) extends TextMap with LazyLogging {
 
-  def this(httpServletRequest: HttpServletRequest) = {
-    this()
-
-    headers = servletHeadersToMultiMap(httpServletRequest)
-
-    def servletHeadersToMultiMap(httpServletRequest: HttpServletRequest): Map[String, List[String]] = {
-      val headersResult = scala.collection.mutable.HashMap.empty[String, List[String]]
-      if (httpServletRequest != null) {
-        val headerNamesIterator = httpServletRequest.getHeaderNames
-        while ( {
-          headerNamesIterator.hasMoreElements
-        }) {
-          val headerName: String = headerNamesIterator.nextElement
-          val valuesIterator = httpServletRequest.getHeaders(headerName)
-          var valuesList = ListBuffer[String]()
-          while ( {
-            valuesIterator.hasMoreElements
-          }) {
-            valuesList += valuesIterator.nextElement
-          }
-          headersResult += (headerName -> valuesList.toList)
-        }
-      }
-
-      headersResult.toMap
-
-    }
-  }
+  val headers: Map[String, List[String]] = Option(httpServletRequest).map(request =>
+    request.getHeaderNames.asScala
+      .map(headerName => headerName -> request.getHeaders(headerName).asScala.toList)
+      .toMap
+  ).getOrElse(Map.empty)
 
   override def put(key: String, value: String): Unit = ???
 
-  override def iterator() = new MultivaluedMapFlatIterator[String, String](this.headers.toSet)
-
-  /**
-    * Iterate through a map with lists
-    * @tparam K String key
-    * @tparam V List[String] value
-    */
-  class MultivaluedMapFlatIterator[K <: AnyRef, V >: Null <: AnyRef]() extends util.Iterator[util.Map.Entry[K, V]] {
-    var mapIterator: Iterator[(K, List[V])] = _
-    var mapEntry: (K, List[V]) = _
-    var listIterator: Iterator[V] = _
-
-    def this(multiValuesEntrySet: Set[(K, List[V])]) = {
-      this()
-
-      mapIterator = multiValuesEntrySet.iterator
-      println(s"ctor $mapIterator")
-    }
-
-    override def hasNext: Boolean = {
-      println(s"hasNext $listIterator")
-      if (listIterator != null && listIterator.hasNext) return true
-      println(s"hasNext ${mapIterator.hasNext}")
-      mapIterator.hasNext
-    }
-
-    override def next: util.Map.Entry[K, V] = {
-      println(s"next $mapEntry")
-      if (mapEntry == null || (!listIterator.hasNext && mapIterator.hasNext)) {
-        mapEntry = mapIterator.next
-        println(s"next 2 $mapEntry")
-        listIterator = mapEntry._2.iterator
-        println(s"listIterator $listIterator")
-      }
-      println(s"listIterator 2 ${listIterator.hasNext}")
-      if (listIterator.hasNext) new SimpleImmutableEntry[K, V](mapEntry._1, listIterator.next)
-      else new SimpleImmutableEntry[K, V](mapEntry._1, null)
-    }
-
+  override def iterator(): util.Iterator[util.Map.Entry[String, String]] = {
+    headers.toIterator
+      .flatMap(tupled((key, values) => values.map(new util.AbstractMap.SimpleEntry(key, _))))
+      .asJava
+      .asInstanceOf[util.Iterator[util.Map.Entry[String, String]]]
   }
 }
