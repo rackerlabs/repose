@@ -21,7 +21,6 @@ package org.openrepose.powerfilter;
 
 import com.codahale.metrics.MetricRegistry;
 import io.opentracing.Scope;
-import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
@@ -49,7 +48,7 @@ import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.services.jmx.ConfigurationInformation;
-import org.openrepose.core.services.opentracing.*;
+import org.openrepose.core.services.opentracing.TracerExtractor;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.rms.ResponseMessageService;
@@ -390,9 +389,11 @@ public class PowerFilter extends DelegatingFilterProxy {
         try {
             context = tracer.extract(Format.Builtin.HTTP_HEADERS, new TracerExtractor(wrappedRequest));
         } catch (RuntimeException re) {
-            LOG.error("Incoming tracer could not be parsed.");
-            LOG.error("We're going to start a new root span here; even though this is most likely part of a larger span.");
-            LOG.error("Check out following exception for more details:", re);
+            LOG.error("{} {} {}",
+                "Incoming tracer could not be parsed.",
+                "We're going to start a new root span here; even though this is most likely part of a larger span.",
+                "Check out following exception for more details:",
+                re);
         }
         LOG.debug("The span context obtained from the request: {}", context);
 
@@ -468,7 +469,7 @@ public class PowerFilter extends DelegatingFilterProxy {
             // still allowing the component which wrapped the response to mutate the response.
             wrappedResponse.uncommit();
 
-            Tags.HTTP_STATUS.set(scope.span(), wrappedResponse.getStatus());
+            scope.span().setTag(Tags.HTTP_STATUS.getKey(), wrappedResponse.getStatus());
             scope.close();
 
             // In the case where we pass/route the request, there is a chance that
@@ -504,8 +505,9 @@ public class PowerFilter extends DelegatingFilterProxy {
                 }
                 healthCheckServiceProxy.resolveIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT);
             } catch (IllegalArgumentException exception) {
-                healthCheckServiceProxy.reportIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT, "Please review your artifacts directory, multiple " +
-                        "versions of the same artifact exist!", Severity.BROKEN);
+                healthCheckServiceProxy.reportIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT,
+                    "Please review your artifacts directory, multiple versions of the same artifact exist!",
+                    Severity.BROKEN);
                 LOG.error("Please review your artifacts directory, multiple versions of same artifact exists.");
                 LOG.trace("", exception);
             }
