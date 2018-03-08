@@ -35,7 +35,7 @@ import javax.inject.Named
   *  - allows for registration of a new Tracer at any time.
   */
 @Named
-object ReposeTracer extends Tracer with LazyLogging {
+class ReposeTracer extends Tracer with LazyLogging {
 
   private var tracer: Tracer = NoopTracerFactory.create()
 
@@ -71,5 +71,5 @@ object ReposeTracer extends Tracer with LazyLogging {
     tracer.activeSpan()
 
   override def toString: String =
-    s"${ReposeTracer.getClass.getName.split("\\$").last} {$tracer}"
+    s"${this.getClass.getName.split("\\$").last} {$tracer}"
 }
