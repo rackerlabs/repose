@@ -30,49 +30,50 @@ import org.scalatest.{FunSpec, Matchers}
 @RunWith(classOf[JUnitRunner])
 class ReposeTracerTest extends FunSpec with Matchers with MockitoSugar {
 
+  val reposeTracer = new ReposeTracer
   val testTracer = new MockTracer
 
   describe("Repose Tracer") {
 
     it("should register with the Global Tracer during initialization") {
-      GlobalTracer.get().isInstanceOf[ReposeTracer.type]
+      GlobalTracer.get().isInstanceOf[ReposeTracer]
     }
 
     it("should initialize with a NoOp Tracer") {
-      ReposeTracer.get().isInstanceOf[NoopTracer]
+      reposeTracer.get().isInstanceOf[NoopTracer]
     }
 
     it("should initialize not registered") {
-      ReposeTracer.isRegistered shouldBe false
+      reposeTracer.isRegistered shouldBe false
     }
 
     it("should fail to register a <null> Tracer") {
       val exception = intercept[NullPointerException] {
-        ReposeTracer.register(null)
+        reposeTracer.register(null)
       }
       exception.getMessage shouldBe "Cannot register ReposeTracer <null>."
     }
 
     it("should allow the registration a Tracer") {
-      ReposeTracer.register(testTracer)
-      ReposeTracer.get should equal(testTracer)
-      ReposeTracer.isRegistered shouldBe true
+      reposeTracer.register(testTracer)
+      reposeTracer.get should equal(testTracer)
+      reposeTracer.isRegistered shouldBe true
     }
 
     it("should allow the registration a different Tracer") {
-      ReposeTracer.register(testTracer)
-      ReposeTracer.get should equal(testTracer)
-      ReposeTracer.isRegistered shouldBe true
+      reposeTracer.register(testTracer)
+      reposeTracer.get should equal(testTracer)
+      reposeTracer.isRegistered shouldBe true
 
       val testTracerToo = new MockTracer
       testTracer shouldNot equal(testTracerToo)
-      ReposeTracer.register(testTracerToo)
-      ReposeTracer.get should equal(testTracerToo)
-      ReposeTracer.isRegistered shouldBe true
+      reposeTracer.register(testTracerToo)
+      reposeTracer.get should equal(testTracerToo)
+      reposeTracer.isRegistered shouldBe true
     }
 
     it("should convert to a readable string") {
-      ReposeTracer.toString().startsWith("ReposeTracer {")
+      reposeTracer.toString().startsWith("ReposeTracer {")
     }
   }
 }
