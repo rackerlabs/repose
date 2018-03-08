@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,7 +24,7 @@ import net.sf.saxon.TransformerFactoryImpl;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.SoftReferenceObjectPool;
 import org.openrepose.commons.config.manager.UpdateListener;
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.io.ByteBufferInputStream;
 import org.openrepose.commons.utils.io.ByteBufferServletOutputStream;
@@ -270,7 +270,7 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
                     if (result.isSuccess()) {
                         rtnRequest = new HttpServletRequestWrapper(rtnRequest, new ByteBufferInputStream(internalBuffer));
                         result.applyResults(rtnRequest, response);
-                        if (StringUtilities.isNotBlank(pool.getResultContentType())) {
+                        if (StringUtils.isNotBlank(pool.getResultContentType())) {
                             rtnRequest.replaceHeader(CONTENT_TYPE, pool.getResultContentType());
                             contentType = HttpServletWrappersHelper.getContentType(pool.getResultContentType());
                         }
@@ -316,7 +316,7 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
 
                         if (result.isSuccess()) {
                             result.applyResults(request, response);
-                            if (StringUtilities.isNotBlank(pool.getResultContentType())) {
+                            if (StringUtils.isNotBlank(pool.getResultContentType())) {
                                 contentType = HttpServletWrappersHelper.getContentType(pool.getResultContentType());
                                 response.replaceHeader(CONTENT_TYPE, contentType.getValue());
                             }

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,7 @@
 package org.openrepose.filters.translation.xslt.xmlfilterchain;
 
 import org.apache.commons.pool.ObjectPool;
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.filters.translation.config.HttpMethod;
@@ -50,13 +50,13 @@ public class XmlChainPool {
 
     public XmlChainPool(String contentType, String accept, List<HttpMethod> httpMethods, String statusRegex, String resultContentType, List<XsltParameter> params, ObjectPool<XmlFilterChain> pool) {
         this.contentType = contentType;
-        this.acceptAllContentTypes = StringUtilities.nullSafeEqualsIgnoreCase(this.contentType, MimeType.WILDCARD.getName());
+        this.acceptAllContentTypes = StringUtils.equalsIgnoreCase(this.contentType, MimeType.WILDCARD.getName());
         this.accept = accept;
-        this.acceptAll = StringUtilities.nullSafeEqualsIgnoreCase(this.accept, MimeType.WILDCARD.getName());
+        this.acceptAll = StringUtils.equalsIgnoreCase(this.accept, MimeType.WILDCARD.getName());
         this.resultContentType = resultContentType;
         this.objectPool = pool;
         this.httpMethods = httpMethods != null ? httpMethods : new ArrayList<>();
-        this.statusRegex = StringUtilities.isNotBlank(statusRegex) ? Pattern.compile(statusRegex) : null;
+        this.statusRegex = StringUtils.isNotBlank(statusRegex) ? Pattern.compile(statusRegex) : null;
         this.params = params;
         if (this.httpMethods.isEmpty()) {
             this.allMethods = true;
@@ -77,10 +77,10 @@ public class XmlChainPool {
     }
 
     public boolean accepts(String method, MediaType contentType, MediaType accept, String statusCode) {
-        boolean matchesAccept = acceptAll || StringUtilities.nullSafeEqualsIgnoreCase(this.accept, accept.getValue());
-        boolean matchesContentType = acceptAllContentTypes || StringUtilities.nullSafeEqualsIgnoreCase(this.contentType, contentType.getValue());
-        boolean matchesStatusCode = statusRegex != null && StringUtilities.isNotBlank(statusCode) ? statusRegex.matcher(statusCode).matches() : true;
-        boolean matchesMethod = StringUtilities.isNotBlank(method) ? allMethods || matchesMethod(method) : true;
+        boolean matchesAccept = acceptAll || StringUtils.equalsIgnoreCase(this.accept, accept.getValue());
+        boolean matchesContentType = acceptAllContentTypes || StringUtils.equalsIgnoreCase(this.contentType, contentType.getValue());
+        boolean matchesStatusCode = statusRegex != null && StringUtils.isNotBlank(statusCode) ? statusRegex.matcher(statusCode).matches() : true;
+        boolean matchesMethod = StringUtils.isNotBlank(method) ? allMethods || matchesMethod(method) : true;
 
         return matchesAccept && matchesContentType && matchesStatusCode && matchesMethod;
     }

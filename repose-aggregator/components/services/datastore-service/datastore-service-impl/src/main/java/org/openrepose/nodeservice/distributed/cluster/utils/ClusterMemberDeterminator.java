@@ -19,7 +19,7 @@
  */
 package org.openrepose.nodeservice.distributed.cluster.utils;
 
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.core.services.datastore.distributed.config.DistributedDatastoreConfiguration;
 import org.openrepose.core.services.datastore.distributed.config.Port;
 import org.openrepose.core.systemmodel.config.Node;
@@ -122,7 +122,7 @@ public class ClusterMemberDeterminator {
      */
     public static ReposeCluster getCurrentCluster(List<ReposeCluster> clusters, String clusterId) {
         for (ReposeCluster cluster : clusters) {
-            if (StringUtilities.nullSafeEquals(clusterId, cluster.getId())) {
+            if (StringUtils.equals(clusterId, cluster.getId())) {
                 return cluster;
             }
         }

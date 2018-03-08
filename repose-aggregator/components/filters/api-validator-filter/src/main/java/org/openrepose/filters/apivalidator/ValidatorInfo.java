@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,7 @@ import com.rackspace.com.papi.components.checker.Config;
 import com.rackspace.com.papi.components.checker.Validator;
 import com.rackspace.com.papi.components.checker.ValidatorException;
 import com.rackspace.com.papi.components.checker.wadl.WADLException;
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -56,7 +56,7 @@ public class ValidatorInfo {
         this.config = config;
         this.wadl = null;
         this.systemId = null;
-        this.name = (StringUtilities.isEmpty(name) && !roles.isEmpty()) ? getNameFromRoles(roles) : name;
+        this.name = (StringUtils.isEmpty(name) && !roles.isEmpty()) ? getNameFromRoles(roles) : name;
     }
 
     public ValidatorInfo(List<String> roles, Node wadl, String systemId, Config config, String name) {
@@ -65,7 +65,7 @@ public class ValidatorInfo {
         this.wadl = wadl;
         this.systemId = systemId;
         this.uri = null;
-        this.name = (StringUtilities.isEmpty(name) && !roles.isEmpty()) ? getNameFromRoles(roles) : name;
+        this.name = (StringUtils.isEmpty(name) && !roles.isEmpty()) ? getNameFromRoles(roles) : name;
     }
 
     private Source getSource() {

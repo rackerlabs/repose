@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,7 @@
  */
 package org.openrepose.commons.utils.logging.apache.format.converters;
 
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
@@ -33,7 +33,7 @@ public class DateTimeFormatConverter implements FormatConverter {
     @Override
     public String convert(String value, String inputFormat, String outputFormat) {
 
-        if (!StringUtilities.isBlank(value) && !StringUtilities.isBlank(outputFormat)) {
+        if (!StringUtils.isBlank(value) && !StringUtils.isBlank(outputFormat)) {
             try {
                 String inputPattern = DateConversionFormat.getPattern(inputFormat);
                 String outputPattern = DateConversionFormat.getPattern(outputFormat);

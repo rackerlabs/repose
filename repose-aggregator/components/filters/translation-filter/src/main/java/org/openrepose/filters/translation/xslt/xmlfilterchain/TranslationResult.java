@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.translation.xslt.xmlfilterchain;
 
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.docs.repose.httpx.v1.*;
@@ -118,26 +118,26 @@ public class TranslationResult {
             return;
         }
 
-        if (StringUtilities.isNotBlank(requestInfo.getUri())) {
+        if (StringUtils.isNotBlank(requestInfo.getUri())) {
             request.setRequestURI(requestInfo.getUri());
         }
 
-        if (StringUtilities.isNotBlank(requestInfo.getUrl())) {
+        if (StringUtils.isNotBlank(requestInfo.getUrl())) {
             try {
                 URL url = new URL(requestInfo.getUrl());
-                if (StringUtilities.isNotBlank(url.getProtocol())) {
+                if (StringUtils.isNotBlank(url.getProtocol())) {
                     request.setScheme(url.getProtocol());
                 }
-                if (StringUtilities.isNotBlank(url.getHost())) {
+                if (StringUtils.isNotBlank(url.getHost())) {
                     request.setServerName(url.getHost());
                 }
                 if (url.getPort() > 0) {
                     request.setServerPort(url.getPort());
                 }
-                if (StringUtilities.isNotBlank(url.getPath())) {
+                if (StringUtils.isNotBlank(url.getPath())) {
                     request.setRequestURI(url.getPath());
                 }
-                if (StringUtilities.isNotBlank(url.getQuery())) {
+                if (StringUtils.isNotBlank(url.getQuery())) {
                     request.setQueryString(url.getQuery());
                 }
             } catch (MalformedURLException e) {
