@@ -19,10 +19,9 @@
  */
 package org.openrepose.core.opentracing
 
-import io.opentracing.noop.{NoopTracer, NoopTracerFactory}
-import io.opentracing.propagation.Format
+import io.opentracing.mock.MockTracer
+import io.opentracing.noop.NoopTracer
 import io.opentracing.util.GlobalTracer
-import io.opentracing.{ScopeManager, Span, SpanContext, Tracer}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -31,7 +30,7 @@ import org.scalatest.{FunSpec, Matchers}
 @RunWith(classOf[JUnitRunner])
 class ReposeTracerTest extends FunSpec with Matchers with MockitoSugar {
 
-  val testTracer = new TestTracer
+  val testTracer = new MockTracer
 
   describe("Repose Tracer") {
 
@@ -61,9 +60,13 @@ class ReposeTracerTest extends FunSpec with Matchers with MockitoSugar {
     }
 
     it("should allow the registration a different Tracer") {
-      val testTracerToo = new TestTracer
-      ReposeTracer.register(testTracerToo)
+      ReposeTracer.register(testTracer)
+      ReposeTracer.get should equal(testTracer)
+      ReposeTracer.isRegistered shouldBe true
+
+      val testTracerToo = new MockTracer
       testTracer shouldNot equal(testTracerToo)
+      ReposeTracer.register(testTracerToo)
       ReposeTracer.get should equal(testTracerToo)
       ReposeTracer.isRegistered shouldBe true
     }
@@ -72,28 +75,4 @@ class ReposeTracerTest extends FunSpec with Matchers with MockitoSugar {
       ReposeTracer.toString().startsWith("ReposeTracer {")
     }
   }
-
-  class TestTracer extends Tracer {
-    private val tracer: Tracer = NoopTracerFactory.create()
-    private val hashSeed: Long = System.currentTimeMillis()
-
-    override def activeSpan(): Span =
-      tracer.activeSpan()
-
-    override def scopeManager(): ScopeManager =
-      tracer.scopeManager()
-
-    override def buildSpan(operationName: String): Tracer.SpanBuilder =
-      tracer.buildSpan(operationName)
-
-    override def extract[C](format: Format[C], carrier: C): SpanContext =
-      tracer.extract(format, carrier)
-
-    override def inject[C](spanContext: SpanContext, format: Format[C], carrier: C): Unit =
-      tracer.inject(spanContext, format, carrier)
-
-    override def hashCode(): Int =
-      hashSeed.hashCode()
-  }
-
 }
