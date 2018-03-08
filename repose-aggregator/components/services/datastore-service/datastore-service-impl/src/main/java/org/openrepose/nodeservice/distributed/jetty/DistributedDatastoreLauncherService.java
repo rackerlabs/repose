@@ -19,6 +19,7 @@
  */
 package org.openrepose.nodeservice.distributed.jetty;
 
+import io.opentracing.Tracer;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
 import org.openrepose.core.filter.SystemModelInterrogator;
@@ -58,11 +59,12 @@ public class DistributedDatastoreLauncherService {
     private final String clusterId;
     private final String nodeId;
     private final String configRoot;
+    private final DatastoreService datastoreService;
     private final ConfigurationService configurationService;
     private final RequestProxyService requestProxyService;
+    private final Tracer tracer;
     private final SystemModelListener systemModelListener = new SystemModelListener();
     private final Object heartbeatLock = new Object();
-    private final DatastoreService datastoreService;
     private final AtomicReference<SystemModel> currentSystemModel = new AtomicReference<>();
     private final AtomicReference<DistributedDatastoreConfiguration> currentDDConfig = new AtomicReference<>();
     private static final String DD_CONFIG_ISSUE = "dist-datastore-config-issue";
@@ -75,13 +77,14 @@ public class DistributedDatastoreLauncherService {
 
     @Inject
     public DistributedDatastoreLauncherService(
-            @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
-            @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId,
-            @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configRoot,
-            DatastoreService datastoreService,
-            ConfigurationService configurationService,
-            HealthCheckService healthCheckService,
-            RequestProxyService requestProxyService) {
+        @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
+        @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId,
+        @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configRoot,
+        DatastoreService datastoreService,
+        ConfigurationService configurationService,
+        RequestProxyService requestProxyService,
+        Tracer tracer,
+        HealthCheckService healthCheckService) {
 
         this.clusterId = clusterId;
         this.nodeId = nodeId;
@@ -89,6 +92,7 @@ public class DistributedDatastoreLauncherService {
         this.datastoreService = datastoreService;
         this.configurationService = configurationService;
         this.requestProxyService = requestProxyService;
+        this.tracer = tracer;
         this.healthCheckServiceProxy = healthCheckService.register();
     }
 
@@ -103,9 +107,9 @@ public class DistributedDatastoreLauncherService {
         ddConfigListener = new DistributedDatastoreConfigurationListener();
         URL xsdURL = getClass().getResource("/META-INF/schema/dist-datastore/dist-datastore.xsd");
         this.configurationService.subscribeTo("", "dist-datastore.cfg.xml",
-                xsdURL,
-                ddConfigListener,
-                DistributedDatastoreConfiguration.class);
+            xsdURL,
+            ddConfigListener,
+            DistributedDatastoreConfiguration.class);
 
         //We cannot start the server up completely until we've got a port, which comes from the config
 
@@ -160,14 +164,15 @@ public class DistributedDatastoreLauncherService {
                 //If there's no server running, fire one up, because we should have a server
                 if (!ddServer.isPresent()) {
                     ClusterConfiguration configuration = new ClusterConfiguration(requestProxyService,
-                            UUIDEncodingProvider.getInstance(),
-                            ThreadSafeClusterView.singlePortClusterView(ddPort));
+                        UUIDEncodingProvider.getInstance(),
+                        ThreadSafeClusterView.singlePortClusterView(ddPort));
 
                     //ddServlet provides a way to get a hold of the ClusterView now and the ACL, like it should
                     ddServlet = new DistributedDatastoreServlet(datastoreService,
-                            configuration,
-                            new DatastoreAccessControl(Collections.emptyList(), false),
-                            ddConfig);
+                        configuration,
+                        new DatastoreAccessControl(Collections.emptyList(), false),
+                        ddConfig,
+                        tracer);
 
                     DistributedDatastoreServer server = new DistributedDatastoreServer(clusterId, nodeId, ddServlet, ddConfig);
                     this.ddServer = Optional.of(server);
@@ -181,7 +186,7 @@ public class DistributedDatastoreLauncherService {
                     } catch (Exception e) {
                         LOG.error("Unable to start Distributed Datastore Server instance on {}", ddPort, e);
                         healthCheckServiceProxy.reportIssue(DD_CONFIG_ISSUE,
-                                "Dist-Datastore Configuration Issue: Unable to start Distributed Datastore: " + e.getMessage(), Severity.BROKEN);
+                            "Dist-Datastore Configuration Issue: Unable to start Distributed Datastore: " + e.getMessage(), Severity.BROKEN);
                     }
                 }
 
@@ -196,15 +201,15 @@ public class DistributedDatastoreLauncherService {
                     } catch (Exception e) {
                         LOG.error("Unable to start Distributed Datastore Server instance on {}", ddPort, e);
                         healthCheckServiceProxy.reportIssue(DD_CONFIG_ISSUE,
-                                "Dist-Datastore Configuration Issue: Unable to start Distributed Datastore: " + e.getMessage(), Severity.BROKEN);
+                            "Dist-Datastore Configuration Issue: Unable to start Distributed Datastore: " + e.getMessage(), Severity.BROKEN);
                     }
 
                     //Update the Servlet ClusterView and ACL
                     ddServlet.getClusterView().updateMembers(
-                            ClusterMemberDeterminator.getClusterMembers(systemModel, ddConfig, clusterId)
+                        ClusterMemberDeterminator.getClusterMembers(systemModel, ddConfig, clusterId)
                     );
                     ddServlet.updateAcl(
-                            AccessListDeterminator.getAccessList(ddConfig, AccessListDeterminator.getClusterMembers(systemModel, clusterId))
+                        AccessListDeterminator.getAccessList(ddConfig, AccessListDeterminator.getClusterMembers(systemModel, clusterId))
                     );
                 }
             }
