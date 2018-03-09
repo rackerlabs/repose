@@ -19,8 +19,10 @@
  */
 package org.openrepose.core.services.serviceclient.akka.impl;
 
-
 import akka.actor.UntypedActor;
+import io.opentracing.Scope;
+import io.opentracing.noop.NoopScopeManager;
+import io.opentracing.util.GlobalTracer;
 import org.openrepose.commons.utils.http.ServiceClient;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.slf4j.Logger;
@@ -38,14 +40,17 @@ public class AuthTokenFutureActor extends UntypedActor {
     }
 
     @Override
-    public void onReceive(Object message) throws Exception {
+    public void onReceive(Object message) {
+        Scope scope = NoopScopeManager.NoopScope.INSTANCE;
         if (message instanceof ActorRequest) {
             //Get the immutable map, and set all my thread context
             final ActorRequest request = (ActorRequest) message;
             for (String key : request.getLoggingContextMap().keySet()) {
                 MDC.put(key, request.getLoggingContextMap().get(key));
             }
+            scope = GlobalTracer.get().scopeManager().activate(request.getActiveSpan(), false);
         }
+
         LOG.trace("AuthTokenFutureActor request!");
 
         if (message instanceof AuthGetRequest) {
@@ -62,6 +67,8 @@ public class AuthTokenFutureActor extends UntypedActor {
             unhandled(message);
         }
 
+        // todo: these might not be called if a RuntimeException is thrown -- should this method be refactored?
         MDC.clear();
+        scope.close();
     }
 }
