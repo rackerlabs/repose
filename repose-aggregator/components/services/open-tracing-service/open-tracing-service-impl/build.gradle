@@ -8,7 +8,6 @@ dependencies {
     compile "io.opentracing:opentracing-api"
     compile "io.opentracing:opentracing-util"
     compile "com.uber.jaeger:jaeger-core"
-    compile "com.uber.jaeger:jaeger-apachehttpclient"
 
     compileOnly "javax.servlet:javax.servlet-api"
     compileOnly "javax.inject:javax.inject"
