@@ -17,24 +17,22 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.opentracing.interceptors
+package org.openrepose.commons.utils.opentracing.httpclient
 
-import com.uber.jaeger.Tracer
-import io.opentracing.{Scope, ScopeManager, Span}
-import org.apache.http.{HttpRequest}
+import io.opentracing.{Scope, ScopeManager, Span, Tracer}
+import org.apache.http.HttpRequest
 import org.apache.http.message.BasicHeader
 import org.apache.http.protocol.HttpContext
 import org.junit.runner.RunWith
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.mockito.Matchers.any
 import org.mockito.Mockito.{never, times, verify, when}
 import org.openrepose.commons.utils.http.CommonHttpHeader
-import org.mockito.Matchers.any
-
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class JaegerRequestInterceptorTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter {
+class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter {
 
   describe("testOnSpanStarted") {
     it("no headers") {
@@ -49,9 +47,9 @@ class JaegerRequestInterceptorTest extends FunSpec with Matchers with MockitoSug
       when(scopeManager.active()).thenReturn(scope)
       when(tracer.scopeManager()).thenReturn(scopeManager)
 
-      val jaegerRequestInterceptor = new JaegerRequestInterceptor(tracer)
+      val tracingRequestInterceptor = new ReposeTracingRequestInterceptor(tracer)
 
-      jaegerRequestInterceptor.process(httpRequest, httpContext)
+      tracingRequestInterceptor.process(httpRequest, httpContext)
 
       verify(span, never()).setTag(any[String](), any[String]())
     }
@@ -69,7 +67,7 @@ class JaegerRequestInterceptorTest extends FunSpec with Matchers with MockitoSug
       when(scopeManager.active()).thenReturn(scope)
       when(tracer.scopeManager()).thenReturn(scopeManager)
 
-      val jaegerRequestInterceptor = new JaegerRequestInterceptor(tracer)
+      val jaegerRequestInterceptor = new ReposeTracingRequestInterceptor(tracer)
 
       jaegerRequestInterceptor.process(httpRequest, httpContext)
 
@@ -89,7 +87,7 @@ class JaegerRequestInterceptorTest extends FunSpec with Matchers with MockitoSug
       when(scopeManager.active()).thenReturn(scope)
       when(tracer.scopeManager()).thenReturn(scopeManager)
 
-      val jaegerRequestInterceptor = new JaegerRequestInterceptor(tracer)
+      val jaegerRequestInterceptor = new ReposeTracingRequestInterceptor(tracer)
 
       jaegerRequestInterceptor.process(httpRequest, httpContext)
 

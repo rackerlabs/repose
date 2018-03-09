@@ -17,16 +17,24 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.opentracing.interceptors
+package org.openrepose.commons.utils.opentracing.httpclient
 
 import com.uber.jaeger.httpclient.TracingRequestInterceptor
 import io.opentracing.{Span, Tracer}
-import org.apache.http.{HttpRequest}
+import org.apache.http.HttpRequest
 import org.apache.http.protocol.HttpContext
 import org.openrepose.commons.utils.http.CommonHttpHeader
 
-class JaegerRequestInterceptor(tracer: Tracer) extends TracingRequestInterceptor(tracer)
-  with RequestInterceptor {
+/**
+  * A [[org.apache.http.HttpRequestInterceptor]] that will enrich HTTP requests made through a
+  * [[org.apache.http.client.HttpClient]] with OpenTracing data.
+  *
+  * We are extending [[com.uber.jaeger.httpclient.TracingRequestInterceptor]] out of convenience since it performs
+  * the action we want to perform in an implementation agnostic way.
+  *
+  * @param tracer a [[io.opentracing.Tracer]] to bridge this utility with the OpenTracing API
+  */
+class ReposeTracingRequestInterceptor(tracer: Tracer) extends TracingRequestInterceptor(tracer) {
 
   override protected def onSpanStarted(clientSpan: Span, httpRequest: HttpRequest, httpContext: HttpContext): Unit = {
     val traceRequestHeader = httpRequest.getFirstHeader(CommonHttpHeader.REQUEST_ID)
@@ -38,6 +46,4 @@ class JaegerRequestInterceptor(tracer: Tracer) extends TracingRequestInterceptor
 
   override protected def getOperationName(httpRequest: HttpRequest): String =
     s"${httpRequest.getRequestLine.getMethod} ${httpRequest.getRequestLine.getUri}"
-
-
 }

@@ -19,6 +19,7 @@
  */
 package org.openrepose.core.services.httpclient.impl;
 
+import io.opentracing.Tracer;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.pool.PoolStats;
@@ -31,7 +32,6 @@ import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.services.httpclient.HttpClientContainer;
 import org.openrepose.core.services.httpclient.HttpClientService;
-import org.openrepose.core.services.opentracing.OpenTracingService;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,8 +59,8 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     private final ConfigurationService configurationService;
     private final HttpClientUserManager httpClientUserManager;
     private final HealthCheckServiceProxy healthCheckServiceProxy;
-    private final OpenTracingService openTracingService;
     private final ConfigurationListener configurationListener;
+    private final Tracer tracer;
     private final String configRoot;
 
     private boolean initialized = false;
@@ -72,13 +72,13 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     public HttpConnectionPoolServiceImpl(
             ConfigurationService configurationService,
             HealthCheckService healthCheckService,
-            OpenTracingService openTracingService,
+            Tracer tracer,
             @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configRoot
     ) {
         LOG.debug("Creating New HTTP Connection Pool Service");
 
         this.configurationService = configurationService;
-        this.openTracingService = openTracingService;
+        this.tracer = tracer;
         this.healthCheckServiceProxy = healthCheckService.register();
         this.configRoot = configRoot;
         this.poolMap = new HashMap<>();
@@ -191,7 +191,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     }
 
     private HttpClient clientGenerator(String configRoot, PoolType poolType) {
-        return HttpConnectionPoolProvider.genClient(configRoot, poolType, openTracingService);
+        return HttpConnectionPoolProvider.genClient(configRoot, poolType, tracer);
     }
 
     private class ConfigurationListener implements UpdateListener<HttpConnectionPoolConfig> {
