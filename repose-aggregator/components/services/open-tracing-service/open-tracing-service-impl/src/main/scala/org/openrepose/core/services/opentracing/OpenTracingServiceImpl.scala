@@ -28,7 +28,7 @@ import com.uber.jaeger.Configuration.{SamplerConfiguration, SenderConfiguration}
 import io.opentracing.Tracer
 import io.opentracing.util.GlobalTracer
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.core.service.opentracing.config.{JaegerSampleType, JaegerSenderProtocol, OpenTracingConfig, TracerType}
+import org.openrepose.core.service.opentracing.config._
 import org.openrepose.core.services.config.ConfigurationService
 
 @Named
@@ -116,16 +116,16 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
 
         logger.trace("get the tracer from configuration")
 
-        serviceName = openTracingConfig.getName
-        isServiceEnabled = openTracingConfig.isEnabled
+        serviceName = openTracingConfig.getServiceName
 
-        if (openTracingConfig.isEnabled) openTracingConfig.getTracer match {
-          case TracerType.JAEGER =>
+        val tracerConfig = Option(openTracingConfig.getJaeger)
+        tracerConfig match {
+          case Some(jaegerConfig) =>
             logger.debug("register Jaeger tracer")
             logger.debug("figure out which sampler we want!")
-            val samplerConfiguration: SamplerConfiguration = getJaegerSamplerConfiguration(openTracingConfig)
-            val senderConfiguration: SenderConfiguration = getJaegerSenderConfiguration(openTracingConfig)
-            val configuration = new Configuration(openTracingConfig.getName, samplerConfiguration, new Configuration.ReporterConfiguration(openTracingConfig.isLogSpans, openTracingConfig.getFlushIntervalMs, openTracingConfig.getMaxBufferSize, senderConfiguration))
+            val samplerConfiguration: SamplerConfiguration = getJaegerSamplerConfiguration(jaegerConfig)
+            val senderConfiguration: SenderConfiguration = getJaegerSenderConfiguration(jaegerConfig)
+            val configuration = new Configuration(openTracingConfig.getServiceName, samplerConfiguration, new Configuration.ReporterConfiguration(jaegerConfig.isLogSpans, jaegerConfig.getFlushIntervalMs, jaegerConfig.getMaxBufferSize, senderConfiguration))
             logger.debug("register the tracer with global tracer")
             GlobalTracer.register(configuration.getTracer)
           case _ =>
@@ -133,83 +133,44 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
             isServiceEnabled = false
         }
 
-        def getJaegerSamplerConfiguration(openTracingConfig: OpenTracingConfig): SamplerConfiguration = {
-          var samplerConfiguration: SamplerConfiguration = null
-          if (openTracingConfig.getJaegerSamplingConfig == null) {
-            logger.trace("no sampling configuration configured.  Default to send everything!")
-            samplerConfiguration = new Configuration.SamplerConfiguration("const", 1)
-          }
-          else openTracingConfig.getJaegerSamplingConfig.getSampleType match {
-            case JaegerSampleType.CONST =>
+        def getJaegerSamplerConfiguration(jaegerConfig: JaegerTracerConfiguration): SamplerConfiguration = {
+          val samplingConfig = Option[JaegerSampling](jaegerConfig.getSamplingConstant).orElse(Option(jaegerConfig.getSamplingProbabilistic)).orElse(Option(jaegerConfig.getSamplingRateLimiting))
+          samplingConfig match {
+            case Some(config: JaegerSamplingConstant) =>
               logger.trace("constant sampling configuration configured.")
-              if (openTracingConfig.getJaegerSamplingConfig.getJaegerSamplingConst != null) {
-                logger.trace(s"Sampling value set to ${openTracingConfig.getJaegerSamplingConfig.getJaegerSamplingConst.getValue}")
-                samplerConfiguration = new Configuration.SamplerConfiguration(
-                  "const", openTracingConfig.getJaegerSamplingConfig.getJaegerSamplingConst.getValue)
-              }
-              else {
-                logger.error("no const sampling configuration configured.  Default to send everything!")
-                samplerConfiguration = new Configuration.SamplerConfiguration("const", 1)
-              }
-            case JaegerSampleType.RATE_LIMITED =>
+              logger.trace(s"Sampling value set to ${config.getToggle}")
+              new Configuration.SamplerConfiguration("const", (if (Toggle.ON.equals(config.getToggle)) 1 else 0))
+            case Some(config: JaegerSamplingRateLimiting) =>
               logger.trace("rate limiting sampling configuration configured.")
-              if (openTracingConfig.getJaegerSamplingConfig.getJaegerSamplingRateLimiting != null) {
-                logger.trace(s"Rate limited to ${openTracingConfig.getJaegerSamplingConfig.getJaegerSamplingRateLimiting.getMaxTracesPerSecond} " +
-                  s"samples per second!")
-                samplerConfiguration = new Configuration.SamplerConfiguration("ratelimiting",
-                  openTracingConfig.getJaegerSamplingConfig.getJaegerSamplingRateLimiting.getMaxTracesPerSecond)
-              }
-              else {
-                logger.error("no rate-limited sampling configuration configured.  Default to send everything!")
-                samplerConfiguration = new Configuration.SamplerConfiguration("const", 1)
-              }
-            case JaegerSampleType.PROBABILISTIC =>
+              logger.trace(s"Rate limited to ${config.getMaxTracesPerSecond} samples per second!")
+              new Configuration.SamplerConfiguration("ratelimiting", config.getMaxTracesPerSecond)
+            case Some(config: JaegerSamplingProbabilistic) =>
               logger.trace("probabilistic sampling configuration configured.")
-              if (openTracingConfig.getJaegerSamplingConfig.getJaegerSamplingProbabilistic != null) {
-                logger.trace(s"Probability set to ${openTracingConfig.getJaegerSamplingConfig.getJaegerSamplingProbabilistic.getValue}")
-                samplerConfiguration = new Configuration.SamplerConfiguration("probabilistic",
-                  openTracingConfig.getJaegerSamplingConfig.getJaegerSamplingProbabilistic.getValue)
-              }
-              else {
-                logger.error("no probabilistic sampling configuration configured.  Default to send everything!")
-                samplerConfiguration = new Configuration.SamplerConfiguration("const", 1)
-              }
-            case _ =>
-              // default to const and always on
-              logger.error("invalid sampling configuration configured.  Default to send everything!")
-              samplerConfiguration = new Configuration.SamplerConfiguration("const", 1)
+              logger.trace(s"Probability set to ${config.getProbability}")
+              new Configuration.SamplerConfiguration("probabilistic", config.getProbability)
           }
-          samplerConfiguration
         }
 
-        def getJaegerSenderConfiguration(openTracingConfig: OpenTracingConfig): SenderConfiguration = {
-          var senderConfiguration: SenderConfiguration = null
-
-          openTracingConfig.getSenderProtocol match {
-            case JaegerSenderProtocol.UDP =>
+        def getJaegerSenderConfiguration(jaegerConfig: JaegerTracerConfiguration): SenderConfiguration = {
+          val connectionConfig = Option[JaegerConnection](jaegerConfig.getConnectionHttp).orElse(Option(jaegerConfig.getConnectionUdp))
+          connectionConfig match {
+            case Some(config: JaegerConnectionUdp) =>
               logger.trace("set udp sender")
-              senderConfiguration = new SenderConfiguration.Builder().agentHost(openTracingConfig.getAgentHost).agentPort(openTracingConfig.getAgentPort).build
-            case JaegerSenderProtocol.HTTP =>
+              new SenderConfiguration.Builder().agentHost(config.getHost).agentPort(config.getPort).build
+            case Some(config: JaegerConnectionHttp) =>
               logger.trace("Check if username and password are provided")
-              if (!Option(openTracingConfig.getUsername).getOrElse("").isEmpty &&
-                !Option(openTracingConfig.getPassword).getOrElse("").isEmpty) {
-                logger.trace("set http sender with BasicAuth headers")
-                senderConfiguration = new SenderConfiguration.Builder().authUsername(openTracingConfig.getUsername).authPassword(openTracingConfig.getPassword).endpoint(openTracingConfig.getCollectorEndpoint).build
+              (Option(config.getToken), Option(config.getUsername)) match {
+                case (Some(_), _) =>
+                  logger.trace("set http sender with Bearer token")
+                  new SenderConfiguration.Builder().authToken(config.getToken).endpoint(s"${config.getHost}:${config.getPort}").build
+                case (_, Some(_)) =>
+                  logger.trace("set http sender with BasicAuth headers")
+                  new SenderConfiguration.Builder().authUsername(config.getUsername).authPassword(config.getPassword).endpoint(s"${config.getHost}:${config.getPort}").build
+                case (_, _) =>
+                  logger.trace("set http sender without authentication")
+                  new SenderConfiguration.Builder().endpoint(s"${config.getHost}:${config.getPort}").build
               }
-              else if (!Option(openTracingConfig.getToken).getOrElse("").isEmpty) {
-                logger.trace("set http sender with Bearer token")
-                senderConfiguration = new SenderConfiguration.Builder().authToken(openTracingConfig.getToken).endpoint(openTracingConfig.getCollectorEndpoint).build
-              }
-              else {
-                logger.trace("set http sender without authentication")
-                senderConfiguration = new SenderConfiguration.Builder().endpoint(openTracingConfig.getCollectorEndpoint).build
-              }
-            case _ =>
-              logger.error("invalid protocol in sender configuration configured.  Default to http sender!")
-              senderConfiguration = new SenderConfiguration.Builder().endpoint(openTracingConfig.getCollectorEndpoint).build
           }
-
-          senderConfiguration
         }
 
       }
@@ -221,7 +182,6 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
 
 
 object OpenTracingServiceImpl {
-  final val ServiceName = "opentracing"
 
-  private final val DefaultConfig = ServiceName + ".cfg.xml"
+  private final val DefaultConfig = "open-tracing.cfg.xml"
 }
