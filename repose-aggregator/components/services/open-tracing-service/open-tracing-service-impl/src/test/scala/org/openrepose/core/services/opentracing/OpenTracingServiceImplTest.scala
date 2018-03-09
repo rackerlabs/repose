@@ -79,7 +79,7 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
       val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
 
-      val tracer: Tracer = openTracingService.getGlobalTracer
+      val tracer = openTracingService.getGlobalTracer
 
       tracer shouldBe a[GlobalTracer]
 
@@ -106,7 +106,7 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     }
 
     it("should not be enabled with invalid tracer type") {
-      val openTracingConfig: OpenTracingConfig = new OpenTracingConfig
+      val openTracingConfig = new OpenTracingConfig
       val mockConfigurationService = new MockConfiguration(openTracingConfig)
 
       val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
@@ -119,8 +119,8 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     }
 
     it("should not be enabled with invalid tracer type but service name should be set") {
-      val openTracingConfig: OpenTracingConfig = new OpenTracingConfig
-      openTracingConfig.setName("test")
+      val openTracingConfig = new OpenTracingConfig
+      openTracingConfig.setServiceName("test")
       val mockConfigurationService = new MockConfiguration(openTracingConfig)
 
       val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
@@ -141,16 +141,18 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     }
 
     it("should be enabled with JAEGER tracer type") {
-      val openTracingConfig: OpenTracingConfig = new OpenTracingConfig
-      openTracingConfig.setName("test")
-      openTracingConfig.setTracer(TracerType.JAEGER)
+      val openTracingConfig = new OpenTracingConfig
+      openTracingConfig.setServiceName("test")
       val mockConfigurationService = new MockConfiguration(openTracingConfig)
 
       val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
 
       openTracingService.init()
 
-      val tracer: Tracer = openTracingService.getGlobalTracer
+      openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
+      openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
+
+      val tracer = openTracingService.getGlobalTracer
 
       tracer shouldBe a[GlobalTracer]
 
@@ -162,11 +164,10 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     }
 
     it("should be enabled with JAEGER tracer type and empty sampling configuration") {
-      val openTracingConfig: OpenTracingConfig = new OpenTracingConfig
-      openTracingConfig.setName("test")
-      openTracingConfig.setTracer(TracerType.JAEGER)
-      val samplerConfiguration: JaegerSamplingConfiguration = new JaegerSamplingConfiguration()
-      openTracingConfig.setJaegerSamplingConfig(samplerConfiguration)
+      val openTracingConfig = new OpenTracingConfig
+      openTracingConfig.setServiceName("test")
+      val samplerConfiguration = new JaegerTracerConfiguration()
+      openTracingConfig.setJaeger(samplerConfiguration)
 
       val mockConfigurationService = new MockConfiguration(openTracingConfig)
 
@@ -174,7 +175,10 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
       openTracingService.init()
 
-      val tracer: Tracer = openTracingService.getGlobalTracer
+      openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
+      openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
+
+      val tracer = openTracingService.getGlobalTracer
 
       tracer shouldBe a[GlobalTracer]
 
@@ -186,24 +190,25 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     }
 
     it("should be enabled with JAEGER tracer type and const sampling configuration with CONST type") {
-      val openTracingConfig: OpenTracingConfig = new OpenTracingConfig
-      openTracingConfig.setName("test")
-      openTracingConfig.setTracer(TracerType.JAEGER)
-      val constSampleConfiguration: JaegerSamplingConst = new JaegerSamplingConst()
-      constSampleConfiguration.setValue(1)
+      val openTracingConfig = new OpenTracingConfig
+      openTracingConfig.setServiceName("test")
+      val constSampleConfiguration = new JaegerSamplingConstant()
+      constSampleConfiguration.setToggle(Toggle.ON)
 
-      val samplerConfiguration: JaegerSamplingConfiguration = new JaegerSamplingConfiguration()
-      samplerConfiguration.setJaegerSamplingConst(constSampleConfiguration)
-      samplerConfiguration.setSampleType(JaegerSampleType.CONST)
+      val samplerConfiguration = new JaegerTracerConfiguration()
+      samplerConfiguration.setSamplingConstant(constSampleConfiguration)
 
-      openTracingConfig.setJaegerSamplingConfig(samplerConfiguration)
+      openTracingConfig.setJaeger(samplerConfiguration)
 
       val mockConfigurationService = new MockConfiguration(openTracingConfig)
       val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
 
       openTracingService.init()
 
-      val tracer: Tracer = openTracingService.getGlobalTracer
+      openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
+      openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
+
+      val tracer = openTracingService.getGlobalTracer
 
       tracer shouldBe a[GlobalTracer]
 
@@ -214,21 +219,22 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     }
 
     it("should be enabled with JAEGER tracer type and no sampling configuration with CONST type") {
-      val openTracingConfig: OpenTracingConfig = new OpenTracingConfig
-      openTracingConfig.setName("test")
-      openTracingConfig.setTracer(TracerType.JAEGER)
+      val openTracingConfig = new OpenTracingConfig
+      openTracingConfig.setServiceName("test")
 
-      val samplerConfiguration: JaegerSamplingConfiguration = new JaegerSamplingConfiguration()
-      samplerConfiguration.setSampleType(JaegerSampleType.CONST)
+      val samplerConfiguration = new JaegerTracerConfiguration()
 
-      openTracingConfig.setJaegerSamplingConfig(samplerConfiguration)
+      openTracingConfig.setJaeger(samplerConfiguration)
 
       val mockConfigurationService = new MockConfiguration(openTracingConfig)
       val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
 
       openTracingService.init()
 
-      val tracer: Tracer = openTracingService.getGlobalTracer
+      openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
+      openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
+
+      val tracer = openTracingService.getGlobalTracer
 
       tracer shouldBe a[GlobalTracer]
 
@@ -239,24 +245,25 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     }
 
     it("should be enabled with JAEGER tracer type and probabilistic sampling configuration with PROBABILISTIC type") {
-      val openTracingConfig: OpenTracingConfig = new OpenTracingConfig
-      openTracingConfig.setName("test")
-      openTracingConfig.setTracer(TracerType.JAEGER)
+      val openTracingConfig = new OpenTracingConfig
+      openTracingConfig.setServiceName("test")
       val probabilisticSampleConfiguration: JaegerSamplingProbabilistic = new JaegerSamplingProbabilistic()
-      probabilisticSampleConfiguration.setValue(1)
+      probabilisticSampleConfiguration.setProbability(1.0)
 
-      val samplerConfiguration: JaegerSamplingConfiguration = new JaegerSamplingConfiguration()
-      samplerConfiguration.setJaegerSamplingProbabilistic(probabilisticSampleConfiguration)
-      samplerConfiguration.setSampleType(JaegerSampleType.PROBABILISTIC)
+      val samplerConfiguration = new JaegerTracerConfiguration()
+      samplerConfiguration.setSamplingProbabilistic(probabilisticSampleConfiguration)
 
-      openTracingConfig.setJaegerSamplingConfig(samplerConfiguration)
+      openTracingConfig.setJaeger(samplerConfiguration)
 
       val mockConfigurationService = new MockConfiguration(openTracingConfig)
       val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
 
       openTracingService.init()
 
-      val tracer: Tracer = openTracingService.getGlobalTracer
+      openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
+      openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
+
+      val tracer = openTracingService.getGlobalTracer
 
       tracer shouldBe a[GlobalTracer]
 
@@ -267,21 +274,22 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     }
 
     it("should be enabled with JAEGER tracer type and no sampling configuration with PROBABILISTIC type") {
-      val openTracingConfig: OpenTracingConfig = new OpenTracingConfig
-      openTracingConfig.setName("test")
-      openTracingConfig.setTracer(TracerType.JAEGER)
+      val openTracingConfig = new OpenTracingConfig
+      openTracingConfig.setServiceName("test")
 
-      val samplerConfiguration: JaegerSamplingConfiguration = new JaegerSamplingConfiguration()
-      samplerConfiguration.setSampleType(JaegerSampleType.PROBABILISTIC)
+      val samplerConfiguration = new JaegerTracerConfiguration()
 
-      openTracingConfig.setJaegerSamplingConfig(samplerConfiguration)
+      openTracingConfig.setJaeger(samplerConfiguration)
 
       val mockConfigurationService = new MockConfiguration(openTracingConfig)
       val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
 
       openTracingService.init()
 
-      val tracer: Tracer = openTracingService.getGlobalTracer
+      openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
+      openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
+
+      val tracer = openTracingService.getGlobalTracer
 
       tracer shouldBe a[GlobalTracer]
 
@@ -293,24 +301,25 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
   }
 
   it("should be enabled with JAEGER tracer type and rate limited sampling configuration with RATE_LIMITED type") {
-    val openTracingConfig: OpenTracingConfig = new OpenTracingConfig
-    openTracingConfig.setName("test")
-    openTracingConfig.setTracer(TracerType.JAEGER)
-    val rateLimitingSampleConfiguration: JaegerSamplingRateLimiting = new JaegerSamplingRateLimiting()
-    rateLimitingSampleConfiguration.setMaxTracesPerSecond(1)
+    val openTracingConfig = new OpenTracingConfig
+    openTracingConfig.setServiceName("test")
+    val rateLimitingSampleConfiguration = new JaegerSamplingRateLimiting()
+    rateLimitingSampleConfiguration.setMaxTracesPerSecond(1.0)
 
-    val samplerConfiguration: JaegerSamplingConfiguration = new JaegerSamplingConfiguration()
-    samplerConfiguration.setJaegerSamplingRateLimiting(rateLimitingSampleConfiguration)
-    samplerConfiguration.setSampleType(JaegerSampleType.RATE_LIMITED)
+    val samplerConfiguration = new JaegerTracerConfiguration()
+    samplerConfiguration.setSamplingRateLimiting(rateLimitingSampleConfiguration)
 
-    openTracingConfig.setJaegerSamplingConfig(samplerConfiguration)
+    openTracingConfig.setJaeger(samplerConfiguration)
 
     val mockConfigurationService = new MockConfiguration(openTracingConfig)
     val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
 
     openTracingService.init()
 
-    val tracer: Tracer = openTracingService.getGlobalTracer
+    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
+    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
+
+    val tracer = openTracingService.getGlobalTracer
 
     tracer shouldBe a[GlobalTracer]
 
@@ -321,21 +330,22 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
   }
 
   it("should be enabled with JAEGER tracer type and no sampling configuration with RATE_LIMITED type") {
-    val openTracingConfig: OpenTracingConfig = new OpenTracingConfig
-    openTracingConfig.setName("test")
-    openTracingConfig.setTracer(TracerType.JAEGER)
+    val openTracingConfig = new OpenTracingConfig
+    openTracingConfig.setServiceName("test")
 
-    val samplerConfiguration: JaegerSamplingConfiguration = new JaegerSamplingConfiguration()
-    samplerConfiguration.setSampleType(JaegerSampleType.RATE_LIMITED)
+    val samplerConfiguration = new JaegerTracerConfiguration()
 
-    openTracingConfig.setJaegerSamplingConfig(samplerConfiguration)
+    openTracingConfig.setJaeger(samplerConfiguration)
 
     val mockConfigurationService = new MockConfiguration(openTracingConfig)
     val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
 
     openTracingService.init()
 
-    val tracer: Tracer = openTracingService.getGlobalTracer
+    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
+    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
+
+    val tracer = openTracingService.getGlobalTracer
 
     tracer shouldBe a[GlobalTracer]
 
@@ -347,8 +357,7 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
   it("should be enabled with JAEGER tracer type and HTTP sender protocol") {
     val openTracingConfig: OpenTracingConfig = new OpenTracingConfig
-    openTracingConfig.setName("test")
-    openTracingConfig.setTracer(TracerType.JAEGER)
+    openTracingConfig.setServiceName("test")
 
     openTracingConfig.setSenderProtocol(JaegerSenderProtocol.HTTP)
 
@@ -357,7 +366,10 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
     openTracingService.init()
 
-    val tracer: Tracer = openTracingService.getGlobalTracer
+    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
+    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
+
+    val tracer = openTracingService.getGlobalTracer
 
     tracer shouldBe a[GlobalTracer]
 
@@ -368,9 +380,8 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
   }
 
   it("should be enabled with JAEGER tracer type, HTTP sender protocol and only username") {
-    val openTracingConfig: OpenTracingConfig = new OpenTracingConfig
-    openTracingConfig.setName("test")
-    openTracingConfig.setTracer(TracerType.JAEGER)
+    val openTracingConfig = new OpenTracingConfig
+    openTracingConfig.setServiceName("test")
 
     openTracingConfig.setSenderProtocol(JaegerSenderProtocol.HTTP)
     openTracingConfig.setUsername("user")
@@ -380,7 +391,10 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
     openTracingService.init()
 
-    val tracer: Tracer = openTracingService.getGlobalTracer
+    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
+    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
+
+    val tracer = openTracingService.getGlobalTracer
 
     tracer shouldBe a[GlobalTracer]
 
@@ -391,9 +405,8 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
   }
 
   it("should be enabled with JAEGER tracer type, HTTP sender protocol and only password") {
-    val openTracingConfig: OpenTracingConfig = new OpenTracingConfig
-    openTracingConfig.setName("test")
-    openTracingConfig.setTracer(TracerType.JAEGER)
+    val openTracingConfig = new OpenTracingConfig
+    openTracingConfig.setServiceName("test")
 
     openTracingConfig.setSenderProtocol(JaegerSenderProtocol.HTTP)
     openTracingConfig.setPassword("abc123")
@@ -403,7 +416,10 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
     openTracingService.init()
 
-    val tracer: Tracer = openTracingService.getGlobalTracer
+    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
+    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
+
+    val tracer = openTracingService.getGlobalTracer
 
     tracer shouldBe a[GlobalTracer]
 
@@ -414,9 +430,8 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
   }
 
   it("should be enabled with JAEGER tracer type, HTTP sender protocol and username + password") {
-    val openTracingConfig: OpenTracingConfig = new OpenTracingConfig
-    openTracingConfig.setName("test")
-    openTracingConfig.setTracer(TracerType.JAEGER)
+    val openTracingConfig = new OpenTracingConfig
+    openTracingConfig.setServiceName("test")
 
     openTracingConfig.setSenderProtocol(JaegerSenderProtocol.HTTP)
     openTracingConfig.setPassword("abc123")
@@ -427,7 +442,10 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
     openTracingService.init()
 
-    val tracer: Tracer = openTracingService.getGlobalTracer
+    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
+    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
+
+    val tracer = openTracingService.getGlobalTracer
 
     tracer shouldBe a[GlobalTracer]
 
@@ -438,9 +456,8 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
   }
 
   it("should be enabled with JAEGER tracer type, HTTP sender protocol, username + password, token") {
-    val openTracingConfig: OpenTracingConfig = new OpenTracingConfig
-    openTracingConfig.setName("test")
-    openTracingConfig.setTracer(TracerType.JAEGER)
+    val openTracingConfig = new OpenTracingConfig
+    openTracingConfig.setServiceName("test")
 
     openTracingConfig.setSenderProtocol(JaegerSenderProtocol.HTTP)
     openTracingConfig.setPassword("abc123")
@@ -452,7 +469,10 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
     openTracingService.init()
 
-    val tracer: Tracer = openTracingService.getGlobalTracer
+    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
+    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
+
+    val tracer = openTracingService.getGlobalTracer
 
     tracer shouldBe a[GlobalTracer]
 
@@ -463,9 +483,8 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
   }
 
   it("should be enabled with JAEGER tracer type, HTTP sender protocol, and token") {
-    val openTracingConfig: OpenTracingConfig = new OpenTracingConfig
-    openTracingConfig.setName("test")
-    openTracingConfig.setTracer(TracerType.JAEGER)
+    val openTracingConfig = new OpenTracingConfig
+    openTracingConfig.setServiceName("test")
 
     openTracingConfig.setSenderProtocol(JaegerSenderProtocol.HTTP)
     openTracingConfig.setToken("12345683")
@@ -475,7 +494,10 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
     openTracingService.init()
 
-    val tracer: Tracer = openTracingService.getGlobalTracer
+    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
+    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
+
+    val tracer = openTracingService.getGlobalTracer
 
     tracer shouldBe a[GlobalTracer]
 
@@ -486,9 +508,8 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
   }
 
   it("should be enabled with JAEGER tracer type and UDP sender protocol") {
-    val openTracingConfig: OpenTracingConfig = new OpenTracingConfig
-    openTracingConfig.setName("test")
-    openTracingConfig.setTracer(TracerType.JAEGER)
+    val openTracingConfig = new OpenTracingConfig
+    openTracingConfig.setServiceName("test")
 
     openTracingConfig.setSenderProtocol(JaegerSenderProtocol.UDP)
 
@@ -497,7 +518,10 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
     openTracingService.init()
 
-    val tracer: Tracer = openTracingService.getGlobalTracer
+    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
+    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
+
+    val tracer = openTracingService.getGlobalTracer
 
     tracer shouldBe a[GlobalTracer]
 
