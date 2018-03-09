@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@
  */
 package org.openrepose.commons.utils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,7 @@ public final class StringUriUtilities {
 
     public static String appendPath(String baseUrl, String... paths) {
         String path = concatUris(paths);
-        if (StringUtilities.isBlank(path)) {
+        if (StringUtils.isBlank(path)) {
             return baseUrl;
         }
 
@@ -68,7 +69,7 @@ public final class StringUriUtilities {
         StringBuilder builder = new StringBuilder();
 
         for (String uri : uris) {
-            if (StringUtilities.isNotBlank(uri)) {
+            if (StringUtils.isNotBlank(uri)) {
                 if (!uri.startsWith("/") && !uri.isEmpty()) {
                     builder.append("/");
                 }
@@ -91,12 +92,12 @@ public final class StringUriUtilities {
      * @return
      */
     public static String formatUri(String uri) {
-        if (StringUtilities.nullSafeStartsWith(uri, "\\")) {
+        if (StringUtils.startsWith(uri, "\\")) {
             //windows file system
             return uri;
         }
 
-        if (StringUtilities.isBlank(uri) || StringUtilities.nullSafeEqualsIgnoreCase("/", uri)) {
+        if (StringUtils.isBlank(uri) || StringUtils.equalsIgnoreCase("/", uri)) {
             return "/";
         }
 

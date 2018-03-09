@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,7 @@
 package org.openrepose.core.services.datastore.impl.distributed;
 
 import org.openrepose.commons.utils.ArrayUtilities;
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.http.ExtendedHttpHeader;
 import org.openrepose.commons.utils.io.BufferCapacityException;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
@@ -52,7 +52,7 @@ public class CacheRequest {
         final String requestUri = request.getRequestURI();
         final String cacheKey = requestUri.substring(CACHE_URI_PATH.length()).trim();
 
-        if (StringUtilities.isBlank(cacheKey) || cacheKey.length() != EXPECTED_UUID_STRING_LENGTH) {
+        if (StringUtils.isBlank(cacheKey) || cacheKey.length() != EXPECTED_UUID_STRING_LENGTH) {
             throw new MalformedCacheRequestException(MalformedCacheRequestError.CACHE_KEY_INVALID);
         }
 
@@ -80,7 +80,7 @@ public class CacheRequest {
         final String remoteBehaviorHeader = request.getHeader(DatastoreHeader.REMOTE_BEHAVIOR);
         RemoteBehavior remoteBehavior = RemoteBehavior.ALLOW_FORWARDING;
 
-        if (StringUtilities.isNotBlank(remoteBehaviorHeader)) {
+        if (StringUtils.isNotBlank(remoteBehaviorHeader)) {
             remoteBehavior = RemoteBehavior.valueOfOrNull(remoteBehaviorHeader.toUpperCase());
 
             if (remoteBehavior == null) {
@@ -106,7 +106,7 @@ public class CacheRequest {
 
         try {
             final String ttlHeader = request.getHeader(ExtendedHttpHeader.X_TTL);
-            final int ttlInSeconds = StringUtilities.isBlank(ttlHeader) ? DEFAULT_TTL_IN_SECONDS : Integer.parseInt(ttlHeader);
+            final int ttlInSeconds = StringUtils.isBlank(ttlHeader) ? DEFAULT_TTL_IN_SECONDS : Integer.parseInt(ttlHeader);
 
             if (ttlInSeconds <= 0) {
                 throw new MalformedCacheRequestException(MalformedCacheRequestError.TTL_HEADER_NOT_POSITIVE);

@@ -20,7 +20,7 @@
 package org.openrepose.core.filter.routing;
 
 import org.openrepose.commons.utils.StringUriUtilities;
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.core.domain.Port;
 import org.openrepose.core.systemmodel.config.Destination;
 import org.openrepose.core.systemmodel.config.DestinationEndpoint;
@@ -59,7 +59,7 @@ public class EndpointUrlBuilder {
     }
 
     private Port determineUrlPort() throws MalformedURLException {
-        if (!StringUtilities.isBlank(endpoint.getProtocol())) {
+        if (!StringUtils.isBlank(endpoint.getProtocol())) {
             int port = endpoint.getPort() <= 0 ? localPortForProtocol(endpoint.getProtocol()) : endpoint.getPort();
             return new Port(endpoint.getProtocol(), port);
         }
@@ -75,7 +75,7 @@ public class EndpointUrlBuilder {
     private String determineHostname() {
         String hostname = endpoint.getHostname();
 
-        if (StringUtilities.isBlank(hostname)) {
+        if (StringUtils.isBlank(hostname)) {
             // endpoint is local
             hostname = localhost.getHostname();
         }

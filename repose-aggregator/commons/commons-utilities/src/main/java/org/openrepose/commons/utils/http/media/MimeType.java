@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,7 @@
  */
 package org.openrepose.commons.utils.http.media;
 
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 
 // TODO: Remove this class and use org.springframework.http.MediaType instead.
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
@@ -57,7 +57,7 @@ public enum MimeType {
     }
 
     public static MimeType getMatchingMimeType(String mimeType) {
-        if (StringUtilities.isNotBlank(mimeType)) {
+        if (StringUtils.isNotBlank(mimeType)) {
             for (MimeType ct : values()) {
                 if (ct.getName().equalsIgnoreCase(mimeType)) {
                     return ct;
@@ -68,7 +68,7 @@ public enum MimeType {
     }
 
     public static MimeType guessMediaTypeFromString(String mimeType) {
-        if (StringUtilities.isNotBlank(mimeType)) {
+        if (StringUtils.isNotBlank(mimeType)) {
 
             for (MimeType ct : values()) {
                 // worst case scenario this will match on UNKNOWN because everything contains "" (an empty string)

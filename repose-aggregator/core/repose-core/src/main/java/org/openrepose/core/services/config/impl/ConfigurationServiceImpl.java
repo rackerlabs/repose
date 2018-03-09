@@ -26,7 +26,7 @@ import org.openrepose.commons.config.parser.jaxb.TemplatingJaxbConfigurationPars
 import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver;
 import org.openrepose.commons.config.resource.impl.FileDirectoryResourceResolver;
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.servlet.PowerApiContextException;
 import org.openrepose.core.spring.ReposeSpringProperties;
@@ -72,7 +72,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         LOG.debug("Loading configuration files from directory: {}", configRoot);
 
         //TODO: this should be validated somewhere else, so we can fail at startup sooner
-        if (StringUtilities.isBlank(configRoot)) {
+        if (StringUtils.isBlank(configRoot)) {
             throw new PowerApiContextException("Power API requires a configuration directory in a spring property named " +
                     ReposeSpringProperties.CORE.CONFIG_ROOT);
         }

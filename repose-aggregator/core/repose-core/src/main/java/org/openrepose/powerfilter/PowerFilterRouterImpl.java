@@ -21,7 +21,7 @@ package org.openrepose.powerfilter;
 
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.http.CommonRequestAttributes;
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
@@ -100,7 +100,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                 .map(o -> (List<RouteDestination>) o)
                 .orElseGet(ArrayList::new);
 
-        if (!StringUtilities.isBlank(defaultDestination)) {
+        if (!StringUtils.isBlank(defaultDestination)) {
             reqDestinations.add(new RouteDestination(defaultDestination, servletRequest.getRequestURI(), -1));
         }
 

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,7 @@
  */
 package org.openrepose.core.services.rms;
 
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.core.services.rms.config.Message;
@@ -41,12 +41,12 @@ public final class MessageFilter {
             for (Message message : messages) {
                 final String messageMediaType = message.getMediaType();
 
-                if (StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, mediaType.getValue())) {
+                if (StringUtils.equalsIgnoreCase(messageMediaType, mediaType.getValue())) {
                     return message;
                 }
 
                 // A configured wildcard (*/*) will be returned if an exact match is not found
-                if (StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, MimeType.WILDCARD.getName())) {
+                if (StringUtils.equalsIgnoreCase(messageMediaType, MimeType.WILDCARD.getName())) {
                     wildcard = message;
                 }
             }
@@ -66,12 +66,12 @@ public final class MessageFilter {
                     final String messageMediaType = message.getMediaType();
 
 
-                    if (StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, mediaType.getValue())) {
+                    if (StringUtils.equalsIgnoreCase(messageMediaType, mediaType.getValue())) {
                         return message;
                     }
 
                     // A configured wildcard (*/*) will be returned if an exact match is not found
-                    if (wildcard == null && StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, MimeType.WILDCARD.getName())) {
+                    if (wildcard == null && StringUtils.equalsIgnoreCase(messageMediaType, MimeType.WILDCARD.getName())) {
                         wildcard = message;
                     }
 

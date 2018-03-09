@@ -20,7 +20,7 @@
 package org.openrepose.core.filter.routing;
 
 import org.openrepose.commons.utils.StringUriUtilities;
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.core.domain.Port;
 import org.openrepose.core.systemmodel.config.Destination;
 import org.openrepose.core.systemmodel.config.DestinationEndpoint;
@@ -47,7 +47,7 @@ public class EndpointUriBuilder {
 
     private String determineScheme() {
         String scheme = endpoint.getProtocol();
-        if (StringUtilities.isBlank(scheme) || endpoint.getPort() <= 0) {
+        if (StringUtils.isBlank(scheme) || endpoint.getPort() <= 0) {
             // no scheme or port specified means this is an internal dispatch
             return null;
         }
@@ -55,7 +55,7 @@ public class EndpointUriBuilder {
     }
 
     private String determineHostname(String scheme) {
-        if (StringUtilities.isBlank(scheme)) {
+        if (StringUtils.isBlank(scheme)) {
             return null;
         }
 

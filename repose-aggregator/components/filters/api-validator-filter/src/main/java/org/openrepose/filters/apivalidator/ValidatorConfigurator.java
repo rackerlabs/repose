@@ -22,7 +22,7 @@ package org.openrepose.filters.apivalidator;
 import com.rackspace.com.papi.components.checker.Config;
 import com.rackspace.com.papi.components.checker.handler.*;
 import org.openrepose.commons.utils.StringUriUtilities;
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.filters.apivalidator.config.DelegatingType;
 import org.openrepose.filters.apivalidator.config.ValidatorConfiguration;
 import org.openrepose.filters.apivalidator.config.ValidatorItem;
@@ -163,7 +163,7 @@ public class ValidatorConfigurator {
             handlers.add(new ApiCoverageHandler());
         }
 
-        if (StringUtilities.isNotBlank(validatorItem.getDotOutput())) {
+        if (StringUtils.isNotBlank(validatorItem.getDotOutput())) {
             final String dotPath = StringUriUtilities.formatUri(getPath(validatorItem.getDotOutput(), configRoot));
             File out = new File(dotPath);
             try {

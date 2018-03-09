@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.ratelimiting.log;
 
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.slf4j.Logger;
 
@@ -48,7 +48,7 @@ public class LimitLogger {
 
         final String xAuthToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN);
 
-        if (StringUtilities.nullSafeEqualsIgnoreCase(xAuthToken, userIdentification)) {
+        if (StringUtils.equalsIgnoreCase(xAuthToken, userIdentification)) {
             final String xForwardedFor = request.getHeader(CommonHttpHeader.X_FORWARDED_FOR);
 
             userIdentification = xForwardedFor != null ? xForwardedFor : request.getRemoteHost();

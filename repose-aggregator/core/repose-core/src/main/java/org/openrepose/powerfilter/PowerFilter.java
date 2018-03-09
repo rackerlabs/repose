@@ -21,7 +21,7 @@ package org.openrepose.powerfilter;
 
 import com.codahale.metrics.MetricRegistry;
 import org.openrepose.commons.config.manager.UpdateListener;
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.io.BufferedServletInputStream;
 import org.openrepose.commons.utils.io.stream.LimitedReadInputStream;
 import org.openrepose.commons.utils.logging.TracingHeaderHelper;
@@ -380,7 +380,7 @@ public class PowerFilter extends DelegatingFilterProxy {
 
         //Grab the traceGUID from the request if there is one, else create one
         String traceGUID;
-        if (StringUtilities.isBlank(wrappedRequest.getHeader(TRACE_GUID))) {
+        if (StringUtils.isBlank(wrappedRequest.getHeader(TRACE_GUID))) {
             traceGUID = UUID.randomUUID().toString();
         } else {
             traceGUID = TracingHeaderHelper.getTraceGuid(
@@ -402,7 +402,7 @@ public class PowerFilter extends DelegatingFilterProxy {
             final PowerFilterChain requestFilterChain = getRequestFilterChain(wrappedResponse, chain);
             if (requestFilterChain != null) {
                 if (currentSystemModel.get().getTracingHeader() == null || currentSystemModel.get().getTracingHeader().isEnabled()) {
-                    if (StringUtilities.isBlank(wrappedRequest.getHeader(TRACE_GUID))) {
+                    if (StringUtils.isBlank(wrappedRequest.getHeader(TRACE_GUID))) {
                         wrappedRequest.addHeader(TRACE_GUID,
                                 TracingHeaderHelper.createTracingHeader(traceGUID, wrappedRequest.getHeader(VIA)));
                     }

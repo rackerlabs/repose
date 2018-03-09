@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.translation.httpx;
 
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.http.header.HeaderName;
 import org.openrepose.commons.utils.http.header.HeaderValue;
 import org.openrepose.commons.utils.servlet.http.HeaderContainer;
@@ -75,28 +75,28 @@ public class HttpxProducer {
             requestInformation.setUrl(request.getRequestURL().toString());
             ReadOnlyRequestInformation info = OBJECT_FACTORY.createReadOnlyRequestInformation();
 
-            info.setAuthType(StringUtilities.getValue(request.getAuthType(), ""));
-            info.setContextPath(StringUtilities.getValue(request.getContextPath(), ""));
-            info.setLocalAddr(StringUtilities.getValue(request.getLocalAddr(), ""));
-            info.setLocalName(StringUtilities.getValue(request.getLocalName(), ""));
+            info.setAuthType(StringUtils.defaultIfEmpty(request.getAuthType(), ""));
+            info.setContextPath(StringUtils.defaultIfEmpty(request.getContextPath(), ""));
+            info.setLocalAddr(StringUtils.defaultIfEmpty(request.getLocalAddr(), ""));
+            info.setLocalName(StringUtils.defaultIfEmpty(request.getLocalName(), ""));
             info.setLocalPort(request.getLocalPort());
-            info.setPathInfo(StringUtilities.getValue(request.getPathInfo(), ""));
-            info.setPathTranslated(StringUtilities.getValue(request.getPathTranslated(), ""));
-            info.setProtocol(StringUtilities.getValue(request.getProtocol(), ""));
-            info.setRemoteAddr(StringUtilities.getValue(request.getRemoteAddr(), ""));
-            info.setRemoteHost(StringUtilities.getValue(request.getRemoteHost(), ""));
+            info.setPathInfo(StringUtils.defaultIfEmpty(request.getPathInfo(), ""));
+            info.setPathTranslated(StringUtils.defaultIfEmpty(request.getPathTranslated(), ""));
+            info.setProtocol(StringUtils.defaultIfEmpty(request.getProtocol(), ""));
+            info.setRemoteAddr(StringUtils.defaultIfEmpty(request.getRemoteAddr(), ""));
+            info.setRemoteHost(StringUtils.defaultIfEmpty(request.getRemoteHost(), ""));
             info.setRemotePort(request.getRemotePort());
-            info.setRemoteUser(StringUtilities.getValue(request.getRemoteUser(), ""));
-            info.setRequestMethod(StringUtilities.getValue(request.getMethod(), ""));
-            info.setScheme(StringUtilities.getValue(request.getScheme(), ""));
-            info.setServerName(StringUtilities.getValue(request.getServerName(), ""));
+            info.setRemoteUser(StringUtils.defaultIfEmpty(request.getRemoteUser(), ""));
+            info.setRequestMethod(StringUtils.defaultIfEmpty(request.getMethod(), ""));
+            info.setScheme(StringUtils.defaultIfEmpty(request.getScheme(), ""));
+            info.setServerName(StringUtils.defaultIfEmpty(request.getServerName(), ""));
             info.setServerPort(request.getServerPort());
-            info.setServletPath(StringUtilities.getValue(request.getServletPath(), ""));
+            info.setServletPath(StringUtils.defaultIfEmpty(request.getServletPath(), ""));
 
             // [squid:S2254] The Session ID is only made available to the Repose user as part of an XML payload
             //               used during translation. Furthermore, the Session ID is read-only, and will not be
             //               modified by the translation filter.
-            info.setSessionId(StringUtilities.getValue(request.getRequestedSessionId(), ""));
+            info.setSessionId(StringUtils.defaultIfEmpty(request.getRequestedSessionId(), ""));
 
             requestInformation.setInformational(info);
         }

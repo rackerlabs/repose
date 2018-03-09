@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,7 +22,7 @@ package org.openrepose.filters.translation;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.config.parser.generic.GenericResourceConfigurationParser;
 import org.openrepose.commons.config.resource.ConfigurationResource;
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.core.services.config.ConfigurationService;
 
 import java.util.HashSet;
@@ -45,7 +45,7 @@ public class XslUpdateListener implements UpdateListener<ConfigurationResource> 
     }
 
     private String getAbsolutePath(String xslPath) {
-        return !xslPath.contains("://") ? StringUtilities.join("file://", configRoot, "/", xslPath) : xslPath;
+        return !xslPath.contains("://") ? StringUtils.join("file://", configRoot, "/", xslPath) : xslPath;
     }
 
     public void addToWatchList(String path) {

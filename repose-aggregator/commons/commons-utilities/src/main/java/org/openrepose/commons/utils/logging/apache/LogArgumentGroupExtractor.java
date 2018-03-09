@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,7 @@
 package org.openrepose.commons.utils.logging.apache;
 
 import org.apache.commons.lang3.StringUtils;
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -115,11 +115,11 @@ public class LogArgumentGroupExtractor {
         if (o instanceof LogArgumentGroupExtractor) {
             LogArgumentGroupExtractor other = (LogArgumentGroupExtractor) o;
 
-            result = StringUtilities.nullSafeEquals(other.entity, entity)
-                    && StringUtilities.nullSafeEquals(other.lifeCycleModifier, lifeCycleModifier)
-                    && StringUtilities.nullSafeEquals(other.statusCodes, statusCodes)
+            result = StringUtils.equals(other.entity, entity)
+                    && StringUtils.equals(other.lifeCycleModifier, lifeCycleModifier)
+                    && StringUtils.equals(other.statusCodes, statusCodes)
                     && other.arguments.equals(arguments)
-                    && StringUtilities.nullSafeEquals(other.variable, variable);
+                    && StringUtils.equals(other.variable, variable);
         }
 
         return result;
@@ -128,11 +128,11 @@ public class LogArgumentGroupExtractor {
     @Override
     public int hashCode() {
         int hash = HASH_BASE;
-        hash = HASH_PRIME * hash + StringUtilities.getValue(lifeCycleModifier, "").hashCode();
-        hash = HASH_PRIME * hash + StringUtilities.getValue(statusCodes, "").hashCode();
-        hash = HASH_PRIME * hash + StringUtilities.getValue(variable, "").hashCode();
+        hash = HASH_PRIME * hash + StringUtils.defaultIfEmpty(lifeCycleModifier, "").hashCode();
+        hash = HASH_PRIME * hash + StringUtils.defaultIfEmpty(statusCodes, "").hashCode();
+        hash = HASH_PRIME * hash + StringUtils.defaultIfEmpty(variable, "").hashCode();
         hash = HASH_PRIME * hash + arguments.hashCode();
-        hash = HASH_PRIME * hash + StringUtilities.getValue(entity, "").hashCode();
+        hash = HASH_PRIME * hash + StringUtils.defaultIfEmpty(entity, "").hashCode();
         return hash;
     }
 }

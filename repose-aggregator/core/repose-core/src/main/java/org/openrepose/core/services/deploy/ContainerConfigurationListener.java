@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,7 @@
 package org.openrepose.core.services.deploy;
 
 import org.openrepose.commons.config.manager.UpdateListener;
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.core.container.config.ArtifactDirectory;
 import org.openrepose.core.container.config.ContainerConfiguration;
 import org.openrepose.core.container.config.DeploymentDirectory;
@@ -50,7 +50,7 @@ public class ContainerConfigurationListener implements UpdateListener<ContainerC
             final ArtifactDirectory ad = configurationObject.getDeploymentConfig().getArtifactDirectory();
             final DeploymentDirectory dd = configurationObject.getDeploymentConfig().getDeploymentDirectory();
 
-            if (ad != null && !StringUtilities.isBlank(ad.getValue()) && dd != null && !StringUtilities.isBlank(dd.getValue())) {
+            if (ad != null && !StringUtils.isBlank(ad.getValue()) && dd != null && !StringUtils.isBlank(dd.getValue())) {
                 autoClean = dd.isAutoClean();
 
                 if (ad.getCheckInterval() > 0) {

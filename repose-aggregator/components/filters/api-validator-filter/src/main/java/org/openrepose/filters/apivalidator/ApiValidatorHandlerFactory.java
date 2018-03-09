@@ -22,7 +22,7 @@ package org.openrepose.filters.apivalidator;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.config.parser.generic.GenericResourceConfigurationParser;
 import org.openrepose.commons.config.resource.ConfigurationResource;
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.filters.apivalidator.config.ValidatorConfiguration;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
@@ -134,7 +134,7 @@ public class ApiValidatorHandlerFactory implements UpdateListener<ValidatorConfi
             }
 
             for (ValidatorInfo info : validators) {
-                if (StringUtilities.isNotBlank(info.getUri())) {
+                if (StringUtils.isNotBlank(info.getUri())) {
                     configurationService.unsubscribeFrom(info.getUri(), wadlListener);
                 }
                 if (info.getValidator() != null) {

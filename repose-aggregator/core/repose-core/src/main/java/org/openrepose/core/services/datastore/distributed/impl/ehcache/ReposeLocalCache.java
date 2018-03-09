@@ -19,7 +19,7 @@
  */
 package org.openrepose.core.services.datastore.distributed.impl.ehcache;
 
-import org.openrepose.commons.utils.StringUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.encoding.UUIDEncodingProvider;
 import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.core.services.datastore.hash.MD5MessageDigestFactory;
@@ -50,7 +50,7 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
     private String getCacheKey(String tenantId, String token) {
 
         String key;
-        if (StringUtilities.isNotBlank(tenantId)) {
+        if (StringUtils.isNotBlank(tenantId)) {
             key = tenantId + ":" + token;
         } else {
             key = token;
@@ -73,7 +73,7 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
                 .remove(AUTH_TOKEN_CACHE_PREFIX + "." + getCacheKey(tenantId, token));
 
         LOG.info("Removed token from cache: " + removed +
-                (StringUtilities.isNotBlank(tenantId) ? " (" + tenantId + ")" : ""));
+                (StringUtils.isNotBlank(tenantId) ? " (" + tenantId + ")" : ""));
 
         return removed;
     }
@@ -85,7 +85,7 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
                 .remove(AUTH_GROUP_CACHE_PREFIX + "." + getCacheKey(tenantId, token));
 
         LOG.info("Removed groups from cache: " + removed +
-                (StringUtilities.isNotBlank(tenantId) ? " (" + tenantId + ")" : ""));
+                (StringUtils.isNotBlank(tenantId) ? " (" + tenantId + ")" : ""));
 
         return removed;
     }
@@ -119,7 +119,7 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
             removed = datastoreService.getDefaultDatastore().remove(getEncodedUserCacheKey(userId));
 
             LOG.info("Removed rate limits from cache: " + removed +
-                    (StringUtilities.isNotBlank(userId) ? " (" + userId + ")" : ""));
+                    (StringUtils.isNotBlank(userId) ? " (" + userId + ")" : ""));
         } catch (NoSuchAlgorithmException e) {
             LOG.error("Your instance of the Java Runtime Environment does not support the MD5 hash algorithm.", e);
         }
