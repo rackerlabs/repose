@@ -81,12 +81,12 @@
                 </xs:annotation>
 
                 <xs:sequence>
-                    <xs:choice>
+                    <xs:choice id="jaegerConnection">
                         <xs:element name="connection-http" type="JaegerConnectionHttp"/>
                         <xs:element name="connection-udp" type="JaegerConnectionUdp"/>
                     </xs:choice>
 
-                    <xs:choice>
+                    <xs:choice id="jaegerSampling">
                         <xs:element name="sampling-constant" type="JaegerSamplingConstant"/>
                         <xs:element name="sampling-probabilistic" type="JaegerSamplingProbabilistic"/>
                         <xs:element name="sampling-rate-limiting" type="JaegerSamplingRateLimiting"/>
