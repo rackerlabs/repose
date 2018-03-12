@@ -359,7 +359,10 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     val openTracingConfig: OpenTracingConfig = new OpenTracingConfig
     openTracingConfig.setServiceName("test")
 
-    openTracingConfig.setSenderProtocol(JaegerSenderProtocol.HTTP)
+    val tracerConfiguration = new JaegerTracerConfiguration
+    val connectionConfiguration = new JaegerConnectionHttp
+    tracerConfiguration.setConnectionHttp(connectionConfiguration)
+    openTracingConfig.setJaeger(tracerConfiguration)
 
     val mockConfigurationService = new MockConfiguration(openTracingConfig)
     val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
@@ -383,8 +386,11 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     val openTracingConfig = new OpenTracingConfig
     openTracingConfig.setServiceName("test")
 
-    openTracingConfig.setSenderProtocol(JaegerSenderProtocol.HTTP)
-    openTracingConfig.setUsername("user")
+    val tracerConfiguration = new JaegerTracerConfiguration
+    val connectionConfiguration = new JaegerConnectionHttp
+    connectionConfiguration.setUsername("user")
+    tracerConfiguration.setConnectionHttp(connectionConfiguration)
+    openTracingConfig.setJaeger(tracerConfiguration)
 
     val mockConfigurationService = new MockConfiguration(openTracingConfig)
     val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
@@ -408,8 +414,11 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     val openTracingConfig = new OpenTracingConfig
     openTracingConfig.setServiceName("test")
 
-    openTracingConfig.setSenderProtocol(JaegerSenderProtocol.HTTP)
-    openTracingConfig.setPassword("abc123")
+    val tracerConfiguration = new JaegerTracerConfiguration
+    val connectionConfiguration = new JaegerConnectionHttp
+    connectionConfiguration.setPassword("abc123")
+    tracerConfiguration.setConnectionHttp(connectionConfiguration)
+    openTracingConfig.setJaeger(tracerConfiguration)
 
     val mockConfigurationService = new MockConfiguration(openTracingConfig)
     val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
@@ -433,9 +442,12 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     val openTracingConfig = new OpenTracingConfig
     openTracingConfig.setServiceName("test")
 
-    openTracingConfig.setSenderProtocol(JaegerSenderProtocol.HTTP)
-    openTracingConfig.setPassword("abc123")
-    openTracingConfig.setUsername("user")
+    val tracerConfiguration = new JaegerTracerConfiguration
+    val connectionConfiguration = new JaegerConnectionHttp
+    connectionConfiguration.setUsername("user")
+    connectionConfiguration.setPassword("abc123")
+    tracerConfiguration.setConnectionHttp(connectionConfiguration)
+    openTracingConfig.setJaeger(tracerConfiguration)
 
     val mockConfigurationService = new MockConfiguration(openTracingConfig)
     val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
@@ -459,10 +471,13 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     val openTracingConfig = new OpenTracingConfig
     openTracingConfig.setServiceName("test")
 
-    openTracingConfig.setSenderProtocol(JaegerSenderProtocol.HTTP)
-    openTracingConfig.setPassword("abc123")
-    openTracingConfig.setUsername("user")
-    openTracingConfig.setToken("12345683")
+    val tracerConfiguration = new JaegerTracerConfiguration
+    val connectionConfiguration = new JaegerConnectionHttp
+    connectionConfiguration.setUsername("user")
+    connectionConfiguration.setPassword("abc123")
+    connectionConfiguration.setToken("12345683")
+    tracerConfiguration.setConnectionHttp(connectionConfiguration)
+    openTracingConfig.setJaeger(tracerConfiguration)
 
     val mockConfigurationService = new MockConfiguration(openTracingConfig)
     val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
@@ -486,8 +501,11 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     val openTracingConfig = new OpenTracingConfig
     openTracingConfig.setServiceName("test")
 
-    openTracingConfig.setSenderProtocol(JaegerSenderProtocol.HTTP)
-    openTracingConfig.setToken("12345683")
+    val tracerConfiguration = new JaegerTracerConfiguration
+    val connectionConfiguration = new JaegerConnectionHttp
+    connectionConfiguration.setToken("12345683")
+    tracerConfiguration.setConnectionHttp(connectionConfiguration)
+    openTracingConfig.setJaeger(tracerConfiguration)
 
     val mockConfigurationService = new MockConfiguration(openTracingConfig)
     val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
@@ -511,7 +529,10 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     val openTracingConfig = new OpenTracingConfig
     openTracingConfig.setServiceName("test")
 
-    openTracingConfig.setSenderProtocol(JaegerSenderProtocol.UDP)
+    val tracerConfiguration = new JaegerTracerConfiguration
+    val connectionConfiguration = new JaegerConnectionUdp
+    tracerConfiguration.setConnectionUdp(connectionConfiguration)
+    openTracingConfig.setJaeger(tracerConfiguration)
 
     val mockConfigurationService = new MockConfiguration(openTracingConfig)
     val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
