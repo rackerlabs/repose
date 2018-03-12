@@ -21,6 +21,7 @@
 
 
 <bindings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/jaxb"
+          xmlns:xs="http://www.w3.org/2001/XMLSchema"
           version="2.0"
           xsi:schemaLocation="http://java.sun.com/xml/ns/jaxb http://java.sun.com/xml/ns/jaxb/bindingschema_2_0.xsd"
           schemaLocation="open-tracing.xsd">
@@ -28,4 +29,12 @@
     <schemaBindings>
         <package name="org.openrepose.core.service.opentracing.config"/>
     </schemaBindings>
+
+    <bindings schemaLocation="open-tracing.xsd" node="/xs:schema/xs:complexType[@name='JaegerTracerConfiguration']/xs:complexContent/xs:extension/xs:sequence/xs:choice[@id='jaegerConnection']">
+        <property name="JaegerConnection"/>
+    </bindings>
+
+    <bindings schemaLocation="open-tracing.xsd" node="/xs:schema/xs:complexType[@name='JaegerTracerConfiguration']/xs:complexContent/xs:extension/xs:sequence/xs:choice[@id='jaegerSampling']">
+        <property name="JaegerSampling"/>
+    </bindings>
 </bindings>

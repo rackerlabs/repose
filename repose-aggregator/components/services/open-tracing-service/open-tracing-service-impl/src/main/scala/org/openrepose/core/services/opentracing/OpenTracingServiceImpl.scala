@@ -25,6 +25,7 @@ import javax.inject.{Inject, Named}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import com.uber.jaeger.Configuration
 import com.uber.jaeger.Configuration.{SamplerConfiguration, SenderConfiguration}
+import com.uber.jaeger.samplers.{ConstSampler, ProbabilisticSampler, RateLimitingSampler}
 import io.opentracing.Tracer
 import io.opentracing.util.GlobalTracer
 import org.openrepose.commons.config.manager.UpdateListener
@@ -134,41 +135,36 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
         }
 
         def getJaegerSamplerConfiguration(jaegerConfig: JaegerTracerConfiguration): SamplerConfiguration = {
-          val samplingConfig = Option[JaegerSampling](jaegerConfig.getSamplingConstant).orElse(Option(jaegerConfig.getSamplingProbabilistic)).orElse(Option(jaegerConfig.getSamplingRateLimiting))
-          samplingConfig match {
-            case Some(config: JaegerSamplingConstant) =>
-              logger.trace("constant sampling configuration configured.")
-              logger.trace(s"Sampling value set to ${config.getToggle}")
-              new Configuration.SamplerConfiguration("const", (if (Toggle.ON.equals(config.getToggle)) 1 else 0))
-            case Some(config: JaegerSamplingRateLimiting) =>
-              logger.trace("rate limiting sampling configuration configured.")
-              logger.trace(s"Rate limited to ${config.getMaxTracesPerSecond} samples per second!")
-              new Configuration.SamplerConfiguration("ratelimiting", config.getMaxTracesPerSecond)
-            case Some(config: JaegerSamplingProbabilistic) =>
-              logger.trace("probabilistic sampling configuration configured.")
-              logger.trace(s"Probability set to ${config.getProbability}")
-              new Configuration.SamplerConfiguration("probabilistic", config.getProbability)
+          jaegerConfig.getJaegerSampling match {
+            case constant: JaegerSamplingConstant =>
+              logger.trace("Constant sampling configured with value set to {}", constant.getToggle)
+              new Configuration.SamplerConfiguration(ConstSampler.TYPE, if (Toggle.ON.equals(constant.getToggle)) 1 else 0)
+            case rateLimiting: JaegerSamplingRateLimiting =>
+              logger.trace("Rate limiting sampling configured with value set to {} samples per second", rateLimiting.getMaxTracesPerSecond)
+              new Configuration.SamplerConfiguration(RateLimitingSampler.TYPE, rateLimiting.getMaxTracesPerSecond)
+            case probabilistic: JaegerSamplingProbabilistic =>
+              logger.trace("Probabilistic sampling configured with value set to {}", probabilistic.getProbability)
+              new Configuration.SamplerConfiguration(ProbabilisticSampler.TYPE, probabilistic.getProbability)
           }
         }
 
         def getJaegerSenderConfiguration(jaegerConfig: JaegerTracerConfiguration): SenderConfiguration = {
-          val connectionConfig = Option[JaegerConnection](jaegerConfig.getConnectionHttp).orElse(Option(jaegerConfig.getConnectionUdp))
-          connectionConfig match {
-            case Some(config: JaegerConnectionUdp) =>
-              logger.trace("set udp sender")
-              new SenderConfiguration.Builder().agentHost(config.getHost).agentPort(config.getPort).build
-            case Some(config: JaegerConnectionHttp) =>
-              logger.trace("Check if username and password are provided")
-              (Option(config.getToken), Option(config.getUsername)) match {
+          jaegerConfig.getJaegerConnection match {
+            case udp: JaegerConnectionUdp =>
+              logger.trace("UDP sender configured")
+              new SenderConfiguration.Builder().agentHost(udp.getHost).agentPort(udp.getPort).build
+            case http: JaegerConnectionHttp =>
+              logger.trace("Checking if username and password are provided")
+              (Option(http.getToken), Option(http.getUsername)) match {
                 case (Some(_), _) =>
-                  logger.trace("set http sender with Bearer token")
-                  new SenderConfiguration.Builder().authToken(config.getToken).endpoint(s"${config.getHost}:${config.getPort}").build
+                  logger.trace("HTTP sender configured with bearer token")
+                  new SenderConfiguration.Builder().authToken(http.getToken).endpoint(s"${http.getHost}:${http.getPort}").build
                 case (_, Some(_)) =>
-                  logger.trace("set http sender with BasicAuth headers")
-                  new SenderConfiguration.Builder().authUsername(config.getUsername).authPassword(config.getPassword).endpoint(s"${config.getHost}:${config.getPort}").build
+                  logger.trace("HTTP sender configured with basic auth ")
+                  new SenderConfiguration.Builder().authUsername(http.getUsername).authPassword(http.getPassword).endpoint(s"${http.getHost}:${http.getPort}").build
                 case (_, _) =>
-                  logger.trace("set http sender without authentication")
-                  new SenderConfiguration.Builder().endpoint(s"${config.getHost}:${config.getPort}").build
+                  logger.trace("HTTP sender configured without authentication")
+                  new SenderConfiguration.Builder().endpoint(s"${http.getHost}:${http.getPort}").build
               }
           }
         }
