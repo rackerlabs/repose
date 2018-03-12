@@ -188,11 +188,13 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
+
                 <xs:assert vc:minVersion="1.1"
-                           test="(@username and @password and not(@token)) or (not(@username) and not(@password) and @token) or (not(@username) and not(@password) and not(@token))"
-                           xerces:message="Username/password must be specified or a token must be specified."
-                           saxon:message="Username/password must be specified or a token must be specified."
-                />
+                           test="if (@username or @password) then @username and @password and not(@token)
+                                 else if (@token) then not(@username) and not(@password)
+                                 else true()"
+                           xerces:message="Username/password and a token cannot both be specified."
+                           saxon:message="Username/password and a token cannot both be specified."/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
