@@ -35,7 +35,6 @@ import org.openrepose.commons.config.parser.common.ConfigurationParser
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.service.opentracing.config._
-import org.openrepose.core.services.opentracing.interceptors.{JaegerRequestInterceptor, JaegerResponseInterceptor}
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -151,9 +150,6 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
       openTracingService.init()
 
-      openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-      openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
       val tracer: Tracer = openTracingService.getGlobalTracer
 
       tracer shouldBe a[GlobalTracer]
@@ -177,9 +173,6 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
       val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
 
       openTracingService.init()
-
-      openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-      openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
 
       val tracer: Tracer = openTracingService.getGlobalTracer
 
@@ -210,9 +203,6 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
       openTracingService.init()
 
-      openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-      openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
       val tracer: Tracer = openTracingService.getGlobalTracer
 
       tracer shouldBe a[GlobalTracer]
@@ -237,9 +227,6 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
       val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
 
       openTracingService.init()
-
-      openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-      openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
 
       val tracer: Tracer = openTracingService.getGlobalTracer
 
@@ -269,9 +256,6 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
       openTracingService.init()
 
-      openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-      openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
       val tracer: Tracer = openTracingService.getGlobalTracer
 
       tracer shouldBe a[GlobalTracer]
@@ -296,9 +280,6 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
       val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
 
       openTracingService.init()
-
-      openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-      openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
 
       val tracer: Tracer = openTracingService.getGlobalTracer
 
@@ -329,9 +310,6 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
     openTracingService.init()
 
-    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
     val tracer: Tracer = openTracingService.getGlobalTracer
 
     tracer shouldBe a[GlobalTracer]
@@ -357,9 +335,6 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
     openTracingService.init()
 
-    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
     val tracer: Tracer = openTracingService.getGlobalTracer
 
     tracer shouldBe a[GlobalTracer]
@@ -381,9 +356,6 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
 
     openTracingService.init()
-
-    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
 
     val tracer: Tracer = openTracingService.getGlobalTracer
 
@@ -408,9 +380,6 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
     openTracingService.init()
 
-    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
     val tracer: Tracer = openTracingService.getGlobalTracer
 
     tracer shouldBe a[GlobalTracer]
@@ -433,9 +402,6 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
 
     openTracingService.init()
-
-    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
 
     val tracer: Tracer = openTracingService.getGlobalTracer
 
@@ -460,9 +426,6 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
 
     openTracingService.init()
-
-    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
 
     val tracer: Tracer = openTracingService.getGlobalTracer
 
@@ -489,9 +452,6 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
     openTracingService.init()
 
-    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
     val tracer: Tracer = openTracingService.getGlobalTracer
 
     tracer shouldBe a[GlobalTracer]
@@ -515,9 +475,6 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
     openTracingService.init()
 
-    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
     val tracer: Tracer = openTracingService.getGlobalTracer
 
     tracer shouldBe a[GlobalTracer]
@@ -539,9 +496,6 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
 
     openTracingService.init()
-
-    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
 
     val tracer: Tracer = openTracingService.getGlobalTracer
 
