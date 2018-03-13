@@ -19,6 +19,7 @@
  */
 package org.openrepose.core.services.httpclient.impl
 
+import io.opentracing.mock.MockTracer
 import org.junit.Before
 import org.junit.Test
 import org.openrepose.commons.config.resource.ConfigurationResource
@@ -28,7 +29,6 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy
 import org.openrepose.core.services.healthcheck.Severity
-import org.openrepose.core.services.opentracing.OpenTracingService
 
 import static org.mockito.Matchers.any
 import static org.mockito.Matchers.anyString
@@ -40,19 +40,20 @@ class HttpConnectionPoolImplTest {
     HealthCheckService healthCheckService
     HealthCheckServiceProxy healthCheckServiceProxy
     ConfigurationService configurationService
-    OpenTracingService openTracingService
+    MockTracer tracer
     String configurationRoot
 
 
     @Before
     void setUp() {
         configurationService = mock(ConfigurationService.class)
+        tracer = new MockTracer()
         healthCheckService = mock(HealthCheckService.class)
         healthCheckServiceProxy = mock(HealthCheckServiceProxy)
         when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
 
         httpConnectionPoolService = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, openTracingService, configurationRoot)
+            configurationService, healthCheckService, tracer, configurationRoot)
     }
 
     @Test
