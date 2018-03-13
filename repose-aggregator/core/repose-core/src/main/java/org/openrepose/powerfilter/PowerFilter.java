@@ -23,7 +23,6 @@ import com.codahale.metrics.MetricRegistry;
 import io.opentracing.Scope;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import io.opentracing.propagation.Format;
 import io.opentracing.tag.Tags;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.apache.commons.lang3.StringUtils;
@@ -242,7 +241,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                         List<FilterContext> oldFilterChain = currentFilterChain.getAndSet(newFilterChain);
 
                         powerFilterRouter.set(powerFilterRouterFactory.
-                                getPowerFilterRouter(serviceDomain, localNode.get(), getServletContext(), defaultDst.getId()));
+                            getPowerFilterRouter(serviceDomain, localNode.get(), getServletContext(), defaultDst.getId()));
 
                         //Destroy all the old filters
                         if (oldFilterChain != null) {
@@ -275,7 +274,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                 } else {
                     LOG.error("{}:{} -- Unhealthy system-model config (cannot identify local node, or no default destination) - please check your system-model.cfg.xml", clusterId, nodeId);
                     healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
-                            "local host in the system model, or no default destination - please check your system-model.cfg.xml", Severity.BROKEN);
+                        "local host in the system model, or no default destination - please check your system-model.cfg.xml", Severity.BROKEN);
                 }
             }
         }
@@ -326,8 +325,8 @@ public class PowerFilter extends DelegatingFilterProxy {
             PowerFilterRouter router = powerFilterRouter.get();
 
             if (!healthy ||
-                    filterChain == null ||
-                    router == null) {
+                filterChain == null ||
+                router == null) {
                 LOG.warn("{}:{} -- Repose is not ready!", clusterId, nodeId);
                 LOG.debug("{}:{} -- Health status: {}", clusterId, nodeId, healthy);
                 LOG.debug("{}:{} -- Current filter chain: {}", clusterId, nodeId, filterChain);
@@ -339,9 +338,9 @@ public class PowerFilter extends DelegatingFilterProxy {
                 configurationInformation.updateNodeStatus(clusterId, nodeId, false);
             } else {
                 requestFilterChain = new PowerFilterChain(filterChain, chain, router, metricsService,
-                        Optional.ofNullable(currentSystemModel.get().getReposeCluster().stream()
-                                .filter(cluster -> cluster.getId().equals(clusterId)).findFirst()
-                                .get().getFilters()).map(FilterList::getBypassUriRegex));
+                    Optional.ofNullable(currentSystemModel.get().getReposeCluster().stream()
+                        .filter(cluster -> cluster.getId().equals(clusterId)).findFirst()
+                        .get().getFilters()).map(FilterList::getBypassUriRegex));
             }
         } catch (PowerFilterChainException ex) {
             LOG.warn("{}:{} -- Error creating filter chain", clusterId, nodeId, ex);
@@ -361,8 +360,8 @@ public class PowerFilter extends DelegatingFilterProxy {
 
         final Optional<Long> contentBodyReadLimit = containerConfigurationService.getContentBodyReadLimit();
         final InputStream requestBodyInputStream = contentBodyReadLimit.isPresent() ?
-                new LimitedReadInputStream(contentBodyReadLimit.get(), request.getInputStream()) :
-                request.getInputStream();
+            new LimitedReadInputStream(contentBodyReadLimit.get(), request.getInputStream()) :
+            request.getInputStream();
 
         // todo: Use the Java 8 functional interfaces once they support rethrowing exceptions
         // final InputStream requestBodyInputStream = containerConfigurationService.getContentBodyReadLimit()
@@ -370,11 +369,11 @@ public class PowerFilter extends DelegatingFilterProxy {
         //        .orElseGet(request.getInputStream());
 
         final HttpServletResponseWrapper wrappedResponse = new HttpServletResponseWrapper((HttpServletResponse) response,
-                ResponseMode.MUTABLE,
-                ResponseMode.MUTABLE);
+            ResponseMode.MUTABLE,
+            ResponseMode.MUTABLE);
         final BufferedServletInputStream bufferedInputStream = new BufferedServletInputStream(requestBodyInputStream);
         HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request,
-                bufferedInputStream);
+            bufferedInputStream);
 
         // Since getParameterMap may read the body, we must reset the InputStream so that we aren't stripping
         // the body when form parameters are sent.
@@ -385,7 +384,7 @@ public class PowerFilter extends DelegatingFilterProxy {
         // Re-wrapping the request to reset the inputStream/Reader flag
         wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request, bufferedInputStream);
 
-        Scope scope = startSpan(wrappedRequest, tracer, LOG);
+        Scope scope = startSpan(wrappedRequest, tracer, LOG, Tags.SPAN_KIND_CLIENT);
 
         if (currentSystemModel.get().getTracingHeader() != null && currentSystemModel.get().getTracingHeader().isRewriteHeader()) {
             wrappedRequest.removeHeader(TRACE_GUID);
@@ -418,10 +417,10 @@ public class PowerFilter extends DelegatingFilterProxy {
                     currentSystemModel.get().getTracingHeader().isEnabled()) {
                     if (StringUtils.isBlank(wrappedRequest.getHeader(TRACE_GUID))) {
                         wrappedRequest.addHeader(TRACE_GUID,
-                                TracingHeaderHelper.createTracingHeader(traceGUID, wrappedRequest.getHeader(VIA)));
+                            TracingHeaderHelper.createTracingHeader(traceGUID, wrappedRequest.getHeader(VIA)));
                     }
                     if ((currentSystemModel.get().getTracingHeader() != null) &&
-                            currentSystemModel.get().getTracingHeader().isSecondaryPlainText()) {
+                        currentSystemModel.get().getTracingHeader().isSecondaryPlainText()) {
                         TRACE_ID_LOG.trace("Adding plain text trans id to request: {}", traceGUID);
                         wrappedRequest.replaceHeader(REQUEST_ID, traceGUID);
                     }

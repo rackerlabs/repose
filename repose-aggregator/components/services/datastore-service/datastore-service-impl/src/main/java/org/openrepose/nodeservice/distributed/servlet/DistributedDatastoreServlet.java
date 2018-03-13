@@ -21,6 +21,7 @@ package org.openrepose.nodeservice.distributed.servlet;
 
 import io.opentracing.Scope;
 import io.opentracing.Tracer;
+import io.opentracing.tag.Tags;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.io.ObjectSerializer;
 import org.openrepose.commons.utils.logging.TracingHeaderHelper;
@@ -114,7 +115,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        final Scope scope = startSpan(req, tracer, LOG);
+        final Scope scope = startSpan(req, tracer, LOG, Tags.SPAN_KIND_SERVER);
         try {
             if (isRequestValid(req, resp)) {
                 String traceGUID = TracingHeaderHelper.getTraceGuid(req.getHeader(CommonHttpHeader.TRACE_GUID));

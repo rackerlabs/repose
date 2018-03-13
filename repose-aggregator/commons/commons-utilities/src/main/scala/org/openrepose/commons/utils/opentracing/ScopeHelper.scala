@@ -30,7 +30,7 @@ import scala.util.{Failure, Success, Try}
 
 object ScopeHelper {
 
-  def startSpan(req: HttpServletRequest, tracer: Tracer, logger: Logger): Scope = {
+  def startSpan(req: HttpServletRequest, tracer: Tracer, logger: Logger, spanKind: String): Scope = {
     logger.trace("Let's see if there were any OpenTracing spans passed-in")
     val context: Option[SpanContext] =
       Try(tracer.extract(Format.Builtin.HTTP_HEADERS, new TracerExtractor(req))) match {
@@ -47,7 +47,7 @@ object ScopeHelper {
     logger.debug("The span context obtained from the request: {}", context.getOrElse("NONE"))
     var spanBuilder = tracer.buildSpan(String.format("%s %s", req.getMethod, req.getRequestURI))
     spanBuilder = context.map(spanContext => spanBuilder.asChildOf(spanContext)).getOrElse(spanBuilder)
-    val scope = spanBuilder.withTag(Tags.SPAN_KIND.getKey, Tags.SPAN_KIND_CLIENT).startActive(true)
+    val scope = spanBuilder.withTag(Tags.SPAN_KIND.getKey, spanKind).startActive(true)
     logger.debug("New span: {}", scope.span)
     scope
   }
