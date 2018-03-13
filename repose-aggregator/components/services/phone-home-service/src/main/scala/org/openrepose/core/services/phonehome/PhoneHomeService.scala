@@ -26,6 +26,8 @@ import javax.inject.{Inject, Named}
 import javax.ws.rs.core.MediaType
 
 import com.typesafe.scalalogging.slf4j.LazyLogging
+import io.opentracing.tag.Tags
+import io.opentracing.{Scope, Tracer}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.core.services.config.ConfigurationService
@@ -54,12 +56,12 @@ import scala.collection.JavaConverters._
  */
 @Named
 class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSION) reposeVer: String,
+                                 tracer: Tracer,
                                  configurationService: ConfigurationService,
                                  akkaServiceClientFactory: AkkaServiceClientFactory)
   extends LazyLogging {
 
-  private final val msgLogger = LoggerFactory.getLogger("phone-home-message")
-  private final val defaultCollectionUri = new PhoneHomeServiceConfig().getCollectionUri
+  import PhoneHomeService._
 
   private var systemModel: SystemModel = _
   private var akkaServiceClient: AkkaServiceClient = _
@@ -75,7 +77,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
     )
   }
 
-  private def sendUpdate(): Unit = {
+  private def sendUpdate(scope: Scope): Unit = {
     logger.trace("sendUpdate method called")
 
     val staticSystemModel = systemModel // Pin the system model in case an update occurs while processing
@@ -100,7 +102,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
         logger.warn(buildLogMessage(
           "Did not attempt to send usage data on update -- the phone home service is not enabled",
           updateMessage,
-          defaultCollectionUri
+          DefaultCollectionUri
         ))
     }
 
@@ -154,7 +156,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
         )
       ))
 
-      msgLogger.info(updateMessage)
+      MsgLogger.info(updateMessage)
 
       updateMessage
     }
@@ -186,7 +188,9 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
           ))
         }
       } catch {
-        case e: Exception => logger.error("Could not send an update to the collection service", e)
+        case e: Exception =>
+          logger.error("Could not send an update to the collection service", e)
+          scope.span.setTag(Tags.ERROR.getKey, true)
       }
     }
   }
@@ -195,13 +199,27 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
     private var initialized = false
 
     override def configurationUpdated(configurationObject: SystemModel): Unit = {
-      systemModel = configurationObject
-      initialized = true
+      val scope = tracer.buildSpan(TracingOperationName).ignoreActiveSpan().startActive(true)
 
-      sendUpdate()
+      try {
+        systemModel = configurationObject
+        initialized = true
+
+        sendUpdate(scope)
+      } catch {
+        case e: Exception => scope.span.setTag(Tags.ERROR.getKey, true)
+      } finally {
+        scope.close()
+      }
     }
 
     override def isInitialized: Boolean = initialized
   }
 
+}
+
+object PhoneHomeService {
+  private final val TracingOperationName = "phone_home"
+  private final val MsgLogger = LoggerFactory.getLogger("phone-home-message")
+  private final val DefaultCollectionUri = new PhoneHomeServiceConfig().getCollectionUri
 }
