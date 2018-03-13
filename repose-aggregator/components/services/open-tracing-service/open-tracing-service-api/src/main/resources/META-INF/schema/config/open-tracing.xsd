@@ -81,16 +81,8 @@
                 </xs:annotation>
 
                 <xs:sequence>
-                    <xs:choice id="jaegerConnection">
-                        <xs:element name="connection-http" type="JaegerConnectionHttp"/>
-                        <xs:element name="connection-udp" type="JaegerConnectionUdp"/>
-                    </xs:choice>
-
-                    <xs:choice id="jaegerSampling">
-                        <xs:element name="sampling-constant" type="JaegerSamplingConstant"/>
-                        <xs:element name="sampling-probabilistic" type="JaegerSamplingProbabilistic"/>
-                        <xs:element name="sampling-rate-limiting" type="JaegerSamplingRateLimiting"/>
-                    </xs:choice>
+                    <xs:element name="connection" type="JaegerConnection"/>
+                    <xs:element name="sampling" type="JaegerSampling"/>
                 </xs:sequence>
 
                 <xs:attribute name="flush-interval-ms" type="PositiveInt" default="1000">

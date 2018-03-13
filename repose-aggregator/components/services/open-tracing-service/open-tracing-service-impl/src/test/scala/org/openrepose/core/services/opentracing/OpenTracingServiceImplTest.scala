@@ -36,6 +36,7 @@ import org.openrepose.commons.config.resource.ConfigurationResourceResolver
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.service.opentracing.config._
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.openrepose.core.systemmodel.config.SystemModel
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.slf4j.LoggerFactory
@@ -46,7 +47,7 @@ import scala.collection.mutable
 class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter {
 
   describe("init") {
-    it("should register a opentracing configuration listener") {
+    it("should subscribe an opentracing configuration listener") {
       val mockConfigurationService = mock[ConfigurationService]
       val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
 
@@ -58,10 +59,22 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
         isA(classOf[UpdateListener[OpenTracingConfig]]),
         isA(classOf[Class[OpenTracingConfig]]))
     }
+
+    it("should subscribe a system model configuration listener") {
+      val mockConfigurationService = mock[ConfigurationService]
+      val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
+
+      openTracingService.init()
+
+      verify(mockConfigurationService).subscribeTo(
+        isEq("system-model.cfg.xml"),
+        isA(classOf[UpdateListener[SystemModel]]),
+        isA(classOf[Class[SystemModel]]))
+    }
   }
 
   describe("destroy") {
-    it("should deregister a opentracing configuration listener") {
+    it("should unsubscribe an opentracing configuration listener") {
       val mockConfigurationService = mock[ConfigurationService]
       val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
 
@@ -70,6 +83,17 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
       verify(mockConfigurationService).unsubscribeFrom(
         isEq("opentracing.cfg.xml"),
         isA(classOf[UpdateListener[OpenTracingConfig]]))
+    }
+
+    it("should unsubscribe a system model configuration listener") {
+      val mockConfigurationService = mock[ConfigurationService]
+      val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
+
+      openTracingService.destroy()
+
+      verify(mockConfigurationService).unsubscribeFrom(
+        isEq("system-model.cfg.xml"),
+        isA(classOf[UpdateListener[SystemModel]]))
     }
   }
 

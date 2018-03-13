@@ -31,13 +31,13 @@ import io.opentracing.util.GlobalTracer
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.service.opentracing.config._
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.systemmodel.config.SystemModel
 
 @Named
 class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationService)
   extends OpenTracingService with LazyLogging {
 
   import OpenTracingServiceImpl._
-
 
   private var isServiceEnabled: Boolean = false
   private var serviceName: String = _
@@ -52,6 +52,10 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
       xsdURL,
       OpenTracingConfigurationListener,
       classOf[OpenTracingConfig])
+    configurationService.subscribeTo(
+      SystemModelConfig,
+      SystemModelConfigurationListener,
+      classOf[SystemModel])
   }
 
 
@@ -59,6 +63,7 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
   def destroy(): Unit = {
     logger.info("Unregistering configuration listeners and shutting down service")
     configurationService.unsubscribeFrom(DefaultConfig, OpenTracingConfigurationListener)
+    configurationService.unsubscribeFrom(SystemModelConfig, SystemModelConfigurationListener)
   }
 
   /**
@@ -107,6 +112,9 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
     */
   override def getServiceName: String = this.serviceName
 
+  private def isInitialized: Boolean =
+    SystemModelConfigurationListener.isInitialized && OpenTracingConfigurationListener.isInitialized
+
   private object OpenTracingConfigurationListener extends UpdateListener[OpenTracingConfig] {
     private var initialized = false
 
@@ -135,7 +143,7 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
         }
 
         def getJaegerSamplerConfiguration(jaegerConfig: JaegerTracerConfiguration): SamplerConfiguration = {
-          jaegerConfig.getJaegerSampling match {
+          jaegerConfig.getSampling match {
             case constant: JaegerSamplingConstant =>
               logger.trace("Constant sampling configured with value set to {}", constant.getToggle)
               new Configuration.SamplerConfiguration(ConstSampler.TYPE, if (Toggle.ON.equals(constant.getToggle)) 1 else 0)
@@ -149,7 +157,7 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
         }
 
         def getJaegerSenderConfiguration(jaegerConfig: JaegerTracerConfiguration): SenderConfiguration = {
-          jaegerConfig.getJaegerConnection match {
+          jaegerConfig.getConnection match {
             case udp: JaegerConnectionUdp =>
               logger.trace("UDP sender configured")
               new SenderConfiguration.Builder().agentHost(udp.getHost).agentPort(udp.getPort).build
@@ -180,4 +188,5 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
 object OpenTracingServiceImpl {
 
   private final val DefaultConfig = "open-tracing.cfg.xml"
+  private final val SystemModelConfig = "system-model.cfg.xml"
 }
