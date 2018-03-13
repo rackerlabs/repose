@@ -30,7 +30,6 @@ import io.opentracing.util.GlobalTracer
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.service.opentracing.config.{JaegerSampleType, JaegerSenderProtocol, OpenTracingConfig, TracerType}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.opentracing.interceptors.{JaegerRequestInterceptor, JaegerResponseInterceptor, RequestInterceptor, ResponseInterceptor}
 
 @Named
 class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationService)
@@ -40,8 +39,6 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
 
 
   private var isServiceEnabled: Boolean = false
-  private var requestInterceptor: RequestInterceptor = _
-  private var responseInterceptor: ResponseInterceptor = _
   private var serviceName: String = _
 
   @PostConstruct
@@ -109,20 +106,6 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
     */
   override def getServiceName: String = this.serviceName
 
-  /**
-    * Retrieves Tracer-specific request interceptor.  Used to add repose specific tags to the span
-    *
-    * @return RequestInterceptor
-    */
-  override def getRequestInterceptor: RequestInterceptor = this.requestInterceptor
-
-  /**
-    * Retrieves Tracer-specific request interceptor.  Used to add repose specific tags to the span
-    *
-    * @return ResponseInterceptor
-    */
-  override def getResponseInterceptor: ResponseInterceptor = this.responseInterceptor
-
   private object OpenTracingConfigurationListener extends UpdateListener[OpenTracingConfig] {
     private var initialized = false
 
@@ -145,9 +128,6 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
             val configuration = new Configuration(openTracingConfig.getName, samplerConfiguration, new Configuration.ReporterConfiguration(openTracingConfig.isLogSpans, openTracingConfig.getFlushIntervalMs, openTracingConfig.getMaxBufferSize, senderConfiguration))
             logger.debug("register the tracer with global tracer")
             GlobalTracer.register(configuration.getTracer)
-            logger.trace("finally, register Jaeger interceptors")
-            requestInterceptor = new JaegerRequestInterceptor(GlobalTracer.get)
-            responseInterceptor = new JaegerResponseInterceptor
           case _ =>
             logger.error("Invalid tracer specified.  Problem with opentracing.xsd enumeration")
             isServiceEnabled = false
