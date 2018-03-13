@@ -19,6 +19,7 @@
  */
 package org.openrepose.core.services.httpclient.impl
 
+import io.opentracing.mock.MockTracer
 import org.apache.http.client.HttpClient
 import org.apache.http.conn.ClientConnectionManager
 import org.apache.http.impl.conn.PoolingClientConnectionManager
@@ -32,7 +33,6 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy
 import org.openrepose.core.services.httpclient.HttpClientContainer
-import org.openrepose.core.services.opentracing.OpenTracingService
 
 import static org.hamcrest.Matchers.hasKey
 import static org.junit.Assert.*
@@ -55,7 +55,7 @@ class HttpConnectionPoolServiceImplTest {
     PoolType poolType = new PoolType()
     ConfigurationService configurationService = mock(ConfigurationService)
     HealthCheckService healthCheckService = mock(HealthCheckService)
-    OpenTracingService openTracingService = mock(OpenTracingService)
+    MockTracer tracer = new MockTracer()
     String configurationRoot = ""
 
     @Before
@@ -78,7 +78,7 @@ class HttpConnectionPoolServiceImplTest {
         poolCfg.pool.addAll(pools)
 
         srv = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, openTracingService, configurationRoot)
+            configurationService, healthCheckService, tracer, configurationRoot)
         srv.configure(poolCfg)
         srv.with {
             initialized = true
@@ -93,35 +93,35 @@ class HttpConnectionPoolServiceImplTest {
     @Test(expected = IllegalStateException.class)
     void testGetDefaultClientInitializationException() {
         srv = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, openTracingService, configurationRoot)
+            configurationService, healthCheckService, tracer, configurationRoot)
         srv.getDefaultClient()
     }
 
     @Test(expected = IllegalStateException.class)
     void testGetClientInitializationException() {
         srv = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, openTracingService, configurationRoot)
+            configurationService, healthCheckService, tracer, configurationRoot)
         srv.getClient("foo")
     }
 
     @Test(expected = IllegalStateException.class)
     void testReleaseClientInitializationException() {
         srv = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, openTracingService, configurationRoot)
+            configurationService, healthCheckService, tracer, configurationRoot)
         srv.releaseClient(null)
     }
 
     @Test(expected = IllegalStateException.class)
     void testIsAvailableInitializationException() {
         srv = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, openTracingService, configurationRoot)
+            configurationService, healthCheckService, tracer, configurationRoot)
         srv.isAvailable("foo")
     }
 
     @Test(expected = IllegalStateException.class)
     void testGetAvailableClientsInitializationException() {
         srv = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, openTracingService, configurationRoot)
+            configurationService, healthCheckService, tracer, configurationRoot)
         srv.getAvailableClients()
     }
 
@@ -163,7 +163,7 @@ class HttpConnectionPoolServiceImplTest {
     @Test
     void shouldShutdownAllConnectionPools() {
         HttpConnectionPoolServiceImpl cpool = new HttpConnectionPoolServiceImpl(
-            mock(ConfigurationService.class), mock(HealthCheckService.class), mock(OpenTracingService.class), configurationRoot)
+            mock(ConfigurationService.class), mock(HealthCheckService.class), new MockTracer(), configurationRoot)
         HttpClient mockClient = mock(HttpClient.class)
         ClientConnectionManager mockConnMgr = mock(ClientConnectionManager.class)
         cpool.poolMap.put("MOCK", mockClient)

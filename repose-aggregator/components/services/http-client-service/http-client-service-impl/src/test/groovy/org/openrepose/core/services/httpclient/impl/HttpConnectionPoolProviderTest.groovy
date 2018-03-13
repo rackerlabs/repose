@@ -19,6 +19,8 @@
  */
 package org.openrepose.core.services.httpclient.impl
 
+import com.uber.jaeger.httpclient.TracingResponseInterceptor
+import io.opentracing.mock.MockTracer
 import org.apache.http.Header
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.params.ClientPNames
@@ -32,19 +34,15 @@ import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.openrepose.commons.utils.opentracing.httpclient.ReposeTracingRequestInterceptor
 import org.openrepose.core.service.httpclient.config.HeaderListType
 import org.openrepose.core.service.httpclient.config.HeaderType
 import org.openrepose.core.service.httpclient.config.PoolType
-import org.openrepose.core.services.opentracing.OpenTracingService
-import org.openrepose.core.services.opentracing.interceptors.RequestInterceptor
-import org.openrepose.core.services.opentracing.interceptors.ResponseInterceptor
 
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import java.nio.charset.Charset
-
-import static org.mockito.Mockito.*
 
 
 class HttpConnectionPoolProviderTest {
@@ -61,7 +59,7 @@ class HttpConnectionPoolProviderTest {
     private final static URL CLIENT_RESOURCE = HttpConnectionPoolProviderTest.class.getResource("/client.jks")
     private final static URL SERVER_RESOURCE = HttpConnectionPoolProviderTest.class.getResource("/server.jks")
     private final static URL SINGLE_RESOURCE = HttpConnectionPoolProviderTest.class.getResource("/single.jks")
-    private OpenTracingService openTracingService = mock(OpenTracingService.class)
+    private MockTracer tracer = new MockTracer()
 
     private PoolType poolType
     private Server server
@@ -90,7 +88,7 @@ class HttpConnectionPoolProviderTest {
 
     @Test
     public void "should create client with passed-in configuration object"() {
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType, openTracingService) as DefaultHttpClient
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType, tracer) as DefaultHttpClient
 
         Map props = client.connectionManager.properties
         assert client.getParams().getParameter(CoreConnectionPNames.MAX_LINE_LENGTH) == MAX_LINE
@@ -118,7 +116,7 @@ class HttpConnectionPoolProviderTest {
                  new HeaderType(name: "serious-business", value: "tomatoes")])
         poolType.setHeaders(headerListType)
 
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType, openTracingService) as DefaultHttpClient
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType, tracer) as DefaultHttpClient
 
         def parameter = client.getParams().getParameter(ClientPNames.DEFAULT_HEADERS)
         assert parameter
@@ -136,7 +134,7 @@ class HttpConnectionPoolProviderTest {
     public void "should not add header parameter when not configured"() {
         poolType.setHeaders(null)
 
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType, openTracingService) as DefaultHttpClient
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType, tracer) as DefaultHttpClient
 
         assert !client.getParams().getParameter(ClientPNames.DEFAULT_HEADERS)
     }
@@ -191,7 +189,7 @@ class HttpConnectionPoolProviderTest {
         poolType.setTruststoreFilename(SERVER_RESOURCE.file)
         poolType.setTruststorePassword("password")
 
-        def client = HttpConnectionPoolProvider.genClient("", poolType, openTracingService) as DefaultHttpClient
+        def client = HttpConnectionPoolProvider.genClient("", poolType, tracer) as DefaultHttpClient
         def httpGet = new HttpGet("https://localhost:" + serverPort)
         def httpResponse = client.execute(httpGet)
 
@@ -246,7 +244,7 @@ class HttpConnectionPoolProviderTest {
         poolType.setKeystorePassword("password")
         poolType.setKeyPassword("password")
 
-        def client = HttpConnectionPoolProvider.genClient("", poolType, openTracingService) as DefaultHttpClient
+        def client = HttpConnectionPoolProvider.genClient("", poolType, tracer) as DefaultHttpClient
         def httpGet = new HttpGet("https://localhost:" + serverPort)
         def httpResponse = client.execute(httpGet)
 
@@ -256,7 +254,7 @@ class HttpConnectionPoolProviderTest {
     }
 
     @Test
-    public void "should add interceptor if OpenTracing service is available"() {
+    public void "should add interceptors for Open Tracing"() {
         server = new Server()
 
         // SSL Context Factory
@@ -301,19 +299,12 @@ class HttpConnectionPoolProviderTest {
         poolType.setKeystorePassword("password")
         poolType.setKeyPassword("password")
 
-        when(openTracingService.isEnabled()).thenReturn(true)
-
-        RequestInterceptor requestInterceptor = mock(RequestInterceptor.class)
-        ResponseInterceptor responseInterceptor = mock(ResponseInterceptor.class)
-        when(openTracingService.getRequestInterceptor()).thenReturn(requestInterceptor)
-        when(openTracingService.getResponseInterceptor()).thenReturn(responseInterceptor)
-
-        def client = HttpConnectionPoolProvider.genClient("", poolType, openTracingService) as DefaultHttpClient
+        def client = HttpConnectionPoolProvider.genClient("", poolType, tracer) as DefaultHttpClient
         def httpGet = new HttpGet("https://localhost:" + serverPort)
         def httpResponse = client.execute(httpGet)
 
-        assert client.getRequestInterceptor(client.requestInterceptorCount - 1) == requestInterceptor
-        assert client.getResponseInterceptor(client.responseInterceptorCount - 1) == responseInterceptor
+        assert client.getRequestInterceptor(client.requestInterceptorCount - 1) instanceof ReposeTracingRequestInterceptor
+        assert client.getResponseInterceptor(client.responseInterceptorCount - 1) instanceof TracingResponseInterceptor
         (0..client.requestInterceptorCount).each {
             System.out.println("req $it")
             System.out.println(client.getRequestInterceptor(it))
@@ -324,8 +315,7 @@ class HttpConnectionPoolProviderTest {
             System.out.println(client.getResponseInterceptor(it))
         }
 
-        verify(openTracingService, times(1)).getResponseInterceptor()
-        verify(openTracingService, times(1)).getRequestInterceptor()
+        assert tracer.finishedSpans().size() == 1
 
         assert httpResponse.statusLine.statusCode == statusCode
         assert httpResponse.entity.contentType.value == contentType
