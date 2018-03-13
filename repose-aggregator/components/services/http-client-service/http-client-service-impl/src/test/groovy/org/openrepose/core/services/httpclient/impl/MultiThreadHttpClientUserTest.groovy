@@ -19,6 +19,7 @@
  */
 package org.openrepose.core.services.httpclient.impl
 
+import io.opentracing.mock.MockTracer
 import org.apache.http.HttpResponse
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
@@ -29,7 +30,6 @@ import org.openrepose.core.service.httpclient.config.PoolType
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.httpclient.HttpClientContainer
-import org.openrepose.core.services.opentracing.OpenTracingService
 
 import static org.junit.Assert.assertEquals
 import static org.mockito.Mockito.mock
@@ -47,7 +47,7 @@ class MultiThreadHttpClientUserTest {
         poolCfg.pool.addAll(pools);
 
         httpClientService = new HttpConnectionPoolServiceImpl(
-            mock(ConfigurationService.class), mock(HealthCheckService.class), mock(OpenTracingService.class), "");
+            mock(ConfigurationService.class), mock(HealthCheckService.class), new MockTracer(), "");
         httpClientService.configure(poolCfg);
     }
 
