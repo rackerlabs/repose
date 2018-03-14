@@ -54,7 +54,8 @@
                 <xs:documentation>
                     <html:p>
                         The name of the service that is reporting traces.
-                        This value will be used to identify the service and should therefore be unique (e.g., identity-repose).
+                        This value will be used to identify the service and should therefore be unique
+                        (e.g., identity-repose).
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -157,7 +158,7 @@
                     </xs:documentation>
                 </xs:annotation>
 
-                <xs:attribute name="username" type="xs:string" >
+                <xs:attribute name="username" type="xs:string">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>
@@ -167,7 +168,7 @@
                     </xs:annotation>
                 </xs:attribute>
 
-                <xs:attribute name="password" type="xs:string" >
+                <xs:attribute name="password" type="xs:string">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>
@@ -177,7 +178,7 @@
                     </xs:annotation>
                 </xs:attribute>
 
-                <xs:attribute name="token" type="xs:string" >
+                <xs:attribute name="token" type="xs:string">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>
