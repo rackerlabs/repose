@@ -63,7 +63,7 @@
 
     <xs:complexType name="TracerConfig" abstract="true"/>
 
-    <xs:complexType name="JaegerTracerConfiguration">
+    <xs:complexType name="JaegerTracerConfig">
         <xs:complexContent>
             <xs:extension base="TracerConfig">
                 <xs:annotation>
