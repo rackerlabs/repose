@@ -82,7 +82,7 @@ class OpenTracingSchemaTest extends ConfigurationTest {
        |              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        |              service-name="test-repose">
        |    <tracer xsi:type="JaegerTracerConfig">
-       |        <connection xsi:type="JaegerConnectionHttp" host="localhost" port="8081"
+       |        <connection xsi:type="JaegerConnectionHttp" endpoint="http://localhost:14268/path"
        |                         $settings
        |                         />
        |        <sampling xsi:type="JaegerSamplingRateLimiting" max-traces-per-second="50"/>
