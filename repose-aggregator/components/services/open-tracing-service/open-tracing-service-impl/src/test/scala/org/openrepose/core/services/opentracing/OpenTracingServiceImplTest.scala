@@ -100,14 +100,7 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
     it("should not register a tracer if the system model configuration is not updated") {
       openTracingService.OpenTracingConfigurationListener.configurationUpdated(
-        new OpenTracingConfig()
-          .withTracer(new JaegerTracerConfig()
-            .withConnection(new JaegerConnectionUdp()
-              .withHost("localhost")
-              .withPort(9009))
-            .withSampling(new JaegerSamplingConstant()
-              .withToggle(Toggle.ON)))
-          .withServiceName("myService")
+        minimalOpenTracingConfig
       )
 
       verifyZeroInteractions(tracer)
@@ -119,14 +112,7 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
           .withOpenTracingHeader("OT-Header")
           .build())
       openTracingService.OpenTracingConfigurationListener.configurationUpdated(
-        new OpenTracingConfig()
-          .withTracer(new JaegerTracerConfig()
-            .withConnection(new JaegerConnectionUdp()
-              .withHost("localhost")
-              .withPort(9009))
-            .withSampling(new JaegerSamplingConstant()
-              .withToggle(Toggle.ON)))
-          .withServiceName("myService")
+        minimalOpenTracingConfig
       )
 
       verify(tracer).register(any[Tracer])
@@ -141,14 +127,7 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
           .withOpenTracingHeader("OT-Header")
           .build())
       openTracingService.OpenTracingConfigurationListener.configurationUpdated(
-        new OpenTracingConfig()
-          .withTracer(new JaegerTracerConfig()
-            .withConnection(new JaegerConnectionUdp()
-              .withHost("localhost")
-              .withPort(9009))
-            .withSampling(new JaegerSamplingConstant()
-              .withToggle(Toggle.ON)))
-          .withServiceName(serviceName)
+        minimalOpenTracingConfig
       )
 
       verify(tracer).register(tracerCaptor.capture())
@@ -185,6 +164,16 @@ object OpenTracingServiceImplTest {
     "token HTTP connection" -> new JaegerConnectionHttp().withHost("localhost").withPort(9009).withToken("myToken"),
     "basic auth HTTP connection" -> new JaegerConnectionHttp().withHost("localhost").withPort(9009).withUsername("myUsername").withPassword("myPassword")
   )
+
+  def minimalOpenTracingConfig(): OpenTracingConfig = {
+    new OpenTracingConfig()
+      .withServiceName("myService")
+      .withTracer(new JaegerTracerConfig()
+        .withConnection(new JaegerConnectionUdp()
+          .withHost("localhost")
+          .withPort(9009))
+        .withSampling(new JaegerSamplingConstant()))
+  }
 
   class SystemModelBuilder {
     val systemModel = new SystemModel()
