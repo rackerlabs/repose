@@ -71,16 +71,16 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
       Option(currentSystemModelConfig) foreach { systemModelConfig =>
         Option(currentOpenTracingConfig) foreach { openTracingConfig =>
           // todo: add enabling/disabling of the service to the configuration
-          openTracingConfig.getJaeger match {
-            case jaegerConfig: JaegerTracerConfiguration =>
+          openTracingConfig.getTracer match {
+            case jaeger: JaegerTracerConfiguration =>
               logger.debug("Jaeger tracer configured")
 
-              val samplerConfiguration = getJaegerSamplerConfiguration(jaegerConfig)
-              val senderConfiguration = getJaegerSenderConfiguration(jaegerConfig)
+              val samplerConfiguration = getJaegerSamplerConfiguration(jaeger)
+              val senderConfiguration = getJaegerSenderConfiguration(jaeger)
               val reporterConfiguration = new Configuration.ReporterConfiguration(
-                jaegerConfig.isLogSpans,
-                jaegerConfig.getFlushIntervalMs,
-                jaegerConfig.getMaxBufferSize,
+                jaeger.isLogSpans,
+                jaeger.getFlushIntervalMs,
+                jaeger.getMaxBufferSize,
                 senderConfiguration)
               val configuration = new Configuration(
                 openTracingConfig.getServiceName,

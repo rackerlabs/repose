@@ -81,11 +81,11 @@ class OpenTracingSchemaTest extends ConfigurationTest {
     s"""<open-tracing xmlns="http://docs.openrepose.org/repose/open-tracing-service/v1.0"
        |              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        |              service-name="test-repose">
-       |    <jaeger>
+       |    <tracer xsi:type="JaegerTracerConfiguration">
        |        <connection xsi:type="JaegerConnectionHttp" host="localhost" port="8081"
        |                         $settings
        |                         />
        |        <sampling xsi:type="JaegerSamplingRateLimiting" max-traces-per-second="50"/>
-       |    </jaeger>
+       |    </tracer>
        |</open-tracing>""".stripMargin
 }

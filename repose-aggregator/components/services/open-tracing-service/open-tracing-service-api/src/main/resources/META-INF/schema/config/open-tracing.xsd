@@ -45,9 +45,9 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:choice>
-            <xs:element name="jaeger" type="JaegerTracerConfiguration"/>
-        </xs:choice>
+        <xs:all>
+            <xs:element name="tracer" type="TracerConfig"/>
+        </xs:all>
 
         <xs:attribute name="service-name" type="xs:string" use="required">
             <xs:annotation>

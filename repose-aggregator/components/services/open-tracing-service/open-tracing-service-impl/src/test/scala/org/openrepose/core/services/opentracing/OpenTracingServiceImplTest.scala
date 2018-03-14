@@ -101,7 +101,7 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     it("should not register a tracer if the system model configuration is not updated") {
       openTracingService.OpenTracingConfigurationListener.configurationUpdated(
         new OpenTracingConfig()
-          .withJaeger(new JaegerTracerConfiguration()
+          .withTracer(new JaegerTracerConfiguration()
             .withConnection(new JaegerConnectionUdp()
               .withHost("localhost")
               .withPort(9009))
@@ -120,7 +120,7 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
           .build())
       openTracingService.OpenTracingConfigurationListener.configurationUpdated(
         new OpenTracingConfig()
-          .withJaeger(new JaegerTracerConfiguration()
+          .withTracer(new JaegerTracerConfiguration()
             .withConnection(new JaegerConnectionUdp()
               .withHost("localhost")
               .withPort(9009))
@@ -142,7 +142,7 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
           .build())
       openTracingService.OpenTracingConfigurationListener.configurationUpdated(
         new OpenTracingConfig()
-          .withJaeger(new JaegerTracerConfiguration()
+          .withTracer(new JaegerTracerConfiguration()
             .withConnection(new JaegerConnectionUdp()
               .withHost("localhost")
               .withPort(9009))
