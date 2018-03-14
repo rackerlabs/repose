@@ -1,5 +1,6 @@
 dependencies {
-    compile "io.opentracing:opentracing-api"
+    xjc "org.jvnet.jaxb2_commons:jaxb2-fluent-api"
+
     compile "org.apache.httpcomponents:httpclient"
 
     testCompile project(":repose-aggregator:commons:commons-configuration")
@@ -9,6 +10,12 @@ dependencies {
     testCompile "org.mockito:mockito-all"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
 
+}
+
+jaxb {
+    xjc {
+        args = ["-Xfluent-api"]
+    }
 }
 
 // No coverage on the api contracts
