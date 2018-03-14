@@ -124,27 +124,7 @@
     </xs:complexType>
 
 
-    <xs:complexType name="JaegerConnection" abstract="true">
-        <xs:attribute name="host" type="xs:string">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        Tracer target host.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="port" type="PositiveInt">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        Tracer target port.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-    </xs:complexType>
+    <xs:complexType name="JaegerConnection" abstract="true"/>
 
     <xs:complexType name="JaegerConnectionHttp">
         <xs:complexContent>
@@ -157,6 +137,17 @@
                         </html:p>
                     </xs:documentation>
                 </xs:annotation>
+
+                <xs:attribute name="endpoint" type="xs:string" default="http://localhost:14268">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Collector endpoint.
+                                Defaults to http://localhost:14268
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
 
                 <xs:attribute name="username" type="xs:string">
                     <xs:annotation>
@@ -208,6 +199,26 @@
                         </html:p>
                     </xs:documentation>
                 </xs:annotation>
+
+                <xs:attribute name="host" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Agent target host.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="port" type="PositiveInt">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Agent target port.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

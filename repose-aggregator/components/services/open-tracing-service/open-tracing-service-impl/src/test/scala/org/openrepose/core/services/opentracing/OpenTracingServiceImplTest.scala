@@ -160,9 +160,9 @@ object OpenTracingServiceImplTest {
 
   val connectionConfigurations: Map[String, JaegerConnection] = Map(
     "UDP connection" -> new JaegerConnectionUdp().withHost("localhost").withPort(9009),
-    "unauthenticated HTTP connection" -> new JaegerConnectionHttp().withHost("localhost").withPort(9009),
-    "token HTTP connection" -> new JaegerConnectionHttp().withHost("localhost").withPort(9009).withToken("myToken"),
-    "basic auth HTTP connection" -> new JaegerConnectionHttp().withHost("localhost").withPort(9009).withUsername("myUsername").withPassword("myPassword")
+    "unauthenticated HTTP connection" -> new JaegerConnectionHttp().withEndpoint("http://localhost:14268/path"),
+    "token HTTP connection" -> new JaegerConnectionHttp().withEndpoint("http://localhost:14268/path").withToken("myToken"),
+    "basic auth HTTP connection" -> new JaegerConnectionHttp().withEndpoint("http://localhost:14268/path").withUsername("myUsername").withPassword("myPassword")
   )
 
   def minimalOpenTracingConfig(): OpenTracingConfig = {

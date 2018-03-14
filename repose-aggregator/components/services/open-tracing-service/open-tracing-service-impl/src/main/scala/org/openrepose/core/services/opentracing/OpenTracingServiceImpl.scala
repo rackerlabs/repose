@@ -130,13 +130,13 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
         case http: JaegerConnectionHttp =>
           if (Option(http.getToken).isDefined) {
             logger.debug("HTTP sender configured with bearer token")
-            new SenderConfiguration.Builder().authToken(http.getToken).endpoint(s"${http.getHost}:${http.getPort}").build
+            new SenderConfiguration.Builder().authToken(http.getToken).endpoint(http.getEndpoint).build
           } else if (Option(http.getUsername).isDefined) {
             logger.debug("HTTP sender configured with basic auth")
-            new SenderConfiguration.Builder().authUsername(http.getUsername).authPassword(http.getPassword).endpoint(s"${http.getHost}:${http.getPort}").build
+            new SenderConfiguration.Builder().authUsername(http.getUsername).authPassword(http.getPassword).endpoint(http.getEndpoint).build
           } else {
             logger.debug("HTTP sender configured without authentication")
-            new SenderConfiguration.Builder().endpoint(s"${http.getHost}:${http.getPort}").build
+            new SenderConfiguration.Builder().endpoint(http.getEndpoint).build
           }
       }
     }
