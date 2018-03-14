@@ -70,7 +70,7 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
     synchronized {
       Option(currentSystemModelConfig) foreach { systemModelConfig =>
         Option(currentOpenTracingConfig) foreach { openTracingConfig =>
-          openTracingConfig.getTracer match {
+          openTracingConfig.getTracerConfig match {
             case jaeger: JaegerTracerConfig =>
               logger.debug("Jaeger tracer configured")
 
@@ -109,7 +109,7 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
     }
 
     def getJaegerSamplerConfiguration(jaegerConfig: JaegerTracerConfig): SamplerConfiguration = {
-      jaegerConfig.getSampling match {
+      jaegerConfig.getJaegerSampling match {
         case constant: JaegerSamplingConstant =>
           logger.debug("Constant sampling configured with value set to {}", constant.getToggle)
           new Configuration.SamplerConfiguration(ConstSampler.TYPE, if (Toggle.ON.equals(constant.getToggle)) 1 else 0)
@@ -123,7 +123,7 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
     }
 
     def getJaegerSenderConfiguration(jaegerConfig: JaegerTracerConfig): SenderConfiguration = {
-      jaegerConfig.getConnection match {
+      jaegerConfig.getJaegerConnection match {
         case udp: JaegerConnectionUdp =>
           logger.debug("UDP sender configured")
           new SenderConfiguration.Builder().agentHost(udp.getHost).agentPort(udp.getPort).build
