@@ -29,4 +29,19 @@
     <schemaBindings>
         <package name="org.openrepose.core.service.opentracing.config"/>
     </schemaBindings>
+
+    <bindings schemaLocation="open-tracing.xsd"
+              node="/xs:schema/xs:complexType[@name='OpenTracingConfig']/xs:choice">
+        <property name="TracerConfig"/>
+    </bindings>
+
+    <bindings schemaLocation="open-tracing.xsd"
+              node="/xs:schema/xs:complexType[@name='JaegerTracerConfig']/xs:complexContent/xs:extension/xs:sequence/xs:choice[@id='jaegerConnection']">
+        <property name="JaegerConnection"/>
+    </bindings>
+
+    <bindings schemaLocation="open-tracing.xsd"
+              node="/xs:schema/xs:complexType[@name='JaegerTracerConfig']/xs:complexContent/xs:extension/xs:sequence/xs:choice[@id='jaegerSampling']">
+        <property name="JaegerSampling"/>
+    </bindings>
 </bindings>

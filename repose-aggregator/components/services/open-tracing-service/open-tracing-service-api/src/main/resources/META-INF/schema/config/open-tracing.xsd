@@ -45,9 +45,9 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:all>
-            <xs:element name="tracer" type="TracerConfig"/>
-        </xs:all>
+        <xs:choice>
+            <xs:element name="jaeger" type="JaegerTracerConfig"/>
+        </xs:choice>
 
         <xs:attribute name="service-name" type="xs:string" use="required">
             <xs:annotation>
@@ -82,8 +82,16 @@
                 </xs:annotation>
 
                 <xs:sequence>
-                    <xs:element name="connection" type="JaegerConnection"/>
-                    <xs:element name="sampling" type="JaegerSampling"/>
+                    <xs:choice id="jaegerConnection">
+                        <xs:element name="connection-udp" type="JaegerConnectionUdp"/>
+                        <xs:element name="connection-http" type="JaegerConnectionHttp"/>
+                    </xs:choice>
+
+                    <xs:choice id="jaegerSampling">
+                        <xs:element name="sampling-constant" type="JaegerSamplingConstant"/>
+                        <xs:element name="sampling-probabilistic" type="JaegerSamplingProbabilistic"/>
+                        <xs:element name="sampling-rate-limiting" type="JaegerSamplingRateLimiting"/>
+                    </xs:choice>
                 </xs:sequence>
 
                 <xs:attribute name="flush-interval-ms" type="PositiveInt" default="1000">

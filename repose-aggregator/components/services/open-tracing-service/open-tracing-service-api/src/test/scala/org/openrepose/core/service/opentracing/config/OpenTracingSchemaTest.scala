@@ -79,13 +79,12 @@ class OpenTracingSchemaTest extends ConfigurationTest {
 
   def buildConfig(settings: String): String =
     s"""<open-tracing xmlns="http://docs.openrepose.org/repose/open-tracing-service/v1.0"
-       |              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        |              service-name="test-repose">
-       |    <tracer xsi:type="JaegerTracerConfig">
-       |        <connection xsi:type="JaegerConnectionHttp" endpoint="http://localhost:14268/path"
+       |    <jaeger>
+       |        <connection-http endpoint="http://localhost:14268/path"
        |                         $settings
        |                         />
-       |        <sampling xsi:type="JaegerSamplingRateLimiting" max-traces-per-second="50"/>
-       |    </tracer>
+       |        <sampling-rate-limiting max-traces-per-second="50"/>
+       |    </jaeger>
        |</open-tracing>""".stripMargin
 }

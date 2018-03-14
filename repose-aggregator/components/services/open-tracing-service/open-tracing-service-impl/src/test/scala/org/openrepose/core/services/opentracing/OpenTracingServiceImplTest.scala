@@ -168,11 +168,11 @@ object OpenTracingServiceImplTest {
   def minimalOpenTracingConfig(): OpenTracingConfig = {
     new OpenTracingConfig()
       .withServiceName("myService")
-      .withTracer(new JaegerTracerConfig()
-        .withConnection(new JaegerConnectionUdp()
+      .withTracerConfig(new JaegerTracerConfig()
+        .withJaegerConnection(new JaegerConnectionUdp()
           .withHost("localhost")
           .withPort(9009))
-        .withSampling(new JaegerSamplingConstant()))
+        .withJaegerSampling(new JaegerSamplingConstant()))
   }
 
   class SystemModelBuilder {
