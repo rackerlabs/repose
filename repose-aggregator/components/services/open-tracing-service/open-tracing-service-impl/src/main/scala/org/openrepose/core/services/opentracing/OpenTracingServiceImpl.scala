@@ -70,7 +70,6 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
     synchronized {
       Option(currentSystemModelConfig) foreach { systemModelConfig =>
         Option(currentOpenTracingConfig) foreach { openTracingConfig =>
-          // todo: add enabling/disabling of the service to the configuration
           openTracingConfig.getTracer match {
             case jaeger: JaegerTracerConfiguration =>
               logger.debug("Jaeger tracer configured")

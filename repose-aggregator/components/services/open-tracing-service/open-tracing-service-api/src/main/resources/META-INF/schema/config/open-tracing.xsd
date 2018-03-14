@@ -229,6 +229,8 @@
                         <xs:documentation>
                             <html:p>
                                 Set to either on or off.
+                                Setting this value to off effectively effectively disables
+                                reporting of trace data.
                             </html:p>
                         </xs:documentation>
                     </xs:annotation>
