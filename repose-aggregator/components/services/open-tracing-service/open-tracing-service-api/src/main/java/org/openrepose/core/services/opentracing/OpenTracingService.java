@@ -19,36 +19,11 @@
  */
 package org.openrepose.core.services.opentracing;
 
-import io.opentracing.Tracer;
-
 /**
- * OpenTracingService - service that integrates OpenTracing standards into Repose
+ * A service that enables support for OpenTracing compliant tracing in Repose.
+ *
+ * Currently, this service only configures the Open Tracing {@link io.opentracing.Tracer}
+ * to report trace data. As such, it does not expose any methods.
  */
 public interface OpenTracingService {
-
-    /**
-     * Check that the service is enabled.  The tracing will only happen if this is enabled.
-     * While configuration might set the service as enabled, there are a couple instances when this might
-     * get turned back to disabled:
-     *
-     * * Invalid tracer specified
-     * * Unable to connect to tracer
-     *
-     * @return a Boolean which corresponds to the clientId parameter
-     */
-    boolean isEnabled();
-
-    /**
-     * Retrieves the global tracer singleton.  This is configured at startup via opentracing.cfg.xml tracer
-     * specific configuration.  If an invalid tracer is provided, the tracer will not be available.
-     * @return io.opentracing.Tracer object that contains Tracer implementation information
-     */
-    Tracer getGlobalTracer();
-
-    /**
-     * Retrieves service name.  This is specific for every repose implementation and defines the namespace
-     * for your service.  It should be unique in your company/flow.
-     * @return String object that contains your service name
-     */
-    String getServiceName();
 }

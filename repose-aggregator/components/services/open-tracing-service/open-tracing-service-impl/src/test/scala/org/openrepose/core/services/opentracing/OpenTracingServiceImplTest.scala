@@ -21,52 +21,52 @@ package org.openrepose.core.services.opentracing
 
 import java.net.URL
 
+import com.uber.jaeger
 import io.opentracing.Tracer
-import io.opentracing.noop.{NoopTracerFactory}
-import java.lang.reflect
-import java.lang.reflect.Field
-
-import io.opentracing.util.GlobalTracer
 import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{eq => isEq, _}
-import org.mockito.Mockito.verify
+import org.mockito.Mockito.{verify, verifyZeroInteractions}
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.config.parser.common.ConfigurationParser
-import org.openrepose.commons.config.resource.ConfigurationResourceResolver
+import org.openrepose.core.opentracing.DelegatingTracer
+import org.openrepose.core.service.opentracing.config.{JaegerConnectionUdp, JaegerSamplingProbabilistic, _}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.service.opentracing.config._
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import org.openrepose.core.systemmodel.config.SystemModel
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.slf4j.LoggerFactory
-
-import scala.collection.mutable
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter {
+class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
+
+  import OpenTracingServiceImplTest._
+
+  var configurationService: ConfigurationService = _
+  var tracer: DelegatingTracer = _
+  var openTracingService: OpenTracingServiceImpl = _
+
+  override def beforeEach(): Unit = {
+    configurationService = mock[ConfigurationService]
+    tracer = mock[DelegatingTracer]
+
+    openTracingService = new OpenTracingServiceImpl(configurationService, tracer)
+  }
 
   describe("init") {
     it("should subscribe an opentracing configuration listener") {
-      val mockConfigurationService = mock[ConfigurationService]
-      val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
       openTracingService.init()
 
-      verify(mockConfigurationService).subscribeTo(
-        isEq("opentracing.cfg.xml"),
+      verify(configurationService).subscribeTo(
+        isEq("open-tracing.cfg.xml"),
         any[URL](),
         isA(classOf[UpdateListener[OpenTracingConfig]]),
         isA(classOf[Class[OpenTracingConfig]]))
     }
 
     it("should subscribe a system model configuration listener") {
-      val mockConfigurationService = mock[ConfigurationService]
-      val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
       openTracingService.init()
 
-      verify(mockConfigurationService).subscribeTo(
+      verify(configurationService).subscribeTo(
         isEq("system-model.cfg.xml"),
         isA(classOf[UpdateListener[SystemModel]]),
         isA(classOf[Class[SystemModel]]))
@@ -75,552 +75,126 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
   describe("destroy") {
     it("should unsubscribe an opentracing configuration listener") {
-      val mockConfigurationService = mock[ConfigurationService]
-      val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
       openTracingService.destroy()
 
-      verify(mockConfigurationService).unsubscribeFrom(
-        isEq("opentracing.cfg.xml"),
+      verify(configurationService).unsubscribeFrom(
+        isEq("open-tracing.cfg.xml"),
         isA(classOf[UpdateListener[OpenTracingConfig]]))
     }
 
     it("should unsubscribe a system model configuration listener") {
-      val mockConfigurationService = mock[ConfigurationService]
-      val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
       openTracingService.destroy()
 
-      verify(mockConfigurationService).unsubscribeFrom(
+      verify(configurationService).unsubscribeFrom(
         isEq("system-model.cfg.xml"),
         isA(classOf[UpdateListener[SystemModel]]))
     }
   }
 
-  describe("getGlobalTracer") {
-    it("should not be enabled if service uninitialized") {
-      val mockConfigurationService = mock[ConfigurationService]
+  describe("configurationUpdated") {
+    it("should not register a tracer if the open tracing service configuration is not updated") {
+      openTracingService.SystemModelConfigurationListener.configurationUpdated(new SystemModel())
 
-      val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
-      val tracer = openTracingService.getGlobalTracer
-
-      tracer shouldBe a[GlobalTracer]
-
-      openTracingService.isEnabled shouldBe false
-      openTracingService.getServiceName shouldBe null
+      verifyZeroInteractions(tracer)
     }
 
-  }
+    it("should not register a tracer if the system model configuration is not updated") {
+      openTracingService.OpenTracingConfigurationListener.configurationUpdated(
+        new OpenTracingConfig()
+          .withJaeger(new JaegerTracerConfiguration()
+            .withConnection(new JaegerConnectionUdp()
+              .withHost("localhost")
+              .withPort(9009))
+            .withSampling(new JaegerSamplingConstant()
+              .withToggle(Toggle.ON)))
+          .withServiceName("myService")
+      )
 
-  describe("OpenTracingConfigurationListener.configurationUpdated") {
-
-    before {
-      val globalTracer = classOf[GlobalTracer]
-      val field: Field = globalTracer.getDeclaredField("tracer")
-      field.setAccessible(true)
-      field.set(null, NoopTracerFactory.create())
+      verifyZeroInteractions(tracer)
     }
 
-    after {
-      val globalTracer = classOf[GlobalTracer]
-      val field: Field = globalTracer.getDeclaredField("tracer")
-      field.setAccessible(true)
-      field.set(null, NoopTracerFactory.create())
+    it("should register a tracer if both the open tracing and system model configurations are updated") {
+      openTracingService.SystemModelConfigurationListener.configurationUpdated(
+        new SystemModelBuilder()
+          .withOpenTracingHeader("OT-Header")
+          .build())
+      openTracingService.OpenTracingConfigurationListener.configurationUpdated(
+        new OpenTracingConfig()
+          .withJaeger(new JaegerTracerConfiguration()
+            .withConnection(new JaegerConnectionUdp()
+              .withHost("localhost")
+              .withPort(9009))
+            .withSampling(new JaegerSamplingConstant()
+              .withToggle(Toggle.ON)))
+          .withServiceName("myService")
+      )
+
+      verify(tracer).register(any[Tracer])
     }
 
-    it("should not be enabled with invalid tracer type") {
-      val openTracingConfig = new OpenTracingConfig
-      val mockConfigurationService = new MockConfiguration(openTracingConfig)
+    it("should set the service name") {
+      val serviceName = "myService"
+      val tracerCaptor = ArgumentCaptor.forClass(classOf[jaeger.Tracer])
 
-      val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
+      openTracingService.SystemModelConfigurationListener.configurationUpdated(
+        new SystemModelBuilder()
+          .withOpenTracingHeader("OT-Header")
+          .build())
+      openTracingService.OpenTracingConfigurationListener.configurationUpdated(
+        new OpenTracingConfig()
+          .withJaeger(new JaegerTracerConfiguration()
+            .withConnection(new JaegerConnectionUdp()
+              .withHost("localhost")
+              .withPort(9009))
+            .withSampling(new JaegerSamplingConstant()
+              .withToggle(Toggle.ON)))
+          .withServiceName(serviceName)
+      )
 
-      openTracingService.init()
-
-      openTracingService.isEnabled shouldBe false
-      openTracingService.getServiceName shouldBe null
-
+      verify(tracer).register(tracerCaptor.capture())
+      tracerCaptor.getValue.getServiceName shouldEqual serviceName
     }
 
-    it("should not be enabled with invalid tracer type but service name should be set") {
-      val openTracingConfig = new OpenTracingConfig
-      openTracingConfig.setServiceName("test")
-      val mockConfigurationService = new MockConfiguration(openTracingConfig)
+    // todo: figure out how to inspect all of the configuration in the tracer (despite access protection)
 
-      val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
-      openTracingService.init()
-
-      openTracingService.isEnabled shouldBe false
-      openTracingService.getServiceName shouldBe "test"
-
-      val tracer: Tracer = openTracingService.getGlobalTracer
-
-      tracer shouldBe a[GlobalTracer]
-
-      // this validates that the tracer is NOT registered successfully and is a NoopTracer
-      openTracingService.isEnabled shouldBe false
-      openTracingService.getServiceName shouldBe "test"
-
+    samplingConfigurations foreach { case (testDescriptor, samplingConfiguration) =>
+      it(s"should $testDescriptor...") {
+        pending
+      }
     }
 
-    it("should be enabled with JAEGER tracer type") {
-      val openTracingConfig = new OpenTracingConfig
-      openTracingConfig.setServiceName("test")
-      val mockConfigurationService = new MockConfiguration(openTracingConfig)
-
-      val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
-      openTracingService.init()
-
-      openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-      openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
-      val tracer = openTracingService.getGlobalTracer
-
-      tracer shouldBe a[GlobalTracer]
-
-      // this validates that the tracer is registered successfully and is not a NoopTracer
-      openTracingService.isEnabled shouldBe true
-
-      openTracingService.getServiceName shouldBe "test"
-
+    connectionConfigurations foreach { case (testDescriptor, connectionConfiguration) =>
+      it(s"should $testDescriptor...") {
+        pending
+      }
     }
-
-    it("should be enabled with JAEGER tracer type and empty sampling configuration") {
-      val openTracingConfig = new OpenTracingConfig
-      openTracingConfig.setServiceName("test")
-      val samplerConfiguration = new JaegerTracerConfiguration()
-      openTracingConfig.setJaeger(samplerConfiguration)
-
-      val mockConfigurationService = new MockConfiguration(openTracingConfig)
-
-      val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
-      openTracingService.init()
-
-      openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-      openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
-      val tracer = openTracingService.getGlobalTracer
-
-      tracer shouldBe a[GlobalTracer]
-
-      // this validates that the tracer is registered successfully and is not a NoopTracer
-      openTracingService.isEnabled shouldBe true
-
-      openTracingService.getServiceName shouldBe "test"
-
-    }
-
-    it("should be enabled with JAEGER tracer type and const sampling configuration with CONST type") {
-      val openTracingConfig = new OpenTracingConfig
-      openTracingConfig.setServiceName("test")
-      val constSampleConfiguration = new JaegerSamplingConstant()
-      constSampleConfiguration.setToggle(Toggle.ON)
-
-      val samplerConfiguration = new JaegerTracerConfiguration()
-      samplerConfiguration.setSamplingConstant(constSampleConfiguration)
-
-      openTracingConfig.setJaeger(samplerConfiguration)
-
-      val mockConfigurationService = new MockConfiguration(openTracingConfig)
-      val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
-      openTracingService.init()
-
-      openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-      openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
-      val tracer = openTracingService.getGlobalTracer
-
-      tracer shouldBe a[GlobalTracer]
-
-      // this validates that the tracer is registered successfully and is not a NoopTracer
-      openTracingService.isEnabled shouldBe true
-      openTracingService.getServiceName shouldBe "test"
-
-    }
-
-    it("should be enabled with JAEGER tracer type and no sampling configuration with CONST type") {
-      val openTracingConfig = new OpenTracingConfig
-      openTracingConfig.setServiceName("test")
-
-      val samplerConfiguration = new JaegerTracerConfiguration()
-
-      openTracingConfig.setJaeger(samplerConfiguration)
-
-      val mockConfigurationService = new MockConfiguration(openTracingConfig)
-      val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
-      openTracingService.init()
-
-      openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-      openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
-      val tracer = openTracingService.getGlobalTracer
-
-      tracer shouldBe a[GlobalTracer]
-
-      // this validates that the tracer is registered successfully and is not a NoopTracer
-      openTracingService.isEnabled shouldBe true
-      openTracingService.getServiceName shouldBe "test"
-
-    }
-
-    it("should be enabled with JAEGER tracer type and probabilistic sampling configuration with PROBABILISTIC type") {
-      val openTracingConfig = new OpenTracingConfig
-      openTracingConfig.setServiceName("test")
-      val probabilisticSampleConfiguration: JaegerSamplingProbabilistic = new JaegerSamplingProbabilistic()
-      probabilisticSampleConfiguration.setProbability(1.0)
-
-      val samplerConfiguration = new JaegerTracerConfiguration()
-      samplerConfiguration.setSamplingProbabilistic(probabilisticSampleConfiguration)
-
-      openTracingConfig.setJaeger(samplerConfiguration)
-
-      val mockConfigurationService = new MockConfiguration(openTracingConfig)
-      val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
-      openTracingService.init()
-
-      openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-      openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
-      val tracer = openTracingService.getGlobalTracer
-
-      tracer shouldBe a[GlobalTracer]
-
-      // this validates that the tracer is registered successfully and is not a NoopTracer
-      openTracingService.isEnabled shouldBe true
-      openTracingService.getServiceName shouldBe "test"
-
-    }
-
-    it("should be enabled with JAEGER tracer type and no sampling configuration with PROBABILISTIC type") {
-      val openTracingConfig = new OpenTracingConfig
-      openTracingConfig.setServiceName("test")
-
-      val samplerConfiguration = new JaegerTracerConfiguration()
-
-      openTracingConfig.setJaeger(samplerConfiguration)
-
-      val mockConfigurationService = new MockConfiguration(openTracingConfig)
-      val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
-      openTracingService.init()
-
-      openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-      openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
-      val tracer = openTracingService.getGlobalTracer
-
-      tracer shouldBe a[GlobalTracer]
-
-      // this validates that the tracer is registered successfully and is not a NoopTracer
-      openTracingService.isEnabled shouldBe true
-      openTracingService.getServiceName shouldBe "test"
-
-    }
-  }
-
-  it("should be enabled with JAEGER tracer type and rate limited sampling configuration with RATE_LIMITED type") {
-    val openTracingConfig = new OpenTracingConfig
-    openTracingConfig.setServiceName("test")
-    val rateLimitingSampleConfiguration = new JaegerSamplingRateLimiting()
-    rateLimitingSampleConfiguration.setMaxTracesPerSecond(1.0)
-
-    val samplerConfiguration = new JaegerTracerConfiguration()
-    samplerConfiguration.setSamplingRateLimiting(rateLimitingSampleConfiguration)
-
-    openTracingConfig.setJaeger(samplerConfiguration)
-
-    val mockConfigurationService = new MockConfiguration(openTracingConfig)
-    val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
-    openTracingService.init()
-
-    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
-    val tracer = openTracingService.getGlobalTracer
-
-    tracer shouldBe a[GlobalTracer]
-
-    // this validates that the tracer is registered successfully and is not a NoopTracer
-    openTracingService.isEnabled shouldBe true
-    openTracingService.getServiceName shouldBe "test"
-
-  }
-
-  it("should be enabled with JAEGER tracer type and no sampling configuration with RATE_LIMITED type") {
-    val openTracingConfig = new OpenTracingConfig
-    openTracingConfig.setServiceName("test")
-
-    val samplerConfiguration = new JaegerTracerConfiguration()
-
-    openTracingConfig.setJaeger(samplerConfiguration)
-
-    val mockConfigurationService = new MockConfiguration(openTracingConfig)
-    val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
-    openTracingService.init()
-
-    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
-    val tracer = openTracingService.getGlobalTracer
-
-    tracer shouldBe a[GlobalTracer]
-
-    // this validates that the tracer is registered successfully and is not a NoopTracer
-    openTracingService.isEnabled shouldBe true
-    openTracingService.getServiceName shouldBe "test"
-
-  }
-
-  it("should be enabled with JAEGER tracer type and HTTP sender protocol") {
-    val openTracingConfig: OpenTracingConfig = new OpenTracingConfig
-    openTracingConfig.setServiceName("test")
-
-    val tracerConfiguration = new JaegerTracerConfiguration
-    val connectionConfiguration = new JaegerConnectionHttp
-    tracerConfiguration.setConnectionHttp(connectionConfiguration)
-    openTracingConfig.setJaeger(tracerConfiguration)
-
-    val mockConfigurationService = new MockConfiguration(openTracingConfig)
-    val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
-    openTracingService.init()
-
-    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
-    val tracer = openTracingService.getGlobalTracer
-
-    tracer shouldBe a[GlobalTracer]
-
-    // this validates that the tracer is registered successfully and is not a NoopTracer
-    openTracingService.isEnabled shouldBe true
-    openTracingService.getServiceName shouldBe "test"
-
-  }
-
-  it("should be enabled with JAEGER tracer type, HTTP sender protocol and only username") {
-    val openTracingConfig = new OpenTracingConfig
-    openTracingConfig.setServiceName("test")
-
-    val tracerConfiguration = new JaegerTracerConfiguration
-    val connectionConfiguration = new JaegerConnectionHttp
-    connectionConfiguration.setUsername("user")
-    tracerConfiguration.setConnectionHttp(connectionConfiguration)
-    openTracingConfig.setJaeger(tracerConfiguration)
-
-    val mockConfigurationService = new MockConfiguration(openTracingConfig)
-    val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
-    openTracingService.init()
-
-    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
-    val tracer = openTracingService.getGlobalTracer
-
-    tracer shouldBe a[GlobalTracer]
-
-    // this validates that the tracer is registered successfully and is not a NoopTracer
-    openTracingService.isEnabled shouldBe true
-    openTracingService.getServiceName shouldBe "test"
-
-  }
-
-  it("should be enabled with JAEGER tracer type, HTTP sender protocol and only password") {
-    val openTracingConfig = new OpenTracingConfig
-    openTracingConfig.setServiceName("test")
-
-    val tracerConfiguration = new JaegerTracerConfiguration
-    val connectionConfiguration = new JaegerConnectionHttp
-    connectionConfiguration.setPassword("abc123")
-    tracerConfiguration.setConnectionHttp(connectionConfiguration)
-    openTracingConfig.setJaeger(tracerConfiguration)
-
-    val mockConfigurationService = new MockConfiguration(openTracingConfig)
-    val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
-    openTracingService.init()
-
-    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
-    val tracer = openTracingService.getGlobalTracer
-
-    tracer shouldBe a[GlobalTracer]
-
-    // this validates that the tracer is registered successfully and is not a NoopTracer
-    openTracingService.isEnabled shouldBe true
-    openTracingService.getServiceName shouldBe "test"
-
-  }
-
-  it("should be enabled with JAEGER tracer type, HTTP sender protocol and username + password") {
-    val openTracingConfig = new OpenTracingConfig
-    openTracingConfig.setServiceName("test")
-
-    val tracerConfiguration = new JaegerTracerConfiguration
-    val connectionConfiguration = new JaegerConnectionHttp
-    connectionConfiguration.setUsername("user")
-    connectionConfiguration.setPassword("abc123")
-    tracerConfiguration.setConnectionHttp(connectionConfiguration)
-    openTracingConfig.setJaeger(tracerConfiguration)
-
-    val mockConfigurationService = new MockConfiguration(openTracingConfig)
-    val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
-    openTracingService.init()
-
-    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
-    val tracer = openTracingService.getGlobalTracer
-
-    tracer shouldBe a[GlobalTracer]
-
-    // this validates that the tracer is registered successfully and is not a NoopTracer
-    openTracingService.isEnabled shouldBe true
-    openTracingService.getServiceName shouldBe "test"
-
-  }
-
-  it("should be enabled with JAEGER tracer type, HTTP sender protocol, username + password, token") {
-    val openTracingConfig = new OpenTracingConfig
-    openTracingConfig.setServiceName("test")
-
-    val tracerConfiguration = new JaegerTracerConfiguration
-    val connectionConfiguration = new JaegerConnectionHttp
-    connectionConfiguration.setUsername("user")
-    connectionConfiguration.setPassword("abc123")
-    connectionConfiguration.setToken("12345683")
-    tracerConfiguration.setConnectionHttp(connectionConfiguration)
-    openTracingConfig.setJaeger(tracerConfiguration)
-
-    val mockConfigurationService = new MockConfiguration(openTracingConfig)
-    val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
-    openTracingService.init()
-
-    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
-    val tracer = openTracingService.getGlobalTracer
-
-    tracer shouldBe a[GlobalTracer]
-
-    // this validates that the tracer is registered successfully and is not a NoopTracer
-    openTracingService.isEnabled shouldBe true
-    openTracingService.getServiceName shouldBe "test"
-
-  }
-
-  it("should be enabled with JAEGER tracer type, HTTP sender protocol, and token") {
-    val openTracingConfig = new OpenTracingConfig
-    openTracingConfig.setServiceName("test")
-
-    val tracerConfiguration = new JaegerTracerConfiguration
-    val connectionConfiguration = new JaegerConnectionHttp
-    connectionConfiguration.setToken("12345683")
-    tracerConfiguration.setConnectionHttp(connectionConfiguration)
-    openTracingConfig.setJaeger(tracerConfiguration)
-
-    val mockConfigurationService = new MockConfiguration(openTracingConfig)
-    val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
-    openTracingService.init()
-
-    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
-    val tracer = openTracingService.getGlobalTracer
-
-    tracer shouldBe a[GlobalTracer]
-
-    // this validates that the tracer is registered successfully and is not a NoopTracer
-    openTracingService.isEnabled shouldBe true
-    openTracingService.getServiceName shouldBe "test"
-
-  }
-
-  it("should be enabled with JAEGER tracer type and UDP sender protocol") {
-    val openTracingConfig = new OpenTracingConfig
-    openTracingConfig.setServiceName("test")
-
-    val tracerConfiguration = new JaegerTracerConfiguration
-    val connectionConfiguration = new JaegerConnectionUdp
-    tracerConfiguration.setConnectionUdp(connectionConfiguration)
-    openTracingConfig.setJaeger(tracerConfiguration)
-
-    val mockConfigurationService = new MockConfiguration(openTracingConfig)
-    val openTracingService = new OpenTracingServiceImpl(mockConfigurationService)
-
-    openTracingService.init()
-
-    openTracingService.getRequestInterceptor shouldBe a[JaegerRequestInterceptor]
-    openTracingService.getResponseInterceptor shouldBe a[JaegerResponseInterceptor]
-
-    val tracer = openTracingService.getGlobalTracer
-
-    tracer shouldBe a[GlobalTracer]
-
-    // this validates that the tracer is registered successfully and is not a NoopTracer
-    openTracingService.isEnabled shouldBe true
-    openTracingService.getServiceName shouldBe "test"
-
   }
 }
 
-private class MockConfiguration(openTracingConfig: OpenTracingConfig) extends ConfigurationService {
+object OpenTracingServiceImplTest {
+  val samplingConfigurations: Map[String, JaegerSampling] = Map(
+    "constant sampling off" -> new JaegerSamplingConstant().withToggle(Toggle.OFF),
+    "constant sampling on" -> new JaegerSamplingConstant().withToggle(Toggle.ON),
+    "rate limiting sampling" -> new JaegerSamplingRateLimiting().withMaxTracesPerSecond(20.0),
+    "probabilistic sampling" -> new JaegerSamplingProbabilistic().withProbability(80.0)
+  )
 
-  val log = LoggerFactory.getLogger(this.getClass)
-  val stupidListener: mutable.Map[String, AnyRef] = mutable.Map.empty[String, AnyRef]
-  private val lock = new Object()
+  val connectionConfigurations: Map[String, JaegerConnection] = Map(
+    "UDP connection" -> new JaegerConnectionUdp().withHost("localhost").withPort(9009),
+    "unauthenticated HTTP connection" -> new JaegerConnectionHttp().withHost("localhost").withPort(9009),
+    "token HTTP connection" -> new JaegerConnectionHttp().withHost("localhost").withPort(9009).withToken("myToken"),
+    "basic auth HTTP connection" -> new JaegerConnectionHttp().withHost("localhost").withPort(9009).withUsername("myUsername").withPassword("myPassword")
+  )
 
-  def getListener[T](key: String): UpdateListener[T] = {
+  class SystemModelBuilder {
+    val systemModel = new SystemModel()
 
-    //Have to block on an entry
-    while (lock.synchronized {
-      !stupidListener.keySet.contains(key)
-    }) {
-      //Set up to block for when we want to get ahold of a listener by a key
-      //THis guy blocks forever, it doesn't have any timeout things :(
-      Thread.sleep(10)
+    def withOpenTracingHeader(openTracingHeader: String): SystemModelBuilder = {
+      systemModel.setOpenTracingHeader(openTracingHeader)
+      this
     }
 
-    stupidListener(key).asInstanceOf[UpdateListener[T]]
+    def build(): SystemModel = systemModel
   }
 
-  override def subscribeTo[T](configurationName: String, listener: UpdateListener[T], configurationClass: Class[T]): Unit = ???
-
-  override def subscribeTo[T](filterName: String, configurationName: String, listener: UpdateListener[T], configurationClass: Class[T]): Unit = ???
-
-  //This is the only one we use I think
-  override def subscribeTo[T](configurationName: String, xsdStreamSource: URL, listener: UpdateListener[T], configurationClass: Class[T]): Unit = {
-    log.info(s"Subscribing to ${configurationName}")
-    lock.synchronized {
-      listener.configurationUpdated(configurationClass.cast(openTracingConfig))
-      stupidListener(configurationName) = listener
-    }
-  }
-
-  override def subscribeTo[T](filterName: String, configurationName: String, xsdStreamSource: URL, listener: UpdateListener[T], configurationClass: Class[T]): Unit = ???
-
-  override def subscribeTo[T](filterName: String, configurationName: String, listener: UpdateListener[T], customParser: ConfigurationParser[T]): Unit = ???
-
-  override def subscribeTo[T](filterName: String, configurationName: String, listener: UpdateListener[T], customParser: ConfigurationParser[T], sendNotificationNow: Boolean): Unit = ???
-
-  override def unsubscribeFrom(configurationName: String, plistener: UpdateListener[_]): Unit = {
-    stupidListener.remove(configurationName) //Drop it from our stuff
-  }
-
-  override def getResourceResolver: ConfigurationResourceResolver = ???
-
-  override def destroy(): Unit = ???
 }
