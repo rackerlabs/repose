@@ -13,13 +13,13 @@ dependencies {
     compileOnly "javax.inject:javax.inject"
     compileOnly "javax.ws.rs:javax.ws.rs-api"
 
-    testCompile "junit:junit:4.12"
+    testCompile "junit:junit"
     testCompile "org.hamcrest:hamcrest-all"
     testCompile "org.mockito:mockito-all"
     testCompile "org.eclipse.jetty:jetty-server"
     testCompile "xerces:xerces-xsd11"
     testCompile "org.spockframework:spock-core"
-    testCompile "org.springframework:spring-test:4.1.4.RELEASE"
+    testCompile "org.springframework:spring-test"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "io.opentracing:opentracing-mock"
 }
