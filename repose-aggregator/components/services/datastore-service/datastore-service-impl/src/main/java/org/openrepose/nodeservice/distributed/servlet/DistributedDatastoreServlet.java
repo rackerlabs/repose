@@ -175,7 +175,6 @@ public class DistributedDatastoreServlet extends HttpServlet {
                     break;
                 default:
                     resp.sendError(SC_INTERNAL_SERVER_ERROR);
-                    break;
             }
         } catch (IOException ioe) {
             LOG.error(ioe.getMessage(), ioe);
@@ -189,22 +188,18 @@ public class DistributedDatastoreServlet extends HttpServlet {
         // This servlet is only allowed to communicate with configured Repose instances,
         // so there is no chance of exposing sensitive information.
         // So it is safe to suppress warning squid:S1989
-        if (CacheRequest.isCacheRequestValid(req)) {
-            try {
-                final CacheRequest cachePut = CacheRequest.marshallCacheRequestWithPayload(req);
-                localDatastore.put(cachePut.getCacheKey(), objectSerializer.readObject(cachePut.getPayload()), cachePut.getTtlInSeconds(), TimeUnit.SECONDS);
-                resp.setStatus(SC_ACCEPTED);
-            } catch (IOException ioe) {
-                LOG.error(ioe.getMessage(), ioe);
-                throw new DatastoreOperationException("Failed to write payload.", ioe);
-            } catch (ClassNotFoundException cnfe) {
-                LOG.error(cnfe.getMessage(), cnfe);
-                throw new DatastoreOperationException("Failed to deserialize a message. Couldn't find a matching class.", cnfe);
-            } catch (MalformedCacheRequestException mcre) {
-                handleputMalformedCacheRequestException(mcre, resp);
-            }
-        } else {
-            resp.setStatus(SC_NOT_FOUND);
+        try {
+            final CacheRequest cachePut = CacheRequest.marshallCacheRequestWithPayload(req);
+            localDatastore.put(cachePut.getCacheKey(), objectSerializer.readObject(cachePut.getPayload()), cachePut.getTtlInSeconds(), TimeUnit.SECONDS);
+            resp.setStatus(SC_ACCEPTED);
+        } catch (IOException ioe) {
+            LOG.error(ioe.getMessage(), ioe);
+            throw new DatastoreOperationException("Failed to write payload.", ioe);
+        } catch (ClassNotFoundException cnfe) {
+            LOG.error(cnfe.getMessage(), cnfe);
+            throw new DatastoreOperationException("Failed to deserialize a message. Couldn't find a matching class.", cnfe);
+        } catch (MalformedCacheRequestException mcre) {
+            handleMalformedCacheRequestException(mcre, resp);
         }
     }
 
@@ -214,24 +209,19 @@ public class DistributedDatastoreServlet extends HttpServlet {
         // This servlet is only allowed to communicate with configured Repose instances,
         // so there is no chance of exposing sensitive information.
         // So it is safe to suppress warning squid:S1989
-        if (CacheRequest.isCacheRequestValid(req)) {
-            try {
-                final CacheRequest cacheDelete = CacheRequest.marshallCacheRequest(req);
-                localDatastore.remove(cacheDelete.getCacheKey());
-                resp.setStatus(SC_NO_CONTENT);
-            } catch (MalformedCacheRequestException e) {
-                LOG.trace("Malformed cache request on Delete", e);
-                switch (e.getMessage()) {
-                    case UNEXPECTED_REMOTE_BEHAVIOR:
-                        resp.setStatus(SC_BAD_REQUEST);
-                        break;
-                    default:
-                        resp.setStatus(SC_NO_CONTENT);
-                        break;
-                }
+        try {
+            final CacheRequest cacheDelete = CacheRequest.marshallCacheRequest(req);
+            localDatastore.remove(cacheDelete.getCacheKey());
+            resp.setStatus(SC_NO_CONTENT);
+        } catch (MalformedCacheRequestException e) {
+            LOG.trace("Malformed cache request on Delete", e);
+            switch (e.getMessage()) {
+                case UNEXPECTED_REMOTE_BEHAVIOR:
+                    resp.setStatus(SC_BAD_REQUEST);
+                    break;
+                default:
+                    resp.setStatus(SC_NO_CONTENT);
             }
-        } else {
-            resp.setStatus(SC_NOT_FOUND);
         }
     }
 
@@ -240,27 +230,23 @@ public class DistributedDatastoreServlet extends HttpServlet {
         // This servlet is only allowed to communicate with configured Repose instances,
         // so there is no chance of exposing sensitive information.
         // So it is safe to suppress warning squid:S1989
-        if (CacheRequest.isCacheRequestValid(req)) {
-            try {
-                final CacheRequest cachePatch = CacheRequest.marshallCacheRequestWithPayload(req);
-                Serializable value = localDatastore.patch(cachePatch.getCacheKey(), (Patch) objectSerializer.readObject(cachePatch.getPayload()), cachePatch.getTtlInSeconds(), TimeUnit.SECONDS);
-                resp.getOutputStream().write(objectSerializer.writeObject(value));
-                resp.setStatus(SC_OK);
-            } catch (IOException ioe) {
-                LOG.error(ioe.getMessage(), ioe);
-                throw new DatastoreOperationException("Failed to write payload.", ioe);
-            } catch (ClassNotFoundException cnfe) {
-                LOG.error(cnfe.getMessage(), cnfe);
-                throw new DatastoreOperationException("Failed to deserialize a message. Couldn't find a matching class.", cnfe);
-            } catch (MalformedCacheRequestException mcre) {
-                LOG.trace("Handling Malformed Cache Request", mcre);
-                handleputMalformedCacheRequestException(mcre, resp);
-            } catch (ClassCastException e) {
-                LOG.trace("Sending ERROR response", e);
-                resp.sendError(SC_BAD_REQUEST, e.getMessage());
-            }
-        } else {
-            resp.setStatus(SC_NOT_FOUND);
+        try {
+            final CacheRequest cachePatch = CacheRequest.marshallCacheRequestWithPayload(req);
+            Serializable value = localDatastore.patch(cachePatch.getCacheKey(), (Patch) objectSerializer.readObject(cachePatch.getPayload()), cachePatch.getTtlInSeconds(), TimeUnit.SECONDS);
+            resp.getOutputStream().write(objectSerializer.writeObject(value));
+            resp.setStatus(SC_OK);
+        } catch (IOException ioe) {
+            LOG.error(ioe.getMessage(), ioe);
+            throw new DatastoreOperationException("Failed to write payload.", ioe);
+        } catch (ClassNotFoundException cnfe) {
+            LOG.error(cnfe.getMessage(), cnfe);
+            throw new DatastoreOperationException("Failed to deserialize a message. Couldn't find a matching class.", cnfe);
+        } catch (MalformedCacheRequestException mcre) {
+            LOG.trace("Handling Malformed Cache Request", mcre);
+            handleMalformedCacheRequestException(mcre, resp);
+        } catch (ClassCastException e) {
+            LOG.trace("Sending ERROR response", e);
+            resp.sendError(SC_BAD_REQUEST, e.getMessage());
         }
     }
 
@@ -306,7 +292,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
         datastoreService.destroyDatastore(DISTRIBUTED_HASH_RING);
     }
 
-    private void handleputMalformedCacheRequestException(MalformedCacheRequestException mcre, HttpServletResponse response) throws IOException {
+    private void handleMalformedCacheRequestException(MalformedCacheRequestException mcre, HttpServletResponse response) throws IOException {
         LOG.error("Handling Malformed Cache Request", mcre);
         switch (mcre.getMessage()) {
             case OBJECT_TOO_LARGE:
@@ -321,7 +307,6 @@ public class DistributedDatastoreServlet extends HttpServlet {
                 break;
             default:
                 response.sendError(SC_INTERNAL_SERVER_ERROR);
-                break;
         }
     }
 }
