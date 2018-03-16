@@ -73,6 +73,20 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
     }
   }
 
+  describe("itInitialized") {
+    it("should return false if the service has not been configured") {
+      openTracingService.isInitialized shouldBe false
+    }
+
+    it("should return false if the service has been configured") {
+      openTracingService.configurationUpdated(
+        minimalOpenTracingConfig()
+      )
+
+      openTracingService.isInitialized shouldBe true
+    }
+  }
+
   describe("configurationUpdated") {
     it("should set the service name") {
       val serviceName = "myService"
