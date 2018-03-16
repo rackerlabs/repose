@@ -81,15 +81,17 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
         val tracerBuilder = configuration.getTracerBuilder
 
         // todo: add support for baggage prefix customization
-        logger.debug("Registering Repose-specific injectors and extractors")
-        val textMapCodecBuilder = new TextMapCodec.Builder()
-          .withSpanContextKey(openTracingConfig.getSpanContextKey)
-        val textMapCodec = textMapCodecBuilder.withUrlEncoding(false).build()
-        tracerBuilder.registerInjector(Format.Builtin.TEXT_MAP, textMapCodec)
-        tracerBuilder.registerExtractor(Format.Builtin.TEXT_MAP, textMapCodec)
-        val httpTextMapCodec = textMapCodecBuilder.withUrlEncoding(true).build()
-        tracerBuilder.registerInjector(Format.Builtin.HTTP_HEADERS, httpTextMapCodec)
-        tracerBuilder.registerExtractor(Format.Builtin.HTTP_HEADERS, httpTextMapCodec)
+        Option(openTracingConfig.getSpanContextKey) foreach { spanContextKey =>
+          logger.debug("Registering Repose-specific injectors and extractors")
+          val textMapCodecBuilder = new TextMapCodec.Builder()
+            .withSpanContextKey(spanContextKey)
+          val textMapCodec = textMapCodecBuilder.withUrlEncoding(false).build()
+          tracerBuilder.registerInjector(Format.Builtin.TEXT_MAP, textMapCodec)
+          tracerBuilder.registerExtractor(Format.Builtin.TEXT_MAP, textMapCodec)
+          val httpTextMapCodec = textMapCodecBuilder.withUrlEncoding(true).build()
+          tracerBuilder.registerInjector(Format.Builtin.HTTP_HEADERS, httpTextMapCodec)
+          tracerBuilder.registerExtractor(Format.Builtin.HTTP_HEADERS, httpTextMapCodec)
+        }
 
         logger.debug("Registering the tracer with global tracer")
         reposeTracer.register(tracerBuilder.build())

@@ -61,7 +61,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="span-context-key" type="xs:string" default="TBD">
+        <xs:attribute name="span-context-key" type="xs:string">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
