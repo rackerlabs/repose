@@ -22,6 +22,7 @@ package org.openrepose.core.services.opentracing
 import java.net.URL
 
 import com.uber.jaeger
+import com.uber.jaeger.samplers.{ConstSampler, ProbabilisticSampler, RateLimitingSampler}
 import io.opentracing.Tracer
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -84,6 +85,132 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
       )
 
       openTracingService.isInitialized shouldBe true
+    }
+  }
+
+  describe("getJaegerSamplerConfiguration") {
+    it("should return constant sampler set to on") {
+      val config = new JaegerTracerConfig()
+        .withJaegerSampling(new JaegerSamplingConstant()
+          .withToggle(Toggle.ON))
+
+      val samplerConfig = openTracingService.getJaegerSamplerConfiguration(config)
+
+      samplerConfig.getType shouldBe ConstSampler.TYPE
+      samplerConfig.getParam shouldEqual 1
+    }
+
+    it("should return constant sampler set to off") {
+      val config = new JaegerTracerConfig()
+        .withJaegerSampling(new JaegerSamplingConstant()
+          .withToggle(Toggle.OFF))
+
+      val samplerConfig = openTracingService.getJaegerSamplerConfiguration(config)
+
+      samplerConfig.getType shouldBe ConstSampler.TYPE
+      samplerConfig.getParam shouldEqual 0
+    }
+
+    it("should return rate limiting sampler set to value") {
+      val max = 2.0
+      val config = new JaegerTracerConfig()
+        .withJaegerSampling(new JaegerSamplingRateLimiting()
+          .withMaxTracesPerSecond(max))
+
+      val samplerConfig = openTracingService.getJaegerSamplerConfiguration(config)
+
+      samplerConfig.getType shouldBe RateLimitingSampler.TYPE
+      samplerConfig.getParam shouldEqual max
+    }
+
+    it("should return probabilistic sampler set to value") {
+      val probability = .2
+      val config = new JaegerTracerConfig()
+        .withJaegerSampling(new JaegerSamplingProbabilistic()
+          .withProbability(probability))
+
+      val samplerConfig = openTracingService.getJaegerSamplerConfiguration(config)
+
+      samplerConfig.getType shouldBe ProbabilisticSampler.TYPE
+      samplerConfig.getParam shouldEqual probability
+    }
+  }
+
+  describe("getJaegerSenderConfiguration") {
+    it("should return sender configuration for UDP") {
+      val host = "localhost"
+      val port = 12345
+      val config = new JaegerTracerConfig()
+        .withJaegerConnection(new JaegerConnectionUdp()
+          .withHost(host)
+          .withPort(port))
+
+      val samplerConfig = openTracingService.getJaegerSenderConfiguration(config)
+
+      samplerConfig.getAgentHost shouldEqual host
+      samplerConfig.getAgentPort shouldEqual port
+    }
+
+    it("should return sender configuration for HTTP with no authentication") {
+      val endpoint = "http://localhost:4004/path"
+      val config = new JaegerTracerConfig()
+        .withJaegerConnection(new JaegerConnectionHttp()
+          .withEndpoint(endpoint))
+
+      val samplerConfig = openTracingService.getJaegerSenderConfiguration(config)
+
+      samplerConfig.getEndpoint shouldEqual endpoint
+    }
+
+    it("should return sender configuration for HTTP with token authentication") {
+      val endpoint = "http://localhost:4004/path"
+      val token = "9823rhu3ifq3fq3"
+      val config = new JaegerTracerConfig()
+        .withJaegerConnection(new JaegerConnectionHttp()
+          .withEndpoint(endpoint)
+          .withToken(token))
+
+      val samplerConfig = openTracingService.getJaegerSenderConfiguration(config)
+
+      samplerConfig.getEndpoint shouldEqual endpoint
+      samplerConfig.getAuthToken shouldEqual token
+    }
+
+    it("should return sender configuration for HTTP with basic authentication") {
+      val endpoint = "http://localhost:4004/path"
+      val username = "myUsername"
+      val password = "myPassword"
+      val config = new JaegerTracerConfig()
+        .withJaegerConnection(new JaegerConnectionHttp()
+          .withEndpoint(endpoint)
+          .withUsername(username)
+          .withPassword(password))
+
+      val samplerConfig = openTracingService.getJaegerSenderConfiguration(config)
+
+      samplerConfig.getEndpoint shouldEqual endpoint
+      samplerConfig.getAuthUsername shouldEqual username
+      samplerConfig.getAuthPassword shouldEqual password
+    }
+
+    it("should return sender configuration preferring token to basic authentication") {
+      val endpoint = "http://localhost:4004/path"
+      val token = "0923rh23qirhq2"
+      val username = "myUsername"
+      val password = "myPassword"
+      val config = new JaegerTracerConfig()
+        .withJaegerConnection(new JaegerConnectionHttp()
+          .withEndpoint(endpoint)
+          .withToken(token)
+          .withUsername(username)
+          .withPassword(password))
+
+      val samplerConfig = openTracingService.getJaegerSenderConfiguration(config)
+
+      samplerConfig.getEndpoint shouldEqual endpoint
+      samplerConfig.getAuthToken shouldBe token
+      samplerConfig.getAuthUsername shouldBe null
+      samplerConfig.getAuthPassword shouldBe null
     }
   }
 
