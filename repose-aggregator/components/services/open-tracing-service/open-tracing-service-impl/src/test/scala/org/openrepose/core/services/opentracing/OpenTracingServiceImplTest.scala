@@ -22,6 +22,7 @@ package org.openrepose.core.services.opentracing
 import java.net.URL
 
 import com.uber.jaeger
+import io.opentracing.Tracer
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{eq => isEq, _}
@@ -87,15 +88,68 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
     // todo: figure out how to inspect all of the configuration in the tracer (despite access protection)
 
+    it("should set the span context key") {
+      val spanContextKey = "myKey"
+
+      openTracingService.configurationUpdated(
+        minimalOpenTracingConfig().withSpanContextKey(spanContextKey)
+      )
+
+      verify(tracer).register(any[Tracer])
+    }
+
+    Set(true, false) foreach { logSpans =>
+      it(s"should register a tracer with log spans set to $logSpans") {
+        val config = minimalOpenTracingConfig()
+        config.getTracerConfig.withLogSpans(logSpans)
+
+        openTracingService.configurationUpdated(config)
+
+        verify(tracer).register(any[Tracer])
+      }
+    }
+
+    Set(1, 1000, 2000) foreach { flushInterval =>
+      it(s"should register a tracer with flush interval set to $flushInterval") {
+        val config = minimalOpenTracingConfig()
+        config.getTracerConfig.withFlushIntervalMs(flushInterval)
+
+        openTracingService.configurationUpdated(config)
+
+        verify(tracer).register(any[Tracer])
+      }
+    }
+
+    Set(1, 100, 200) foreach { maxBufferSize =>
+      it(s"should register a tracer with max buffer size set to $maxBufferSize") {
+        val config = minimalOpenTracingConfig()
+        config.getTracerConfig.withFlushIntervalMs(maxBufferSize)
+
+        openTracingService.configurationUpdated(config)
+
+        verify(tracer).register(any[Tracer])
+      }
+    }
+
     samplingConfigurations foreach { case (testDescriptor, samplingConfiguration) =>
-      it(s"should $testDescriptor...") {
-        pending
+      it(s"should register a tracer with $testDescriptor...") {
+        val config = minimalOpenTracingConfig()
+        config.getTracerConfig.withJaegerSampling(samplingConfiguration)
+
+        openTracingService.configurationUpdated(config)
+
+        verify(tracer).register(any[Tracer])
       }
     }
 
     connectionConfigurations foreach { case (testDescriptor, connectionConfiguration) =>
-      it(s"should $testDescriptor...") {
-        pending
+      it(s"should register a tracer with $testDescriptor...") {
+        val config = minimalOpenTracingConfig()
+        config.getTracerConfig.withJaegerConnection(connectionConfiguration)
+
+        openTracingService.configurationUpdated(config)
+
+        verify(tracer).register(any[Tracer])
       }
     }
   }
@@ -106,7 +160,7 @@ object OpenTracingServiceImplTest {
     "constant sampling off" -> new JaegerSamplingConstant().withToggle(Toggle.OFF),
     "constant sampling on" -> new JaegerSamplingConstant().withToggle(Toggle.ON),
     "rate limiting sampling" -> new JaegerSamplingRateLimiting().withMaxTracesPerSecond(20.0),
-    "probabilistic sampling" -> new JaegerSamplingProbabilistic().withProbability(80.0)
+    "probabilistic sampling" -> new JaegerSamplingProbabilistic().withProbability(.8)
   )
 
   val connectionConfigurations: Map[String, JaegerConnection] = Map(

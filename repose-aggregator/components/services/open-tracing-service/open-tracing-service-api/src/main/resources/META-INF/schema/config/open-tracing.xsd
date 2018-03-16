@@ -230,7 +230,7 @@
                     </xs:annotation>
                 </xs:attribute>
 
-                <xs:attribute name="port" type="PositiveInt">
+                <xs:attribute name="port" type="NonNegativeInt">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>
@@ -321,9 +321,15 @@
         </xs:complexContent>
     </xs:complexType>
 
-    <xs:simpleType name="PositiveInt">
+    <xs:simpleType name="NonNegativeInt">
         <xs:restriction base="xs:int">
             <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="PositiveInt">
+        <xs:restriction base="xs:int">
+            <xs:minExclusive value="0"/>
         </xs:restriction>
     </xs:simpleType>
 
