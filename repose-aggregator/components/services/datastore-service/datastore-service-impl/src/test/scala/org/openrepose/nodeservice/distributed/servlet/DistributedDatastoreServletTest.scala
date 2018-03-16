@@ -24,12 +24,9 @@ import java.util.Collections
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpServletResponse._
 
-import io.opentracing.Tracer
 import io.opentracing.mock.MockTracer
 import org.junit.runner.RunWith
-import org.mockito.Matchers.anyString
 import org.mockito.Mockito
-import org.mockito.Mockito.verify
 import org.openrepose.core.services.datastore.distributed.ClusterConfiguration
 import org.openrepose.core.services.datastore.distributed.config._
 import org.openrepose.core.services.datastore.impl.distributed.CacheRequest.CACHE_URI_PATH
@@ -43,48 +40,57 @@ import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResp
 @RunWith(classOf[JUnitRunner])
 class DistributedDatastoreServletTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
-  private val mockDatastoreService = mock[DatastoreService]
-  private val mockDatastore = mock[Datastore]
-  Mockito.when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
-  private val distributedDatastoreConfiguration = mock[DistributedDatastoreConfiguration]
-  val tracerSpy = Mockito.spy(new MockTracer)
-
-  val distributedDatastoreServlet = new DistributedDatastoreServlet(
-    mockDatastoreService,
-    mock[ClusterConfiguration],
-    new DatastoreAccessControl(Collections.emptyList[InetAddress], true),
-    distributedDatastoreConfiguration,
-    tracerSpy
-  )
-
+  var mockDatastoreService: DatastoreService = _
+  var mockDatastore: Datastore = _
+  var distributedDatastoreConfiguration: DistributedDatastoreConfiguration = _
+  var mockTracer: MockTracer = _
+  var distributedDatastoreServlet: DistributedDatastoreServlet = _
   var servletRequest: MockHttpServletRequest = _
   var servletResponse: HttpServletResponse = _
 
-
   override def beforeEach(): Unit = {
+    mockDatastoreService = mock[DatastoreService]
+    mockDatastore = mock[Datastore]
+    Mockito.when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
+    distributedDatastoreConfiguration = mock[DistributedDatastoreConfiguration]
+    mockTracer = new MockTracer
+    distributedDatastoreServlet = new DistributedDatastoreServlet(
+      mockDatastoreService,
+      mock[ClusterConfiguration],
+      new DatastoreAccessControl(Collections.emptyList[InetAddress], true),
+      distributedDatastoreConfiguration,
+      mockTracer
+    )
     servletRequest = new MockHttpServletRequest
     servletRequest.setRequestURI(CACHE_URI_PATH)
     servletRequest.setProtocol("1.1")
     servletResponse = new MockHttpServletResponse
-    tracerSpy.reset()
   }
 
   describe("Distributed Datastore calls without a Cache Key") {
-    val notFound = List("GET", "HEAD").map(method => (method, SC_NOT_FOUND)) // Head calls Get and no Cache Key sent
-    val badRequest = List("PUT", "PATCH").map(method => (method, SC_BAD_REQUEST)) // No data or Cache Key sent
-    val notAllowed = List("POST", "TRACE").map(method => (method, SC_METHOD_NOT_ALLOWED)) // Methods Not Allowed
-    val okMethods = List("OPTIONS").map(method => (method, SC_OK)) // This is handled by the parent HTTP Servlet
-    val notImplemented = List("CUSTOM", "BOGUS").map(method => (method, SC_NOT_IMPLEMENTED)) // Not Implemented
+    val methodsResults = Map(
+      // @formatter:off
+      "GET"     -> SC_NOT_FOUND,
+      "HEAD"    -> SC_NOT_FOUND,   // Head calls Get
+      "PUT"     -> SC_BAD_REQUEST, // No data sent
+      "PATCH"   -> SC_BAD_REQUEST, // No data sent
+      "POST"    -> SC_METHOD_NOT_ALLOWED,
+      "TRACE"   -> SC_METHOD_NOT_ALLOWED,
+      "CUSTOM"  -> SC_NOT_IMPLEMENTED,
+      "BOGUS"   -> SC_NOT_IMPLEMENTED,
+      "OPTIONS" -> SC_OK) // This is handled by the parent HTTP Servlet
+      // @formatter:on
 
-    (notFound ++ badRequest ++ notAllowed ++ okMethods ++ notImplemented) foreach { case (httpMethod, result) =>
-      it(s"should build an OpenTracing span for HTTP method $httpMethod") {
-        servletRequest.setMethod(httpMethod)
+    methodsResults foreach { case (method, result) =>
+      it(s"should build an OpenTracing span for HTTP method $method") {
+        servletRequest.setMethod(method)
         distributedDatastoreServlet.service(servletRequest, servletResponse)
-        verify(tracerSpy).buildSpan(s"$httpMethod $CACHE_URI_PATH")
+        mockTracer.finishedSpans.size shouldEqual 1
+        mockTracer.finishedSpans.get(0).operationName() shouldEqual s"$method $CACHE_URI_PATH"
       }
 
-      it(s"should return $result for HTTP method $httpMethod") {
-        servletRequest.setMethod(httpMethod)
+      it(s"should return $result for HTTP method $method") {
+        servletRequest.setMethod(method)
         distributedDatastoreServlet.service(servletRequest, servletResponse)
         servletResponse.getStatus shouldBe result
       }
