@@ -46,7 +46,7 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
   @PostConstruct
   def init(): Unit = {
     logger.info("Initializing Open Tracing Service")
-    val xsdURL = getClass.getResource("/META-INF/schema/config/opentracing.xsd")
+    val xsdURL = getClass.getResource("/META-INF/schema/config/open-tracing.xsd")
 
     configurationService.subscribeTo(
       SystemModelConfig,
