@@ -44,7 +44,7 @@ class PassthroughServletOutputStream(servletOutputStream: ServletOutputStream)
     throw new IllegalStateException("Method not available for PASSTHROUGH response mode")
   }
 
-  override def commit(): Unit ={
+  override def commit(): Unit = {
     logger.error("commit not available on {}", classOf[PassthroughServletOutputStream].getSimpleName)
     throw new IllegalStateException("Method not available for PASSTHROUGH response mode")
   }
