@@ -22,16 +22,14 @@ package org.openrepose.core.services.opentracing
 import java.net.URL
 
 import com.uber.jaeger
-import io.opentracing.Tracer
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{eq => isEq, _}
-import org.mockito.Mockito.{verify, verifyZeroInteractions}
+import org.mockito.Mockito.verify
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.opentracing.DelegatingTracer
 import org.openrepose.core.service.opentracing.config.{JaegerConnectionUdp, JaegerSamplingProbabilistic, _}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.systemmodel.config.SystemModel
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
@@ -62,15 +60,6 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
         isA(classOf[UpdateListener[OpenTracingConfig]]),
         isA(classOf[Class[OpenTracingConfig]]))
     }
-
-    it("should subscribe a system model configuration listener") {
-      openTracingService.init()
-
-      verify(configurationService).subscribeTo(
-        isEq("system-model.cfg.xml"),
-        isA(classOf[UpdateListener[SystemModel]]),
-        isA(classOf[Class[SystemModel]]))
-    }
   }
 
   describe("destroy") {
@@ -81,53 +70,15 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
         isEq("open-tracing.cfg.xml"),
         isA(classOf[UpdateListener[OpenTracingConfig]]))
     }
-
-    it("should unsubscribe a system model configuration listener") {
-      openTracingService.destroy()
-
-      verify(configurationService).unsubscribeFrom(
-        isEq("system-model.cfg.xml"),
-        isA(classOf[UpdateListener[SystemModel]]))
-    }
   }
 
   describe("configurationUpdated") {
-    it("should not register a tracer if the open tracing service configuration is not updated") {
-      openTracingService.SystemModelConfigurationListener.configurationUpdated(new SystemModel())
-
-      verifyZeroInteractions(tracer)
-    }
-
-    it("should not register a tracer if the system model configuration is not updated") {
-      openTracingService.OpenTracingConfigurationListener.configurationUpdated(
-        minimalOpenTracingConfig
-      )
-
-      verifyZeroInteractions(tracer)
-    }
-
-    it("should register a tracer if both the open tracing and system model configurations are updated") {
-      openTracingService.SystemModelConfigurationListener.configurationUpdated(
-        new SystemModelBuilder()
-          .withOpenTracingHeader("OT-Header")
-          .build())
-      openTracingService.OpenTracingConfigurationListener.configurationUpdated(
-        minimalOpenTracingConfig
-      )
-
-      verify(tracer).register(any[Tracer])
-    }
-
     it("should set the service name") {
       val serviceName = "myService"
       val tracerCaptor = ArgumentCaptor.forClass(classOf[jaeger.Tracer])
 
-      openTracingService.SystemModelConfigurationListener.configurationUpdated(
-        new SystemModelBuilder()
-          .withOpenTracingHeader("OT-Header")
-          .build())
-      openTracingService.OpenTracingConfigurationListener.configurationUpdated(
-        minimalOpenTracingConfig
+      openTracingService.configurationUpdated(
+        minimalOpenTracingConfig().withServiceName(serviceName)
       )
 
       verify(tracer).register(tracerCaptor.capture())
@@ -174,16 +125,4 @@ object OpenTracingServiceImplTest {
           .withPort(9009))
         .withJaegerSampling(new JaegerSamplingConstant()))
   }
-
-  class SystemModelBuilder {
-    val systemModel = new SystemModel()
-
-    def withOpenTracingHeader(openTracingHeader: String): SystemModelBuilder = {
-      systemModel.setOpenTracingHeader(openTracingHeader)
-      this
-    }
-
-    def build(): SystemModel = systemModel
-  }
-
 }

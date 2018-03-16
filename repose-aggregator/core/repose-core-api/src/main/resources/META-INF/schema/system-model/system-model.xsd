@@ -46,14 +46,6 @@
             <xs:element name="phone-home" type="mod:PhoneHomeServiceConfig" minOccurs="0" maxOccurs="1"/>
             <xs:element name="tracing-header" type="mod:TracingHeaderConfig" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
-
-        <xs:attribute name="open-tracing-header" type="xs:string" use="optional" default="TBD">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>Defines what header is being used for open tracing.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="Cluster">
