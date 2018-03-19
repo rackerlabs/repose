@@ -1,6 +1,8 @@
 = Release Notes
 
 == In Progress Work
+* https://repose.atlassian.net/browse/REP-6588[REP-6588] - Updated the `commitToResponse` method of the `HttpServletResponseWrapper` to avoid writing headers or the body when an error has been sent.
+  This should fix an issue with certain servlet containers where an `IllegalStateException` is thrown when calling `commitToResponse` after both writing to the output stream and calling `sendError` on the wrapped response.
 * https://repose.atlassian.net/browse/REP-6628[REP-6628] - Updated dependencies:
 ** API Checker: 2.6.0 → 2.6.1
 *** https://github.com/rackerlabs/api-checker/blob/api-checker-2.6.1/RELEASE.md[API Checker v2.6.1 release notes]

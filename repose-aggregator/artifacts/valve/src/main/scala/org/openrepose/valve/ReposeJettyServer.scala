@@ -19,11 +19,15 @@
  */
 package org.openrepose.valve
 
+import java.io.Writer
 import java.util
 import javax.servlet.DispatcherType
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.typesafe.config.ConfigFactory
-import org.eclipse.jetty.server.{Connector, HttpConnectionFactory, Server, ServerConnector}
+import org.eclipse.jetty.http.HttpHeader
+import org.eclipse.jetty.server.handler.ErrorHandler
+import org.eclipse.jetty.server._
 import org.eclipse.jetty.servlet.{FilterHolder, ServletContextHandler}
 import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.openrepose.commons.utils.io.FileUtilities
@@ -186,6 +190,15 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
     contextHandler.addFilter(filterHolder, "/*", dispatchTypes)
 
     s.setHandler(contextHandler)
+
+    // Prevents Jetty from writing HTML error pages when sendError is called on the response.
+    // This is for backwards compatibility, but should eventually be removed.
+    s.setErrorHandler(new ErrorHandler() {
+      override def doError(target: String, baseRequest: Request, request: HttpServletRequest, response: HttpServletResponse): Unit = {
+        if (getCacheControl != null) response.setHeader(HttpHeader.CACHE_CONTROL.asString, getCacheControl)
+        baseRequest.setHandled(true)
+      }
+    })
 
     (httpConnector, httpsConnector, s)
   }

@@ -54,7 +54,7 @@ class ApiValidatorDelegatingWAuditingTest extends ReposeValveTest {
         reposeLogSearch.searchByString("intrafilterlogging.RequestLog - Unable to populate request body").size() != 0
         reposeLogSearch.searchByString("java.io.IOException: Stream closed").size() != 0
         mc.receivedResponse.code == "400"
-        mc.receivedResponse.message == "Bad Request"
+        mc.receivedResponse.message == "Bad Content: Content is not allowed in prolog."
         result.httpMethod == method
         result.headers["Host"] == reposeEndpoint - "http://"
         result.headers["User-Agent"].contains("deproxy")

@@ -180,7 +180,8 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         return matchedCode;
     }
 
-    private void overwriteResponseBody(HttpServletResponse response, final String formattedOutput, String contentType) throws IOException {
+    private void overwriteResponseBody(HttpServletResponseWrapper response, final String formattedOutput, String contentType) throws IOException {
+        response.resetError();
         response.resetBuffer();
         response.setHeader(HttpHeaders.CONTENT_TYPE, contentType);
         response.setContentLength(formattedOutput.length());

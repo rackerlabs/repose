@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse
 import javax.servlet.{ServletOutputStream, ServletResponse}
 import javax.ws.rs.core.HttpHeaders
 
+import com.typesafe.scalalogging.slf4j.LazyLogging
 import org.apache.http.client.utils.DateUtils
 import org.slf4j.LoggerFactory
 
@@ -74,8 +75,14 @@ import scala.io.Source
   * @param desiredOutputStream the underlying output stream to be presented to callers of getOutputStream, maybe wrapped
   *                            depending on mode selection of the body
   */
-class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMode: ResponseMode, bodyMode: ResponseMode, desiredOutputStream: ServletOutputStream)
-  extends javax.servlet.http.HttpServletResponseWrapper(originalResponse) with HeaderInteractor {
+class HttpServletResponseWrapper(originalResponse: HttpServletResponse,
+                                 headerMode: ResponseMode,
+                                 bodyMode: ResponseMode,
+                                 desiredOutputStream: ServletOutputStream)
+  extends javax.servlet.http.HttpServletResponseWrapper(originalResponse)
+    with HeaderInteractor
+    with LazyLogging {
+
   private val headerWarningLogger = LoggerFactory.getLogger(s"${classOf[HttpServletResponseWrapper].getName}.headerWarning")
 
   private val caseInsensitiveOrdering = Ordering.by[String, String](_.toLowerCase)
@@ -85,6 +92,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     case ResponseMode.MUTABLE => new MutableServletOutputStream(desiredOutputStream)
   }
 
+  private var statusCode: Int = originalResponse.getStatus
   private var reason: Option[String] = None
   private var committed: Boolean = false
   private var flushedBuffer: Boolean = false
@@ -105,21 +113,30 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   def this(originalResponse: HttpServletResponse, headerMode: ResponseMode, bodyMode: ResponseMode) =
     this(originalResponse, headerMode, bodyMode, originalResponse.getOutputStream)
 
+  override def getStatus: Int = statusCode
+
   override def setStatus(i: Int): Unit = {
-    if (isCommitted) {
-      throw new IllegalStateException("Cannot call sendError or setStatus after the response has been committed")
-    } else {
-      super.setStatus(i)
-      reason = None
-    }
+    logger.trace("setStatus called with status code: {}", Integer.valueOf(i))
+    doSetStatus(i)(originalResponse.setStatus(i))
   }
 
   override def setStatus(i: Int, s: String): Unit = {
+    logger.trace("setStatus called with status code: {}, message: {}", Integer.valueOf(i), s)
+    doSetStatus(i, s)(originalResponse.setStatus(i, s))
+  }
+
+  private def doSetStatus(i: Int, s: String = null)(setStatusFunc: => Unit): Unit = {
     if (isCommitted) {
+      logger.error("Cannot call setStatus after the response has been committed")
       throw new IllegalStateException("Cannot call setStatus after the response has been committed")
-    } else {
-      super.setStatus(i, s)
-      reason = Option(s)
+    }
+
+    statusCode = i
+    reason = Option(s)
+
+    if (headerMode != ResponseMode.MUTABLE && bodyMode != ResponseMode.MUTABLE) {
+      logger.debug("Setting the status on the underlying response")
+      setStatusFunc
     }
   }
 
@@ -132,28 +149,44 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     * @param i the status code to set
     */
   override def sendError(i: Int): Unit = {
-    sendError(i, null)
+    logger.trace("sendError called with status code: {}", Integer.valueOf(i))
+    doSendError(i)(originalResponse.sendError(i))
   }
 
   /** See [[sendError(i)]].
     *
     * @param i the status code to set
-    * @param s the string used to populate the response body
+    * @param s the message (a.k.a, reason phrase) that may be written in the status line and can be used
+    *          by the error handler to template response bodies
     */
   override def sendError(i: Int, s: String): Unit = {
+    logger.trace("sendError called with status code: {}, message: {}", Integer.valueOf(i), s)
+    doSendError(i, s)(originalResponse.sendError(i, s))
+  }
+
+  private def doSendError(i: Int, s: String = null)(sendErrorFunc: => Unit): Unit = {
     if (isCommitted) {
+      logger.error("Cannot call sendError after the response has been committed")
       throw new IllegalStateException("Cannot call sendError after the response has been committed")
     }
 
-    // Set the status.
-    setStatus(i)
-
-    // Set the reason phrase.
+    // Set the status and reason phrase.
+    statusCode = i
     reason = Option(s)
 
     // Call resetBuffer() so that we can write directly to a clean output stream, even if the client has previously
     // written to the output stream.
     resetBuffer()
+
+    // Since the content buffer has been reset, the Content-Length header should be removed.
+    if (headerMode == ResponseMode.MUTABLE) {
+      // Remove it from our the wrapper which prevents it from being written to the underlying response.
+      removeHeader(HttpHeaders.CONTENT_LENGTH)
+    } else {
+      if (Option(getHeader(HttpHeaders.CONTENT_LENGTH)).isDefined) {
+        logger.warn("Could not remove the Content-Length header on call to sendError")
+      }
+    }
 
     // Track that the user intended to send an error.
     sentError = true
@@ -161,7 +194,8 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
     // If we are not in a mutable mode, immediately send error to the wrapped response.
     if (headerMode != ResponseMode.MUTABLE && bodyMode != ResponseMode.MUTABLE) {
-      originalResponse.sendError(i, s)
+      logger.debug("Setting the error state on the underlying response")
+      sendErrorFunc
     }
   }
 
@@ -169,12 +203,17 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
   def getReason: String = reason.orNull
 
-  override def isCommitted: Boolean = super.isCommitted || committed
+  override def isCommitted: Boolean = originalResponse.isCommitted || committed
 
-  override def getResponse: ServletResponse = throw new UnsupportedOperationException("getResponse is not supported")
+  override def getResponse: ServletResponse = {
+    logger.error("getResponse is not supported")
+    throw new UnsupportedOperationException("getResponse is not supported")
+  }
 
-  override def setResponse(servletResponse: ServletResponse): Unit =
+  override def setResponse(servletResponse: ServletResponse): Unit = {
+    logger.error("setResponse is not supported")
     throw new UnsupportedOperationException("setResponse is not supported")
+  }
 
   override def getHeaderNamesList: util.List[String] = getHeaderNames.toList
 
@@ -224,9 +263,12 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   override def addDateHeader(name: String, timeSinceEpoch: Long): Unit =
     addHeader(name, DateUtils.formatDate(new Date(timeSinceEpoch)))
 
-  private def headerWarningMessage(method: String, header: String): String = s"Calls to $method after the response has been committed may be ignored -- the following header may not be modified: $header"
+  private def headerWarningMessage(method: String, header: String): String =
+    s"Calls to $method after the response has been committed may be ignored -- the following header may not be modified: $header"
 
   override def addHeader(name: String, value: String): Unit = {
+    logger.trace("Adding header to the response with header name: {}, value: {}", name, value)
+
     if (isCommitted) {
       headerWarningLogger.warn(headerWarningMessage(
         "addHeader, addIntHeader, addDateHeader, or appendHeader",
@@ -235,9 +277,10 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     }
     headerMap = headerMap + (name -> (headerMap.getOrElse(name, Seq.empty[String]) :+ value))
 
-    // Write through to the wrapped response immediately
     if (headerMode != ResponseMode.MUTABLE) {
-      super.addHeader(name, value)
+      // Write through to the wrapped response immediately
+      logger.debug("Adding the header to the underlying response -- {}: {}", name, value)
+      originalResponse.addHeader(name, value)
     }
   }
 
@@ -251,6 +294,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     * @throws IllegalStateException when headerMode is anything other than ResponseMode.MUTABLE
     */
   override def appendHeader(name: String, value: String): Unit = {
+    logger.trace("Appending header value to the response with header name: {}, value: {}", name, value)
     ifMutable(headerMode) {
       val existingValues = getHeadersList(name)
       existingValues.headOption match {
@@ -275,6 +319,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
       case ResponseMode.MUTABLE =>
         processMutable
       case _ =>
+        logger.error("method should not be called if the ResponseMode is not set to MUTABLE")
         throw new IllegalStateException("method should not be called if the ResponseMode is not set to MUTABLE")
     }
   }
@@ -286,6 +331,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     * @throws IllegalStateException when headerMode is anything other than ResponseMode.MUTABLE
     */
   override def removeHeader(name: String): Unit = {
+    logger.trace("removeHeader called with header name: {}", name)
     ifMutable(headerMode) {
       if (isCommitted) {
         headerWarningLogger.warn(headerWarningMessage("removeHeader", name))
@@ -299,6 +345,8 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   override def replaceHeader(name: String, value: String, quality: Double): Unit = setHeader(name, s"$value;q=$quality")
 
   override def setHeader(name: String, value: String): Unit = {
+    logger.trace("setHeader called with header name: {}, value: {}", name, value)
+
     if (isCommitted) {
       headerWarningLogger.warn(headerWarningMessage(
         "setHeader, setIntHeader, setDateHeader, or replaceHeader",
@@ -309,11 +357,14 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
     if (headerMode != ResponseMode.MUTABLE) {
       // Write through to the wrapped response immediately
-      super.setHeader(name, value)
+      logger.debug("Setting the header on the underlying response -- {}: {}", name, value)
+      originalResponse.setHeader(name, value)
     }
   }
 
   override def setContentLength(contentLength: Int): Unit = {
+    logger.trace("setContentLength called with content length: {}", Integer.valueOf(contentLength))
+
     if (isCommitted) {
       headerWarningLogger.warn(headerWarningMessage("setContentLength", s"${HttpHeaders.CONTENT_LENGTH}: $contentLength"))
     } else {
@@ -326,6 +377,8 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   override def getContentType: String = getHeader(HttpHeaders.CONTENT_TYPE)
 
   override def setContentType(contentType: String): Unit = {
+    logger.trace("setContentType called with content type: {}", contentType)
+
     if (isCommitted) {
       headerWarningLogger.warn(headerWarningMessage("setContentType", s"${HttpHeaders.CONTENT_TYPE}: $contentType"))
     } else {
@@ -339,6 +392,8 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   }
 
   override def setCharacterEncoding(charEncoding: String): Unit = {
+    logger.trace("setCharacterEncoding called with character encoding: {}", charEncoding)
+
     if (isCommitted) {
       headerWarningLogger.warn(headerWarningMessage("setCharacterEncoding", s"${HttpHeaders.CONTENT_TYPE}: *;charset=$charEncoding"))
     } else if (responseBodyType == ResponseBodyType.PrintWriter) {
@@ -350,6 +405,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
       if (!Charset.isSupported(charEncoding) || !charset.isRegistered) {
         // Verify that the charset is supported and registered with IANA
+        logger.error("setCharacterEncoding failed since the following is not a supported encoding: {}", charEncoding)
         throw new UnsupportedEncodingException("setCharacterEncoding: " + charEncoding + " is not a supported encoding")
       } else {
         characterEncoding = charEncoding
@@ -375,13 +431,17 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     * @throws IllegalStateException when bodyMode is anything other than ResponseMode.MUTABLE
     */
   def setOutput(inputStream: InputStream): Unit = {
+    logger.trace("setOutput called")
     responseBodyType = ResponseBodyType.Available
     bodyOutputStream.setOutput(inputStream)
   }
 
   override def getWriter: PrintWriter = {
+    logger.trace("getWriter called")
+
     responseBodyType match {
       case ResponseBodyType.OutputStream =>
+        logger.error("Cannot call getWriter after calling getOutputStream")
         throw new IllegalStateException("Cannot call getWriter after calling getOutputStream")
       case ResponseBodyType.Available =>
         responseBodyType = ResponseBodyType.PrintWriter
@@ -409,8 +469,11 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   override def getHeader(name: String): String = getHeaderValues(name).headOption.orNull
 
   override def getOutputStream: ServletOutputStream = {
+    logger.trace("getOutputStream called")
+
     responseBodyType match {
       case ResponseBodyType.PrintWriter =>
+        logger.error("Cannot call getOutputStream after calling getWriter")
         throw new IllegalStateException("Cannot call getOutputStream after calling getWriter")
       case _ =>
         responseBodyType = ResponseBodyType.OutputStream
@@ -419,6 +482,8 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
   }
 
   override def flushBuffer(): Unit = {
+    logger.trace("flushBuffer called")
+
     // Flush any buffered output from the writer which will, in turn, flush the underlying OutputStream.
     // Flush the raw OutputStream for consistency.
     // Note: Flushing the raw OutputStream should be a no-op.
@@ -429,6 +494,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
 
     // If we are not in a mutable mode, immediately flush the wrapped response.
     if (headerMode != ResponseMode.MUTABLE && bodyMode != ResponseMode.MUTABLE) {
+      logger.debug("Flushing the buffer on the underlying response")
       originalResponse.flushBuffer()
     }
 
@@ -441,81 +507,136 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
     * @throws IllegalStateException when the wrapped response has already been committed
     */
   def uncommit(): Unit = {
+    logger.trace("uncommit called")
+
     if (originalResponse.isCommitted) {
-      throw new IllegalStateException("the wrapped response has already been committed")
+      logger.error("Cannot call uncommit after the response has been committed")
+      throw new IllegalStateException("Cannot call uncommit after the response has been committed")
     }
 
     committed = false
   }
 
   def resetError(): Unit = {
+    logger.trace("resetError called")
+
     if (isCommitted) {
+      logger.error("Cannot call resetError after the response has been committed")
       throw new IllegalStateException("Cannot call resetError after the response has been committed")
     }
 
-    reason = None
     sentError = false
   }
 
   override def reset(): Unit = {
+    logger.trace("reset called")
+
     if (isCommitted) {
+      logger.error("Cannot call reset after the response has been committed")
       throw new IllegalStateException("Cannot call reset after the response has been committed")
     } else {
-      super.reset()
+      originalResponse.reset()
+      statusCode = originalResponse.getStatus
+      reason = None
       headerMap = new TreeMap[String, Seq[String]]()(caseInsensitiveOrdering)
       resetBuffer()
     }
   }
 
   override def resetBuffer(): Unit = {
+    logger.trace("resetBuffer called")
+
     if (isCommitted) {
+      logger.error("Cannot call resetBuffer after the response has been committed")
       throw new IllegalStateException("Cannot call resetBuffer after the response has been committed")
     } else {
-      super.resetBuffer()
+      originalResponse.resetBuffer()
       responseBodyType = ResponseBodyType.Available
       bodyOutputStream.resetBuffer()
     }
   }
 
   /**
+    * Writes headers and the body to the underlying response object.
+    * Calling this method commits the response.
+    *
+    * If [[sendError]] has been called but [[resetError]] has not, neither headers nor the body will be written.
+    * Instead, [[sendError]] will be called on the underlying response object.
+    *
+    * If [[flushBuffer]] has been called, [[flushBuffer]] will be called on the underlying response object after
+    * headers and the body have been written.
+    *
+    * This method gives the caller the ability to modify the response when it would otherwise be committed by
+    * a downstream component.
+    *
     * @throws IllegalStateException when neither headerMode nor bodyMode is ResponseMode.MUTABLE
     */
   def commitToResponse(): Unit = {
+    logger.trace("commitToResponse called")
+
     def writeHeaders(): Unit = {
       headerMap foreach { case (name, values) =>
         values foreach { value =>
-          super.addHeader(name, value)
+          logger.debug("Adding the header to the underlying response -- {}: {}", name, value)
+          originalResponse.addHeader(name, value)
         }
       }
     }
 
     def writeBody(): Unit = {
+      val contentLength = bodyOutputStream.getOutputStreamAsInputStream.available()
+
+      logger.debug("Setting the Content-Length on the underlying response to: {}", Integer.valueOf(contentLength))
       // Since headers may have already been written, we set the content length on the wrapped response directly.
-      super.setContentLength(bodyOutputStream.getOutputStreamAsInputStream.available())
+      originalResponse.setContentLength(contentLength)
+
       bodyOutputStream.commit()
     }
 
-    (headerMode, bodyMode) match {
-      case (ResponseMode.MUTABLE, ResponseMode.MUTABLE) =>
-        // The headers are being written first so that they are available for processing by upstream
-        // output streams. The Compressing filter output stream, for example, depends on the content-type header
-        // being set before the output stream is written to.
-        writeHeaders()
-        writeBody()
-      case (ResponseMode.MUTABLE, _) =>
-        writeHeaders()
-      case (_, ResponseMode.MUTABLE) =>
-        writeBody()
-      case (_, _) =>
-        throw new IllegalStateException("method should not be called if the ResponseMode is not set to MUTABLE")
+    if (headerMode != ResponseMode.MUTABLE && bodyMode != ResponseMode.MUTABLE) {
+      logger.error("commitToResponse cannot be called if the ResponseMode is not set to MUTABLE")
+      throw new IllegalStateException("commitToResponse cannot be called if the ResponseMode is not set to MUTABLE")
     }
 
+    // The headers are being written first so that they are available for processing by upstream
+    // output streams. The Compressing filter output stream, for example, depends on the content-type header
+    // being set before the output stream is written to.
+    if (headerMode == ResponseMode.MUTABLE) {
+      writeHeaders()
+    }
+
+    // Only write the body if an error was not sent to avoid issues with the Catalina response implementation
+    // which considers a response to be committed if content is written and the Content-length header is set.
+    // Since sendError clears the buffer anyway, this is a branching condition.
+    // If no error was sent, just set the status on the underlying response.
     if (sentError) {
       reason match {
-        case Some(msg) => originalResponse.sendError(getStatus, msg)
-        case None => originalResponse.sendError(getStatus)
+        case Some(msg) =>
+          logger.debug("Sending the error to the underlying response with status code: {}, message: {}", Integer.valueOf(statusCode), msg)
+          originalResponse.sendError(statusCode, msg)
+        case None =>
+          logger.debug("Sending the error to the underlying response with status code: {}", Integer.valueOf(statusCode))
+          originalResponse.sendError(statusCode)
       }
-    } else if (flushedBuffer) {
+    } else {
+      reason match {
+        case Some(msg) =>
+          logger.debug("Setting the status on the underlying response to status code: {}, message: {}", Integer.valueOf(statusCode), msg)
+          originalResponse.setStatus(statusCode, msg)
+        case None =>
+          logger.debug("Setting the status on the underlying response to status code: {}", Integer.valueOf(statusCode))
+          originalResponse.setStatus(statusCode)
+      }
+
+      if (bodyMode == ResponseMode.MUTABLE) {
+        writeBody()
+      }
+    }
+
+    // Flush the buffer if told to do so. This should not conflict with the sendError call -- if the response is
+    // already committed, this call should be a no-op.
+    if (flushedBuffer) {
+      logger.debug("Flushing the buffer on the underlying response")
       originalResponse.flushBuffer()
     }
 
@@ -530,7 +651,9 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse, headerMo
         val qualityParameter: Option[String] = headerParameters.find(param => "q".equalsIgnoreCase(param.split("=").head.trim))
         qualityParameter.map(_.split("=", 2)(1).toDouble).getOrElse(1.0)
       } catch {
-        case e: NumberFormatException => throw new QualityFormatException("Quality was an unparseable value", e)
+        case e: NumberFormatException =>
+          logger.error("Quality was unparsable from: {}", headerValue)
+          throw new QualityFormatException("Quality was an unparsable value", e)
       }
     }
   }

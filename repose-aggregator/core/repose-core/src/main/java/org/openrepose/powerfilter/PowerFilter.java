@@ -440,8 +440,8 @@ public class PowerFilter extends DelegatingFilterProxy {
             // In the case where we pass/route the request, there is a chance that
             // the response will be committed by an underlying service, outside of repose
             if (!wrappedResponse.isCommitted()) {
-                responseMessageService.handle(wrappedRequest, wrappedResponse);
                 responseHeaderService.setVia(wrappedRequest, wrappedResponse);
+                responseMessageService.handle(wrappedRequest, wrappedResponse);
             }
 
             wrappedResponse.commitToResponse();

@@ -181,16 +181,16 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
                     break;
                 case PASS:
                     chain.doFilter(handleRequestWrapper, handleResponseWrapper);
-                    handleResponseWrapper.commitToResponse();
                     break;
                 case PROCESS_RESPONSE:
                     chain.doFilter(handleRequestWrapper, handleResponseWrapper);
                     handleResponse(handleRequestWrapper, handleResponseWrapper);
-                    handleResponseWrapper.commitToResponse();
                     break;
                 case RETURN:
                     break;
             }
+
+            handleResponseWrapper.commitToResponse();
         }
     }
 

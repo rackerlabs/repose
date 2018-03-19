@@ -19,16 +19,21 @@
  */
 package org.openrepose.valve
 
-import org.eclipse.jetty.server.ServerConnector
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+
+import org.eclipse.jetty.http.HttpHeader
+import org.eclipse.jetty.server.{Request, ServerConnector}
 import org.junit.runner.RunWith
+import org.mockito.Mockito.{verify, verifyZeroInteractions}
 import org.openrepose.core.container.config.SslConfiguration
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
 import org.openrepose.valve.ReposeJettyServer.ServerInitializationException
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class ReposeJettyServerTest extends FunSpec with Matchers {
+class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
 
   SpringContextResetter.resetContext()
   CoreSpringProvider.getInstance().initializeCoreContext("/config/root", false)
@@ -192,6 +197,28 @@ class ReposeJettyServerTest extends FunSpec with Matchers {
         None
       )
     }
+  }
+
+  it("creates a Jetty server with an error handler that only sets the cache-control header") {
+    val baseRequest = mock[Request]
+    val request = mock[HttpServletRequest]
+    val response = mock[HttpServletResponse]
+    val repose = new ReposeJettyServer(
+      nodeContext,
+      "cluster",
+      "node",
+      httpPort,
+      httpsPort,
+      sslConfig,
+      idleTimeout,
+      soLingerTime
+    )
+
+    repose.server.getErrorHandler.handle("some-target", baseRequest, request, response)
+
+    verifyZeroInteractions(request)
+    verify(baseRequest).setHandled(true)
+    verify(response).setHeader(HttpHeader.CACHE_CONTROL.asString(), repose.server.getErrorHandler.getCacheControl)
   }
 
   it("Can terminate a server, shutting down the node's entire context") {

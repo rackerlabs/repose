@@ -35,8 +35,10 @@ import scala.collection.JavaConverters._
 import scala.collection.immutable.{TreeMap, TreeSet}
 import scala.collection.mutable
 
-class HttpServletRequestWrapper(originalRequest: HttpServletRequest, val inputStream: ServletInputStream)
-  extends javax.servlet.http.HttpServletRequestWrapper(originalRequest) with HeaderInteractor {
+class HttpServletRequestWrapper(originalRequest: HttpServletRequest,
+                                val inputStream: ServletInputStream)
+  extends javax.servlet.http.HttpServletRequestWrapper(originalRequest)
+    with HeaderInteractor {
 
   import HttpServletRequestWrapper._
 

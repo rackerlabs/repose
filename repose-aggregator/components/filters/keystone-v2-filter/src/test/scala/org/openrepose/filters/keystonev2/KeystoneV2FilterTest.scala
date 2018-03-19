@@ -22,7 +22,7 @@ package org.openrepose.filters.keystonev2
 import java.io.{ByteArrayInputStream, InputStream}
 import java.net.URL
 import java.util.concurrent.TimeUnit
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.http.HttpServletResponse.{SC_UNAUTHORIZED, _}
 import javax.servlet.{FilterConfig, Servlet, ServletRequest, ServletResponse}
 import javax.ws.rs.core.HttpHeaders._
@@ -565,8 +565,9 @@ with HttpDelegationManager {
       val mockServlet = mock[Servlet]
       doAnswer(new Answer[Unit] {
         override def answer(invocation: InvocationOnMock): Unit = {
-          response.setHeader(WWW_AUTHENTICATE, "Delegated")
-          response.setStatus(SC_UNAUTHORIZED)
+          val resp = invocation.getArguments()(1).asInstanceOf[HttpServletResponse]
+          resp.setHeader(WWW_AUTHENTICATE, "Delegated")
+          resp.setStatus(SC_UNAUTHORIZED)
         }
       }).when(mockServlet).service(any[ServletRequest](), any[ServletResponse]())
       val filterChain = new MockFilterChain(mockServlet)
@@ -1327,8 +1328,9 @@ with HttpDelegationManager {
       val mockServlet = mock[Servlet]
       doAnswer(new Answer[Unit] {
         override def answer(invocation: InvocationOnMock): Unit = {
-          response.setHeader(WWW_AUTHENTICATE, "Delegated")
-          response.setStatus(SC_UNAUTHORIZED)
+          val resp = invocation.getArguments()(1).asInstanceOf[HttpServletResponse]
+          resp.setHeader(WWW_AUTHENTICATE, "Delegated")
+          resp.setStatus(SC_UNAUTHORIZED)
         }
       }).when(mockServlet).service(any[ServletRequest](), any[ServletResponse]())
       val filterChain = new MockFilterChain(mockServlet)
