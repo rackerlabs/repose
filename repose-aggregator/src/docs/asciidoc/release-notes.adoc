@@ -1,5 +1,8 @@
 = Release Notes
 
+== In Progress Work
+* https://repose.atlassian.net/browse/REP-6654[REP-6654] - Added OpenTracing support.
+
 == 8.8.2.0 (2018-03-23)
 * https://repose.atlassian.net/browse/REP-6588[REP-6588] - Updated the `commitToResponse` method of the `HttpServletResponseWrapper` to avoid writing headers or the body when an error has been sent.
   This should fix an issue with certain servlet containers where an `IllegalStateException` is thrown when calling `commitToResponse` after both writing to the output stream and calling `sendError` on the wrapped response.
@@ -27,7 +30,6 @@ The case of the actual header does not matter, but the case of the `rax:roles` t
 ====
 Multi-Tenant support is currently not supported when the mask rax roles feature is enabled.
 ====
-* https://repose.atlassian.net/browse/REP-6654[REP-6654] - Added OpenTracing support.
 
 == 8.8.0.0 (2018-02-05)
 * https://repose.atlassian.net/browse/REP-5616[REP-5616], https://repose.atlassian.net/browse/REP-6436[REP-6436], https://repose.atlassian.net/browse/REP-6274[REP-6274] - Updated dependencies:
