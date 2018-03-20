@@ -60,18 +60,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
-        <xs:attribute name="span-context-key" type="xs:string">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        Defines the key name to associate span data with.
-                        For transporting span data over HTTP, a header will be used.
-                        The header name will be this key and the value will be the span data.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="TracerConfig" abstract="true"/>
