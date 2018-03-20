@@ -229,16 +229,6 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
 
     // todo: figure out how to inspect all of the configuration in the tracer (despite access protection)
 
-    it("should set the span context key") {
-      val spanContextKey = "myKey"
-
-      openTracingService.configurationUpdated(
-        minimalOpenTracingConfig().withSpanContextKey(spanContextKey)
-      )
-
-      verify(tracer).register(any[Tracer])
-    }
-
     Set(true, false) foreach { logSpans =>
       it(s"should register a tracer with log spans set to $logSpans") {
         val config = minimalOpenTracingConfig()
