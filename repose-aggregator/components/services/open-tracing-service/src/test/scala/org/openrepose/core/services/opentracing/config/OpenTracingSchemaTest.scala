@@ -17,12 +17,13 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.service.opentracing.config
+package org.openrepose.core.services.opentracing.config
 
 import java.net.URL
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.test.ConfigurationTest
+import org.openrepose.core.service.opentracing.config.ObjectFactory
 import org.scalatest.junit.JUnitRunner
 
 import scala.xml.SAXParseException

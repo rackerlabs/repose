@@ -33,9 +33,15 @@ import org.openrepose.core.opentracing.DelegatingTracer
 import org.openrepose.core.service.opentracing.config._
 import org.openrepose.core.services.config.ConfigurationService
 
+/**
+  * A service that enables support for OpenTracing compliant tracing in Repose.
+  *
+  * Currently, this service only configures the Open Tracing {@link io.opentracing.Tracer}
+  * to report trace data. As such, it does not expose any methods.
+  */
 @Named
 class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationService, reposeTracer: DelegatingTracer)
-  extends OpenTracingService with UpdateListener[OpenTracingConfig] with LazyLogging {
+  extends UpdateListener[OpenTracingConfig] with LazyLogging {
 
   import OpenTracingServiceImpl._
 
