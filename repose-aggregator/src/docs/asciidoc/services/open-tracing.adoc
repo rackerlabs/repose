@@ -1,53 +1,21 @@
 = OpenTracing Service
 
 The OpenTracing service (http://opentracing.io/) is a service in *Repose* which allows for sending tracing data to a Tracing service.
-Tracing data is Tracer specific but nicely abstracted via OpenTracing service.  Currently, the only supported Tracer is Jaeger (http://jaeger.readthedocs.io/en/latest/),
- however other Tracers can be easily integrated in future updates of OpenTracing service.  By default, the service is disabled,
- but can be enabled with including opentracing.cfg.xml configuration.  An origin service can utilize the tracing information internally
- by extracting the span context and injecting it into egress requests; however, that is entirely optional.
- The origin service can simply pass the Tracer-specific header to downstream services and requests will be traced across application boundaries.  Implementation will be covered later in this document.
 
-== Configuration
-* *Default Configuration:* opentracing.cfg.xml
+The initial release of the OpenTracing service only supports using the Jaeger (http://jaeger.readthedocs.io/en/latest/) Tracer.
+However, other Tracers can be integrated in future OpenTracing service updates.
+By default, the service is disabled, but it can be enabled by including an `open-tracing.cfg.xml` configuration.
+The origin service can simply pass the Tracer-specific header to downstream services and requests will be traced across application boundaries.
+
+== General Service information
+* *Default Configuration:* open-tracing.cfg.xml
 * *Released:* vTBD
-* link:../schemas/opentracing.xsd[Schema]
+* link:../schemas/open-tracing.xsd[Schema]
 
-=== Service Configuration
-The OpenTracing service is activated by adding a `opentracing.cfg.xml` configuration to configuration directory.  By default, simply including the configuration turns the service on; however, the operator can disable the service by setting `enabled="false"` attribute.
-This configuration and element are included in the default *Repose* installation.
+== Tracer implementation detail
 
-By default, all requests that are created by the service are reported (sampled).  The operator can optionally supply other sampling configurations:
-
-* `Constant (const)`.  Default is `1`, which means always sample.  Setting this value to `0` will effectively disabled the service
-* `Probability (probability)`.  Default is `0.001`, which is equivalent to 1 request sampled per 1000 actual requests.  The range is between `0.0` and `1.0`.
-* `Rate limited (rate-limited)`.  Default is `1.0` which is one request per second.
-
-[source,xml]
-.opentracing.cfg.xml
-----
-<?xml version="1.0" encoding="UTF-8"?>
-
-<opentracing xmlns="http://docs.openrepose.org/repose/opentracing/v1.0"
-             enabled="true" <!--1-->
-             name="my-repose" <!--2-->
-             tracer="jaeger" <!--3-->
-             collector-endpoint="https://jaeger.collector.example.com"> <!--4-->
-    <jaeger-sampling-config sample-type="probabilistic"> <!--5-->
-        <jaeger-sampling-probabilistic value="0.9" /> <!--6-->
-    </jaeger-sampling-config>
-</opentracing>
-
-----
-<1> The `opentracing` element's `enabled` attribute must be set to `true` to activate this feature.
-<2> The name of the Service/API that this instance of *Repose* is in front of (however, if you are explicitly using OpenTracing in your origin application, you should suffix `-repose` to this configuration as best practice.
-<3> Tracer can be set to any supported tracer.  Currently, only `jaeger` is supported
-<4> Collector endpoint must be set to the Tracer collector endpoint.
-<5> Optional sampling configuration.  Default is `probabilistic`.  Other options include: `const` and `rate-limited`
-<6> Probability sampling rate.  Ranges from `0.0` (never) to `1.0` (always)
-
-=== Tracer implementation detail
-
-This section will cover all Tracers that are supported by OpenTracing service.  We will be adding to this list as more tracers as supported.
+This section will cover all Tracers that are supported by the OpenTracing service.
+We will be adding to this list as more tracers as supported.
 
 Current support:
 
@@ -60,62 +28,106 @@ Current support:
 |https://github.com/jaegertracing/jaeger-client-java/tree/master/jaeger-apachehttpclient
 |===
 
-=== Common configurations ===
-
-* Send tracing data to tracer collector for every request:
-
-[source,xml]
-.opentracing.cfg.xml
-----
-<?xml version="1.0" encoding="UTF-8"?>
-
-<opentracing xmlns="http://docs.openrepose.org/repose/opentracing/v1.0"
-             enabled="true" <!--1-->
-             name="my-repose" <!--2-->
-             tracer="jaeger" <!--3-->
-             collector-endpoint="https://jaeger.collector.example.com"> <!--4-->
-    <jaeger-sampling-config sample-type="const"> <!--5-->
-        <jaeger-sampling-const value="1" /> <!--6-->
-    </jaeger-sampling-config>
-</opentracing>
-
-----
-<1> The `opentracing` element's `enabled` attribute must be set to `true` to activate this feature.
-<2> The name of the Service/API that this instance of *Repose* is in front of (however, if you are explicitly using OpenTracing in your origin application, you should suffix `-repose` to this configuration as best practice.
-<3> Tracer can be set to any supported tracer.  Currently, only `jaeger` is supported
-<4> Collector endpoint must be set to the Tracer collector endpoint.
-<5> Optional sampling configuration.  Set to `const`
-<6> Set to `1` to always send traces
-
-
-* Send tracing data to tracer agent for every request:
+== Examples
+=== Basic Configuration
+This configuration will send all traces to the default HTTP collector at `http://localhost:14268`.
 
 [source,xml]
-.opentracing.cfg.xml
+.open-tracing.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
-
-<opentracing xmlns="http://docs.openrepose.org/repose/opentracing/v1.0"
-             enabled="true" <!--1-->
-             name="my-repose" <!--2-->
-             tracer="jaeger" <!--3-->
-             sender-protocol="udp" <!--4-->
-             agent-host="jaeger.agent.example.com" <!--5-->
-             agent-port="5775"> <!--6-->
-    <jaeger-sampling-config sample-type="const"> <!--7-->
-        <jaeger-sampling-const value="1" /> <!--8-->
-    </jaeger-sampling-config>
-</opentracing>
-
+<open-tracing xmlns="http://docs.openrepose.org/repose/open-tracing-service/v1.0"
+              service-name="myService-repose" <!--1-->
+>
+    <jaeger> <!--2-->
+        <connection-http/> <!--3-->
+        <sampling-constant/> <!--4-->
+    </jaeger>
+</open-tracing>
 ----
-<1> The `opentracing` element's `enabled` attribute must be set to `true` to activate this feature.
-<2> The name of the Service/API that this instance of *Repose* is in front of (however, if you are explicitly using OpenTracing in your origin application, you should suffix `-repose` to this configuration as best practice.
-<3> Tracer can be set to any supported tracer.  Currently, only `jaeger` is supported
-<4> Sender protocol is set to `udp`.
-<5> Agent host must be set to the Tracer agent host.  Repose will not start if this is misconfigured.
-<6> Agent port must be set to the Tracer agent port.  Repose will not start if this is misconfigured.
-<7> Optional sampling configuration.  Set to `const`
-<8> Set to `1` to always send traces
 
-=== Example usage in origin service
-By default, the only thing an origin service needs to do is pass Tracer specific header (`Tracer Header` in `Table 1`) as part of its request to downstream systems.
+<1> The required name of the service that is reporting traces.
+    This value will be used to identify the service and should therefore be unique (e.g., identity-repose).
+<2> Defines the Tracer implementation to use as Jaeger.
+<3> Indicates to use HTTP communication with the default Collector endpoint at `http://localhost:14268`.
+<4> Indicates to use the Constant (`const`) sampling scheme with the default of `on` which means all.
+
+=== Use Basic Auth with the Collector endpoint
+This configuration will send one of every 1,000 traces to the collector using Basic HTTP Authentication.
+
+[source,xml]
+.open-tracing.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<open-tracing xmlns="http://docs.openrepose.org/repose/open-tracing-service/v1.0"
+              service-name="myService-repose" <!--1-->
+>
+    <jaeger
+        flush-interval-ms="1000" <!--2-->
+        max-buffer-size="10000" <!--3-->
+        log-spans="true" <!--4-->
+    >
+        <connection-http
+            endpoint="http://localhost:14268" <!--5-->
+            username="UserName" <!--6-->
+            password="P4$$W0rd" <!--7-->
+        />
+        <sampling-probabilistic
+            probability="0.001" <!--8-->
+        />
+    </jaeger>
+</open-tracing>
+----
+
+<1> The required name of the service that is reporting traces.
+    This value will be used to identify the service and should therefore be unique (e.g., identity-repose).
+<2> How often to send span data to tracer in milliseconds. +
+    Default: `1000`
+<3> Maximum number of spans in buffer before sending. +
+    Default: `10,000`
+<4> Optionally sets up a logger for all spans. +
+    Default: `true`
+<5> Collector endpoint. +
+    Default: `http://localhost:14268`
+<6> Optional username sent for Basic HTTP Authentication as defined in https://tools.ietf.org/html/rfc7617[RFC 7617].
+<7> Optional password sent for Basic HTTP Authentication as defined in https://tools.ietf.org/html/rfc7617[RFC 7617].
++
+[NOTE]
+====
+The `username` attribute must be accompanied by a `password` attribute.
+The `token` attribute is mutually exclusive to the `username`/`password` attributes.
+====
+
+<8> The Probability (`probability`) sampling scheme applies a probabilistic algorithm weighted between `0.0` and `1.0`.
+    With `0.0` being None and `1.0` being All. +
+    Default: `0.001`
+
+=== Broadcast to the Collector endpoint
+This configuration will send at most one trace per second to the collector using UDP.
+
+[source,xml]
+.open-tracing.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<open-tracing xmlns="http://docs.openrepose.org/repose/open-tracing-service/v1.0"
+              service-name="myService-repose" <!--1-->
+>
+    <jaeger>
+        <connection-udp <!--2-->
+            host="localhost" <!--3-->
+            port="14268" <!--4-->
+        />
+        <sampling-rate-limiting
+            max-traces-per-second="1.0" <!--5-->
+        />
+    </jaeger>
+</open-tracing>
+----
+
+<1> The required name of the service that is reporting traces.
+    This value will be used to identify the service and should therefore be unique (e.g., identity-repose).
+<2> Indicates that UDP will be used to transport data to the agent.
+<3> Agent target host.
+<4> Agent target port.
+<5> Utilize the Rate limited (`rate-limited`) sampling scheme. +
+    Default: `1.0`
