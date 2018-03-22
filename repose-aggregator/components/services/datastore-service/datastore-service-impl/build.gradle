@@ -9,6 +9,7 @@ dependencies {
     compile "org.eclipse.jetty:jetty-servlet"
     compile "org.springframework:spring-beans"
     compile "net.sf.ehcache:ehcache-core"
+    compile "io.opentracing:opentracing-api"
     // TODO: Add this dependency. Beware! Doing so pulls in a transitive "ehcache" artifact
     //       which shares some classes with "ehcache-core" above. The classpath conflict
     //       should be resolved before this dependency is uncommented.
@@ -25,7 +26,10 @@ dependencies {
     testCompile "org.mockito:mockito-all"
     testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.hamcrest:hamcrest-all"
+    testCompile "org.springframework:spring-test"
+    testCompile "io.opentracing:opentracing-mock"
     testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
+    testCompile "org.slf4j:jcl-over-slf4j"
 }
 
 jacocoTestCoverageVerification {
