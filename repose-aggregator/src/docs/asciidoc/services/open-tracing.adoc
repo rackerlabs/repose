@@ -1,25 +1,30 @@
 = OpenTracing Service
 
-The OpenTracing service (http://opentracing.io/) is a service in *Repose* which allows for sending tracing data to a Tracing service.
+The OpenTracing service, which adheres to the http://opentracing.io[OpenTracing standard], enables reporting of tracing data to a collection service.
 
-The initial release of the OpenTracing service only supports using the Jaeger (http://jaeger.readthedocs.io/en/latest/) Tracer.
+The initial release of the OpenTracing service only supports using the http://jaeger.readthedocs.io/en/latest/[Jaeger client library].
 However, other Tracers can be integrated in future OpenTracing service updates.
 By default, the service is disabled, but it can be enabled by including an `open-tracing.cfg.xml` configuration.
 The origin service can simply pass the Tracer-specific header to downstream services and requests will be traced across application boundaries.
+
+[NOTE]
+====
+For backwards compatibility with the underlying configuration mechanism, the only way to disable the OpenTracing service after it has been started is to restart the *Respose* instance.
+====
 
 == General Service information
 * *Default Configuration:* open-tracing.cfg.xml
 * *Released:* vTBD
 * link:../schemas/open-tracing.xsd[Schema]
 
-== Tracer implementation detail
+== OpenTracing implementation detail
 
 This section will cover all Tracers that are supported by the OpenTracing service.
-We will be adding to this list as more tracers as supported.
+We will be adding to this list as more tracers are supported.
 
 Current support:
 
-.Table Tracer information
+.Tracer information
 |===
 |Tracer Name |Tracer Header    |Extraction examples
 
@@ -30,7 +35,7 @@ Current support:
 
 == Examples
 === Basic Configuration
-This configuration will send all traces to the default HTTP collector at `http://localhost:14268`.
+This configuration will send all traces to the collector at `http://localhost:14268`.
 
 [source,xml]
 .open-tracing.cfg.xml
@@ -40,7 +45,9 @@ This configuration will send all traces to the default HTTP collector at `http:/
               service-name="myService-repose" <!--1-->
 >
     <jaeger> <!--2-->
-        <connection-http/> <!--3-->
+        <connection-http <!--3-->
+            endpoint="http://localhost:14268" <!--4-->
+        />
         <sampling-constant/> <!--4-->
     </jaeger>
 </open-tracing>
@@ -50,7 +57,8 @@ This configuration will send all traces to the default HTTP collector at `http:/
     This value will be used to identify the service and should therefore be unique (e.g., identity-repose).
 <2> Defines the Tracer implementation to use as Jaeger.
 <3> Indicates to use HTTP communication with the default Collector endpoint at `http://localhost:14268`.
-<4> Indicates to use the Constant (`const`) sampling scheme with the default of `on` which means all.
+<4> Collector endpoint.
+<5> Indicates to use the Constant (`const`) sampling scheme with the default of `on` which means all.
 
 === Use Basic Auth with the Collector endpoint
 This configuration will send one of every 1,000 traces to the collector using Basic HTTP Authentication.
@@ -87,8 +95,7 @@ This configuration will send one of every 1,000 traces to the collector using Ba
     Default: `10,000`
 <4> Optionally sets up a logger for all spans. +
     Default: `true`
-<5> Collector endpoint. +
-    Default: `http://localhost:14268`
+<5> Collector endpoint.
 <6> Optional username sent for Basic HTTP Authentication as defined in https://tools.ietf.org/html/rfc7617[RFC 7617].
 <7> Optional password sent for Basic HTTP Authentication as defined in https://tools.ietf.org/html/rfc7617[RFC 7617].
 +
