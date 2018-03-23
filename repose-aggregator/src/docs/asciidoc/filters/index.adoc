@@ -102,7 +102,7 @@ Winnows away the tenants that are not relevant to the current request.
 *IN PROGRESS*
 
 == <<uri-normalization.adoc#,URI Normalization Filter>>
-*IN PROGRESS*
+Normalizes the URI of HTTP messages.
 
 == <<uri-stripper.adoc#,URI Stripper Filter>>
 *IN PROGRESS*

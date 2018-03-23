@@ -1,73 +1,190 @@
 = URI Normalization Filter
 
-include::../_includes/in-progress.adoc[]
+The URI Normalization Filter, as the name suggests, normalizes the URI of HTTP requests.
+
+Normalization is the process of standardizing content to optimize the flow of information.
+
+This filter performs two primary functions: whitelisting and alphabetizing the query parameter list of the URI, and translating a media extension in the URI into an `Accept` header value.
+Both of these functions may be useful in preventing cache busting.
 
 == General filter information
-* *Name:* ???
-* *Default Configuration:* ???.cfg.xml
-* *Released:* v?.?.?.?
+* *Name:* uri-normalization
+* *Default Configuration:* uri-normalization.cfg.xml
+* *Released:* v2.1.0
 * *Bundle:* repose-filter-bundle
 * link:../schemas/uri-normalization-configuration.xsd[Schema]
 
 == Prerequisites & Postconditions
 === Required Request Headers
-???.
+This filter does not require any request headers.
 
 === Required Preceding Filters
-???.
+This filter has no dependencies on other filters.
+
+It is recommended that this filter be near the top of the filter chain so that the request is normalized before being processed by other filters.
 
 === Request Headers Created
-???.
+* `Accept` - When configured to handle media type variants this header will be set to the matching configured media type.
+** If configured to handle media type variants, but no configured variant matches, then this header will not be modified.
 
 === Request Body Changes
-???.
+This filter does not modify the request body.
 
 === Recommended Follow-On (Succeeding) Filters
-???.
+This filter is not strictly required by any other filters.
+
+It is recommended that this filter be near the top of the filter chain so that the request is normalized before being processed by other filters.
 
 === Response Body Changes
-???.
+This filter does not modify the response body.
 
 === Response Headers Created
-???.
+This filter does not create/modify any response headers.
 
 === Response Status Codes
-???.
+This filter does not modify the response code.
 
 == Examples
-=== Shows how to ???
-This configuration will ???.
+=== Handling Query Parameters
+This configuration will alphabetize query parameters by their key name.
+Query parameters are expected to be key value pairs.
 
 [source,xml]
-.???.cfg.xml
+.uri-normalization.cfg.xml
 ----
-<??? xmlns="http://docs.openrepose.org/repose/???/v1.0">
-    <???> <!--1-->
-    </???>
-</???>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<uri-normalization xmlns='http://docs.openrepose.org/repose/uri-normalization/v1.0'>
+    <uri-filters>
+        <target <!--1-->
+            http-methods="GET PUT" <!--2-->
+            uri-regex="/example/.*" <!--3-->
+            alphabetize="true"/> <!--4-->
+
+        <target alphabetize="false"/>
+    </uri-filters>
+</uri-normalization>
 ----
-<1> Specifies ???.
+<1> Defines a target for query parameter normalization.
+    A target is simply a set of criteria that a request must satisfy for processing to occur.
+<2> Defines a space-separated list of HTTP methods for which this target applies.
+    Query parameter normalization for this target only applies to GET and PUT requests.
+    To apply to all methods, the keyword `ALL` should be used. +
+    Default: `ALL`
+<3> Defines a URI regular expression for which this target applies.
+    The regular expression must match the request URI for the target to apply. +
+    Default: `.*`
+<4> Specifies whether or not to alphabetize the query parameter list.
+    Query parameter normalization on this target will alphabetize the query parameter list. +
+    Default: `false`
 
-== Additional Information
+=== Whitelist
+This configuration will whitelist certain query parameter keys.
+If a query parameter key in the request does not match one of the whitelist query parameter keys, then the key and its associated value in the request will be removed from the request.
 
-=== Metrics
+[source,xml]
+.uri-normalization.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
 
-This component reports the following metrics to the <<../services/metrics.adoc#, Metrics Service>>:
+<uri-normalization xmlns='http://docs.openrepose.org/repose/uri-normalization/v1.0'>
+    <uri-filters>
+        <target>
+            <whitelist id="person-params"> <!--1-->
+                <parameter name="name"/> <!--2-->
+                <parameter name="age" <!--3-->
+                    multiplicity="1" <!--4-->
+                    case-sensitive="false"/> <!--5-->
+            </whitelist>
+        </target>
+    </uri-filters>
+</uri-normalization>
+----
+<1> Defines a new whitelist identified as `person-params`.
+<2> Defines a new whitelisted query parameter named `name`.
+<3> Defines a new whitelisted query parameter named `age`.
+<4> Specifies that the `age` query parameter may not occur more than `1` time in the query parameter list. +
+    Multiplicity must be a non-negative integer denoting the maximum number of times a query parameter should be allowed to occur.
+    If multiplicity is set to `0`, then the query parameter may occur an unlimited number of times.
+    Default: `0`
+<5> Specifies that comparison of the configured query parameter name against query parameter keys from the request should be performed in a case-sensitive manner.
+    Default: `true`
 
-[cols="3", options="header,autowidth"]
-|===
-|Metric Type
-|Metric Name
-|Description
+=== Handling Media Type Variants
+This configuration will add an `Accept` header to the request.
+In some cases, if an `Accept` header is already present on the request, it will be replaced.
+Note that while the `Accept` header value may change, the body of the request will not.
 
-| Meter
-| `org.openrepose.filters.urinormalization.UriNormalizationFilter.Normalization.<request-method>.<uri-regex>`
-| Counts the number of times that the query parameters of a request with method `request-method` and a URL matching `uri-regex` are normalized by this filter.
-`request-method` is the HTTP method of the request.
-`uri-regex` is the configured target `uri-regex` that matches the request URL.
+The value of the `Accept` header is configurable.
+Since multiple values may be configured, this filter will select the most appropriate value.
+At most one value will be selected.
+Selection follows an order of precedence:
 
-| Meter
-| `org.openrepose.filters.urinormalization.UriNormalizationFilter.Normalization.ACROSS ALL`
-| Counts the number of times that the query parameters of a request are normalized by this filter.
-This meter is the sum of all `org.openrepose.filters.urinormalization.UriNormalizationFilter.Normalization.<request-method>.<uri-regex>` meters.
-|===
+1. Media type variant extension.
+   An extension is of the form `.<extension>` where `<extension>` can be replaced by nearly any string.
+   For example, a XML extension would be `.xml`.
+   If an extension is found in the request URI, and there exists a configured media variant with the same extension, then the `Accept` header will be given the configured value which maps to the media type extension in question.
+   Additionally, the extension will be removed from the URI.
+1. The preferred media type.
+   This is the `media-type` in the `media-variants` list with a `preferred` attribute set to `true`.
+   This value will only be selected if a preferred media type exists, and the `Accept` header is either missing, or has a value of `\*/*`.
+1. The first `media-type` in the `media-variants` list.
+   This value will only be selected if the `Accept` header is either missing, or has a value of `\*/*`.
+
+Media type handling also has the effect of normalizing the `Accept` header.
+As a result, it can be used to prevent cache busting that relies on varying the value of the `Accept` header.
+
+[source,xml]
+.uri-normalization.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+
+<uri-normalization xmlns="http://docs.openrepose.org/repose/uri-normalization/v1.0">
+    <media-variants>
+        <media-type <!--1-->
+            name="application/json" <!--2-->
+            variant-extension="json"/> <!--3-->
+        <media-type
+            name="application/xml"
+            variant-extension="xml"
+            preferred="true"/> <!--4-->
+    </media-variants>
+</uri-normalization>
+----
+<1> Defines a media type variant.
+<2> Defines the media type name.
+    If this media type is selected using the selection criteria above, then this will be the value of the `Accept` header.
+<3> Defines the variant extension.
+    The variant extension is used as part of media type selection as described above.
+    If no variant extension is specified, then the media type will only be used when it is either the preferred media type, or the first media type in the media type list. +
+    Default: ``
+<4> Specifies whether or not this media type is the preferred media type.
+    The preferred media type is used as part of media type selection as described above. +
+    Default: `false`
+
+=== Exhaustive
+This configuration will perform both media type normalization and query parameter normalization.
+
+[source,xml]
+.uri-normalization.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+
+<uri-normalization xmlns='http://docs.openrepose.org/repose/uri-normalization/v1.0'>
+    <media-variants>
+        <media-type name="application/json" variant-extension="json" preferred="true"/>
+        <media-type name="application/xml" variant-extension="xml"/>
+        <media-type name="application/atom+xml" variant-extension="atom"/>
+    </media-variants>
+
+    <uri-filters>
+        <target uri-regex="/uri_normalization/.*" http-methods="GET" alphabetize="true">
+            <whitelist id="pagination-params">
+                <parameter name="a" multiplicity="1" case-sensitive="false"/>
+                <parameter name="r" multiplicity="1" case-sensitive="false"/>
+                <parameter name="n" multiplicity="1" case-sensitive="false"/>
+            </whitelist>
+        </target>
+    </uri-filters>
+</uri-normalization>
+----
