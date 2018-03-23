@@ -146,12 +146,11 @@
                     </xs:documentation>
                 </xs:annotation>
 
-                <xs:attribute name="endpoint" type="xs:string" default="http://localhost:14268">
+                <xs:attribute name="endpoint" type="xs:string" use="required">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>
                                 Collector endpoint.
-                                Defaults to http://localhost:14268
                             </html:p>
                         </xs:documentation>
                     </xs:annotation>
