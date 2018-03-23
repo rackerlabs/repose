@@ -1,6 +1,6 @@
 = Release Notes
 
-== In Progress Work
+== 8.8.2.0 (2018-03-23)
 * https://repose.atlassian.net/browse/REP-6588[REP-6588] - Updated the `commitToResponse` method of the `HttpServletResponseWrapper` to avoid writing headers or the body when an error has been sent.
   This should fix an issue with certain servlet containers where an `IllegalStateException` is thrown when calling `commitToResponse` after both writing to the output stream and calling `sendError` on the wrapped response.
 * https://repose.atlassian.net/browse/REP-6628[REP-6628] - Updated dependencies:
@@ -11,8 +11,10 @@
 ====
 The case of the actual header does not matter, but the case of the `rax:roles` tenant must match the case of the `param` element's `name` attribute in the <<filters/api-validator.adoc#, API Validator filter>>'s WADL.
 ====
-* https://repose.atlassian.net/browse/REP-6550[REP-6550] - Update the <<filters/valkyrie-authorization.adoc#, Valkyrie Filter>> to care about quality when selected a tenant ID for talking to the Valkyrie service.
-* https://repose.atlassian.net/browse/REP-66040[REP-660450] - Update to the <<filters/valkyrie-authorization.adoc#, Valkyrie Filter>> to add roles to the `X-Map-Roles` header when role translation is configured.
+* https://repose.atlassian.net/browse/REP-6550[REP-6550] - Update the <<filters/valkyrie-authorization.adoc#, Valkyrie Filter>> to care about quality when selecting a tenant ID for talking to the Valkyrie service.
+* https://repose.atlassian.net/browse/REP-6604[REP-6604] - Update the <<filters/valkyrie-authorization.adoc#, Valkyrie Filter>> to add roles to the `X-Map-Roles` header when role translation is configured.
+* https://repose.atlassian.net/browse/REP-6448[REP-6448] - Updated the Simple RBAC filter to support Multi-Tenant.
+* https://repose.atlassian.net/browse/REP-6710[REP-6710] - Removed the custom String Utilities in favor of the standard https://commons.apache.org/proper/commons-lang/[Apache Commons Lang] version already in use elsewhere.
 
 == 8.8.1.0 (2018-02-15)
 * https://repose.atlassian.net/browse/REP-6447[REP-6447] - Added multi-tenant support in the <<filters/keystone-v2.adoc#, Keystone v2>> and <<filters/keystone-v2-authorization.adoc#, Keystone v2 Authorization>> filters.
