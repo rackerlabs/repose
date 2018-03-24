@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0"
+           xmlns:kv2="http://docs.openrepose.org/repose/keystone-v2/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/keystone-v2/v1.0"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+    <xs:include schemaLocation="keystone-v2-common.xsd"/>
+
+    <xs:element name="keystone-v2" type="KeystoneV2AuthenticationConfig"/>
+
+    <xs:complexType name="KeystoneV2AuthenticationConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The root config type for the Rackspace Keystone V2 filter configuration file.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="KeystoneV2Config">
+                <xs:all>
+                    <xs:element name="identity-service" type="IdentityServiceType" minOccurs="1" maxOccurs="1"/>
+                    <xs:element name="cache" type="CacheType" minOccurs="0" maxOccurs="1"/>
+                </xs:all>
+                <xs:attribute name="ignored-roles" type="xs:string" default="identity:tenant-access" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p> A space separated list of roles that will be ignored when processing the response from the identity provider.</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="IdentityServiceType">
+        <xs:attribute name="username" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Admin username to access Rackspace Keystone V2 identity service.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+
+        </xs:attribute>
+        <xs:attribute name="password" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Admin user password to access Rackspace Keystone V2 identity service.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="uri" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Rackspace Keystone v2 Identity Endpoint URI</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="connection-pool-id" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Http Connection pool ID to use when talking to Rackspace Keystone V2 Identity</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="set-roles-in-header" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Set the user's roles in the x-roles header</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="set-groups-in-header" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Set the user's groups in the x-pp-groups header</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="set-catalog-in-header" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Set the user's service catalog, base64 encoded in the X-Catalog header.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="apply-rcn-roles" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Indicates whether or not to include the apply_rcn_roles query parameter when talking to
+                        Rackspace Keystone V2 Identity.
+                        If this attribute is true, then it indicates the response from Rackspace Keystone V2 Identity
+                        should also include any global Rackspace Customer Number (RCN) roles.
+                        Refer to the Rackspace Keystone V2 Identity documentation for more information.
+                        (Default: false)
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:assert vc:minVersion="1.1"
+                   test="if (@username or @password) then (@username and @password) else true()"
+                   xerces:message="Must provide both a username and a password"
+                   saxon:message="Must provide both a username and a password"/>
+    </xs:complexType>
+
+    <xs:complexType name="CacheType">
+        <xs:sequence>
+            <xs:element name="timeouts" type="CacheTimeoutsType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="atom-feed" type="AtomFeedType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:assert vc:minVersion="1.1"
+                   test="count(kv2:atom-feed/@id) = count(distinct-values(kv2:atom-feed/@id))"
+                   xerces:message="Atom Feed ID's must be unique"
+                   saxon:message="Atom Feed ID's must be unique"/>
+    </xs:complexType>
+
+    <xs:complexType name="CacheTimeoutsType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The number of seconds which cached data will live in the datastore. Different data is cached
+                    separately, so there are multiple configurable cache timeouts. Each timeout value behaves in the
+                    following way:
+                    If -1, caching is disabled.
+                    If 0, data is cached indefinitely. In other words, data is eternal.
+                    If greater than 0, data is cached for the value provided, in seconds.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:all>
+            <xs:element name="token" type="NegOneOrGreaterInteger" default="600" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="group" type="NegOneOrGreaterInteger" default="600" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="endpoints" type="NegOneOrGreaterInteger" default="600" minOccurs="0" maxOccurs="1"/>
+            <!-- todo: xs:element name="user" type="ZeroOrPositiveInteger" default="600" minOccurs="0" maxOccurs="1"/-->
+        </xs:all>
+        <xs:attribute name="variability" type="ZeroOrPositiveInteger" default="0" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This value will be added or subtracted to the cache timeouts to make sure that the cached items
+                        have some variability so they don't all expire at the exact same time. (Defaults to no
+                        variability)
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="AtomFeedType">
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The unique ID of a feed defined in the Atom Feed service configuration.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="NegOneOrGreaterInteger">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="-1"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="ZeroOrPositiveInteger">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>
