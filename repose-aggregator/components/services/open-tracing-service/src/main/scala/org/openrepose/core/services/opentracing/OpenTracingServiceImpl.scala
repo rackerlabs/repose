@@ -25,9 +25,7 @@ import javax.inject.{Inject, Named}
 import com.typesafe.scalalogging.slf4j.LazyLogging
 import com.uber.jaeger.Configuration
 import com.uber.jaeger.Configuration.{SamplerConfiguration, SenderConfiguration}
-import com.uber.jaeger.propagation.TextMapCodec
 import com.uber.jaeger.samplers.{ConstSampler, ProbabilisticSampler, RateLimitingSampler}
-import io.opentracing.propagation.Format
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.opentracing.DelegatingTracer
 import org.openrepose.core.service.opentracing.config._
@@ -84,10 +82,8 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
           samplerConfiguration,
           reporterConfiguration)
 
-        val tracerBuilder = configuration.getTracerBuilder
-
         logger.debug("Registering the tracer with global tracer")
-        reposeTracer.register(tracerBuilder.build())
+        reposeTracer.register(configuration.getTracer())
       case _ =>
         logger.error("Unsupported tracer specified")
     }
