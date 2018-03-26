@@ -22,4 +22,4 @@ Such metrics provide insight into the state of *Repose* and its components at an
 Sends basic configuration data to the *Repose Team*.
 
 == <<response-messaging.adoc#,Response Messaging service>>
-*IN PROGRESS*
+Enables *Repose* to conditionally overwrite the response body with a pre-configured message.
