@@ -21,19 +21,19 @@ package org.openrepose.commons.utils.opentracing
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
-import org.scalatest.{BeforeAndAfter, FunSpec, FunSuite, Matchers}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
+import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
 
 import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
-class TracerExtractorTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter {
+class HttpRequestCarrierTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter {
 
   describe("constructor") {
     it("null wrapper") {
-      val tracerExtractor: TracerExtractor = new TracerExtractor(null)
+      val tracerExtractor: HttpRequestCarrier = new HttpRequestCarrier(null)
 
       tracerExtractor.headers shouldBe empty
     }
@@ -41,7 +41,7 @@ class TracerExtractorTest extends FunSpec with Matchers with MockitoSugar with B
     it("empty wrapper") {
       val servletRequest = new MockHttpServletRequest()
       val httpServletRequestWrapper: HttpServletRequestWrapper = new HttpServletRequestWrapper(servletRequest)
-      val tracerExtractor: TracerExtractor = new TracerExtractor(httpServletRequestWrapper)
+      val tracerExtractor: HttpRequestCarrier = new HttpRequestCarrier(httpServletRequestWrapper)
 
       tracerExtractor.headers shouldBe empty
     }
@@ -51,7 +51,7 @@ class TracerExtractorTest extends FunSpec with Matchers with MockitoSugar with B
       servletRequest.addHeader("content-type", "application/json")
       servletRequest.addHeader("accept", "application/json")
       val httpServletRequestWrapper: HttpServletRequestWrapper = new HttpServletRequestWrapper(servletRequest)
-      val tracerExtractor: TracerExtractor = new TracerExtractor(httpServletRequestWrapper)
+      val tracerExtractor: HttpRequestCarrier = new HttpRequestCarrier(httpServletRequestWrapper)
 
       tracerExtractor.headers.size shouldBe 2
       tracerExtractor.headers.keySet should contain ("Content-Type")
@@ -66,7 +66,7 @@ class TracerExtractorTest extends FunSpec with Matchers with MockitoSugar with B
       servletRequest.addHeader("accept", "application/json")
       servletRequest.addHeader("accept", "application/xml")
       val httpServletRequestWrapper: HttpServletRequestWrapper = new HttpServletRequestWrapper(servletRequest)
-      val tracerExtractor: TracerExtractor = new TracerExtractor(httpServletRequestWrapper)
+      val tracerExtractor: HttpRequestCarrier = new HttpRequestCarrier(httpServletRequestWrapper)
 
       tracerExtractor.headers.size shouldBe 1
       tracerExtractor.headers.keySet should contain ("accept")
@@ -77,7 +77,7 @@ class TracerExtractorTest extends FunSpec with Matchers with MockitoSugar with B
 
   describe("iterator") {
     it("null wrapper") {
-      val tracerExtractor: TracerExtractor = new TracerExtractor(null)
+      val tracerExtractor: HttpRequestCarrier = new HttpRequestCarrier(null)
 
       tracerExtractor.headers shouldBe empty
 
@@ -87,7 +87,7 @@ class TracerExtractorTest extends FunSpec with Matchers with MockitoSugar with B
     it("empty wrapper") {
       val servletRequest = new MockHttpServletRequest()
       val httpServletRequestWrapper: HttpServletRequestWrapper = new HttpServletRequestWrapper(servletRequest)
-      val tracerExtractor: TracerExtractor = new TracerExtractor(httpServletRequestWrapper)
+      val tracerExtractor: HttpRequestCarrier = new HttpRequestCarrier(httpServletRequestWrapper)
 
       tracerExtractor.headers shouldBe empty
 
@@ -99,7 +99,7 @@ class TracerExtractorTest extends FunSpec with Matchers with MockitoSugar with B
       servletRequest.addHeader("content-type", "application/json")
       servletRequest.addHeader("accept", "application/json")
       val httpServletRequestWrapper: HttpServletRequestWrapper = new HttpServletRequestWrapper(servletRequest)
-      val tracerExtractor: TracerExtractor = new TracerExtractor(httpServletRequestWrapper)
+      val tracerExtractor: HttpRequestCarrier = new HttpRequestCarrier(httpServletRequestWrapper)
 
       tracerExtractor.headers.size shouldBe 2
       tracerExtractor.headers.keySet should contain ("Content-Type")
@@ -123,7 +123,7 @@ class TracerExtractorTest extends FunSpec with Matchers with MockitoSugar with B
       servletRequest.addHeader("accept", "application/json")
       servletRequest.addHeader("accept", "application/xml")
       val httpServletRequestWrapper: HttpServletRequestWrapper = new HttpServletRequestWrapper(servletRequest)
-      val tracerExtractor: TracerExtractor = new TracerExtractor(httpServletRequestWrapper)
+      val tracerExtractor: HttpRequestCarrier = new HttpRequestCarrier(httpServletRequestWrapper)
 
       tracerExtractor.headers.size shouldBe 1
       tracerExtractor.headers.keySet should contain ("accept")
