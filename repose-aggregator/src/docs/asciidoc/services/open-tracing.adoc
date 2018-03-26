@@ -35,7 +35,7 @@ Current support:
 
 == Examples
 === Basic Configuration
-This configuration will send all traces to the collector at `http://localhost:14268`.
+This configuration will send all traces to the collector at `\http://localhost:14268`.
 
 [source,xml]
 .open-tracing.cfg.xml
@@ -48,7 +48,7 @@ This configuration will send all traces to the collector at `http://localhost:14
         <connection-http <!--3-->
             endpoint="http://localhost:14268" <!--4-->
         />
-        <sampling-constant/> <!--4-->
+        <sampling-constant/> <!--5-->
     </jaeger>
 </open-tracing>
 ----
@@ -56,7 +56,7 @@ This configuration will send all traces to the collector at `http://localhost:14
 <1> The required name of the service that is reporting traces.
     This value will be used to identify the service and should therefore be unique (e.g., identity-repose).
 <2> Defines the Tracer implementation to use as Jaeger.
-<3> Indicates to use HTTP communication with the default Collector endpoint at `http://localhost:14268`.
+<3> Indicates to use HTTP communication with the default Collector endpoint at `\http://localhost:14268`.
 <4> Collector endpoint.
 <5> Indicates to use the Constant (`const`) sampling scheme with the default of `on` which means all.
 
