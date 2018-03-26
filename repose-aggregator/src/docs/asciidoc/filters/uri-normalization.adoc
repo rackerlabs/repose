@@ -120,15 +120,15 @@ Since multiple values may be configured, this filter will select the most approp
 At most one value will be selected.
 Selection follows an order of precedence:
 
-1. Media type variant extension.
+. Media type variant extension.
    An extension is of the form `.<extension>` where `<extension>` can be replaced by nearly any string.
    For example, a XML extension would be `.xml`.
    If an extension is found in the request URI, and there exists a configured media variant with the same extension, then the `Accept` header will be given the configured value which maps to the media type extension in question.
    Additionally, the extension will be removed from the URI.
-1. The preferred media type.
+. The preferred media type.
    This is the `media-type` in the `media-variants` list with a `preferred` attribute set to `true`.
    This value will only be selected if a preferred media type exists, and the `Accept` header is either missing, or has a value of `\*/*`.
-1. The first `media-type` in the `media-variants` list.
+. The first `media-type` in the `media-variants` list.
    This value will only be selected if the `Accept` header is either missing, or has a value of `\*/*`.
 
 Media type handling also has the effect of normalizing the `Accept` header.
