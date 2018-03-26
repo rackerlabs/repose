@@ -28,14 +28,14 @@ import javax.annotation.PostConstruct
 import javax.inject.Named
 
 /**
-  * This is the Global Tracer for Repose and is based on the io.opentracing.util.GlobalTracer.
+  * This is the Global Tracer for Repose and is based on the [[io.opentracing.util.GlobalTracer]].
   *
   * The main differences are this Tracer:
   *  - immediately registers with the OpenTracing GlobalTracer
   *  - allows for registration of a new Tracer at any time.
   */
 @Named
-class ReposeTracer extends Tracer with LazyLogging {
+class ReposeTracer extends DelegatingTracer with LazyLogging {
 
   private var tracer: Tracer = NoopTracerFactory.create()
 
@@ -44,15 +44,15 @@ class ReposeTracer extends Tracer with LazyLogging {
     GlobalTracer.register(this)
   }
 
-  def get(): Tracer =
+  override def get(): Tracer =
     tracer
 
-  def register(newTracer: Tracer): Unit = Option(newTracer) match {
+  override def register(newTracer: Tracer): Unit = Option(newTracer) match {
     case Some(someTracer) => tracer = someTracer
     case None => throw new NullPointerException("Cannot register ReposeTracer <null>.")
   }
 
-  def isRegistered: Boolean =
+  override def isRegistered: Boolean =
     !tracer.isInstanceOf[NoopTracer]
 
   override def scopeManager(): ScopeManager =

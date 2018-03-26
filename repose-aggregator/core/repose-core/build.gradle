@@ -3,8 +3,7 @@ configurations {
 }
 
 dependencies {
-    compile project(":repose-aggregator:components:services:open-tracing-service:open-tracing-service-api")
-    compile project(":repose-aggregator:components:services:open-tracing-service:open-tracing-service-impl")
+    compile project(":repose-aggregator:components:services:open-tracing-service")
     compile project(":repose-aggregator:components:services:phone-home-service")
     compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-impl")
     compile project(":repose-aggregator:components:services:http-client-service:http-client-service-impl")
@@ -21,6 +20,7 @@ dependencies {
     compile project(":repose-aggregator:components:services:container-configuration-service:impl")
     compile project(":repose-aggregator:external:jee6-schemas")
     compile "org.apache.logging.log4j:log4j-flume-ng"
+    compile "javax.inject:javax.inject"
     compile "io.dropwizard.metrics:metrics-graphite"
     compile "io.dropwizard.metrics:metrics-core"
     compile "org.springframework:spring-beans"
@@ -51,7 +51,6 @@ dependencies {
     compile "io.opentracing:opentracing-util"
     compile "com.uber.jaeger:jaeger-core"
 
-    compileOnly "javax.inject:javax.inject"
     compileOnly "javax.servlet:javax.servlet-api"
 
     testCompile "junit:junit"
