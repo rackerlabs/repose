@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletRequest
 import scala.Function.tupled
 import scala.collection.JavaConverters._
 
-class TracerExtractor(httpServletRequest: HttpServletRequest) extends TextMap with LazyLogging {
+class HttpRequestCarrier(httpServletRequest: HttpServletRequest) extends TextMap with LazyLogging {
 
   val headers: Map[String, List[String]] = Option(httpServletRequest).map(request =>
     request.getHeaderNames.asScala

@@ -33,7 +33,7 @@ object ScopeHelper {
   def startSpan(req: HttpServletRequest, tracer: Tracer, logger: Logger, spanKind: String): Scope = {
     logger.trace("Let's see if there were any OpenTracing spans passed-in")
     val context: Option[SpanContext] =
-      Try(tracer.extract(Format.Builtin.HTTP_HEADERS, new TracerExtractor(req))) match {
+      Try(tracer.extract(Format.Builtin.HTTP_HEADERS, new HttpRequestCarrier(req))) match {
         case s: Success[SpanContext] => s.toOption
         case Failure(exception) =>
           logger.error("{} {} {}",
