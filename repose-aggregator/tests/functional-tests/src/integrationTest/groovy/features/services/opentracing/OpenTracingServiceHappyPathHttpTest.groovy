@@ -94,7 +94,7 @@ class OpenTracingServiceHappyPathHttpTest extends ReposeValveTest {
         when: "Request is sent through repose"
         def messageChain = deproxy.makeRequest(
             url: reposeEndpoint,
-            headers: ['uber-trace-id': trace_id ],
+            headers: [(TRACING_HEADER): trace_id ],
             method: method)
 
         then: "The request should have reached the origin service"
@@ -154,7 +154,7 @@ class OpenTracingServiceHappyPathHttpTest extends ReposeValveTest {
         when: "Request is sent through repose"
         def messageChain = deproxy.makeRequest(
             url: reposeEndpoint,
-            headers: ['uber-trace-id': trace_id ],
+            headers: [(TRACING_HEADER): trace_id ],
             method: method)
 
         then: "The request should have reached the origin service"

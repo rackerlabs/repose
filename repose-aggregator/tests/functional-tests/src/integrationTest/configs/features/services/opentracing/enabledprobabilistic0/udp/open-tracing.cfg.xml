@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<open-tracing xmlns="http://docs.openrepose.org/repose/open-tracing-service/v1.0"
+             service-name="repose">
+    <jaeger>
+        <connection-udp
+            host="localhost"
+            port="${agentTracingPort}" />
+        <sampling-probabilistic probability="0.0" />
+    </jaeger>
+</open-tracing>

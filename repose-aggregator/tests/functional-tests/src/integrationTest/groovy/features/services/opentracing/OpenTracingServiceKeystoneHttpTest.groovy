@@ -137,7 +137,7 @@ class OpenTracingServiceKeystoneHttpTest extends ReposeValveTest {
             headers: [
                 'content-type': 'application/json',
                 'X-Auth-Token': fakeIdentityV2Service.client_token,
-                'uber-trace-id': trace_id
+                (TRACING_HEADER): trace_id
             ])
 
         then: "The request should have reached the origin service"
@@ -231,7 +231,7 @@ class OpenTracingServiceKeystoneHttpTest extends ReposeValveTest {
             headers: [
                 'content-type': 'application/json',
                 'X-Auth-Token': fakeIdentityV2Service.client_token,
-                'uber-trace-id': trace_id
+                (TRACING_HEADER): trace_id
             ])
 
         then: "The request should have reached the origin service"

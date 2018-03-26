@@ -63,7 +63,7 @@ class OpenTracingServiceKeystoneUdpTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    @Unroll("Should return 200 with #method")
+    @Unroll("when OpenTracing config is enabled with keystone-v2, should return 200 with #method")
     def "when OpenTracing config is enabled with keystone-v2, trace information is passed in tracing header"() {
         given:
         fakeIdentityV2Service.with {
@@ -89,7 +89,6 @@ class OpenTracingServiceKeystoneUdpTest extends ReposeValveTest {
             spanList << traceId
         }
 
-
         and: "OpenTracingService has logged that keystone span was sent to tracer"
         spanList.each {
             def logLines = reposeLogSearch.searchByString("Span reported: $it")
@@ -112,7 +111,7 @@ class OpenTracingServiceKeystoneUdpTest extends ReposeValveTest {
         method << ["GET", "PUT", "POST", "PATCH", "DELETE", "TRACE", "HEAD"]
     }
 
-    @Unroll("Should return 200 with #method and #trace_id")
+    @Unroll("when OpenTracing config is enabled with keystone-v2, with invald parent span, should return 200 with #method and #trace_id")
     def "when OpenTracing config is enabled with keystone-v2, with invald parent span, trace information is passed in tracing header"() {
         given:
         fakeIdentityV2Service.with {
@@ -129,7 +128,7 @@ class OpenTracingServiceKeystoneUdpTest extends ReposeValveTest {
             headers: [
                 'content-type': 'application/json',
                 'X-Auth-Token': fakeIdentityV2Service.client_token,
-                'uber-trace-id': trace_id
+                (TRACING_HEADER): trace_id
             ])
 
         then: "The request should have reached the origin service"
@@ -203,7 +202,7 @@ class OpenTracingServiceKeystoneUdpTest extends ReposeValveTest {
     }
 
 
-    @Unroll("Should return 200 with #method and #trace_id")
+    @Unroll("when OpenTracing config is enabled with keystone-v2, with parent span, should return 200 with #method and #trace_id")
     def "when OpenTracing config is enabled with keystone-v2, with parent span, trace information is passed in tracing header"() {
         given:
         fakeIdentityV2Service.with {
@@ -220,7 +219,7 @@ class OpenTracingServiceKeystoneUdpTest extends ReposeValveTest {
             headers: [
                 'content-type': 'application/json',
                 'X-Auth-Token': fakeIdentityV2Service.client_token,
-                'uber-trace-id': trace_id
+                (TRACING_HEADER): trace_id
             ])
 
         then: "The request should have reached the origin service"
@@ -231,7 +230,6 @@ class OpenTracingServiceKeystoneUdpTest extends ReposeValveTest {
             assert it.request.headers.getCountByName(TRACING_HEADER) == 1
             spanList << it.request.headers.getFirstValue(TRACING_HEADER)
         }
-
 
         and: "OpenTracingService has logged that keystone span was sent to tracer"
         spanList.each {

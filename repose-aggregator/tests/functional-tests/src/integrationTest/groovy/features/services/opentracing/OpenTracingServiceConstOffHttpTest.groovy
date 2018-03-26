@@ -20,19 +20,20 @@
 package features.services.opentracing
 
 import org.openrepose.framework.test.ReposeValveTest
-import org.openrepose.framework.test.mocks.MockTracerAgent
 import org.openrepose.framework.test.mocks.MockTracerCollector
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 /**
  * Tests that sampling const type is set to 0 (nothing gets traced)
  */
-class OpenTracingServiceConstSetToZeroUdpTest extends ReposeValveTest {
+class OpenTracingServiceConstOffHttpTest extends ReposeValveTest {
 
     def static originEndpoint
+    def static tracerEndpoint
 
-    static MockTracerAgent fakeTracer
+    static MockTracerCollector fakeTracer
 
     def static slurper = new groovy.json.JsonSlurper()
 
@@ -46,19 +47,22 @@ class OpenTracingServiceConstSetToZeroUdpTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/opentracing/common", params)
         repose.configurationProvider.applyConfigs(
-            "features/services/opentracing/enabledconst0/udp",
-            params + ['agentTracingPort': properties.agentTracingPort])
+            "features/services/opentracing/constoff/http",
+            params + ['collectorTracingPort': properties.collectorTracingPort])
 
         originEndpoint = deproxy.addEndpoint(params.targetPort, 'origin service')
 
-        fakeTracer = new MockTracerAgent(properties.agentTracingPort)
+        fakeTracer = new MockTracerCollector(properties.collectorTracingPort)
+
+        tracerEndpoint = deproxy.addEndpoint(properties.collectorTracingPort,
+            'tracer http service', null, fakeTracer.handler)
 
         repose.start([waitOnJmxAfterStarting: false])
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    @Unroll("Should return 200 with #method")
-    def "when OpenTracing config is enabled with const sample=0, new span is not created"() {
+    @Unroll("When const sample=off, should return 200 with #method")
+    def "when OpenTracing config is enabled with const sample=off, new span is not created with HttpSender"() {
 
         when: "Request is sent through repose"
         def messageChain = deproxy.makeRequest(url: reposeEndpoint, method: method)
@@ -69,11 +73,12 @@ class OpenTracingServiceConstSetToZeroUdpTest extends ReposeValveTest {
         and: "There should be no calls anywhere else"
         messageChain.orphanedHandlings.size() == 0
 
-        and: "request should have tracer header because sampling const=0 (http only)"
+        and: "request should have tracer header"
         messageChain.handlings.get(0).request.headers.contains(TRACING_HEADER)
 
         and: "Repose should return with a 200"
         messageChain.receivedResponse.code == "200"
+
 
         where:
         method   | _
@@ -86,13 +91,13 @@ class OpenTracingServiceConstSetToZeroUdpTest extends ReposeValveTest {
         "HEAD"   | _
     }
 
-    @Unroll("Should return 200 with #method and #trace_id")
-    def "when OpenTracing config is enabled with const sample=0, with invald parent span, trace information is passed in tracing header"() {
+    @Unroll("When const sample=off and invalid parent span, should return 200 with #method and #trace_id")
+    def "when OpenTracing config is enabled with const sample=off, with invalid parent span, trace information is passed in tracing header"() {
 
         when: "Request is sent through repose"
         def messageChain = deproxy.makeRequest(
             url: reposeEndpoint,
-            headers: ['uber-trace-id': trace_id ],
+            headers: [(TRACING_HEADER): trace_id ],
             method: method)
 
         then: "The request should have reached the origin service"
@@ -146,13 +151,13 @@ class OpenTracingServiceConstSetToZeroUdpTest extends ReposeValveTest {
     }
 
 
-    @Unroll("Should return 200 with #method and #trace_id")
-    def "when OpenTracing config is enabled with const sample=0, with parent span, trace information is passed in tracing header"() {
+    @Unroll("When const sample=off and parent span, should return 200 with #method and #trace_id")
+    def "when OpenTracing config is enabled with const sample=off, with parent span, trace information is passed in tracing header"() {
 
         when: "Request is sent through repose"
         def messageChain = deproxy.makeRequest(
             url: reposeEndpoint,
-            headers: ['uber-trace-id': trace_id ],
+            headers: [(TRACING_HEADER): trace_id ],
             method: method)
 
         then: "The request should have reached the origin service"
