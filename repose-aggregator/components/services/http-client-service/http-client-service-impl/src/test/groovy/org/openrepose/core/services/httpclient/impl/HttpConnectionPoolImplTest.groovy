@@ -53,7 +53,7 @@ class HttpConnectionPoolImplTest {
         when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
 
         httpConnectionPoolService = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, tracer, configurationRoot)
+            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III")
     }
 
     @Test

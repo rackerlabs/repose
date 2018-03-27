@@ -62,6 +62,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     private final ConfigurationListener configurationListener;
     private final Tracer tracer;
     private final String configRoot;
+    private final String reposeVersion;
 
     private boolean initialized = false;
     private String defaultClientId;
@@ -73,7 +74,8 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
             ConfigurationService configurationService,
             HealthCheckService healthCheckService,
             Tracer tracer,
-            @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configRoot
+            @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configRoot,
+            @Value(ReposeSpringProperties.CORE.REPOSE_VERSION) String reposeVersion
     ) {
         LOG.debug("Creating New HTTP Connection Pool Service");
 
@@ -81,6 +83,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
         this.tracer = tracer;
         this.healthCheckServiceProxy = healthCheckService.register();
         this.configRoot = configRoot;
+        this.reposeVersion = reposeVersion;
         this.poolMap = new HashMap<>();
         this.httpClientUserManager = new HttpClientUserManager();
         this.configurationListener = new ConfigurationListener();
@@ -191,7 +194,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     }
 
     private HttpClient clientGenerator(String configRoot, PoolType poolType) {
-        return HttpConnectionPoolProvider.genClient(configRoot, poolType, tracer);
+        return HttpConnectionPoolProvider.genClient(configRoot, poolType, tracer, reposeVersion);
     }
 
     private class ConfigurationListener implements UpdateListener<HttpConnectionPoolConfig> {

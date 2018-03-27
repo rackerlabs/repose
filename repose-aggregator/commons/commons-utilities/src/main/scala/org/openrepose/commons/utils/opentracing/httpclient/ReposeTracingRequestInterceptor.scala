@@ -24,6 +24,7 @@ import io.opentracing.{Span, Tracer}
 import org.apache.http.HttpRequest
 import org.apache.http.protocol.HttpContext
 import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.commons.utils.opentracing.ReposeTags
 
 /**
   * A [[org.apache.http.HttpRequestInterceptor]] that will enrich HTTP requests made through a
@@ -34,13 +35,14 @@ import org.openrepose.commons.utils.http.CommonHttpHeader
   *
   * @param tracer a [[io.opentracing.Tracer]] to bridge this utility with the OpenTracing API
   */
-class ReposeTracingRequestInterceptor(tracer: Tracer) extends TracingRequestInterceptor(tracer) {
+class ReposeTracingRequestInterceptor(tracer: Tracer, reposeVersion: String) extends TracingRequestInterceptor(tracer) {
 
   override protected def onSpanStarted(clientSpan: Span, httpRequest: HttpRequest, httpContext: HttpContext): Unit = {
     val traceRequestHeader = httpRequest.getFirstHeader(CommonHttpHeader.REQUEST_ID)
     val viaRequestHeader = httpRequest.getFirstHeader(CommonHttpHeader.VIA)
     if (traceRequestHeader != null) clientSpan.setTag(CommonHttpHeader.REQUEST_ID, traceRequestHeader.getValue)
     if (viaRequestHeader != null) clientSpan.setTag(CommonHttpHeader.VIA, viaRequestHeader.getValue)
+    clientSpan.setTag(ReposeTags.ReposeVersion, reposeVersion)
     super.onSpanStarted(clientSpan, httpRequest, httpContext)
   }
 
