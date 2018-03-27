@@ -59,6 +59,7 @@ public class DistributedDatastoreLauncherService {
     private final String clusterId;
     private final String nodeId;
     private final String configRoot;
+    private final String reposeVersion;
     private final DatastoreService datastoreService;
     private final ConfigurationService configurationService;
     private final RequestProxyService requestProxyService;
@@ -80,6 +81,7 @@ public class DistributedDatastoreLauncherService {
         @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
         @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId,
         @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configRoot,
+        @Value(ReposeSpringProperties.CORE.REPOSE_VERSION) String reposeVersion,
         DatastoreService datastoreService,
         ConfigurationService configurationService,
         RequestProxyService requestProxyService,
@@ -89,6 +91,7 @@ public class DistributedDatastoreLauncherService {
         this.clusterId = clusterId;
         this.nodeId = nodeId;
         this.configRoot = configRoot;
+        this.reposeVersion = reposeVersion;
         this.datastoreService = datastoreService;
         this.configurationService = configurationService;
         this.requestProxyService = requestProxyService;
@@ -172,7 +175,8 @@ public class DistributedDatastoreLauncherService {
                         configuration,
                         new DatastoreAccessControl(Collections.emptyList(), false),
                         ddConfig,
-                        tracer);
+                        tracer,
+                        reposeVersion);
 
                     DistributedDatastoreServer server = new DistributedDatastoreServer(clusterId, nodeId, ddServlet, ddConfig);
                     this.ddServer = Optional.of(server);

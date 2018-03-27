@@ -29,8 +29,10 @@ import org.slf4j.Logger
 import scala.util.{Failure, Success, Try}
 
 object ScopeHelper {
+//todo: Consider making this a trait in later versions, obviously after the users have been replaced with scala
+// or do the scala test thing and make a companion object that implements it for those still in java
 
-  def startSpan(req: HttpServletRequest, tracer: Tracer, logger: Logger, spanKind: String): Scope = {
+  def startSpan(req: HttpServletRequest, tracer: Tracer, logger: Logger, spanKind: String, reposeVersion: String): Scope = {
     logger.trace("Let's see if there were any OpenTracing spans passed-in")
     val context: Option[SpanContext] =
       Try(tracer.extract(Format.Builtin.HTTP_HEADERS, new HttpRequestCarrier(req))) match {
@@ -48,6 +50,7 @@ object ScopeHelper {
     var spanBuilder = tracer.buildSpan(String.format("%s %s", req.getMethod, req.getRequestURI))
       .asChildOf(context.orNull)
       .withTag(Tags.SPAN_KIND.getKey, spanKind)
+      .withTag(ReposeTags.ReposeVersion, reposeVersion)
     val scope = spanBuilder.startActive(true)
     logger.debug("New span: {}", scope.span)
     scope

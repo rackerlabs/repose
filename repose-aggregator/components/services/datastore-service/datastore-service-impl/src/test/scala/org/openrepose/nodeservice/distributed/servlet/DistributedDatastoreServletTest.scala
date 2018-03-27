@@ -59,7 +59,8 @@ class DistributedDatastoreServletTest extends FunSpec with BeforeAndAfterEach wi
       mock[ClusterConfiguration],
       new DatastoreAccessControl(Collections.emptyList[InetAddress], true),
       distributedDatastoreConfiguration,
-      mockTracer
+      mockTracer,
+      "1.zero.V"
     )
     servletRequest = new MockHttpServletRequest
     servletRequest.setRequestURI(CACHE_URI_PATH)

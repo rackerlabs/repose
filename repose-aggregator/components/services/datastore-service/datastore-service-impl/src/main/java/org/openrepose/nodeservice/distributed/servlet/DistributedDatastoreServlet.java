@@ -71,6 +71,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
     private final AtomicReference<DatastoreAccessControl> hostAcl;
     private final DistributedDatastoreConfiguration ddConfig;
     private final Tracer tracer;
+    private final String reposeVersion;
     private final Datastore localDatastore;
 
     public DistributedDatastoreServlet(
@@ -78,13 +79,15 @@ public class DistributedDatastoreServlet extends HttpServlet {
         ClusterConfiguration clusterConfiguration,
         DatastoreAccessControl acl,
         DistributedDatastoreConfiguration ddConfig,
-        Tracer tracer
+        Tracer tracer,
+        String reposeVersion
     ) {
         this.datastoreService = datastore;
         this.clusterConfiguration = clusterConfiguration;
         this.hostAcl = new AtomicReference<>(acl);
         this.ddConfig = ddConfig;
         this.tracer = tracer;
+        this.reposeVersion = reposeVersion;
         localDatastore = datastore.getDefaultDatastore();
     }
 
@@ -115,7 +118,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        final Scope scope = startSpan(req, tracer, LOG, Tags.SPAN_KIND_SERVER);
+        final Scope scope = startSpan(req, tracer, LOG, Tags.SPAN_KIND_SERVER, reposeVersion);
         try {
             if (isRequestValid(req, resp)) {
                 String traceGUID = TracingHeaderHelper.getTraceGuid(req.getHeader(CommonHttpHeader.TRACE_GUID));

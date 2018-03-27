@@ -21,11 +21,10 @@ package org.openrepose.powerfilter;
 
 import com.codahale.metrics.MetricRegistry;
 import io.opentracing.Scope;
-import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.tag.Tags;
-import org.openrepose.commons.config.manager.UpdateListener;
 import org.apache.commons.lang3.StringUtils;
+import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.io.BufferedServletInputStream;
 import org.openrepose.commons.utils.io.stream.LimitedReadInputStream;
 import org.openrepose.commons.utils.logging.TracingHeaderHelper;
@@ -113,6 +112,7 @@ public class PowerFilter extends DelegatingFilterProxy {
     private final AtomicReference<List<FilterContext>> currentFilterChain = new AtomicReference<>();
     private final String nodeId;
     private final String clusterId;
+    private final String reposeVersion;
     private final Tracer tracer;
     private final PowerFilterRouterFactory powerFilterRouterFactory;
     private final ConfigurationService configurationService;
@@ -127,9 +127,11 @@ public class PowerFilter extends DelegatingFilterProxy {
     /**
      * OMG SO MANY INJECTED THINGIES
      * TODO: make this less complex
+     * TODO: For real, this is terrible
      *
      * @param clusterId                     this PowerFilter's cluster ID
      * @param nodeId                        this PowerFilter's node ID
+     * @param reposeVersion                 The running version of repose
      * @param tracer                        the OpenTracing Tracer
      * @param powerFilterRouterFactory      Builds a powerfilter router for this power filter
      * @param reportingService              the reporting service
@@ -149,6 +151,7 @@ public class PowerFilter extends DelegatingFilterProxy {
     public PowerFilter(
         @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
         @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId,
+        @Value(ReposeSpringProperties.CORE.REPOSE_VERSION) String reposeVersion,
         Tracer tracer,
         PowerFilterRouterFactory powerFilterRouterFactory,
         ReportingService reportingService,
@@ -166,6 +169,7 @@ public class PowerFilter extends DelegatingFilterProxy {
     ) {
         this.clusterId = clusterId;
         this.nodeId = nodeId;
+        this.reposeVersion = reposeVersion;
         this.powerFilterRouterFactory = powerFilterRouterFactory;
         this.configurationService = configurationService;
         this.metricsService = metricsService;
@@ -384,7 +388,7 @@ public class PowerFilter extends DelegatingFilterProxy {
         // Re-wrapping the request to reset the inputStream/Reader flag
         wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request, bufferedInputStream);
 
-        Scope scope = startSpan(wrappedRequest, tracer, LOG, Tags.SPAN_KIND_CLIENT);
+        Scope scope = startSpan(wrappedRequest, tracer, LOG, Tags.SPAN_KIND_CLIENT, reposeVersion);
 
         if (currentSystemModel.get().getTracingHeader() != null && currentSystemModel.get().getTracingHeader().isRewriteHeader()) {
             wrappedRequest.removeHeader(TRACE_GUID);
