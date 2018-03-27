@@ -51,7 +51,7 @@ class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers {
       when(spanBuilder.withTag(anyString(), anyString())).thenReturn(spanBuilder)
       when(spanBuilder.startActive(anyBoolean())).thenReturn(scope)
 
-      val result = ScopeHelper.startSpan(request, tracer, logger, Tags.SPAN_KIND_CLIENT)
+      val result = ScopeHelper.startSpan(request, tracer, logger, Tags.SPAN_KIND_CLIENT, "1.two.III")
 
       verify(tracer).extract(eql(Format.Builtin.HTTP_HEADERS), any())
       verify(tracer).buildSpan(anyString())
@@ -73,7 +73,7 @@ class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers {
       when(spanBuilder.withTag(anyString(), anyString())).thenReturn(spanBuilder)
       when(spanBuilder.startActive(anyBoolean())).thenReturn(scope)
 
-      val result = ScopeHelper.startSpan(request, tracer, logger, Tags.SPAN_KIND_CLIENT)
+      val result = ScopeHelper.startSpan(request, tracer, logger, Tags.SPAN_KIND_CLIENT, "1.two.III")
 
       verify(tracer).extract(eql(Format.Builtin.HTTP_HEADERS), any())
       verify(tracer).buildSpan(anyString())
@@ -101,7 +101,7 @@ class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers {
       request.setMethod(method)
       request.setRequestURI(path)
 
-      val result = ScopeHelper.startSpan(request, tracer, logger, Tags.SPAN_KIND_CLIENT)
+      val result = ScopeHelper.startSpan(request, tracer, logger, Tags.SPAN_KIND_CLIENT, "1.two.III")
 
       verify(tracer).buildSpan(s"$method $path")
       result shouldBe scope
@@ -121,9 +121,28 @@ class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers {
       when(spanBuilder.withTag(anyString(), anyString())).thenReturn(spanBuilder)
       when(spanBuilder.startActive(anyBoolean())).thenReturn(scope)
 
-      val result = ScopeHelper.startSpan(request, tracer, logger, spanKind)
+      val result = ScopeHelper.startSpan(request, tracer, logger, spanKind, "1.two.III")
 
       verify(spanBuilder).withTag(Tags.SPAN_KIND.getKey, spanKind)
+      result shouldBe scope
+    }
+
+    it("should set the repose version tag") {
+      val request = new MockHttpServletRequest()
+      val tracer = mock[Tracer]
+      val logger = mock[Logger]
+      val spanBuilder = mock[SpanBuilder]
+      val scope = mock[Scope]
+
+      when(tracer.extract(any[Format[_]], any())).thenReturn(null)
+      when(tracer.buildSpan(anyString())).thenReturn(spanBuilder)
+      when(spanBuilder.asChildOf(any[SpanContext])).thenReturn(spanBuilder)
+      when(spanBuilder.withTag(anyString(), anyString())).thenReturn(spanBuilder)
+      when(spanBuilder.startActive(anyBoolean())).thenReturn(scope)
+
+      val result = ScopeHelper.startSpan(request, tracer, logger, Tags.SPAN_KIND_PRODUCER, "1.two.III")
+
+      verify(spanBuilder).withTag(ReposeTags.ReposeVersion, "1.two.III")
       result shouldBe scope
     }
   }
