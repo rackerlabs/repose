@@ -25,8 +25,9 @@ import org.apache.http.message.BasicHeader
 import org.apache.http.protocol.HttpContext
 import org.junit.runner.RunWith
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{never, times, verify, when}
+import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.commons.utils.opentracing.ReposeTags
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
@@ -47,11 +48,11 @@ class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with Moc
       when(scopeManager.active()).thenReturn(scope)
       when(tracer.scopeManager()).thenReturn(scopeManager)
 
-      val tracingRequestInterceptor = new ReposeTracingRequestInterceptor(tracer)
+      val tracingRequestInterceptor = new ReposeTracingRequestInterceptor(tracer, "1.two.III")
 
       tracingRequestInterceptor.process(httpRequest, httpContext)
 
-      verify(span, never()).setTag(any[String](), any[String]())
+      verify(span).setTag(ReposeTags.ReposeVersion, "1.two.III")
     }
 
     it("with request header") {
@@ -67,11 +68,11 @@ class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with Moc
       when(scopeManager.active()).thenReturn(scope)
       when(tracer.scopeManager()).thenReturn(scopeManager)
 
-      val jaegerRequestInterceptor = new ReposeTracingRequestInterceptor(tracer)
+      val jaegerRequestInterceptor = new ReposeTracingRequestInterceptor(tracer, "1.two.III")
 
       jaegerRequestInterceptor.process(httpRequest, httpContext)
 
-      verify(span, times(1)).setTag(CommonHttpHeader.REQUEST_ID, "1234")
+      verify(span).setTag(CommonHttpHeader.REQUEST_ID, "1234")
     }
 
     it("with via header") {
@@ -87,11 +88,11 @@ class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with Moc
       when(scopeManager.active()).thenReturn(scope)
       when(tracer.scopeManager()).thenReturn(scopeManager)
 
-      val jaegerRequestInterceptor = new ReposeTracingRequestInterceptor(tracer)
+      val jaegerRequestInterceptor = new ReposeTracingRequestInterceptor(tracer, "1.two.III")
 
       jaegerRequestInterceptor.process(httpRequest, httpContext)
 
-      verify(span, times(1)).setTag(CommonHttpHeader.VIA, "1234")
+      verify(span).setTag(CommonHttpHeader.VIA, "1234")
     }
   }
 

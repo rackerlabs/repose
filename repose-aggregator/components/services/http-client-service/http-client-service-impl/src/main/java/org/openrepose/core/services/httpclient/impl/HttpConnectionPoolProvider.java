@@ -61,7 +61,7 @@ public final class HttpConnectionPoolProvider {
     private HttpConnectionPoolProvider() {
     }
 
-    public static HttpClient genClient(String configRoot, PoolType poolConf, Tracer tracer) {
+    public static HttpClient genClient(String configRoot, PoolType poolConf, Tracer tracer, String reposeVersion) {
         PoolingClientConnectionManager cm = new PoolingClientConnectionManager();
 
         cm.setDefaultMaxPerRoute(poolConf.getHttpConnManagerMaxPerRoute());
@@ -92,7 +92,7 @@ public final class HttpConnectionPoolProvider {
         // OpenTracing support
         // Note that although we always register these interceptors, the provided Tracer may be a NoopTracer,
         // making nearly all of the work done by these interceptors a no-op.
-        client.addRequestInterceptor(new ReposeTracingRequestInterceptor(tracer));
+        client.addRequestInterceptor(new ReposeTracingRequestInterceptor(tracer, reposeVersion));
         client.addResponseInterceptor(new TracingResponseInterceptor());
 
         SSLContext sslContext = ProxyUtilities.getTrustingSslContext();

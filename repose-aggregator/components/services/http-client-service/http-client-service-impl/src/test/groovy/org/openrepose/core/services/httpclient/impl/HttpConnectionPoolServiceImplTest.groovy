@@ -78,7 +78,7 @@ class HttpConnectionPoolServiceImplTest {
         poolCfg.pool.addAll(pools)
 
         srv = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, tracer, configurationRoot)
+            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III")
         srv.configure(poolCfg)
         srv.with {
             initialized = true
@@ -93,35 +93,35 @@ class HttpConnectionPoolServiceImplTest {
     @Test(expected = IllegalStateException.class)
     void testGetDefaultClientInitializationException() {
         srv = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, tracer, configurationRoot)
+            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III")
         srv.getDefaultClient()
     }
 
     @Test(expected = IllegalStateException.class)
     void testGetClientInitializationException() {
         srv = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, tracer, configurationRoot)
+            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III")
         srv.getClient("foo")
     }
 
     @Test(expected = IllegalStateException.class)
     void testReleaseClientInitializationException() {
         srv = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, tracer, configurationRoot)
+            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III")
         srv.releaseClient(null)
     }
 
     @Test(expected = IllegalStateException.class)
     void testIsAvailableInitializationException() {
         srv = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, tracer, configurationRoot)
+            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III")
         srv.isAvailable("foo")
     }
 
     @Test(expected = IllegalStateException.class)
     void testGetAvailableClientsInitializationException() {
         srv = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, tracer, configurationRoot)
+            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III")
         srv.getAvailableClients()
     }
 
@@ -163,7 +163,7 @@ class HttpConnectionPoolServiceImplTest {
     @Test
     void shouldShutdownAllConnectionPools() {
         HttpConnectionPoolServiceImpl cpool = new HttpConnectionPoolServiceImpl(
-            mock(ConfigurationService.class), mock(HealthCheckService.class), new MockTracer(), configurationRoot)
+            mock(ConfigurationService.class), mock(HealthCheckService.class), new MockTracer(), configurationRoot, "1.two.III")
         HttpClient mockClient = mock(HttpClient.class)
         ClientConnectionManager mockConnMgr = mock(ClientConnectionManager.class)
         cpool.poolMap.put("MOCK", mockClient)

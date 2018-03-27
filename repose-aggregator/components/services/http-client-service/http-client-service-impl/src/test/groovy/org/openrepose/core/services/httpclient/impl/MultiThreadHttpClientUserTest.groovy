@@ -47,7 +47,7 @@ class MultiThreadHttpClientUserTest {
         poolCfg.pool.addAll(pools);
 
         httpClientService = new HttpConnectionPoolServiceImpl(
-            mock(ConfigurationService.class), mock(HealthCheckService.class), new MockTracer(), "");
+            mock(ConfigurationService.class), mock(HealthCheckService.class), new MockTracer(), "", "1.two.III");
         httpClientService.configure(poolCfg);
     }
 
