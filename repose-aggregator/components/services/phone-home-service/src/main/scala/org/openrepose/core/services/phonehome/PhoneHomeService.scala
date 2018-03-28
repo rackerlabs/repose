@@ -30,6 +30,7 @@ import io.opentracing.tag.Tags
 import io.opentracing.{Scope, Tracer}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.commons.utils.opentracing.ReposeTags
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.core.spring.ReposeSpringProperties
@@ -200,6 +201,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
 
     override def configurationUpdated(configurationObject: SystemModel): Unit = {
       val scope = tracer.buildSpan(TracingOperationName).ignoreActiveSpan().startActive(true)
+      scope.span().setTag(ReposeTags.ReposeVersion, reposeVer)
 
       try {
         systemModel = configurationObject
