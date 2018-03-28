@@ -23,14 +23,13 @@ import io.opentracing.propagation.Format
 import io.opentracing.tag.Tags
 import io.opentracing.{Scope, SpanContext, Tracer}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-
 import org.slf4j.Logger
 
 import scala.util.{Failure, Success, Try}
 
+// todo: Consider making this a trait in later versions, obviously after the users have been replaced with scala
+// todo: or do the scala test thing and make a companion object that implements it for those still in java
 object ScopeHelper {
-//todo: Consider making this a trait in later versions, obviously after the users have been replaced with scala
-// or do the scala test thing and make a companion object that implements it for those still in java
 
   def startSpan(req: HttpServletRequest, tracer: Tracer, logger: Logger, spanKind: String, reposeVersion: String): Scope = {
     logger.trace("Let's see if there were any OpenTracing spans passed-in")
@@ -47,11 +46,12 @@ object ScopeHelper {
       }
 
     logger.debug("The span context obtained from the request: {}", context.getOrElse("NONE"))
-    var spanBuilder = tracer.buildSpan(String.format("%s %s", req.getMethod, req.getRequestURI))
+    val scope = tracer.buildSpan(String.format("%s %s", req.getMethod, req.getRequestURI))
       .asChildOf(context.orNull)
       .withTag(Tags.SPAN_KIND.getKey, spanKind)
       .withTag(ReposeTags.ReposeVersion, reposeVersion)
-    val scope = spanBuilder.startActive(true)
+      .startActive(true)
+
     logger.debug("New span: {}", scope.span)
     scope
   }
