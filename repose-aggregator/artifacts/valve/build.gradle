@@ -23,7 +23,8 @@ dependencies {
     compile "org.eclipse.jetty:jetty-servlet"
     compile "org.eclipse.jetty:jetty-server"
     compile "org.eclipse.jetty:jetty-util"
-    compile "javax.inject:javax.inject"
+
+    compileOnly "javax.inject:javax.inject"
 
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
