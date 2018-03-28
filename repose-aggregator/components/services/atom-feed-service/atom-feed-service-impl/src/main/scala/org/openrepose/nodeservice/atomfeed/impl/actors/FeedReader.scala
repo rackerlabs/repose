@@ -30,6 +30,7 @@ import org.apache.abdera.Abdera
 import org.apache.abdera.i18n.iri.IRI
 import org.apache.abdera.parser.ParseException
 import org.openrepose.commons.utils.logging.TracingKey
+import org.openrepose.commons.utils.opentracing.ReposeTags
 import org.openrepose.core.services.httpclient.HttpClientService
 import org.openrepose.docs.repose.atom_feed_service.v1.EntryOrderType
 import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
@@ -116,6 +117,7 @@ class FeedReader(feedURIString: String,
       MDC.put(TracingKey.TRACING_KEY, requestId)
 
       val scope = tracer.buildSpan(TracingOperationName).ignoreActiveSpan().startActive(true)
+      scope.span().setTag(ReposeTags.ReposeVersion, reposeVersion)
 
       try {
         // todo: add authenticatedRequestFactory and authenticationTimeout to the AuthenticationRequestContextImpl?
