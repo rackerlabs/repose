@@ -103,11 +103,11 @@ class OpenTracingServiceProbabilisticSetToPoint9HttpTest extends ReposeValveTest
         messageChain.handlings.size() == 1
 
         and: "request should have 2 tracer headers"
-        if (trace_id == null)
+        if (trace_id == null) {
             assert messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 1
-        else
+        } else {
             assert messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 2
-
+        }
 
         and: "request should have tracer header pass through as well as a new header added"
         def newTraceId
@@ -117,8 +117,11 @@ class OpenTracingServiceProbabilisticSetToPoint9HttpTest extends ReposeValveTest
             def validateCount = 0
             messageChain.handlings.get(0).request.headers.each {
                 if (it.name == TRACING_HEADER) {
-                    if (it.value == trace_id) validateCount++
-                    else newTraceId = it.value
+                    if (it.value == trace_id)  {
+                        validateCount++
+                    } else {
+                        newTraceId = it.value
+                    }
                 }
             }
             assert validateCount == 1
@@ -172,8 +175,11 @@ class OpenTracingServiceProbabilisticSetToPoint9HttpTest extends ReposeValveTest
         def validateCount = 0
         messageChain.handlings.get(0).request.headers.each {
             if (it.name == TRACING_HEADER) {
-                if (it.value == trace_id) validateCount++
-                else newTraceId = it.value
+                if (it.value == trace_id) {
+                    validateCount++
+                } else {
+                    newTraceId = it.value
+                }
             }
         }
 
