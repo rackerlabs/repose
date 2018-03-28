@@ -38,10 +38,12 @@ import org.openrepose.commons.utils.opentracing.ReposeTags
 class ReposeTracingRequestInterceptor(tracer: Tracer, reposeVersion: String) extends TracingRequestInterceptor(tracer) {
 
   override protected def onSpanStarted(clientSpan: Span, httpRequest: HttpRequest, httpContext: HttpContext): Unit = {
-    val traceRequestHeader = httpRequest.getFirstHeader(CommonHttpHeader.REQUEST_ID)
-    val viaRequestHeader = httpRequest.getFirstHeader(CommonHttpHeader.VIA)
-    if (traceRequestHeader != null) clientSpan.setTag(CommonHttpHeader.REQUEST_ID, traceRequestHeader.getValue)
-    if (viaRequestHeader != null) clientSpan.setTag(CommonHttpHeader.VIA, viaRequestHeader.getValue)
+    Option(httpRequest.getFirstHeader(CommonHttpHeader.REQUEST_ID))
+      .map(_.getValue)
+      .foreach(clientSpan.setTag(CommonHttpHeader.REQUEST_ID, _))
+    Option(httpRequest.getFirstHeader(CommonHttpHeader.VIA))
+      .map(_.getValue)
+      .foreach(clientSpan.setTag(CommonHttpHeader.VIA, _))
     clientSpan.setTag(ReposeTags.ReposeVersion, reposeVersion)
     super.onSpanStarted(clientSpan, httpRequest, httpContext)
   }
