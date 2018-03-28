@@ -46,8 +46,9 @@ object ScopeHelper {
 
     logger.debug("The span context obtained from the request: {}", context.getOrElse("NONE"))
     var spanBuilder = tracer.buildSpan(String.format("%s %s", req.getMethod, req.getRequestURI))
-    spanBuilder = context.map(spanContext => spanBuilder.asChildOf(spanContext)).getOrElse(spanBuilder)
-    val scope = spanBuilder.withTag(Tags.SPAN_KIND.getKey, spanKind).startActive(true)
+      .asChildOf(context.orNull)
+      .withTag(Tags.SPAN_KIND.getKey, spanKind)
+    val scope = spanBuilder.startActive(true)
     logger.debug("New span: {}", scope.span)
     scope
   }
