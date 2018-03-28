@@ -17,6 +17,6 @@ For information on the syntax and semantics of the `log4j2.xml` file, please see
 
 [WARNING]
 ====
-Log messages that are written before the <<services/logging.adoc#,Logging Service>> has initialized (e.g., Valve logs, core service startup logs) may not appear in the expected, configured log file.
+Log messages that are written before this service has initialized (e.g., Valve logs, core service startup logs) may not appear in the expected, configured log file.
 Since this service performs logging configuration, logging that occurs before it has initialized will rely on the Log4j2 default configuration which writes everything to standard streams (i.e., `stdout`, `stderr`).
 ====
