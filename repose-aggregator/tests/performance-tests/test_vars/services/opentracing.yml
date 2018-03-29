@@ -9,8 +9,8 @@
           { name: "rate-limiting" }
         ],
         services: [
-          "dist-datastore",
-          "opentracing"
+          "dist-datastore"
+          # todo: when it becomes a service, add "opentracing"
         ]
       },
       container: {

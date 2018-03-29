@@ -26,6 +26,7 @@ import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
 
 import scala.concurrent.duration._
+import scala.util.Random
 
 /**
  * Simple opentracing performance simulation (with keystone in the middle).
@@ -62,7 +63,7 @@ class OpenTracingServiceSimulation extends Simulation {
       jumpToRps(0), holdFor(duration minutes))                 // stop scenario during actual test
 
   // set up the main scenario
-  val mainScenario = scenario("Keystone v2 Filter Test")
+  val mainScenario = scenario("OpenTracing Service Test")
     .feed(feeder)
     .forever() {
       exec(getRequest)
