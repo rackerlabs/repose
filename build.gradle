@@ -12,7 +12,7 @@ buildscript {
     dependencies {
         classpath 'gradle.plugin.org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:1.4.2'
         classpath 'com.netflix.nebula:nebula-dependency-recommender:4.3.0'
-        classpath 'gradle.plugin.org.openrepose:gradle-jaxb-plugin:2.4.1'
+        classpath 'gradle.plugin.org.openrepose:gradle-jaxb-plugin:2.5.0'
         classpath 'gradle.plugin.org.scoverage:gradle-scoverage:2.1.0'
         classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
         classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:0.9.0'
@@ -186,7 +186,7 @@ subprojects {
 
             //Find all XSDs in the src/main/resources/META-INF.schema
             if (file(xsltFile).exists() && file(schemaBaseDir).exists()) {
-                logger.lifecycle("Transforming Schemas")
+                logger.info("Transforming Schemas")
                 ant.xslt(
                     extension: '.xsd',
                     basedir: schemaBaseDir,
@@ -195,7 +195,7 @@ subprojects {
                     destdir: "${outputDir}"
                 )
             } else {
-                logger.lifecycle("NOT Transforming Schemas")
+                logger.info("NOT Transforming Schemas")
                 copy {
                     from schemaBaseDir
                     into outputDir
@@ -205,7 +205,7 @@ subprojects {
             }
 
             //Copy over any bindings.xjb into their appropriate directories
-            logger.lifecycle("Copying xjb's")
+            logger.info("Copying xjb's")
             copy {
                 from schemaBaseDir
                 into outputDir
