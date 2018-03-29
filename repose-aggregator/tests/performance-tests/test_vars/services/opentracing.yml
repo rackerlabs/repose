@@ -1,5 +1,5 @@
 {
-  dir_prefix: "opentracing/simple",
+  dir_prefix: "services/opentracing",
   repose: {
     config: {
       system_model: {
@@ -41,8 +41,8 @@
   },
   gatling: {
     test: {
-      name: "SimpleOpentracingSimulation",
-      package: "opentracing.simple"
+      name: "OpenTracingServiceSimulation",
+      package: "services.opentracing"
     }
   }
 }

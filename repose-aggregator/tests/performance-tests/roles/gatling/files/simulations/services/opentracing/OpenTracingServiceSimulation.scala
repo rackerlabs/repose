@@ -18,7 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 
-package usecases.simple
+package services.opentracing
 
 import com.typesafe.config._
 import io.gatling.core.Predef._
@@ -30,7 +30,7 @@ import scala.concurrent.duration._
 /**
  * Simple opentracing performance simulation (with keystone in the middle).
  */
-class SimpleOpentracingSimulation extends Simulation {
+class OpenTracingServiceSimulation extends Simulation {
   // properties to configure the Gatling test
   val conf = ConfigFactory.load("application.conf")
   val confRoot = "test"
