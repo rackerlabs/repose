@@ -22,9 +22,7 @@ checkScoverage {
 
 task copyXsds(type: Copy) {
     // Copy the Repose Core configuration schemas.
-    from("${project.projectDir}/core/repose-core-api/src/main/resources/META-INF/schema/container/container-configuration.xsd")
-    from("${project.projectDir}/core/repose-core-api/src/main/resources/META-INF/schema/metrics/metrics.xsd")
-    from("${project.projectDir}/core/repose-core-api/src/main/resources/META-INF/schema/system-model/system-model.xsd")
+    from(fileTree("${project.projectDir}/core/repose-core-api").include('**/src/main/resources/META-INF/schema/**/*.xsd').files)
 
     // Copy all filter and service configuration schemas.
     from(fileTree("${project.projectDir}/components").include('**/src/main/resources/META-INF/schema/config/*.xsd').files)

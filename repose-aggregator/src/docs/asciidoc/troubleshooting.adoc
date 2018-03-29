@@ -5,6 +5,97 @@ include::_includes/in-progress.adoc[]
 This page summarizes the different methods which can be used to get more information on the state of *Repose* and how it interacts with the clients, origin service, and third party services.
 Most of these methods can be used in a production deployment.
 
+== Logging
+
+*Repose* logs contain a great deal of information about the state of *Repose*, and as such, is usually a good place to start when troubleshooting!
+Most errors that occur in Repose will have an associated error message in the Repose logs.
+Often, these error messages are accompanied by a stacktrace detailing exactly what happened.
+
+ifdef::basebackend-html[]
+++++
+<details>
+    <summary>Sample Error Log Message</summary>
+    <p>
+++++
+endif::[]
+----
+2018-03-14 14:05:05,167 24956 [qtp53446647-45] ERROR org.openrepose.powerfilter.PowerFilterRouterImpl - Error communicating with http://localhost:50819//
+java.net.SocketException: Connection reset
+        at java.net.SocketInputStream.read(SocketInputStream.java:210) ~[?:1.8.0_161]
+        at java.net.SocketInputStream.read(SocketInputStream.java:141) ~[?:1.8.0_161]
+        at org.apache.http.impl.io.AbstractSessionInputBuffer.fillBuffer(AbstractSessionInputBuffer.java:160) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.io.SocketInputBuffer.fillBuffer(SocketInputBuffer.java:84) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.io.AbstractSessionInputBuffer.readLine(AbstractSessionInputBuffer.java:273) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.conn.DefaultHttpResponseParser.parseHead(DefaultHttpResponseParser.java:140) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.conn.DefaultHttpResponseParser.parseHead(DefaultHttpResponseParser.java:57) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.io.AbstractMessageParser.parse(AbstractMessageParser.java:261) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.AbstractHttpClientConnection.receiveResponseHeader(AbstractHttpClientConnection.java:283) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.conn.DefaultClientConnection.receiveResponseHeader(DefaultClientConnection.java:251) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.conn.ManagedClientConnectionImpl.receiveResponseHeader(ManagedClientConnectionImpl.java:197) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.protocol.HttpRequestExecutor.doReceiveResponse(HttpRequestExecutor.java:272) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.protocol.HttpRequestExecutor.execute(HttpRequestExecutor.java:124) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.client.DefaultRequestDirector.tryExecute(DefaultRequestDirector.java:685) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:487) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.client.AbstractHttpClient.doExecute(AbstractHttpClient.java:882) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.client.CloseableHttpClient.execute(CloseableHttpClient.java:82) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.client.CloseableHttpClient.execute(CloseableHttpClient.java:107) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.client.CloseableHttpClient.execute(CloseableHttpClient.java:55) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.nodeservice.httpcomponent.RequestProxyServiceImpl.executeProxyRequest(RequestProxyServiceImpl.java:166) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.nodeservice.httpcomponent.RequestProxyServiceImpl.proxyRequest(RequestProxyServiceImpl.java:152) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.nodeservice.httpcomponent.RequestProxyServiceImpl.proxyRequest(RequestProxyServiceImpl.java:135) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.core.proxy.HttpRequestDispatcher.forward(HttpRequestDispatcher.java:54) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.powerfilter.PowerFilterRouterImpl.route(PowerFilterRouterImpl.java:155) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.powerfilter.PowerFilterChain.doRouting(PowerFilterChain.java:274) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.powerfilter.PowerFilterChain.doFilter(PowerFilterChain.java:329) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.filters.ipuser.IpUserFilter.doFilter(IpUserFilter.scala:87) ~[?:?]
+        at org.openrepose.powerfilter.PowerFilterChain.doReposeFilter(PowerFilterChain.java:209) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.powerfilter.PowerFilterChain.doFilter(PowerFilterChain.java:324) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.powerfilter.PowerFilterChain.startFilterChain(PowerFilterChain.java:113) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.powerfilter.PowerFilter.doFilter(PowerFilter.java:419) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:344) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:261) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1637) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.servlet.ServletHandler.doHandle(ServletHandler.java:533) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.handler.ScopedHandler.nextHandle(ScopedHandler.java:188) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.handler.ContextHandler.doHandle(ContextHandler.java:1253) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.handler.ScopedHandler.nextScope(ScopedHandler.java:168) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:473) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.handler.ScopedHandler.nextScope(ScopedHandler.java:166) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.handler.ContextHandler.doScope(ContextHandler.java:1155) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:141) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:132) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.Server.handle(Server.java:530) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.HttpChannel.handle(HttpChannel.java:347) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.HttpConnection.onFillable(HttpConnection.java:256) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.io.AbstractConnection$ReadCallback.succeeded(AbstractConnection.java:279) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.io.FillInterest.fillable(FillInterest.java:102) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.io.ChannelEndPoint$2.run(ChannelEndPoint.java:124) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.util.thread.strategy.EatWhatYouKill.doProduce(EatWhatYouKill.java:247) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.util.thread.strategy.EatWhatYouKill.produce(EatWhatYouKill.java:140) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:708) [repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.util.thread.QueuedThreadPool$2.run(QueuedThreadPool.java:626) [repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at java.lang.Thread.run(Thread.java:748) [?:1.8.0_161]
+----
+ifdef::basebackend-html[]
+++++
+    </p>
+</details>
+++++
+endif::[]
+
+[NOTE]
+====
+The configuration of the logging system has a substantial impact on the quality of logs.
+Certain configurations may even prevent useful log messages from being written.
+Please see <<services/logging.adoc#,Logging Service>> for more details.
+====
+
+[WARNING]
+====
+Log messages that are written before the <<services/logging.adoc#,Logging Service>> has initialized (e.g., Valve logs, core service startup logs) may not appear in the expected, configured log file.
+Since the <<services/logging.adoc#,Logging Service>> performs logging configuration, logging that occurs before it has initialized will rely on the Log4j2 default configuration which writes everything to standard streams (i.e., `stdout`, `stderr`).
+====
+
 == Intrafilter Logging
 [WARNING]
 ====
