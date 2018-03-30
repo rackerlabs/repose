@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:httpx="http://docs.rackspace.com/httpx/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.rackspace.com/httpx/v1.0"
+           xsi:schemaLocation="http://www.w3.org/2001/XMLSchema http://www.w3.org/2001/XMLSchema.xsd">
+
+    <!-- Imports -->
+    <xs:include schemaLocation="httpx-common.xsd"/>
+
+    <!-- Header Collections -->
+    <xs:complexType name="RequestHeaders">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="accept" type="httpx:AcceptHeader" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="header" type="httpx:ComplexParameter" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:attribute name="fidelity" type="httpx:RequestHeaderFidelity" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ResponseHeaders">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="header" type="httpx:ComplexParameter" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:attribute name="fidelity" type="httpx:ResponseHeaderFidelity" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <!-- Header Types -->
+    <xs:complexType name="AcceptHeader">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="media-range" type="httpx:MediaRange" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>
