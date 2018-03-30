@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@
  */
 package org.openrepose.core.services.httpclient.impl
 
+import io.opentracing.mock.MockTracer
 import org.apache.http.client.HttpClient
 import org.apache.http.conn.ClientConnectionManager
 import org.apache.http.impl.conn.PoolingClientConnectionManager
@@ -54,6 +55,7 @@ class HttpConnectionPoolServiceImplTest {
     PoolType poolType = new PoolType()
     ConfigurationService configurationService = mock(ConfigurationService)
     HealthCheckService healthCheckService = mock(HealthCheckService)
+    MockTracer tracer = new MockTracer()
     String configurationRoot = ""
 
     @Before
@@ -75,7 +77,8 @@ class HttpConnectionPoolServiceImplTest {
         poolCfg = new HttpConnectionPoolConfig()
         poolCfg.pool.addAll(pools)
 
-        srv = new HttpConnectionPoolServiceImpl(configurationService, healthCheckService, configurationRoot)
+        srv = new HttpConnectionPoolServiceImpl(
+            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III")
         srv.configure(poolCfg)
         srv.with {
             initialized = true
@@ -89,31 +92,36 @@ class HttpConnectionPoolServiceImplTest {
 
     @Test(expected = IllegalStateException.class)
     void testGetDefaultClientInitializationException() {
-        srv = new HttpConnectionPoolServiceImpl(configurationService, healthCheckService, configurationRoot)
+        srv = new HttpConnectionPoolServiceImpl(
+            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III")
         srv.getDefaultClient()
     }
 
     @Test(expected = IllegalStateException.class)
     void testGetClientInitializationException() {
-        srv = new HttpConnectionPoolServiceImpl(configurationService, healthCheckService, configurationRoot)
+        srv = new HttpConnectionPoolServiceImpl(
+            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III")
         srv.getClient("foo")
     }
 
     @Test(expected = IllegalStateException.class)
     void testReleaseClientInitializationException() {
-        srv = new HttpConnectionPoolServiceImpl(configurationService, healthCheckService, configurationRoot)
+        srv = new HttpConnectionPoolServiceImpl(
+            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III")
         srv.releaseClient(null)
     }
 
     @Test(expected = IllegalStateException.class)
     void testIsAvailableInitializationException() {
-        srv = new HttpConnectionPoolServiceImpl(configurationService, healthCheckService, configurationRoot)
+        srv = new HttpConnectionPoolServiceImpl(
+            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III")
         srv.isAvailable("foo")
     }
 
     @Test(expected = IllegalStateException.class)
     void testGetAvailableClientsInitializationException() {
-        srv = new HttpConnectionPoolServiceImpl(configurationService, healthCheckService, configurationRoot)
+        srv = new HttpConnectionPoolServiceImpl(
+            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III")
         srv.getAvailableClients()
     }
 
@@ -154,7 +162,8 @@ class HttpConnectionPoolServiceImplTest {
 
     @Test
     void shouldShutdownAllConnectionPools() {
-        HttpConnectionPoolServiceImpl cpool = new HttpConnectionPoolServiceImpl(mock(ConfigurationService.class), mock(HealthCheckService.class), configurationRoot)
+        HttpConnectionPoolServiceImpl cpool = new HttpConnectionPoolServiceImpl(
+            mock(ConfigurationService.class), mock(HealthCheckService.class), new MockTracer(), configurationRoot, "1.two.III")
         HttpClient mockClient = mock(HttpClient.class)
         ClientConnectionManager mockConnMgr = mock(ClientConnectionManager.class)
         cpool.poolMap.put("MOCK", mockClient)

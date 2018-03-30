@@ -3,6 +3,7 @@ configurations {
 }
 
 dependencies {
+    compile project(":repose-aggregator:components:services:open-tracing-service")
     compile project(":repose-aggregator:components:services:phone-home-service")
     compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-impl")
     compile project(":repose-aggregator:components:services:http-client-service:http-client-service-impl")
@@ -46,6 +47,9 @@ dependencies {
     compile "com.google.guava:guava"
     compile "com.typesafe:config"
     compile "javax.ws.rs:javax.ws.rs-api"
+    compile "io.opentracing:opentracing-api"
+    compile "io.opentracing:opentracing-util"
+    compile "com.uber.jaeger:jaeger-core"
 
     compileOnly "javax.servlet:javax.servlet-api"
 
@@ -58,6 +62,7 @@ dependencies {
     testCompile "org.springframework:spring-test"
     testCompile "org.spockframework:spock-core"
     testCompile "org.jetbrains:annotations"
+    testCompile "io.opentracing:opentracing-mock"
 
     testEar project(path: ":repose-aggregator:tests:test-bundles:core-test-filter-bundle", configuration: "archives")
     testEar project(path: ":repose-aggregator:tests:test-bundles:busted-application-name-ear", configuration: "archives")

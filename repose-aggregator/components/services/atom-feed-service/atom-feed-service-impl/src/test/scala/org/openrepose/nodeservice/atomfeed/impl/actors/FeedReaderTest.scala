@@ -25,14 +25,16 @@ import java.util.Date
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.testkit.{TestActorRef, TestKit, TestProbe}
+import io.opentracing.Tracer.SpanBuilder
+import io.opentracing.{Scope, Span, Tracer}
 import org.apache.abdera.Abdera
 import org.apache.abdera.model.Feed
 import org.apache.http.client.HttpClient
 import org.apache.http.impl.client.HttpClients
 import org.junit.runner.RunWith
 import org.mockito.AdditionalAnswers
-import org.mockito.Matchers.{any, anyString}
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Matchers.{any, anyBoolean, anyString}
+import org.mockito.Mockito.{reset, verify, when}
 import org.openrepose.commons.utils.logging.TracingKey
 import org.openrepose.core.services.httpclient.{HttpClientContainer, HttpClientService}
 import org.openrepose.docs.repose.atom_feed_service.v1.EntryOrderType
@@ -61,6 +63,10 @@ class FeedReaderTest(_system: ActorSystem)
   var actorRef: TestActorRef[FeedReader] = _
   var mockAtomFeedService: MockService = _
   var mockHttpClientService: HttpClientService = _
+  var mockTracer: Tracer = _
+  var mockSpanBuilder: SpanBuilder = _
+  var mockScope: Scope = _
+  var mockSpan: Span = _
 
   def this() = this(ActorSystem("FeedReaderTest"))
 
@@ -74,6 +80,15 @@ class FeedReaderTest(_system: ActorSystem)
       override def getHttpClient: HttpClient = HttpClients.createDefault()
     })
 
+    mockTracer = mock[Tracer]
+    mockSpanBuilder = mock[SpanBuilder]
+    mockScope = mock[Scope]
+    mockSpan = mock[Span]
+    when(mockTracer.buildSpan(anyString())).thenReturn(mockSpanBuilder)
+    when(mockSpanBuilder.withTag(anyString(), anyString())).thenReturn(mockSpanBuilder)
+    when(mockSpanBuilder.ignoreActiveSpan()).thenReturn(mockSpanBuilder)
+    when(mockSpanBuilder.startActive(anyBoolean())).thenReturn(mockScope)
+    when(mockScope.span()).thenReturn(mockSpan)
 
     reset(mockAuthRequestFactory)
     when(mockAuthRequestFactory.authenticateRequest(any[FeedReadRequest], any[AuthenticationRequestContext]))
@@ -106,6 +121,7 @@ class FeedReaderTest(_system: ActorSystem)
     actorRef = TestActorRef(
       new FeedReader(mockAtomFeedService.getUrl + "/feed",
         mockHttpClientService,
+        mockTracer,
         "",
         Some(mockAuthRequestFactory),
         1 second,
@@ -120,6 +136,7 @@ class FeedReaderTest(_system: ActorSystem)
     actorRef = TestActorRef(
       new FeedReader("http://test.url/feed",
         mockHttpClientService,
+        mockTracer,
         "",
         Some(mockAuthRequestFactory),
         1 second,
@@ -137,6 +154,7 @@ class FeedReaderTest(_system: ActorSystem)
     actorRef = TestActorRef(
       new FeedReader("http://test.url/feed",
         mockHttpClientService,
+        mockTracer,
         "",
         Some(mockAuthRequestFactory),
         1 second,
@@ -184,6 +202,19 @@ class FeedReaderTest(_system: ActorSystem)
     actorRef ! ReadFeed
 
     assert(MDC.get(TracingKey.TRACING_KEY) != null)
+    notifierProbe.receiveWhile(500 milliseconds) {
+      case _ => true
+    }
+  }
+
+  test("should start a new trace span when reading the feed") {
+    finishSetup()
+
+    actorRef ! ReadFeed
+
+    verify(mockSpanBuilder).ignoreActiveSpan()
+    verify(mockSpanBuilder).startActive(true)
+    verify(mockScope).close()
     notifierProbe.receiveWhile(500 milliseconds) {
       case _ => true
     }
@@ -338,6 +369,7 @@ class FeedReaderTest(_system: ActorSystem)
     actorRef = TestActorRef(
       new FeedReader(mockAtomFeedService.getUrl + "/feed",
         mockHttpClientService,
+        mockTracer,
         "",
         Some(mockAuthRequestFactory),
         1 second,

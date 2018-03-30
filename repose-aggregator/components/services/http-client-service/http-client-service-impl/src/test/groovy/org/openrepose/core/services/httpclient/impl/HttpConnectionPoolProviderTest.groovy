@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,8 @@
  */
 package org.openrepose.core.services.httpclient.impl
 
+import com.uber.jaeger.httpclient.TracingResponseInterceptor
+import io.opentracing.mock.MockTracer
 import org.apache.http.Header
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.params.ClientPNames
@@ -32,6 +34,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.openrepose.commons.utils.opentracing.httpclient.ReposeTracingRequestInterceptor
 import org.openrepose.core.service.httpclient.config.HeaderListType
 import org.openrepose.core.service.httpclient.config.HeaderType
 import org.openrepose.core.service.httpclient.config.PoolType
@@ -40,6 +43,7 @@ import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import java.nio.charset.Charset
+
 
 class HttpConnectionPoolProviderTest {
 
@@ -55,6 +59,7 @@ class HttpConnectionPoolProviderTest {
     private final static URL CLIENT_RESOURCE = HttpConnectionPoolProviderTest.class.getResource("/client.jks")
     private final static URL SERVER_RESOURCE = HttpConnectionPoolProviderTest.class.getResource("/server.jks")
     private final static URL SINGLE_RESOURCE = HttpConnectionPoolProviderTest.class.getResource("/single.jks")
+    private MockTracer tracer = new MockTracer()
 
     private PoolType poolType
     private Server server
@@ -83,7 +88,7 @@ class HttpConnectionPoolProviderTest {
 
     @Test
     public void "should create client with passed-in configuration object"() {
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType) as DefaultHttpClient
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType, tracer, "1.two.III") as DefaultHttpClient
 
         Map props = client.connectionManager.properties
         assert client.getParams().getParameter(CoreConnectionPNames.MAX_LINE_LENGTH) == MAX_LINE
@@ -111,7 +116,7 @@ class HttpConnectionPoolProviderTest {
                  new HeaderType(name: "serious-business", value: "tomatoes")])
         poolType.setHeaders(headerListType)
 
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType) as DefaultHttpClient
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType, tracer, "1.two.III") as DefaultHttpClient
 
         def parameter = client.getParams().getParameter(ClientPNames.DEFAULT_HEADERS)
         assert parameter
@@ -129,7 +134,7 @@ class HttpConnectionPoolProviderTest {
     public void "should not add header parameter when not configured"() {
         poolType.setHeaders(null)
 
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType) as DefaultHttpClient
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType, tracer, "1.two.III") as DefaultHttpClient
 
         assert !client.getParams().getParameter(ClientPNames.DEFAULT_HEADERS)
     }
@@ -184,7 +189,7 @@ class HttpConnectionPoolProviderTest {
         poolType.setTruststoreFilename(SERVER_RESOURCE.file)
         poolType.setTruststorePassword("password")
 
-        def client = HttpConnectionPoolProvider.genClient("", poolType) as DefaultHttpClient
+        def client = HttpConnectionPoolProvider.genClient("", poolType, tracer, "1.two.III") as DefaultHttpClient
         def httpGet = new HttpGet("https://localhost:" + serverPort)
         def httpResponse = client.execute(httpGet)
 
@@ -239,9 +244,78 @@ class HttpConnectionPoolProviderTest {
         poolType.setKeystorePassword("password")
         poolType.setKeyPassword("password")
 
-        def client = HttpConnectionPoolProvider.genClient("", poolType) as DefaultHttpClient
+        def client = HttpConnectionPoolProvider.genClient("", poolType, tracer, "1.two.III") as DefaultHttpClient
         def httpGet = new HttpGet("https://localhost:" + serverPort)
         def httpResponse = client.execute(httpGet)
+
+        assert httpResponse.statusLine.statusCode == statusCode
+        assert httpResponse.entity.contentType.value == contentType
+        assert Arrays.equals(httpResponse.entity.content.bytes, responseContent)
+    }
+
+    @Test
+    public void "should add interceptors for Open Tracing"() {
+        server = new Server()
+
+        // SSL Context Factory
+        def sslContextFactory = new SslContextFactory()
+        sslContextFactory.keyStoreResource = Resource.newClassPathResource("single.jks")
+        sslContextFactory.keyStorePassword = "password"
+        sslContextFactory.keyManagerPassword = "password"
+        sslContextFactory.needClientAuth = true
+
+        // SSL HTTP Configuration
+        def httpConfiguration = new HttpConfiguration()
+        httpConfiguration.addCustomizer new SecureRequestCustomizer()
+
+        // SSL Connector
+        def sslConnector = new ServerConnector(
+            server,
+            new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()),
+            new HttpConnectionFactory(httpConfiguration)
+        )
+        sslConnector.setPort(0)
+
+        // Start the server
+        def statusCode = HttpServletResponse.SC_OK
+        def responseContent = "The is the plain text test body data.\n".getBytes(CHARSET_UTF8)
+        def contentType = "text/plain;charset=utf-8"
+        // Make this the only endpoint for the server
+        server.connectors = [sslConnector] as Connector[]
+        server.handler = new AbstractHandler() {
+            @Override
+            void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+                response.status = statusCode
+                response.contentType = contentType
+                baseRequest.handled = true
+                response.outputStream.write responseContent
+            }
+        }
+        server.start()
+        def serverPort = ((ServerConnector) server.connectors[0]).getLocalPort()
+
+        // Add the client creds to the connection pool
+        poolType.setKeystoreFilename(SINGLE_RESOURCE.file)
+        poolType.setKeystorePassword("password")
+        poolType.setKeyPassword("password")
+
+        def client = HttpConnectionPoolProvider.genClient("", poolType, tracer, "1.two.III") as DefaultHttpClient
+        def httpGet = new HttpGet("https://localhost:" + serverPort)
+        def httpResponse = client.execute(httpGet)
+
+        assert client.getRequestInterceptor(client.requestInterceptorCount - 1) instanceof ReposeTracingRequestInterceptor
+        assert client.getResponseInterceptor(client.responseInterceptorCount - 1) instanceof TracingResponseInterceptor
+        (0..client.requestInterceptorCount).each {
+            System.out.println("req $it")
+            System.out.println(client.getRequestInterceptor(it))
+        }
+
+        (0..client.responseInterceptorCount).each {
+            System.out.println("resp $it")
+            System.out.println(client.getResponseInterceptor(it))
+        }
+
+        assert tracer.finishedSpans().size() == 1
 
         assert httpResponse.statusLine.statusCode == statusCode
         assert httpResponse.entity.contentType.value == contentType

@@ -5,6 +5,7 @@ dependencies {
     compile "org.slf4j:slf4j-api"
     compile "org.slf4j:jcl-over-slf4j"
     compile "org.springframework:spring-beans"
+    compile "io.opentracing:opentracing-api"
 
     compileOnly "javax.inject:javax.inject"
 
@@ -14,4 +15,5 @@ dependencies {
     testCompile "org.eclipse.jetty:jetty-server"
     testCompile "org.mockito:mockito-all"
     testCompile "xerces:xerces-xsd11"
+    testCompile "io.opentracing:opentracing-mock"
 }

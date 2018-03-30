@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@
  */
 package org.openrepose.core.services.httpclient.impl;
 
+import io.opentracing.Tracer;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.pool.PoolStats;
@@ -59,7 +60,9 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     private final HttpClientUserManager httpClientUserManager;
     private final HealthCheckServiceProxy healthCheckServiceProxy;
     private final ConfigurationListener configurationListener;
+    private final Tracer tracer;
     private final String configRoot;
+    private final String reposeVersion;
 
     private boolean initialized = false;
     private String defaultClientId;
@@ -70,13 +73,17 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     public HttpConnectionPoolServiceImpl(
             ConfigurationService configurationService,
             HealthCheckService healthCheckService,
-            @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configRoot
+            Tracer tracer,
+            @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configRoot,
+            @Value(ReposeSpringProperties.CORE.REPOSE_VERSION) String reposeVersion
     ) {
         LOG.debug("Creating New HTTP Connection Pool Service");
 
         this.configurationService = configurationService;
+        this.tracer = tracer;
         this.healthCheckServiceProxy = healthCheckService.register();
         this.configRoot = configRoot;
+        this.reposeVersion = reposeVersion;
         this.poolMap = new HashMap<>();
         this.httpClientUserManager = new HttpClientUserManager();
         this.configurationListener = new ConfigurationListener();
@@ -187,7 +194,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     }
 
     private HttpClient clientGenerator(String configRoot, PoolType poolType) {
-        return HttpConnectionPoolProvider.genClient(configRoot, poolType);
+        return HttpConnectionPoolProvider.genClient(configRoot, poolType, tracer, reposeVersion);
     }
 
     private class ConfigurationListener implements UpdateListener<HttpConnectionPoolConfig> {

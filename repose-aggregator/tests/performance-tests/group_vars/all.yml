@@ -10,7 +10,8 @@
     config: {
       system_model: {
         http_port: 7070,
-        origin_port: 8080
+        origin_port: 8080,
+        tracer_port: 10000
       }
     }
   },

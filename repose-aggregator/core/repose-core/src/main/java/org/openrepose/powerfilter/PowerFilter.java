@@ -20,8 +20,11 @@
 package org.openrepose.powerfilter;
 
 import com.codahale.metrics.MetricRegistry;
-import org.openrepose.commons.config.manager.UpdateListener;
+import io.opentracing.Scope;
+import io.opentracing.Tracer;
+import io.opentracing.tag.Tags;
 import org.apache.commons.lang3.StringUtils;
+import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.io.BufferedServletInputStream;
 import org.openrepose.commons.utils.io.stream.LimitedReadInputStream;
 import org.openrepose.commons.utils.logging.TracingHeaderHelper;
@@ -76,6 +79,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.openrepose.commons.utils.http.CommonHttpHeader.*;
+import static org.openrepose.commons.utils.opentracing.ScopeHelper.closeSpan;
+import static org.openrepose.commons.utils.opentracing.ScopeHelper.startSpan;
 
 /**
  * This class implements the Filter API and is managed by the servlet container.  This filter then loads
@@ -107,6 +112,8 @@ public class PowerFilter extends DelegatingFilterProxy {
     private final AtomicReference<List<FilterContext>> currentFilterChain = new AtomicReference<>();
     private final String nodeId;
     private final String clusterId;
+    private final String reposeVersion;
+    private final Tracer tracer;
     private final PowerFilterRouterFactory powerFilterRouterFactory;
     private final ConfigurationService configurationService;
     private final Optional<MetricsService> metricsService;
@@ -120,27 +127,32 @@ public class PowerFilter extends DelegatingFilterProxy {
     /**
      * OMG SO MANY INJECTED THINGIES
      * TODO: make this less complex
+     * TODO: For real, this is terrible
      *
      * @param clusterId                     this PowerFilter's cluster ID
      * @param nodeId                        this PowerFilter's node ID
+     * @param reposeVersion                 The running version of repose
+     * @param tracer                        the OpenTracing Tracer
      * @param powerFilterRouterFactory      Builds a powerfilter router for this power filter
      * @param reportingService              the reporting service
      * @param healthCheckService            the health check service
      * @param responseHeaderService         the response header service
      * @param configurationService          For monitoring config files
      * @param eventService                  the event service
-     * @param metricsService                the metrics service
      * @param containerConfigurationService the container configuration service
      * @param responseMessageService        the response message service
      * @param filterContextFactory          A factory that builds filter contexts
      * @param configurationInformation      allows JMX to see when this powerfilter is ready
      * @param requestProxyService           Only needed by the servletconfigwrapper thingy, no other way to get it in there
      * @param artifactManager               Needed to poll artifact loading to prevent prematurely constructing a PowerFilterChain
+     * @param metricsService                the metrics service
      */
     @Inject
     public PowerFilter(
         @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
         @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId,
+        @Value(ReposeSpringProperties.CORE.REPOSE_VERSION) String reposeVersion,
+        Tracer tracer,
         PowerFilterRouterFactory powerFilterRouterFactory,
         ReportingService reportingService,
         HealthCheckService healthCheckService,
@@ -157,9 +169,11 @@ public class PowerFilter extends DelegatingFilterProxy {
     ) {
         this.clusterId = clusterId;
         this.nodeId = nodeId;
+        this.reposeVersion = reposeVersion;
         this.powerFilterRouterFactory = powerFilterRouterFactory;
         this.configurationService = configurationService;
         this.metricsService = metricsService;
+        this.tracer = tracer;
         this.configurationInformation = configurationInformation;
         this.requestProxyService = requestProxyService;
         this.artifactManager = artifactManager;
@@ -231,7 +245,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                         List<FilterContext> oldFilterChain = currentFilterChain.getAndSet(newFilterChain);
 
                         powerFilterRouter.set(powerFilterRouterFactory.
-                                getPowerFilterRouter(serviceDomain, localNode.get(), getServletContext(), defaultDst.getId()));
+                            getPowerFilterRouter(serviceDomain, localNode.get(), getServletContext(), defaultDst.getId()));
 
                         //Destroy all the old filters
                         if (oldFilterChain != null) {
@@ -264,7 +278,7 @@ public class PowerFilter extends DelegatingFilterProxy {
                 } else {
                     LOG.error("{}:{} -- Unhealthy system-model config (cannot identify local node, or no default destination) - please check your system-model.cfg.xml", clusterId, nodeId);
                     healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
-                            "local host in the system model, or no default destination - please check your system-model.cfg.xml", Severity.BROKEN);
+                        "local host in the system model, or no default destination - please check your system-model.cfg.xml", Severity.BROKEN);
                 }
             }
         }
@@ -315,8 +329,8 @@ public class PowerFilter extends DelegatingFilterProxy {
             PowerFilterRouter router = powerFilterRouter.get();
 
             if (!healthy ||
-                    filterChain == null ||
-                    router == null) {
+                filterChain == null ||
+                router == null) {
                 LOG.warn("{}:{} -- Repose is not ready!", clusterId, nodeId);
                 LOG.debug("{}:{} -- Health status: {}", clusterId, nodeId, healthy);
                 LOG.debug("{}:{} -- Current filter chain: {}", clusterId, nodeId, filterChain);
@@ -328,9 +342,9 @@ public class PowerFilter extends DelegatingFilterProxy {
                 configurationInformation.updateNodeStatus(clusterId, nodeId, false);
             } else {
                 requestFilterChain = new PowerFilterChain(filterChain, chain, router, metricsService,
-                        Optional.ofNullable(currentSystemModel.get().getReposeCluster().stream()
-                                .filter(cluster -> cluster.getId().equals(clusterId)).findFirst()
-                                .get().getFilters()).map(FilterList::getBypassUriRegex));
+                    Optional.ofNullable(currentSystemModel.get().getReposeCluster().stream()
+                        .filter(cluster -> cluster.getId().equals(clusterId)).findFirst()
+                        .get().getFilters()).map(FilterList::getBypassUriRegex));
             }
         } catch (PowerFilterChainException ex) {
             LOG.warn("{}:{} -- Error creating filter chain", clusterId, nodeId, ex);
@@ -350,8 +364,8 @@ public class PowerFilter extends DelegatingFilterProxy {
 
         final Optional<Long> contentBodyReadLimit = containerConfigurationService.getContentBodyReadLimit();
         final InputStream requestBodyInputStream = contentBodyReadLimit.isPresent() ?
-                new LimitedReadInputStream(contentBodyReadLimit.get(), request.getInputStream()) :
-                request.getInputStream();
+            new LimitedReadInputStream(contentBodyReadLimit.get(), request.getInputStream()) :
+            request.getInputStream();
 
         // todo: Use the Java 8 functional interfaces once they support rethrowing exceptions
         // final InputStream requestBodyInputStream = containerConfigurationService.getContentBodyReadLimit()
@@ -359,11 +373,11 @@ public class PowerFilter extends DelegatingFilterProxy {
         //        .orElseGet(request.getInputStream());
 
         final HttpServletResponseWrapper wrappedResponse = new HttpServletResponseWrapper((HttpServletResponse) response,
-                ResponseMode.MUTABLE,
-                ResponseMode.MUTABLE);
+            ResponseMode.MUTABLE,
+            ResponseMode.MUTABLE);
         final BufferedServletInputStream bufferedInputStream = new BufferedServletInputStream(requestBodyInputStream);
         HttpServletRequestWrapper wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request,
-                bufferedInputStream);
+            bufferedInputStream);
 
         // Since getParameterMap may read the body, we must reset the InputStream so that we aren't stripping
         // the body when form parameters are sent.
@@ -374,6 +388,8 @@ public class PowerFilter extends DelegatingFilterProxy {
         // Re-wrapping the request to reset the inputStream/Reader flag
         wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request, bufferedInputStream);
 
+        Scope scope = startSpan(wrappedRequest, tracer, LOG, Tags.SPAN_KIND_CLIENT, reposeVersion);
+
         if (currentSystemModel.get().getTracingHeader() != null && currentSystemModel.get().getTracingHeader().isRewriteHeader()) {
             wrappedRequest.removeHeader(TRACE_GUID);
         }
@@ -383,11 +399,11 @@ public class PowerFilter extends DelegatingFilterProxy {
         if (StringUtils.isBlank(wrappedRequest.getHeader(TRACE_GUID))) {
             traceGUID = UUID.randomUUID().toString();
         } else {
-            traceGUID = TracingHeaderHelper.getTraceGuid(
-                    wrappedRequest.getHeader(TRACE_GUID));
+            traceGUID = TracingHeaderHelper.getTraceGuid(wrappedRequest.getHeader(TRACE_GUID));
         }
 
         MDC.put(TracingKey.TRACING_KEY, traceGUID);
+
         try {
             try {
                 // ensures that the method name exists
@@ -401,13 +417,14 @@ public class PowerFilter extends DelegatingFilterProxy {
             new URI(wrappedRequest.getRequestURI());
             final PowerFilterChain requestFilterChain = getRequestFilterChain(wrappedResponse, chain);
             if (requestFilterChain != null) {
-                if (currentSystemModel.get().getTracingHeader() == null || currentSystemModel.get().getTracingHeader().isEnabled()) {
+                if (currentSystemModel.get().getTracingHeader() == null ||
+                    currentSystemModel.get().getTracingHeader().isEnabled()) {
                     if (StringUtils.isBlank(wrappedRequest.getHeader(TRACE_GUID))) {
                         wrappedRequest.addHeader(TRACE_GUID,
-                                TracingHeaderHelper.createTracingHeader(traceGUID, wrappedRequest.getHeader(VIA)));
+                            TracingHeaderHelper.createTracingHeader(traceGUID, wrappedRequest.getHeader(VIA)));
                     }
                     if ((currentSystemModel.get().getTracingHeader() != null) &&
-                            currentSystemModel.get().getTracingHeader().isSecondaryPlainText()) {
+                        currentSystemModel.get().getTracingHeader().isSecondaryPlainText()) {
                         TRACE_ID_LOG.trace("Adding plain text trans id to request: {}", traceGUID);
                         wrappedRequest.replaceHeader(REQUEST_ID, traceGUID);
                     }
@@ -436,6 +453,8 @@ public class PowerFilter extends DelegatingFilterProxy {
             // the response. The method itself enables the wrapper to report a committed response as being so, while
             // still allowing the component which wrapped the response to mutate the response.
             wrappedResponse.uncommit();
+
+            closeSpan(wrappedResponse, scope);
 
             // In the case where we pass/route the request, there is a chance that
             // the response will be committed by an underlying service, outside of repose
@@ -470,8 +489,9 @@ public class PowerFilter extends DelegatingFilterProxy {
                 }
                 healthCheckServiceProxy.resolveIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT);
             } catch (IllegalArgumentException exception) {
-                healthCheckServiceProxy.reportIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT, "Please review your artifacts directory, multiple " +
-                        "versions of the same artifact exist!", Severity.BROKEN);
+                healthCheckServiceProxy.reportIssue(APPLICATION_DEPLOYMENT_HEALTH_REPORT,
+                    "Please review your artifacts directory, multiple versions of the same artifact exist!",
+                    Severity.BROKEN);
                 LOG.error("Please review your artifacts directory, multiple versions of same artifact exists.");
                 LOG.trace("", exception);
             }

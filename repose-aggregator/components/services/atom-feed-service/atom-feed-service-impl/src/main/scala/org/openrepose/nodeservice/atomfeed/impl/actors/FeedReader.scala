@@ -24,10 +24,13 @@ import java.net.{URI, UnknownServiceException}
 
 import akka.actor._
 import com.typesafe.scalalogging.slf4j.LazyLogging
+import io.opentracing.Tracer
+import io.opentracing.tag.Tags
 import org.apache.abdera.Abdera
 import org.apache.abdera.i18n.iri.IRI
 import org.apache.abdera.parser.ParseException
 import org.openrepose.commons.utils.logging.TracingKey
+import org.openrepose.commons.utils.opentracing.ReposeTags
 import org.openrepose.core.services.httpclient.HttpClientService
 import org.openrepose.docs.repose.atom_feed_service.v1.EntryOrderType
 import org.openrepose.nodeservice.atomfeed.AuthenticatedRequestFactory
@@ -44,8 +47,11 @@ import scala.language.postfixOps
 
 object FeedReader {
 
+  final val TracingOperationName = "read_atom_feed"
+
   def props(feedUri: String,
             httpClientService: HttpClientService,
+            tracer: Tracer,
             connectionPoolId: String,
             authenticatedRequestFactory: Option[AuthenticatedRequestFactory],
             authenticationTimeout: Duration,
@@ -56,6 +62,7 @@ object FeedReader {
     Props(new FeedReader(
       feedUri,
       httpClientService,
+      tracer,
       connectionPoolId,
       authenticatedRequestFactory,
       authenticationTimeout,
@@ -74,6 +81,7 @@ object FeedReader {
 
 class FeedReader(feedURIString: String,
                  httpClientService: HttpClientService,
+                 tracer: Tracer,
                  connectionPoolId: String,
                  authenticatedRequestFactory: Option[AuthenticatedRequestFactory],
                  authenticationTimeout: Duration,
@@ -107,6 +115,9 @@ class FeedReader(feedURIString: String,
       val httpClientContainer = httpClientService.getClient(connectionPoolId)
       val requestId = java.util.UUID.randomUUID().toString
       MDC.put(TracingKey.TRACING_KEY, requestId)
+
+      val scope = tracer.buildSpan(TracingOperationName).ignoreActiveSpan().startActive(true)
+      scope.span().setTag(ReposeTags.ReposeVersion, reposeVersion)
 
       try {
         // todo: add authenticatedRequestFactory and authenticationTimeout to the AuthenticationRequestContextImpl?
@@ -143,15 +154,20 @@ class FeedReader(feedURIString: String,
       } catch {
         case AuthenticationException(_) =>
           logger.error("Authentication failed -- connection to Atom service could not be established")
+          scope.span.setTag(Tags.ERROR.getKey, true)
         case e@(_: UnknownServiceException | _: IOException | ClientErrorException(_)) =>
           logger.error("Connection to Atom service failed -- an invalid URI may have been provided, or " +
             "authentication credentials may be invalid", e)
+          scope.span.setTag(Tags.ERROR.getKey, true)
         case pe: ParseException =>
           logger.error("Failed to parse the Atom feed", pe)
+          scope.span.setTag(Tags.ERROR.getKey, true)
         case e: Exception =>
           logger.error("Feed was unable to be read", e)
+          scope.span.setTag(Tags.ERROR.getKey, true)
       } finally {
         httpClientService.releaseClient(httpClientContainer)
+        scope.close()
       }
     case ScheduleReading =>
       schedule = schedule orElse {

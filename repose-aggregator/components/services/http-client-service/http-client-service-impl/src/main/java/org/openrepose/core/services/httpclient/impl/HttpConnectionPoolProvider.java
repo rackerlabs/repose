@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,8 @@
  */
 package org.openrepose.core.services.httpclient.impl;
 
+import com.uber.jaeger.httpclient.TracingResponseInterceptor;
+import io.opentracing.Tracer;
 import org.apache.http.Header;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.params.ClientPNames;
@@ -34,6 +36,7 @@ import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
+import org.openrepose.commons.utils.opentracing.httpclient.ReposeTracingRequestInterceptor;
 import org.openrepose.core.service.httpclient.config.HeaderType;
 import org.openrepose.core.service.httpclient.config.PoolType;
 import org.slf4j.Logger;
@@ -58,8 +61,7 @@ public final class HttpConnectionPoolProvider {
     private HttpConnectionPoolProvider() {
     }
 
-    public static HttpClient genClient(String configRoot, PoolType poolConf) {
-
+    public static HttpClient genClient(String configRoot, PoolType poolConf, Tracer tracer, String reposeVersion) {
         PoolingClientConnectionManager cm = new PoolingClientConnectionManager();
 
         cm.setDefaultMaxPerRoute(poolConf.getHttpConnManagerMaxPerRoute());
@@ -86,6 +88,12 @@ public final class HttpConnectionPoolProvider {
 
         //Pass in the params and the connection manager
         DefaultHttpClient client = new DefaultHttpClient(cm, params);
+
+        // OpenTracing support
+        // Note that although we always register these interceptors, the provided Tracer may be a NoopTracer,
+        // making nearly all of the work done by these interceptors a no-op.
+        client.addRequestInterceptor(new ReposeTracingRequestInterceptor(tracer, reposeVersion));
+        client.addResponseInterceptor(new TracingResponseInterceptor());
 
         SSLContext sslContext = ProxyUtilities.getTrustingSslContext();
 

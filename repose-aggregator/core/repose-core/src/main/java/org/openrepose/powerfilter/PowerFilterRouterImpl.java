@@ -19,7 +19,6 @@
  */
 package org.openrepose.powerfilter;
 
-import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.http.CommonRequestAttributes;
@@ -97,8 +96,8 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         DestinationLocation location = null;
 
         List<RouteDestination> reqDestinations = Optional.ofNullable(servletRequest.getAttribute(CommonRequestAttributes.DESTINATIONS))
-                .map(o -> (List<RouteDestination>) o)
-                .orElseGet(ArrayList::new);
+            .map(o -> (List<RouteDestination>) o)
+            .orElseGet(ArrayList::new);
 
         if (!StringUtils.isBlank(defaultDestination)) {
             reqDestinations.add(new RouteDestination(defaultDestination, servletRequest.getRequestURI(), -1));
@@ -184,9 +183,9 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     private String getEndpoint(Destination dest, DestinationLocation location) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(location.getUri().getHost()).
-                append(":").
-                append(location.getUri().getPort());
+        sb.append(location.getUri().getHost())
+            .append(":")
+            .append(location.getUri().getPort());
 
         if (dest instanceof DestinationEndpoint) {
             sb.append(dest.getRootPath());
