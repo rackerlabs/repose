@@ -1,6 +1,6 @@
 = Release Notes
 
-== In Progress Work
+== 8.8.3.0 (2018-03-30)
 * https://repose.atlassian.net/browse/REP-6654[REP-6654] - Added OpenTracing support.
 
 == 8.8.2.0 (2018-03-23)
