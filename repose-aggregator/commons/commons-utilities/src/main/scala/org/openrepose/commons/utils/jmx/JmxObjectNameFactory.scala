@@ -22,14 +22,14 @@ package org.openrepose.commons.utils.jmx
 import java.util
 import javax.management.{MalformedObjectNameException, ObjectName}
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import scala.util.Try
 
 /**
   * A standard utility to generate [[ObjectName]] instances.
   */
-object JmxObjectNameFactory extends LazyLogging {
+object JmxObjectNameFactory extends StrictLogging {
   private val NameKey = "name"
   private val KeySegmentDelimiter = "\\."
   private val KeyFormat = "%03d"

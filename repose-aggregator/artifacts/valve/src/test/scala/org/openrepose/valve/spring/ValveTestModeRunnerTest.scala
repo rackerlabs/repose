@@ -22,7 +22,7 @@ package org.openrepose.valve.spring
 import java.lang.management.ManagementFactory
 import javax.management.{JMX, ObjectName}
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.junit.runner.RunWith
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.ContainerConfiguration
@@ -39,7 +39,7 @@ import scala.concurrent.{Await, Future}
 
 
 @RunWith(classOf[JUnitRunner])
-class ValveTestModeRunnerTest extends FunSpec with Matchers with LazyLogging with Eventually {
+class ValveTestModeRunnerTest extends FunSpec with Matchers with StrictLogging with Eventually {
   val log = LoggerFactory.getLogger(this.getClass)
 
   val fakeConfigService = new FakeConfigService()

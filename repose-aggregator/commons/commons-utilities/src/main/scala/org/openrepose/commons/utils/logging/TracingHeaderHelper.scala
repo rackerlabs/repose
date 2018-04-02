@@ -26,13 +26,13 @@ import java.util
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.`type`.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.commons.codec.binary.Base64
 import org.slf4j.MDC
 
 import scala.collection.JavaConverters._
 
-object TracingHeaderHelper extends LazyLogging {
+object TracingHeaderHelper extends StrictLogging {
 
   // JSON parsing
   private val ObjectMapper = new ObjectMapper(new JsonFactory)

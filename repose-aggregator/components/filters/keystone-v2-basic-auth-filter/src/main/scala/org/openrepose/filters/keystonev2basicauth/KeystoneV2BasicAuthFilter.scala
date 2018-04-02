@@ -28,7 +28,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.MediaType
 
 import com.rackspace.httpdelegation.HttpDelegationManager
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.commons.lang3.StringUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate}
@@ -53,7 +53,7 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
     with UpdateListener[KeystoneV2BasicAuthConfig]
     with HttpDelegationManager
     with BasicAuthUtils
-    with LazyLogging {
+    with StrictLogging {
 
   private final val DEFAULT_CONFIG = "keystone-v2-basic-auth.cfg.xml"
   private final val TOKEN_ENDPOINT = "/v2.0/tokens"

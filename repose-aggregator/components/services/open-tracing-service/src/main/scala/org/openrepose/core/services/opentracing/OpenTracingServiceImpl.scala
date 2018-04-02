@@ -22,7 +22,7 @@ package org.openrepose.core.services.opentracing
 import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import com.uber.jaeger.Configuration
 import com.uber.jaeger.Configuration.{SamplerConfiguration, SenderConfiguration}
 import com.uber.jaeger.samplers.{ConstSampler, ProbabilisticSampler, RateLimitingSampler}
@@ -39,7 +39,7 @@ import org.openrepose.core.services.config.ConfigurationService
   */
 @Named
 class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationService, reposeTracer: DelegatingTracer)
-  extends UpdateListener[OpenTracingConfig] with LazyLogging {
+  extends UpdateListener[OpenTracingConfig] with StrictLogging {
 
   import OpenTracingServiceImpl._
 

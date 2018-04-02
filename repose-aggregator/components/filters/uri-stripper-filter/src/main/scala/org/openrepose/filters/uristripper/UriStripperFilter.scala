@@ -33,7 +33,7 @@ import javax.xml.transform.stream._
 import _root_.io.gatling.jsonpath.AST.{Field, RootNode}
 import _root_.io.gatling.jsonpath.Parser
 import com.rackspace.cloud.api.wadl.Converters._
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import net.sf.saxon.{Controller, TransformerFactoryImpl}
 import org.apache.http.HttpHeaders
 import org.openrepose.commons.config.manager.UpdateListener
@@ -56,7 +56,7 @@ import scala.util.{Failure, Success, Try}
 
 @Named
 class UriStripperFilter @Inject()(configurationService: ConfigurationService)
-  extends Filter with UpdateListener[UriStripperConfig] with RegexStringOperators with LazyLogging {
+  extends Filter with UpdateListener[UriStripperConfig] with RegexStringOperators with StrictLogging {
 
   import UriStripperFilter._
 

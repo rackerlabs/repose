@@ -25,7 +25,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import edazdarevic.commons.net.CIDRUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonHttpHeader
@@ -36,13 +36,13 @@ import org.openrepose.filters.ipuser.config.IpUserConfig
 
 @Named
 class IpUserFilter @Inject()(configurationService: ConfigurationService) extends Filter
-  with LazyLogging
+  with StrictLogging
   with UpdateListener[IpUserConfig] {
 
   private final val DEFAULT_CONFIG = "ip-user.cfg.xml"
 
   private val cidrList: AtomicReference[List[LabeledCIDR]] = new AtomicReference[List[LabeledCIDR]]()
-  
+
   private var initialized = false
   private var configName: String = _
   private var groupHeaderName: String = _

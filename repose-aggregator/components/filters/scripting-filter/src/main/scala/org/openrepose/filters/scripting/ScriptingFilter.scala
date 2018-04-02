@@ -25,7 +25,7 @@ import javax.script._
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.commons.config.manager.{UpdateFailedException, UpdateListener}
 import org.openrepose.commons.utils.servlet.http._
 import org.openrepose.core.filter.FilterConfigHelper
@@ -37,7 +37,7 @@ import scala.util.{Failure, Success, Try}
 
 @Named
 class ScriptingFilter @Inject()(configurationService: ConfigurationService)
-  extends Filter with UpdateListener[ScriptingConfig] with LazyLogging {
+  extends Filter with UpdateListener[ScriptingConfig] with StrictLogging {
 
   // Necessary for Jython, doesn't work with JSR223 without, fails silently!
   Options.importSite = false

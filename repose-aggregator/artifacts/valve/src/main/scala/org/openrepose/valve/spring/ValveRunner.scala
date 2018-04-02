@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicReference
 import javax.inject.{Inject, Named}
 import javax.management.{InstanceNotFoundException, ObjectName}
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.ContainerConfiguration
 import org.openrepose.core.services.config.ConfigurationService
@@ -44,7 +44,7 @@ import org.springframework.beans.factory.DisposableBean
 @Named
 class ValveRunner @Inject()(
                              configService: ConfigurationService
-                             ) extends DisposableBean with LazyLogging {
+                             ) extends DisposableBean with StrictLogging {
 
   private val systemModelXsdURL = getClass.getResource("/META-INF/schema/system-model/system-model.xsd")
   private val containerXsdUrl = getClass.getResource("/META-INF/schema/container/container-configuration.xsd")

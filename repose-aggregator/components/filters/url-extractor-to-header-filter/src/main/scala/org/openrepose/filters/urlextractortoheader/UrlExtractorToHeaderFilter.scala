@@ -24,7 +24,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
@@ -36,7 +36,7 @@ import scala.util.matching.Regex
 
 @Named
 class UrlExtractorToHeaderFilter @Inject()(configurationService: ConfigurationService)
-  extends Filter with UpdateListener[UrlExtractorToHeaderConfig] with LazyLogging {
+  extends Filter with UpdateListener[UrlExtractorToHeaderConfig] with StrictLogging {
 
   import UrlExtractorToHeaderFilter._
 

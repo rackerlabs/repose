@@ -25,7 +25,7 @@ import javax.inject.Inject
 import javax.servlet.http.HttpServletResponse._
 import javax.ws.rs.core.{HttpHeaders, MediaType}
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
@@ -48,7 +48,7 @@ object OpenStackIdentityV2AuthenticatedRequestFactory {
 class OpenStackIdentityV2AuthenticatedRequestFactory @Inject()(feedConfig: AtomFeedConfigType,
                                                                authConfig: OpenStackIdentityV2AuthenticationType,
                                                                akkaServiceClientFactory: AkkaServiceClientFactory)
-  extends AuthenticatedRequestFactory with LazyLogging {
+  extends AuthenticatedRequestFactory with StrictLogging {
 
   import OpenStackIdentityV2AuthenticatedRequestFactory._
 

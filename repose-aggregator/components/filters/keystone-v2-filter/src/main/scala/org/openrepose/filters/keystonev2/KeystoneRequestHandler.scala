@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponse._
 import javax.ws.rs.core.{HttpHeaders, MediaType}
 
 import com.fasterxml.jackson.core.JsonProcessingException
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.http.client.utils.DateUtils
 import org.joda.time.format.ISODateTimeFormat
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
@@ -42,7 +42,7 @@ import scala.util.{Failure, Success, Try}
   * Contains the functions which interact with the Keystone API.
   */
 class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: AkkaServiceClient, traceId: Option[String])
-  extends LazyLogging {
+  extends StrictLogging {
 
   import KeystoneRequestHandler._
 

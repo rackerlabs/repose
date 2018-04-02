@@ -2,6 +2,7 @@
 
 == 8.8.3.0 (2018-03-30)
 * https://repose.atlassian.net/browse/REP-6654[REP-6654] - Added OpenTracing support.
+* https://repose.atlassian.net/browse/REP-6674[REP-6674] - Switching usages of `LazyLogging` over to `StrictLogging`.
 
 == 8.8.2.0 (2018-03-23)
 * https://repose.atlassian.net/browse/REP-6588[REP-6588] - Updated the `commitToResponse` method of the `HttpServletResponseWrapper` to avoid writing headers or the body when an error has been sent.

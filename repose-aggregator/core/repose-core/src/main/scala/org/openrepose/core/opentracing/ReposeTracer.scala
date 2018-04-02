@@ -19,7 +19,7 @@
  */
 package org.openrepose.core.opentracing
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.opentracing.noop.{NoopTracer, NoopTracerFactory}
 import io.opentracing.propagation.Format
 import io.opentracing.util.GlobalTracer
@@ -35,7 +35,7 @@ import javax.inject.Named
   *  - allows for registration of a new Tracer at any time.
   */
 @Named
-class ReposeTracer extends DelegatingTracer with LazyLogging {
+class ReposeTracer extends DelegatingTracer with StrictLogging {
 
   private var tracer: Tracer = NoopTracerFactory.create()
 

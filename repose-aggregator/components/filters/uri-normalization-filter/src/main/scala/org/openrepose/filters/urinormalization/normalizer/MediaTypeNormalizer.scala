@@ -22,14 +22,14 @@ package org.openrepose.filters.urinormalization.normalizer
 import java.util.regex.Pattern
 import javax.ws.rs.core.HttpHeaders
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.commons.utils.http.media.MimeType
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.urinormalization.config.MediaType
 
 import scala.language.postfixOps
 
-class MediaTypeNormalizer(configuredMediaTypes: Seq[MediaType]) extends LazyLogging {
+class MediaTypeNormalizer(configuredMediaTypes: Seq[MediaType]) extends StrictLogging {
 
   private final val VariantExtractorRegex = Pattern.compile("((\\.)[^\\d][\\w]*)")
   private final val VariantExtensionGroup = 1

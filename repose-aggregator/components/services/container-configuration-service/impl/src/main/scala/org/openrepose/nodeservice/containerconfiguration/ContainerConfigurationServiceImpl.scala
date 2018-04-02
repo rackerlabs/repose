@@ -24,7 +24,7 @@ import java.util.Optional
 import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.{ContainerConfiguration, DeploymentConfiguration}
 import org.openrepose.core.services.config.ConfigurationService
@@ -36,7 +36,7 @@ import scala.collection.JavaConversions._
 @Named
 class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
                                                   configurationService: ConfigurationService)
-  extends ContainerConfigurationService with UpdateListener[ContainerConfiguration] with LazyLogging {
+  extends ContainerConfigurationService with UpdateListener[ContainerConfiguration] with StrictLogging {
 
   import ContainerConfigurationServiceImpl._
 
