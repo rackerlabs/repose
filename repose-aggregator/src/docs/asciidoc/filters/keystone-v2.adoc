@@ -62,6 +62,7 @@ The information is placed in the following headers:
 The Keystone v2 Identity service also has other attributes it provides when a token is validated.
 If any of this information is provided, then it will be passed in the following headers:
 
+* `X-Domain-ID` - The domain ID for the user.
 * `X-Contact-ID` - The Contact ID for the user.
 * `X-Default-Region` - The Default Region for the user.
 * `X-Tenant-ID` - The Tenant ID's for the user.
