@@ -7,12 +7,12 @@
                 >
             <resources>
                 <resource path="/"
-                          type="caps.wadl.xml#listAttachments
-                                caps.wadl.xml#listGizmoDetails
-                                caps.wadl.xml#listGizmos
-                                caps.wadl.xml#listWidgetDetails
-                                caps.wadl.xml#listWidgets
-                                caps.wadl.xml#showAttachment"/>
+                          type="caps.wadl#listAttachments
+                                caps.wadl#listGizmoDetails
+                                caps.wadl#listGizmos
+                                caps.wadl#listWidgetDetails
+                                caps.wadl#listWidgets
+                                caps.wadl#showAttachment"/>
             </resources>
         </application>
     </validator>
@@ -21,17 +21,17 @@
                 >
             <resources>
                 <resource path="/"
-                          type="caps.wadl.xml#attachGizmo
-                                caps.wadl.xml#createGizmo
-                                caps.wadl.xml#createWidget
-                                caps.wadl.xml#listAttachments
-                                caps.wadl.xml#listGizmoDetails
-                                caps.wadl.xml#listGizmos
-                                caps.wadl.xml#listWidgetDetails
-                                caps.wadl.xml#listWidgets
-                                caps.wadl.xml#showAttachment
-                                caps.wadl.xml#updateGizmo
-                                caps.wadl.xml#updateWidget"/>
+                          type="caps.wadl#attachGizmo
+                                caps.wadl#createGizmo
+                                caps.wadl#createWidget
+                                caps.wadl#listAttachments
+                                caps.wadl#listGizmoDetails
+                                caps.wadl#listGizmos
+                                caps.wadl#listWidgetDetails
+                                caps.wadl#listWidgets
+                                caps.wadl#showAttachment
+                                caps.wadl#updateGizmo
+                                caps.wadl#updateWidget"/>
             </resources>
         </application>
     </validator>
@@ -40,20 +40,20 @@
                 >
             <resources>
                 <resource path="/"
-                          type="caps.wadl.xml#attachGizmo
-                                caps.wadl.xml#createGizmo
-                                caps.wadl.xml#createWidget
-                                caps.wadl.xml#deleteGizmo
-                                caps.wadl.xml#deleteWidget
-                                caps.wadl.xml#detachGizmo
-                                caps.wadl.xml#listAttachments
-                                caps.wadl.xml#listGizmoDetails
-                                caps.wadl.xml#listGizmos
-                                caps.wadl.xml#listWidgetDetails
-                                caps.wadl.xml#listWidgets
-                                caps.wadl.xml#showAttachment
-                                caps.wadl.xml#updateGizmo
-                                caps.wadl.xml#updateWidget"/>
+                          type="caps.wadl#attachGizmo
+                                caps.wadl#createGizmo
+                                caps.wadl#createWidget
+                                caps.wadl#deleteGizmo
+                                caps.wadl#deleteWidget
+                                caps.wadl#detachGizmo
+                                caps.wadl#listAttachments
+                                caps.wadl#listGizmoDetails
+                                caps.wadl#listGizmos
+                                caps.wadl#listWidgetDetails
+                                caps.wadl#listWidgets
+                                caps.wadl#showAttachment
+                                caps.wadl#updateGizmo
+                                caps.wadl#updateWidget"/>
             </resources>
         </application>
     </validator>

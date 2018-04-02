@@ -3,7 +3,7 @@
 <simple-rbac xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0"
              roles-header-name="X-Roles"
              tenants-header-name="X-TENANT-ID"
-             wadl-output="test.wadl.xml"
+             wadl-output="test.wadl"
              dot-output="test.dot">
     <resources>
         /path/to/this  GET       super/{X-TENANT-ID},useradmin/{X-TENANT-ID},admin/{X-TENANT-ID},user/{X-TENANT-ID}
