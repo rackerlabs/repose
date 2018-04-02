@@ -21,14 +21,13 @@ package org.openrepose.commons.utils.opentracing
 
 import java.util
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.opentracing.propagation.TextMap
 import javax.servlet.http.HttpServletRequest
 
 import scala.Function.tupled
 import scala.collection.JavaConverters._
 
-class HttpRequestCarrier(httpServletRequest: HttpServletRequest) extends TextMap with StrictLogging {
+class HttpRequestCarrier(httpServletRequest: HttpServletRequest) extends TextMap {
 
   val headers: Map[String, List[String]] = Option(httpServletRequest).map(request =>
     request.getHeaderNames.asScala
