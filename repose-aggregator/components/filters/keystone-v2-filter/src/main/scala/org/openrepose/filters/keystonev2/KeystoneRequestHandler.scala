@@ -121,6 +121,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
         val defaultTenantId = (json \ "access" \ "token" \ "tenant" \ "id").asOpt[String]
         val tenantIds = roles.flatMap(_.tenantId)
         val tenantName = (json \ "access" \ "token" \ "tenant" \ "name").asOpt[String]
+        val domainId = (json \ "access" \ "user" \ "RAX-AUTH:domainId").asOpt[String]
         val defaultRegion = (json \ "access" \ "user" \ "RAX-AUTH:defaultRegion").asOpt[String]
         val contactId = (json \ "access" \ "user" \ "RAX-AUTH:contactId").asOpt[String]
         val impersonatorId = (json \ "access" \ "RAX-AUTH:impersonator" \ "id").asOpt[String]
@@ -136,6 +137,7 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
           impersonatorId,
           impersonatorName,
           impersonatorRoles,
+          domainId,
           defaultRegion,
           contactId,
           authenticatedBy)

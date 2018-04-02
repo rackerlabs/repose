@@ -36,6 +36,11 @@ public class OpenStackServiceHeader {
     public static final String IDENTITY_STATUS = "X-Identity-Status";
 
     /**
+     * ID of the domain to which the user belongs in Identity as a string.
+     */
+    public static final String DOMAIN_ID = "X-Domain-Id";
+
+    /**
      * Unique user identifier, string
      */
     public static final String USER_NAME = "X-User-Name";

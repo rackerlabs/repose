@@ -336,6 +336,7 @@ trait IdentityResponses {
       |            }
       |        },
       |        "user":{
+      |            "RAX-AUTH:domainId": "909989",
       |            "RAX-AUTH:defaultRegion": "DFW",
       |            "RAX-AUTH:contactId": "abc123",
       |            "id":"$userId",

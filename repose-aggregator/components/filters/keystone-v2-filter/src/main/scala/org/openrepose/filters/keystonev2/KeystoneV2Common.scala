@@ -39,6 +39,7 @@ object KeystoneV2Common {
                         impersonatorId: Option[String],
                         impersonatorName: Option[String],
                         impersonatorRoles: Seq[String],
+                        domainId: Option[String],
                         defaultRegion: Option[String],
                         contactId: Option[String],
                         authenticatedBy: Option[Seq[String]])
