@@ -338,9 +338,15 @@ subprojects {
         }
     }
 
+    test {
+        jacoco {
+            destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
+        }
+    }
+
     integrationTest {
         jacoco {
-            destinationFile = file("$rootDir/repose-aggregator/build/jacoco/jacocoIntegrationTest.exec")
+            destinationFile = file("$buildDir/jacoco/jacocoIntegrationTest.exec")
         }
         systemProperty 'jacocoArguments', jacoco.getAsJvmArg()
     }
@@ -424,6 +430,8 @@ subprojects {
     sonarqube {
         properties {
             property "sonar.scoverage.reportPath", "$buildDir/reports/scoverage/scoverage.xml"
+            property "sonar.jacoco.reportPath", "$buildDir/jacoco/jacocoTest.exec"
+            property "sonar.jacoco.itReportPath", "$buildDir/jacoco/jacocoIntegrationTest.exec"
         }
     }
 
@@ -476,7 +484,6 @@ project.ext.versionProperties.load(new FileInputStream("$rootDir/versions.proper
 sonarqube {
     properties {
         property "sonar.dynamicAnalysis", "reuseReports"
-        property "sonar.jacoco.itReportPath", "$rootDir/repose-aggregator/build/jacoco/jacocoIntegrationTest.exec"
     }
 }
 
