@@ -27,6 +27,11 @@ This section outlines where *Repose* files live in the filesystem after being ex
 |/etc/repose
 |XML configuration files.
 
+|Example Configuration Files
+|/etc/repose/examples
+|Example XML configuration files.
+ These files are for example purposes only, and are not used to determine the behavior of Repose.
+
 |Unit File
 |/lib/systemd/system/repose-valve.service
 |SystemD service unit file.
