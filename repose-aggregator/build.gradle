@@ -85,7 +85,7 @@ asciidoctor {
 }
 
 linkchecker {
-    startFileName = "$buildDir/asciidoc/html5"
+    inputDir = file("$buildDir/asciidoc/html5")
     httpURLConnectionTimeout = 1000
     ignoreHostRegexs = [
         /one\.rackspace\.com/,      // Prevents an infinite loop issue.
