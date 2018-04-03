@@ -93,6 +93,8 @@ class MockIdentityV2Service {
     def region
     def admin_userid
     def sleeptime
+    def domain_id
+    def domainIdJson
     def contact_id
     def contactIdJson
     def contactIdXml
@@ -210,6 +212,8 @@ class MockIdentityV2Service {
         region = "ORD"
         admin_userid = 67890
         sleeptime = 0
+        domain_id = "${random.nextInt()}"
+        domainIdJson = ""
         contact_id = "${random.nextInt()}"
         contactIdJson = ""
         contactIdXml = ""
@@ -444,15 +448,17 @@ class MockIdentityV2Service {
                         tenantidtwo  : client_tenantid2,
                         token        : client_token,
                         serviceadmin : service_admin_role,
+                        domainIdJson : domainIdJson,
                         contactIdXml : contactIdXml,
                         contactIdJson: contactIdJson
                 ]
-
+                if (domain_id) {
+                    params.domainIdJson = /"RAX-AUTH:domainId": "$domain_id",/
+                }
                 if (contact_id) {
                     params.contactIdXml = /rax-auth:contactId="$contact_id"/
                     params.contactIdJson = /"RAX-AUTH:contactId": "$contact_id",/
                 }
-
             } else if (request.body.contains("username") &&
                     request.body.contains(admin_username) /*&&
                 request.body.contains("password") &&
@@ -465,9 +471,13 @@ class MockIdentityV2Service {
                         tenantidtwo  : admin_tenant,
                         token        : admin_token,
                         serviceadmin : service_admin_role,
+                        domainIdJson : domainIdJson,
                         contactIdXml : contactIdXml,
                         contactIdJson: contactIdJson
                 ]
+                if (domain_id) {
+                    params.domainIdJson = /"RAX-AUTH:domainId": "$domain_id",/
+                }
                 if (contact_id) {
                     params.contactIdXml = /rax-auth:contactId="$contact_id"/
                     params.contactIdJson = /"RAX-AUTH:contactId": "$contact_id",/
@@ -484,9 +494,13 @@ class MockIdentityV2Service {
                     tenantidtwo  : admin_tenant,
                     token        : admin_token,
                     serviceadmin : service_admin_role,
+                    domainIdJson : domainIdJson,
                     contactIdXml : contactIdXml,
                     contactIdJson: contactIdJson
             ]
+            if (domain_id) {
+                params.domainIdJson = /"RAX-AUTH:domainId": "$domain_id",/
+            }
             if (contact_id) {
                 params.contactIdXml = /rax-auth:contactId="$contact_id"/
                 params.contactIdJson = /"RAX-AUTH:contactId" : "$contact_id",/
@@ -546,8 +560,12 @@ class MockIdentityV2Service {
                 serviceadmin   : service_admin_role,
                 impersonateid  : impersonate_id,
                 impersonatename: impersonate_name,
+                domainIdJson   : domainIdJson,
                 contactIdJson  : contactIdJson
         ]
+        if (domain_id) {
+            params.domainIdJson = /"RAX-AUTH:domainId": "$domain_id",/
+        }
         if (contact_id) {
             params.contactIdJson = /"RAX-AUTH:contactId" : "$contact_id",/
         }
@@ -632,6 +650,7 @@ class MockIdentityV2Service {
                 originServicePort: this.originServicePort,
                 endpointUrl      : this.endpointUrl,
                 region           : this.region,
+                domainIdJson     : domainIdJson,
                 contactIdJson    : this.contactIdJson
         ]
 
@@ -1134,6 +1153,7 @@ class MockIdentityV2Service {
             ]
         },
         "user":{
+            \${domainIdJson}
             "RAX-AUTH:defaultRegion": "DFW",
             \${contactIdJson}
             "id":"\${userid}",
@@ -1171,6 +1191,7 @@ class MockIdentityV2Service {
             }
         },
         "user":{
+            \${domainIdJson}
             "RAX-AUTH:defaultRegion": "DFW",
             \${contactIdJson}
             "id":"\${userid}",
@@ -1402,9 +1423,10 @@ class MockIdentityV2Service {
           "name": "identity:default"
         }
       ],
+      \${domainIdJson}
+      "RAX-AUTH:defaultRegion": "ORD"
       \${contactIdJson}
       "name": "dedicated_29502_1099363",
-      "RAX-AUTH:defaultRegion": "ORD"
     }
   }
 }
