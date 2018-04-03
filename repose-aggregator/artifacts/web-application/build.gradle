@@ -145,6 +145,22 @@ ospackage {
         filter(ReplaceTokens, tokens: [docsHome: docsHome])
     }
 
+    //the configs
+    from('../src/config/filters') {
+        into '/etc/repose/examples'
+        createDirectoryEntry true
+        user 'repose'
+        permissionGroup 'repose'
+        fileMode 0640
+
+        //INFO: We'd like to use the more standard gradle 'expand( docsHome: docsHome)',
+        // however it chokes pretty hard on the regexs we sprinkle into our xml specifically the `\`.
+        // We can update our config file examples to not have that in the regex,
+        // however some of the schemas we've imported also have them, and we shouldn't mess with those.
+        // Instead I've elected to use ant based filtering.
+        filter(ReplaceTokens, tokens: [docsHome: docsHome])
+    }
+
     //the license info
     from(["$rootDir/LICENSE.txt", "$rootDir/CONTRIBUTORS.txt", 'src/config/docs/DEPENDENCIES.txt']) {
         into '/usr/share/doc/repose-war'
