@@ -2,7 +2,7 @@
 
 <validators xmlns='http://docs.openrepose.org/repose/validator/v1.0'>
     <validator role="repose_test"
-               wadl="metadataext.wadl.xml"
+               wadl="metadataext.wadl"
                default="false"
                check-well-formed="true"
                check-plain-params="true"
@@ -15,8 +15,8 @@
         <application xmlns="http://wadl.dev.java.net/2009/02">
             <resources>
                 <resource path="/"
-                          id="metadataext.wadl.xml#standardResource
-                              metadataext.wadl.xml#customResource"/>
+                          id="metadataext.wadl#standardResource
+                              metadataext.wadl#customResource"/>
             </resources>
         </application>
         -->

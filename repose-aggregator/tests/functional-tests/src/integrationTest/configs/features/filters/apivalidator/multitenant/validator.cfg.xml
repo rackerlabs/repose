@@ -3,7 +3,7 @@
     <validator
         role="default"
         default="true"
-        wadl="headerAllAtMethodTenantExplicit.wadl.xml"
+        wadl="headerAllAtMethodTenantExplicit.wadl"
         dot-output="../logs/headerAllAtMethodTenantExplicit.dot"
         enable-api-coverage="true"
         check-headers="true"
