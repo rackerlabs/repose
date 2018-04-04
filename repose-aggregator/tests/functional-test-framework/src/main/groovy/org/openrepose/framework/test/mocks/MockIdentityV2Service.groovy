@@ -650,7 +650,7 @@ class MockIdentityV2Service {
                 originServicePort: this.originServicePort,
                 endpointUrl      : this.endpointUrl,
                 region           : this.region,
-                domainIdJson     : domainIdJson,
+                domainIdJson     : this.domainIdJson,
                 contactIdJson    : this.contactIdJson
         ]
 
@@ -1424,9 +1424,9 @@ class MockIdentityV2Service {
         }
       ],
       \${domainIdJson}
-      "RAX-AUTH:defaultRegion": "ORD"
+      "RAX-AUTH:defaultRegion": "ORD",
       \${contactIdJson}
-      "name": "dedicated_29502_1099363",
+      "name": "dedicated_29502_1099363"
     }
   }
 }
