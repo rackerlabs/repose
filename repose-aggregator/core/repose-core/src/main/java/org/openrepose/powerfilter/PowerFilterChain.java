@@ -258,8 +258,7 @@ public class PowerFilterChain implements FilterChain {
         return objectMapper.writeValueAsString(object);
     }
 
-    private void doRouting(HttpServletRequest httpRequest, ServletResponse servletResponse)
-            throws IOException, ServletException {
+    private void doRouting(HttpServletRequest httpRequest, ServletResponse servletResponse) {
         final HttpServletResponseWrapper wrappedResponse = new HttpServletResponseWrapper(
                 (HttpServletResponse) servletResponse,
                 MUTABLE,
@@ -274,10 +273,11 @@ public class PowerFilterChain implements FilterChain {
                 router.route(new HttpServletRequestWrapper(httpRequest), wrappedResponse);
             }
             splitResponseHeaders(wrappedResponse);
-            wrappedResponse.commitToResponse();
         } catch (Exception ex) {
             LOG.error("Failure in filter within container filter chain. Reason: " + ex.getMessage(), ex);
-            wrappedResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        } finally {
+            wrappedResponse.commitToResponse();
         }
     }
 
