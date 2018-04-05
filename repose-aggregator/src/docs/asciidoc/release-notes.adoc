@@ -1,5 +1,8 @@
 = Release Notes
 
+== In Progress
+* https://repose.atlassian.net/browse/REP-6765[REP-6765] - Updated the <<filters/keystone-v2.adoc#, Keystone v2 filter>> to forward users' domain ID.
+
 == 8.8.3.0 (2018-03-30)
 * https://repose.atlassian.net/browse/REP-6654[REP-6654] - Added OpenTracing support.
 * https://repose.atlassian.net/browse/REP-6674[REP-6674] - Switching usages of `LazyLogging` over to `StrictLogging`.

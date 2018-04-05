@@ -293,6 +293,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       token.username.foreach(request.addHeader(PowerApiHeader.USER, _))
       token.username.foreach(request.addHeader(OpenStackServiceHeader.USER_NAME, _))
       token.tenantName.foreach(request.addHeader(OpenStackServiceHeader.TENANT_NAME, _))
+      token.domainId.foreach(request.addHeader(OpenStackServiceHeader.DOMAIN_ID, _))
       token.defaultRegion.foreach(request.addHeader(OpenStackServiceHeader.DEFAULT_REGION, _))
       token.contactId.foreach(request.addHeader(OpenStackServiceHeader.CONTACT_ID, _))
       token.impersonatorId.foreach(request.addHeader(OpenStackServiceHeader.IMPERSONATOR_ID, _))

@@ -37,6 +37,7 @@ class KeystoneV2BasicTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
+    def static reposeEndpointServersTest
 
     def static MockIdentityV2Service fakeIdentityV2Service
 
@@ -50,8 +51,12 @@ class KeystoneV2BasicTest extends ReposeValveTest {
 
         originEndpoint = deproxy.addEndpoint(params.targetPort, 'origin service')
         fakeIdentityV2Service = new MockIdentityV2Service(params.identityPort, params.targetPort)
-        identityEndpoint = deproxy.addEndpoint(params.identityPort,
-                'identity service', null, fakeIdentityV2Service.handler)
+        identityEndpoint = deproxy.addEndpoint(
+            params.identityPort,
+            'identity service',
+            null,
+            fakeIdentityV2Service.handler)
+        reposeEndpointServersTest = "$reposeEndpoint/servers/test"
 
         repose.start()
         repose.waitForNon500FromUrl(reposeEndpoint)
@@ -59,20 +64,21 @@ class KeystoneV2BasicTest extends ReposeValveTest {
 
     def setup() {
         fakeIdentityV2Service.resetDefaultParameters()
+        fakeIdentityV2Service.client_token = UUID.randomUUID().toString()
     }
 
     def "Validate client token test"() {
         given:
         fakeIdentityV2Service.with {
-            client_token = UUID.randomUUID().toString()
             client_tenantid = "mytenant"
             client_tenantname = "mytenantname"
             client_userid = "12345"
         }
 
         when: "User passes a request through repose with valid token"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpointServersTest,
+            headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "They should pass"
         mc.receivedResponse.code == "200"
@@ -94,6 +100,7 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         Current code change doesn't check for racker role (regardless racker role)
            so if get group call return 404 or empty group we handle as no x-pp-groups in header
     */
+
     @Unroll()
     def "Validate conditional group call to handle racker token with 404 resp for getGroups call"() {
         given:
@@ -104,8 +111,9 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         }
 
         when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpointServersTest,
+            headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "They should pass"
         mc.receivedResponse.code == status
@@ -113,23 +121,21 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         mc.handlings[0].request.headers.findAll("x-pp-groups").size() == 0
 
         where:
-        roles       | status    | handlings
-        "racker"    | "200"     | 1
-        "Racker"    | "200"     | 1
-        "RACKER"    | "200"     | 1
-        "test"      | "200"     | 1
+        roles    | status | handlings
+        "racker" | "200"  | 1
+        "Racker" | "200"  | 1
+        "RACKER" | "200"  | 1
+        "test"   | "200"  | 1
     }
 
     def "Validate client token with belongsTo test"() {
         given:
-        fakeIdentityV2Service.with {
-            client_token = UUID.randomUUID().toString()
-            validateTenant = "belongstotest"
-        }
+        fakeIdentityV2Service.validateTenant = "belongstotest"
 
         when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpointServersTest,
+            headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "They should pass"
         mc.receivedResponse.code == "200"
@@ -144,8 +150,9 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         }
 
         when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpointServersTest,
+            headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "They should pass"
         mc.receivedResponse.code == "200"
@@ -157,8 +164,9 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         given:
 
         when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: 'GET',
-                headers: ['content-type': 'application/json'])
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint + path,
+            headers: ['content-type': 'application/json'])
 
         then: "They should pass"
         mc.receivedResponse.code == "200"
@@ -171,14 +179,14 @@ class KeystoneV2BasicTest extends ReposeValveTest {
     def "Verify Repose send Impersonate role in header"() {
         given: "keystone v2v2 with impersonate access"
         fakeIdentityV2Service.with {
-            client_token = UUID.randomUUID().toString()
             impersonate_id = "12345"
             impersonate_name = "repose_test"
         }
 
         when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpointServersTest,
+            headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "should have x-impersonate-roles in headers from request come through repose"
         mc.receivedResponse.code == "200"
@@ -193,13 +201,11 @@ class KeystoneV2BasicTest extends ReposeValveTest {
 
     def "If no impersonator then no impersonator headers"() {
         given: "keystone v2v2 without impersonate access"
-        fakeIdentityV2Service.with {
-            client_token = UUID.randomUUID().toString()
-        }
 
         when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpointServersTest,
+            headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "should have x-impersonate-roles in headers from request come through repose"
         mc.receivedResponse.code == "200"
@@ -211,15 +217,12 @@ class KeystoneV2BasicTest extends ReposeValveTest {
 
     def "Handle large Token test"() {
         given: "keystone v2v2 with random generate at least 226 char token"
-        def largetoken = RandomStringUtils.random(226, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
-        println largetoken
-        fakeIdentityV2Service.with {
-            client_token = largetoken
-        }
+        fakeIdentityV2Service.client_token = RandomStringUtils.random(226, 'ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz-_1234567890')
 
         when: "User passes a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpointServersTest,
+            headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "should have x-impersonate-roles in headers from request come through repose"
         mc.receivedResponse.code == "200"
@@ -229,7 +232,7 @@ class KeystoneV2BasicTest extends ReposeValveTest {
     def "Verify WWW-Authenticate response header is sent if user is unauthorized downstream"() {
         when: "the origin service responds with a 401"
         MessageChain mc = deproxy.makeRequest(
-            url: reposeEndpoint + "/servers/test",
+            url: reposeEndpointServersTest,
             headers: ['X-Auth-Token': fakeIdentityV2Service.client_token],
             defaultHandler: { new Response(SC_UNAUTHORIZED) })
 
@@ -241,11 +244,68 @@ class KeystoneV2BasicTest extends ReposeValveTest {
     def "Verify X-Auth-Token-Key request header is sent"() {
         when: "the user makes a request to Repose"
         MessageChain mc = deproxy.makeRequest(
-            url: reposeEndpoint + "/servers/test",
+            url: reposeEndpointServersTest,
             headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "the request should be enriched with the X-Auth-Token-Key header"
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token-Key") == "IDENTITY:V2:TOKEN:${fakeIdentityV2Service.client_token}"
+    }
+
+    def "Verify X-Domain-Id request header is sent when domainId in payload from Identity"() {
+        given: "keystone v2v2 with random domain ID"
+        fakeIdentityV2Service.domain_id = RandomStringUtils.random(9, '123456789')
+
+        when: "the user makes a request to Repose"
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpointServersTest,
+            headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then: "the request should be enriched with the X-Domain-Id header"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.getFirstValue("X-Domain-Id") == fakeIdentityV2Service.domain_id
+    }
+
+    def "Verify X-Domain-Id request header is sent when domainId in payload from Identity is UUID"() {
+        given: "keystone v2v2 with random domain ID"
+        fakeIdentityV2Service.domain_id = UUID.randomUUID().toString()
+
+        when: "the user makes a request to Repose"
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpointServersTest,
+            headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then: "the request should be enriched with the X-Domain-Id header"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.getFirstValue("X-Domain-Id") == fakeIdentityV2Service.domain_id
+    }
+
+    def "Verify X-Domain-Id request header is NOT sent when domainId is NOT in payload from Identity"() {
+        given: "keystone v2v2 without domain ID"
+        fakeIdentityV2Service.domain_id = ""
+
+        when: "the user makes a request to Repose"
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpointServersTest,
+            headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then: "the request should be enriched with the X-Domain-Id header"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.getCountByName("X-Domain-Id") == 0
+    }
+
+    def "Verify X-Domain-Id request header is NOT sent when domainId in payload from Identity is empty"() {
+        given: "keystone v2v2 without domain ID"
+        fakeIdentityV2Service.domain_id = ""
+        fakeIdentityV2Service.domainIdJson = /"RAX-AUTH:domainId": "",/
+
+        when: "the user makes a request to Repose"
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpointServersTest,
+            headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then: "the request should be enriched with the X-Domain-Id header"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.getCountByName("X-Domain-Id") == 0
     }
 }

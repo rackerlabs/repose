@@ -32,6 +32,7 @@ object KeystoneV2TestCommon {
                        impersonatorId: Option[String] = None,
                        impersonatorName: Option[String] = None,
                        impersonatorRoles: Seq[String] = Seq.empty[String],
+                       domainId: Option[String] = None,
                        defaultRegion: Option[String] = None,
                        contactId: Option[String] = None,
                        authenticatedBy: Option[Seq[String]] = None): ValidToken = {
@@ -45,6 +46,7 @@ object KeystoneV2TestCommon {
       impersonatorId,
       impersonatorName,
       impersonatorRoles,
+      domainId,
       defaultRegion,
       contactId,
       authenticatedBy)
