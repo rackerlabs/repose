@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,14 +25,8 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-/**
- *
- *
- */
 @RunWith(Enclosed.class)
 public class GenericResourcePoolTest {
 
@@ -45,13 +39,7 @@ public class GenericResourcePoolTest {
 
         @Before
         public void standUp() {
-            resourcePool = new GenericBlockingResourcePool<>(new ConstructionStrategy<Target>() {
-
-                @Override
-                public Target construct() {
-                    return new Target();
-                }
-            });
+            resourcePool = new GenericBlockingResourcePool<>(Target::new);
         }
 
         @Test
@@ -66,39 +54,29 @@ public class GenericResourcePoolTest {
             resourcePool.setMinimumPoolSize(1);
             resourcePool.setMaximumPoolSize(3);
 
-            assertThat(resourcePool.size(),  equalTo(3));
+            assertThat(resourcePool.size(), equalTo(3));
         }
     }
 
     public static class WhenAccessingPooledResources {
 
-        private volatile boolean go;
-        private volatile int internalThreadCount;
+        private int minPoolSize = 2;
+        private int maxPoolSize = 6;
         private Pool<Target> resourcePool;
+        private volatile boolean run;
+        private volatile int activeThreadCount;
+        private volatile int activeResourceCount;
 
         @Before
         public void standUp() {
-            resourcePool = new GenericBlockingResourcePool<>(new ConstructionStrategy<Target>() {
-
-                @Override
-                public Target construct() {
-                    return new Target();
-                }
-            }, 2, 6);
+            resourcePool = new GenericBlockingResourcePool<>(Target::new, minPoolSize, maxPoolSize);
         }
 
         @Test
         public void shouldGenerateNewResources() {
-            resourcePool = new GenericBlockingResourcePool<>(new ConstructionStrategy<Target>() {
-
-                @Override
-                public Target construct() {
-                    return new Target();
-                }
-            }, 0, 5);
+            resourcePool = new GenericBlockingResourcePool<>(Target::new, 0, 5);
 
             resourcePool.use(new SimpleResourceContext<Target>() {
-
                 @Override
                 public void perform(Target resource) {
                     assertNotNull(resource);
@@ -111,7 +89,6 @@ public class GenericResourcePoolTest {
         @Test
         public void shouldAllowReturnsFromContext() {
             assertTrue(resourcePool.use(new ResourceContext<Target, Boolean>() {
-
                 @Override
                 public Boolean perform(Target resource) {
                     return true;
@@ -121,34 +98,39 @@ public class GenericResourcePoolTest {
 
         @Test
         public void shouldHandleThreadPressure() throws Exception {
-            go = false;
+            int numTestThreads = 8;
 
-            internalThreadCount = 0;
+            run = true;
+            activeThreadCount = 0;
+            activeResourceCount = 0;
 
             final SimpleResourceContext<Target> context = new SimpleResourceContext<Target>() {
-
                 @Override
                 public void perform(Target resource) throws ResourceContextException {
+                    activeResourceCount++;
+
                     try {
-                        while (!go) {
+                        // Continue to "use" the pooled resource so that it is not released.
+                        while (run) {
                             Thread.sleep(10);
                         }
-                    } catch (InterruptedException ie) {
+                    } catch (InterruptedException ignored) {
+                    } finally {
+                        activeResourceCount--;
                     }
                 }
             };
 
-            for (int c = 0; c < 8; c++) {
+            for (int c = 0; c < numTestThreads; c++) {
                 final Thread t = new Thread("Thread: " + c) {
-
                     @Override
                     public void run() {
-                        internalThreadCount++;
+                        activeThreadCount++;
 
                         try {
                             resourcePool.use(context);
                         } finally {
-                            internalThreadCount--;
+                            activeThreadCount--;
                         }
                     }
                 };
@@ -156,15 +138,27 @@ public class GenericResourcePoolTest {
                 t.start();
             }
 
-            while (internalThreadCount < 7) {
+            // Verify that all threads have started running, and that as many as possible have been granted a
+            // resource from the pool.
+            // This wait it so that we are reasonably sure that the class under test has been accessed as expected so
+            // that we can assert certain things.
+            // Technically, all threads could be running but not all threads have requested a resource from the pool yet,
+            // but we would still bypass this wait.
+            // While that does mean that our test has the possibility to pass without cause (i.e., without being fully set up),
+            // it also means that our test should never fail in a difficult to diagnose manner (i.e., be flaky).
+            while (activeThreadCount < numTestThreads || activeResourceCount < maxPoolSize) {
                 Thread.sleep(10);
             }
 
-            assertThat("Resource pool should have a max size of 6.", resourcePool.size(), equalTo(6));
+            assertEquals(numTestThreads, activeThreadCount);
+            assertEquals(maxPoolSize, activeResourceCount);
+            assertEquals(maxPoolSize, resourcePool.size());
 
-            go = true;
+            // Allow all of the running threads to complete.
+            run = false;
 
-            while (internalThreadCount > 0) {
+            // Wait for all of the running threads to complete.
+            while (activeThreadCount > 0) {
                 Thread.sleep(10);
             }
         }
