@@ -25,7 +25,7 @@ import javax.annotation.PostConstruct
 import javax.inject.{Inject, Named}
 import javax.ws.rs.core.MediaType
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.opentracing.tag.Tags
 import io.opentracing.{Scope, Tracer}
 import org.openrepose.commons.config.manager.UpdateListener
@@ -60,7 +60,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
                                  tracer: Tracer,
                                  configurationService: ConfigurationService,
                                  akkaServiceClientFactory: AkkaServiceClientFactory)
-  extends LazyLogging {
+  extends StrictLogging {
 
   import PhoneHomeService._
 

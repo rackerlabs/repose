@@ -26,7 +26,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
@@ -40,7 +40,7 @@ import scala.util.{Failure, Success, Try}
 
 @Named
 class CompressionFilter @Inject()(configurationService: ConfigurationService, compressingFilterFactory: CompressingFilterFactory)
-  extends Filter with UpdateListener[ContentCompressionConfig] with LazyLogging {
+  extends Filter with UpdateListener[ContentCompressionConfig] with StrictLogging {
 
   import CompressionFilter._
   import CompressionParameters._

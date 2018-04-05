@@ -23,7 +23,7 @@ import java.io.{IOException, StringWriter}
 import java.net.{URI, UnknownServiceException}
 
 import akka.actor._
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.opentracing.Tracer
 import io.opentracing.tag.Tags
 import org.apache.abdera.Abdera
@@ -89,7 +89,7 @@ class FeedReader(feedURIString: String,
                  pollingFrequency: Int,
                  order: EntryOrderType,
                  reposeVersion: String)
-  extends Actor with LazyLogging {
+  extends Actor with StrictLogging {
 
   import FeedReader._
 

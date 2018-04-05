@@ -23,7 +23,7 @@ import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
 
 import akka.actor._
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.opentracing.Tracer
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.SystemModelInterrogator
@@ -54,7 +54,7 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
                                     configurationService: ConfigurationService,
                                     applicationContext: ApplicationContext,
                                     tracer: Tracer)
-  extends AtomFeedService with LazyLogging {
+  extends AtomFeedService with StrictLogging {
 
   import AtomFeedServiceImpl._
 

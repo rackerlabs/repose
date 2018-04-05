@@ -26,7 +26,7 @@ import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.codahale.metrics.MetricRegistry
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
@@ -41,7 +41,7 @@ import scala.collection.JavaConverters._
 
 @Named
 class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationService, optMetricsService: Optional[MetricsService])
-  extends Filter with UpdateListener[HeaderNormalizationConfig] with LazyLogging {
+  extends Filter with UpdateListener[HeaderNormalizationConfig] with StrictLogging {
 
   private final val NormalizationMetricPrefix = MetricRegistry.name(classOf[HeaderNormalizationFilter], "Normalization")
   private final val RequestNormalizationMetricPrefix = MetricRegistry.name(NormalizationMetricPrefix, "request")

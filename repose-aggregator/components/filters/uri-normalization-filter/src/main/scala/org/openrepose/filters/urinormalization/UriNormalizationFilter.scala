@@ -26,7 +26,7 @@ import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.codahale.metrics.MetricRegistry
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.normal.QueryStringNormalizer
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
@@ -41,7 +41,7 @@ import scala.collection.mutable
 
 @Named
 class UriNormalizationFilter @Inject()(configurationService: ConfigurationService, optMetricsService: Optional[MetricsService])
-  extends Filter with UpdateListener[UriNormalizationConfig] with LazyLogging {
+  extends Filter with UpdateListener[UriNormalizationConfig] with StrictLogging {
 
   private final val DefaultConfig: String = "uri-normalization.cfg.xml"
   private final val NormalizationMetricPrefix = MetricRegistry.name(classOf[UriNormalizationFilter], "Normalization")

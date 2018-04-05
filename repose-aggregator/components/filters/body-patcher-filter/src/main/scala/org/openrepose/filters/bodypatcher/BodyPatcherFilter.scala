@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.fasterxml.jackson.core.JsonParseException
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import gnieh.diffson.playJson._
 import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
@@ -48,7 +48,7 @@ import scala.util.{Failure, Success, Try}
   */
 @Named
 class BodyPatcherFilter @Inject()(configurationService: ConfigurationService)
-  extends AbstractConfiguredFilter[BodyPatcherConfig](configurationService) with RegexStringOperators with LazyLogging {
+  extends AbstractConfiguredFilter[BodyPatcherConfig](configurationService) with RegexStringOperators with StrictLogging {
   import BodyPatcherFilter._
 
   override val DEFAULT_CONFIG: String = "body-patcher.cfg.xml"

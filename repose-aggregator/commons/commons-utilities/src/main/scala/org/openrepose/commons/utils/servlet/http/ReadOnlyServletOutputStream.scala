@@ -20,13 +20,13 @@
 package org.openrepose.commons.utils.servlet.http
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
-import javax.servlet.ServletOutputStream
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
+import javax.servlet.ServletOutputStream
 
 class ReadOnlyServletOutputStream(servletOutputStream: ServletOutputStream)
   extends ExtendedServletOutputStream
-    with LazyLogging {
+    with StrictLogging {
 
   private val byteArrayOutputStream = new ByteArrayOutputStream()
 

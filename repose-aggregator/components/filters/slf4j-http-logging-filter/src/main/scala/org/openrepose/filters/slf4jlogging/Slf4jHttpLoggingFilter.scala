@@ -24,7 +24,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.logging.apache.HttpLogFormatter
 import org.openrepose.core.filter.FilterConfigHelper
@@ -37,7 +37,7 @@ import scala.collection.mutable
 
 @Named
 class Slf4jHttpLoggingFilter @Inject()(configurationService: ConfigurationService)
-  extends Filter with UpdateListener[Slf4JHttpLoggingConfig] with LazyLogging {
+  extends Filter with UpdateListener[Slf4JHttpLoggingConfig] with StrictLogging {
 
   private final val DEFAULT_CONFIG: String = "slf4j-http-logging.cfg.xml"
 

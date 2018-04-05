@@ -49,7 +49,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.cache.{Cache, CacheBuilder}
 import com.rackspace.com.papi.components.checker.util.{ImmutableNamespaceContext, XMLParserPool, XPathExpressionPool}
 import com.rackspace.identity.components.{AttributeMapper, PolicyFormat, XSDEngine}
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import net.sf.saxon.s9api.{SaxonApiException, XsltExecutable}
 import org.openrepose.commons.config.manager.{UpdateFailedException, UpdateListener}
 import org.openrepose.commons.utils.http.CommonHttpHeader.TRACE_GUID
@@ -81,7 +81,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
                                             atomFeedService: AtomFeedService,
                                             @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) configRoot: String)
   extends AbstractConfiguredFilter[SamlPolicyConfig](configurationService)
-    with LazyLogging
+    with StrictLogging
     with AtomFeedListener {
 
   import SamlPolicyTranslationFilter._

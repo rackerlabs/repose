@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.rackspace.httpdelegation.HttpDelegationManager
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.commons.config.manager.UpdateFailedException
 import org.openrepose.commons.utils.http.PowerApiHeader.RELEVANT_ROLES
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
@@ -45,7 +45,7 @@ class RegexRbacFilter @Inject()(configurationService: ConfigurationService)
   extends AbstractConfiguredFilter[RegexRbacConfig](configurationService)
     with HttpDelegationManager
     with RegexStringOperators
-    with LazyLogging {
+    with StrictLogging {
 
   override val DEFAULT_CONFIG: String = "regex-rbac.cfg.xml"
   override val SCHEMA_LOCATION: String = "/META-INF/schema/config/regex-rbac.xsd"

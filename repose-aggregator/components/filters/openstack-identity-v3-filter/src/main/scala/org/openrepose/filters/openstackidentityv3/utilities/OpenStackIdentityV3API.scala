@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,7 +25,7 @@ import java.util.{Calendar, GregorianCalendar}
 import javax.servlet.http.HttpServletResponse._
 import javax.ws.rs.core.MediaType
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.http.Header
 import org.joda.time.DateTime
 import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate, ServiceClientResponse}
@@ -43,7 +43,7 @@ import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
 class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datastore, akkaServiceClient: AkkaServiceClient)
-  extends LazyLogging {
+  extends StrictLogging {
 
   private final val SC_TOO_MANY_REQUESTS = 429
   private final val TOKEN_ENDPOINT = "/v3/auth/tokens"

@@ -26,7 +26,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
@@ -38,7 +38,7 @@ import scala.collection.JavaConversions._
 
 @Named
 class UriUserFilter @Inject()(configurationService: ConfigurationService)
-  extends Filter with UpdateListener[UriUserConfig] with LazyLogging {
+  extends Filter with UpdateListener[UriUserConfig] with StrictLogging {
 
   import UriUserFilter._
 

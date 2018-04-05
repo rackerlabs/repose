@@ -23,7 +23,7 @@ import java.net.URL
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.config.ConfigurationService
 
@@ -36,7 +36,7 @@ import scala.reflect.{ClassTag, _}
   * @tparam T the config class
   */
 abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: ConfigurationService)
-  extends Filter with LazyLogging with UpdateListener[T] {
+  extends Filter with StrictLogging with UpdateListener[T] {
 
   /**
     * The default configuration file name for the filter.

@@ -27,7 +27,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.xml.bind.JAXBElement
 
 import com.codahale.metrics.MetricRegistry
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.http.HttpHeaders
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonRequestAttributes
@@ -54,7 +54,7 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
                                  configurationService: ConfigurationService,
                                  healthCheckService: HealthCheckService,
                                  optMetricsService: Optional[MetricsService])
-  extends Filter with LazyLogging {
+  extends Filter with StrictLogging {
 
   private final val SystemModelConfigFileName = "system-model.cfg.xml"
   private final val DefaultVersioningConfigFileName = "versioning.cfg.xml"

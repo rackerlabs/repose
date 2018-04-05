@@ -30,7 +30,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.github.jknack.handlebars.{Handlebars, Helper, Options, Template}
 import com.rackspace.httpdelegation._
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.http.HttpHeaders
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader}
@@ -53,7 +53,7 @@ import scala.util.matching.Regex
 class HerpFilter @Inject()(configurationService: ConfigurationService,
                            @Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
                            @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String)
-  extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with LazyLogging {
+  extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with StrictLogging {
   private final val DEFAULT_CONFIG = "highly-efficient-record-processor.cfg.xml"
   private final val X_PROJECT_ID = "X-Project-ID"
   private final val X_METHOD_LABEL: String = "X-METHOD-LABEL"

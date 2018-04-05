@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,7 @@ import java.io.StringWriter
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.{HttpHeaders, MediaType}
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.commons.io.IOUtils
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
@@ -49,7 +49,7 @@ import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
-class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar with LazyLogging {
+class AkkaServiceClientImplTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar with StrictLogging {
   val HEADER_SLEEP = "Origin-Sleep"
   val HEADER_LOG = "Origin-Log"
   val AUTH_TOKEN_HEADER = "X-Auth-Token"

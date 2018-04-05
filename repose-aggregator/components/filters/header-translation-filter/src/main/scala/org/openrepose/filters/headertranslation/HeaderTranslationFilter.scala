@@ -23,7 +23,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
@@ -34,7 +34,7 @@ import scala.collection.JavaConversions._
 
 @Named
 class HeaderTranslationFilter @Inject()(configurationService: ConfigurationService)
-  extends Filter with UpdateListener[HeaderTranslationType] with LazyLogging {
+  extends Filter with UpdateListener[HeaderTranslationType] with StrictLogging {
 
   import HeaderTranslationFilter._
 

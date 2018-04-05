@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,7 +24,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.MediaType
 
 import com.rackspace.httpdelegation._
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import scala.collection.JavaConverters._
 import scala.util.{Failure, Success}
@@ -36,7 +36,7 @@ import scala.util.{Failure, Success}
  * This filter is header quality aware; the delegation header with the highest quality will be used to formulate a
  * response.
  */
-class DerpFilter extends Filter with HttpDelegationManager with LazyLogging {
+class DerpFilter extends Filter with HttpDelegationManager with StrictLogging {
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("DeRP filter initialized")

@@ -25,7 +25,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.commons.lang3.StringUtils
 import org.apache.http.HttpHeaders
 import org.openrepose.commons.utils.http.{OpenStackServiceHeader, PowerApiHeader}
@@ -44,7 +44,7 @@ import scala.xml.XML
 
 @Named
 class RackspaceAuthUserFilter @Inject()(configurationService: ConfigurationService, datastoreService: DatastoreService)
-  extends AbstractConfiguredFilter[RackspaceAuthUserConfig](configurationService) with LazyLogging {
+  extends AbstractConfiguredFilter[RackspaceAuthUserConfig](configurationService) with StrictLogging {
   import RackspaceAuthUserFilter._
 
   override final val DEFAULT_CONFIG = "rackspace-auth-user.cfg.xml"

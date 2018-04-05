@@ -32,7 +32,7 @@ import javax.ws.rs.core.HttpHeaders.RETRY_AFTER
 import com.fasterxml.jackson.core.JsonParseException
 import com.josephpconley.jsonpath.JSONPath
 import com.rackspace.httpdelegation.HttpDelegationManager
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.jsonpath.AST.{Field, PathToken, RootNode}
 import io.gatling.jsonpath.Parser
 import org.openrepose.commons.utils.http.CommonHttpHeader.{AUTH_TOKEN, TRACE_GUID}
@@ -62,7 +62,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   extends AbstractConfiguredFilter[ValkyrieAuthorizationConfig](configurationService)
     with HttpDelegationManager
     with RegexStringOperators
-    with LazyLogging {
+    with StrictLogging {
 
   import org.openrepose.filters.valkyrieauthorization.ValkyrieAuthorizationFilter._
 

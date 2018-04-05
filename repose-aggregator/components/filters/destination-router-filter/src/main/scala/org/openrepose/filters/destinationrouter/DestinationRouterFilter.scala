@@ -26,7 +26,7 @@ import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.codahale.metrics.MetricRegistry
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonRequestAttributes
 import org.openrepose.commons.utils.servlet.http.RouteDestination
@@ -37,7 +37,7 @@ import org.openrepose.filters.routing.servlet.config.DestinationRouterConfigurat
 
 @Named
 class DestinationRouterFilter @Inject()(configurationService: ConfigurationService, optMetricsService: Optional[MetricsService])
-  extends Filter with UpdateListener[DestinationRouterConfiguration] with LazyLogging {
+  extends Filter with UpdateListener[DestinationRouterConfiguration] with StrictLogging {
 
   private final val DefaultConfigFileName = "destination-router.cfg.xml"
   private final val SchemaFilePath = "/META-INF/schema/config/destination-router-configuration.xsd"

@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse
 import javax.servlet.{ServletOutputStream, ServletResponse}
 import javax.ws.rs.core.HttpHeaders
 
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.http.client.utils.DateUtils
 import org.slf4j.LoggerFactory
 
@@ -81,7 +81,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse,
                                  desiredOutputStream: ServletOutputStream)
   extends javax.servlet.http.HttpServletResponseWrapper(originalResponse)
     with HeaderInteractor
-    with LazyLogging {
+    with StrictLogging {
 
   private val headerWarningLogger = LoggerFactory.getLogger(s"${classOf[HttpServletResponseWrapper].getName}.headerWarning")
 

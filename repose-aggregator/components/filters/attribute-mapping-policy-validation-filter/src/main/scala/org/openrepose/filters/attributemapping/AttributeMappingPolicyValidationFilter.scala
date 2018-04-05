@@ -29,7 +29,7 @@ import javax.xml.transform.stream.StreamSource
 
 import com.fasterxml.jackson.core.{JsonParseException, JsonProcessingException}
 import com.rackspace.identity.components.{AttributeMapper, XSDEngine}
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import net.sf.saxon.s9api.SaxonApiException
 import org.apache.commons.io.input.CloseShieldInputStream
 import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper
@@ -38,7 +38,7 @@ import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import scala.util.{Failure, Success, Try}
 
 @Named
-class AttributeMappingPolicyValidationFilter extends Filter with LazyLogging {
+class AttributeMappingPolicyValidationFilter extends Filter with StrictLogging {
 
   import AttributeMappingPolicyValidationFilter._
 

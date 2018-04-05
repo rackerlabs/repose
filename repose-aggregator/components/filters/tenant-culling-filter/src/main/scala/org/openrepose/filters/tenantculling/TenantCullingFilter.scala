@@ -25,13 +25,13 @@ import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.fasterxml.jackson.core.JsonParseException
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.commons.utils.http.OpenStackServiceHeader.{TENANT_ID, TENANT_ROLES_MAP}
 import org.openrepose.commons.utils.http.PowerApiHeader.RELEVANT_ROLES
 import org.openrepose.commons.utils.json.JsonHeaderHelper
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 
-class TenantCullingFilter extends Filter with LazyLogging {
+class TenantCullingFilter extends Filter with StrictLogging {
 
   import TenantCullingFilter._
 
