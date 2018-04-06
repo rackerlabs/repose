@@ -19,21 +19,26 @@
  */
 package org.openrepose.core.services.uriredaction
 
-import javax.inject.{Inject, Named}
-import javax.annotation.PostConstruct
 import com.typesafe.scalalogging.slf4j.StrictLogging
+import javax.annotation.{PostConstruct, PreDestroy}
+import javax.inject.{Inject, Named}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.uriredaction.UriRedactionServiceImpl._
 import org.openrepose.core.services.uriredaction.config.UriRedactionConfig
+
+import scala.collection.JavaConverters._
+import scala.util.matching.Regex
 
 /**
   * A service which redacts sensitive data as defined by RegEx's in the config.
   */
 @Named
 class UriRedactionServiceImpl @Inject()(configurationService: ConfigurationService)
-  extends UriRedactionService with StrictLogging {
+  extends UriRedactionService with UpdateListener[UriRedactionConfig] with StrictLogging {
 
-  import UriRedactionServiceImpl._
+  private var redactions = Seq.empty[Regex]
+  private var initialized = false
 
   @PostConstruct
   def init(): Unit = {
@@ -43,29 +48,43 @@ class UriRedactionServiceImpl @Inject()(configurationService: ConfigurationServi
     configurationService.subscribeTo(
       DefaultConfig,
       xsdURL,
-      UriRedactionServiceConfigurationListener,
+      this,
       classOf[UriRedactionConfig]
     )
   }
 
-  override def redact(uriString: String): String = ???
+  @PreDestroy
+  def destroy(): Unit = {
+    logger.info("Unsubscribing configuration listener and shutting down service")
+    configurationService.unsubscribeFrom(DefaultConfig, this)
+  }
 
-  private object UriRedactionServiceConfigurationListener extends UpdateListener[UriRedactionConfig] {
-    private var initialized = false
+  override def configurationUpdated(configurationObject: UriRedactionConfig): Unit = {
+    synchronized {
+      logger.trace("Service configuration updated")
+      redactions = Option(configurationObject.getRedact)
+        .map(_.asScala).getOrElse(List.empty[String])
+        .map(_.r)
+      initialized = true
+    }
+  }
 
-    override def configurationUpdated(configurationObject: UriRedactionConfig): Unit = {
-      synchronized {
-        logger.trace("Service configuration updated")
-        initialized = true
+  override def isInitialized: Boolean = initialized
+
+  override def redact(uriString: String): String =
+    redactions.foldLeft(uriString) { (newUri, redaction) =>
+      val matcher = redaction.pattern.matcher(newUri)
+      if (matcher.matches) {
+        (1 to matcher.groupCount).foldLeft(newUri)((redactedUri, groupIndex) =>
+          s"${redactedUri.substring(0, matcher.start(groupIndex))}$RedactedString${redactedUri.substring(matcher.end(groupIndex))}")
+      } else {
+        newUri
       }
     }
-
-    override def isInitialized: Boolean = initialized
-  }
 }
 
 object UriRedactionServiceImpl {
   final val ServiceName = "uri-redaction-service"
-
+  final val RedactedString = "XXXXX"
   private final val DefaultConfig = ServiceName + ".cfg.xml"
 }
