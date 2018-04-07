@@ -130,4 +130,22 @@ class UriRedactionServiceImplTest extends FunSpec with Matchers with MockitoSuga
       }
     }
   }
+
+  describe("redact example Three") {
+    val uriRedactionConfig = new UriRedactionConfig()
+    uriRedactionConfig.getRedact.addAll(Seq(
+      "^/([^/]*)/([^/]*)/([^/]*)/[^/]+.*"
+    ).asJava)
+
+    Seq(
+      ("first three", "/redactMe/redactMe/redactMe/required", s"/$RedactedString/$RedactedString/$RedactedString/required"),
+      ("first three with trailing", "/redactMe/redactMe/redactMe/required/", s"/$RedactedString/$RedactedString/$RedactedString/required/")
+    ).foreach { case (name, origUri, expected) =>
+      it(s"should redact $name call") {
+        uriRedactionService.configurationUpdated(uriRedactionConfig)
+
+        uriRedactionService.redact(origUri) shouldBe expected
+      }
+    }
+  }
 }
