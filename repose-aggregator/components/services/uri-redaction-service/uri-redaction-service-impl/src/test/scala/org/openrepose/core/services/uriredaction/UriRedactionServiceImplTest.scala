@@ -86,13 +86,15 @@ class UriRedactionServiceImplTest extends FunSpec with Matchers with MockitoSuga
   describe("redact example One") {
     val uriRedactionConfig = new UriRedactionConfig()
     uriRedactionConfig.getRedact.addAll(Seq(
-      "^/v1/[^/]+/([^/]*)/[^/]+/",
-      "^/v2/admin/([^/]*)/[^/]+/"
+      "^/v1/[^/]+/([^/]+)/[^/]+.*",
+      "^/v2/admin/([^/]+)/[^/]+.*"
     ).asJava)
 
     Seq(
-      ("v1", "/v1/anything/redactMe/required/", s"/v1/anything/$RedactedString/required/"),
-      ("v2", "/v2/admin/redactMe/required/", s"/v2/admin/$RedactedString/required/")
+      ("v1", "/v1/anything/redactMe/required", s"/v1/anything/$RedactedString/required"),
+      ("v1 with trailing", "/v1/anything/redactMe/required/", s"/v1/anything/$RedactedString/required/"),
+      ("v2", "/v2/admin/redactMe/required", s"/v2/admin/$RedactedString/required"),
+      ("v2 with trailing", "/v2/admin/redactMe/required/", s"/v2/admin/$RedactedString/required/")
     ).foreach { case (name, origUri, expected) =>
       it(s"should redact $name call") {
         uriRedactionService.configurationUpdated(uriRedactionConfig)
@@ -105,9 +107,9 @@ class UriRedactionServiceImplTest extends FunSpec with Matchers with MockitoSuga
   describe("redact example Two") {
     val uriRedactionConfig = new UriRedactionConfig()
     uriRedactionConfig.getRedact.addAll(Seq(
-      """^/[^/]+/([^/]+)/[^/]+.*""",
-      """^/[^/]+/[^/]+/admin/([^/]+).*""",
-      s"""^/[^/]+/[^/]+/[^/]+/$RedactedString/secret/([^/]+).*"""
+      "^/[^/]+/([^/]+)/[^/]+.*",
+      "^/[^/]+/[^/]+/admin/([^/]+).*",
+      s"^/[^/]+/[^/]+/[^/]+/$RedactedString/secret/([^/]+).*"
     ).asJava)
 
     Seq(
