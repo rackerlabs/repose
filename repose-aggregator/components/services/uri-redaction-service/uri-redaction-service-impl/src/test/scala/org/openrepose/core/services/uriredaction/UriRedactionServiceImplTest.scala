@@ -20,6 +20,7 @@
 package org.openrepose.core.services.uriredaction
 
 import java.net.URL
+import java.util.regex.PatternSyntaxException
 
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{eq => isEq, _}
@@ -80,6 +81,35 @@ class UriRedactionServiceImplTest extends FunSpec with Matchers with MockitoSuga
       uriRedactionService.configurationUpdated(uriRedactionConfig)
 
       uriRedactionService.isInitialized shouldBe true
+    }
+  }
+
+  describe("configurationUpdated") {
+    it("should not initialize if the configuration had malformed regex's") {
+      val uriRedactionConfig = new UriRedactionConfig()
+      uriRedactionConfig.getRedact.addAll(Seq("^/should/fail/[^/").asJava)
+
+      intercept[PatternSyntaxException] {
+        uriRedactionService.configurationUpdated(uriRedactionConfig)
+      }
+
+      uriRedactionService.isInitialized shouldBe false
+    }
+
+    it("should continue to use old configuration if the new configuration has a malformed regex") {
+      val uriRedactionConfig = new UriRedactionConfig()
+      uriRedactionConfig.getRedact.addAll(Seq("^/([^/]+).*").asJava)
+
+      uriRedactionService.configurationUpdated(uriRedactionConfig)
+      uriRedactionService.redact("/redactMe/optional") shouldBe s"/$RedactedString/optional"
+
+      uriRedactionConfig.getRedact.addAll(Seq("^/should/fail/[^/").asJava)
+      intercept[PatternSyntaxException] {
+        uriRedactionService.configurationUpdated(uriRedactionConfig)
+      }
+
+      uriRedactionService.isInitialized shouldBe true
+      uriRedactionService.redact("/redactMe/optional") shouldBe s"/$RedactedString/optional"
     }
   }
 
