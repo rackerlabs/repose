@@ -75,7 +75,7 @@ class UriRedactionServiceImpl @Inject()(configurationService: ConfigurationServi
     redactions.foldLeft(uriString) { (newUri, redaction) =>
       val matcher = redaction.pattern.matcher(newUri)
       if (matcher.matches) {
-        (1 to matcher.groupCount).foldLeft(newUri)((redactedUri, groupIndex) =>
+        (matcher.groupCount to 1 by -1).foldLeft(newUri)((redactedUri, groupIndex) =>
           s"${redactedUri.substring(0, matcher.start(groupIndex))}$RedactedString${redactedUri.substring(matcher.end(groupIndex))}")
       } else {
         newUri
