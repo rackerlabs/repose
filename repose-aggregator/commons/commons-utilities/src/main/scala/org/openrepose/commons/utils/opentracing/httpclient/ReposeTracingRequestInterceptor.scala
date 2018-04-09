@@ -25,6 +25,7 @@ import org.apache.http.HttpRequest
 import org.apache.http.protocol.HttpContext
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.opentracing.ReposeTags
+import org.openrepose.core.services.uriredaction.UriRedactionService
 
 /**
   * A [[org.apache.http.HttpRequestInterceptor]] that will enrich HTTP requests made through a
@@ -35,7 +36,7 @@ import org.openrepose.commons.utils.opentracing.ReposeTags
   *
   * @param tracer a [[io.opentracing.Tracer]] to bridge this utility with the OpenTracing API
   */
-class ReposeTracingRequestInterceptor(tracer: Tracer, reposeVersion: String) extends TracingRequestInterceptor(tracer) {
+class ReposeTracingRequestInterceptor(tracer: Tracer, reposeVersion: String, uriRedactionService: UriRedactionService) extends TracingRequestInterceptor(tracer) {
 
   override protected def onSpanStarted(clientSpan: Span, httpRequest: HttpRequest, httpContext: HttpContext): Unit = {
     Option(httpRequest.getFirstHeader(CommonHttpHeader.REQUEST_ID))
@@ -49,5 +50,5 @@ class ReposeTracingRequestInterceptor(tracer: Tracer, reposeVersion: String) ext
   }
 
   override protected def getOperationName(httpRequest: HttpRequest): String =
-    s"${httpRequest.getRequestLine.getMethod} ${httpRequest.getRequestLine.getUri}"
+    s"${httpRequest.getRequestLine.getMethod} ${uriRedactionService.redact(httpRequest.getRequestLine.getUri)}"
 }

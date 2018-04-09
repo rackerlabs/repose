@@ -23,6 +23,7 @@ import io.opentracing.propagation.Format
 import io.opentracing.tag.Tags
 import io.opentracing.{Scope, SpanContext, Tracer}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import org.openrepose.core.services.uriredaction.UriRedactionService
 import org.slf4j.Logger
 
 import scala.util.{Failure, Success, Try}
@@ -31,7 +32,7 @@ import scala.util.{Failure, Success, Try}
 // todo: or do the scala test thing and make a companion object that implements it for those still in java
 object ScopeHelper {
 
-  def startSpan(req: HttpServletRequest, tracer: Tracer, logger: Logger, spanKind: String, reposeVersion: String): Scope = {
+  def startSpan(req: HttpServletRequest, tracer: Tracer, logger: Logger, spanKind: String, reposeVersion: String, uriRedactionService: UriRedactionService): Scope = {
     logger.trace("Let's see if there were any OpenTracing spans passed-in")
     val context: Option[SpanContext] =
       Try(tracer.extract(Format.Builtin.HTTP_HEADERS, new HttpRequestCarrier(req))) match {
@@ -46,7 +47,7 @@ object ScopeHelper {
       }
 
     logger.debug("The span context obtained from the request: {}", context.getOrElse("NONE"))
-    val scope = tracer.buildSpan(String.format("%s %s", req.getMethod, req.getRequestURI))
+    val scope = tracer.buildSpan(s"${req.getMethod} ${uriRedactionService.redact(req.getRequestURI)}")
       .asChildOf(context.orNull)
       .withTag(Tags.SPAN_KIND.getKey, spanKind)
       .withTag(ReposeTags.ReposeVersion, reposeVersion)

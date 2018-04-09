@@ -28,27 +28,39 @@ import org.mockito.Matchers.any
 import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.opentracing.ReposeTags
+import org.openrepose.core.services.uriredaction.UriRedactionService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfter {
+class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
+
+  var httpRequest: HttpRequest = _
+  var httpContext: HttpContext = _
+  var tracer: Tracer = _
+  var uriRedactionService: UriRedactionService = _
+  var scopeManager: ScopeManager = _
+  var scope: Scope = _
+  var span: Span = _
+
+  override def beforeEach(): Unit = {
+    httpRequest = mock[HttpRequest]
+    httpContext = mock[HttpContext]
+    tracer = mock[Tracer]
+    uriRedactionService = mock[UriRedactionService]
+    scopeManager = mock[ScopeManager]
+    scope = mock[Scope]
+    span = mock[Span]
+  }
 
   describe("testOnSpanStarted") {
     it("no headers") {
-      val httpRequest = mock[HttpRequest]
-      val httpContext = mock[HttpContext]
-      val tracer = mock[Tracer]
-      val scopeManager = mock[ScopeManager]
-      val scope = mock[Scope]
-      val span = mock[Span]
-
       when(scope.span()).thenReturn(span)
       when(scopeManager.active()).thenReturn(scope)
       when(tracer.scopeManager()).thenReturn(scopeManager)
 
-      val tracingRequestInterceptor = new ReposeTracingRequestInterceptor(tracer, "1.two.III")
+      val tracingRequestInterceptor = new ReposeTracingRequestInterceptor(tracer, "1.two.III", uriRedactionService)
 
       tracingRequestInterceptor.process(httpRequest, httpContext)
 
@@ -56,19 +68,12 @@ class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with Moc
     }
 
     it("with request header") {
-      val httpRequest = mock[HttpRequest]
-      val httpContext = mock[HttpContext]
-      val tracer = mock[Tracer]
-      val scopeManager = mock[ScopeManager]
-      val scope = mock[Scope]
-      val span = mock[Span]
-
       when(httpRequest.getFirstHeader(any())).thenReturn(new BasicHeader(CommonHttpHeader.REQUEST_ID, "1234"))
       when(scope.span()).thenReturn(span)
       when(scopeManager.active()).thenReturn(scope)
       when(tracer.scopeManager()).thenReturn(scopeManager)
 
-      val jaegerRequestInterceptor = new ReposeTracingRequestInterceptor(tracer, "1.two.III")
+      val jaegerRequestInterceptor = new ReposeTracingRequestInterceptor(tracer, "1.two.III", uriRedactionService)
 
       jaegerRequestInterceptor.process(httpRequest, httpContext)
 
@@ -76,24 +81,16 @@ class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with Moc
     }
 
     it("with via header") {
-      val httpRequest = mock[HttpRequest]
-      val httpContext = mock[HttpContext]
-      val tracer = mock[Tracer]
-      val scopeManager = mock[ScopeManager]
-      val scope = mock[Scope]
-      val span = mock[Span]
-
       when(httpRequest.getFirstHeader(any())).thenReturn(new BasicHeader(CommonHttpHeader.VIA, "1234"))
       when(scope.span()).thenReturn(span)
       when(scopeManager.active()).thenReturn(scope)
       when(tracer.scopeManager()).thenReturn(scopeManager)
 
-      val jaegerRequestInterceptor = new ReposeTracingRequestInterceptor(tracer, "1.two.III")
+      val jaegerRequestInterceptor = new ReposeTracingRequestInterceptor(tracer, "1.two.III", uriRedactionService)
 
       jaegerRequestInterceptor.process(httpRequest, httpContext)
 
       verify(span).setTag(CommonHttpHeader.VIA, "1234")
     }
   }
-
 }
