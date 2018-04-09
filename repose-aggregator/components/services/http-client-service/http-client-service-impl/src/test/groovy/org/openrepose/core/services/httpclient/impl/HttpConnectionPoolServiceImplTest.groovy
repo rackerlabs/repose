@@ -33,6 +33,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy
 import org.openrepose.core.services.httpclient.HttpClientContainer
+import org.openrepose.core.services.uriredaction.UriRedactionService
 
 import static org.hamcrest.Matchers.hasKey
 import static org.junit.Assert.*
@@ -56,6 +57,7 @@ class HttpConnectionPoolServiceImplTest {
     ConfigurationService configurationService = mock(ConfigurationService)
     HealthCheckService healthCheckService = mock(HealthCheckService)
     MockTracer tracer = new MockTracer()
+    UriRedactionService uriRedactionService = mock(UriRedactionService.class)
     String configurationRoot = ""
 
     @Before
@@ -78,7 +80,7 @@ class HttpConnectionPoolServiceImplTest {
         poolCfg.pool.addAll(pools)
 
         srv = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III")
+            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III", uriRedactionService)
         srv.configure(poolCfg)
         srv.with {
             initialized = true
@@ -93,35 +95,35 @@ class HttpConnectionPoolServiceImplTest {
     @Test(expected = IllegalStateException.class)
     void testGetDefaultClientInitializationException() {
         srv = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III")
+            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III", uriRedactionService)
         srv.getDefaultClient()
     }
 
     @Test(expected = IllegalStateException.class)
     void testGetClientInitializationException() {
         srv = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III")
+            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III", uriRedactionService)
         srv.getClient("foo")
     }
 
     @Test(expected = IllegalStateException.class)
     void testReleaseClientInitializationException() {
         srv = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III")
+            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III", uriRedactionService)
         srv.releaseClient(null)
     }
 
     @Test(expected = IllegalStateException.class)
     void testIsAvailableInitializationException() {
         srv = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III")
+            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III", uriRedactionService)
         srv.isAvailable("foo")
     }
 
     @Test(expected = IllegalStateException.class)
     void testGetAvailableClientsInitializationException() {
         srv = new HttpConnectionPoolServiceImpl(
-            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III")
+            configurationService, healthCheckService, tracer, configurationRoot, "1.two.III", uriRedactionService)
         srv.getAvailableClients()
     }
 
@@ -163,7 +165,7 @@ class HttpConnectionPoolServiceImplTest {
     @Test
     void shouldShutdownAllConnectionPools() {
         HttpConnectionPoolServiceImpl cpool = new HttpConnectionPoolServiceImpl(
-            mock(ConfigurationService.class), mock(HealthCheckService.class), new MockTracer(), configurationRoot, "1.two.III")
+            mock(ConfigurationService.class), mock(HealthCheckService.class), new MockTracer(), configurationRoot, "1.two.III", uriRedactionService)
         HttpClient mockClient = mock(HttpClient.class)
         ClientConnectionManager mockConnMgr = mock(ClientConnectionManager.class)
         cpool.poolMap.put("MOCK", mockClient)

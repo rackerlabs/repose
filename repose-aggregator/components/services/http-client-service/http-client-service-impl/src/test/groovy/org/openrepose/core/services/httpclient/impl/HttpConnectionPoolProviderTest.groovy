@@ -38,12 +38,14 @@ import org.openrepose.commons.utils.opentracing.httpclient.ReposeTracingRequestI
 import org.openrepose.core.service.httpclient.config.HeaderListType
 import org.openrepose.core.service.httpclient.config.HeaderType
 import org.openrepose.core.service.httpclient.config.PoolType
+import org.openrepose.core.services.uriredaction.UriRedactionService
 
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import java.nio.charset.Charset
 
+import static org.mockito.Mockito.*
 
 class HttpConnectionPoolProviderTest {
 
@@ -60,12 +62,15 @@ class HttpConnectionPoolProviderTest {
     private final static URL SERVER_RESOURCE = HttpConnectionPoolProviderTest.class.getResource("/server.jks")
     private final static URL SINGLE_RESOURCE = HttpConnectionPoolProviderTest.class.getResource("/single.jks")
     private MockTracer tracer = new MockTracer()
+    private UriRedactionService uriRedactionService
 
     private PoolType poolType
     private Server server
 
     @Before
     public final void beforeEach() {
+        uriRedactionService = mock(UriRedactionService.class)
+
         poolType = new PoolType()
 
         poolType.setHttpConnectionMaxHeaderCount(MAX_HEADERS)
@@ -88,7 +93,7 @@ class HttpConnectionPoolProviderTest {
 
     @Test
     public void "should create client with passed-in configuration object"() {
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType, tracer, "1.two.III") as DefaultHttpClient
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType, tracer, "1.two.III", uriRedactionService) as DefaultHttpClient
 
         Map props = client.connectionManager.properties
         assert client.getParams().getParameter(CoreConnectionPNames.MAX_LINE_LENGTH) == MAX_LINE
@@ -116,7 +121,7 @@ class HttpConnectionPoolProviderTest {
                  new HeaderType(name: "serious-business", value: "tomatoes")])
         poolType.setHeaders(headerListType)
 
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType, tracer, "1.two.III") as DefaultHttpClient
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType, tracer, "1.two.III", uriRedactionService) as DefaultHttpClient
 
         def parameter = client.getParams().getParameter(ClientPNames.DEFAULT_HEADERS)
         assert parameter
@@ -134,7 +139,7 @@ class HttpConnectionPoolProviderTest {
     public void "should not add header parameter when not configured"() {
         poolType.setHeaders(null)
 
-        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType, tracer, "1.two.III") as DefaultHttpClient
+        DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType, tracer, "1.two.III", uriRedactionService) as DefaultHttpClient
 
         assert !client.getParams().getParameter(ClientPNames.DEFAULT_HEADERS)
     }
@@ -189,7 +194,7 @@ class HttpConnectionPoolProviderTest {
         poolType.setTruststoreFilename(SERVER_RESOURCE.file)
         poolType.setTruststorePassword("password")
 
-        def client = HttpConnectionPoolProvider.genClient("", poolType, tracer, "1.two.III") as DefaultHttpClient
+        def client = HttpConnectionPoolProvider.genClient("", poolType, tracer, "1.two.III", uriRedactionService) as DefaultHttpClient
         def httpGet = new HttpGet("https://localhost:" + serverPort)
         def httpResponse = client.execute(httpGet)
 
@@ -244,7 +249,7 @@ class HttpConnectionPoolProviderTest {
         poolType.setKeystorePassword("password")
         poolType.setKeyPassword("password")
 
-        def client = HttpConnectionPoolProvider.genClient("", poolType, tracer, "1.two.III") as DefaultHttpClient
+        def client = HttpConnectionPoolProvider.genClient("", poolType, tracer, "1.two.III", uriRedactionService) as DefaultHttpClient
         def httpGet = new HttpGet("https://localhost:" + serverPort)
         def httpResponse = client.execute(httpGet)
 
@@ -299,7 +304,7 @@ class HttpConnectionPoolProviderTest {
         poolType.setKeystorePassword("password")
         poolType.setKeyPassword("password")
 
-        def client = HttpConnectionPoolProvider.genClient("", poolType, tracer, "1.two.III") as DefaultHttpClient
+        def client = HttpConnectionPoolProvider.genClient("", poolType, tracer, "1.two.III", uriRedactionService) as DefaultHttpClient
         def httpGet = new HttpGet("https://localhost:" + serverPort)
         def httpResponse = client.execute(httpGet)
 

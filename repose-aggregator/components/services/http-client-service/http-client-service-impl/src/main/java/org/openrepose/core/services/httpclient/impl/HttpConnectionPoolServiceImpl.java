@@ -32,6 +32,7 @@ import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.services.httpclient.HttpClientContainer;
 import org.openrepose.core.services.httpclient.HttpClientService;
+import org.openrepose.core.services.uriredaction.UriRedactionService;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,6 +64,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     private final Tracer tracer;
     private final String configRoot;
     private final String reposeVersion;
+    private final UriRedactionService uriRedactionService;
 
     private boolean initialized = false;
     private String defaultClientId;
@@ -75,12 +77,14 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
             HealthCheckService healthCheckService,
             Tracer tracer,
             @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configRoot,
-            @Value(ReposeSpringProperties.CORE.REPOSE_VERSION) String reposeVersion
+            @Value(ReposeSpringProperties.CORE.REPOSE_VERSION) String reposeVersion,
+            UriRedactionService uriRedactionService
     ) {
         LOG.debug("Creating New HTTP Connection Pool Service");
 
         this.configurationService = configurationService;
         this.tracer = tracer;
+        this.uriRedactionService = uriRedactionService;
         this.healthCheckServiceProxy = healthCheckService.register();
         this.configRoot = configRoot;
         this.reposeVersion = reposeVersion;
@@ -194,7 +198,7 @@ public class HttpConnectionPoolServiceImpl implements HttpClientService {
     }
 
     private HttpClient clientGenerator(String configRoot, PoolType poolType) {
-        return HttpConnectionPoolProvider.genClient(configRoot, poolType, tracer, reposeVersion);
+        return HttpConnectionPoolProvider.genClient(configRoot, poolType, tracer, reposeVersion, uriRedactionService);
     }
 
     private class ConfigurationListener implements UpdateListener<HttpConnectionPoolConfig> {
