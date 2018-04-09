@@ -20,5 +20,12 @@
 package org.openrepose.core.services.uriredaction;
 
 public interface UriRedactionService {
+    /**
+     * Redact the provided URI string based on the service configuration.
+     *
+     * @param uriString the URI String to redact
+     *
+     * @return the redacted URI String
+     */
     String redact(String uriString);
 }
