@@ -33,6 +33,7 @@ import org.openrepose.core.services.datastore.impl.distributed.ThreadSafeCluster
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
+import org.openrepose.core.services.uriredaction.UriRedactionService;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.core.systemmodel.config.ReposeCluster;
 import org.openrepose.core.systemmodel.config.SystemModel;
@@ -63,6 +64,7 @@ public class DistributedDatastoreLauncherService {
     private final DatastoreService datastoreService;
     private final ConfigurationService configurationService;
     private final RequestProxyService requestProxyService;
+    private final UriRedactionService uriRedactionService;
     private final Tracer tracer;
     private final SystemModelListener systemModelListener = new SystemModelListener();
     private final Object heartbeatLock = new Object();
@@ -85,6 +87,7 @@ public class DistributedDatastoreLauncherService {
         DatastoreService datastoreService,
         ConfigurationService configurationService,
         RequestProxyService requestProxyService,
+        UriRedactionService uriRedactionService,
         Tracer tracer,
         HealthCheckService healthCheckService) {
 
@@ -95,6 +98,7 @@ public class DistributedDatastoreLauncherService {
         this.datastoreService = datastoreService;
         this.configurationService = configurationService;
         this.requestProxyService = requestProxyService;
+        this.uriRedactionService = uriRedactionService;
         this.tracer = tracer;
         this.healthCheckServiceProxy = healthCheckService.register();
     }
@@ -176,7 +180,8 @@ public class DistributedDatastoreLauncherService {
                         new DatastoreAccessControl(Collections.emptyList(), false),
                         ddConfig,
                         tracer,
-                        reposeVersion);
+                        reposeVersion,
+                        uriRedactionService);
 
                     DistributedDatastoreServer server = new DistributedDatastoreServer(clusterId, nodeId, ddServlet, ddConfig);
                     this.ddServer = Optional.of(server);

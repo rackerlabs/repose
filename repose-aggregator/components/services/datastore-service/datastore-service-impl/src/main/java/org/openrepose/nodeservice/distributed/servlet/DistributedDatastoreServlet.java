@@ -32,6 +32,7 @@ import org.openrepose.core.services.datastore.distributed.ClusterView;
 import org.openrepose.core.services.datastore.distributed.config.DistributedDatastoreConfiguration;
 import org.openrepose.core.services.datastore.impl.distributed.CacheRequest;
 import org.openrepose.core.services.datastore.impl.distributed.MalformedCacheRequestException;
+import org.openrepose.core.services.uriredaction.UriRedactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -72,6 +73,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
     private final DistributedDatastoreConfiguration ddConfig;
     private final Tracer tracer;
     private final String reposeVersion;
+    private final UriRedactionService uriRedactionService;
     private final Datastore localDatastore;
 
     public DistributedDatastoreServlet(
@@ -80,7 +82,8 @@ public class DistributedDatastoreServlet extends HttpServlet {
         DatastoreAccessControl acl,
         DistributedDatastoreConfiguration ddConfig,
         Tracer tracer,
-        String reposeVersion
+        String reposeVersion,
+        UriRedactionService uriRedactionService
     ) {
         this.datastoreService = datastore;
         this.clusterConfiguration = clusterConfiguration;
@@ -88,6 +91,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
         this.ddConfig = ddConfig;
         this.tracer = tracer;
         this.reposeVersion = reposeVersion;
+        this.uriRedactionService = uriRedactionService;
         localDatastore = datastore.getDefaultDatastore();
     }
 
@@ -118,7 +122,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        final Scope scope = startSpan(req, tracer, LOG, Tags.SPAN_KIND_SERVER, reposeVersion);
+        final Scope scope = startSpan(req, tracer, LOG, Tags.SPAN_KIND_SERVER, reposeVersion, uriRedactionService);
         try {
             if (isRequestValid(req, resp)) {
                 String traceGUID = TracingHeaderHelper.getTraceGuid(req.getHeader(CommonHttpHeader.TRACE_GUID));
