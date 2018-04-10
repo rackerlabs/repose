@@ -37,6 +37,7 @@ import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResp
 @RunWith(classOf[JUnitRunner])
 class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers with BeforeAndAfterEach {
 
+  val redactedPath = "/its/redacted"
   var request: HttpServletRequest = _
   var tracer: Tracer = _
   var logger: Logger = _
@@ -46,13 +47,14 @@ class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers with Befor
   var uriRedactionService: UriRedactionService = _
 
   override def beforeEach(): Unit = {
-    request = new MockHttpServletRequest()
+    request = new MockHttpServletRequest("GET", "/redact/me")
     tracer = mock[Tracer]
     logger = mock[Logger]
     spanContext = mock[SpanContext]
     spanBuilder = mock[SpanBuilder]
     scope = mock[Scope]
     uriRedactionService = mock[UriRedactionService]
+    when(uriRedactionService.redact(request.getRequestURI)).thenReturn(redactedPath)
   }
 
   describe("startSpan") {
@@ -66,7 +68,7 @@ class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers with Befor
       val result = ScopeHelper.startSpan(request, tracer, logger, Tags.SPAN_KIND_CLIENT, "1.two.III", uriRedactionService)
 
       verify(tracer).extract(eql(Format.Builtin.HTTP_HEADERS), any())
-      verify(tracer).buildSpan(anyString())
+      verify(tracer).buildSpan(s"${request.getMethod} $redactedPath")
       verify(spanBuilder).asChildOf(spanContext)
       verify(spanBuilder).startActive(true)
       result shouldBe scope
@@ -82,7 +84,7 @@ class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers with Befor
       val result = ScopeHelper.startSpan(request, tracer, logger, Tags.SPAN_KIND_CLIENT, "1.two.III", uriRedactionService)
 
       verify(tracer).extract(eql(Format.Builtin.HTTP_HEADERS), any())
-      verify(tracer).buildSpan(anyString())
+      verify(tracer).buildSpan(s"${request.getMethod} $redactedPath")
       verify(spanBuilder).asChildOf(isNull(classOf[SpanContext]))
       verify(spanBuilder).startActive(true)
       result shouldBe scope
@@ -98,19 +100,19 @@ class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers with Befor
       val spanBuilder = mock[SpanBuilder]
       val scope = mock[Scope]
 
+      request.setMethod(method)
+      request.setRequestURI(path)
+
       when(tracer.extract(any[Format[_]], any())).thenReturn(spanContext)
       when(tracer.buildSpan(anyString())).thenReturn(spanBuilder)
       when(spanBuilder.asChildOf(any[SpanContext])).thenReturn(spanBuilder)
       when(spanBuilder.withTag(anyString(), anyString())).thenReturn(spanBuilder)
       when(spanBuilder.startActive(anyBoolean())).thenReturn(scope)
-      when(uriRedactionService.redact(path)).thenReturn(path)
-
-      request.setMethod(method)
-      request.setRequestURI(path)
+      when(uriRedactionService.redact(request.getRequestURI)).thenReturn(redactedPath)
 
       val result = ScopeHelper.startSpan(request, tracer, logger, Tags.SPAN_KIND_CLIENT, "1.two.III", uriRedactionService)
 
-      verify(tracer).buildSpan(s"$method $path")
+      verify(tracer).buildSpan(s"$method $redactedPath")
       result shouldBe scope
     }
 
@@ -125,6 +127,7 @@ class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers with Befor
 
       val result = ScopeHelper.startSpan(request, tracer, logger, spanKind, "1.two.III", uriRedactionService)
 
+      verify(tracer).buildSpan(s"${request.getMethod} $redactedPath")
       verify(spanBuilder).withTag(Tags.SPAN_KIND.getKey, spanKind)
       result shouldBe scope
     }
@@ -138,6 +141,7 @@ class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers with Befor
 
       val result = ScopeHelper.startSpan(request, tracer, logger, Tags.SPAN_KIND_PRODUCER, "1.two.III", uriRedactionService)
 
+      verify(tracer).buildSpan(s"${request.getMethod} $redactedPath")
       verify(spanBuilder).withTag(ReposeTags.ReposeVersion, "1.two.III")
       result shouldBe scope
     }

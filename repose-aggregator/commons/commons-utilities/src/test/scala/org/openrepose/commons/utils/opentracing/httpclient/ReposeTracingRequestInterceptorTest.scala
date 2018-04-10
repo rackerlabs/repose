@@ -20,7 +20,7 @@
 package org.openrepose.commons.utils.opentracing.httpclient
 
 import io.opentracing.{Scope, ScopeManager, Span, Tracer}
-import org.apache.http.HttpRequest
+import org.apache.http.{HttpRequest, RequestLine}
 import org.apache.http.message.BasicHeader
 import org.apache.http.protocol.HttpContext
 import org.junit.runner.RunWith
@@ -91,6 +91,28 @@ class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with Moc
       jaegerRequestInterceptor.process(httpRequest, httpContext)
 
       verify(span).setTag(CommonHttpHeader.VIA, "1234")
+    }
+  }
+
+  describe("testGetOperationName") {
+    it("with URI Redaction") {
+      // This class is strictly to expose the Scala protected method getOperationName().
+      class SurrogateReposeTracingRequestInterceptor(tracer: Tracer, reposeVersion: String, uriRedactionService: UriRedactionService)
+        extends ReposeTracingRequestInterceptor(tracer, reposeVersion, uriRedactionService) {
+        override def getOperationName(httpRequest: HttpRequest): String = super.getOperationName(httpRequest)
+      }
+
+      val requestLine = mock[RequestLine]
+      when(requestLine.getMethod).thenReturn("GET")
+      when(requestLine.getUri).thenReturn("/redact/me")
+      when(httpRequest.getRequestLine).thenReturn(requestLine)
+      when(uriRedactionService.redact(requestLine.getUri)).thenReturn("/its/redacted")
+
+      val jaegerRequestInterceptor = new SurrogateReposeTracingRequestInterceptor(tracer, "1.two.III", uriRedactionService)
+
+      jaegerRequestInterceptor.getOperationName(httpRequest)
+
+      verify(uriRedactionService).redact(requestLine.getUri)
     }
   }
 }
