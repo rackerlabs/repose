@@ -10,6 +10,7 @@
     },
     config_files: {
       files: [
+        "{{ dir_prefix }}/log4j2.xml",
         "{{ dir_prefix }}/uri-redaction.cfg.xml"
       ]
     }

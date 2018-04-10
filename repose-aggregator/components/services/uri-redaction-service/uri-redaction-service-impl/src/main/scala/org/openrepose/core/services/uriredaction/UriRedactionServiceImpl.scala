@@ -71,8 +71,9 @@ class UriRedactionServiceImpl @Inject()(configurationService: ConfigurationServi
 
   override def isInitialized: Boolean = initialized
 
-  override def redact(uriString: String): String =
-    redactions.foldLeft(uriString) { (newUri, redaction) =>
+  override def redact(uriString: String): String = {
+    logger.trace("Redacting: {}", uriString)
+    val rtn = redactions.foldLeft(uriString) { (newUri, redaction) =>
       val matcher = redaction.pattern.matcher(newUri)
       if (matcher.matches) {
         (matcher.groupCount to 1 by -1).foldLeft(newUri)((redactedUri, groupIndex) =>
@@ -81,6 +82,9 @@ class UriRedactionServiceImpl @Inject()(configurationService: ConfigurationServi
         newUri
       }
     }
+    logger.trace("To: {}", rtn)
+    rtn
+  }
 }
 
 object UriRedactionServiceImpl {
