@@ -2,6 +2,8 @@
 
 == In Progress
 * https://repose.atlassian.net/browse/REP-6765[REP-6765] - Updated the <<filters/keystone-v2.adoc#, Keystone v2 filter>> to forward users' domain ID.
+* https://repose.atlassian.net/browse/REP-6655[REP-6655] - Adding required configuration files to the examples directory.
+  Also, example configurations will now be replaced on upgrade.
 
 == 8.8.3.0 (2018-03-30)
 * https://repose.atlassian.net/browse/REP-6654[REP-6654] - Added OpenTracing support.

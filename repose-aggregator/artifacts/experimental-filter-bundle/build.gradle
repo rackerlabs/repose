@@ -72,7 +72,6 @@ ospackage {
         user 'repose'
         permissionGroup 'repose'
         fileMode 0640
-        fileType CONFIG | NOREPLACE
     }
 
     //the license info
