@@ -24,7 +24,6 @@ import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.uriredaction.UriRedactionServiceImpl._
 import org.openrepose.core.services.uriredaction.config.UriRedactionConfig
 
 import scala.collection.JavaConverters._
@@ -39,6 +38,8 @@ class UriRedactionServiceImpl @Inject()(configurationService: ConfigurationServi
 
   private var redactions = Seq.empty[Regex]
   private var initialized = false
+
+  import org.openrepose.core.services.uriredaction.UriRedactionServiceImpl._
 
   @PostConstruct
   def init(): Unit = {
