@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uri-redaction xmlns="http://docs.openrepose.org/repose/uri-redaction-service/v1.0">
+    <!-- Redact the third path segment of a four segment URI hitting the v1 API. -->
+    <redact>^/v1/[^/]+/([^/]+)/[^/]+.*</redact>
+    <!-- Redact the third path segment of a four segment URI hitting the v2 API's admin endpoint. -->
+    <redact>^/v2/admin/([^/]+)/[^/]+.*</redact>
+</uri-redaction>
