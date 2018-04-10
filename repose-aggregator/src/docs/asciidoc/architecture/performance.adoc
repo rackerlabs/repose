@@ -135,7 +135,7 @@ For example, the repose configuration files directory:
 
 * `repose-aggregator/tests/performance-tests/roles/repose/files/config/`
 
-contains the `category` sub-directories `filters/` and `use-cases/`.
+contains the `category` sub-directories `filters/`, `services/`, and `use-cases/`.
 
 Armed with this information, these are the basic steps to create a new test:
 
