@@ -47,8 +47,12 @@ class UriRedactionServiceSimulation extends Simulation {
 
   val httpConf = http.baseURL(s"http://$baseUrl")
 
+  var versionLoop:Array[Map[String,String]] =
+    (1 to 5).toArray map ( x => { Map( "version" -> x.toString) })
+
   // set up the warm up scenario
   val warmup = scenario("Warmup")
+    .feed(versionLoop.circular)
     .forever() {
       exec(getRequest)
     }
@@ -80,7 +84,7 @@ class UriRedactionServiceSimulation extends Simulation {
 
   def getRequest: HttpRequestBuilder = {
     http(session => session.scenario)
-      .get("/v2/admin/redactMe/required")
+    .get("/v${version}/redactMe/a/redactMe/b/redactMe/c/redactMe/d/redactMe/e/redactMe/f/")
       .check(status.is(200))
   }
 }
