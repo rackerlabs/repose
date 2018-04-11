@@ -19,6 +19,7 @@
  */
 package org.openrepose.commons.utils.opentracing.httpclient
 
+import io.opentracing.tag.Tags.HTTP_URL
 import io.opentracing.{Scope, ScopeManager, Span, Tracer}
 import org.apache.http.{HttpRequest, RequestLine}
 import org.apache.http.message.BasicHeader
@@ -26,8 +27,8 @@ import org.apache.http.protocol.HttpContext
 import org.junit.runner.RunWith
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{verify, when}
-import org.openrepose.commons.utils.http.CommonHttpHeader
-import org.openrepose.commons.utils.opentracing.ReposeTags
+import org.openrepose.commons.utils.http.CommonHttpHeader.{REQUEST_ID, VIA}
+import org.openrepose.commons.utils.opentracing.ReposeTags.ReposeVersion
 import org.openrepose.core.services.uriredaction.UriRedactionService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -36,8 +37,10 @@ import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 @RunWith(classOf[JUnitRunner])
 class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
+  val redactedPath = "/its/redacted"
   var httpRequest: HttpRequest = _
   var httpContext: HttpContext = _
+  var requestLine: RequestLine = _
   var tracer: Tracer = _
   var uriRedactionService: UriRedactionService = _
   var scopeManager: ScopeManager = _
@@ -47,11 +50,17 @@ class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with Moc
   override def beforeEach(): Unit = {
     httpRequest = mock[HttpRequest]
     httpContext = mock[HttpContext]
+    requestLine = mock[RequestLine]
     tracer = mock[Tracer]
     uriRedactionService = mock[UriRedactionService]
     scopeManager = mock[ScopeManager]
     scope = mock[Scope]
     span = mock[Span]
+
+    when(requestLine.getMethod).thenReturn("GET")
+    when(requestLine.getUri).thenReturn("/redact/me")
+    when(httpRequest.getRequestLine).thenReturn(requestLine)
+    when(uriRedactionService.redact(requestLine.getUri)).thenReturn(redactedPath)
   }
 
   describe("testOnSpanStarted") {
@@ -64,11 +73,13 @@ class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with Moc
 
       tracingRequestInterceptor.process(httpRequest, httpContext)
 
-      verify(span).setTag(ReposeTags.ReposeVersion, "1.two.III")
+      verify(span).setTag(ReposeVersion, "1.two.III")
+      verify(uriRedactionService).redact(requestLine.getUri)
+      verify(span).setTag(HTTP_URL.toString, redactedPath)
     }
 
     it("with request header") {
-      when(httpRequest.getFirstHeader(any())).thenReturn(new BasicHeader(CommonHttpHeader.REQUEST_ID, "1234"))
+      when(httpRequest.getFirstHeader(any())).thenReturn(new BasicHeader(REQUEST_ID, "1234"))
       when(scope.span()).thenReturn(span)
       when(scopeManager.active()).thenReturn(scope)
       when(tracer.scopeManager()).thenReturn(scopeManager)
@@ -77,11 +88,13 @@ class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with Moc
 
       jaegerRequestInterceptor.process(httpRequest, httpContext)
 
-      verify(span).setTag(CommonHttpHeader.REQUEST_ID, "1234")
+      verify(span).setTag(REQUEST_ID, "1234")
+      verify(uriRedactionService).redact(requestLine.getUri)
+      verify(span).setTag(HTTP_URL.toString, redactedPath)
     }
 
     it("with via header") {
-      when(httpRequest.getFirstHeader(any())).thenReturn(new BasicHeader(CommonHttpHeader.VIA, "1234"))
+      when(httpRequest.getFirstHeader(any())).thenReturn(new BasicHeader(VIA, "1234"))
       when(scope.span()).thenReturn(span)
       when(scopeManager.active()).thenReturn(scope)
       when(tracer.scopeManager()).thenReturn(scopeManager)
@@ -90,7 +103,9 @@ class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with Moc
 
       jaegerRequestInterceptor.process(httpRequest, httpContext)
 
-      verify(span).setTag(CommonHttpHeader.VIA, "1234")
+      verify(span).setTag(VIA, "1234")
+      verify(uriRedactionService).redact(requestLine.getUri)
+      verify(span).setTag(HTTP_URL.toString, redactedPath)
     }
   }
 
@@ -101,12 +116,6 @@ class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with Moc
         extends ReposeTracingRequestInterceptor(tracer, reposeVersion, uriRedactionService) {
         override def getOperationName(httpRequest: HttpRequest): String = super.getOperationName(httpRequest)
       }
-
-      val requestLine = mock[RequestLine]
-      when(requestLine.getMethod).thenReturn("GET")
-      when(requestLine.getUri).thenReturn("/redact/me")
-      when(httpRequest.getRequestLine).thenReturn(requestLine)
-      when(uriRedactionService.redact(requestLine.getUri)).thenReturn("/its/redacted")
 
       val jaegerRequestInterceptor = new SurrogateReposeTracingRequestInterceptor(tracer, "1.two.III", uriRedactionService)
 

@@ -20,11 +20,12 @@
 package org.openrepose.commons.utils.opentracing.httpclient
 
 import com.uber.jaeger.httpclient.TracingRequestInterceptor
+import io.opentracing.tag.Tags.HTTP_URL
 import io.opentracing.{Span, Tracer}
 import org.apache.http.HttpRequest
 import org.apache.http.protocol.HttpContext
-import org.openrepose.commons.utils.http.CommonHttpHeader
-import org.openrepose.commons.utils.opentracing.ReposeTags
+import org.openrepose.commons.utils.http.CommonHttpHeader.{REQUEST_ID, VIA}
+import org.openrepose.commons.utils.opentracing.ReposeTags.ReposeVersion
 import org.openrepose.core.services.uriredaction.UriRedactionService
 
 /**
@@ -39,14 +40,15 @@ import org.openrepose.core.services.uriredaction.UriRedactionService
 class ReposeTracingRequestInterceptor(tracer: Tracer, reposeVersion: String, uriRedactionService: UriRedactionService) extends TracingRequestInterceptor(tracer) {
 
   override protected def onSpanStarted(clientSpan: Span, httpRequest: HttpRequest, httpContext: HttpContext): Unit = {
-    Option(httpRequest.getFirstHeader(CommonHttpHeader.REQUEST_ID))
+    Option(httpRequest.getFirstHeader(REQUEST_ID))
       .map(_.getValue)
-      .foreach(clientSpan.setTag(CommonHttpHeader.REQUEST_ID, _))
-    Option(httpRequest.getFirstHeader(CommonHttpHeader.VIA))
+      .foreach(clientSpan.setTag(REQUEST_ID, _))
+    Option(httpRequest.getFirstHeader(VIA))
       .map(_.getValue)
-      .foreach(clientSpan.setTag(CommonHttpHeader.VIA, _))
-    clientSpan.setTag(ReposeTags.ReposeVersion, reposeVersion)
-    super.onSpanStarted(clientSpan, httpRequest, httpContext)
+      .foreach(clientSpan.setTag(VIA, _))
+    clientSpan.setTag(ReposeVersion, reposeVersion)
+    // Replace the http.url tag so that we do not leak the raw URL being set in this tag by the underlying Jaeger interceptor implementation
+    clientSpan.setTag(HTTP_URL.toString, uriRedactionService.redact(httpRequest.getRequestLine.getUri))
   }
 
   override protected def getOperationName(httpRequest: HttpRequest): String =
