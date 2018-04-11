@@ -26,7 +26,6 @@ import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
 
 import scala.concurrent.duration._
-import scala.util.Random
 
 /**
  * Simple uriredaction performance simulation.
