@@ -19,6 +19,7 @@
  */
 package org.openrepose.commons.utils.opentracing.httpclient
 
+import io.opentracing.Tracer.SpanBuilder
 import io.opentracing.tag.Tags.HTTP_URL
 import io.opentracing.{Scope, ScopeManager, Span, Tracer}
 import org.apache.http.{HttpRequest, RequestLine}
@@ -26,7 +27,7 @@ import org.apache.http.message.BasicHeader
 import org.apache.http.protocol.HttpContext
 import org.junit.runner.RunWith
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.{verify, when, times}
 import org.openrepose.commons.utils.http.CommonHttpHeader.{REQUEST_ID, VIA}
 import org.openrepose.commons.utils.opentracing.ReposeTags.ReposeVersion
 import org.openrepose.core.services.uriredaction.UriRedactionService
@@ -38,14 +39,13 @@ import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
   val redactedPath = "/its/redacted"
+  var requestLine: RequestLine = _
   var httpRequest: HttpRequest = _
   var httpContext: HttpContext = _
-  var requestLine: RequestLine = _
+  var span: Span = _
+  var spanBuilder: SpanBuilder = _
   var tracer: Tracer = _
   var uriRedactionService: UriRedactionService = _
-  var scopeManager: ScopeManager = _
-  var scope: Scope = _
-  var span: Span = _
 
   override def beforeEach(): Unit = {
     httpRequest = mock[HttpRequest]
@@ -53,75 +53,50 @@ class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with Moc
     requestLine = mock[RequestLine]
     tracer = mock[Tracer]
     uriRedactionService = mock[UriRedactionService]
-    scopeManager = mock[ScopeManager]
-    scope = mock[Scope]
+    spanBuilder = mock[SpanBuilder]
     span = mock[Span]
 
     when(requestLine.getMethod).thenReturn("GET")
     when(requestLine.getUri).thenReturn("/redact/me")
     when(httpRequest.getRequestLine).thenReturn(requestLine)
     when(uriRedactionService.redact(requestLine.getUri)).thenReturn(redactedPath)
+    when(spanBuilder.start()).thenReturn(span)
+    when(tracer.buildSpan(s"${requestLine.getMethod} $redactedPath")).thenReturn(spanBuilder)
   }
 
-  describe("testOnSpanStarted") {
+  describe("testProcess") {
     it("no headers") {
-      when(scope.span()).thenReturn(span)
-      when(scopeManager.active()).thenReturn(scope)
-      when(tracer.scopeManager()).thenReturn(scopeManager)
-
       val tracingRequestInterceptor = new ReposeTracingRequestInterceptor(tracer, "1.two.III", uriRedactionService)
 
       tracingRequestInterceptor.process(httpRequest, httpContext)
 
       verify(span).setTag(ReposeVersion, "1.two.III")
-      verify(uriRedactionService).redact(requestLine.getUri)
+      verify(uriRedactionService, times(2)).redact(requestLine.getUri)
       verify(span).setTag(HTTP_URL.toString, redactedPath)
     }
 
     it("with request header") {
       when(httpRequest.getFirstHeader(any())).thenReturn(new BasicHeader(REQUEST_ID, "1234"))
-      when(scope.span()).thenReturn(span)
-      when(scopeManager.active()).thenReturn(scope)
-      when(tracer.scopeManager()).thenReturn(scopeManager)
 
       val jaegerRequestInterceptor = new ReposeTracingRequestInterceptor(tracer, "1.two.III", uriRedactionService)
 
       jaegerRequestInterceptor.process(httpRequest, httpContext)
 
       verify(span).setTag(REQUEST_ID, "1234")
-      verify(uriRedactionService).redact(requestLine.getUri)
+      verify(uriRedactionService, times(2)).redact(requestLine.getUri)
       verify(span).setTag(HTTP_URL.toString, redactedPath)
     }
 
     it("with via header") {
       when(httpRequest.getFirstHeader(any())).thenReturn(new BasicHeader(VIA, "1234"))
-      when(scope.span()).thenReturn(span)
-      when(scopeManager.active()).thenReturn(scope)
-      when(tracer.scopeManager()).thenReturn(scopeManager)
 
       val jaegerRequestInterceptor = new ReposeTracingRequestInterceptor(tracer, "1.two.III", uriRedactionService)
 
       jaegerRequestInterceptor.process(httpRequest, httpContext)
 
       verify(span).setTag(VIA, "1234")
-      verify(uriRedactionService).redact(requestLine.getUri)
+      verify(uriRedactionService, times(2)).redact(requestLine.getUri)
       verify(span).setTag(HTTP_URL.toString, redactedPath)
-    }
-  }
-
-  describe("testGetOperationName") {
-    it("with URI Redaction") {
-      // This class is strictly to expose the Scala protected method getOperationName().
-      class SurrogateReposeTracingRequestInterceptor(tracer: Tracer, reposeVersion: String, uriRedactionService: UriRedactionService)
-        extends ReposeTracingRequestInterceptor(tracer, reposeVersion, uriRedactionService) {
-        override def getOperationName(httpRequest: HttpRequest): String = super.getOperationName(httpRequest)
-      }
-
-      val jaegerRequestInterceptor = new SurrogateReposeTracingRequestInterceptor(tracer, "1.two.III", uriRedactionService)
-
-      jaegerRequestInterceptor.getOperationName(httpRequest)
-
-      verify(uriRedactionService).redact(requestLine.getUri)
     }
   }
 }
