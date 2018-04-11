@@ -4,4 +4,6 @@
     <redact>^/v1/[^/]+/([^/]+)/[^/]+.*</redact>
     <!-- Redact the third path segment of a four segment URI hitting the v2 API's admin endpoint. -->
     <redact>^/v2/admin/([^/]+)/[^/]+.*</redact>
+    <!-- Redact the Tokens from Keystone v2 calls. -->
+    <redact>^/v2.0/tokens/([^/]+).*</redact>
 </uri-redaction>
