@@ -56,6 +56,10 @@ class UriRedactionServiceKeystoneTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
+    def setup() {
+        fakeTracer.batches.clear()
+    }
+
     def "when calls are made to keystone the uri should be redacted"() {
         given:
         fakeIdentityV2Service.with {
@@ -96,7 +100,6 @@ class UriRedactionServiceKeystoneTest extends ReposeValveTest {
         logLines.size() == 1
 
         and: "The sent trace doesn't have the un-redacted token in it"
-        // todo: clean out spans between tests
         fakeTracer.batches.any({ it.spans.collect({ it.getOperationName() }).contains("/v2.0/tokens/XXXXX") })
     }
 

@@ -19,8 +19,8 @@
  */
 package org.openrepose.commons.utils.opentracing.httpclient
 
-import com.uber.jaeger.httpclient.TracingRequestInterceptor
 import io.opentracing.tag.Tags.HTTP_URL
+import com.uber.jaeger.httpclient.{SpanCreationRequestInterceptor, SpanInjectionRequestInterceptor}
 import io.opentracing.{Span, Tracer}
 import org.apache.http.HttpRequest
 import org.apache.http.protocol.HttpContext
@@ -37,7 +37,16 @@ import org.openrepose.core.services.uriredaction.UriRedactionService
   *
   * @param tracer a [[io.opentracing.Tracer]] to bridge this utility with the OpenTracing API
   */
-class ReposeTracingRequestInterceptor(tracer: Tracer, reposeVersion: String, uriRedactionService: UriRedactionService) extends TracingRequestInterceptor(tracer) {
+class ReposeTracingRequestInterceptor(tracer: Tracer, reposeVersion: String, uriRedactionService: UriRedactionService)
+  extends SpanCreationRequestInterceptor(tracer) {
+
+  private val spanInjectionInterceptor = new SpanInjectionRequestInterceptor(tracer)
+
+  override def process(httpRequest: HttpRequest, httpContext: HttpContext): Unit = {
+    super.process(httpRequest, httpContext)
+
+    spanInjectionInterceptor.process(httpRequest, httpContext)
+  }
 
   override protected def onSpanStarted(clientSpan: Span, httpRequest: HttpRequest, httpContext: HttpContext): Unit = {
     Option(httpRequest.getFirstHeader(REQUEST_ID))
