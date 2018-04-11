@@ -21,43 +21,38 @@ package features.services.uriredaction
 
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
-import org.openrepose.framework.test.mocks.MockTracerAgent
+import org.openrepose.framework.test.mocks.MockTracerCollector
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
 class UriRedactionServiceKeystoneTest extends ReposeValveTest {
 
-    def static originEndpoint
-    def static identityEndpoint
-
-    static MockTracerAgent fakeTracer
-
+    static MockTracerCollector fakeTracer
     static MockIdentityV2Service fakeIdentityV2Service
 
     static String TRACING_HEADER = "uber-trace-id"
 
-    def static slurper = new groovy.json.JsonSlurper()
-
-
     def setupSpec() {
-
         deproxy = new Deproxy()
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs(
             "features/services/uriredaction",
-            params + ['agentTracingPort': properties.agentTracingPort])
+            params + ['collectorTracingPort': properties.collectorTracingPort])
 
-        originEndpoint = deproxy.addEndpoint(params.targetPort, 'origin service')
+        deproxy.addEndpoint(params.targetPort, 'origin service')
 
         fakeIdentityV2Service = new MockIdentityV2Service(params.identityPort, params.targetPort)
-        identityEndpoint = deproxy.addEndpoint(params.identityPort,
+        deproxy.addEndpoint(params.identityPort,
             'identity service', null, fakeIdentityV2Service.handler)
 
-        fakeTracer = new MockTracerAgent(properties.agentTracingPort, true)
+        fakeTracer = new MockTracerCollector(properties.collectorTracingPort)
 
-        repose.start([waitOnJmxAfterStarting: false])
+        deproxy.addEndpoint(properties.collectorTracingPort,
+            'tracer http service', null, fakeTracer.handler)
+
+        repose.start(waitOnJmxAfterStarting: false)
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
@@ -89,7 +84,6 @@ class UriRedactionServiceKeystoneTest extends ReposeValveTest {
             }
         }
 
-
         and: "OpenTracingService has logged that keystone span was sent to tracer"
         spanList.each {
             def logLines = reposeLogSearch.searchByString("Span reported: $it")
@@ -102,7 +96,8 @@ class UriRedactionServiceKeystoneTest extends ReposeValveTest {
         logLines.size() == 1
 
         and: "The sent trace doesn't have the un-redacted token in it"
-        fakeTracer.traces.findAll({ it.contains("/v2.0/tokens/XXXXX") }).size() >= 1
+        // todo: clean out spans between tests
+        fakeTracer.batches.any({ it.spans.collect({ it.getOperationName() }).contains("/v2.0/tokens/XXXXX") })
     }
 
     def "when a call is made that hits against a uri with multiple capture groups the uri should redacted"() {
@@ -133,7 +128,6 @@ class UriRedactionServiceKeystoneTest extends ReposeValveTest {
             }
         }
 
-
         and: "OpenTracingService has logged that keystone span was sent to tracer"
         spanList.each {
             def logLines = reposeLogSearch.searchByString("Span reported: $it")
@@ -146,7 +140,7 @@ class UriRedactionServiceKeystoneTest extends ReposeValveTest {
         logLines.size() == 1
 
         and: "The sent trace doesn't have the un-redacted token in it"
-        fakeTracer.traces.findAll({ it.contains("/XXXXX/bar/XXXXX") }).size() >= 1
+        fakeTracer.batches.any({ it.spans.collect({ it.getOperationName() }).contains("/v2.0/tokens/XXXXX") })
     }
 
     def "when a call is made that hits against multiple regexes the uri should redacted"() {
@@ -177,7 +171,6 @@ class UriRedactionServiceKeystoneTest extends ReposeValveTest {
             }
         }
 
-
         and: "OpenTracingService has logged that keystone span was sent to tracer"
         spanList.each {
             def logLines = reposeLogSearch.searchByString("Span reported: $it")
@@ -190,6 +183,6 @@ class UriRedactionServiceKeystoneTest extends ReposeValveTest {
         logLines.size() == 1
 
         and: "The sent trace doesn't have the un-redacted token in it"
-        fakeTracer.traces.findAll({ it.contains("/XXXXX/specific/XXXXX") }).size() >= 1
+        fakeTracer.batches.any({ it.spans.collect({ it.getOperationName() }).contains("/v2.0/tokens/XXXXX") })
     }
 }
