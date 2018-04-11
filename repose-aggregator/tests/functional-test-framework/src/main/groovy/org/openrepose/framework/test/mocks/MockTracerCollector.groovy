@@ -19,21 +19,9 @@
  */
 package org.openrepose.framework.test.mocks
 
-import groovy.text.SimpleTemplateEngine
 import groovy.util.logging.Log4j
-import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
-import org.joda.time.format.DateTimeFormat
-import org.joda.time.format.DateTimeFormatter
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
-
-import javax.xml.transform.stream.StreamSource
-import javax.xml.validation.Schema
-import javax.xml.validation.SchemaFactory
-import javax.xml.validation.Validator
-import java.util.concurrent.atomic.AtomicInteger
-
 /**
  * Simulates responses from an Tracer Collector Service
  */
