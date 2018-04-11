@@ -64,6 +64,7 @@ class UriRedactionServiceSimulation extends Simulation {
 
   // set up the main scenario
   val mainScenario = scenario("URI Redaction Service Test")
+    .feed(versionLoop.circular)
     .forever() {
       exec(getRequest)
     }
