@@ -4,5 +4,5 @@
     <redact>/([a-z]+)/bar/([a-z]+)</redact>
     <redact>/baz/(bar)/foo</redact>
     <redact>/(some)/specific/path</redact>
-    <redact>/some/specific/(path)</redact>
+    <redact>/[a-zA-Z]+/specific/(path)</redact>
 </uri-redaction>
