@@ -100,8 +100,7 @@ class UriRedactionServiceKeystoneTest extends ReposeValveTest {
         logLines.size() == 1
 
         and: "The sent trace doesn't have the un-redacted token in it"
-        sleep(10000)
-        assertUntilTrue({ assert fakeTracer.batches.collect({ it.spans }).flatten().collect({ it.operationName }).find({ it.contains("/v2.0/tokens/XXXXX") }) })
+        assertUntilTrue({ assert fakeTracer.batches.collect({ it.spans }).flatten().collect({ it.operationName }).any({ it.contains('/v2.0/tokens/XXXXX') }) })
     }
 
     def "when a call is made that hits against a uri with multiple capture groups the uri should redacted"() {
@@ -144,8 +143,7 @@ class UriRedactionServiceKeystoneTest extends ReposeValveTest {
         logLines.size() == 1
 
         and: "The sent trace doesn't have the un-redacted token in it"
-        sleep(10000)
-        assertUntilTrue({ assert fakeTracer.batches.collect({ it.spans}).flatten().collect({ it.operationName }).find({ it.contains("/XXXXX/bar/XXXXX") }) })
+        assertUntilTrue({ assert fakeTracer.batches.collect({ it.spans}).flatten().collect({ it.operationName }).any({ it.contains('/XXXXX/bar/XXXXX') }) })
     }
 
     def "when a call is made that hits against multiple regexes the uri should be redacted"() {
@@ -188,11 +186,10 @@ class UriRedactionServiceKeystoneTest extends ReposeValveTest {
         logLines.size() == 1
 
         and: "The sent trace doesn't have the un-redacted token in it"
-        sleep(10000)
-        assertUntilTrue({ assert fakeTracer.batches.collect({ it.spans }).flatten().collect({ it.operationName }).find({ it.contains("/XXXXX/specific/XXXXX") }) })
+        assertUntilTrue({ assert fakeTracer.batches.collect({ it.spans }).flatten().collect({ it.operationName }).any({ it.contains('/XXXXX/specific/XXXXX') }) })
     }
 
-    def assertUntilTrue(Closure assertion, long timeout = 10000, long waitTime = 500) {
+    void assertUntilTrue(Closure assertion, long timeout = 10000, long waitTime = 500) {
         def finishTime = System.currentTimeMillis() + timeout
         while (true) {
             try {
