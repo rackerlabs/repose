@@ -44,7 +44,7 @@ class UriRedactionServiceImpl @Inject()(configurationService: ConfigurationServi
   @PostConstruct
   def init(): Unit = {
     logger.info("Initializing and registering configuration listener")
-    val xsdURL = getClass.getResource("/META-INF/schema/config/uri-redaction-service.xsd")
+    val xsdURL = getClass.getResource("/META-INF/schema/config/uri-redaction.xsd")
 
     configurationService.subscribeTo(
       DefaultConfig,
@@ -89,7 +89,7 @@ class UriRedactionServiceImpl @Inject()(configurationService: ConfigurationServi
 }
 
 object UriRedactionServiceImpl {
-  final val ServiceName = "uri-redaction-service"
+  final val ServiceName = "uri-redaction"
   final val RedactedString = "XXXXX"
   private final val DefaultConfig = ServiceName + ".cfg.xml"
 }
