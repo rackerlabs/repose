@@ -1,0 +1,109 @@
+= URI Redaction service
+
+The URI Redaction service enables *Repose* to redact sensitive information contained in a URI.
+
+This is extremely useful for removing user tokens from API calls prior to creating OpenTracing spans.
+The URI Redaction service can be used by any service or filter, even custom ones, that need to redact any information from a URI during processing.
+
+== Configuration
+* *Default Configuration:* uri-redaction.cfg.xml
+* *Released:* v8..?.?.?
+* link:../schemas/uri-redaction.xsd[Schema]
+
+=== Full Configuration
+The configuration for this service is extremely simple.
+It consists of a root element and a repeating list of a single element.
+The values of the repeating `redact` elements are regular expressions (RegEx's) that need to adhere to the https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] syntax.
+Each of the RegEx's will be processed in order from top to bottom.
+The first RegEx will be passed the original URI.
+Then the result passed to the next RegEx and so on through the list.
+Each capture group will be replaced with the literal `XXXXX`.
+If multiple capture groups are present in a single RegEx, then all of them are redacted.
+
+[NOTE]
+====
+Nested capture groups are not supported and should not be used.
+====
+
+[source,xml]
+.uri-redaction.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<uri-redaction xmlns="http://docs.openrepose.org/repose/uri-redaction-service/v1.0">
+    <redact>
+        ^/v1/[^/]+/([^/]+)/[^/]+.* <!--1-->
+    </redact>
+    <redact>
+        ^/v2/[^/]+/([^/]+)/[^/]+/([^/]+)/[^/]+/? <!--2-->
+    </redact>
+</uri-redaction>
+----
+<1> This RegEx would redact the third path segment of calls to the `v1` API that had four or more path segments. +
+    Example: `/v1/two/three/four/five/` +
+    Becomes: `/v1/two/XXXXX/four/five/`
+<2> This RegEx would redact the third and fifth path segments of calls to the `v2` API that had exactly six path segments regardless of a trailing slash. +
+    Example: `/v2/two/three/four/five/six` +
+    Becomes: `/v2/two/XXXXX/four/XXXXX/six`
+
+=== Using Entity Expansion
+Sometimes it is easier to replace some or all of a RegEx with XML Entities that will be expanded during processing.
+This can provide a more readable and therefore maintainable configuration.
+
+[source,xml]
+.uri-redaction.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE uri-redaction[
+    <!ENTITY singleSegment "[^/]+">
+    <!ENTITY singleCapture "(&singleSegment;)">
+    <!ENTITY allowSlash "/?">
+    <!ENTITY allowTrailing ".*">
+    ]>
+<uri-redaction xmlns="http://docs.openrepose.org/repose/uri-redaction-service/v1.0">
+    <redact>
+        ^/v1/&singleSegment;/&singleCapture;/&singleSegment;&allowTrailing; <!--1-->
+    </redact>
+    <redact>
+        ^/v2/&singleSegment;/&singleCapture;/&singleSegment;/&singleCapture;/&singleSegment;&allowSlash; <!--2-->
+    </redact>
+    <redact>
+        ^/v2.0/tokens/&singleCapture;&allowTrailing; <!--3-->
+    </redact>
+</uri-redaction>
+----
+<1> This RegEx would redact the third path segment of calls to the `v1` API that had four or more path segments. +
+    Example: `/v1/two/three/four/five/` +
+    Becomes: `/v1/two/XXXXX/four/five/`
+<2> This RegEx would redact the third and fifth path segments of calls to the `v2` API that had exactly six path segments regardless of a trailing slash. +
+    Example: `/v2/two/three/four/five/six` +
+    Becomes: `/v2/two/XXXXX/four/XXXXX/six`
+<3> Redact the Tokens from Keystone v2 calls. +
+    Example: `/v2.0/tokens/SecretUserToken` +
+    Becomes: `/v2.0/tokens/XXXXX`
+
+=== Multiple Redactions on the same URI
+Sometimes it is easier to replace some or all of a RegEx with XML Entities that will be expanded during processing.
+This can provide a more readable and therefore maintainable configuration.
+
+[source,xml]
+.uri-redaction.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE uri-redaction[
+    <!ENTITY singleSegment "[^/]+">
+    <!ENTITY singleCapture "(&singleSegment;)">
+    <!ENTITY allowSlash "/?">
+    <!ENTITY allowTrailing ".*">
+    <!ENTITY redactedString "XXXXX">
+    ]>
+<uri-redaction xmlns="http://docs.openrepose.org/repose/uri-redaction-service/v1.0">
+    <redact>^/v3/admin/&singleCapture;/&singleSegment;&allowSlash;</redact> <!--1-->
+    <redact>^/v3/&singleSegment;/&redactedString;/&singleCapture;&allowSlash;</redact> <!--2-->
+</uri-redaction>
+----
+<1> This RegEx would redact the third path segment of admin calls to the `v3` API that had exactly four path segments regardless of a trailing slash. +
+    Example: `/v3/admin/three/four/` +
+    Becomes: `/v3/admin/XXXXX/four/`
+<2> This RegEx would redact the fourth path segment of calls to the `v3` API that had exactly four path segments regardless of a trailing slash and had been redacted by the first RegEx. +
+    Example: `/v3/admin/XXXXX/four/` +
+    Becomes: `/v3/admin/XXXXX/XXXXX/`
