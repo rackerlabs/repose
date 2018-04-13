@@ -24,11 +24,13 @@ import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.openrepose.framework.test.mocks.MockTracerCollector
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import spock.lang.Unroll
 
 class UriRedactionServiceKeystoneTest extends ReposeValveTest {
 
     static MockTracerCollector fakeTracer
     static MockIdentityV2Service fakeIdentityV2Service
+    static List<String> spanList
 
     static String TRACING_HEADER = "uber-trace-id"
 
@@ -58,21 +60,19 @@ class UriRedactionServiceKeystoneTest extends ReposeValveTest {
 
     def setup() {
         fakeTracer.batches.clear()
-    }
-
-    def "when calls are made to keystone the uri should be redacted"() {
-        given:
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             client_tenantid = "mytenant"
             client_tenantname = "mytenantname"
             client_userid = "12345"
         }
+        spanList = []
+    }
 
-        def spanList = []
-
+    @Unroll
+    def "when a call is made that hits #name the uri should be redacted"() {
         when: "User passes a request through repose with valid token"
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/servers/test", method: 'GET',
+        MessageChain messageChain = deproxy.makeRequest(url: "$reposeEndpoint$requestedPath",
             headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "The request should have reached the origin service"
@@ -100,93 +100,18 @@ class UriRedactionServiceKeystoneTest extends ReposeValveTest {
         logLines.size() == 1
 
         and: "The sent trace doesn't have the un-redacted token in it"
-        assertUntilTrue({ assert fakeTracer.batches.collect({ it.spans }).flatten().collect({ it.operationName }).any({ it.contains('/v2.0/tokens/XXXXX') }) })
-    }
+        assertUntilTrue({
+            assert fakeTracer.batches.collect({ it.spans }).flatten().collect({ it.operationName }).any({
+                it.contains(expectedResult)
+            })
+        })
 
-    def "when a call is made that hits against a uri with multiple capture groups the uri should redacted"() {
-        given:
-        fakeIdentityV2Service.with {
-            client_token = UUID.randomUUID().toString()
-            client_tenantid = "mytenant"
-            client_tenantname = "mytenantname"
-            client_userid = "12345"
-        }
-
-        def spanList = []
-
-        when: "User passes a request through repose with valid token"
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/foo/bar/baz", method: 'GET',
-            headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
-
-        then: "The request should have reached the origin service"
-        messageChain.handlings.size() == 1
-
-        and: "keystone request contains tracing header"
-        messageChain.orphanedHandlings.each {
-            // first, check to make sure it's not the tracer request (since that's done asynchronously and may count in orphaned handlings)
-            if (it.request.path != "/?format=jaeger.thrift") {
-                assert it.request.headers.contains(TRACING_HEADER)
-                def traceId = URLDecoder.decode(it.request.headers.getFirstValue(TRACING_HEADER), "UTF-8")
-                spanList << traceId
-            }
-        }
-
-        and: "OpenTracingService has logged that keystone span was sent to tracer"
-        spanList.each {
-            def logLines = reposeLogSearch.searchByString("Span reported: $it")
-            assert logLines.size() == 1
-        }
-
-        and: "OpenTracingService has logged that span was sent to tracer"
-        def traceId = URLDecoder.decode(messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER), "UTF-8")
-        def logLines = reposeLogSearch.searchByString("Span reported: $traceId")
-        logLines.size() == 1
-
-        and: "The sent trace doesn't have the un-redacted token in it"
-        assertUntilTrue({ assert fakeTracer.batches.collect({ it.spans}).flatten().collect({ it.operationName }).any({ it.contains('/XXXXX/bar/XXXXX') }) })
-    }
-
-    def "when a call is made that hits against multiple regexes the uri should be redacted"() {
-        given:
-        fakeIdentityV2Service.with {
-            client_token = UUID.randomUUID().toString()
-            client_tenantid = "mytenant"
-            client_tenantname = "mytenantname"
-            client_userid = "12345"
-        }
-
-        def spanList = []
-
-        when: "User passes a request through repose with valid token"
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/some/specific/path", method: 'GET',
-            headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
-
-        then: "The request should have reached the origin service"
-        messageChain.handlings.size() == 1
-
-        and: "keystone request contains tracing header"
-        messageChain.orphanedHandlings.each {
-            // first, check to make sure it's not the tracer request (since that's done asynchronously and may count in orphaned handlings)
-            if (it.request.path != "/?format=jaeger.thrift") {
-                assert it.request.headers.contains(TRACING_HEADER)
-                def traceId = URLDecoder.decode(it.request.headers.getFirstValue(TRACING_HEADER), "UTF-8")
-                spanList << traceId
-            }
-        }
-
-        and: "OpenTracingService has logged that keystone span was sent to tracer"
-        spanList.each {
-            def logLines = reposeLogSearch.searchByString("Span reported: $it")
-            assert logLines.size() == 1
-        }
-
-        and: "OpenTracingService has logged that span was sent to tracer"
-        def traceId = URLDecoder.decode(messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER), "UTF-8")
-        def logLines = reposeLogSearch.searchByString("Span reported: $traceId")
-        logLines.size() == 1
-
-        and: "The sent trace doesn't have the un-redacted token in it"
-        assertUntilTrue({ assert fakeTracer.batches.collect({ it.spans }).flatten().collect({ it.operationName }).any({ it.contains('/XXXXX/specific/XXXXX') }) })
+        where:
+        name                                                               | requestedPath         || expectedResult
+        "keystone"                                                         | "/servers/test"       || '/v2.0/tokens/XXXXX'
+        "against a uri with multiple capture groups"                       | "/foo/bar/baz"        || '/XXXXX/bar/XXXXX'
+        "against multiple regexes"                                         | "/some/specific/path" || '/XXXXX/specific/XXXXX'
+        "against a regex with a segment repeated only the intended one in" | "/path/specific/path" || '/path/specific/XXXXX'
     }
 
     void assertUntilTrue(Closure assertion, long timeout = 10000, long waitTime = 500) {
