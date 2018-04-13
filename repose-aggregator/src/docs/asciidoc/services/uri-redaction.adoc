@@ -20,7 +20,7 @@ Then the result passed to the next RegEx and so on through the list.
 Each capture group will be replaced with the literal `XXXXX`.
 If multiple capture groups are present in a single RegEx, then all of them are redacted.
 
-[NOTE]
+[WARNING]
 ====
 Nested capture groups are not supported and should not be used.
 ====
