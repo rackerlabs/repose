@@ -7,7 +7,7 @@ The URI Redaction service can be used by any service or filter, even custom ones
 
 == Configuration
 * *Default Configuration:* uri-redaction.cfg.xml
-* *Released:* v8..?.?.?
+* *Released:* v8.8.4.0
 * link:../schemas/uri-redaction.xsd[Schema]
 
 === Full Configuration
