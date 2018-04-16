@@ -79,13 +79,11 @@ class UriRedactionServiceKeystoneTest extends ReposeValveTest {
         messageChain.handlings.size() == 1
 
         and: "keystone request contains tracing header"
-        messageChain.orphanedHandlings.each {
-            // first, check to make sure it's not the tracer request (since that's done asynchronously and may count in orphaned handlings)
-            if (it.request.path != "/?format=jaeger.thrift") {
-                assert it.request.headers.contains(TRACING_HEADER)
-                def traceId = URLDecoder.decode(it.request.headers.getFirstValue(TRACING_HEADER), "UTF-8")
-                spanList << traceId
-            }
+        // make sure it's not the tracer request (since that's done asynchronously and may count in orphaned handlings)
+        messageChain.orphanedHandlings.findAll({ it.request.path != "/?format=jaeger.thrift" }).each {
+            assert it.request.headers.contains(TRACING_HEADER)
+            def traceId = URLDecoder.decode(it.request.headers.getFirstValue(TRACING_HEADER), "UTF-8")
+            spanList << traceId
         }
 
         and: "OpenTracingService has logged that keystone span was sent to tracer"
