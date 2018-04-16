@@ -24,7 +24,7 @@ com.google.guava                                    guava                     18
 commons-codec                                       commons-codec             1.10             Apache License Version 2.0  http://commons.apache.org/proper/commons-codec/
 commons-io                                          commons-io                2.4              Apache License Version 2.0  http://commons.apache.org/proper/commons-io/
 commons-pool                                        commons-pool              1.6              Apache License Version 2.0  http://commons.apache.org/proper/commons-pool/
-com.rackspace.identity.components.attribute-mapper  mapper-core               2.2.0            Apache License Version 2.0  https://github.com/rackerlabs/attributeMapping
+com.rackspace.identity.components.attribute-mapper  mapper-core               2.2.1            Apache License Version 2.0  https://github.com/rackerlabs/attributeMapping
 com.rackspace.papi.components.api-checker           checker-core              2.6.1            Apache License Version 2.0  https://github.com/rackerlabs/api-checker/blob/api-checker-2.5.1/LICENSE.txt
 com.rackspace.papi.components.api-checker           checker-util              2.6.1            Apache License Version 2.0  https://github.com/rackerlabs/api-checker/blob/api-checker-2.5.1/LICENSE.txt
 com.typesafe.akka                                   akka-actor_2.11           2.3.12           Apache License Version 2.0  https://github.com/akka/akka
