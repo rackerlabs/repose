@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uri-redaction xmlns="http://docs.openrepose.org/repose/uri-redaction-service/v1.0">
+    <redact>/v2.0/tokens/([\p{XDigit}-]+)</redact>
+    <redact>/([a-z]+)/bar/([a-z]+)</redact>
+    <redact>/baz/(bar)/foo</redact>
+    <redact>/(some)/specific/path</redact>
+    <redact>/[a-zA-Z]+/specific/(path)</redact>
+</uri-redaction>

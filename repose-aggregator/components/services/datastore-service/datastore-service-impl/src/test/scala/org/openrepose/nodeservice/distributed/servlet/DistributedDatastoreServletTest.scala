@@ -21,16 +21,18 @@ package org.openrepose.nodeservice.distributed.servlet
 
 import java.net.InetAddress
 import java.util.Collections
-import javax.servlet.http.HttpServletResponse
-import javax.servlet.http.HttpServletResponse._
 
 import io.opentracing.mock.MockTracer
+import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.HttpServletResponse._
 import org.junit.runner.RunWith
 import org.mockito.Mockito
+import org.mockito.Mockito.when
 import org.openrepose.core.services.datastore.distributed.ClusterConfiguration
 import org.openrepose.core.services.datastore.distributed.config._
 import org.openrepose.core.services.datastore.impl.distributed.CacheRequest.CACHE_URI_PATH
 import org.openrepose.core.services.datastore.{Datastore, DatastoreAccessControl, DatastoreService}
+import org.openrepose.core.services.uriredaction.UriRedactionService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
@@ -41,6 +43,8 @@ import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResp
 class DistributedDatastoreServletTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
   var mockDatastoreService: DatastoreService = _
+  var uriRedactionService: UriRedactionService = _
+
   var mockDatastore: Datastore = _
   var distributedDatastoreConfiguration: DistributedDatastoreConfiguration = _
   var mockTracer: MockTracer = _
@@ -50,6 +54,7 @@ class DistributedDatastoreServletTest extends FunSpec with BeforeAndAfterEach wi
 
   override def beforeEach(): Unit = {
     mockDatastoreService = mock[DatastoreService]
+    uriRedactionService = mock[UriRedactionService]
     mockDatastore = mock[Datastore]
     Mockito.when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
     distributedDatastoreConfiguration = mock[DistributedDatastoreConfiguration]
@@ -60,7 +65,8 @@ class DistributedDatastoreServletTest extends FunSpec with BeforeAndAfterEach wi
       new DatastoreAccessControl(Collections.emptyList[InetAddress], true),
       distributedDatastoreConfiguration,
       mockTracer,
-      "1.zero.V"
+      "1.zero.V",
+      uriRedactionService
     )
     servletRequest = new MockHttpServletRequest
     servletRequest.setRequestURI(CACHE_URI_PATH)
@@ -84,6 +90,7 @@ class DistributedDatastoreServletTest extends FunSpec with BeforeAndAfterEach wi
 
     methodsResults foreach { case (method, result) =>
       it(s"should build an OpenTracing span for HTTP method $method") {
+        when(uriRedactionService.redact(CACHE_URI_PATH)).thenReturn(CACHE_URI_PATH)
         servletRequest.setMethod(method)
         distributedDatastoreServlet.service(servletRequest, servletResponse)
         mockTracer.finishedSpans.size shouldEqual 1

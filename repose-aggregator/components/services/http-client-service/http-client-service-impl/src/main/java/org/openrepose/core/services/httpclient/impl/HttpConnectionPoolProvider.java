@@ -39,6 +39,7 @@ import org.apache.http.ssl.SSLContexts;
 import org.openrepose.commons.utils.opentracing.httpclient.ReposeTracingRequestInterceptor;
 import org.openrepose.core.service.httpclient.config.HeaderType;
 import org.openrepose.core.service.httpclient.config.PoolType;
+import org.openrepose.core.services.uriredaction.UriRedactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +62,7 @@ public final class HttpConnectionPoolProvider {
     private HttpConnectionPoolProvider() {
     }
 
-    public static HttpClient genClient(String configRoot, PoolType poolConf, Tracer tracer, String reposeVersion) {
+    public static HttpClient genClient(String configRoot, PoolType poolConf, Tracer tracer, String reposeVersion, UriRedactionService uriRedactionService) {
         PoolingClientConnectionManager cm = new PoolingClientConnectionManager();
 
         cm.setDefaultMaxPerRoute(poolConf.getHttpConnManagerMaxPerRoute());
@@ -92,7 +93,7 @@ public final class HttpConnectionPoolProvider {
         // OpenTracing support
         // Note that although we always register these interceptors, the provided Tracer may be a NoopTracer,
         // making nearly all of the work done by these interceptors a no-op.
-        client.addRequestInterceptor(new ReposeTracingRequestInterceptor(tracer, reposeVersion));
+        client.addRequestInterceptor(new ReposeTracingRequestInterceptor(tracer, reposeVersion, uriRedactionService));
         client.addResponseInterceptor(new TracingResponseInterceptor());
 
         SSLContext sslContext = ProxyUtilities.getTrustingSslContext();

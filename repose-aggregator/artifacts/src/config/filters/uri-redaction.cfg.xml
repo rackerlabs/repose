@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE uri-redaction[
+    <!ENTITY singleSegment "[^/]+">
+    <!ENTITY singleCapture "(&singleSegment;)">
+    <!ENTITY allowTrailing ".*">
+    ]>
+<uri-redaction xmlns="http://docs.openrepose.org/repose/uri-redaction-service/v1.0">
+    <!-- Redact the Tokens from Keystone v2 calls. -->
+    <redact>^/v2.0/tokens/&singleCapture;&allowTrailing;</redact>
+</uri-redaction>

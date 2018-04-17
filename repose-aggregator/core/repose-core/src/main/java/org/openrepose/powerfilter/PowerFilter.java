@@ -49,6 +49,7 @@ import org.openrepose.core.services.jmx.ConfigurationInformation;
 import org.openrepose.core.services.reporting.ReportingService;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.core.services.rms.ResponseMessageService;
+import org.openrepose.core.services.uriredaction.UriRedactionService;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.core.systemmodel.config.*;
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService;
@@ -114,6 +115,7 @@ public class PowerFilter extends DelegatingFilterProxy {
     private final String clusterId;
     private final String reposeVersion;
     private final Tracer tracer;
+    private final UriRedactionService uriRedactionService;
     private final PowerFilterRouterFactory powerFilterRouterFactory;
     private final ConfigurationService configurationService;
     private final Optional<MetricsService> metricsService;
@@ -145,7 +147,8 @@ public class PowerFilter extends DelegatingFilterProxy {
      * @param configurationInformation      allows JMX to see when this powerfilter is ready
      * @param requestProxyService           Only needed by the servletconfigwrapper thingy, no other way to get it in there
      * @param artifactManager               Needed to poll artifact loading to prevent prematurely constructing a PowerFilterChain
-     * @param metricsService                the metrics service
+     * @param metricsService                the metrics service,
+     * @param uriRedactionService           the URI Redaction service
      */
     @Inject
     public PowerFilter(
@@ -165,7 +168,8 @@ public class PowerFilter extends DelegatingFilterProxy {
         ConfigurationInformation configurationInformation,
         RequestProxyService requestProxyService,
         ArtifactManager artifactManager,
-        Optional<MetricsService> metricsService
+        Optional<MetricsService> metricsService,
+        UriRedactionService uriRedactionService
     ) {
         this.clusterId = clusterId;
         this.nodeId = nodeId;
@@ -177,6 +181,7 @@ public class PowerFilter extends DelegatingFilterProxy {
         this.configurationInformation = configurationInformation;
         this.requestProxyService = requestProxyService;
         this.artifactManager = artifactManager;
+        this.uriRedactionService = uriRedactionService;
 
         // Set up the configuration listeners
         systemModelConfigurationListener = new SystemModelConfigListener();
@@ -388,7 +393,7 @@ public class PowerFilter extends DelegatingFilterProxy {
         // Re-wrapping the request to reset the inputStream/Reader flag
         wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request, bufferedInputStream);
 
-        Scope scope = startSpan(wrappedRequest, tracer, LOG, Tags.SPAN_KIND_CLIENT, reposeVersion);
+        Scope scope = startSpan(wrappedRequest, tracer, LOG, Tags.SPAN_KIND_CLIENT, reposeVersion, uriRedactionService);
 
         if (currentSystemModel.get().getTracingHeader() != null && currentSystemModel.get().getTracingHeader().isRewriteHeader()) {
             wrappedRequest.removeHeader(TRACE_GUID);

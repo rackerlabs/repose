@@ -26,6 +26,7 @@ import org.rackspace.deproxy.UnbufferedStreamReader
 @Log4j
 class MockTracerAgent {
 
+    List<String> traces = new ArrayList<>()
     int port
     ServerSocket listener
     boolean _stop
@@ -54,6 +55,7 @@ class MockTracerAgent {
 
                                 if (logTheData) {
                                     logAndPrintln("${label}: read a line: ${line}")
+                                    traces.add(line)
                                 }
 
                             } catch (Exception ignored) {
