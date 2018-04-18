@@ -48,6 +48,10 @@
 - name: Copy the package.json
   copy: src=mocks/{{ mock.npm_package_file }} dest=/opt/mocks/package.json
 
+- name: Copy the response payloads
+  copy: src=mocks/{{ item }} dest=/opt/mocks/{{ item | basename }}
+  with_items: "{{ mock.payloads }}"
+
 - name: Install Node.js dependencies for the mock(s)
   npm: path=/opt/mocks
 
