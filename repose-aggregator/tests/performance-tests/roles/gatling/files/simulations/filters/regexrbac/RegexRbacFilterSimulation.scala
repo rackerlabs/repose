@@ -110,7 +110,7 @@ class RegexRbacFilterSimulation extends Simulation {
   def getFooBarBazSpace: HttpRequestBuilder = http(session => session.scenario)
     .get("/foo/bar/baz")
     .header(HttpHeaderNames.Host, "localhost")
-    .header("X-Roles", "role with space")
+    .header("X-Roles", "role5")
     .check(status.is(StatusCodeOk))
 }
 
