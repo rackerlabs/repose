@@ -32,8 +32,6 @@ import static org.junit.Assert.assertNotNull;
 public class ElementFactoryTest {
 
 
-    private static final Logger LOG = LoggerFactory.getLogger(ElementFactory.class);
-
     /**
      * Test of getElement method, of class ElementFactory.
      */

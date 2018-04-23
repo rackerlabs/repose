@@ -42,7 +42,6 @@ public class AccessListDeterminatorTest {
 
         private SystemModel sysConfig;
         private DistributedDatastoreConfiguration ddConfig;
-        private List<ReposeCluster> clusters;
         private ReposeCluster cluster;
         private Node node1, node2;
         private NodeList nodeList;
