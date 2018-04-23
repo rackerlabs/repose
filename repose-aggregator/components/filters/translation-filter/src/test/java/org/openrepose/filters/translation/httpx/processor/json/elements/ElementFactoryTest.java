@@ -21,8 +21,6 @@ package org.openrepose.filters.translation.httpx.processor.json.elements;
 
 import org.junit.Test;
 import org.openrepose.filters.translation.httpx.processor.common.Element;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertNotNull;
 
