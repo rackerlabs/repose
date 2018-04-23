@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:httpx="http://openrepose.org/repose/httpx/v1.0">
+<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:httpx="http://docs.openrepose.org/repose/httpx/v1.0">
     <!-- Declare the format of the output document -->
     <xsl:output method="xml"/>
 
