@@ -1,11 +1,12 @@
 = Release Notes
 
-== In Progress
+== 8.8.4.0 (2018-04-23)
+* https://repose.atlassian.net/browse/REP-6674[REP-6674] - Minor internal update to increase logging performance.
 * https://repose.atlassian.net/browse/REP-6765[REP-6765] - Updated the <<filters/keystone-v2.adoc#, Keystone v2 filter>> to forward users' domain ID.
 * https://repose.atlassian.net/browse/REP-6655[REP-6655] - Adding required configuration files to the examples directory.
   Also, example configurations will now be replaced on upgrade.
 * https://repose.atlassian.net/browse/REP-6795[REP-6795] - Added the new <<services/uri-redaction.adoc#, URI Redaction service>> which allows for the removal of sensitive data from URI's before external processing.
-* https://repose.atlassian.net/browse/REP-6839[REP-6839] - Updated dependencies:
+* https://repose.atlassian.net/browse/REP-6862[REP-6862] - Updated dependencies:
 ** Attribute Mapper: 2.2.0 → 2.2.1
 *** https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-2.2.1/RELEASE.md[Attribute Mapper v2.2.1 release notes]
 
