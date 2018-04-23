@@ -10,6 +10,7 @@
     },
     config_files: {
       files: [
+        "{{ dir_prefix }}/path-to-query.xsl",
         "{{ dir_prefix }}/translation.cfg.xml"
       ],
       templates: [
