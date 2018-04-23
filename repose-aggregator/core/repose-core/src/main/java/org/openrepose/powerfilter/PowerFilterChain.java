@@ -52,6 +52,7 @@ import java.util.regex.Pattern;
 
 import static org.openrepose.commons.utils.servlet.http.ResponseMode.MUTABLE;
 import static org.openrepose.commons.utils.servlet.http.ResponseMode.PASSTHROUGH;
+import static org.openrepose.commons.utils.servlet.http.ResponseMode.READONLY;
 
 /**
  * @author fran
@@ -199,8 +200,8 @@ public class PowerFilterChain implements FilterChain {
                 maybeWrappedServletRequest = new HttpServletRequestWrapper(maybeWrappedServletRequest, inputStream);
                 maybeWrappedServletResponse = new HttpServletResponseWrapper(
                         maybeWrappedServletResponse,
-                        ResponseMode.PASSTHROUGH,
-                        ResponseMode.READONLY);
+                        PASSTHROUGH,
+                        READONLY);
 
                 INTRAFILTER_LOG.trace(
                         intrafilterRequestLog((HttpServletRequestWrapper) maybeWrappedServletRequest, filterContext));
