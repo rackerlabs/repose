@@ -9,10 +9,13 @@
       }
     },
     config_files: {
+      files: [
+        "{{ dir_prefix }}/path-to-query.xsl",
+        "{{ dir_prefix }}/translation.cfg.xml"
+      ],
       templates: [
         "container.cfg.xml",
-        "system-model.cfg.xml",
-        "{{ dir_prefix }}/translation.cfg.xml"
+        "system-model.cfg.xml"
       ]
     }
   },

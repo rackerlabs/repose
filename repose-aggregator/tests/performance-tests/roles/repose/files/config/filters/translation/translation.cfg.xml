@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<translation xmlns="http://docs.openrepose.org/repose/translation/v1.0">
+    <request-translations>
+        <request-translation>
+            <style-sheets query-params="true">
+                <style id="path-to-query" href="path-to-query.xsl"/>
+            </style-sheets>
+        </request-translation>
+    </request-translations>
+</translation>
