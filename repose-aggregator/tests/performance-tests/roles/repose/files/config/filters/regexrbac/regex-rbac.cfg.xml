@@ -9,6 +9,6 @@
         /path/[^/]+/that get,PUT ANY
         /foo/[^/]+       GET     admin,role1
         /foo/[^/]+       GET     admin,role2
-        /foo/[^/]+/.*    ALL     admin,role with space
+        /foo/[^/]+/.*    ALL     admin,role5
     </resources>
 </regex-rbac>
