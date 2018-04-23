@@ -5,6 +5,9 @@
 * https://repose.atlassian.net/browse/REP-6655[REP-6655] - Adding required configuration files to the examples directory.
   Also, example configurations will now be replaced on upgrade.
 * https://repose.atlassian.net/browse/REP-6795[REP-6795] - Added the new <<services/uri-redaction.adoc#, URI Redaction service>> which allows for the removal of sensitive data from URI's before external processing.
+* https://repose.atlassian.net/browse/REP-6839[REP-6839] - Updated dependencies:
+** Attribute Mapper: 2.2.0 → 2.2.1
+*** https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-2.2.1/RELEASE.md[Attribute Mapper v2.2.1 release notes]
 
 == 8.8.3.0 (2018-03-30)
 * https://repose.atlassian.net/browse/REP-6654[REP-6654] - Added OpenTracing support.

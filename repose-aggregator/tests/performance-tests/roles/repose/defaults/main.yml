@@ -78,6 +78,7 @@
     npm_package_file: "package.json",
     backends: [
       "main_backend.js"
-    ]
+    ],
+    payloads: []
   }
 }

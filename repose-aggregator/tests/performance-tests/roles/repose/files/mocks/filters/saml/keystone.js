@@ -2,13 +2,24 @@ const bodyParser = require('body-parser')
 const express = require('express');
 const libxml = require('libxmljs');
 const uuidV4 = require('uuid/v4');
+const fs = require("fs");
 require('date-utils');
 
 const app = express();
 app.disable('etag');
 
+const largeYamlPolicy = readLargePolicyFile('large-policy.yaml');
+
 // Always parse the body as a string using the body-parser middleware.
 app.use(bodyParser.text({ type: '*/*' }))
+
+function readLargePolicyFile(filename) {
+    try {
+        return fs.readFileSync(filename);
+    } catch(err) {
+        return undefined;
+    }
+}
 
 function createIdpJsonWithValues(values = {}) {
     // Define a function to generate unique IDs.
@@ -345,8 +356,17 @@ app.get('/v2.0/RAX-AUTH/federation/identity-providers', function (req, res) {
 });
 
 app.get('/v2.0/RAX-AUTH/federation/identity-providers/:idp_id/mapping', function (req, res) {
-    res.set('Content-Type', 'application/json');
-    res.status(200).send(createMappingJsonWithDefaults());
+    if (req.get('Large-Policy') != undefined) {
+        if (largeYamlPolicy != undefined) {
+            res.set('Content-Type', 'text/yaml');
+            res.status(200).send(largeYamlPolicy);
+        } else {
+            res.status(404).end();
+        }
+    } else {
+        res.set('Content-Type', 'application/json');
+        res.status(200).send(createMappingJsonWithDefaults());
+    }
 });
 
 app.post('/v2.0/tokens', function (req, res) {
