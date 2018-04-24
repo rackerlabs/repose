@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/simple-rbac/v1.0"
+           elementFormDefault="qualified">
+
+    <!-- Elements -->
+    <xs:element name="simple-rbac" type="SimpleRbacConfig"/>
+
+    <!-- Types -->
+    <xs:complexType name="SimpleRbacConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The root config type for the Simple RBAC filter configuration file.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="delegating" type="DelegatingType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="resources" type="ResourcesType" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+
+        <xs:attribute name="roles-header-name" type="xs:string" use="optional" default="X-ROLES">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This is the name of the header where the roles are passed in.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="tenants-header-name" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This is the name of the header where the tenants are passed in.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="mask-rax-roles-403" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Mask rax-roles with NOT FOUND (404) and METHOD NOT ALLOWED (405) errors.
+                        By default rax-roles responds with a FORBIDDEN (403) if there is a role mismatch,
+                        if this is set to true, then the response will be NOT FOUND (404) if no methods are
+                        accessible or METHOD NOT ALLOWED (405) if some methods are available.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="enable-api-coverage" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to true, this filter will record, via JMX, the number of times each state in the
+                        generated state machine (the underlying mechanism) is accessed. These values may
+                        be used to determine api usage and coverage.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="dot-output" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        dot output file for this validator
+                        DOT is a plain text graph description language.
+                        It is a simple way of describing graphs that both humans and computer programs can use.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="wadl-output" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        wadl output file for this validator
+                        WADL is the Web Application Description Language.
+                        It is a way of describing the API of a Web Application that both humans and computer programs can use.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="DelegatingType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Whether or not you would like this filter to populate the delegation headers. Inclusion means you do.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="quality" type="QualityType" use="optional" default="0.3">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        What quality you want any output headers to be.
+                        When setting up a chain of delegating filters the highest quality number will be the one that is eventually output.
+                        Default is 0.3
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="component-name" type="xs:string" use="optional" default="simple-rbac">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Sets the delegation component name for this validator.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="QualityType">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="ResourcesType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    This is a list of resources, HTTP methods, and roles allowed to access them.
+
+                    The special HTTP methods ANY and ALL are shorthand for the four standard REST methods
+                    (GET, PUT, POST, DELETE). Others methods are supported, but they may must be explicitly stated.
+                    If a given Resource line has the HTTP method of ANY/ALL, then only the four are utilized.
+                    If more methods need to be supported by a particular Resource, then put them on another Resource
+                    line.
+
+                    The Simple RBAC resources can be either linked via an href attribute or defined directly in this
+                    element.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:simpleContent>
+            <xs:extension base="ResourcesString">
+                <xs:attribute name="href" type="xs:anyURI" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Specifies a location to an external file which contains the Simple RBAC resources.
+                                If the message element has a value and the href attribute is configured,
+                                Response Messaging Service will use what is configured with href to send the message.
+                                If the file to which an href attribute of a message element is pointed is modified,
+                                Response Messaging Service will need to reload the configurations to
+                                guarantee that the changes will appear in the responses.
+                                Any changes to the config file itself will cause a configuration reload.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:assert vc:minVersion="1.1" test="if (text()) then not (@href) else true()"
+                           xerces:message="Cannot define message inline and reference to external message file"
+                           saxon:message="Cannot define message inline and reference to external message file"/>
+                <xs:assert vc:minVersion="1.1" test="if (@href) then not (text()) else true()"
+                           xerces:message="Cannot define message inline and reference to external message file"
+                           saxon:message="Cannot define message inline and reference to external message file"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:simpleType name="ResourcesString">
+        <xs:restriction base="xs:string">
+            <xs:whiteSpace value="preserve"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

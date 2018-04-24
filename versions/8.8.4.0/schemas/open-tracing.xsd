@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns="http://docs.openrepose.org/repose/open-tracing-service/v1.0"
+           elementFormDefault="qualified"
+           targetNamespace="http://docs.openrepose.org/repose/open-tracing-service/v1.0">
+
+    <xs:element name="open-tracing" type="OpenTracingConfig"/>
+
+    <xs:complexType name="OpenTracingConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>OpenTracing configuration settings.</html:p>
+                <html:p>
+                    Please refer to the
+                    <html:a href="https://github.com/opentracing/specification/blob/master/specification.md">
+                        OpenTracing specification
+                    </html:a>
+                    for more details.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:choice>
+            <xs:element name="jaeger" type="JaegerTracerConfig"/>
+        </xs:choice>
+
+        <xs:attribute name="service-name" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The name of the service that is reporting traces.
+                        This value will be used to identify the service and should therefore be unique
+                        (e.g., identity-repose).
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="TracerConfig" abstract="true"/>
+
+    <xs:complexType name="JaegerTracerConfig">
+        <xs:complexContent>
+            <xs:extension base="TracerConfig">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Jaeger sampling configuration.
+                            As of v0.21.0, there are 4 types of configurations:
+                            - constant (either sample or not)
+                            - probabilistic (probability of sampling between 0.0 (never) and 1.0 (always)
+                            - rate limiting (maximum traces per second.  Defaults to 1.0 traces per second)
+                            - guaranteed throughput (combination of rate limiting and probabilistic) (not currently supported)
+                            - per operation (operation/specific probabilistic sampling.  Samples on names of requests) (not currently supported)
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+
+                <xs:sequence>
+                    <xs:choice id="jaegerConnection">
+                        <xs:element name="connection-udp" type="JaegerConnectionUdp"/>
+                        <xs:element name="connection-http" type="JaegerConnectionHttp"/>
+                    </xs:choice>
+
+                    <xs:choice id="jaegerSampling">
+                        <xs:element name="sampling-constant" type="JaegerSamplingConstant"/>
+                        <xs:element name="sampling-probabilistic" type="JaegerSamplingProbabilistic"/>
+                        <xs:element name="sampling-rate-limiting" type="JaegerSamplingRateLimiting"/>
+                    </xs:choice>
+                </xs:sequence>
+
+                <xs:attribute name="flush-interval-ms" type="PositiveInt" default="1000">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Flush interval in milliseconds.
+                                How often to send span data to tracer.
+                                Defaults to 1 second.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="max-buffer-size" type="PositiveInt" default="10000">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Maximum number of spans in buffer.
+                                Defaults to 10,000.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="log-spans" type="xs:boolean" default="true">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Optionally sets up logger for all spans.
+                                Defaults to true (helps with debugging).
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+
+    <xs:complexType name="JaegerConnection" abstract="true"/>
+
+    <xs:complexType name="JaegerConnectionHttp">
+        <xs:complexContent>
+            <xs:extension base="JaegerConnection">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Indicates that HTTP will be used to transport data to the collector.
+                            Username/password, token, or no authentication can specified.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+
+                <xs:attribute name="endpoint" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Collector endpoint.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="username" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Optional username (will be sent as basicauth).
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="password" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Optional password (will be sent as basicauth).
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="token" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Optional token.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:assert vc:minVersion="1.1"
+                           test="if (@username or @password) then @username and @password and not(@token)
+                                 else if (@token) then not(@username) and not(@password)
+                                 else true()"
+                           xerces:message="Username/password and a token cannot both be specified."
+                           saxon:message="Username/password and a token cannot both be specified."/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="JaegerConnectionUdp">
+        <xs:complexContent>
+            <xs:extension base="JaegerConnection">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Indicates that UDP will be used to transport data to the agent.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+
+                <xs:attribute name="host" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Agent target host.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="port" type="NonNegativeInt">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Agent target port.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="JaegerSampling" abstract="true"/>
+
+    <xs:complexType name="JaegerSamplingConstant">
+        <xs:complexContent>
+            <xs:extension base="JaegerSampling">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Jaeger sampling configuration for constant sampling.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+
+                <xs:attribute name="toggle" type="Toggle" default="on">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Set to either on or off.
+                                Setting this value to off effectively effectively disables
+                                reporting of trace data.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="JaegerSamplingProbabilistic">
+        <xs:complexContent>
+            <xs:extension base="JaegerSampling">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Jaeger sampling configuration for probabilistic sampling.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+
+                <xs:attribute name="probability" type="DoubleBetweenZeroAndOne" default="0.001">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Set to double between 0 and 1.0.
+                                Defaults to 0.001
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="JaegerSamplingRateLimiting">
+        <xs:complexContent>
+            <xs:extension base="JaegerSampling">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Jaeger sampling configuration for rate limited sampling.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+
+                <xs:attribute name="max-traces-per-second" type="DoubleAboveOne" default="1.0">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Set to double.
+                                Defaults to 1.0
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:simpleType name="NonNegativeInt">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="PositiveInt">
+        <xs:restriction base="xs:int">
+            <xs:minExclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="Toggle">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="on"/>
+            <xs:enumeration value="off"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="DoubleBetweenZeroAndOne">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="1"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="DoubleAboveOne">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="1"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
