@@ -15,7 +15,6 @@ mapping:
           name: "{D}"
           roles:
             - "{0}"
-          groups:
       remote:
         -
           multiValue: true
