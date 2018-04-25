@@ -41,7 +41,6 @@ public class ClusterMemberDeterminatorTest {
 
         private SystemModel sysConfig;
         private DistributedDatastoreConfiguration ddConfig;
-        private List<ReposeCluster> clusters;
         private ReposeCluster cluster1, cluster2;
         private Node node1, node2;
         private NodeList nodeList;

@@ -57,7 +57,7 @@ public class FilterContextFactory {
     public List<FilterContext> buildFilterContexts(ServletContext servletContext, List<Filter> filtersToCreate) throws FilterInitializationException {
         final List<FilterContext> filterContexts = new LinkedList<>();
 
-        for (org.openrepose.core.systemmodel.config.Filter papiFilter : filtersToCreate) {
+        for (Filter papiFilter : filtersToCreate) {
 
             if (classLoaderManagerService.hasFilter(papiFilter.getName())) {
                 final FilterContext context = loadFilterContext(papiFilter, classLoaderManagerService.getLoadedApplications(), servletContext);

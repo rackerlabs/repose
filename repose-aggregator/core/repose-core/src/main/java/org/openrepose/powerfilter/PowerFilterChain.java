@@ -32,7 +32,6 @@ import org.openrepose.commons.utils.io.BufferedServletInputStream;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
-import org.openrepose.commons.utils.servlet.http.ResponseMode;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.openrepose.powerfilter.filtercontext.FilterContext;
 import org.openrepose.powerfilter.intrafilterlogging.RequestLog;
@@ -50,8 +49,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import static org.openrepose.commons.utils.servlet.http.ResponseMode.MUTABLE;
-import static org.openrepose.commons.utils.servlet.http.ResponseMode.PASSTHROUGH;
+import static org.openrepose.commons.utils.servlet.http.ResponseMode.*;
 
 /**
  * @author fran
@@ -199,8 +197,8 @@ public class PowerFilterChain implements FilterChain {
                 maybeWrappedServletRequest = new HttpServletRequestWrapper(maybeWrappedServletRequest, inputStream);
                 maybeWrappedServletResponse = new HttpServletResponseWrapper(
                         maybeWrappedServletResponse,
-                        ResponseMode.PASSTHROUGH,
-                        ResponseMode.READONLY);
+                        PASSTHROUGH,
+                        READONLY);
 
                 INTRAFILTER_LOG.trace(
                         intrafilterRequestLog((HttpServletRequestWrapper) maybeWrappedServletRequest, filterContext));

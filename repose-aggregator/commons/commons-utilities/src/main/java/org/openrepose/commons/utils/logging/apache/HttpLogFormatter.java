@@ -119,7 +119,7 @@ public class HttpLogFormatter {
                 formatter.setLogic(new UrlRequestedHandler());
                 break;
             case PERCENT:
-                formatter.setLogic(new StringHandler(LogFormatArgument.PERCENT));
+                formatter.setLogic(new StringHandler(PERCENT));
                 break;
             case STRING:
                 formatter.setLogic(new StringHandler(extractor.getVariable()));

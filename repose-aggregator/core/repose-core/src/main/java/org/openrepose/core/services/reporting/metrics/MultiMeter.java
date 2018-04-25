@@ -21,8 +21,6 @@ package org.openrepose.core.services.reporting.metrics;
 
 import com.codahale.metrics.Meter;
 
-import java.util.stream.Stream;
-
 /**
  * A {@link Meter} that links multiple {@link Meter}s together.
  * <p>

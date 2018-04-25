@@ -25,7 +25,6 @@ import org.openrepose.core.services.ratelimit.cache.CachedRateLimit;
 import org.openrepose.core.services.ratelimit.cache.RateLimitCache;
 import org.openrepose.core.services.ratelimit.config.*;
 import org.openrepose.core.services.ratelimit.exception.OverLimitException;
-import org.openrepose.core.services.ratelimit.utils.StringUtilities;
 import org.slf4j.Logger;
 
 import java.io.UnsupportedEncodingException;

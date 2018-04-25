@@ -161,7 +161,7 @@ public class TranslationFilter implements Filter, UpdateListener<TranslationConf
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (!isInitialized) {
             LOG.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.");
-            ((HttpServletResponse) response).sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            ((HttpServletResponse) response).sendError(SC_SERVICE_UNAVAILABLE);
         } else {
             HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper((HttpServletRequest) request);
             HttpServletResponseWrapper responseWrapper = new HttpServletResponseWrapper(

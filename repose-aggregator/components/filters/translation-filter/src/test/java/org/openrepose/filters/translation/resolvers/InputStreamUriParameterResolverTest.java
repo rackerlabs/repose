@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -80,7 +80,7 @@ public class InputStreamUriParameterResolverTest {
         @Test
         public void shouldRemoveStream() throws TransformerException {
             String href = resolver.getHref(input);
-            String actualHref = resolver.addStream(input);
+            resolver.addStream(input);
 
             StreamSource source = (StreamSource) resolver.resolve(href, "base");
             assertThat("Source stream path should not be empty", source.getSystemId(), not(isEmptyString()));
