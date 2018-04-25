@@ -127,7 +127,6 @@ class SamlFilterNoCacheSimulation extends Simulation {
       .formParam("SAMLResponse", session => ElFileBody("${filename}").apply(session).map(base64Encode))
       .header(HttpHeaderNames.Accept, "${accept}")
       .header(HttpHeaderNames.ContentType, HttpHeaderValues.ApplicationFormUrlEncoded)
-      .header("Large-Policy", "true")
       .check(status.is(200))
   }
 
@@ -137,7 +136,6 @@ class SamlFilterNoCacheSimulation extends Simulation {
       .body(ElFileBody("${filename}"))
       .header(HttpHeaderNames.Accept, "${accept}")
       .header(HttpHeaderNames.ContentType, HttpHeaderValues.ApplicationXml)
-      .header("Large-Policy", "true")
       .check(status.is(200))
   }
 }

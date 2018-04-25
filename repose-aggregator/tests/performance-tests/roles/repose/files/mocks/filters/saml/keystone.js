@@ -356,13 +356,9 @@ app.get('/v2.0/RAX-AUTH/federation/identity-providers', function (req, res) {
 });
 
 app.get('/v2.0/RAX-AUTH/federation/identity-providers/:idp_id/mapping', function (req, res) {
-    if (req.get('Large-Policy') != undefined) {
-        if (largeYamlPolicy != undefined) {
-            res.set('Content-Type', 'text/yaml');
-            res.status(200).send(largeYamlPolicy);
-        } else {
-            res.status(404).end();
-        }
+    if (largeYamlPolicy != undefined) {
+        res.set('Content-Type', 'text/yaml');
+        res.status(200).send(largeYamlPolicy);
     } else {
         res.set('Content-Type', 'application/json');
         res.status(200).send(createMappingJsonWithDefaults());
