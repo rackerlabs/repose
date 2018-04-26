@@ -151,10 +151,13 @@ def build_with_git(module, git_repo, git_branch, build_tool, wait, wait_timeout,
             pid=started_repose_id(),
             status='STARTED'
         )
+    module.run_command('rm -rf /opt/repose')
     module.run_command('mkdir -p /opt/repose')
-    module.run_command('git init', use_unsafe_shell=True,
-                       check_rc=True, cwd='/opt/repose')
-    module.run_command('git pull %s %s' % (git_repo, git_branch),
+    module.run_command('git clone %s /opt/repose' % git_repo,
+                       use_unsafe_shell=True, check_rc=True, cwd='/opt/repose')
+    module.run_command('git fetch origin +refs/pull/*:refs/remotes/origin/pr/*',
+                       use_unsafe_shell=True, check_rc=True, cwd='/opt/repose')
+    module.run_command('git checkout -f %s' % git_branch,
                        use_unsafe_shell=True, check_rc=True, cwd='/opt/repose')
     if build_tool == "maven":
         rc, out, err = module.run_command('mvn clean install -DskipTests -Pbuild-system-packages', cwd='/opt/repose', check_rc=False)
