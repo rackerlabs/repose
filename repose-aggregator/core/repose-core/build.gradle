@@ -20,6 +20,7 @@ dependencies {
     compile project(":repose-aggregator:components:services:uri-redaction-service:uri-redaction-service-api")
     compile project(":repose-aggregator:components:services:uri-redaction-service:uri-redaction-service-impl")
     compile project(":repose-aggregator:core:repose-core-api")
+    compile project(":repose-aggregator:components:services:admin-service:admin-service-impl")
     compile project(":repose-aggregator:external:jee6-schemas")
     compile "org.apache.logging.log4j:log4j-flume-ng"
     compile "javax.inject:javax.inject"
