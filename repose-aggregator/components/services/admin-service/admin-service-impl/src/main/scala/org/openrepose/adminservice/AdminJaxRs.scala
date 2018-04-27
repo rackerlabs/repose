@@ -19,19 +19,18 @@
  */
 package org.openrepose.adminservice
 
-import java.util
+import javax.inject.{Inject, Named}
+import javax.ws.rs.Path
+import org.openrepose.adminservice.AdminJaxRs.MyPath
 
-import javax.ws.rs.core.MediaType
-import javax.ws.rs.{GET, Path, Produces}
-import org.springframework.stereotype.Component
+import scala.annotation.meta.beanGetter
+import scala.beans.BeanProperty
 
-import scala.collection.JavaConverters._
+@Named
+@Path("/")
+class AdminJaxRs @Inject()(@MyPath("/node") @BeanProperty val nodeJaxRs: NodeJaxRs, @MyPath("/cluster") @BeanProperty val clusterJaxRs: ClusterJaxRs) {
+}
 
-@Component
-@Path("/banana")
-class AdminJaxRs extends AdminWebInterface {
-  @Produces( Array(MediaType.APPLICATION_JSON) )
-  @GET
-  @Path("/phone")
-  override def doTheThing(): util.Map[String, String] = Map("greeting" -> "Hello from this node").asJava
+object AdminJaxRs {
+  type MyPath = Path @beanGetter
 }

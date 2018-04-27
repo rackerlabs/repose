@@ -19,10 +19,10 @@
  */
 package org.openrepose.adminservice
 
+import javax.inject.Named
 import org.glassfish.jersey.server.ResourceConfig
-import org.springframework.stereotype.Component
 
-@Component
+@Named
 class JerseyConfig extends ResourceConfig {
   register(classOf[AdminJaxRs])
 }

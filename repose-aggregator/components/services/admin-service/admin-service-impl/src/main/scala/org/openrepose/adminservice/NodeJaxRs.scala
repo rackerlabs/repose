@@ -17,17 +17,15 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.adminservice;
+package org.openrepose.adminservice
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import java.util.Map;
+import java.util
 
-public interface AdminWebInterface {
-    @Produces( {MediaType.APPLICATION_JSON} )
-    @GET
-    @Path("/health")
-    Map<String, String> healthCheck();
+import javax.inject.Named
+
+import scala.collection.JavaConverters._
+
+@Named
+class NodeJaxRs extends AdminWebInterface {
+  override def healthCheck(): util.Map[String, String] = Map("greeting" -> "Hello from this node").asJava
 }
