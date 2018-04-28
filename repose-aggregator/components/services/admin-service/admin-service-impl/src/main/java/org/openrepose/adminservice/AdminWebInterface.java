@@ -29,5 +29,5 @@ public interface AdminWebInterface {
     @Produces( {MediaType.APPLICATION_JSON} )
     @GET
     @Path("/health")
-    Map<String, String> healthCheck();
+    Map<String, Object> healthCheck();
 }

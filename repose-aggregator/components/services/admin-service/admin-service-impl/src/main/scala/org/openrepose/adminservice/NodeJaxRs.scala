@@ -21,11 +21,12 @@ package org.openrepose.adminservice
 
 import java.util
 
-import javax.inject.Named
+import javax.inject.{Inject, Named}
+import org.openrepose.core.services.healthcheck.HealthCheckService
 
 import scala.collection.JavaConverters._
 
 @Named
-class NodeJaxRs extends AdminWebInterface {
-  override def healthCheck(): util.Map[String, String] = Map("greeting" -> "Hello from this node").asJava
+class NodeJaxRs @Inject()(healthCheckService: HealthCheckService) extends AdminWebInterface {
+  override def healthCheck(): util.Map[String, Object] = Map("isHealthy" -> healthCheckService.isHealthy.toString).asJava.asInstanceOf[util.Map[String, Object]]
 }
