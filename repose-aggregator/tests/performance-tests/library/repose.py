@@ -309,11 +309,6 @@ def build_with_release(module, release, package, wait, wait_timeout,
     validate_repose(module, changed, untouched, listen_port, steps)
 
 
-# TODO: Add support for enabling JMX
-# TODO: -Dcom.sun.management.jmxremote.port=${jmxPort}
-# TODO: -Dcom.sun.management.jmxremote.authenticate=false
-# TODO: -Dcom.sun.management.jmxremote.ssl=false
-# TODO: -Dcom.sun.management.jmxremote.local.only=true
 def start_repose(module, listen_port, wait, wait_timeout, steps, service_command='start'):
     success = []
     error = []
