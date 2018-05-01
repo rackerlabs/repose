@@ -1,5 +1,3 @@
-# TODO: Add variable(s) for jmxtrans URL/version
-# TODO: Add variable(s) for jmxtrans configuration (e.g., InfluxDB connection information)
 {
   cloud: {
     region: IAD,
@@ -16,6 +14,16 @@
         tracer_port: 10000
       }
     }
+  },
+  jmxtrans: {
+    jmx: {
+      host: localhost,
+      port: 27755,
+    },
+    graphite_writer: {
+      host: influxdb.performance.openrepose.org,
+      port: 2003,
+    },
   },
   telegraf_influxdb_urls: [
     "udp://influxdb.performance.openrepose.org:8089",
