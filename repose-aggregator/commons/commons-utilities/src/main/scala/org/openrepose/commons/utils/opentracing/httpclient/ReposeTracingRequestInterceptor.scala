@@ -19,47 +19,77 @@
  */
 package org.openrepose.commons.utils.opentracing.httpclient
 
-import io.opentracing.tag.Tags.HTTP_URL
-import com.uber.jaeger.httpclient.{SpanCreationRequestInterceptor, SpanInjectionRequestInterceptor}
-import io.opentracing.{Span, Tracer}
-import org.apache.http.HttpRequest
+import java.io.IOException
+
+import com.typesafe.scalalogging.slf4j.StrictLogging
+import io.opentracing.Tracer
+import io.opentracing.propagation.Format.Builtin.HTTP_HEADERS
+import io.opentracing.propagation.TextMap
+import io.opentracing.tag.Tags._
+import org.apache.http._
+import org.apache.http.client.protocol.HttpClientContext
+import org.apache.http.message.BasicHeader
 import org.apache.http.protocol.HttpContext
 import org.openrepose.commons.utils.http.CommonHttpHeader.{REQUEST_ID, VIA}
 import org.openrepose.commons.utils.opentracing.ReposeTags.ReposeVersion
 import org.openrepose.core.services.uriredaction.UriRedactionService
 
 /**
-  * A [[org.apache.http.HttpRequestInterceptor]] that will enrich HTTP requests made through a
+  * An [[org.apache.http.HttpRequestInterceptor]] that will enrich Repose HTTP requests made through an
   * [[org.apache.http.client.HttpClient]] with OpenTracing data.
   *
-  * We are extending [[com.uber.jaeger.httpclient.TracingRequestInterceptor]] out of convenience since it performs
-  * the action we want to perform in an implementation agnostic way.
+  * This is based on the old [[com.uber.jaeger.httpclient.TracingRequestInterceptor]] since it was recently removed.
+  * Additionally the old [[com.uber.jaeger.httpclient.SpanCreationRequestInterceptor]] and
+  * [[com.uber.jaeger.httpclient.SpanInjectionRequestInterceptor]] were collapsed inline.
   *
   * @param tracer a [[io.opentracing.Tracer]] to bridge this utility with the OpenTracing API
   */
-class ReposeTracingRequestInterceptor(tracer: Tracer, reposeVersion: String, uriRedactionService: UriRedactionService)
-  extends SpanCreationRequestInterceptor(tracer) {
+class ReposeTracingRequestInterceptor(tracer: Tracer, reposeVersion: String, uriRedactionService: UriRedactionService) extends HttpRequestInterceptor with StrictLogging {
 
-  private val spanInjectionInterceptor = new SpanInjectionRequestInterceptor(tracer)
-
+  @throws[HttpException]
+  @throws[IOException]
   override def process(httpRequest: HttpRequest, httpContext: HttpContext): Unit = {
-    super.process(httpRequest, httpContext)
+    try {
+      val currentActiveSpan = tracer.activeSpan
+      val requestLine = httpRequest.getRequestLine
+      val redactedUri = uriRedactionService.redact(requestLine.getUri)
 
-    spanInjectionInterceptor.process(httpRequest, httpContext)
+      val clientSpanBuilder = tracer.buildSpan(s"${requestLine.getMethod} $redactedUri")
+      if (currentActiveSpan != null) clientSpanBuilder.asChildOf(currentActiveSpan)
+
+      val clientSpan = clientSpanBuilder.start
+
+      clientSpan.setTag(SPAN_KIND.toString, SPAN_KIND_CLIENT)
+      clientSpan.setTag(HTTP_URL.toString, redactedUri)
+
+      httpContext match {
+        case context: HttpClientContext =>
+          val host = context.getTargetHost
+          clientSpan.setTag(PEER_HOSTNAME.toString, host.getHostName)
+          clientSpan.setTag(PEER_PORT.toString, host.getPort)
+        case _ =>
+      }
+
+      Option(httpRequest.getFirstHeader(REQUEST_ID))
+        .map(_.getValue)
+        .foreach(clientSpan.setTag(REQUEST_ID, _))
+      Option(httpRequest.getFirstHeader(VIA))
+        .map(_.getValue)
+        .foreach(clientSpan.setTag(VIA, _))
+      clientSpan.setTag(ReposeVersion, reposeVersion)
+
+      httpContext.setAttribute("io.opentracing.Span", clientSpan)
+
+      if (tracer.scopeManager.active == null) logger.warn("Current scope is null; possibly failed to start client tracing span.")
+
+      tracer.inject(clientSpan.context, HTTP_HEADERS, new TextMap {
+        override def iterator = throw new UnsupportedOperationException
+
+        override def put(key: String, value: String): Unit = httpRequest.addHeader(new BasicHeader(key, value))
+      })
+    } catch {
+      case e: Exception =>
+        logger.error("Could not start client tracing span.", e)
+    }
   }
-
-  override protected def onSpanStarted(clientSpan: Span, httpRequest: HttpRequest, httpContext: HttpContext): Unit = {
-    Option(httpRequest.getFirstHeader(REQUEST_ID))
-      .map(_.getValue)
-      .foreach(clientSpan.setTag(REQUEST_ID, _))
-    Option(httpRequest.getFirstHeader(VIA))
-      .map(_.getValue)
-      .foreach(clientSpan.setTag(VIA, _))
-    clientSpan.setTag(ReposeVersion, reposeVersion)
-    // Replace the http.url tag so that we do not leak the raw URL being set in this tag by the underlying Jaeger interceptor implementation
-    clientSpan.setTag(HTTP_URL.toString, uriRedactionService.redact(httpRequest.getRequestLine.getUri))
-  }
-
-  override protected def getOperationName(httpRequest: HttpRequest): String =
-    s"${httpRequest.getRequestLine.getMethod} ${uriRedactionService.redact(httpRequest.getRequestLine.getUri)}"
 }
