@@ -41,15 +41,15 @@ stage("Performance Test") {
                     build(job: performanceJenkinsJob,
                             quietPeriod: random.nextInt(tenMinutesInSeconds),
                             parameters: [
-                                    [$class: "StringParameterValue", name: performanceTestParam, value: perfTest],
-                                    [$class: "StringParameterValue", name: extraOptionsParam, value: params.extraOptions]])
+                                    string(name: performanceTestParam, value: perfTest),
+                                    string(name: extraOptionsParam, value: params.extraOptions)])
                 }
             } finally {
                 build(job: cleanupJenkinsJob,
                       quietPeriod: 0,
                       parameters: [
-                                [$class: "StringParameterValue", name: performanceTestParam, value: perfTest],
-                                [$class: "StringParameterValue", name: extraOptionsParam, value: params.extraOptions]])
+                                string(name: performanceTestParam, value: perfTest),
+                                string(name: extraOptionsParam, value: params.extraOptions)])
             }
         }
     }
