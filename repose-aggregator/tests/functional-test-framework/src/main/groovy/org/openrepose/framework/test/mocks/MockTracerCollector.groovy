@@ -19,7 +19,7 @@
  */
 package org.openrepose.framework.test.mocks
 
-import com.uber.jaeger.thriftjava.Batch
+import io.jaegertracing.thriftjava.Batch
 import groovy.util.logging.Log4j
 import org.apache.thrift.TDeserializer
 import org.rackspace.deproxy.Request

@@ -19,7 +19,6 @@
  */
 package org.openrepose.core.services.httpclient.impl;
 
-import com.uber.jaeger.httpclient.TracingResponseInterceptor;
 import io.opentracing.Tracer;
 import org.apache.http.Header;
 import org.apache.http.client.HttpClient;
@@ -37,6 +36,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.openrepose.commons.utils.opentracing.httpclient.ReposeTracingRequestInterceptor;
+import org.openrepose.commons.utils.opentracing.httpclient.ReposeTracingResponseInterceptor;
 import org.openrepose.core.service.httpclient.config.HeaderType;
 import org.openrepose.core.service.httpclient.config.PoolType;
 import org.openrepose.core.services.uriredaction.UriRedactionService;
@@ -94,7 +94,7 @@ public final class HttpConnectionPoolProvider {
         // Note that although we always register these interceptors, the provided Tracer may be a NoopTracer,
         // making nearly all of the work done by these interceptors a no-op.
         client.addRequestInterceptor(new ReposeTracingRequestInterceptor(tracer, reposeVersion, uriRedactionService));
-        client.addResponseInterceptor(new TracingResponseInterceptor());
+        client.addResponseInterceptor(new ReposeTracingResponseInterceptor());
 
         SSLContext sslContext = ProxyUtilities.getTrustingSslContext();
 
