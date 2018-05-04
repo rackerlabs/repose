@@ -32,6 +32,7 @@ import org.apache.http.message.BasicHeader
 import org.apache.http.protocol.HttpContext
 import org.openrepose.commons.utils.http.CommonHttpHeader.{REQUEST_ID, VIA}
 import org.openrepose.commons.utils.opentracing.ReposeTags.ReposeVersion
+import org.openrepose.commons.utils.opentracing.httpclient.ReposeTracingInterceptorConstants.OpenTracingSpan
 import org.openrepose.core.services.uriredaction.UriRedactionService
 
 /**
@@ -78,7 +79,7 @@ class ReposeTracingRequestInterceptor(tracer: Tracer, reposeVersion: String, uri
         .foreach(clientSpan.setTag(VIA, _))
       clientSpan.setTag(ReposeVersion, reposeVersion)
 
-      httpContext.setAttribute("io.opentracing.Span", clientSpan)
+      httpContext.setAttribute(OpenTracingSpan, clientSpan)
 
       if (tracer.scopeManager.active == null) logger.warn("Current scope is null; possibly failed to start client tracing span.")
 

@@ -26,6 +26,7 @@ import io.opentracing.Span
 import io.opentracing.tag.Tags._
 import org.apache.http._
 import org.apache.http.protocol.HttpContext
+import org.openrepose.commons.utils.opentracing.httpclient.ReposeTracingInterceptorConstants.OpenTracingSpan
 
 /**
   * An [[org.apache.http.HttpResponseInterceptor]] that will enrich Repose HTTP requests made through an
@@ -38,7 +39,7 @@ class ReposeTracingResponseInterceptor extends HttpResponseInterceptor with Stri
   @throws[IOException]
   override def process(httpResponse: HttpResponse, httpContext: HttpContext): Unit = {
     try {
-      Option(httpContext.getAttribute("io.opentracing.Span").asInstanceOf[Span]) match {
+      Option(httpContext.getAttribute(OpenTracingSpan).asInstanceOf[Span]) match {
         case Some(span: Span) =>
           span.setTag(HTTP_STATUS.toString, httpResponse.getStatusLine.getStatusCode)
           span.finish()
