@@ -56,7 +56,7 @@ class ReposeTracingRequestInterceptor(tracer: Tracer, reposeVersion: String, uri
       val redactedUri = uriRedactionService.redact(requestLine.getUri)
 
       val clientSpanBuilder = tracer.buildSpan(s"${requestLine.getMethod} $redactedUri")
-      if (currentActiveSpan != null) clientSpanBuilder.asChildOf(currentActiveSpan)
+      Option(currentActiveSpan).foreach(clientSpanBuilder.asChildOf)
 
       val clientSpan = clientSpanBuilder.start
 
@@ -81,7 +81,7 @@ class ReposeTracingRequestInterceptor(tracer: Tracer, reposeVersion: String, uri
 
       httpContext.setAttribute(OpenTracingSpan, clientSpan)
 
-      if (tracer.scopeManager.active == null) logger.warn("Current scope is null; possibly failed to start client tracing span.")
+      if (Option(tracer.scopeManager.active).isEmpty) logger.warn("Current scope is null; possibly failed to start client tracing span.")
 
       tracer.inject(clientSpan.context, HTTP_HEADERS, new TextMap {
         override def iterator = throw new UnsupportedOperationException

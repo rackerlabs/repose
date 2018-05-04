@@ -29,7 +29,7 @@ import org.apache.http.protocol.HttpContext
 import org.openrepose.commons.utils.opentracing.httpclient.ReposeTracingInterceptorConstants.OpenTracingSpan
 
 /**
-  * An [[org.apache.http.HttpResponseInterceptor]] that will enrich Repose HTTP requests made through an
+  * An [[org.apache.http.HttpResponseInterceptor]] that will enrich Repose HTTP response made through an
   * [[org.apache.http.client.HttpClient]] with OpenTracing data.
   *
   * This is based on the old [[com.uber.jaeger.httpclient.TracingResponseInterceptor]] since it was recently removed.
