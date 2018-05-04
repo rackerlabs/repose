@@ -23,6 +23,20 @@ stage("Determine performance tests to run") {
     }
 }
 
+stage("Build Repose DEB Artifacts") {
+    // note: we always use a build node to build the artifacts, so legacy build artifacts are currently not supported
+    node("build") {
+        checkout scm
+        // note: we only build the deb artifacts, so the Redhat family of OSes are currently not supported
+        sh './gradlew ' +
+                ':repose-aggregator:artifacts:experimental-filter-bundle:buildDeb ' +
+                ':repose-aggregator:artifacts:extensions-filter-bundle:buildDeb ' +
+                ':repose-aggregator:artifacts:filter-bundle:buildDeb ' +
+                ':repose-aggregator:artifacts:valve:buildDeb'
+        archiveArtifacts artifacts: 'repose-aggregator/artifacts/**/build/distributions/*.deb', fingerprint: true
+    }
+}
+
 stage("Performance Test") {
     def performanceJenkinsJob = "performance-test"
     def cleanupJenkinsJob = "performance-test-cleanup"
