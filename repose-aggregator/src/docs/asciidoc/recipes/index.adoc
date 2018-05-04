@@ -37,6 +37,9 @@ If you're evaluating *Repose* and want a simple origin service to test against, 
 == <<rate-limiting.adoc#,Rate Limiting>>
 Rate limiting is a common use case for *Repose* and is easy to test.
 
+== <<multi-tenant.adoc#, Multi Tenant Authorization>>
+Handling authorization when resources have multiple tenants.
+
 == <<user-access-events.adoc#, User Access Events>>
 *IN PROGRESS*
 
