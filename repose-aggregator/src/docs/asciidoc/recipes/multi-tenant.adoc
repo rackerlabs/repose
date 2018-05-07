@@ -3,7 +3,7 @@
 This recipe shows you how to configure your filters to support rest resources that contain multiple tenants in the uri
 all of which need authorization applied to them.
 
-For the remainder of this recipe we are going to assume that you are trying to secure a resource this resource: `/a_tenant/do/something/on/another_tenant`.
+For the remainder of this recipe we are going to assume that you are trying to secure this resource: `/a_tenant/do/something/on/another_tenant`.
 
 == Derive Tenants
 
@@ -59,13 +59,13 @@ For basic tenant and endpoint authorization we use <<../filters/keystone-v2-auth
         type="compute"/>
 </keystone-v2-authorization>
 ----
-<1> The header that contains the tenants to verify. This has to match the name provided in the Url Extractor Header filter.+
+<1> The header that contains the tenants to verify. This has to match the name provided in the Url Extractor Header filter. +
     Every value found in this header has to be present among those returned by keystone.
 <2> The endpoint that you want to verify that the user has, note that this only works if you configure authentication to send the catalog.
 
 == Configure Role Based Access Control
 
-To get per tenant based access control you need to configure the <<../filters/api-validator.adoc#,API Validator filter>> nad the accompanying wadl.
+To get per tenant based access control you need to configure the <<../filters/api-validator.adoc#,API Validator filter>> and the accompanying wadl.
 
 [source,xml]
 .validator.cfg.xml
@@ -97,3 +97,5 @@ To get per tenant based access control you need to configure the <<../filters/ap
 ----
 <1> This indicates that for all calls on this resource the user must have the `a:admin` role on the first tenant.
 <2> This indicates that for POST requests to this resource the user must have the `a:creator` role on the second tenant.
+
+You can find more info about configuring Role Based Access Control, <<./role-based-access-control.adoc#3-utilize-tenanted-rax-roles,here>>
