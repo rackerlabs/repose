@@ -3,6 +3,4 @@
 {% if repose.systemd_opts.use_saxon %}
 Environment="SAXON_HOME=/etc/repose"
 {% endif %}
-{% if repose.systemd_opts.java_opts is defined %}
-Environment="JAVA_OPTS={{ repose.systemd_opts.java_opts }}"
-{% endif %}
+Environment="JAVA_OPTS={{ repose.systemd_opts.java_opts|join(' ') }} -Dcom.sun.management.jmxremote.port={{ jmxtrans.jmx.port }} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"

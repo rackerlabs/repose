@@ -404,7 +404,7 @@ ansible-playbook start_test.yml \
   -e '{perf_test: filters/saml,
        repose: {
          systemd_opts: {
-           java_opts: "-Xmx2g -Xms2g -XX:+UseG1GC -XX:+UseStringDeduplication"}}}' \
+           java_opts: ["-Xmx2g", "-Xms2g", "-XX:+UseG1GC", "-XX:+UseStringDeduplication"]}}}' \
   -vvvv
 ----
 

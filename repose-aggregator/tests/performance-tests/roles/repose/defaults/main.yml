@@ -63,7 +63,10 @@
     },
     systemd_opts: {
       use_saxon: false,
-      java_opts: "-Xmx512m -Xms512m"
+      java_opts: [
+        "-Xmx512m",
+        "-Xms512m",
+      ],
     },
     service: {
       state: "started",
