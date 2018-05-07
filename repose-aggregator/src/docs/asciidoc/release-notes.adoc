@@ -1,5 +1,10 @@
 = Release Notes
 
+== In Progress
+* https://repose.atlassian.net/browse/REP-6862[REP-6862] - Updated dependencies:
+** Jaeger Core: 0.24.0 → 0.27.0
+*** https://github.com/jaegertracing/jaeger-client-java/blob/master/CHANGELOG.rst#0270-2018-04-18[Jaeger Client Java v0.27.0 change log]
+
 == 8.8.4.0 (2018-04-23)
 * https://repose.atlassian.net/browse/REP-6674[REP-6674] - Minor internal update to increase logging performance.
 * https://repose.atlassian.net/browse/REP-6765[REP-6765] - Updated the <<filters/keystone-v2.adoc#, Keystone v2 filter>> to forward users' domain ID.
