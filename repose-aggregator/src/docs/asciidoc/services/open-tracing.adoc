@@ -30,7 +30,7 @@ Current support:
 
 |*Jaeger*
 |`uber-trace-id`
-|https://github.com/jaegertracing/jaeger-client-java/tree/master/jaeger-apachehttpclient
+|http://jaeger.readthedocs.io/en/stable/client_libraries/#key
 |===
 
 == Examples

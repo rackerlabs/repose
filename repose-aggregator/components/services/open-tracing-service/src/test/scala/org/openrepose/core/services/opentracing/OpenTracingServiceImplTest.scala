@@ -21,8 +21,8 @@ package org.openrepose.core.services.opentracing
 
 import java.net.URL
 
-import com.uber.jaeger
-import com.uber.jaeger.samplers.{ConstSampler, ProbabilisticSampler, RateLimitingSampler}
+import io.jaegertracing.{Tracer => JaegerTracer}
+import io.jaegertracing.samplers.{ConstSampler, ProbabilisticSampler, RateLimitingSampler}
 import io.opentracing.Tracer
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
@@ -217,7 +217,7 @@ class OpenTracingServiceImplTest extends FunSpec with Matchers with MockitoSugar
   describe("configurationUpdated") {
     it("should set the service name") {
       val serviceName = "myService"
-      val tracerCaptor = ArgumentCaptor.forClass(classOf[jaeger.Tracer])
+      val tracerCaptor = ArgumentCaptor.forClass(classOf[JaegerTracer])
 
       openTracingService.configurationUpdated(
         minimalOpenTracingConfig().withServiceName(serviceName)

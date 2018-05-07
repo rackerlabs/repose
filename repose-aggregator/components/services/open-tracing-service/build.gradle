@@ -8,7 +8,7 @@ dependencies {
     compile "org.springframework:spring-beans"
     compile "io.opentracing:opentracing-api"
     compile "io.opentracing:opentracing-util"
-    compile "com.uber.jaeger:jaeger-core"
+    compile "io.jaegertracing:jaeger-core"
 
     compileOnly "javax.servlet:javax.servlet-api"
     compileOnly "javax.inject:javax.inject"

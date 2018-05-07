@@ -14,7 +14,7 @@ dependencies {
     compile 'org.opensaml:opensaml-saml-impl'
     compile 'org.yaml:snakeyaml'
     compile 'org.apache.thrift:libthrift'
-    compile 'com.uber.jaeger:jaeger-core'
+    compile 'io.jaegertracing:jaeger-core'
 }
 
 processResources {

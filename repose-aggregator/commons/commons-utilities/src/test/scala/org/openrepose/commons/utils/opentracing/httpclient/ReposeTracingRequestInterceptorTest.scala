@@ -27,7 +27,7 @@ import org.apache.http.protocol.HttpContext
 import org.apache.http.{HttpRequest, RequestLine}
 import org.junit.runner.RunWith
 import org.mockito.Matchers.any
-import org.mockito.Mockito.{spy, times, verify, when}
+import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.utils.http.CommonHttpHeader.{REQUEST_ID, VIA}
 import org.openrepose.commons.utils.opentracing.ReposeTags.ReposeVersion
 import org.openrepose.core.services.uriredaction.UriRedactionService
@@ -64,69 +64,14 @@ class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with Moc
     when(tracer.buildSpan(s"${requestLine.getMethod} $redactedPath")).thenReturn(spanBuilder)
   }
 
-  describe("testOnSpanStarted") {
-    it("no headers") {
-      val httpRequestInterceptor = new SurrogateReposeTracingRequestInterceptor(tracer, "1.two.III", uriRedactionService)
-
-      httpRequestInterceptor.onSpanStarted(span, httpRequest, httpContext)
-
-      verify(span).setTag(ReposeVersion, "1.two.III")
-      verify(uriRedactionService).redact(requestLine.getUri)
-      verify(span).setTag(HTTP_URL.toString, redactedPath)
-    }
-
-    it("with request header") {
-      when(httpRequest.getFirstHeader(any())).thenReturn(new BasicHeader(REQUEST_ID, "1234"))
-
-      val httpRequestInterceptor = new SurrogateReposeTracingRequestInterceptor(tracer, "1.two.III", uriRedactionService)
-
-      httpRequestInterceptor.onSpanStarted(span, httpRequest, httpContext)
-
-      verify(span).setTag(REQUEST_ID, "1234")
-      verify(uriRedactionService).redact(requestLine.getUri)
-      verify(span).setTag(HTTP_URL.toString, redactedPath)
-    }
-
-    it("with via header") {
-      when(httpRequest.getFirstHeader(any())).thenReturn(new BasicHeader(VIA, "1234"))
-
-      val httpRequestInterceptor = new SurrogateReposeTracingRequestInterceptor(tracer, "1.two.III", uriRedactionService)
-
-      httpRequestInterceptor.onSpanStarted(span, httpRequest, httpContext)
-
-      verify(span).setTag(VIA, "1234")
-      verify(uriRedactionService).redact(requestLine.getUri)
-      verify(span).setTag(HTTP_URL.toString, redactedPath)
-    }
-  }
-
-  describe("testGetOperationName") {
-    it("with URI Redaction") {
-      val httpRequestInterceptor = new SurrogateReposeTracingRequestInterceptor(tracer, "1.two.III", uriRedactionService)
-
-      httpRequestInterceptor.getOperationName(httpRequest)
-
-      verify(uriRedactionService).redact(requestLine.getUri)
-    }
-  }
-
   describe("testProcess") {
-    it("calls protected methods") {
-      val httpRequestInterceptorSpy: SurrogateReposeTracingRequestInterceptor = spy(new SurrogateReposeTracingRequestInterceptor(tracer, "1.two.III", uriRedactionService))
-
-      httpRequestInterceptorSpy.process(httpRequest, httpContext)
-
-      verify(httpRequestInterceptorSpy).onSpanStarted(span, httpRequest, httpContext)
-      verify(httpRequestInterceptorSpy).getOperationName(httpRequest)
-    }
-
     it("no headers") {
       val httpRequestInterceptor = new ReposeTracingRequestInterceptor(tracer, "1.two.III", uriRedactionService)
 
       httpRequestInterceptor.process(httpRequest, httpContext)
 
       verify(span).setTag(ReposeVersion, "1.two.III")
-      verify(uriRedactionService, times(2)).redact(requestLine.getUri)
+      verify(uriRedactionService).redact(requestLine.getUri)
       verify(span).setTag(HTTP_URL.toString, redactedPath)
     }
 
@@ -138,7 +83,7 @@ class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with Moc
       httpRequestInterceptor.process(httpRequest, httpContext)
 
       verify(span).setTag(REQUEST_ID, "1234")
-      verify(uriRedactionService, times(2)).redact(requestLine.getUri)
+      verify(uriRedactionService).redact(requestLine.getUri)
       verify(span).setTag(HTTP_URL.toString, redactedPath)
     }
 
@@ -150,15 +95,8 @@ class ReposeTracingRequestInterceptorTest extends FunSpec with Matchers with Moc
       httpRequestInterceptor.process(httpRequest, httpContext)
 
       verify(span).setTag(VIA, "1234")
-      verify(uriRedactionService, times(2)).redact(requestLine.getUri)
+      verify(uriRedactionService).redact(requestLine.getUri)
       verify(span).setTag(HTTP_URL.toString, redactedPath)
     }
-  }
-
-  // This class is strictly to expose the Scala protected methods.
-  class SurrogateReposeTracingRequestInterceptor(tracer: Tracer, reposeVersion: String, uriRedactionService: UriRedactionService)
-    extends ReposeTracingRequestInterceptor(tracer, reposeVersion, uriRedactionService) {
-    override def onSpanStarted(clientSpan: Span, httpRequest: HttpRequest, httpContext: HttpContext): Unit = super.onSpanStarted(clientSpan, httpRequest, httpContext)
-    override def getOperationName(httpRequest: HttpRequest): String = super.getOperationName(httpRequest)
   }
 }

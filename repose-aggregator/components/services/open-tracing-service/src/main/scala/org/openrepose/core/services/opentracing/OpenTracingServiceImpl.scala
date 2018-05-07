@@ -23,9 +23,9 @@ import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import com.uber.jaeger.Configuration
-import com.uber.jaeger.Configuration.{SamplerConfiguration, SenderConfiguration}
-import com.uber.jaeger.samplers.{ConstSampler, ProbabilisticSampler, RateLimitingSampler}
+import io.jaegertracing.Configuration
+import io.jaegertracing.Configuration.{SamplerConfiguration, SenderConfiguration}
+import io.jaegertracing.samplers.{ConstSampler, ProbabilisticSampler, RateLimitingSampler}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.opentracing.DelegatingTracer
 import org.openrepose.core.service.opentracing.config._

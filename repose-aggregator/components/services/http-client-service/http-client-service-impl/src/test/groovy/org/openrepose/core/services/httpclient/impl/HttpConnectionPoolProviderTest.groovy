@@ -19,7 +19,6 @@
  */
 package org.openrepose.core.services.httpclient.impl
 
-import com.uber.jaeger.httpclient.TracingResponseInterceptor
 import io.opentracing.mock.MockTracer
 import org.apache.http.Header
 import org.apache.http.client.methods.HttpGet
@@ -35,6 +34,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.openrepose.commons.utils.opentracing.httpclient.ReposeTracingRequestInterceptor
+import org.openrepose.commons.utils.opentracing.httpclient.ReposeTracingResponseInterceptor
 import org.openrepose.core.service.httpclient.config.HeaderListType
 import org.openrepose.core.service.httpclient.config.HeaderType
 import org.openrepose.core.service.httpclient.config.PoolType
@@ -45,7 +45,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import java.nio.charset.Charset
 
-import static org.mockito.Mockito.*
+import static org.mockito.Mockito.mock
 
 class HttpConnectionPoolProviderTest {
 
@@ -116,9 +116,9 @@ class HttpConnectionPoolProviderTest {
     @Test
     public void "should add header parameter when configured"() {
         def headerListType = new HeaderListType()
-        headerListType.getHeader().addAll(
-                [new HeaderType(name: "lol", value: "potatoes"),
-                 new HeaderType(name: "serious-business", value: "tomatoes")])
+        headerListType.getHeader().addAll([
+            new HeaderType(name: "lol", value: "potatoes"),
+            new HeaderType(name: "serious-business", value: "tomatoes")])
         poolType.setHeaders(headerListType)
 
         DefaultHttpClient client = HttpConnectionPoolProvider.genClient("", poolType, tracer, "1.two.III", uriRedactionService) as DefaultHttpClient
@@ -163,9 +163,9 @@ class HttpConnectionPoolProviderTest {
 
         // SSL Connector
         def sslConnector = new ServerConnector(
-                server,
-                new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()),
-                new HttpConnectionFactory(httpConfiguration)
+            server,
+            new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()),
+            new HttpConnectionFactory(httpConfiguration)
         )
         sslConnector.setPort(0)
 
@@ -220,9 +220,9 @@ class HttpConnectionPoolProviderTest {
 
         // SSL Connector
         def sslConnector = new ServerConnector(
-                server,
-                new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()),
-                new HttpConnectionFactory(httpConfiguration)
+            server,
+            new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()),
+            new HttpConnectionFactory(httpConfiguration)
         )
         sslConnector.setPort(0)
 
@@ -309,7 +309,7 @@ class HttpConnectionPoolProviderTest {
         def httpResponse = client.execute(httpGet)
 
         assert client.getRequestInterceptor(client.requestInterceptorCount - 1) instanceof ReposeTracingRequestInterceptor
-        assert client.getResponseInterceptor(client.responseInterceptorCount - 1) instanceof TracingResponseInterceptor
+        assert client.getResponseInterceptor(client.responseInterceptorCount - 1) instanceof ReposeTracingResponseInterceptor
         (0..client.requestInterceptorCount).each {
             System.out.println("req $it")
             System.out.println(client.getRequestInterceptor(it))
