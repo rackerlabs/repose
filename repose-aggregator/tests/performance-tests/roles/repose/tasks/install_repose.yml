@@ -39,11 +39,50 @@
   pip: name=requests
   become: yes
 
+- name: Determine if Repose packages exist locally
+  local_action:
+    module: find
+    paths: "{{ role_path }}/files/packages"
+    patterns: '*.deb'
+  register: repose_packages
+  become: no
+
+- name: Create packages directory
+  file:
+    path: /tmp/repose
+    state: directory
+  when: repose_packages.matched|int != 0
+
+- name: Copy the Repose packages
+  copy:
+    src: packages/{{ item.path | basename }}
+    dest: /tmp/repose/{{ item.path | basename }}
+  when: repose_packages.matched|int != 0
+  with_items: "{{ repose_packages.files }}"
+
+# Note: Valve must be installed first since the other packages depend on it
+# Note: We also cannot trust the apt module to install repose_packages in the correct order
+# Node: See: https://github.com/ansible/ansible-modules-core/issues/1178
+- name: Install Repose Valve from a local package
+  apt:
+    deb: /tmp/repose/{{ repose_packages.files | map(attribute='path') | select('match','.*valve.*') | list | first | basename }}
+  when: repose_packages.matched|int != 0
+
+- name: Install Repose bundles from local packages
+  command: dpkg --force-confold --force-confdef -i /tmp/repose/{{ item.path | basename }}
+  # todo: replace the command module with the apt module
+  # todo: the current issue is that the apt module does not believe that the repose virtual package dependency is
+  # todo: satisfied, even though it should be
+  #  apt:
+  #    deb: /tmp/repose/{{ item.path | basename }}
+  when: repose_packages.matched|int != 0
+  with_items: "{{ repose_packages.files }}"
+
 - name: Install Repose
   repose:
     state: installed
     release: "{{ repose.install.release | default('') }}"
-  when: repose.install.release is defined
+  when: repose_packages.matched|int == 0 and repose.install.release is defined
   async: 1200
   poll: 30
 
@@ -54,6 +93,6 @@
     git_repo: "{{ repose.install.git.repo }}"
     git_branch: "{{ repose.install.git.branch }}"
     build_tool: "{{ repose.install.git.build_tool }}"
-  when: repose.install.release is not defined
+  when: repose_packages.matched|int == 0 and repose.install.release is not defined and repose.install.git is defined
   async: 1200
   poll: 30
