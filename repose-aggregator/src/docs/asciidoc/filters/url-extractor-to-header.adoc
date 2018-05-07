@@ -51,8 +51,12 @@ This configuration will exercise all the options available in this filter.
 ----
 <1> The name of the header to populate.
 <2> The regex to evaluate against the request url. +
-    The capture group is required and is the value that will be placed in the header. +
-    *Note*: Only the first capture group will be populated into the header.
+    The capture group is required and is the value that will be placed in the header.
++
+[NOTE]
+====
+Only the first capture group will be populated into the header.
+====
 <3> The default value that should be used if the regex misses, in this case it will add an empty value to the header.
 <4> This example lacks a default, so any regex misses will fo nothing.
 <5> The default here will add a value of `none` if the regex fails to capture something.
