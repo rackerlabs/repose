@@ -41,19 +41,22 @@ stage("Performance Test") {
                     build(job: performanceJenkinsJob,
                             quietPeriod: random.nextInt(tenMinutesInSeconds),
                             parameters: [
-                                    [$class: "StringParameterValue", name: performanceTestParam, value: perfTest],
-                                    [$class: "StringParameterValue", name: extraOptionsParam, value: params.extraOptions]])
+                                    string(name: performanceTestParam, value: perfTest),
+                                    string(name: extraOptionsParam, value: params.extraOptions)])
                 }
             } finally {
                 build(job: cleanupJenkinsJob,
                       quietPeriod: 0,
                       parameters: [
-                                [$class: "StringParameterValue", name: performanceTestParam, value: perfTest],
-                                [$class: "StringParameterValue", name: extraOptionsParam, value: params.extraOptions]])
+                                string(name: performanceTestParam, value: perfTest),
+                                string(name: extraOptionsParam, value: params.extraOptions)])
             }
         }
     }
 
-    // starts the list of jobs to build in parallel
+    // builds the Repose artifacts for performance test jobs to use
+    build("repose-gradle-package")
+
+    // starts the list of performance test jobs in parallel
     parallel(jobsToRun)
 }
