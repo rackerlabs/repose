@@ -97,14 +97,13 @@ This configuration will send one of every 1,000 traces to the collector using Ba
     Default: `true`
 <5> Collector endpoint.
 <6> Optional username sent for Basic HTTP Authentication as defined in https://tools.ietf.org/html/rfc7617[RFC 7617].
-<7> Optional password sent for Basic HTTP Authentication as defined in https://tools.ietf.org/html/rfc7617[RFC 7617].
+<7> Optional password sent for Basic HTTP Authentication as defined in https://tools.ietf.org/html/rfc7617[RFC 7617]. +
 +
 [NOTE]
 ====
 The `username` attribute must be accompanied by a `password` attribute.
 The `token` attribute is mutually exclusive to the `username`/`password` attributes.
 ====
-
 <8> The Probability (`probability`) sampling scheme applies a probabilistic algorithm weighted between `0.0` and `1.0`.
     With `0.0` being None and `1.0` being All. +
     Default: `0.001`

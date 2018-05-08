@@ -1,52 +1,67 @@
 = URL Extractor to Header Filter
 
-include::../_includes/in-progress.adoc[]
-
 == General filter information
-* *Name:* ???
-* *Default Configuration:* ???.cfg.xml
-* *Released:* v?.?.?.?
+* *Name:* url-extractor-to-header
+* *Default Configuration:* url-extractor-to-header.cfg.xml
+* *Released:* v7.3.0.0
 * *Bundle:* repose-filter-bundle
 * link:../schemas/url-extractor-to-header.xsd[Schema]
 
 == Prerequisites & Postconditions
 === Required Request Headers
-???.
+This filter does not require any request headers.
 
 === Required Preceding Filters
-???.
+While this filter doesn't require any preceding filter, it's headers are added to any existing values.
+If you desire to only get the new values you should use the <<header-normalization.adoc, header normalization filter>>.
 
 === Request Headers Created
-???.
+This filter will create whatever headers you configure it to.
 
 === Request Body Changes
-???.
+This filter does not make any changes to the request body.
 
 === Recommended Follow-On (Succeeding) Filters
-???.
+There are no recommended follow on filters for this filter.
 
 === Response Body Changes
-???.
+This filter has zero interactions with the response.
 
 === Response Headers Created
-???.
+This filter has zero interactions with the response.
 
 === Response Status Codes
-???.
+This filter has zero interactions with the response.
 
 == Examples
-=== Shows how to ???
-This configuration will ???.
+This configuration will exercise all the options available in this filter.
 
 [source,xml]
-.???.cfg.xml
+.url-extractor-to-header.cfg.xml
 ----
-<??? xmlns="http://docs.openrepose.org/repose/???/v1.0">
-    <???> <!--1-->
-    </???>
-</???>
+<url-extractor-to-header xmlns="http://docs.openrepose.org/repose/url-extractor-to-header/v1.0">
+    <extraction header="X-Device-Id" <!--1-->
+        url-regex=".*/(hybrid:\d+)/entities/.+" <!--2-->
+        default=""/> <!--3-->
+
+    <extraction header="X-Server-Id" url-regex=".*/servers/([^/]+).*"/> <!--4-->
+
+    <extraction header="X-Filter-Param" url-regex=".*\?.*filter=([^&amp;]+).*" default="none"/> <!--5-->
+</url-extractor-to-header>
 ----
-<1> Specifies ???.
+<1> The name of the header to populate.
+<2> The regex to evaluate against the request url. +
+    The capture group is required and is the value that will be placed in the header. +
++
+[NOTE]
+====
+Only the first capture group will be populated into the header.
+====
+<3> The default value that should be used if the regex misses, in this case it will add an empty value to the header.
+<4> This example lacks a default, so any regex misses will fo nothing.
+<5> The default here will add a value of `none` if the regex fails to capture something.
+
 
 == Additional Information
-*Remove this section if not needed.*
+The regexes used in this filter are backed by a java implementation.
+You can learn more https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[here].
