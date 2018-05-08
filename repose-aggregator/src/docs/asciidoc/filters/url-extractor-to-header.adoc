@@ -51,7 +51,7 @@ This configuration will exercise all the options available in this filter.
 ----
 <1> The name of the header to populate.
 <2> The regex to evaluate against the request url. +
-    The capture group is required and is the value that will be placed in the header.
+    The capture group is required and is the value that will be placed in the header. +
 +
 [NOTE]
 ====
