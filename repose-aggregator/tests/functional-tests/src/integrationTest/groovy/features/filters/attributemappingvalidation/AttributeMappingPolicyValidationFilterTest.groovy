@@ -492,7 +492,8 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
         mc.handlings.size() == 0
-        reposeLogSearch.searchByString("Inline functions are not allowed in a policy path").size() == 2
+        reposeLogSearch.searchByString("Inline Functions are not allowed!").size() == 1
+        reposeLogSearch.searchByString("Failed to validate attribute mapping policy in request").size() == 1
     }
 
     def "should fail to validate XML with a recursive function"() {
@@ -525,7 +526,8 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
         mc.handlings.size() == 0
-        reposeLogSearch.searchByString("Inline functions are not allowed in a policy path").size() == 2
+        reposeLogSearch.searchByString("Inline Functions are not allowed!").size() == 1
+        reposeLogSearch.searchByString("Failed to validate attribute mapping policy in request").size() == 1
     }
 
     def "should validate JSON with a map function"() {
