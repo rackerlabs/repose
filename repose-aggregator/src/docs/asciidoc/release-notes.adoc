@@ -7,6 +7,7 @@
 * https://repose.atlassian.net/browse/REP-6839[REP-6839] - Updated dependencies:
 ** Attribute Mapper: 2.2.1 → 2.3.0
 *** https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-2.3.0/RELEASE.md[Attribute Mapper v2.3.0 release notes]
+* https://repose.atlassian.net/browse/REP-6858[REP-6858] - Updated Log4j to a version that allows setting of file permissions
 
 == 8.8.4.0 (2018-04-23)
 * https://repose.atlassian.net/browse/REP-6674[REP-6674] - Minor internal update to increase logging performance.
