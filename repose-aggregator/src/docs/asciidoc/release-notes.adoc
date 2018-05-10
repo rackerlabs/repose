@@ -1,12 +1,11 @@
 = Release Notes
 
 == In Progress
-* https://repose.atlassian.net/browse/REP-6862[REP-6862] - Updated dependencies:
+* https://repose.atlassian.net/browse/REP-6862[REP-6862], https://repose.atlassian.net/browse/REP-6839[REP-6839], https://repose.atlassian.net/browse/REP-6920[REP-6920] - Updated dependencies:
+** Attribute Mapper: 2.2.1 → 3.0.0
+*** https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-3.0.0/RELEASE.md[Attribute Mapper v3.0.0 release notes]
 ** Jaeger Core: 0.24.0 → 0.27.0
 *** https://github.com/jaegertracing/jaeger-client-java/blob/master/CHANGELOG.rst#0270-2018-04-18[Jaeger Client Java v0.27.0 change log]
-* https://repose.atlassian.net/browse/REP-6839[REP-6839] - Updated dependencies:
-** Attribute Mapper: 2.2.1 → 2.3.0
-*** https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-2.3.0/RELEASE.md[Attribute Mapper v2.3.0 release notes]
 * https://repose.atlassian.net/browse/REP-6858[REP-6858] - Updated Log4j to a version that allows setting of file permissions
 
 == 8.8.4.0 (2018-04-23)
