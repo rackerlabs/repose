@@ -1,4 +1,5 @@
 ---
+# todo: add repose version to the rootPrefix in this configuration, and parse it on the InfluxDB side of things
 - name: Set templatized Telegraf configuration
   template:
     src: influxdb.json.j2
