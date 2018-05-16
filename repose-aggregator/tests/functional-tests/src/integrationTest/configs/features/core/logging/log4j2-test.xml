@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Configuration packages="org.apache.logging.log4j.flume.appender">
+    <Appenders>
+        <File name="FileAppender"
+              fileName="${repose.log.name}"
+              fileOwner="${logFileOwner}"
+              filePermissions="${logFilePerms}"
+              immediateFlush="true">
+            <PatternLayout>
+                <Pattern>%d %-4r [%t] %-5p %c - %m%n</Pattern>
+            </PatternLayout>
+        </File>
+    </Appenders>
+
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="FileAppender"/>
+        </Root>
+    </Loggers>
+</Configuration>
