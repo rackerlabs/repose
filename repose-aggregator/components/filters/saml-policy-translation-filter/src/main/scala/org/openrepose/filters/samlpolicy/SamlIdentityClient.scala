@@ -212,7 +212,7 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
           case SC_OK =>
             Try {
               val contentTypeHeader = serviceClientResponse.getHeaders
-                .find(hdr => HttpHeaders.CONTENT_TYPE.matches(hdr.getName))
+                .find(hdr => HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(hdr.getName))
                 .map(_.getElements.head)
               val responseEncoding = contentTypeHeader
                 .map(_.getParameterByName("charset"))
