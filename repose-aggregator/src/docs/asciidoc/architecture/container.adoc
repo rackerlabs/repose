@@ -120,10 +120,10 @@ There are two steps to supply a logging configuration for *Repose*:
 == Default Logging Configuration
 If a user-supplied logging configuration file is not found, *Repose* programmatically sets default log4j properties.
 This default properties add a
-http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/ConsoleAppender.html[ConsoleAppender]
+https://logging.apache.org/log4j/2.x/manual/appenders.html#ConsoleAppender[ConsoleAppender]
 to the ROOT logger.
 The output will be formatted using a
-http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/PatternLayout.html[PatternLayout]
+https://logging.apache.org/log4j/2.x/manual/layouts.html#PatternLayout[PatternLayout]
 set to the pattern `%d %-4r [%t] %-5p %c - %m%n`.
 The default log level is set to DEBUG.
 
