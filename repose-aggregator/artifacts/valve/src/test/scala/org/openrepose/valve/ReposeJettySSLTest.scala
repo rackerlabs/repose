@@ -309,12 +309,8 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
     repose.start()
     try {
       //All the TLS ciphers should not work
-      val tlsCiphers = defaultEnabledCiphers.collect {
-        case s if s.matches(".*TLS.*") => s
-      }
-      val sslCiphers = defaultEnabledCiphers.collect {
-        case s if s.matches(".*SSL.*") => s
-      }
+      val tlsCiphers = allCiphers.filter(_.matches(".*TLS.*"))
+      val sslCiphers = allCiphers.filter(_.matches(".*SSL.*"))
       intercept[SSLHandshakeException] {
         selectiveRequest(ciphers = tlsCiphers.toArray)
       }
@@ -338,12 +334,8 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
     repose.start()
     try {
       //All the TLS ciphers should not work
-      val tlsCiphers = defaultEnabledCiphers.collect {
-        case s if s.matches(".*TLS.*") => s
-      }
-      val sslCiphers = defaultEnabledCiphers.collect {
-        case s if s.matches(".*SSL.*") => s
-      }
+      val tlsCiphers = allCiphers.filter(_.matches(".*TLS.*"))
+      val sslCiphers = allCiphers.filter(_.matches(".*SSL.*"))
       intercept[SSLHandshakeException] {
         selectiveRequest(ciphers = tlsCiphers.toArray)
       }
