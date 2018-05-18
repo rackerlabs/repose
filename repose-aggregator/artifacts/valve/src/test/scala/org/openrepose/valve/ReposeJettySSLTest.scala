@@ -302,19 +302,18 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "node",
       None,
       httpsPort,
-      sslConfig(excludedCiphers = List(".*TLS.*")),
+      sslConfig(excludedCiphers = List(".*TLS.*128.*")),
       None,
       None
     )
     repose.start()
     try {
-      //All the TLS ciphers should not work
-      val tlsCiphers = allCiphers.filter(_.matches(".*TLS.*"))
-      val sslCiphers = allCiphers.filter(_.matches(".*SSL.*"))
+      val excludedCiphers = defaultEnabledCiphers.filter(_.matches(".*TLS.*128.*"))
+      val includedCiphers = defaultEnabledCiphers.toSet.diff(excludedCiphers.toSet)
       intercept[SSLHandshakeException] {
-        selectiveRequest(ciphers = tlsCiphers.toArray)
+        selectiveRequest(ciphers = excludedCiphers.toArray)
       }
-      selectiveRequest(ciphers = sslCiphers.toArray)
+      selectiveRequest(ciphers = includedCiphers.toArray)
     } finally {
       repose.shutdown()
     }
@@ -327,19 +326,18 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "node",
       None,
       httpsPort,
-      sslConfig(includedCiphers = List(".*SSL.*")),
+      sslConfig(includedCiphers = List(".*TLS.*128.*")),
       None,
       None
     )
     repose.start()
     try {
-      //All the TLS ciphers should not work
-      val tlsCiphers = allCiphers.filter(_.matches(".*TLS.*"))
-      val sslCiphers = allCiphers.filter(_.matches(".*SSL.*"))
+      val includedCiphers = defaultEnabledCiphers.filter(_.matches(".*TLS.*128.*"))
+      val excludedCiphers = defaultEnabledCiphers.toSet.diff(includedCiphers.toSet)
       intercept[SSLHandshakeException] {
-        selectiveRequest(ciphers = tlsCiphers.toArray)
+        selectiveRequest(ciphers = excludedCiphers.toArray)
       }
-      selectiveRequest(ciphers = sslCiphers.toArray)
+      selectiveRequest(ciphers = includedCiphers.toArray)
     } finally {
       repose.shutdown()
     }
