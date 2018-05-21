@@ -23,7 +23,7 @@
 <repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
     <deployment-config>
         <deployment-directory auto-clean="true">
-            ${repose.home}
+            ${repose.home}/deployments
         </deployment-directory>
         <artifact-directory check-interval="1000">
             ${repose.home}/artifacts
