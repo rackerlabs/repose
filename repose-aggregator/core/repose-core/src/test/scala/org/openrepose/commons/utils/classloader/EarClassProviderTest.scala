@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,9 +22,11 @@ package org.openrepose.commons.utils.classloader
 import java.io.{File, FileOutputStream, IOException}
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{FileVisitResult, Files, Path, SimpleFileVisitor}
-import javax.servlet.Filter
 
+import com.google.common.hash.Hashing
+import com.google.common.io.{Files => GuavaFiles}
 import com.typesafe.config.ConfigFactory
+import javax.servlet.Filter
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.apache.logging.log4j.{Level, LogManager}
@@ -110,6 +112,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
       p.getClassLoader()
 
       root.listFiles.toList shouldNot be(empty)
+      p.outputDir.getName shouldEqual GuavaFiles.hash(earFile, Hashing.murmur3_32).toString
 
       val files = p.outputDir.listFiles.toList
 

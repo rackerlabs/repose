@@ -37,6 +37,7 @@ dependencies {
     compile "org.apache.logging.log4j:log4j-slf4j-impl"
     compile "org.apache.logging.log4j:log4j-jul"
     compile "org.scala-lang:scala-library"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "xerces:xerces-xsd11"
     compile "org.apache.httpcomponents:httpclient"
     compile "org.apache.httpcomponents:httpcore"

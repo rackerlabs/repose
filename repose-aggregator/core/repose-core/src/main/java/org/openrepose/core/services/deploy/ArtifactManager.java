@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,15 +19,16 @@
  */
 package org.openrepose.core.services.deploy;
 
+import org.apache.commons.io.FileUtils;
 import org.openrepose.commons.utils.classloader.*;
 import org.openrepose.commons.utils.thread.DestroyableThreadWrapper;
 import org.openrepose.core.container.config.ContainerConfiguration;
 import org.openrepose.core.services.classloader.ClassLoaderManagerService;
 import org.openrepose.core.services.config.ConfigurationService;
-import org.openrepose.core.services.event.PowerFilterEvent;
 import org.openrepose.core.services.event.Event;
 import org.openrepose.core.services.event.EventListener;
 import org.openrepose.core.services.event.EventService;
+import org.openrepose.core.services.event.PowerFilterEvent;
 import org.openrepose.core.services.event.listener.SingleFireEventListener;
 import org.openrepose.core.services.threading.ThreadingService;
 import org.slf4j.Logger;
@@ -38,6 +39,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,7 +57,6 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
     private final ConfigurationService configurationService;
     private final ThreadingService threadingService;
     private final ConcurrentHashMap<String, String> artifactApplicationNames = new ConcurrentHashMap<>();
-    private final String unpackPrefix = UUID.randomUUID().toString();
     private final ConcurrentHashMap<String, EarClassLoaderContext> classLoaderContextMap = new ConcurrentHashMap<>();
     private ContainerConfigurationListener containerConfigurationListener;
     private DestroyableThreadWrapper watcherThread;
@@ -104,25 +105,20 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
             eventService.squelch(this, ApplicationArtifactEvent.class);
 
             if (containerConfigurationListener.isAutoClean()) {
-                File deployDir = new File(containerConfigurationListener.getDeploymentDirectory(), unpackPrefix);
+                File deployDir = containerConfigurationListener.getDeploymentDirectory();
                 LOG.debug("CLEANING container deployment directory: {}", deployDir.getAbsolutePath());
-                delete(deployDir);
+                // Note: If multiple Repose processes are running and using the same deployment directory, then
+                // Note: we may delete artifact directories that are in-use by other Repose processes.
+                // Note: In the past, we avoided this by creating a parent directory for the artifacts directory which
+                // Note: was named a UUID representing a Repose process.
+                // Note: We moved away from that approach to minimize and simplify our artifact deployment, and to
+                // Note: enable re-use of deployed artifacts between sequential (i.e., non-concurrent) Repose runs.
+                FileUtils.cleanDirectory(deployDir);
             }
+        } catch (IOException ioe) {
+            LOG.warn("Failure to clean deployment directory on Repose shutdown", ioe);
         } finally {
             watcherThread.destroy();
-        }
-    }
-
-    //TODO: Replace with the java7 recursive delete logic that doesn't suck
-    private void delete(File file) {
-        if (file.isDirectory()) {
-            for (File c : file.listFiles()) {
-                delete(c);
-            }
-        }
-
-        if (!file.delete()) {
-            LOG.warn("Failure to delete file " + file.getName() + " on repose shutdown.");
         }
     }
 
@@ -191,7 +187,7 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
 
         try {
             //Make sure we have a location to deploy to -- Within our deploy root, derp
-            File unpackRoot = new File(containerConfigurationListener.getDeploymentDirectory(), unpackPrefix);
+            File unpackRoot = containerConfigurationListener.getDeploymentDirectory();
 
             unpackRoot.mkdirs(); //Make the unpack root and then validate it
             //NOTE: this guy throws all sorts of runtime exceptions :(
