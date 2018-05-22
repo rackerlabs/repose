@@ -69,8 +69,8 @@ class AttributeMappingPolicyValidationFilter extends Filter with StrictLogging {
             httpServletResponse.sendError(
               SC_UNSUPPORTED_MEDIA_TYPE,
               ucte.message)
-          case e@(_: AttributeMapperException) =>
-            logger.debug("Validation failed", e)
+          case ame: AttributeMapperException =>
+            logger.debug("Validation failed", ame)
             httpServletResponse.sendError(
               SC_BAD_REQUEST,
               "Failed to validate attribute mapping policy in request")
