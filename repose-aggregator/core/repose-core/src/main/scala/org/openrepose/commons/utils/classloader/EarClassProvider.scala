@@ -23,16 +23,13 @@ import java.io.{File, FileInputStream, FileOutputStream, IOException}
 import java.net.{URL, URLClassLoader}
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{FileVisitResult, Files, Path, SimpleFileVisitor}
-import java.util.UUID
 import java.util.zip.{ZipFile, ZipInputStream}
 
-import com.google.common.hash.Hashing
-import com.google.common.io.{Files => GuavaFiles}
 import com.oracle.javaee6.{ApplicationType, FilterType, ObjectFactory, WebFragmentType}
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.xml.bind.JAXBContext
 import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
 import org.openrepose.commons.config.resource.impl.BufferedURLConfigurationResource
+import org.slf4j.LoggerFactory
 
 import scala.collection.mutable
 
@@ -41,7 +38,7 @@ object EarClassProvider {
   val jaxbContext = JAXBContext.newInstance(classOf[ObjectFactory])
 }
 
-class EarClassProvider(earFile: File, unpackRoot: File) extends StrictLogging {
+class EarClassProvider(earFile: File, val outputDir: File) {
   /**
    * Calls unpack, and gets you a new classloader for all the items in this ear file
    */
@@ -116,7 +113,7 @@ class EarClassProvider(earFile: File, unpackRoot: File) extends StrictLogging {
 
     new EarDescriptor(appName, filterMap)
   }
-  val outputDir = new File(unpackRoot, hashFile(earFile))
+  val log = LoggerFactory.getLogger(classOf[EarClassProvider])
 
   @throws(classOf[EarProcessingException])
   def getClassLoader(): ClassLoader = {
@@ -155,18 +152,8 @@ class EarClassProvider(earFile: File, unpackRoot: File) extends StrictLogging {
       zis.close()
     } catch {
       case e: Exception =>
-        logger.warn("Error during ear extraction! Partial extraction at {}", outputDir.getAbsolutePath)
+        log.warn("Error during ear extraction! Partial extraction at {}", outputDir.getAbsolutePath)
         throw new EarProcessingException("Unable to fully extract file", e);
-    }
-  }
-
-  private def hashFile(file: File): String = {
-    try {
-      GuavaFiles.hash(file, Hashing.murmur3_128).toString
-    } catch {
-      case ioe: IOException =>
-        logger.error("Falling back to UUID due to failure to hash: {}", file.getAbsolutePath, ioe)
-        UUID.randomUUID.toString
     }
   }
 }
