@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -225,38 +225,39 @@ class EarClassProviderTest extends FunSpec with Matchers {
   }
 
   it("multiple ear files don't share classes") {
-    withTempDir { root =>
-      val p1 = new EarClassProvider(earFile, root)
+    withTempDir { outputDir1 =>
+      withTempDir { outputDir2 =>
+        val p1 = new EarClassProvider(earFile, outputDir1)
 
-      //Second ear file
-      val ear2 = getEarFile("second-filter-bundle")
+        //Second ear file
+        val ear2 = getEarFile("second-filter-bundle")
 
-      val p2 = new EarClassProvider(ear2, root)
+        val p2 = new EarClassProvider(ear2, outputDir2)
 
-      val ear1Class = "org.openrepose.filters.core.test.TestFilter"
-      val ear2Class = "org.openrepose.filters.second.SecondFilter"
+        val ear1Class = "org.openrepose.filters.core.test.TestFilter"
+        val ear2Class = "org.openrepose.filters.second.SecondFilter"
 
-      intercept[ClassNotFoundException] {
-        Class.forName(ear1Class)
+        intercept[ClassNotFoundException] {
+          Class.forName(ear1Class)
+        }
+        intercept[ClassNotFoundException] {
+          Class.forName(ear2Class)
+        }
+
+        val class1 = p1.getClassLoader().loadClass(ear1Class)
+        class1.getName shouldBe ear1Class
+
+        intercept[ClassNotFoundException] {
+          p2.getClassLoader().loadClass(ear1Class)
+        }
+
+        val class2 = p2.getClassLoader().loadClass(ear2Class)
+        class2.getName shouldBe ear2Class
+
+        intercept[ClassNotFoundException] {
+          p1.getClassLoader().loadClass(ear2Class)
+        }
       }
-      intercept[ClassNotFoundException] {
-        Class.forName(ear2Class)
-      }
-
-      val class1 = p1.getClassLoader().loadClass(ear1Class)
-      class1.getName shouldBe ear1Class
-
-      intercept[ClassNotFoundException] {
-        p2.getClassLoader().loadClass(ear1Class)
-      }
-
-      val class2 = p2.getClassLoader().loadClass(ear2Class)
-      class2.getName shouldBe ear2Class
-
-      intercept[ClassNotFoundException] {
-        p1.getClassLoader().loadClass(ear2Class)
-      }
-
     }
   }
 
