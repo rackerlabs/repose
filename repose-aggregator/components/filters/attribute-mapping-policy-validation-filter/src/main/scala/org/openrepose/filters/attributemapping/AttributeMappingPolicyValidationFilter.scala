@@ -20,17 +20,14 @@
 package org.openrepose.filters.attributemapping
 
 import java.io.{BufferedInputStream, InputStream}
+
+import com.rackspace.identity.components.{AttributeMapper, AttributeMapperException, XSDEngine}
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.inject.Named
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse.{SC_BAD_REQUEST, SC_UNSUPPORTED_MEDIA_TYPE}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.xml.transform.TransformerException
 import javax.xml.transform.stream.StreamSource
-
-import com.fasterxml.jackson.core.{JsonParseException, JsonProcessingException}
-import com.rackspace.identity.components.{AttributeMapper, XSDEngine}
-import com.typesafe.scalalogging.slf4j.StrictLogging
-import net.sf.saxon.s9api.SaxonApiException
 import org.apache.commons.io.input.CloseShieldInputStream
 import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
@@ -62,8 +59,8 @@ class AttributeMappingPolicyValidationFilter extends Filter with StrictLogging {
             httpServletRequest,
             normalizedPolicyInputStream),
           response)
-      case Failure(exception) =>
-        exception match {
+      case Failure(throwable) =>
+        throwable match {
           case uhme: UnsupportedHttpMethodException =>
             logger.debug("Unsupported HTTP method -- no validation performed", uhme)
             chain.doFilter(request, response)
@@ -72,11 +69,14 @@ class AttributeMappingPolicyValidationFilter extends Filter with StrictLogging {
             httpServletResponse.sendError(
               SC_UNSUPPORTED_MEDIA_TYPE,
               ucte.message)
-          case e@(_: SaxonApiException | _: TransformerException | _: JsonProcessingException | _: JsonParseException) =>
-            logger.debug("Validation failed", e)
+          case ame: AttributeMapperException =>
+            logger.debug("Validation failed", ame)
             httpServletResponse.sendError(
               SC_BAD_REQUEST,
               "Failed to validate attribute mapping policy in request")
+          case t =>
+            logger.error("An unexpected error has occurred", t)
+            throw t
         }
     }
   }

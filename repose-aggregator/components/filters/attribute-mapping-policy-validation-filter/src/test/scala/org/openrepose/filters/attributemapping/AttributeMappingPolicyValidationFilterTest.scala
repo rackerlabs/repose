@@ -20,17 +20,15 @@
 package org.openrepose.filters.attributemapping
 
 import java.io.ByteArrayInputStream
+
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE
-import javax.xml.transform.stream.StreamSource
-
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.http.MediaType
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 
-import scala.io.Source
 import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])

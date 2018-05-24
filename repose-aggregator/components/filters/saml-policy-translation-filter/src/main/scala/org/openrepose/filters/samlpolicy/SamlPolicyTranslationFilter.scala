@@ -26,6 +26,13 @@ import java.security._
 import java.security.cert.X509Certificate
 import java.util.concurrent.{Callable, TimeUnit, TimeoutException}
 import java.util.{Base64, Collections}
+
+import com.fasterxml.jackson.core.{JsonGenerator, JsonProcessingException}
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.google.common.cache.{Cache, CacheBuilder}
+import com.rackspace.com.papi.components.checker.util.{ImmutableNamespaceContext, XMLParserPool, XPathExpressionPool}
+import com.rackspace.identity.components._
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
@@ -39,18 +46,11 @@ import javax.xml.crypto.dsig.keyinfo.KeyInfo
 import javax.xml.crypto.dsig.spec.{C14NMethodParameterSpec, TransformParameterSpec}
 import javax.xml.namespace.NamespaceContext
 import javax.xml.parsers.{DocumentBuilder, DocumentBuilderFactory}
+import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.{StreamResult, StreamSource}
-import javax.xml.transform.{TransformerException, TransformerFactory}
 import javax.xml.xpath.{XPathConstants, XPathExpression}
-
-import com.fasterxml.jackson.core.{JsonGenerator, JsonProcessingException}
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.common.cache.{Cache, CacheBuilder}
-import com.rackspace.com.papi.components.checker.util.{ImmutableNamespaceContext, XMLParserPool, XPathExpressionPool}
-import com.rackspace.identity.components.{AttributeMapper, PolicyFormat, XSDEngine}
-import com.typesafe.scalalogging.slf4j.StrictLogging
-import net.sf.saxon.s9api.{SaxonApiException, XsltExecutable}
+import net.sf.saxon.s9api.XsltExecutable
 import org.openrepose.commons.config.manager.{UpdateFailedException, UpdateListener}
 import org.openrepose.commons.utils.http.CommonHttpHeader.TRACE_GUID
 import org.openrepose.commons.utils.io.{BufferedServletInputStream, FileUtilities}
@@ -364,12 +364,12 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
         validate = true,
         XSDEngine.AUTO.toString))
     } recover {
-      case e@(_: SaxonApiException | _: TransformerException) =>
+      case e: ParseException =>
+        throw SamlPolicyException(SC_BAD_GATEWAY, "Failed parsing the policy", e)
+      case e: AttributeMapperException =>
         throw SamlPolicyException(SC_BAD_GATEWAY, "Failed to generate the policy transformation", e)
       case e: UnsupportedPolicyFormatException =>
         throw SamlPolicyException(SC_BAD_GATEWAY, e.getMessage)
-      case e: JsonProcessingException =>
-        throw SamlPolicyException(SC_BAD_GATEWAY, "Failed parsing the policy as JSON", e)
       case e: UnexpectedStatusCodeException if e.statusCode == SC_NOT_FOUND =>
         throw SamlPolicyException(SC_UNAUTHORIZED, "Policy not found", e)
       case e: UnexpectedStatusCodeException if e.statusCode >= 500 && e.statusCode < 600 =>
@@ -392,7 +392,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
       val domainMap = if (policy.domains.length == 1) Map("domain" -> policy.domains.head) else Map.empty[String, String]
       AttributeMapper.convertAssertion(policy.translation, document, domainMap)
     } catch {
-      case e@(_: SaxonApiException | _: TransformerException) =>
+      case e: AttributeMapperException =>
         throw SamlPolicyException(SC_BAD_REQUEST, "Failed to translate the SAML Response", e)
     }
   }
@@ -474,13 +474,11 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
           mapper.getFactory.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true)
           Option(new ByteArrayInputStream(mapper.writeValueAsBytes(destination)))
         } catch {
-          case jpe: JsonProcessingException =>
-            throw SamlPolicyException(SC_BAD_GATEWAY, "Origin service provided bad response", jpe)
+          case e@(_: AttributeMapperException | _: JsonProcessingException) =>
+            throw SamlPolicyException(SC_BAD_GATEWAY, "Origin service provided bad response", e)
         }
       case xml if xml.contains("xml") =>
-        var docBuilder: Option[DocumentBuilder] = None
         try {
-          docBuilder = Option(XMLParserPool.borrowParser)
           val destination = AttributeMapper.addExtendedAttributes(
             new StreamSource(response.getOutputStreamAsInputStream),
             translatedSamlResponse,
@@ -488,10 +486,8 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
             XSDEngine.AUTO.toString)
           Option(convertDocumentToStream(destination))
         } catch {
-          case se@(_: SAXException | _: SaxonApiException) =>
-            throw SamlPolicyException(SC_BAD_GATEWAY, "Origin service provided bad response", se)
-        } finally {
-          docBuilder.foreach(XMLParserPool.returnParser)
+          case ame: AttributeMapperException =>
+            throw SamlPolicyException(SC_BAD_GATEWAY, "Origin service provided bad response", ame)
         }
       case _ =>
         throw SamlPolicyException(SC_BAD_GATEWAY, "Origin service provided bad response")
