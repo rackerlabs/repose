@@ -83,7 +83,19 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         mc.receivedResponse.code.toInteger() == SC_UNSUPPORTED_MEDIA_TYPE
 
         where:
-        contentType << [TEXT_XML, APPLICATION_ATOM_XML, TEXT_PLAIN, APPLICATION_JSON]
+        contentType << [TEXT_HTML, APPLICATION_OCTET_STREAM, TEXT_PLAIN, MULTIPART_FORM_DATA]
+    }
+
+    @Unroll
+    def "#contentType should be rejected with a 400"() {
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": contentType], requestBody: "Lorem ipsum")
+
+        then:
+        mc.receivedResponse.code.toInteger() == SC_BAD_REQUEST
+
+        where:
+        contentType << [TEXT_XML, APPLICATION_ATOM_XML, APPLICATION_JSON, APPLICATION_XHTML_XML]
     }
 
     def "should validate correct XML"() {
