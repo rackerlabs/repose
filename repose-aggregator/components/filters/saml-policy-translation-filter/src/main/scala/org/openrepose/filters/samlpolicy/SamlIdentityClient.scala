@@ -22,10 +22,10 @@ package org.openrepose.filters.samlpolicy
 import java.nio.charset.StandardCharsets
 import java.time.format.DateTimeFormatter
 import java.time.{ZoneId, ZonedDateTime}
+
 import javax.inject.{Inject, Named}
 import javax.servlet.http.HttpServletResponse.{SC_OK, SC_REQUEST_ENTITY_TOO_LARGE, SC_UNAUTHORIZED}
 import javax.ws.rs.core.{HttpHeaders, MediaType}
-
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.springframework.web.util.UriUtils
@@ -85,7 +85,7 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
     *
     * @param username the username on the account
     * @param password the password on the account
-    * @param traceId an optional identifier to be sent with the request
+    * @param traceId  an optional identifier to be sent with the request
     * @return the token if successful, or a failure if unsuccessful
     */
   def getToken(username: String, password: String, traceId: Option[String]): Try[String] = {
@@ -112,9 +112,8 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
         serviceClientResponse.getStatus match {
           case SC_OK =>
             Try {
-              val responseEncoding = serviceClientResponse.getHeaders
-                .find(hdr => HttpHeaders.CONTENT_TYPE.matches(hdr.getName))
-                .map(_.getElements.head.getParameterByName("charset"))
+              val responseEncoding = serviceClientResponse.getHeaderElements(HttpHeaders.CONTENT_TYPE).asScala.headOption
+                .map(_.getParameterByName("charset"))
                 .flatMap(Option.apply)
                 .map(_.getValue)
                 .getOrElse(StandardCharsets.ISO_8859_1.name())
@@ -138,8 +137,8 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
   /**
     * Retrieves a IDP-ID from Identity that will be used to fetch the policy.
     *
-    * @param issuer the issuer associated with the Identity provider
-    * @param traceId an optional identifier to be sent with the request
+    * @param issuer     the issuer associated with the Identity provider
+    * @param traceId    an optional identifier to be sent with the request
     * @param checkCache whether or not to use the HTTP request cache
     * @return the IDP ID if successful, or a failure if unsuccessful
     */
@@ -159,9 +158,8 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
         serviceClientResponse.getStatus match {
           case SC_OK =>
             Try {
-              val responseEncoding = serviceClientResponse.getHeaders
-                .find(hdr => HttpHeaders.CONTENT_TYPE.matches(hdr.getName))
-                .map(_.getElements.head.getParameterByName("charset"))
+              val responseEncoding = serviceClientResponse.getHeaderElements(HttpHeaders.CONTENT_TYPE).asScala.headOption
+                .map(_.getParameterByName("charset"))
                 .flatMap(Option.apply)
                 .map(_.getValue)
                 .getOrElse(StandardCharsets.ISO_8859_1.name())
@@ -190,8 +188,8 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
   /**
     * Retrieves a policy from Identity that will be used during SAMLResponse translation.
     *
-    * @param token the token to be sent with the request, used in authorization
-    * @param traceId an optional identifier to be sent with the request
+    * @param token      the token to be sent with the request, used in authorization
+    * @param traceId    an optional identifier to be sent with the request
     * @param checkCache whether or not to use the HTTP request cache
     * @return the policy if successful, or a failure if unsuccessful
     */
@@ -211,12 +209,10 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
         serviceClientResponse.getStatus match {
           case SC_OK =>
             Try {
-              val contentTypeHeader = serviceClientResponse.getHeaders
-                .find(hdr => HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(hdr.getName))
-                .map(_.getElements.head)
+              val contentTypeHeader = serviceClientResponse.getHeaderElements(HttpHeaders.CONTENT_TYPE).asScala.headOption
               val responseEncoding = contentTypeHeader
                 .map(_.getParameterByName("charset"))
-                .flatMap(Option.apply)
+                .flatMap(Option.apply) // Gets rid of any nulls
                 .map(_.getValue)
                 .getOrElse(StandardCharsets.ISO_8859_1.name())
               Policy(
@@ -254,8 +250,7 @@ object SamlIdentityClient {
     (idpId: String) => s"/v2.0/RAX-AUTH/federation/identity-providers/$idpId/mapping"
 
   def buildRetryValue(response: ServiceClientResponse): String = {
-    response.getHeaders
-      .find(hdr => HttpHeaders.RETRY_AFTER.matches(hdr.getName))
+    response.getHeaderElements(HttpHeaders.RETRY_AFTER).asScala.headOption
       .map(_.getValue)
       .getOrElse(DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now(ZoneId.of("GMT")).plusSeconds(5)))
   }
