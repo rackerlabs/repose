@@ -27,6 +27,7 @@ dependencies {
     integrationTestCompile "org.opensaml:opensaml-core"
     integrationTestCompile "org.xmlunit:xmlunit-legacy"
     integrationTestCompile "org.yaml:snakeyaml"
+    integrationTestCompile "com.google.guava:guava"
 
     integrationTestRunnable project(path: ":repose-aggregator:artifacts:valve", configuration: "fatJar")
     integrationTestRunnable project(path: ":repose-aggregator:artifacts:repose-lint", configuration: "fatJar")

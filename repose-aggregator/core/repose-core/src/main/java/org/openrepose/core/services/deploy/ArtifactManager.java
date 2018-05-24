@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,15 +19,17 @@
  */
 package org.openrepose.core.services.deploy;
 
+import com.google.common.hash.Hashing;
+import org.apache.commons.io.FileUtils;
 import org.openrepose.commons.utils.classloader.*;
 import org.openrepose.commons.utils.thread.DestroyableThreadWrapper;
 import org.openrepose.core.container.config.ContainerConfiguration;
 import org.openrepose.core.services.classloader.ClassLoaderManagerService;
 import org.openrepose.core.services.config.ConfigurationService;
-import org.openrepose.core.services.event.PowerFilterEvent;
 import org.openrepose.core.services.event.Event;
 import org.openrepose.core.services.event.EventListener;
 import org.openrepose.core.services.event.EventService;
+import org.openrepose.core.services.event.PowerFilterEvent;
 import org.openrepose.core.services.event.listener.SingleFireEventListener;
 import org.openrepose.core.services.threading.ThreadingService;
 import org.slf4j.Logger;
@@ -38,9 +40,13 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.google.common.io.Files.hash;
 
 /**
  * This listens for changes to the artifacts, and updates the classloader map
@@ -54,8 +60,8 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
     private final EventService eventService;
     private final ConfigurationService configurationService;
     private final ThreadingService threadingService;
+    private final Set<File> deploymentDirs = new HashSet<>();
     private final ConcurrentHashMap<String, String> artifactApplicationNames = new ConcurrentHashMap<>();
-    private final String unpackPrefix = UUID.randomUUID().toString();
     private final ConcurrentHashMap<String, EarClassLoaderContext> classLoaderContextMap = new ConcurrentHashMap<>();
     private ContainerConfigurationListener containerConfigurationListener;
     private DestroyableThreadWrapper watcherThread;
@@ -104,25 +110,17 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
             eventService.squelch(this, ApplicationArtifactEvent.class);
 
             if (containerConfigurationListener.isAutoClean()) {
-                File deployDir = new File(containerConfigurationListener.getDeploymentDirectory(), unpackPrefix);
-                LOG.debug("CLEANING container deployment directory: {}", deployDir.getAbsolutePath());
-                delete(deployDir);
+                LOG.debug("Cleaning container deployment directory: {}", containerConfigurationListener.getDeploymentDirectory().getAbsolutePath());
+                // Note: If multiple Repose processes are running and using the same deployment directory, then
+                // Note: we may delete artifact directories that are in-use by other Repose processes.
+                // Note: In the past, we avoided this by creating a parent directory for the artifacts directory which
+                // Note: was named a UUID representing a Repose process.
+                // Note: We moved away from that approach to minimize and simplify our artifact deployment, and to
+                // Note: enable re-use of deployed artifacts between sequential (i.e., non-concurrent) Repose runs.
+                deploymentDirs.forEach(ArtifactManager::recursiveDelete);
             }
         } finally {
             watcherThread.destroy();
-        }
-    }
-
-    //TODO: Replace with the java7 recursive delete logic that doesn't suck
-    private void delete(File file) {
-        if (file.isDirectory()) {
-            for (File c : file.listFiles()) {
-                delete(c);
-            }
-        }
-
-        if (!file.delete()) {
-            LOG.warn("Failure to delete file " + file.getName() + " on repose shutdown.");
         }
     }
 
@@ -138,24 +136,32 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
         List<EarClassLoaderContext> contexts = new ArrayList<>();
 
         for (ArtifactDirectoryItem item : artifacts) {
+            File artifact = new File(item.getPath());
+            File deploymentDir = new File(containerConfigurationListener.getDeploymentDirectory(), hashFile(artifact));
             EarClassLoaderContext context = null;
+
             switch (item.getEvent()) {
                 case NEW:
                     LOG.info("New artifact: {}", item.getPath());
-                    context = loadArtifact(item.getPath());
+                    deploymentDirs.add(deploymentDir);
+                    context = loadArtifact(artifact, deploymentDir);
                     break;
 
                 case UPDATED:
                     LOG.info("Artifact updated: {}", item.getPath());
-                    context = loadArtifact(item.getPath());
+                    // todo: if configured to auto-clean, delete the deployment directory
+                    // todo: to prevent build-up during long runs of Repose where artifacts are updated
+                    context = loadArtifact(artifact, deploymentDir);
                     break;
 
                 case DELETED:
                     LOG.info("Artifact deleted: {}", item.getPath());
 
+                    // todo: if configured to auto-clean, delete the deployment directory
+                    // todo: to prevent build-up during long runs of Repose where artifacts are removed
                     //TODO: OPTIMIZATION Only send one event for many deleted items
                     List<String> notificationList = new ArrayList<>(1);
-                    String removedApp = artifactApplicationNames.remove(item.getPath());
+                    String removedApp = artifactApplicationNames.remove(artifact.getAbsolutePath());
                     notificationList.add(removedApp);
 
                     //TODO: remove the app from teh classloader list
@@ -165,7 +171,7 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
                     break;
 
                 default:
-                    LOG.warn("Unexpected event: " + item.getEvent());
+                    LOG.warn("Unexpected event: {}", item.getEvent());
                     break;
             }
             if (context != null) {
@@ -185,19 +191,15 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
         }
     }
 
-    private EarClassLoaderContext loadArtifact(String archivePath) {
-        final File archive = new File(archivePath);
+    private EarClassLoaderContext loadArtifact(File artifact, File deploymentDir) {
         EarClassLoaderContext context = null;
 
         try {
-            //Make sure we have a location to deploy to -- Within our deploy root, derp
-            File unpackRoot = new File(containerConfigurationListener.getDeploymentDirectory(), unpackPrefix);
-
-            unpackRoot.mkdirs(); //Make the unpack root and then validate it
+            deploymentDir.mkdirs();
             //NOTE: this guy throws all sorts of runtime exceptions :(
             containerConfigurationListener.validateDeploymentDirectory();
 
-            EarClassProvider provider = new EarClassProvider(archive, unpackRoot);
+            EarClassProvider provider = new EarClassProvider(artifact, deploymentDir);
             ClassLoader earClassLoader = provider.getClassLoader();
 
             EarDescriptor descriptor = provider.getEarDescriptor();
@@ -205,10 +207,10 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
             context = new ReallySimpleEarClassLoaderContext(descriptor, earClassLoader);
 
             // Associates this artifact with the application name for unlinking later
-            artifactApplicationNames.put(archive.getAbsolutePath(), context.getEarDescriptor().getApplicationName());
+            artifactApplicationNames.put(artifact.getAbsolutePath(), context.getEarDescriptor().getApplicationName());
 
         } catch (EarProcessingException e) {
-            LOG.error("Failure in loading artifact, \"{}\".", archive.getAbsolutePath(), e);
+            LOG.error("Failure in loading artifact, \"{}\".", artifact.getAbsolutePath(), e);
         }
         return context;
     }
@@ -232,5 +234,24 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
     @Override
     public Collection<EarClassLoaderContext> getLoadedApplications() {
         return Collections.unmodifiableCollection(classLoaderContextMap.values());
+    }
+
+    private String hashFile(File file) {
+        try {
+            return hash(file, Hashing.murmur3_128()).toString();
+        } catch (IOException ioe) {
+            LOG.error("Falling back to UUID due to failure to hash: {}", file.getAbsolutePath(), ioe);
+            return UUID.randomUUID().toString();
+        }
+    }
+
+    private static void recursiveDelete(File file) {
+        try {
+            FileUtils.forceDelete(file);
+        } catch (FileNotFoundException fnfe) {
+            // Intentionally ignoring this exception
+        } catch (IOException ioe) {
+            LOG.warn("Failure to clean deployment directory on Repose shutdown", ioe);
+        }
     }
 }

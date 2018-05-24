@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,11 +23,10 @@ import java.io.{File, FileInputStream, FileOutputStream, IOException}
 import java.net.{URL, URLClassLoader}
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{FileVisitResult, Files, Path, SimpleFileVisitor}
-import java.util.UUID
 import java.util.zip.{ZipFile, ZipInputStream}
-import javax.xml.bind.JAXBContext
 
 import com.oracle.javaee6.{ApplicationType, FilterType, ObjectFactory, WebFragmentType}
+import javax.xml.bind.JAXBContext
 import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
 import org.openrepose.commons.config.resource.impl.BufferedURLConfigurationResource
 import org.slf4j.LoggerFactory
@@ -39,7 +38,7 @@ object EarClassProvider {
   val jaxbContext = JAXBContext.newInstance(classOf[ObjectFactory])
 }
 
-class EarClassProvider(earFile: File, unpackRoot: File) {
+class EarClassProvider(earFile: File, val outputDir: File) {
   /**
    * Calls unpack, and gets you a new classloader for all the items in this ear file
    */
@@ -115,7 +114,6 @@ class EarClassProvider(earFile: File, unpackRoot: File) {
     new EarDescriptor(appName, filterMap)
   }
   val log = LoggerFactory.getLogger(classOf[EarClassProvider])
-  val outputDir = new File(unpackRoot, UUID.randomUUID().toString)
 
   @throws(classOf[EarProcessingException])
   def getClassLoader(): ClassLoader = {
