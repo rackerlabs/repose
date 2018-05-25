@@ -128,20 +128,22 @@ class FeedReader(feedURIString: String,
           authenticatedRequestFactory,
           authenticationTimeout)
 
-        val entryStream = order match {
+        val startingStream = getStream
+
+        val truncatedStream = highWaterMark match {
+          case Some(mark) => startingStream.takeWhile(entry => !entry.getId.equals(mark))
+          case None => startingStream
+        }
+
+        val orderedStream = order match {
           case EntryOrderType.READ =>
-            getStream
+            truncatedStream
           case EntryOrderType.REVERSE_READ =>
-            getStream.reverse
+            truncatedStream.reverse
         }
 
         if (firstReadDone) {
-          val newEntryStream = highWaterMark match {
-            case Some(mark) => entryStream.takeWhile(entry => !entry.getId.equals(mark))
-            case None => entryStream
-          }
-
-          newEntryStream foreach { entry =>
+          orderedStream foreach { entry =>
             val entryString = new StringWriter()
             entry.writeTo(entryString)
             // todo: wrap atom entry in type-safe object
@@ -150,7 +152,7 @@ class FeedReader(feedURIString: String,
         }
 
         firstReadDone = true
-        highWaterMark = entryStream.headOption.map(_.getId)
+        highWaterMark = startingStream.headOption.map(_.getId)
       } catch {
         case AuthenticationException(_) =>
           logger.error("Authentication failed -- connection to Atom service could not be established")
