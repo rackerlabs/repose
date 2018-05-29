@@ -807,7 +807,38 @@ class MockIdentityV2Service {
                             }
                         }
                     }
-                } + (values.rules ?: [])
+                }
+                if (values.rules) {
+                    values.rules.each { keyValue ->
+                        keyValue.each { key, value ->
+                            if (value instanceof Map) {
+                                "$key" {
+                                    value.each { subKey, subValue ->
+                                        if (subValue instanceof Map) {
+                                            "$subKey" {
+                                                subValue.each { subSubKey, subSubValue ->
+                                                    if (subSubValue instanceof Collection) {
+                                                        "$subSubKey"(['value': subSubValue.join(', '), 'multiValue': 'true'])
+                                                    } else {
+                                                        "$subSubKey"(['value': subSubValue])
+                                                    }
+                                                }
+                                            }
+                                        } else if (subValue instanceof Collection) {
+                                            "$subKey"(['value': subValue.join(', '), 'multiValue': 'true'])
+                                        } else {
+                                            "$subKey"(['value': subValue])
+                                        }
+                                    }
+                                }
+                            } else if (value instanceof Collection) {
+                                "$key"(['value': value.join(', '), 'multiValue': 'true'])
+                            } else {
+                                "$key"(['value': value])
+                            }
+                        }
+                    }
+                }
             }
         }
 
