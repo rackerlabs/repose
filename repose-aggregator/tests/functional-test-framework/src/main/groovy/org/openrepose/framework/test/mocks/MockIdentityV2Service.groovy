@@ -38,7 +38,8 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import static javax.servlet.http.HttpServletResponse.*
 import static org.openrepose.framework.test.util.saml.SamlUtilities.generateUniqueIdpId
-import static org.springframework.http.MediaType.*
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+import static org.springframework.http.MediaType.APPLICATION_XML_VALUE
 
 /**
  * Created by jennyvo on 6/16/15.
@@ -693,7 +694,7 @@ class MockIdentityV2Service {
                     }
                 } else if (values.defaultMapping) {
                     if (acceptType.equalsIgnoreCase(APPLICATION_XML_VALUE)) {
-                        new Response(SC_OK, null, xmlHeaders, DEFAULT_MAPPING_POLICY_JSON)
+                        new Response(SC_OK, null, xmlHeaders, DEFAULT_MAPPING_POLICY_XML)
                     } else if (acceptType.equalsIgnoreCase(APPLICATION_JSON_VALUE)) {
                         new Response(SC_OK, null, jsonHeaders, DEFAULT_MAPPING_POLICY_JSON)
                     } else {
@@ -757,8 +758,9 @@ class MockIdentityV2Service {
 
     static String createMappingXmlWithValues(Map values = [:]) {
         def xmlWriter = new StringWriter()
-        xmlWriter.append('<?xml version="1.0" encoding="UTF-8"?>\n')
-        new MarkupBuilder(xmlWriter).mapping(
+        def xml = new MarkupBuilder(xmlWriter)
+        xml.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8")
+        xml.mapping(
             xmlns: 'http://docs.rackspace.com/identity/api/ext/MappingRules',
             'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
             'xmlns:xs': 'http://www.w3.org/2001/XMLSchema',
@@ -789,7 +791,13 @@ class MockIdentityV2Service {
                         }
                     }
                     if (values.remote) {
-                        remote values.remote
+                        remote {
+                            values.remote.each { keyValue ->
+                                keyValue.each { key, value ->
+                                    "attribute"("$key": value)
+                                }
+                            }
+                        }
                     }
                 } + (values.rules ?: [])
             }
@@ -1487,6 +1495,32 @@ class MockIdentityV2Service {
 
     static final String DEFAULT_MAPPING_VALUE = "{D}"
 
+    static final String DEFAULT_MAPPING_POLICY_XML = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema"
+         xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+         version="RAX-1">
+   <description>
+      Default mapping policy
+   </description> 
+   <rules>
+      <rule>
+        <local>
+            <user>
+               <domain value="{D}"/>
+               <email value="{D}"/>
+               <groups value="{D}"/>
+               <expire value="{D}"/>
+               <name value="{D}"/>
+               <roles value="{D}"/>
+            </user>
+         </local>
+      </rule>
+   </rules>
+</mapping>
+"""
     static final String DEFAULT_MAPPING_POLICY_JSON = """\
 {
     "mapping": {
