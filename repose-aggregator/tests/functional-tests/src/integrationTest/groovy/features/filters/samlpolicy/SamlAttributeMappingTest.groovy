@@ -455,7 +455,7 @@ class SamlAttributeMappingTest extends ReposeValveTest {
     def "an extended attribute with no value is added to the request/response when added by the #contentType policy"() {
         given: "a mapping policy an extended attribute with no value"
         def extUserAttribName = "foo"
-        def extUserAttribValues = (contentType == APPLICATION_XML) ? "{0}" : ["{0}"]
+        def extUserAttribValues = ["{0}"]
         def remotePath = "()"
         def remoteValue = [[path: remotePath]]
         def mappingPolicy = createMappingWithValues(contentType, [(extUserAttribName): extUserAttribValues], remoteValue)

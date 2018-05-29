@@ -778,14 +778,22 @@ class MockIdentityV2Service {
                             expire(value: values.expire ?: DEFAULT_MAPPING_VALUE)
                             if (values.userExtAttribs) {
                                 values.userExtAttribs.each { key, value ->
-                                    "$key"(['value': value, 'xsi:type': 'LocalAttribute'])
+                                    if (value instanceof Collection) {
+                                        "$key"(['value': value.join(', '), 'xsi:type': 'LocalAttribute', 'multiValue': 'true'])
+                                    } else {
+                                        "$key"(['value': value, 'xsi:type': 'LocalAttribute'])
+                                    }
                                 }
                             }
                         }
                         if (values.local) {
                             group('xsi:type': 'LocalAttributeGroup') {
                                 values.local.each { key, value ->
-                                    "$key"(['value': value, 'xsi:type': 'LocalAttribute'])
+                                    if (value instanceof Collection) {
+                                        "$key"(['value': value.join(', '), 'xsi:type': 'LocalAttribute', 'multiValue': 'true'])
+                                    } else {
+                                        "$key"(['value': value, 'xsi:type': 'LocalAttribute'])
+                                    }
                                 }
                             }
                         }
