@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.{Filter, FilterChain, ServletRequest, ServletResponse}
 import org.openrepose.powerfilter.ReposeFilterChain.FilterContext
 
-class ReposeFilterChain(val filterChain: List[FilterContext]) extends FilterChain with StrictLogging {
+class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: FilterChain) extends FilterChain with StrictLogging {
 
   override def doFilter(request: ServletRequest, response: ServletResponse): Unit = {
     runNext(filterChain, request, response)
@@ -32,11 +32,13 @@ class ReposeFilterChain(val filterChain: List[FilterContext]) extends FilterChai
 
   def runNext(chain: List[FilterContext], request: ServletRequest, response: ServletResponse): Unit = {
     chain match {
-      case Nil => //todo: do something
+      case Nil =>
+        logger.debug("End of the filter chain reached")
+        originalChain.doFilter(request, response)
       case head::tail =>
         if (head.shouldRun(request.asInstanceOf[HttpServletRequest])) {
           logger.debug("Entering filter: {}", head.filterName)
-          head.filter.doFilter(request, response, new ReposeFilterChain(tail))
+          head.filter.doFilter(request, response, new ReposeFilterChain(tail, originalChain))
         } else {
           logger.debug("Skipping filter: {}", head.filterName)
           runNext(tail, request, response)
