@@ -24,7 +24,7 @@ import javax.servlet.{Filter, FilterChain, ServletRequest, ServletResponse}
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.verify
-import org.mockito.Matchers.any
+import org.mockito.Matchers.same
 import org.openrepose.powerfilter.ReposeFilterChain.FilterContext
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -32,42 +32,60 @@ import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
 class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
+  var mockFilter: Filter =_
+  var mockRequest: HttpServletRequest = _
+  var mockResponse: HttpServletResponse = _
+  var originalChain: FilterChain = _
+
+  override protected def beforeEach(): Unit = {
+    mockFilter = mock[Filter]
+    mockRequest = mock[HttpServletRequest]
+    mockResponse = mock[HttpServletResponse]
+    originalChain = mock[FilterChain]
+  }
 
   describe("doFilter") {
     it("should pass an empty chain to the next filter when there is only one remaining") {
-      val mockFilter = mock[Filter]
-      val filterChain = new ReposeFilterChain(List(FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true)))
+      val filterChain = new ReposeFilterChain(List(FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true)),
+                                              originalChain)
 
-      filterChain.doFilter(mock[HttpServletRequest], mock[HttpServletResponse])
+      filterChain.doFilter(mockRequest, mockResponse)
 
       val argument = ArgumentCaptor.forClass(classOf[FilterChain])
-      verify(mockFilter).doFilter(any(classOf[ServletRequest]), any(classOf[ServletResponse]), argument.capture())
+      verify(mockFilter).doFilter(same(mockRequest), same(mockResponse), argument.capture())
       argument.getValue.asInstanceOf[ReposeFilterChain].filterChain shouldBe empty
     }
 
     it("should pass the tail of the chain onto the next filter") {
-      val mockFilter = mock[Filter]
       val filterChain = new ReposeFilterChain(List(FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true),
-                                                   FilterContext(mock[Filter], "bar", (request: HttpServletRequest) => true)))
+                                                   FilterContext(mock[Filter], "bar", (request: HttpServletRequest) => true)),
+                                              originalChain)
 
-      filterChain.doFilter(mock[HttpServletRequest], mock[HttpServletResponse])
+      filterChain.doFilter(mockRequest, mockResponse)
 
       val argument = ArgumentCaptor.forClass(classOf[FilterChain])
-      verify(mockFilter).doFilter(any(classOf[ServletRequest]), any(classOf[ServletResponse]), argument.capture())
+      verify(mockFilter).doFilter(same(mockRequest), same(mockResponse), argument.capture())
       argument.getValue.asInstanceOf[ReposeFilterChain].filterChain should have size 1
     }
 
     it("should skip filters that don't pass the check") {
-      val mockFilter = mock[Filter]
       val filterChain = new ReposeFilterChain(List(FilterContext(mock[Filter], "bar", (request: HttpServletRequest) => false),
-                                                   FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true)))
+                                                   FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true)),
+                                              originalChain)
 
-      filterChain.doFilter(mock[HttpServletRequest], mock[HttpServletResponse])
+      filterChain.doFilter(mockRequest, mockResponse)
 
       val argument = ArgumentCaptor.forClass(classOf[FilterChain])
-      verify(mockFilter).doFilter(any(classOf[ServletRequest]), any(classOf[ServletResponse]), argument.capture())
+      verify(mockFilter).doFilter(same(mockRequest), same(mockResponse), argument.capture())
       argument.getValue.asInstanceOf[ReposeFilterChain].filterChain shouldBe empty
     }
-  }
 
+    it("should go to the original filter chain if it's empty") {
+      val filterChain = new ReposeFilterChain(List.empty, originalChain)
+
+      filterChain.doFilter(mockRequest, mockResponse)
+
+      verify(originalChain).doFilter(mockRequest, mockResponse)
+    }
+  }
 }
