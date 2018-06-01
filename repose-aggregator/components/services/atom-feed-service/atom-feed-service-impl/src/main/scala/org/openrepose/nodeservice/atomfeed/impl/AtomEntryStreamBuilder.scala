@@ -104,6 +104,7 @@ object AtomEntryStreamBuilder {
             val content = Option(httpResponse.getEntity)
               .map(_.getContent)
               .getOrElse(new ByteArrayInputStream(Array.empty[Byte]))
+            // todo: support character encodings other than UTF-8, based on the response Content-Type charset
             val feed = parser.parse[Feed](content).getRoot
 
             feed.getLinks.find(link => link.getRel.equals("next")) match {

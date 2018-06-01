@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,7 +32,7 @@ import static javax.servlet.http.HttpServletResponse.SC_OK
 class AtomFeedResponseSimulator {
     static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
 
-    static final Map DEFAULT_FEED_PARAMS = [id: "urn:uuid:12345678-9abc-def0-1234-56789abcdef0", isLastPage: false]
+    static final Map DEFAULT_FEED_PARAMS = [id: "urn:uuid:12345678-9abc-def0-1234-56789abcdef0", isLastPage: false, pageSize: 25]
 
     volatile boolean hasEntry = false
     int atomPort
@@ -40,9 +40,7 @@ class AtomFeedResponseSimulator {
     def client_token = 'this-is-the-token'
     def client_tenant = 'this-is-the-tenant'
 
-    def headers = [
-            'Connection'  : 'close',
-            'Content-type': 'application/xml']
+    def headers = ['Content-type': 'application/xml']
 
     AtomFeedResponseSimulator(int atomPort) {
         this.atomPort = atomPort
@@ -123,6 +121,46 @@ class AtomFeedResponseSimulator {
 
             xmlBuilder
         }
+    }
+
+    /**
+     * The page size will be determined for each page based on the number of entries.
+     * Currently only supports pages of the same size.
+     * It is recommended to collate entry parameters to be passed to this method.
+     *
+     * @param values    parameters to be used when constructing the feed
+     * @param pages     the content of the feed
+     * @return          a collection of string representations of pages of an Atom feed
+     */
+    List<String> pagedTokenInvalidationAtomFeed(Map values = [:], List<List<Map>> pages) {
+        Map params = getDefaultParams() + DEFAULT_FEED_PARAMS + values
+
+        return pages.withIndex().collect { indexedPage ->
+            def page = indexedPage.first
+            def index = indexedPage.second;
+
+            { MarkupBuilder xmlBuilder ->
+                xmlBuilder.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8")
+
+                xmlBuilder.'feed'(xmlns: "http://www.w3.org/2005/Atom") {
+                    'link'(href: "http://localhost:${params.atomPort}/feed/", rel: "current")
+                    'link'(href: "http://localhost:${params.atomPort}/feed/?limit=${params.pageSize}&amp;direction=backward", rel: "self")
+                    'id'(params.id)
+                    'title'(type: "text", "feed")
+                    if (index - 1 >= 0) {
+                        'link'(href: "http://localhost:${params.atomPort}/feed/?marker=${pages[index - 1].last().id}&amp;limit=${params.pageSize}&amp;search=&amp;direction=forward", rel: "previous")
+                    }
+                    if (index + 1 < pages.size()) {
+                        'link'(href: "http://localhost:${params.atomPort}/feed/?marker=${pages[index + 1].first().id}&amp;limit=${params.pageSize}&amp;search=&amp;direction=forward", rel: "next")
+                    }
+                    'link'(href: "http://localhost:${params.atomPort}/feed/?marker=last&amp;limit=${params.pageSize}&amp;search=&amp;direction=backward", rel: "last")
+                    'updated'(params.time)
+                    page.collect { atomEntryForTokenInvalidation(it) }.each { it(xmlBuilder) }
+                }
+
+                xmlBuilder
+            }
+        }.collect { buildXmlToString(it) }
     }
 
     String atomFeedWithNoEntries() {
