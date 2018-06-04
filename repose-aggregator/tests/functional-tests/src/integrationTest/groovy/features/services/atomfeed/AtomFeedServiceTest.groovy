@@ -73,8 +73,7 @@ class AtomFeedServiceTest extends ReposeValveTest {
         atomEndpoint.defaultHandler = fakeAtomFeed.handlerWithEntry(atomFeedEntry)
 
         when: "we wait for the Keystone V2 filter to read the feed"
-        reposeLogSearch.awaitByString("</atom:entry>", 1, 11, TimeUnit.SECONDS)
-        atomEndpoint.defaultHandler = fakeAtomFeed.handler
+        reposeLogSearch.awaitByString("<atom:id>urn:uuid:101</atom:id>", 1, 6, TimeUnit.SECONDS)
 
         then: "the Keystone V2 filter logs receiving the atom feed entry"
         AtomFeedResponseSimulator.buildXmlToString(atomFeedEntry).eachLine { line ->
@@ -83,7 +82,7 @@ class AtomFeedServiceTest extends ReposeValveTest {
         }
     }
 
-    def "when multiple atom feed entries are received, they are passed in-order to the filter"() {
+    def "when multiple atom feed entries are received, they are passed in order to the filter"() {
         given: "Repose has been started"
         startRepose()
 
@@ -93,16 +92,15 @@ class AtomFeedServiceTest extends ReposeValveTest {
                 ids.collect { fakeAtomFeed.atomEntryForTokenInvalidation(id: "urn:uuid:$it") })
 
         when: "we wait for the Keystone V2 filter to read the feed"
-        reposeLogSearch.awaitByString("</atom:entry>", ids.size(), 11, TimeUnit.SECONDS)
-        atomEndpoint.defaultHandler = fakeAtomFeed.handler
+        reposeLogSearch.awaitByString("<atom:id>urn:uuid:2\\d{2}</atom:id>", ids.size(), 6, TimeUnit.SECONDS)
 
         then: "the Keystone V2 filter logs receiving the atom feed entries in order"
-        def logLines = reposeLogSearch.searchByString("<atom:id>.*</atom:id>")
+        def logLines = reposeLogSearch.searchByString("<atom:id>urn:uuid:2\\d{2}</atom:id>")
         logLines.size() == ids.size()
         logLines.collect { (it =~ /\s*<atom:id>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == ids
     }
 
-    def "when multiple pages of atom feed entries are received, they are all processed by the filter"() {
+    def "when multiple pages of atom feed entries are received, they are all processed by the filter in order"() {
         given: "Repose has been started"
         startRepose()
 
@@ -112,11 +110,10 @@ class AtomFeedServiceTest extends ReposeValveTest {
                 ids.collect { fakeAtomFeed.atomEntryForTokenInvalidation(id: "urn:uuid:$it") })
 
         when: "we wait for the Keystone V2 filter to read the feed"
-        reposeLogSearch.awaitByString("</atom:entry>", ids.size(), 11, TimeUnit.SECONDS)
-        atomEndpoint.defaultHandler = fakeAtomFeed.handler
+        reposeLogSearch.awaitByString("<atom:id>urn:uuid:3\\d{2}</atom:id>", ids.size(), 6, TimeUnit.SECONDS)
 
         then: "the Keystone V2 filter logs receiving the atom feed entries in order"
-        def logLines = reposeLogSearch.searchByString("<atom:id>.*</atom:id>")
+        def logLines = reposeLogSearch.searchByString("<atom:id>urn:uuid:3\\d{2}</atom:id>")
         logLines.size() == ids.size()
         logLines.collect { (it =~ /\s*<atom:id>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == ids
 
@@ -126,11 +123,10 @@ class AtomFeedServiceTest extends ReposeValveTest {
                 moreIds.collect { fakeAtomFeed.atomEntryForTokenInvalidation(id: "urn:uuid:$it") })
 
         and: "we wait for the Keystone V2 filter to read the feed"
-        reposeLogSearch.awaitByString("</atom:entry>", ids.size() + moreIds.size(), 11, TimeUnit.SECONDS)
-        atomEndpoint.defaultHandler = fakeAtomFeed.handler
+        reposeLogSearch.awaitByString("<atom:id>urn:uuid:4\\d{2}</atom:id>", moreIds.size(), 6, TimeUnit.SECONDS)
 
         then: "the Keystone V2 filter logs receiving the atom feed entries in order"
-        def moreLogLines = reposeLogSearch.searchByString("<atom:id>.*4\\d{2}</atom:id>")
+        def moreLogLines = reposeLogSearch.searchByString("<atom:id>urn:uuid:4\\d{2}</atom:id>")
         moreLogLines.size() == moreIds.size()
         moreLogLines.collect { (it =~ /\s*<atom:id>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == moreIds
     }
@@ -247,7 +243,7 @@ class AtomFeedServiceTest extends ReposeValveTest {
         logLines.collect { (it =~ /.*>(urn:uuid:\d+)<\/atom:id>.*/)[0][1] } == updatedPages[0].collect { it.id }.take(1)
     }
 
-    def "when multiple entries are published to a multi-page feed, they should all be processed"() {
+    def "when multiple entries are published to a multi-page feed, they should all be processed in order"() {
         given: "existing pages of a feed before we read it"
         List<List<Map<String, String>>> pages = [
             (50..26).collect { [id: "urn:uuid:$it"] },
@@ -292,7 +288,7 @@ class AtomFeedServiceTest extends ReposeValveTest {
         logLines.collect { (it =~ /.*>(urn:uuid:\d+)<\/atom:id>.*/)[0][1] } == updatedPages[0].collect { it.id }
     }
 
-    def "when multiple pages are published to a multi-page feed, they should all be processed"() {
+    def "when multiple pages are published to a multi-page feed, they should all be processed in order"() {
         given: "existing pages of a feed before we read it"
         List<List<Map<String, String>>> pages = [
             (50..26).collect { [id: "urn:uuid:$it"] },
@@ -340,7 +336,7 @@ class AtomFeedServiceTest extends ReposeValveTest {
         logLines.collect { (it =~ /.*>(urn:uuid:\d+)<\/atom:id>.*/)[0][1] } == (updatedPages[0] + updatedPages[1]).collect { it.id }
     }
 
-    def "after the high water mark entry falls off the feed, all new entries should be processed"() {
+    def "after the high water mark entry falls off the feed, all new entries should be processed in order"() {
         given: "existing pages of a feed before we read it"
         List<List<Map<String, String>>> pages = [
             (50..26).collect { [id: "urn:uuid:$it"] },
@@ -382,7 +378,7 @@ class AtomFeedServiceTest extends ReposeValveTest {
         logLines.collect { (it =~ /.*>(urn:uuid:\d+)<\/atom:id>.*/)[0][1] } == (updatedPages[0] + updatedPages[1]).collect { it.id }
     }
 
-    def "when the Atom feed response is chunked, all new entries should still be processed"() {
+    def "when the Atom feed response is chunked, all new entries should still be processed in order"() {
         given: "existing pages of a feed before we read it"
         List<List<Map<String, String>>> pages = [
             (50..26).collect { [id: "urn:uuid:$it"] },
@@ -433,7 +429,7 @@ class AtomFeedServiceTest extends ReposeValveTest {
     }
 
     // todo: extract to test utilities class and handle character encoding
-    String chunkString(String s, int chunkSize = 1024) {
+    static String chunkString(String s, int chunkSize = 1024) {
         StringBuilder sb = new StringBuilder()
 
         CharSequence chunk = s.take(chunkSize)
