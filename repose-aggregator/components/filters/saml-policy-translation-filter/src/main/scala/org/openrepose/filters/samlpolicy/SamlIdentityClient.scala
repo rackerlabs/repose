@@ -250,8 +250,7 @@ object SamlIdentityClient {
     (idpId: String) => s"/v2.0/RAX-AUTH/federation/identity-providers/$idpId/mapping"
 
   def buildRetryValue(response: ServiceClientResponse): String = {
-    response.getHeaderElements(HttpHeaders.RETRY_AFTER).asScala.headOption
-      .map(_.getValue)
+    response.getHeaders(HttpHeaders.RETRY_AFTER).asScala.headOption
       .getOrElse(DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now(ZoneId.of("GMT")).plusSeconds(5)))
   }
 
