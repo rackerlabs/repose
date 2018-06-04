@@ -20,15 +20,16 @@
 package org.openrepose.powerfilter
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.servlet.{Filter, FilterChain, ServletRequest, ServletResponse}
+import javax.servlet.{Filter, FilterChain}
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
+import org.mockito.Matchers.{any, same}
 import org.mockito.Mockito.verify
-import org.mockito.Matchers.same
 import org.openrepose.powerfilter.ReposeFilterChain.FilterContext
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+import org.springframework.mock.web.MockHttpServletRequest
 
 @RunWith(classOf[JUnitRunner])
 class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
@@ -39,7 +40,7 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
 
   override protected def beforeEach(): Unit = {
     mockFilter = mock[Filter]
-    mockRequest = mock[HttpServletRequest]
+    mockRequest = new MockHttpServletRequest("GET", "http://foo.com/bar")
     mockResponse = mock[HttpServletResponse]
     originalChain = mock[FilterChain]
   }
@@ -47,7 +48,8 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
   describe("doFilter") {
     it("should pass an empty chain to the next filter when there is only one remaining") {
       val filterChain = new ReposeFilterChain(List(FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true)),
-                                              originalChain)
+                                              originalChain,
+                                              None)
 
       filterChain.doFilter(mockRequest, mockResponse)
 
@@ -59,7 +61,8 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
     it("should pass the tail of the chain onto the next filter") {
       val filterChain = new ReposeFilterChain(List(FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true),
                                                    FilterContext(mock[Filter], "bar", (request: HttpServletRequest) => true)),
-                                              originalChain)
+                                              originalChain,
+                                              None)
 
       filterChain.doFilter(mockRequest, mockResponse)
 
@@ -71,7 +74,8 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
     it("should skip filters that don't pass the check") {
       val filterChain = new ReposeFilterChain(List(FilterContext(mock[Filter], "bar", (request: HttpServletRequest) => false),
                                                    FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true)),
-                                              originalChain)
+                                              originalChain,
+                                              None)
 
       filterChain.doFilter(mockRequest, mockResponse)
 
@@ -81,11 +85,33 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
     }
 
     it("should go to the original filter chain if it's empty") {
-      val filterChain = new ReposeFilterChain(List.empty, originalChain)
+      val filterChain = new ReposeFilterChain(List.empty, originalChain, None)
 
       filterChain.doFilter(mockRequest, mockResponse)
 
       verify(originalChain).doFilter(mockRequest, mockResponse)
+    }
+
+    it("should skip the whole chain if the bypass url is hit") {
+      val filterChain = new ReposeFilterChain(List(FilterContext(mock[Filter], "bar", (request: HttpServletRequest) => false),
+                                                   FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true)),
+                                              originalChain,
+                                              Option(".*/bar"))
+
+      filterChain.doFilter(mockRequest, mockResponse)
+
+      verify(originalChain).doFilter(mockRequest, mockResponse)
+    }
+
+    it("should go into the the chain when the bypass url isn't hit") {
+      val filterChain = new ReposeFilterChain(List(FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true),
+                                                   FilterContext(mock[Filter], "bar", (request: HttpServletRequest) => true)),
+                                              originalChain,
+                                              Option(".*/butts"))
+
+      filterChain.doFilter(mockRequest, mockResponse)
+
+      verify(mockFilter).doFilter(same(mockRequest), same(mockResponse), any(classOf[FilterChain]))
     }
   }
 }

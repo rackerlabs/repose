@@ -24,10 +24,16 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.{Filter, FilterChain, ServletRequest, ServletResponse}
 import org.openrepose.powerfilter.ReposeFilterChain.FilterContext
 
-class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: FilterChain) extends FilterChain with StrictLogging {
+class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: FilterChain, bypassUrlRegex: Option[String]) extends FilterChain with StrictLogging {
 
   override def doFilter(request: ServletRequest, response: ServletResponse): Unit = {
-    runNext(filterChain, request, response)
+    bypassUrlRegex.map(_.r.pattern.matcher(request.asInstanceOf[HttpServletRequest].getRequestURI).matches()) match {
+      case Some(true) =>
+        logger.debug("Bypass url hit")
+        runNext(List.empty, request, response)
+      case _ =>
+        runNext(filterChain, request, response)
+    }
   }
 
   def runNext(chain: List[FilterContext], request: ServletRequest, response: ServletResponse): Unit = {
@@ -38,7 +44,7 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
       case head::tail =>
         if (head.shouldRun(request.asInstanceOf[HttpServletRequest])) {
           logger.debug("Entering filter: {}", head.filterName)
-          head.filter.doFilter(request, response, new ReposeFilterChain(tail, originalChain))
+          head.filter.doFilter(request, response, new ReposeFilterChain(tail, originalChain, None))
         } else {
           logger.debug("Skipping filter: {}", head.filterName)
           runNext(tail, request, response)
