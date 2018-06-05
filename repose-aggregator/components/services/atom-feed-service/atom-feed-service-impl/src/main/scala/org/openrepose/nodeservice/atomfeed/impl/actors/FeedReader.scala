@@ -130,19 +130,19 @@ class FeedReader(feedURIString: String,
 
         val startingStream = getStream
 
-        val truncatedStream = highWaterMark match {
-          case Some(mark) => startingStream.takeWhile(entry => !entry.getId.equals(mark))
-          case None => startingStream
-        }
-
-        val orderedStream = order match {
-          case EntryOrderType.READ =>
-            truncatedStream
-          case EntryOrderType.REVERSE_READ =>
-            truncatedStream.reverse
-        }
-
         if (firstReadDone) {
+          val truncatedStream = highWaterMark match {
+            case Some(mark) => startingStream.takeWhile(entry => !entry.getId.equals(mark))
+            case None => startingStream
+          }
+
+          val orderedStream = order match {
+            case EntryOrderType.READ =>
+              truncatedStream
+            case EntryOrderType.REVERSE_READ =>
+              truncatedStream.reverse
+          }
+
           orderedStream foreach { entry =>
             val entryString = new StringWriter()
             entry.writeTo(entryString)
