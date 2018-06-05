@@ -96,13 +96,3 @@
   when: repose_packages.matched|int == 0 and repose.install.release is not defined and repose.install.git is defined
   async: 1200
   poll: 30
-
-# todo: add support for querying the rpm version
-
-- name: Record the Repose version
-  command: dpkg-query --showformat='${Version}' --show 'repose-valve'
-  register: repose_dpkg_query
-
-- name:
-  set_fact:
-    repose_version: "{{ repose_dpkg_query.stdout }}"
