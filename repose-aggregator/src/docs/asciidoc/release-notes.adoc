@@ -8,6 +8,7 @@
 *** https://github.com/jaegertracing/jaeger-client-java/blob/master/CHANGELOG.rst#0270-2018-04-18[Jaeger Client Java v0.27.0 change log]
 * https://repose.atlassian.net/browse/REP-6858[REP-6858] - Updated Log4j to a version that allows setting of file permissions
 * https://repose.atlassian.net/browse/REP-6508[REP-6508] - Simplified the deployment directory scheme to reduce disk usage in certain cases.
+* https://repose.atlassian.net/browse/REP-6977[REP-6977] - Fixed the atom feed service, now it actually works.
 
 == 8.8.4.0 (2018-04-23)
 * https://repose.atlassian.net/browse/REP-6674[REP-6674] - Minor internal update to increase logging performance.

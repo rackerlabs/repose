@@ -25,6 +25,7 @@ import java.util
 
 import org.apache.abdera.Abdera
 import org.apache.abdera.model.{Entry, Feed}
+import org.apache.abdera.parser.stax.util.FOMList
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.util.EntityUtils
@@ -103,13 +104,16 @@ object AtomEntryStreamBuilder {
             val content = Option(httpResponse.getEntity)
               .map(_.getContent)
               .getOrElse(new ByteArrayInputStream(Array.empty[Byte]))
+            // todo: support character encodings other than UTF-8, based on the response Content-Type charset
             val feed = parser.parse[Feed](content).getRoot
 
             feed.getLinks.find(link => link.getRel.equals("next")) match {
               case Some(nextPageLink) =>
-                feed.getEntries.toStream #::: buildR(nextPageLink.getResolvedHref.toURI, httpClient, context, authenticator, authenticationTimeout)
+                             // V This cast is important, it forces the lis tto fully realize and not stream
+                feed.getEntries.asInstanceOf[FOMList[Entry]].getAsList.toStream #::: buildR(nextPageLink.getResolvedHref.toURI, httpClient, context, authenticator, authenticationTimeout)
               case None =>
-                feed.getEntries.toStream
+                             // V This cast is important, it forces the lis tto fully realize and not stream
+                feed.getEntries.asInstanceOf[FOMList[Entry]].getAsList.toStream
             }
           } else if (statusCode >= 400 && statusCode < 500) {
             authenticator.foreach(_.onInvalidCredentials)
