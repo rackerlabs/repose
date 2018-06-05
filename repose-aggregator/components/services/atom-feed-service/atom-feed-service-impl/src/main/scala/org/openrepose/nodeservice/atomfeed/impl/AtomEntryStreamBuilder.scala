@@ -109,10 +109,10 @@ object AtomEntryStreamBuilder {
 
             feed.getLinks.find(link => link.getRel.equals("next")) match {
               case Some(nextPageLink) =>
-                             // V This cast is important, it forces the lis tto fully realize and not stream
+                             // V This cast is important, it forces the list to fully realize and not stream
                 feed.getEntries.asInstanceOf[FOMList[Entry]].getAsList.toStream #::: buildR(nextPageLink.getResolvedHref.toURI, httpClient, context, authenticator, authenticationTimeout)
               case None =>
-                             // V This cast is important, it forces the lis tto fully realize and not stream
+                             // V This cast is important, it forces the list to fully realize and not stream
                 feed.getEntries.asInstanceOf[FOMList[Entry]].getAsList.toStream
             }
           } else if (statusCode >= 400 && statusCode < 500) {
