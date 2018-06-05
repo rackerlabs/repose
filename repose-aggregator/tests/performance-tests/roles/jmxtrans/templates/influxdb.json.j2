@@ -9,7 +9,7 @@
       "resultAlias": "memory",
       "outputWriters" : [ {
         "@class" : "com.googlecode.jmxtrans.model.output.GraphiteWriterFactory",
-        "rootPrefix": "jmxtrans.{{ gatling.test.id|default(gatling.test.name) }}",
+        "rootPrefix": "jmxtrans.{{ repose_version|replace('.', '-') }}.{{ gatling.test.id|default(gatling.test.name) }}",
         "host" : "{{ jmxtrans.graphite_writer.host }}",
         "port" : "{{ jmxtrans.graphite_writer.port }}",
         "flushStrategy" : "timeBased",
