@@ -21,7 +21,7 @@
     - name: Set Telegraf tags
       set_fact:
         telegraf_tags:
-          repose_version: "{{ repose_version }}"
+          repose_version: "{{ repose_version|replace('.', '-') }}"
           test_name: "{{ gatling.test.id|default(gatling.test.name) }}"
 
 - hosts: performance
