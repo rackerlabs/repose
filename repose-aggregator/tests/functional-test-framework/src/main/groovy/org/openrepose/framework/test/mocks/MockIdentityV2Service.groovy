@@ -39,6 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import static javax.servlet.http.HttpServletResponse.*
 import static org.openrepose.framework.test.util.saml.SamlUtilities.generateUniqueIdpId
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+import static org.springframework.http.MediaType.APPLICATION_XML_VALUE
 
 /**
  * Created by jennyvo on 6/16/15.
@@ -672,9 +673,10 @@ class MockIdentityV2Service {
         }
     }
 
-    Closure<Response> createGetMappingPolicyForIdp(String acceptType = TEXT_YAML, Map values = [defaultMapping: true]) {
-        def yamlHeaders = ['Content-type': TEXT_YAML]
+    Closure<Response> createGetMappingPolicyForIdp(String acceptType = APPLICATION_XML_VALUE, Map values = [defaultMapping: true]) {
+        def xmlHeaders = ['Content-type': APPLICATION_XML_VALUE]
         def jsonHeaders = ['Content-type': APPLICATION_JSON_VALUE]
+        def yamlHeaders = ['Content-type': TEXT_YAML]
 
         return { String idpId, Request request ->
             if (admin_token != request.getHeaders().getFirstValue("X-Auth-Token") && !values.skipAuthCheck) {
@@ -683,22 +685,26 @@ class MockIdentityV2Service {
                 def mappingForIdpId = values.mappings?.get(idpId)
 
                 if (mappingForIdpId) {
-                    if (acceptType.equalsIgnoreCase(APPLICATION_JSON_VALUE)) {
+                    if (acceptType.equalsIgnoreCase(APPLICATION_XML_VALUE)) {
+                        new Response(SC_OK, null, xmlHeaders, mappingForIdpId)
+                    } else if (acceptType.equalsIgnoreCase(APPLICATION_JSON_VALUE)) {
                         new Response(SC_OK, null, jsonHeaders, mappingForIdpId)
                     } else {
                         new Response(SC_OK, null, yamlHeaders, mappingForIdpId)
                     }
                 } else if (values.defaultMapping) {
-                    if (acceptType.equalsIgnoreCase(APPLICATION_JSON_VALUE)) {
+                    if (acceptType.equalsIgnoreCase(APPLICATION_XML_VALUE)) {
+                        new Response(SC_OK, null, xmlHeaders, DEFAULT_MAPPING_POLICY_XML)
+                    } else if (acceptType.equalsIgnoreCase(APPLICATION_JSON_VALUE)) {
                         new Response(SC_OK, null, jsonHeaders, DEFAULT_MAPPING_POLICY_JSON)
                     } else {
                         new Response(SC_OK, null, yamlHeaders, DEFAULT_MAPPING_POLICY_YAML)
                     }
                 } else {
                     def body = createIdentityFaultJsonWithValues(
-                            name: "itemNotFound",
-                            code: SC_NOT_FOUND,
-                            message: "Identity Provider with id/name: '$idpId' was not found.")
+                        name: "itemNotFound",
+                        code: SC_NOT_FOUND,
+                        message: "Identity Provider with id/name: '$idpId' was not found.")
                     new Response(SC_NOT_FOUND, null, jsonHeaders, body)
                 }
             }
@@ -748,6 +754,95 @@ class MockIdentityV2Service {
         }
 
         json.toString()
+    }
+
+    static String createMappingXmlWithValues(Map values = [:]) {
+        def xmlWriter = new StringWriter()
+        def xml = new MarkupBuilder(xmlWriter)
+        xml.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8")
+        xml.mapping(
+            xmlns: 'http://docs.rackspace.com/identity/api/ext/MappingRules',
+            'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+            'xmlns:xs': 'http://www.w3.org/2001/XMLSchema',
+            version: 'RAX-1'
+        ) {
+            rules {
+                rule {
+                    local {
+                        user {
+                            domain(value: values.domain ?: DEFAULT_MAPPING_VALUE)
+                            name(value: values.name ?: DEFAULT_MAPPING_VALUE)
+                            email(value: values.email ?: DEFAULT_MAPPING_VALUE)
+                            groups(value: values.groups ?: DEFAULT_MAPPING_VALUE)
+                            roles(value: values.roles ?: DEFAULT_MAPPING_VALUE)
+                            expire(value: values.expire ?: DEFAULT_MAPPING_VALUE)
+                            if (values.userExtAttribs) {
+                                values.userExtAttribs.each { key, value ->
+                                    if (value instanceof Collection) {
+                                        "$key"(['value': value.join(', '), 'xsi:type': 'LocalAttribute', 'multiValue': 'true'])
+                                    } else {
+                                        "$key"(['value': value, 'xsi:type': 'LocalAttribute'])
+                                    }
+                                }
+                            }
+                        }
+                        if (values.local) {
+                            group('xsi:type': 'LocalAttributeGroup') {
+                                values.local.each { key, value ->
+                                    if (value instanceof Collection) {
+                                        "$key"(['value': value.join(', '), 'xsi:type': 'LocalAttribute', 'multiValue': 'true'])
+                                    } else {
+                                        "$key"(['value': value, 'xsi:type': 'LocalAttribute'])
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (values.remote) {
+                        remote {
+                            values.remote.each { keyValue ->
+                                keyValue.each { key, value ->
+                                    "attribute"("$key": value)
+                                }
+                            }
+                        }
+                    }
+                }
+                if (values.rules) {
+                    values.rules.each { keyValue ->
+                        keyValue.each { key, value ->
+                            if (value instanceof Map) {
+                                "$key" {
+                                    value.each { subKey, subValue ->
+                                        if (subValue instanceof Map) {
+                                            "$subKey" {
+                                                subValue.each { subSubKey, subSubValue ->
+                                                    if (subSubValue instanceof Collection) {
+                                                        "$subSubKey"(['value': subSubValue.join(', '), 'multiValue': 'true'])
+                                                    } else {
+                                                        "$subSubKey"(['value': subSubValue])
+                                                    }
+                                                }
+                                            }
+                                        } else if (subValue instanceof Collection) {
+                                            "$subKey"(['value': subValue.join(', '), 'multiValue': 'true'])
+                                        } else {
+                                            "$subKey"(['value': subValue])
+                                        }
+                                    }
+                                }
+                            } else if (value instanceof Collection) {
+                                "$key"(['value': value.join(', '), 'multiValue': 'true'])
+                            } else {
+                                "$key"(['value': value])
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        xmlWriter.toString()
     }
 
     static String createMappingJsonWithValues(Map values = [:]) {
@@ -1439,6 +1534,32 @@ class MockIdentityV2Service {
 
     static final String DEFAULT_MAPPING_VALUE = "{D}"
 
+    static final String DEFAULT_MAPPING_POLICY_XML = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema"
+         xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+         version="RAX-1">
+   <description>
+      Default mapping policy
+   </description> 
+   <rules>
+      <rule>
+        <local>
+            <user>
+               <domain value="{D}"/>
+               <email value="{D}"/>
+               <groups value="{D}"/>
+               <expire value="{D}"/>
+               <name value="{D}"/>
+               <roles value="{D}"/>
+            </user>
+         </local>
+      </rule>
+   </rules>
+</mapping>
+"""
     static final String DEFAULT_MAPPING_POLICY_JSON = """\
 {
     "mapping": {

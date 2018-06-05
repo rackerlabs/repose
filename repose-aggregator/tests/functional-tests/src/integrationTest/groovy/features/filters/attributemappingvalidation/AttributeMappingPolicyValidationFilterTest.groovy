@@ -83,7 +83,19 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         mc.receivedResponse.code.toInteger() == SC_UNSUPPORTED_MEDIA_TYPE
 
         where:
-        contentType << [TEXT_PLAIN]
+        contentType << [TEXT_HTML, APPLICATION_OCTET_STREAM, TEXT_PLAIN, MULTIPART_FORM_DATA]
+    }
+
+    @Unroll
+    def "#contentType should be rejected with a 400"() {
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": contentType], requestBody: "Lorem ipsum")
+
+        then:
+        mc.receivedResponse.code.toInteger() == SC_BAD_REQUEST
+
+        where:
+        contentType << [TEXT_XML, APPLICATION_ATOM_XML, APPLICATION_JSON, APPLICATION_XHTML_XML]
     }
 
     def "should validate correct XML"() {
@@ -275,6 +287,39 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         yaml.load(body) == yaml.load(mc.handlings[0].request.body as String)
     }
 
+    def "should not remove the name attribute from a remote in an XML policy"() {
+        given:
+        String body =
+            '''<?xml version="1.0" encoding="UTF-8"?>
+            |<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
+            |         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            |         xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            |         xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+            |         version="RAX-1">
+            |  <rules>
+            |    <rule>
+            |      <local>
+            |        <user>
+            |          <name value="{D}"/>
+            |        </user>
+            |      </local>
+            |      <remote>
+            |        <attribute name="Username" multiValue="false" regex="false"/>
+            |      </remote>
+            |    </rule>
+            |  </rules>
+            |</mapping>
+            |'''.stripMargin()
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": APPLICATION_XML], requestBody: body)
+
+        then:
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings.size() == 1
+        xmlSlurper.parseText(body) == xmlSlurper.parseText(mc.handlings[0].request.body as String)
+    }
+
     def "should not remove the name attribute from a remote in a JSON policy"() {
         given:
         String body =
@@ -437,6 +482,41 @@ class AttributeMappingPolicyValidationFilterTest extends ReposeValveTest {
         then:
         mc.receivedResponse.code as Integer == SC_BAD_REQUEST
         mc.handlings.size() == 0
+    }
+
+    def "XML comments should be preserved"() {
+        given:
+        String comment = "Find me"
+        String body =
+            """<?xml version="1.0" encoding="UTF-8"?>
+            |<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
+            |         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            |         xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            |         xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+            |         version="RAX-1">
+            |  <!-- ${comment} -->
+            |  <rules>
+            |    <rule>
+            |      <local>
+            |        <user>
+            |          <name value="{D}"/>
+            |        </user>
+            |      </local>
+            |      <remote>
+            |        <attribute name="Username" multiValue="false" regex="false"/>
+            |      </remote>
+            |    </rule>
+            |  </rules>
+            |</mapping>
+            |""".stripMargin()
+
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "PUT", headers: ["content-type": TEXT_XML], requestBody: body)
+
+        then:
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings.size() == 1
+        (mc.handlings[0].request.body as String).contains(comment)
     }
 
     def "YAML comments should be preserved"() {
