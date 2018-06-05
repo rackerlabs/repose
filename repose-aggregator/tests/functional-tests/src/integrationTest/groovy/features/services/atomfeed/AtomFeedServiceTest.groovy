@@ -73,7 +73,7 @@ class AtomFeedServiceTest extends ReposeValveTest {
         atomEndpoint.defaultHandler = fakeAtomFeed.handlerWithEntry(atomFeedEntry)
 
         when: "we wait for the Keystone V2 filter to read the feed"
-        reposeLogSearch.awaitByString("<atom:id>urn:uuid:101</atom:id>", 1, 6, TimeUnit.SECONDS)
+        reposeLogSearch.awaitByString(">urn:uuid:101</atom:id>", 1, 6, TimeUnit.SECONDS)
 
         then: "the Keystone V2 filter logs receiving the atom feed entry"
         AtomFeedResponseSimulator.buildXmlToString(atomFeedEntry).eachLine { line ->
@@ -92,12 +92,12 @@ class AtomFeedServiceTest extends ReposeValveTest {
                 ids.collect { fakeAtomFeed.atomEntryForTokenInvalidation(id: "urn:uuid:$it") })
 
         when: "we wait for the Keystone V2 filter to read the feed"
-        reposeLogSearch.awaitByString("<atom:id>urn:uuid:2\\d{2}</atom:id>", ids.size(), 6, TimeUnit.SECONDS)
+        reposeLogSearch.awaitByString(">urn:uuid:2\\d{2}</atom:id>", ids.size(), 6, TimeUnit.SECONDS)
 
         then: "the Keystone V2 filter logs receiving the atom feed entries in order"
-        def logLines = reposeLogSearch.searchByString("<atom:id>urn:uuid:2\\d{2}</atom:id>")
+        def logLines = reposeLogSearch.searchByString(">urn:uuid:2\\d{2}</atom:id>")
         logLines.size() == ids.size()
-        logLines.collect { (it =~ /\s*<atom:id>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == ids
+        logLines.collect { (it =~ /\s*>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == ids
     }
 
     def "when multiple pages of atom feed entries are received, they are all processed by the filter in order"() {
@@ -110,12 +110,12 @@ class AtomFeedServiceTest extends ReposeValveTest {
                 ids.collect { fakeAtomFeed.atomEntryForTokenInvalidation(id: "urn:uuid:$it") })
 
         when: "we wait for the Keystone V2 filter to read the feed"
-        reposeLogSearch.awaitByString("<atom:id>urn:uuid:3\\d{2}</atom:id>", ids.size(), 6, TimeUnit.SECONDS)
+        reposeLogSearch.awaitByString(">urn:uuid:3\\d{2}</atom:id>", ids.size(), 6, TimeUnit.SECONDS)
 
         then: "the Keystone V2 filter logs receiving the atom feed entries in order"
-        def logLines = reposeLogSearch.searchByString("<atom:id>urn:uuid:3\\d{2}</atom:id>")
+        def logLines = reposeLogSearch.searchByString(">urn:uuid:3\\d{2}</atom:id>")
         logLines.size() == ids.size()
-        logLines.collect { (it =~ /\s*<atom:id>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == ids
+        logLines.collect { (it =~ /\s*>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == ids
 
         when: "there are more entries on the next page"
         def moreIds = (401..425).collect {it as String}
@@ -123,12 +123,12 @@ class AtomFeedServiceTest extends ReposeValveTest {
                 moreIds.collect { fakeAtomFeed.atomEntryForTokenInvalidation(id: "urn:uuid:$it") })
 
         and: "we wait for the Keystone V2 filter to read the feed"
-        reposeLogSearch.awaitByString("<atom:id>urn:uuid:4\\d{2}</atom:id>", moreIds.size(), 6, TimeUnit.SECONDS)
+        reposeLogSearch.awaitByString(">urn:uuid:4\\d{2}</atom:id>", moreIds.size(), 6, TimeUnit.SECONDS)
 
         then: "the Keystone V2 filter logs receiving the atom feed entries in order"
-        def moreLogLines = reposeLogSearch.searchByString("<atom:id>urn:uuid:4\\d{2}</atom:id>")
+        def moreLogLines = reposeLogSearch.searchByString(">urn:uuid:4\\d{2}</atom:id>")
         moreLogLines.size() == moreIds.size()
-        moreLogLines.collect { (it =~ /\s*<atom:id>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == moreIds
+        moreLogLines.collect { (it =~ /\s*>urn:uuid:(\d+)<\/atom:id>.*/)[0][1] } == moreIds
     }
 
     def "when an event is published to an empty feed, it should be processed"() {
