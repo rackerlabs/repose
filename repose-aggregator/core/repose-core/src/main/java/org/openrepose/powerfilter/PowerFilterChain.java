@@ -229,7 +229,7 @@ public class PowerFilterChain implements FilterChain {
             wrappedServletRequest.addHeader(INTRAFILTER_UUID, UUID.randomUUID().toString());
         }
 
-        RequestLog requestLog = new RequestLog(wrappedServletRequest, filterContext.getFilterConfig());
+        RequestLog requestLog = new RequestLog(wrappedServletRequest, filterContext.getFilterConfig().getName());
 
         return convertPojoToJsonString(requestLog);
     }
@@ -244,7 +244,7 @@ public class PowerFilterChain implements FilterChain {
             wrappedServletResponse.addHeader(INTRAFILTER_UUID, uuid);
         }
 
-        ResponseLog responseLog = new ResponseLog(wrappedServletResponse, filterContext.getFilterConfig());
+        ResponseLog responseLog = new ResponseLog(wrappedServletResponse, filterContext.getFilterConfig().getName());
 
         return convertPojoToJsonString(responseLog);
     }

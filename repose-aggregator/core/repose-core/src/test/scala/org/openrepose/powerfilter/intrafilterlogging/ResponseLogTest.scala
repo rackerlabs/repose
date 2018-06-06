@@ -48,49 +48,11 @@ class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with Befor
   describe("a response log") {
     describe("filter description") {
 
-      it("should include the filter ID when it is present") {
-        // given a filter ID and name
-        val filterId = "filter1"
+      it("should include the filter name") {
         val filterName = "test-filter"
 
-        val filter = new Filter()
-        filter.setId(filterId)
-        filter.setName(filterName)
-
         // when we create a new ResponseLog
-        val responseLog = new ResponseLog(httpServletResponseWrapper, filter)
-
-        // then the filter description includes both the ID and name
-        s"$filterId-$filterName" shouldEqual responseLog.currentFilter
-      }
-
-      it("should not include the filter ID when it is null") {
-        // given a null filter ID
-        val filterId = null
-        val filterName = "test-filter"
-
-        val filter = new Filter()
-        filter.setId(filterId)
-        filter.setName(filterName)
-
-        // when we create a new ResponseLog
-        val responseLog = new ResponseLog(httpServletResponseWrapper, filter)
-
-        // then the filter description includes just the filter name
-        filterName shouldEqual responseLog.currentFilter
-      }
-
-      it("should not include the filter ID when it is an empty string") {
-        // given an empty string for the filter ID
-        val filterId = ""
-        val filterName = "test-filter"
-
-        val filter = new Filter()
-        filter.setId(filterId)
-        filter.setName(filterName)
-
-        // when we create a new ResponseLog
-        val responseLog = new ResponseLog(httpServletResponseWrapper, filter)
+        val responseLog = new ResponseLog(httpServletResponseWrapper, filterName)
 
         // then the filter description includes just the filter name
         filterName shouldEqual responseLog.currentFilter
@@ -99,39 +61,30 @@ class ResponseLogTest extends FunSpec with Matchers with MockitoSugar with Befor
 
     describe("header names") {
       it("should grab the headers when there is one") {
-        val filter = new Filter
-        filter.setName("test-filter")
-
         when(httpServletResponseWrapper.getHeaderNames).thenReturn(List("header-name").asJavaCollection)
         when(httpServletResponseWrapper.getHeaders("header-name")).thenReturn(List("header-value").asJavaCollection)
 
-        val responseLog = new ResponseLog(httpServletResponseWrapper, filter)
+        val responseLog = new ResponseLog(httpServletResponseWrapper, "test-filter")
 
         responseLog.headers.asScala should contain ("header-name" -> "header-value")
       }
 
       it("should grab the headers when there are two") {
-        val filter = new Filter
-        filter.setName("test-filter")
-
         when(httpServletResponseWrapper.getHeaderNames).thenReturn(List("header-name", "Accept").asJavaCollection)
         when(httpServletResponseWrapper.getHeaders("header-name")).thenReturn(List("header-value").asJavaCollection)
         when(httpServletResponseWrapper.getHeaders("Accept")).thenReturn(List("text/html").asJavaCollection)
 
-        val responseLog = new ResponseLog(httpServletResponseWrapper, filter)
+        val responseLog = new ResponseLog(httpServletResponseWrapper, "test-filter")
 
         responseLog.headers.asScala should contain ("header-name" -> "header-value")
         responseLog.headers.asScala should contain ("Accept" -> "text/html")
       }
 
       it("should grab the headers when a header has multiple values") {
-        val filter = new Filter
-        filter.setName("test-filter")
-
         when(httpServletResponseWrapper.getHeaderNames).thenReturn(List("Accept").asJavaCollection)
         when(httpServletResponseWrapper.getHeaders("Accept")).thenReturn(List("text/html", "application/xml").asJavaCollection)
 
-        val responseLog = new ResponseLog(httpServletResponseWrapper, filter)
+        val responseLog = new ResponseLog(httpServletResponseWrapper, "test-filter")
 
         responseLog.headers.asScala should contain ("Accept" -> "text/html,application/xml")
       }

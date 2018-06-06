@@ -20,10 +20,8 @@
 package org.openrepose.powerfilter.intrafilterlogging;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
-import org.openrepose.core.systemmodel.config.Filter;
 
 import java.io.IOException;
 import java.util.*;
@@ -37,10 +35,10 @@ public class ResponseLog {
     String responseBody;
     Map<String, String> headers;
 
-    public ResponseLog(HttpServletResponseWrapper wrappedServletResponse, Filter filter) throws IOException {
+    public ResponseLog(HttpServletResponseWrapper wrappedServletResponse, String currentFilter) throws IOException {
         preamble = "Intrafilter Response Log";
         timestamp = new DateTime().toString();
-        currentFilter = StringUtils.isEmpty(filter.getId()) ? filter.getName() : filter.getId() + "-" + filter.getName();
+        this.currentFilter = currentFilter;
         httpResponseCode = Integer.toString(wrappedServletResponse.getStatus());
         headers = convertResponseHeadersToMap(wrappedServletResponse);
 

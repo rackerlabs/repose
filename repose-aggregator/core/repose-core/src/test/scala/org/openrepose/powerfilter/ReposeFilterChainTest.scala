@@ -21,6 +21,10 @@ package org.openrepose.powerfilter
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{Filter, FilterChain}
+import org.apache.logging.log4j.{Level, LogManager}
+import org.apache.logging.log4j.core.LoggerContext
+import org.apache.logging.log4j.core.config.Configurator
+import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, same}
@@ -30,6 +34,8 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
+
+import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
 class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
@@ -112,6 +118,40 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
       filterChain.doFilter(mockRequest, mockResponse)
 
       verify(mockFilter).doFilter(same(mockRequest), same(mockResponse), any(classOf[FilterChain]))
+    }
+
+    it("should log out to intrafilter logging around a filter") {
+      val loggerContext = LogManager.getContext(false).asInstanceOf[LoggerContext]
+      val listAppender = loggerContext.getConfiguration.getAppender("List0").asInstanceOf[ListAppender]
+      listAppender.clear()
+      Configurator.setLevel(ReposeFilterChain.IntrafilterLog.getName, Level.TRACE)
+
+      val filterChain = new ReposeFilterChain(List(FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true)),
+                                              originalChain,
+                                              None)
+
+      filterChain.doFilter(mockRequest, mockResponse)
+
+      val messageList = listAppender.getEvents.asScala.map(_.getMessage.getFormattedMessage)
+      messageList.filter(_.contains("Intrafilter Request Log")) should have length 1
+      messageList.filter(_.contains("Intrafilter Response Log")) should have length 1
+    }
+
+    it("should log out to intrafilter logging around the origin service") {
+      val loggerContext = LogManager.getContext(false).asInstanceOf[LoggerContext]
+      val listAppender = loggerContext.getConfiguration.getAppender("List0").asInstanceOf[ListAppender]
+      listAppender.clear()
+      Configurator.setLevel(ReposeFilterChain.IntrafilterLog.getName, Level.TRACE)
+
+      val filterChain = new ReposeFilterChain(List.empty,
+                                              originalChain,
+                                              None)
+
+      filterChain.doFilter(mockRequest, mockResponse)
+
+      val messageList = listAppender.getEvents.asScala.map(_.getMessage.getFormattedMessage)
+      messageList.filter(_.contains("Intrafilter Request Log")) should have length 1
+      messageList.filter(_.contains("Intrafilter Response Log")) should have length 1
     }
   }
 }

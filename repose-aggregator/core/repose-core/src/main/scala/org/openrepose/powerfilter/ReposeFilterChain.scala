@@ -19,15 +19,26 @@
  */
 package org.openrepose.powerfilter
 
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+
+import com.fasterxml.jackson.annotation.{JsonAutoDetect, PropertyAccessor}
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{Filter, FilterChain, ServletRequest, ServletResponse}
-import org.openrepose.powerfilter.ReposeFilterChain.FilterContext
+import org.openrepose.commons.utils.io.{BufferedServletInputStream, RawInputStreamReader}
+import org.openrepose.commons.utils.servlet.http.ResponseMode.{PASSTHROUGH, READONLY}
+import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
+import org.openrepose.powerfilter.ReposeFilterChain.{FilterContext, IntrafilterLog, IntrafilterObjectMapper}
+import org.openrepose.powerfilter.intrafilterlogging.{RequestLog, ResponseLog}
+import org.slf4j.{Logger, LoggerFactory}
 
 class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: FilterChain, bypassUrlRegex: Option[String]) extends FilterChain with StrictLogging {
 
-  override def doFilter(request: ServletRequest, response: ServletResponse): Unit = {
-    bypassUrlRegex.map(_.r.pattern.matcher(request.asInstanceOf[HttpServletRequest].getRequestURI).matches()) match {
+  override def doFilter(inboundRequest: ServletRequest, inboundResponse: ServletResponse): Unit = {
+    val request = inboundRequest.asInstanceOf[HttpServletRequest]
+    val response = inboundResponse.asInstanceOf[HttpServletResponse]
+    bypassUrlRegex.map(_.r.pattern.matcher(request.getRequestURI).matches()) match {
       case Some(true) =>
         logger.debug("Bypass url hit")
         runNext(List.empty, request, response)
@@ -36,23 +47,62 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
     }
   }
 
-  def runNext(chain: List[FilterContext], request: ServletRequest, response: ServletResponse): Unit = {
+  def runNext(chain: List[FilterContext], request: HttpServletRequest, response: HttpServletResponse): Unit = {
     chain match {
       case Nil =>
-        logger.debug("End of the filter chain reached")
-        originalChain.doFilter(request, response)
+        doIntrafilterLogging(request, response, "origin", (intraRequest, intraResponse) => {
+          logger.debug("End of the filter chain reached")
+          originalChain.doFilter(intraRequest, intraResponse)
+        })
       case head::tail =>
-        if (head.shouldRun(request.asInstanceOf[HttpServletRequest])) {
-          logger.debug("Entering filter: {}", head.filterName)
-          head.filter.doFilter(request, response, new ReposeFilterChain(tail, originalChain, None))
+        if (head.shouldRun(request)) {
+          doIntrafilterLogging(request, response, head.filterName, (intraRequest, intraResponse) => {
+            logger.debug("Entering filter: {}", head.filterName)
+            head.filter.doFilter(intraRequest, intraResponse, new ReposeFilterChain(tail, originalChain, None))
+          })
         } else {
           logger.debug("Skipping filter: {}", head.filterName)
           runNext(tail, request, response)
         }
     }
   }
+
+  def doIntrafilterLogging(request: HttpServletRequest, response: HttpServletResponse, filter: String, requestProcess: (HttpServletRequest, HttpServletResponse) => Unit): Unit = {
+    var conditionallyWrappedRequest = request
+    var conditionallyWrappedResponse = response
+
+    val doLogging = IntrafilterLog.isTraceEnabled
+
+    if (doLogging) {
+      var inputStream = request.getInputStream
+
+      //if mark isn't supported we have to wrap the stream up in something that does
+      if (!inputStream.markSupported()) {
+        val sourceEntity = new ByteArrayOutputStream()
+        RawInputStreamReader.instance.copyTo(inputStream, sourceEntity)
+        inputStream = new BufferedServletInputStream(new ByteArrayInputStream(sourceEntity.toByteArray))
+      }
+
+      conditionallyWrappedRequest = new HttpServletRequestWrapper(conditionallyWrappedRequest, inputStream)
+      conditionallyWrappedResponse = new HttpServletResponseWrapper(conditionallyWrappedResponse, PASSTHROUGH, READONLY)
+
+      IntrafilterLog.trace(IntrafilterObjectMapper.writeValueAsString(new RequestLog(conditionallyWrappedRequest.asInstanceOf[HttpServletRequestWrapper], filter)))
+    }
+
+    requestProcess(conditionallyWrappedRequest, conditionallyWrappedResponse)
+
+    if (doLogging) {
+      IntrafilterLog.trace(IntrafilterObjectMapper.writeValueAsString(new ResponseLog(conditionallyWrappedResponse.asInstanceOf[HttpServletResponseWrapper], filter)))
+    }
+  }
 }
 
 object ReposeFilterChain {
   case class FilterContext(filter: Filter, filterName: String, shouldRun: HttpServletRequest => Boolean)
+
+  val IntrafilterLog: Logger = LoggerFactory.getLogger("intrafilter-logging")
+
+  val IntrafilterObjectMapper: ObjectMapper = new ObjectMapper
+  IntrafilterObjectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY) //http://stackoverflow.com/a/8395924
+
 }
