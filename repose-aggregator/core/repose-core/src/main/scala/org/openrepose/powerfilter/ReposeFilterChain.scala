@@ -20,7 +20,9 @@
 package org.openrepose.powerfilter
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import java.util.concurrent.TimeUnit
 
+import com.codahale.metrics.MetricRegistry
 import com.fasterxml.jackson.annotation.{JsonAutoDetect, PropertyAccessor}
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.typesafe.scalalogging.slf4j.StrictLogging
@@ -29,11 +31,13 @@ import javax.servlet.{Filter, FilterChain, ServletRequest, ServletResponse}
 import org.openrepose.commons.utils.io.{BufferedServletInputStream, RawInputStreamReader}
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{PASSTHROUGH, READONLY}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
-import org.openrepose.powerfilter.ReposeFilterChain.{FilterContext, IntrafilterLog, IntrafilterObjectMapper}
+import org.openrepose.powerfilter.ReposeFilterChain._
 import org.openrepose.powerfilter.intrafilterlogging.{RequestLog, ResponseLog}
 import org.slf4j.{Logger, LoggerFactory}
 
-class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: FilterChain, bypassUrlRegex: Option[String]) extends FilterChain with StrictLogging {
+class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: FilterChain, bypassUrlRegex: Option[String], metricsRegistry: MetricRegistry)
+  extends FilterChain
+    with StrictLogging {
 
   override def doFilter(inboundRequest: ServletRequest, inboundResponse: ServletResponse): Unit = {
     val request = inboundRequest.asInstanceOf[HttpServletRequest]
@@ -51,14 +55,18 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
     chain match {
       case Nil =>
         doIntrafilterLogging(request, response, "origin", (intraRequest, intraResponse) => {
-          logger.debug("End of the filter chain reached")
-          originalChain.doFilter(intraRequest, intraResponse)
+          doMetrics(intraRequest, intraResponse, "origin", (metricsRequest, metricsResponse) => {
+            logger.debug("End of the filter chain reached")
+            originalChain.doFilter(metricsRequest, metricsResponse)
+          })
         })
       case head::tail =>
         if (head.shouldRun(request)) {
           doIntrafilterLogging(request, response, head.filterName, (intraRequest, intraResponse) => {
-            logger.debug("Entering filter: {}", head.filterName)
-            head.filter.doFilter(intraRequest, intraResponse, new ReposeFilterChain(tail, originalChain, None))
+            doMetrics(intraRequest, intraResponse, head.filterName, (metricsRequest, metricsResponse) => {
+              logger.debug("Entering filter: {}", head.filterName)
+              head.filter.doFilter(metricsRequest, metricsResponse, new ReposeFilterChain(tail, originalChain, None, metricsRegistry))
+            })
           })
         } else {
           logger.debug("Skipping filter: {}", head.filterName)
@@ -95,6 +103,22 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
       IntrafilterLog.trace(IntrafilterObjectMapper.writeValueAsString(new ResponseLog(conditionallyWrappedResponse.asInstanceOf[HttpServletResponseWrapper], filter)))
     }
   }
+
+  def doMetrics(request: HttpServletRequest, response: HttpServletResponse, filter: String, requestProcess: (HttpServletRequest, HttpServletResponse) => Unit): Unit = {
+
+    val startTime = System.currentTimeMillis()
+
+    requestProcess(request, response)
+
+    val elapsedTime = System.currentTimeMillis() - startTime
+
+    metricsRegistry.timer(MetricRegistry.name(FilterProcessingMetric, filter))
+                   .update(elapsedTime, TimeUnit.MILLISECONDS)
+
+    if (Option(request.getHeader(TracingHeader)).isDefined && !response.isCommitted) {
+      response.addHeader(s"X-$filter-Time", s"${elapsedTime}ms")
+    }
+  }
 }
 
 object ReposeFilterChain {
@@ -105,4 +129,7 @@ object ReposeFilterChain {
   val IntrafilterObjectMapper: ObjectMapper = new ObjectMapper
   IntrafilterObjectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY) //http://stackoverflow.com/a/8395924
 
+  val FilterProcessingMetric: String = "org.openrepose.core.FilterProcessingTime.Delay"
+
+  val TracingHeader: String = "X-Trace-Request"
 }
