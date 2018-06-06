@@ -49,7 +49,7 @@
     state: absent
 
 - name: Copy Gatling configuration
-  copy:
+  template:
     src: gatling.conf
     dest: /root/gatling/current/conf/gatling.conf
     mode: 0644

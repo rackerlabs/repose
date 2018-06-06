@@ -10,6 +10,9 @@
 - include: install_repose.yml
   tags: [repose]
 
+- include: record_repose_version.yml
+  tags: [repose]
+
 - include: configure_repose.yml
   tags: [repose]
 
