@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/keystone-v2/v1.0"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+    <xs:complexType name="KeystoneV2Config">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The root config type for the Rackspace Keystone V2 filter configuration file.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:all>
+            <xs:element name="delegating" type="DelegatingType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="white-list" type="WhiteListType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="tenant-handling" type="TenantHandlingType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="require-service-endpoint" type="ServiceEndpointType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="pre-authorized-roles" type="RolesList" minOccurs="0" maxOccurs="1"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="DelegatingType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    If present, enables delegation. Delegation will cause this filter to pass requests it would
+                    ordinarily reject along with a header detailing why it would have rejected the request.
+                    If not present, delegation is not enabled, and there is no change in behavior.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="quality" type="QualityType" use="optional" default="0.7"> <!-- todo: move this default into the children types -->
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        What quality you want any output headers to be.
+                        When setting up a chain of delegating filters the highest quality number will be the one that is
+                        eventually output.
+                        Default is 0.7
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="WhiteListType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>List of URI Regular expression patterns to bypass authentication and authorization</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="uri-regex" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="TenantHandlingType">
+        <xs:sequence>
+            <xs:element name="validate-tenant" type="ValidateTenantType" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            If this element is included, tenant validation will be enforced based on the extraction URI.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="send-tenant-id-quality" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            If this element is included, include Quality parameters on all the tenant ID headers sent,
+                            where the default tenant has the highest quality, followed by the one that matches the URI
+                            (if any), followed by the tenants from the roles.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <!-- TODO: Does the authorization filter need a default-tenant-quality and roles-tenant-quality? -->
+                    <xs:attribute name="default-tenant-quality" type="QualityType" default="0.9" use="optional"/>
+                    <!-- TODO: Should this be renamed to matching-tenant-quality? Not backwards compatible. -->
+                    <xs:attribute name="uri-tenant-quality" type="QualityType" default="0.7" use="optional"/>
+                    <xs:attribute name="roles-tenant-quality" type="QualityType" default="0.5" use="optional"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="send-all-tenant-ids" type="xs:boolean" default="false" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Send all the tenant IDs from the user and the roles the user has</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ValidateTenantType">
+        <xs:sequence maxOccurs="unbounded">
+            <xs:element name="uri-extraction-regex" type="UriExtractionType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Regular expression with a single matching group to extract the Tenant ID from the URI for
+                            validation.
+                            Deprecated: This element is deprecated. Use the header-extraction-name attribute instead.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="header-extraction-name" type="HeaderExtractionType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            The name of a HTTP header which contains a corresponding value representing a tenant ID to
+                            be used for authorization.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+
+        <xs:attribute name="strip-token-tenant-prefixes" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        A '/' delimited list of prefixes to attempt to strip from the tenant id in the token
+                        response from the identity service. The post-strip tenant id is only used in the tenant
+                        validation check.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="enable-legacy-roles-mode" type="xs:boolean" default="false" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If in legacy roles mode, all roles associated with a user token are forwarded.
+                        If NOT in legacy roles mode, roles which aren't tied to the tenant provided in the request
+                        will NOT be forwarded UNLESS the user has a pre-authorized role.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="count(header-extraction-name) + count(uri-extraction-regex) > 0"
+                   xerces:message="When validating tenants, at least one tenant extraction must be defined"
+                   saxon:message="When validating tenants, at least one tenant extraction must be defined"/>
+    </xs:complexType>
+
+    <xs:complexType name="RolesList">
+        <xs:sequence>
+            <xs:element name="role" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ServiceEndpointType">
+        <xs:attribute name="public-url" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Public URL to match on the user's service catalog entry
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="region" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Region to match on the user's service catalog entry
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="name" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Name of the service to match in the user's service catalog entry
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="type" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Type to match in the user's service catalog entry
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ExtractionType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string"/>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="UriExtractionType">
+        <xs:simpleContent>
+            <xs:extension base="ExtractionType"/>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="HeaderExtractionType">
+        <xs:simpleContent>
+            <xs:extension base="ExtractionType"/>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:simpleType name="QualityType">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>

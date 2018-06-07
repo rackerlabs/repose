@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:unorm="http://docs.openrepose.org/repose/uri-normalization/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/repose/uri-normalization/v1.0">
+
+    <!-- Uri Normalization Configuration -->
+    <xs:element name="uri-normalization" type="unorm:UriNormalizationConfig"/>
+
+    <xs:complexType name="UriNormalizationConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:all>
+            <xs:element name="media-variants" type="unorm:MediaTypeList" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="uri-filters" type="unorm:UriFilterList" minOccurs="0" maxOccurs="1"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="UriFilterList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="target" type="unorm:Target" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Target">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="whitelist" type="unorm:HttpUriParameterList" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+
+        <xs:attribute name="uri-regex" type="xs:string" use="optional" default=".*">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The uri regex to match against when determining whether or not to apply the filter
+                        to the request. If this attribute is null then repose assumes the filtering is
+                        performed on all requests with the specified http-methods. If uri-regex and
+                        http-methods are both null then the specified uri filter is performed on all
+                        requests.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="alphabetize" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Orders the query parameters in alpha order
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="http-methods" type="unorm:HttpMethodList" use="optional" default="ALL">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>List of HTTP Methods this filter will match on.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="HttpUriParameterList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="parameter" type="unorm:UriParameter" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="UriParameter">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="multiplicity" type="xs:int" use="optional" default="0">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Indicates how many times the parameter can be repeated in the query string. Zero means
+                        you can have an unlimited number of these parameters.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="case-sensitive" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Indicates whether or not to remove parameters of a different case.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="HttpMethodList">
+        <xs:list itemType="unorm:HttpMethod"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="HttpMethod">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The HttpMethod simple type defines a string
+                    enumeration of HTTP method verbs as outlined in
+                    <a
+                            href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616
+                    </a>
+                    section 9.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="GET"/>
+            <xs:enumeration value="DELETE"/>
+            <xs:enumeration value="POST"/>
+            <xs:enumeration value="PUT"/>
+            <xs:enumeration value="PATCH"/>
+            <xs:enumeration value="HEAD"/>
+            <xs:enumeration value="OPTIONS"/>
+            <xs:enumeration value="CONNECT"/>
+            <xs:enumeration value="TRACE"/>
+
+            <xs:enumeration value="ALL"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Types - keep it simple, John-->
+    <xs:complexType name="MediaTypeList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="media-type" type="unorm:MediaType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="MediaType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="variant-extension" type="xs:string" use="optional" default="">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="preferred" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+</xs:schema>
