@@ -1,5 +1,8 @@
 = Release Notes
 
+== 8.9.0.1 (2018-06-08)
+* https://repose.atlassian.net/browse/REP-7054[REP-7054] - IP User filter - support to use X-Forwarded-For header for X-PP-Groups
+
 == 8.9.0.0 (2018-06-06)
 * https://repose.atlassian.net/browse/REP-6839[REP-6839], https://repose.atlassian.net/browse/REP-6920[REP-6920] - Updated dependencies:
 ** Attribute Mapper: 2.2.1 → 3.0.0
