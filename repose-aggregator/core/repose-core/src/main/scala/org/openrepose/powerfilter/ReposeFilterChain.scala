@@ -26,6 +26,7 @@ import com.codahale.metrics.MetricRegistry
 import com.fasterxml.jackson.annotation.{JsonAutoDetect, PropertyAccessor}
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.typesafe.scalalogging.slf4j.StrictLogging
+import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{Filter, FilterChain, ServletRequest, ServletResponse}
 import org.openrepose.commons.utils.io.{BufferedServletInputStream, RawInputStreamReader}
@@ -42,12 +43,20 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
   override def doFilter(inboundRequest: ServletRequest, inboundResponse: ServletResponse): Unit = {
     val request = inboundRequest.asInstanceOf[HttpServletRequest]
     val response = inboundResponse.asInstanceOf[HttpServletResponse]
-    bypassUrlRegex.map(_.r.pattern.matcher(request.getRequestURI).matches()) match {
-      case Some(true) =>
-        logger.debug("Bypass url hit")
-        runNext(List.empty, request, response)
-      case _ =>
-        runNext(filterChain, request, response)
+    try {
+      bypassUrlRegex.map(_.r.pattern.matcher(request.getRequestURI).matches()) match {
+        case Some(true) =>
+          logger.debug("Bypass url hit")
+          runNext(List.empty, request, response)
+        case _ =>
+          runNext(filterChain, request, response)
+      }
+    } catch {
+      case e: Exception =>
+        logger.error("Exception thrown while processing the chain.", e)
+        if (!response.isCommitted) {
+          response.sendError(SC_INTERNAL_SERVER_ERROR, "Exception while processing filter chain.")
+        }
     }
   }
 

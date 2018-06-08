@@ -22,6 +22,7 @@ package org.openrepose.powerfilter
 import java.util.concurrent.TimeUnit
 
 import com.codahale.metrics.{MetricRegistry, Timer}
+import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{Filter, FilterChain}
 import org.apache.logging.log4j.core.LoggerContext
@@ -228,6 +229,35 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
       filterChain.doFilter(mockRequest, mockResponse)
 
       mockResponse.getHeaderNames should not contain "X-origin-Time"
+    }
+
+    it("should return a 500 when an exception occurs") {
+      val filterChain = new ReposeFilterChain(List.empty,
+                                              originalChain,
+                                              None,
+                                              metricsRegistry)
+      when(originalChain.doFilter(any[HttpServletRequest], any[HttpServletResponse])).thenThrow(new RuntimeException("test exception"))
+
+      filterChain.doFilter(mockRequest, mockResponse)
+
+      mockResponse.getStatus should be (SC_INTERNAL_SERVER_ERROR)
+    }
+
+    it("should log if there was a an exception and the response was already committed") {
+      val filterChain = new ReposeFilterChain(List.empty,
+                                              originalChain,
+                                              None,
+                                              metricsRegistry)
+      when(originalChain.doFilter(any[HttpServletRequest], any[HttpServletResponse])).thenThrow(new RuntimeException("test exception"))
+      mockResponse.setCommitted(true)
+      val loggerContext = LogManager.getContext(false).asInstanceOf[LoggerContext]
+      val listAppender = loggerContext.getConfiguration.getAppender("List0").asInstanceOf[ListAppender]
+      listAppender.clear()
+
+      filterChain.doFilter(mockRequest, mockResponse)
+
+      val messageList = listAppender.getEvents.asScala.map(_.getMessage.getFormattedMessage)
+      messageList.filter(_.contains("Exception thrown while processing the chain.")) should have length 1
     }
   }
 }
