@@ -44,12 +44,11 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
     val request = inboundRequest.asInstanceOf[HttpServletRequest]
     val response = inboundResponse.asInstanceOf[HttpServletResponse]
     try {
-      bypassUrlRegex.map(_.r.pattern.matcher(request.getRequestURI).matches()) match {
-        case Some(true) =>
-          logger.debug("Bypass url hit")
-          runNext(List.empty, request, response)
-        case _ =>
-          runNext(filterChain, request, response)
+      if (bypassUrlRegex.exists(_.r.pattern.matcher(request.getRequestURI).matches())) {
+        logger.debug("Bypass url hit")
+        runNext(List.empty, request, response)
+      } else {
+        runNext(filterChain, request, response)
       }
     } catch {
       case e: Exception =>
@@ -128,12 +127,12 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
 object ReposeFilterChain {
   case class FilterContext(filter: Filter, filterName: String, shouldRun: HttpServletRequest => Boolean)
 
-  val IntrafilterLog: Logger = LoggerFactory.getLogger("intrafilter-logging")
+  final val IntrafilterLog: Logger = LoggerFactory.getLogger("intrafilter-logging")
 
-  val IntrafilterObjectMapper: ObjectMapper = new ObjectMapper
+  final val IntrafilterObjectMapper: ObjectMapper = new ObjectMapper
   IntrafilterObjectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY) //http://stackoverflow.com/a/8395924
 
-  val FilterProcessingMetric: String = "org.openrepose.core.FilterProcessingTime.Delay"
+  final val FilterProcessingMetric: String = "org.openrepose.core.FilterProcessingTime.Delay"
 
-  val TracingHeader: String = "X-Trace-Request"
+  final val TracingHeader: String = "X-Trace-Request"
 }
