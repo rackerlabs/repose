@@ -54,28 +54,24 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
   def runNext(chain: List[FilterContext], request: HttpServletRequest, response: HttpServletResponse): Unit = {
     chain match {
       case Nil =>
-        doIntrafilterLogging(request, response, "origin", (intraRequest, intraResponse) => {
-          doMetrics(intraRequest, intraResponse, "origin", (metricsRequest, metricsResponse) => {
-            logger.debug("End of the filter chain reached")
-            originalChain.doFilter(metricsRequest, metricsResponse)
-          })
-        })
-      case head::tail =>
-        if (head.shouldRun(request)) {
-          doIntrafilterLogging(request, response, head.filterName, (intraRequest, intraResponse) => {
-            doMetrics(intraRequest, intraResponse, head.filterName, (metricsRequest, metricsResponse) => {
-              logger.debug("Entering filter: {}", head.filterName)
-              head.filter.doFilter(metricsRequest, metricsResponse, new ReposeFilterChain(tail, originalChain, None, metricsRegistry))
-            })
-          })
-        } else {
-          logger.debug("Skipping filter: {}", head.filterName)
-          runNext(tail, request, response)
-        }
+        logger.debug("End of the filter chain reached")
+        doIntrafilterLogging("origin")
+          .compose(doMetrics("origin"))
+          .apply(originalChain.doFilter(_, _))
+          .apply(request, response)
+      case head :: tail if head.shouldRun(request) =>
+        logger.debug("Entering filter: {}", head.filterName)
+        doIntrafilterLogging("origin")
+          .compose(doMetrics("origin"))
+          .apply(head.filter.doFilter(_, _, new ReposeFilterChain(tail, originalChain, None, metricsRegistry)))
+          .apply(request, response)
+      case head :: tail =>
+        logger.debug("Skipping filter: {}", head.filterName)
+        runNext(tail, request, response)
     }
   }
 
-  def doIntrafilterLogging(request: HttpServletRequest, response: HttpServletResponse, filter: String, requestProcess: (HttpServletRequest, HttpServletResponse) => Unit): Unit = {
+  def doIntrafilterLogging(filter: String)(requestProcess: (HttpServletRequest, HttpServletResponse) => Unit): (HttpServletRequest, HttpServletResponse) => Unit = (request, response) => {
     var conditionallyWrappedRequest = request
     var conditionallyWrappedResponse = response
 
@@ -104,8 +100,7 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
     }
   }
 
-  def doMetrics(request: HttpServletRequest, response: HttpServletResponse, filter: String, requestProcess: (HttpServletRequest, HttpServletResponse) => Unit): Unit = {
-
+  def doMetrics(filter: String)(requestProcess: (HttpServletRequest, HttpServletResponse) => Unit): (HttpServletRequest, HttpServletResponse) => Unit = (request, response) => {
     val startTime = System.currentTimeMillis()
 
     requestProcess(request, response)
