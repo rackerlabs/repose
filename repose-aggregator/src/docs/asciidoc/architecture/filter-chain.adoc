@@ -1,0 +1,106 @@
+= Filter Chain
+
+The *Repose* filter chain is the work horse of the system, and is responsible for nearly all enrichment that *Repose* provides.
+It's based on and uses the same contract as the https://docs.oracle.com/javaee/6/api/javax/servlet/FilterChain.html[JEE Filter Chain].
+As the name implies it is a chain of filters that are followed in order.
+A request goes through them from the first, one after another, until the last is reached when the request which has possibly been mutated along the way is sent on to the origin service.
+When the response comes back from the origin service it works it's way back up the chain in the opposite order.
+
+The *Repose* filter chain provides a number of enhancements over the standard filter chain contract that gives a lot of power and extra value.
+
+== Dynamic Filtering
+
+Typically a filter chain is static and unchanging.
+Your request will pass through every single filter everytime regardless of whether you want it to or not.
+The *Repose* filter chain allows you to determine if a filter should be run while the request is processing.
+
+=== URI Regex ===
+
+[NOTE]
+====
+This method of determining if a filter should be run is *DEPRECATED* and will be removed in *Repose* 10.
+====
+
+You can decide whether or not a filter should run based on it's URI using a https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[regular expression].
+Here's a simple example:
+
+[source,xml]
+.system-model.cfg.xml (partial)
+----
+...
+<filters>
+    <filter name="keystone-v2" uri-regex=".*/foo"/> <!--1-->
+    <filter name="api-validator"/> <!--2-->
+</filters>
+...
+----
+<1> This filter will only be run when the request is to the `/foo` resource.
+<2> This filter will be run everytime.
+
+It's worth noting that if anything changes the request uri while processing the filter chain that will potentially impact whether a filter is run.
+Or in other words the filters to be run is not determined up front, but instead evaluated when the request hits a given filter in the chain.
+
+=== New Fancy Criteria ===
+
+TODO: Put some info here
+
+== Intrafilter Logging ==
+
+Sometimes you won't get the output you expect from the filter chain whether that's to your origin service or your customer that originated the request.
+Intrafilter logging will let you get a look into what effect each filter is having on both the request and response.
+All you have to do is change this line in your logging configuration, from:
+
+[source,xml]
+.log4j2.xml (partial)
+----
+...
+<Logger name="intrafilter-logging" level="info"/>
+...
+----
+
+to:
+
+[source,xml]
+.log4j2.xml (partial)
+----
+...
+<Logger name="intrafilter-logging" level="trace"/>
+...
+----
+
+This will convert both the request and response into a simple JSON object that will be written out into the logs.
+And it will do this before each filter and the origin service allowing you to see how each filter mutated them.
+
+[NOTE]
+====
+This can be expensive in both time and disk space and is intended only as a debugging tool, not for full time use.
+====
+
+== Metrics ==
+
+*Repose* automatically records metrics on how long each request spends within a filter.
+If you wish to see these numbers or exfiltrate them to another tool look into the <<../services/metrics.adoc, Metrics Service>>.
+They are listed under `org.openrepose.core.FilterProcessingTime.Delay` with an entry for each filter by name.
+
+If you are curious about the numbers for a specific request you can send in the `X-Trace-Request` header with a value of true.
+This will add a header to the response for each filter with a name of `X-_filter name_-Time` with the time it took that filter to process.
+
+It's worth noting that the reported time is inclusive of the processing time of all filter further down the chain and the origin service.
+
+== Bypass URI ==
+
+Sometimes you'd like a request to entirely bypass the filter chain entirely.
+The most common use case for this is if you have some sort of monitoring setup to check the responsiveness of your origin service.
+We support this with a simple regular expression specified at the top of the filter chain, like so:
+
+[source,xml]
+.system-model.cfg.xml (partial)
+----
+...
+<filters bypass-uri-regex="/healthcheck">  <!--1-->
+    <filter name="keystone-v2" uri-regex=".*/foo"/>
+    <filter name="api-validator"/>
+</filters>
+...
+----
+<1> Any call to `/healthcheck` will skip the entire filter chain and go straight to the origin service.
