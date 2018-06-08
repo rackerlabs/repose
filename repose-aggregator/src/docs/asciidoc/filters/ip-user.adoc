@@ -20,8 +20,12 @@ However, due to the nature of this filter it is typically placed early in the fi
 === Request Headers Created
 * `X-PP-User` - Will be set to the source IP of the request.
   If this header already exists, then the source IP will be added as a value, but existing values will not be removed.
+  By default, the value will be set to the caller's IP address; however, it can be overwritten with `X-Forwarded-For`
+  header. Only the first value of the header will be taken if more than one value is specified.
 * `X-PP-Groups` - Will be set to the name the first group with a matching Classless Inter-Domain Routing (CIDR) address.
   If this header already exists, then the matching group name will be added as a value, but existing values will not be removed.
+  By default, the value will be set to the caller's IP address; however, it can be overwritten with `X-Forwarded-For`
+  header. Only the first value of the header will be taken if more than one value is specified.
 ** IF there is not a match, THEN this header will not be added.
 
 [NOTE]
