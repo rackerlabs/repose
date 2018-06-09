@@ -74,13 +74,14 @@ class IpUserFilter @Inject()(configurationService: ConfigurationService) extends
       logger.trace("IP User filter handling request...")
       val request = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
 
-      getClassificationLabel(servletRequest.getRemoteAddr).foreach { label =>
+      val clientIpAddress = request.getSplittableHeaderScala(CommonHttpHeader.X_FORWARDED_FOR)
+        .headOption.getOrElse(servletRequest.getRemoteAddr)
+
+      getClassificationLabel(clientIpAddress).foreach { label =>
         request.addHeader(groupHeaderName, label, groupHeaderQuality)
       }
 
       //Always set the user header name to the current IP address
-      val clientIpAddress = request.getSplittableHeaderScala(CommonHttpHeader.X_FORWARDED_FOR)
-        .headOption.getOrElse(servletRequest.getRemoteAddr)
       request.addHeader(userHeaderName, clientIpAddress, userHeaderQuality)
 
       logger.trace("IP User filter passing request...")

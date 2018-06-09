@@ -36,6 +36,7 @@ class IpUserWXForwardedForHeaderTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/ipuser", params)
+        repose.configurationProvider.applyConfigs("features/filters/ipuser/x-forwarded-for", params)
         repose.start()
     }
 
@@ -58,7 +59,7 @@ class IpUserWXForwardedForHeaderTest extends ReposeValveTest {
     }
 
     //REP-3838 fix using x-forward-for as x-pp-user
-    def "When X-Forwarded-For header when it is included should use vaule for x-pp-user"() {
+    def "When X-Forwarded-For header when it is included should use value for x-pp-user"() {
         given: "x-forwarded-for header is set"
         def headers = ['x-forwarded-for': '10.1.1.3']
 
@@ -66,15 +67,18 @@ class IpUserWXForwardedForHeaderTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'get', headers: headers)
         def sentRequest = mc.handlings[0]
 
-        then: "Repose will send x-pp-group with the configured value"
+        then: "Repose will send the request with the configured value"
         mc.handlings.size() == 1
 
         and: "Repose will x-pp-user base on x-forward-for header plus default quality"
         sentRequest.request.headers.findAll("x-pp-user").size() == 1
         sentRequest.request.headers.getFirstValue("x-pp-user") == '10.1.1.3;q=0.4'
+
+        and: "Repose will not send x-pp-groups because x-forwarded-for does not match any group"
+        sentRequest.request.headers.findAll("x-pp-groups").size() == 0
     }
 
-    def "When multi x-forwarded-for headers are included shoud take 1st valued for x-pp-user"() {
+    def "When multi x-forwarded-for headers are included should take 1st valued for x-pp-user"() {
         given: "x-forwarded-for header is set"
         def headers = ['x-forwarded-for': '192.25.25.15',
                        'X-Forwarded-For': '10.1.1.3']
@@ -82,15 +86,19 @@ class IpUserWXForwardedForHeaderTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'get', headers: headers)
         def sentRequest = mc.handlings[0]
 
-        then: "Repose will send x-pp-group with the configured value"
+        then: "Repose will send the request with the configured value"
         mc.handlings.size() == 1
 
         and: "Repose will x-pp-user base on x-forward-for header plus default quality"
         sentRequest.request.headers.findAll("x-pp-user").size() == 1
         sentRequest.request.headers.getFirstValue("x-pp-user") == '192.25.25.15;q=0.4'
+
+        and: "Repose will send x-pp-groups because x-forwarded-for match a group"
+        sentRequest.request.headers.findAll("x-pp-groups").size() == 1
+        sentRequest.request.headers.getFirstValue("x-pp-groups") == 'random-group;q=0.4'
     }
 
-    def "When multi x-forwarded-for splitable headers are included shoud take 1st valued for x-pp-user"() {
+    def "When multi x-forwarded-for splittable headers are included should take 1st valued for x-pp-user"() {
         given: "x-forwarded-for header is set"
         def headers = ['x-forwarded-for': '192.25.25.15, 10.1.1.3']
 
@@ -98,11 +106,53 @@ class IpUserWXForwardedForHeaderTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'get', headers: headers)
         def sentRequest = mc.handlings[0]
 
-        then: "Repose will send x-pp-group with the configured value"
+        then: "Repose will send the request with the configured value"
         mc.handlings.size() == 1
 
         and: "Repose will x-pp-user base on x-forward-for header plus default quality"
         sentRequest.request.headers.findAll("x-pp-user").size() == 1
         sentRequest.request.headers.getFirstValue("x-pp-user") == '192.25.25.15;q=0.4'
+
+        and: "Repose will send x-pp-groups because x-forwarded-for match a group"
+        sentRequest.request.headers.findAll("x-pp-groups").size() == 1
+        sentRequest.request.headers.getFirstValue("x-pp-groups") == 'random-group;q=0.4'
+    }
+
+    def "When multi x-forwarded-for headers are included should only match the first value for x-pp-groups"() {
+        given: "x-forwarded-for header is set"
+        def headers = ['X-Forwarded-For': '10.1.1.3',
+                       'x-forwarded-for': '192.25.25.15']
+        when: "Request is sent through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'get', headers: headers)
+        def sentRequest = mc.handlings[0]
+
+        then: "Repose will send the request with the configured value"
+        mc.handlings.size() == 1
+
+        and: "Repose will x-pp-user base on x-forward-for header plus default quality"
+        sentRequest.request.headers.findAll("x-pp-user").size() == 1
+        sentRequest.request.headers.getFirstValue("x-pp-user") == '10.1.1.3;q=0.4'
+
+        and: "Repose will not send x-pp-groups because x-forwarded-for does not match any group"
+        sentRequest.request.headers.findAll("x-pp-groups").size() == 0
+    }
+
+    def "When multi x-forwarded-for splittable headers are included should only match the first value for x-pp-groups"() {
+        given: "x-forwarded-for header is set"
+        def headers = ['x-forwarded-for': '10.1.1.3,192.25.25.15']
+
+        when: "Request is sent through repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'get', headers: headers)
+        def sentRequest = mc.handlings[0]
+
+        then: "Repose will send the request with the configured value"
+        mc.handlings.size() == 1
+
+        and: "Repose will x-pp-user base on x-forward-for header plus default quality"
+        sentRequest.request.headers.findAll("x-pp-user").size() == 1
+        sentRequest.request.headers.getFirstValue("x-pp-user") == '10.1.1.3;q=0.4'
+
+        and: "Repose will not send x-pp-groups because x-forwarded-for does not match any group"
+        sentRequest.request.headers.findAll("x-pp-groups").size() == 0
     }
 }

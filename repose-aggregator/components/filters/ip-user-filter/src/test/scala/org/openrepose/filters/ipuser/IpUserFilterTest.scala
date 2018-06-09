@@ -84,15 +84,98 @@ class IpUserFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
     }
   }
 
+  describe("setting the request x-pp-groups header") {
+    it("should use the value of the remote IP address of the request when no X-Forwarded-For header is included and group matches") {
+      servletRequest.setRemoteAddr("10.55.66.77")
+
+      ipUserFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      getPostFilterRequest.getHeader("x-pp-groups") shouldEqual "my-awesome-group" + DefaultQuality
+    }
+
+    it("should use the value of the X-Forwarded-For header when it is included") {
+      servletRequest.setRemoteAddr("10.1.2.3")
+      servletRequest.addHeader("X-Forwarded-For", "10.55.66.77")
+
+      ipUserFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      getPostFilterRequest.getHeader("x-pp-groups") shouldEqual "my-awesome-group" + DefaultQuality
+    }
+
+    it("group should be null when there are multiple non-split values in the X-Forwarded-For header - last match") {
+      servletRequest.setRemoteAddr("10.1.2.3")
+      servletRequest.addHeader("X-Forwarded-For", "10.1.1.1")
+      servletRequest.addHeader("X-Forwarded-For", "10.55.66.77")
+
+      ipUserFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      getPostFilterRequest.getHeader("x-pp-groups") should be (null)
+    }
+
+    it("group should use the matching ip when there are multiple non-split values in the X-Forwarded-For header - first match") {
+      servletRequest.setRemoteAddr("10.1.2.3")
+      servletRequest.addHeader("X-Forwarded-For", "10.55.66.77")
+      servletRequest.addHeader("X-Forwarded-For", "10.1.1.1")
+
+      ipUserFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      getPostFilterRequest.getHeader("x-pp-groups") shouldEqual "my-awesome-group" + DefaultQuality
+    }
+
+    it("group should be null when there are multiple splittable values in the X-Forwarded-For header - last match") {
+      servletRequest.setRemoteAddr("10.1.2.3")
+      servletRequest.addHeader("X-Forwarded-For", "10.1.1.1,10.55.66.77")
+
+      ipUserFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      getPostFilterRequest.getHeader("x-pp-groups") should be (null)
+    }
+
+    it("group should use the matching ip when there are multiple splittable values in the X-Forwarded-For header - first match") {
+      servletRequest.setRemoteAddr("10.1.2.3")
+      servletRequest.addHeader("X-Forwarded-For", "10.55.66.77,10.1.1.1")
+
+      ipUserFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      getPostFilterRequest.getHeader("x-pp-groups") shouldEqual "my-awesome-group" + DefaultQuality
+    }
+
+    it("should use the first matching group when the ip in X-Forwarded-For is in multiple groups") {
+      servletRequest.setRemoteAddr("10.1.2.3")
+      servletRequest.addHeader("X-Forwarded-For", "123.32.1.1")
+
+      ipUserFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      getPostFilterRequest.getHeader("x-pp-groups") shouldEqual "my-awesome-group" + DefaultQuality
+    }
+
+    it("should use the last matching group when the ip in X-Forwarded-For") {
+      servletRequest.setRemoteAddr("10.1.2.3")
+      servletRequest.addHeader("X-Forwarded-For", "10.123.123.123")
+
+      ipUserFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      getPostFilterRequest.getHeader("x-pp-groups") shouldEqual "some-other-group" + DefaultQuality
+    }
+  }
+
   def getPostFilterRequest: HttpServletRequestWrapper = filterChain.getRequest.asInstanceOf[HttpServletRequestWrapper]
 
   def createConfig(): IpUserConfig = {
-    val group = new GroupType
-    group.setName("ipv4-match-all")
-    group.getCidrIp.add("0.0.0.0/0")
+    val myAwesomeGroup = new GroupType
+    myAwesomeGroup.setName("my-awesome-group")
+    myAwesomeGroup.getCidrIp.add("10.55.66.77/32")
+    myAwesomeGroup.getCidrIp.add("10.55.66.78/32")
+    myAwesomeGroup.getCidrIp.add("123.32.1.1/32")
+
+    val someOtherGroup = new GroupType
+    someOtherGroup.setName("some-other-group")
+    someOtherGroup.getCidrIp.add("10.123.123.123/32")
+    someOtherGroup.getCidrIp.add("123.32.1.1/32")
 
     val config = new IpUserConfig
-    config.getGroup.add(group)
+    config.getGroup.add(myAwesomeGroup)
+    config.getGroup.add(someOtherGroup)
     config
   }
 }
