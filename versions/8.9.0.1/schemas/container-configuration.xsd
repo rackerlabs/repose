@@ -1,0 +1,605 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+<xs:schema xmlns:papic="http://docs.openrepose.org/repose/container/v2.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/repose/container/v2.0">
+
+    <xs:element name="repose-container" type="papic:ContainerConfiguration"/>
+
+    <xs:complexType name="ContainerConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Configuration for the container.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="deployment-config" type="papic:DeploymentConfiguration"/>
+            <xs:element name="cluster-config" type="papic:DeploymentConfigurationPatch" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="count(distinct-values(cluster-config/@cluster-id)) = count(cluster-config/@cluster-id)"
+                   xerces:message="When defining per-cluster configuration, all cluster IDs must be unique"
+                   saxon:message="When defining per-cluster configuration, all cluster IDs must be unique"/>
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="
+                   if (deployment-config/ssl-configuration) then
+                     true()
+                   else
+                     (if (cluster-config/ssl-configuration/keystore-filename or cluster-config/ssl-configuration/keystore-password or cluster-config/ssl-configuration/key-password) then
+                       cluster-config/ssl-configuration/keystore-filename and cluster-config/ssl-configuration/keystore-password and cluster-config/ssl-configuration/key-password
+                     else
+                       true())"
+                   xerces:message="When defining a new keystore to use, the keystore and key passwords are required"
+                   saxon:message="When defining a new keystore to use, the keystore and key passwords are required"/>
+    </xs:complexType>
+
+    <xs:complexType name="DeploymentConfigurationBase">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Contains deployment configuration attributes.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="http-port" type="xs:int" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        <html:strong>This attribute is deprecated it and will be ignored.
+                            Use the system model to set ports.
+                        </html:strong>
+                    </html:p>
+                    <html:p>Http port number on which Repose listens for requests.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="https-port" type="xs:int" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        <html:strong>This attribute is deprecated it and will be ignored.
+                            Use the system model to set ports.
+                        </html:strong>
+                    </html:p>
+                    <html:p>Https port number on which Repose listens for requests</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <!-- TODO for v9.0.0.0: The DeploymentConfigurationBase element's via attribute should be removed. -->
+        <xs:attribute name="via" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Deprecated: This attribute is deprecated and will be removed in future major release.
+                        An identifying string that will be returned in the Via header.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="content-body-read-limit" type="papic:longGTZero" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Maximum size for request content in bytes.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="DeploymentConfiguration">
+        <xs:complexContent>
+            <xs:extension base="papic:DeploymentConfigurationBase">
+                <xs:all>
+                    <xs:element name="deployment-directory" type="papic:DeploymentDirectory" minOccurs="1" maxOccurs="1"/>
+                    <xs:element name="artifact-directory" type="papic:ArtifactDirectory" minOccurs="1" maxOccurs="1"/>
+                    <xs:element name="ssl-configuration" type="papic:SslConfiguration" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="logging-configuration" type="papic:LoggingConfiguration" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="via-header" type="papic:ViaHeader" minOccurs="0" maxOccurs="1"/>
+                </xs:all>
+
+                <xs:attribute name="jmx-reset-time" type="papic:intGTZero" use="optional" default="15">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>The number of seconds the JMX reporting service keeps data.
+                                The data will be reset after this amount of time.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="idleTimeout" type="xs:long" use="optional" default="30000">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                The time in milliseconds that a connection can be idle before it is closed (Default: 30000).
+                                See: http://www.eclipse.org/jetty/documentation/current/configuring-connectors.html#jetty-connectors-network-settings
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="soLingerTime" type="xs:int" use="optional" default="-1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                A value >=0 sets the socket SO_LINGER value in milliseconds.
+                                Repose (Jetty) attempts to gently close all TCP/IP connections with proper half close semantics,
+                                so a linger timeout should not be required and thus the default is -1.
+                                See: http://www.eclipse.org/jetty/documentation/current/configuring-connectors.html#jetty-connectors-network-settings
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:assert vc:minVersion="1.1"
+                           xpathDefaultNamespace="##targetNamespace"
+                           test="count((@via, via-header)) le 1"
+                           xerces:message="Cannot define both a deprecated via attribute and the new via-header element"
+                           saxon:message="Cannot define both a deprecated via attribute and the new via-header element"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="DeploymentConfigurationPatch">
+        <xs:complexContent>
+            <xs:extension base="papic:DeploymentConfigurationBase">
+                <xs:all>
+                    <xs:element name="ssl-configuration" type="papic:SslConfigurationPatch" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="via-header" type="papic:ViaHeaderPatch" minOccurs="0" maxOccurs="1"/>
+                </xs:all>
+
+                <xs:attribute name="cluster-id" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                The ID which specifies which cluster this configuration patch should be applied to.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="idleTimeout" type="xs:long" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                The time in milliseconds that a connection can be idle before it is closed (Default: 30000).
+                                See: http://www.eclipse.org/jetty/documentation/current/configuring-connectors.html#jetty-connectors-network-settings
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="soLingerTime" type="xs:int" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                A value >=0 sets the socket SO_LINGER value in milliseconds.
+                                Repose (Jetty) attempts to gently close all TCP/IP connections with proper half close semantics,
+                                so a linger timeout should not be required and thus the default is -1.
+                                See: http://www.eclipse.org/jetty/documentation/current/configuring-connectors.html#jetty-connectors-network-settings
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:assert vc:minVersion="1.1"
+                           xpathDefaultNamespace="##targetNamespace"
+                           test="count((@via, via-header)) le 1"
+                           xerces:message="Cannot define both a deprecated via attribute and the new via-header element"
+                           saxon:message="Cannot define both a deprecated via attribute and the new via-header element"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="ArtifactDirectory">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="check-interval" type="papic:intGTZero" use="optional" default="1000">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>Directory check interval in milliseconds</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="DeploymentDirectory">
+        <xs:simpleContent>
+            <xs:extension base="xs:anyURI">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>A string that points the directory where artifacts are extracted.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+
+                <xs:attribute name="auto-clean" type="xs:boolean" use="optional" default="true">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>Clean up undeployed resources</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="LoggingConfiguration">
+        <xs:simpleContent>
+            <xs:extension base="papic:EmptyString">
+                <xs:attribute name="href" type="xs:anyURI" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>Name of the system state log config</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="ViaHeader">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Contains the information needed to configure Repose's Via header.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="papic:EmptyString">
+                <xs:attribute name="request-prefix" type="papic:NonBlankString" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                An identifying string that will be sent in the request Via header to the origin service.
+                                If undefined, then the hostname and servicing port will be added to the request.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="response-prefix" type="papic:NonBlankString" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                An identifying string that will be returned in the response Via header to the client.
+                                If undefined and the repose-version is false, then no Via header will be added to the response.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="repose-version" type="xs:boolean" use="optional" default="true">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Indicates whether or not the Via header will include the Repose version.
+                                If false and the response-prefix is undefined, then no Via header will be added will be add to the response.
+                                (Default: true)
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="ViaHeaderPatch">
+        <xs:simpleContent>
+            <xs:extension base="papic:EmptyString">
+                <xs:attribute name="request-prefix" type="papic:NonBlankString" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                An identifying string that will be sent in the request Via header to the origin service.
+                                If undefined, then the hostname and servicing port will be added to the request.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="response-prefix" type="papic:NonBlankString" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                An identifying string that will be returned in the response Via header to the client.
+                                If undefined and the repose-version is false, then no Via header will be added to the response.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="repose-version" type="xs:boolean" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Indicates whether or not the Via header will include the Repose version.
+                                If false and the response-prefix is undefined, then no Via header will be added to the response.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="SslConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Contains the information needed to run Repose in an SSL enabled mode.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:all>
+            <xs:element name="keystore-filename" type="xs:anyURI" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Name of the application keystore file, e.g keystore.repose</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="keystore-password" type="xs:string" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The password for the entire application keystore.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="key-password" type="xs:string" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The password for the particular application key in the keystore.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="tls-renegotiation-allowed" type="xs:boolean" default="false" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Whether to allow TLS Renegotiation. Default is to disallow.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="truststore-filename" type="xs:anyURI" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            The application truststore used for validating client certificates.
+                            This is typically set to the same path as the keystore.
+                            NOTE: This element is only used if the need-client-auth attribute is True.
+                            NOTE: IF the need-client-auth attribute is True AND this element is not present,
+                                  THEN the keystore will be used.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="truststore-password" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            The password for the application truststore.
+                            NOTE: This element is only used if the need-client-auth attribute is True
+                                  AND the truststore-filename element is present.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="included-protocols" type="papic:sslProtocolConfiguration" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The list of protocols to include.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="excluded-protocols" type="papic:sslProtocolConfiguration" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The list of protocols to exclude.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="included-ciphers" type="papic:sslCipherConfiguration" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The list of ciphers to include.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="excluded-ciphers" type="papic:sslCipherConfiguration" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The list of ciphers to exclude.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+        <xs:attribute name="need-client-auth" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Indicates whether or not SSL client authentication is required.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="SslConfigurationPatch">
+        <xs:all>
+            <xs:element name="keystore-filename" type="xs:anyURI" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Name of the application keystore file, e.g keystore.repose</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="keystore-password" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The password for the entire application keystore.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="key-password" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The password for the particular application key in the keystore.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="tls-renegotiation-allowed" type="xs:boolean" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Whether to allow TLS Renegotiation. Default is to disallow.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="truststore-filename" type="xs:anyURI" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            The application truststore used for validating client certificates.
+                            This is typically set to the same path as the keystore.
+                            NOTE: This element is only used if the need-client-auth attribute is True.
+                            NOTE: IF the need-client-auth attribute is True AND this element is not present,
+                            THEN the keystore will be used.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="truststore-password" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            The password for the application truststore.
+                            NOTE: This element is only used if the need-client-auth attribute is True
+                            AND the truststore-filename element is present.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="included-protocols" type="papic:sslProtocolConfiguration" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The list of protocols to include.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="excluded-protocols" type="papic:sslProtocolConfiguration" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The list of protocols to exclude.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="included-ciphers" type="papic:sslCipherConfiguration" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The list of ciphers to include.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="excluded-ciphers" type="papic:sslCipherConfiguration" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The list of ciphers to exclude.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+        <xs:attribute name="need-client-auth" type="xs:boolean" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Indicates whether or not SSL client authentication is required.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="sslProtocolConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Allows you to configure Secure Protocols to be used by VALVE, not WAR deployments
+                    This is a list of protocols that can be used, must be listed by the JVM's "getSupportedProtocols"
+                    method, which will be logged, if Valve fails to initialize.
+                    http://docs.oracle.com/javase/8/docs/api/javax/net/ssl/SSLEngine.html?is-external=true#setEnabledProtocols%28java.lang.String[]%29
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="protocol" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+    </xs:complexType>
+
+    <xs:complexType name="sslCipherConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Allows you to configure cipher suites and TLS renegotiation that will be used by VALVE
+                    (not war file) for SSL and TLS.
+
+                    Each cipher can be an exact cipher name, or a regular expression.
+
+                    See: http://www.eclipse.org/jetty/documentation/current/configuring-ssl.html for more information
+                    Specifically the parts about Enabling/Disabling Specific Cipher Suites
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="cipher" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(cipher)) = count(cipher)"
+                   xpathDefaultNamespace="##targetNamespace"
+                   xerces:message="Don't duplicate ciphers"
+                   saxon:message="Don't duplicate ciphers"/>
+    </xs:complexType>
+
+    <xs:simpleType name="intGTZero">
+        <xs:restriction base="xs:int">
+            <xs:minExclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="longGTZero">
+        <xs:restriction base="xs:long">
+            <xs:minExclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="EmptyString">
+        <xs:restriction base="xs:string">
+            <xs:length value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="NonBlankString">
+        <xs:restriction base="xs:normalizedString">
+            <xs:whiteSpace value="collapse"/>
+            <xs:minLength value="1"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

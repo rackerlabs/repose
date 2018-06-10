@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns="http://docs.openrepose.org/repose/remote-datastore/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/remote-datastore/v1.0"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+    <!-- Elements -->
+    <xs:element name="remote-datastore" type="RemoteDatastoreConfiguration"/>
+
+    <!-- Types -->
+    <xs:complexType name="RemoteDatastoreConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The root config type for the Remote Datastore configuration file.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="cluster" type="RemoteClusterConfiguration" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="RemoteClusterConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The config type to define a Remote Datastore configuration for a specific cluster.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="id" type="xs:ID" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Defines the id of the cluster this configuration is for.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="host" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Defines the host providing the remote datastore.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="port" type="PortNumber" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Defines the port on which the remote datastore is listening (1-65535).
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="useHTTPS" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Defines if the remote datastore is expecting a secure connection request (Default: True).
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="connection-pool-id" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Http Connection pool ID to use when talking to the Remote Datastore</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:simpleType name="PortNumber">
+        <xs:restriction base="xs:integer">
+            <xs:minInclusive value="1"/>
+            <xs:maxInclusive value="65535"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
