@@ -1,5 +1,8 @@
 = Release Notes
 
+== In Progress
+* https://repose.atlassian.net/browse/REP-7004[REP-7004] - Fixed a bug in the Keystone v2 Basic Auth, Keystone v2, Openstack Identity v3, and Valkyrie Authorization filters were headers were potentially processed in a case sensitive way.
+
 == 8.9.0.1 (2018-06-08)
 * https://repose.atlassian.net/browse/REP-7054[REP-7054] - IP User filter - support to use X-Forwarded-For header for X-PP-Groups
 
