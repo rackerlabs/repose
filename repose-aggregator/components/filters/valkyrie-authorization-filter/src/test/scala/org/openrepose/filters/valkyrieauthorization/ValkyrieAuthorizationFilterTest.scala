@@ -144,6 +144,41 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
     }
 
+    Seq("view_product", "edit_product", "admin_product").permutations flatMap { permissionOrdering =>
+      Seq("GET", "HEAD", "PUT", "POST", "DELETE") map { method =>
+        (method, permissionOrdering)
+      }
+    } foreach { case (method, permissionOrdering) =>
+      it(s"should allow a $method request when a user has multiple permissions on a device regardless of order $permissionOrdering") {
+        val tenantId = "someTenant"
+        val deviceId = "123456"
+        val contactId = deviceId
+        val headers = Map(TENANT_ID -> s"hybrid:$tenantId", DeviceId -> deviceId, CONTACT_ID -> contactId)
+        setMockAkkaBehavior(
+          tenantId,
+          headers(CONTACT_ID),
+          SC_OK,
+          createValkyrieResponse(devicePermissions(permissionOrdering.map(deviceId -> _))))
+
+        val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], akkaServiceClientFactory, mockDatastoreService)
+        filter.configurationUpdated(createGenericValkyrieConfiguration(null))
+
+        val mockServletRequest = new MockHttpServletRequest
+        mockServletRequest.setMethod(method)
+        mockServletRequest.setServerName("foo.com")
+        mockServletRequest.setServerPort(8080)
+        mockServletRequest.setRequestURI("/")
+        headers.foreach({ case (k, v) => mockServletRequest.addHeader(k, v) })
+
+        val mockFilterChain = mock[FilterChain]
+        filter.doWork(mockServletRequest, new MockHttpServletResponse, mockFilterChain)
+
+        val responseCaptor = ArgumentCaptor.forClass(classOf[HttpServletResponseWrapper])
+        Mockito.verify(mockFilterChain).doFilter(Matchers.any(classOf[ServletRequest]), responseCaptor.capture())
+        responseCaptor.getValue.getStatus shouldBe SC_OK
+      }
+    }
+
     List((RequestProcessor("GET", Map(TENANT_ID -> "hybrid:someTenant", CONTACT_ID -> "123456"), "foo.com", 8080, "/foo"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "view_product")))), //View role
       (RequestProcessor("HEAD", Map(TENANT_ID -> "hybrid:someTenant", CONTACT_ID -> "123456"), "foo.com", 8080, "/foo"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "view_product")))), //Without colon in tenant
       (RequestProcessor("POST", Map(TENANT_ID -> "hybrid:someTenant", CONTACT_ID -> "123456"), "foo.com", 8080, "/foo"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "edit_product")))), //Edit role
@@ -1657,6 +1692,22 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
          "permission_name" : "${permissionName}1",
          "permission_type_id" : 12
        }"""
+  }
+
+  def devicePermissions(permissions: Seq[(String, String)]): String = {
+    permissions.foldLeft("") { case (acc, (deviceId, permissionName)) =>
+      s"""$acc${if (acc.nonEmpty) "," else ""}
+          {
+           "account_number":862323,
+           "contact_id": 818029,
+           "id": 0,
+           "item_id": $deviceId,
+           "item_type_id" : 1,
+           "item_type_name" : "devices",
+           "permission_name" : "$permissionName",
+           "permission_type_id" : 12
+         }"""
+    }
   }
 
   def accountPermissions(permission1: String, permission2: String): String = {
