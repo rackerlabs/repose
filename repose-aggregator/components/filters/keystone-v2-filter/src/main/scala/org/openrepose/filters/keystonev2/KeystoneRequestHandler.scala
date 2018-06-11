@@ -21,11 +21,11 @@ package org.openrepose.filters.keystonev2
 
 import java.io.InputStream
 import java.util.{Calendar, GregorianCalendar}
-import javax.servlet.http.HttpServletResponse._
-import javax.ws.rs.core.{HttpHeaders, MediaType}
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.typesafe.scalalogging.slf4j.StrictLogging
+import javax.servlet.http.HttpServletResponse._
+import javax.ws.rs.core.{HttpHeaders, MediaType}
 import org.apache.http.client.utils.DateUtils
 import org.joda.time.format.ISODateTimeFormat
 import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
@@ -231,12 +231,10 @@ object KeystoneRequestHandler {
   }
 
   def buildRetryValue(response: ServiceClientResponse): String = {
-    response.getHeaders.find(header => HttpHeaders.RETRY_AFTER.equalsIgnoreCase(header.getName)) match {
-      case Some(retryValue) => retryValue.getValue
-      case _ =>
-        val retryCalendar: Calendar = new GregorianCalendar
-        retryCalendar.add(Calendar.SECOND, 5)
-        DateUtils.formatDate(retryCalendar.getTime)
+    response.getHeaders(HttpHeaders.RETRY_AFTER).asScala.headOption.getOrElse {
+      val retryCalendar: Calendar = new GregorianCalendar
+      retryCalendar.add(Calendar.SECOND, 5)
+      DateUtils.formatDate(retryCalendar.getTime)
     }
   }
 
