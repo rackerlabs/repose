@@ -26,12 +26,12 @@ import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import org.springframework.http.HttpHeaders
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE
 import static org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TOO_MANY_REQUESTS
+import static org.springframework.http.HttpHeaders.RETRY_AFTER
 
 class AuxiliaryErrorsTest extends ReposeValveTest {
     def static originEndpoint
@@ -136,7 +136,7 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
             client_token = UUID.randomUUID().toString()
             validateTokenHandler = {
                 tokenId, tenantId, request ->
-                    new Response(identityStatusCode, null, [(HttpHeaders.RETRY_AFTER): retryString])
+                    new Response(identityStatusCode, null, [(retryAfterHeaderName): retryString])
             }
         }
         reposeLogSearch.cleanLog()
@@ -153,13 +153,19 @@ class AuxiliaryErrorsTest extends ReposeValveTest {
 
         then: "request body sent from repose to the origin service should contain HTTP 503"
         mc.receivedResponse.code as Integer == SC_SERVICE_UNAVAILABLE
-        mc.receivedResponse.getHeaders().getFirstValue(HttpHeaders.RETRY_AFTER).equals(retryString)
-        reposeLogSearch.searchByString("Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $identityStatusCode").size() == 0
+        mc.receivedResponse.getHeaders().getFirstValue(RETRY_AFTER).equals(retryString)
+        reposeLogSearch.searchByString("Missing $RETRY_AFTER header on Auth Response status code: $identityStatusCode").size() == 0
 
         where:
-        reqTenant | identityStatusCode
-        1111      | SC_REQUEST_ENTITY_TOO_LARGE
-        1112      | SC_TOO_MANY_REQUESTS
+        reqTenant | retryAfterHeaderName      | identityStatusCode
+        1111      | RETRY_AFTER               | SC_REQUEST_ENTITY_TOO_LARGE
+        1112      | RETRY_AFTER               | SC_TOO_MANY_REQUESTS
+        1113      | RETRY_AFTER.toLowerCase() | SC_REQUEST_ENTITY_TOO_LARGE
+        1114      | RETRY_AFTER.toLowerCase() | SC_TOO_MANY_REQUESTS
+        1115      | RETRY_AFTER.toUpperCase() | SC_REQUEST_ENTITY_TOO_LARGE
+        1116      | RETRY_AFTER.toUpperCase() | SC_TOO_MANY_REQUESTS
+        1117      | "ReTrY-aFtEr"             | SC_REQUEST_ENTITY_TOO_LARGE
+        1118      | "ReTrY-aFtEr"             | SC_TOO_MANY_REQUESTS
     }
 
 }
