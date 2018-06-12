@@ -261,7 +261,7 @@ class BasicAuthPasswordAloneTest extends ReposeValveTest {
         fakeIdentityService.with {
             generateTokenHandler = {
                 request, xml ->
-                    new Response(identityStatusCode, null, [(RETRY_AFTER): retryString], xml)
+                    new Response(identityStatusCode, null, [(retryAfterHeaderName): retryString], xml)
             }
         }
         def headers = [
@@ -278,8 +278,14 @@ class BasicAuthPasswordAloneTest extends ReposeValveTest {
         reposeLogSearch.searchByString("Missing ${RETRY_AFTER} header on Auth Response status code: $identityStatusCode").size() == 0
 
         where:
-        reqTenant | identityStatusCode
-        9505      | SC_REQUEST_ENTITY_TOO_LARGE
-        9506      | SC_TOO_MANY_REQUESTS
+        reqTenant | retryAfterHeaderName      | identityStatusCode
+        9505      | RETRY_AFTER               | SC_REQUEST_ENTITY_TOO_LARGE
+        9506      | RETRY_AFTER               | SC_TOO_MANY_REQUESTS
+        9507      | RETRY_AFTER.toLowerCase() | SC_REQUEST_ENTITY_TOO_LARGE
+        9508      | RETRY_AFTER.toLowerCase() | SC_TOO_MANY_REQUESTS
+        9509      | RETRY_AFTER.toUpperCase() | SC_REQUEST_ENTITY_TOO_LARGE
+        9510      | RETRY_AFTER.toUpperCase() | SC_TOO_MANY_REQUESTS
+        9511      | "ReTrY-aFtEr"             | SC_REQUEST_ENTITY_TOO_LARGE
+        9512      | "ReTrY-aFtEr"             | SC_TOO_MANY_REQUESTS
     }
 }
