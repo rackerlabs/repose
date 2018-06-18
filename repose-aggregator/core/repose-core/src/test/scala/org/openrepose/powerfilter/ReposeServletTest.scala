@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpServletResponse._
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, isA}
-import org.mockito.Mockito.{never, verify, when}
+import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -49,40 +49,13 @@ class ReposeServletTest extends FunSpec with BeforeAndAfterEach with MockitoSuga
   }
 
   describe("service") {
-    Set(
-      SC_OK,
-      SC_CREATED,
-      SC_MULTIPLE_CHOICES,
-      SC_NOT_MODIFIED,
-      SC_NOT_FOUND,
-      SC_BAD_REQUEST
-    ) foreach { statusCode =>
-      it(s"should route the request when the response has status code $statusCode") {
-        val req = new MockHttpServletRequest()
-        val resp = new MockHttpServletResponse()
+    it(s"should route the request") {
+      val req = new MockHttpServletRequest()
+      val resp = new MockHttpServletResponse()
 
-        resp.setStatus(statusCode)
+      reposeServlet.service(req, resp)
 
-        reposeServlet.service(req, resp)
-
-        verify(router).route(isA(classOf[HttpServletRequestWrapper]), isA(classOf[HttpServletResponse]))
-      }
-    }
-
-    Set(
-      SC_INTERNAL_SERVER_ERROR,
-      SC_BAD_GATEWAY
-    ) foreach { statusCode =>
-      it(s"should not route the request when the response has status code $statusCode") {
-        val req = new MockHttpServletRequest()
-        val resp = new MockHttpServletResponse()
-
-        resp.setStatus(statusCode)
-
-        reposeServlet.service(req, resp)
-
-        verify(router, never()).route(isA(classOf[HttpServletRequestWrapper]), isA(classOf[HttpServletResponse]))
-      }
+      verify(router).route(isA(classOf[HttpServletRequestWrapper]), isA(classOf[HttpServletResponse]))
     }
 
     Set(

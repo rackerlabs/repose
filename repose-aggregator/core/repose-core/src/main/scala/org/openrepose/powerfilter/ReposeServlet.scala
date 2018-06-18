@@ -33,9 +33,7 @@ class ReposeServlet @Inject()(router: PowerFilterRouter) extends HttpServlet wit
     val wrappedResponse = new HttpServletResponseWrapper(resp, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
 
     try {
-      if (wrappedResponse.getStatus() < SC_INTERNAL_SERVER_ERROR) {
-        router.route(wrappedRequest, wrappedResponse)
-      }
+      router.route(wrappedRequest, wrappedResponse)
     } catch {
       case e: Exception =>
         logger.error("Failed to route the request to the origin service", e)
