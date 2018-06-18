@@ -23,24 +23,20 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.inject.{Inject, Named}
 import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
-import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 
 @Named
 class ReposeServlet @Inject()(router: PowerFilterRouter) extends HttpServlet with StrictLogging {
 
   override def service(req: HttpServletRequest, resp: HttpServletResponse): Unit = {
-    val wrappedRequest = new HttpServletRequestWrapper(req)
-    val wrappedResponse = new HttpServletResponseWrapper(resp, ResponseMode.MUTABLE, ResponseMode.PASSTHROUGH)
-
     try {
-      router.route(wrappedRequest, wrappedResponse)
+      router.route(new HttpServletRequestWrapper(req), resp)
     } catch {
       case e: Exception =>
         logger.error("Failed to route the request to the origin service", e)
-        wrappedResponse.uncommit()
-        wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
-    } finally {
-      wrappedResponse.commitToResponse()
+        if (!resp.isCommitted) {
+          resp.sendError(SC_INTERNAL_SERVER_ERROR, "Failed to route the request to the origin service")
+        }
     }
   }
 }

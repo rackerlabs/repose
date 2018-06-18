@@ -64,7 +64,7 @@ class ReposeServletTest extends FunSpec with BeforeAndAfterEach with MockitoSuga
       new URISyntaxException("://example.com", "Invalid protocol", 0),
       new RuntimeException()
     ) foreach { exception =>
-      it(s"should return a 500 response if routing throws a[n] ${exception.getClass.getSimpleName}") {
+      it(s"should return a 500 response if routing throws a[n] ${exception.getClass.getSimpleName} and the response is not committed") {
         when(router.route(any[HttpServletRequestWrapper], any[HttpServletResponse]))
           .thenThrow(exception)
 
@@ -74,6 +74,20 @@ class ReposeServletTest extends FunSpec with BeforeAndAfterEach with MockitoSuga
         reposeServlet.service(req, resp)
 
         resp.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
+      }
+
+      it(s"should return the response if routing throws a[n] ${exception.getClass.getSimpleName} and the response is committed") {
+        when(router.route(any[HttpServletRequestWrapper], any[HttpServletResponse]))
+          .thenThrow(exception)
+
+        val req = new MockHttpServletRequest()
+        val resp = new MockHttpServletResponse()
+
+        resp.sendError(SC_NOT_ACCEPTABLE)
+
+        reposeServlet.service(req, resp)
+
+        resp.getStatus shouldBe SC_NOT_ACCEPTABLE
       }
     }
   }
