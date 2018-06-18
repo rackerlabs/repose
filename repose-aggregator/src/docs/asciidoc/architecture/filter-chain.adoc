@@ -21,7 +21,7 @@ The *Repose* filter chain allows you to determine if a filter should be run whil
 This method of determining if a filter should be run is *DEPRECATED* and will be removed in *Repose* 10.
 ====
 
-You can decide whether or not a filter should run based on it's URI using a https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[regular expression].
+You can decide whether or not a filter should run based on the path of it's URI using a https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[regular expression].
 Here's a simple example:
 
 [source,xml]
@@ -34,7 +34,7 @@ Here's a simple example:
 </filters>
 ...
 ----
-<1> This filter will only be run when the request is to the `/foo` resource.
+<1> This filter will only be run when the request is to a resource ending in `/foo`.
 <2> This filter will be run everytime.
 
 It's worth noting that if anything changes the request uri while processing the filter chain that will potentially impact whether a filter is run.
@@ -75,6 +75,8 @@ And it will do this before each filter and the origin service allowing you to se
 ====
 This can be expensive in both time and disk space and is intended only as a debugging tool, not for full time use.
 ====
+
+For more troubleshooting help see our <<../troubleshooting.adoc, guide>>.
 
 == Metrics ==
 
