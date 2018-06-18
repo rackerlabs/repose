@@ -229,14 +229,12 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
             //Figure out what our Retry Headers are, if identity returned us a rate limited response.
             val retryHeaders: Option[String] = if (statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | statusCode == SC_TOO_MANY_REQUESTS) {
               // (413 | 429)
-              Some(
-                tokenResponse.getHeaders(HttpHeaders.RETRY_AFTER).asScala.headOption.getOrElse {
-                  logger.info(s"Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $statusCode")
-                  val retryCalendar = new GregorianCalendar()
-                  retryCalendar.add(Calendar.SECOND, 5)
-                  val retryString = new HttpDate(retryCalendar.getTime).toRFC1123
-                  retryString
-                })
+              tokenResponse.getHeaders(HttpHeaders.RETRY_AFTER).asScala.headOption.orElse {
+                logger.info(s"Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $statusCode")
+                val retryCalendar = new GregorianCalendar()
+                retryCalendar.add(Calendar.SECOND, 5)
+                Option(new HttpDate(retryCalendar.getTime).toRFC1123)
+              }
             } else {
               //Retry headers are only set for 413 or 429
               None

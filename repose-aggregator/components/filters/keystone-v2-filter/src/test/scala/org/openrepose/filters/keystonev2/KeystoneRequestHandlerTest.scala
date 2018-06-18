@@ -49,7 +49,7 @@ class KeystoneRequestHandlerTest extends FunSpec with Matchers with MockitoSugar
     it("should build a new Retry After header value if one is not provided") {
       val serviceClientResponse = new ServiceClientResponse(
         SC_OK,
-        List.empty[Header].toArray,
+        Array.empty[Header],
         mock[InputStream])
       KeystoneRequestHandler.buildRetryValue(serviceClientResponse) shouldNot be(null)
     }

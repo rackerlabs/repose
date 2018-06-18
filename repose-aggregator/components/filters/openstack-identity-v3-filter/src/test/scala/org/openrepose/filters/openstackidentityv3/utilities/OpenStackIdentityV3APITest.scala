@@ -81,7 +81,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
 
       val serviceClientResponse = new ServiceClientResponse(
         SC_UNAUTHORIZED,
-        List.empty[Header].toArray,
+        Array.empty[Header],
         mock[InputStream])
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
         thenReturn(serviceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
@@ -104,7 +104,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
     it("should build a JSON auth token request without a project ID") {
       val serviceClientResponse = new ServiceClientResponse(
         SC_UNAUTHORIZED,
-        List.empty[Header].toArray,
+        Array.empty[Header],
         mock[InputStream])
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
         thenReturn(serviceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
@@ -123,7 +123,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
     it("should build a JSON auth token request with a string project ID") {
       val serviceClientResponse = new ServiceClientResponse(
         SC_UNAUTHORIZED,
-        List.empty[Header].toArray,
+        Array.empty[Header],
         mock[InputStream])
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
         thenReturn(serviceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
@@ -143,7 +143,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
     it("should return a Failure when unable to retrieve admin token") {
       val serviceClientResponse = new ServiceClientResponse(
         SC_UNAUTHORIZED,
-        List.empty[Header].toArray,
+        Array.empty[Header],
         mock[InputStream])
       when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
         thenReturn(serviceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
@@ -158,7 +158,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
         it("not having headers while retrieving admin token") {
           val serviceClientResponse = new ServiceClientResponse(
             statusCode,
-            List.empty[Header].toArray,
+            Array.empty[Header],
             mock[InputStream])
           when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
             thenReturn(serviceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
@@ -375,7 +375,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
         it("not having headers while retrieving admin token") {
           val serviceClientResponse = new ServiceClientResponse(
             statusCode,
-            List.empty[Header].toArray,
+            Array.empty[Header],
             mock[InputStream])
           when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
             thenReturn(serviceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
@@ -433,7 +433,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
         it("not having headers while retrieving admin token") {
           val serviceClientResponse = new ServiceClientResponse(
             statusCode,
-            List.empty[Header].toArray,
+            Array.empty[Header],
             mock[InputStream])
           when(mockAkkaServiceClient.post(anyString, anyString, anyMap.asInstanceOf[java.util.Map[String, String]], anyString, any(classOf[MediaType]))).
             thenReturn(serviceClientResponse, Nil: _*) // Note: Nil was passed to resolve the ambiguity between Mockito's multiple method signatures
