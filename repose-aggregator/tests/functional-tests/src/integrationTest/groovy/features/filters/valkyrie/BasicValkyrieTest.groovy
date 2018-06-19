@@ -19,12 +19,20 @@
  */
 package features.filters.valkyrie
 
+import org.joda.time.DateTime
+import org.openrepose.commons.utils.http.HttpDate
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.openrepose.framework.test.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Response
 import spock.lang.Unroll
+
+import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
+import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE
+import static org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TOO_MANY_REQUESTS
+import static org.springframework.http.HttpHeaders.RETRY_AFTER
 
 class BasicValkyrieTest extends ReposeValveTest {
     def static originEndpoint
@@ -61,6 +69,8 @@ class BasicValkyrieTest extends ReposeValveTest {
         fakeIdentityService.resetDefaultParameters()
         fakeValkyrie.resetHandlers()
         fakeValkyrie.resetParameters()
+        identityEndpoint.defaultHandler = fakeIdentityService.handler
+        valkyrieEndpoint.defaultHandler = fakeValkyrie.handler
     }
 
     @Unroll("permission: #permission for #method with tenant: #tenantID and deviceID: #deviceID should return a #responseCode")
@@ -318,6 +328,51 @@ class BasicValkyrieTest extends ReposeValveTest {
         "DELETE" | randomTenant()             | "520707" | "view_product" | "403"
         "PATCH"  | randomTenant()             | "520707" | "view_product" | "403"
         "GET"    | randomTenant() - "hybrid:" | "520708" | "view_product" | "403"
+    }
+
+    @Unroll
+    def "Test rate limited by Valkyrie with #retryAfterHeaderName header and #valkyrieResponseCode response code"() {
+        given:
+        def retryTimeStamp = DateTime.now().plusMinutes(5)
+        def retryString = new HttpDate(retryTimeStamp.toGregorianCalendar().getTime()).toRFC1123()
+
+        fakeIdentityService.with {
+            client_apikey = UUID.randomUUID().toString()
+            client_token = UUID.randomUUID().toString()
+            client_tenantid = randomTenant()
+        }
+
+        valkyrieEndpoint.defaultHandler = {
+            new Response(valkyrieResponseCode, null, [(retryAfterHeaderName): retryString], null)
+        }
+
+        when:
+        MessageChain mc = deproxy.makeRequest(
+            method: "GET",
+            url: reposeEndpoint + "/resource/520707",
+            headers: [
+                'X-Auth-Token': fakeIdentityService.client_token
+            ]
+        )
+
+        then:
+        mc.receivedResponse.code as Integer == SC_SERVICE_UNAVAILABLE
+        mc.receivedResponse.headers.contains(RETRY_AFTER)
+
+        where:
+        retryAfterHeaderName      | valkyrieResponseCode
+        RETRY_AFTER               | SC_REQUEST_ENTITY_TOO_LARGE
+        RETRY_AFTER               | SC_TOO_MANY_REQUESTS
+        RETRY_AFTER               | SC_SERVICE_UNAVAILABLE
+        RETRY_AFTER.toLowerCase() | SC_REQUEST_ENTITY_TOO_LARGE
+        RETRY_AFTER.toLowerCase() | SC_TOO_MANY_REQUESTS
+        RETRY_AFTER.toLowerCase() | SC_SERVICE_UNAVAILABLE
+        RETRY_AFTER.toUpperCase() | SC_REQUEST_ENTITY_TOO_LARGE
+        RETRY_AFTER.toUpperCase() | SC_TOO_MANY_REQUESTS
+        RETRY_AFTER.toUpperCase() | SC_SERVICE_UNAVAILABLE
+        "rEtRy-AfTeR"             | SC_REQUEST_ENTITY_TOO_LARGE
+        "rEtRy-AfTeR"             | SC_TOO_MANY_REQUESTS
+        "rEtRy-AfTeR"             | SC_SERVICE_UNAVAILABLE
     }
 
     def String randomTenant() {

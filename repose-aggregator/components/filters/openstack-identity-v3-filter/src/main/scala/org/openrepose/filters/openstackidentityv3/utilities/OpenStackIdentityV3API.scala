@@ -114,10 +114,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
         // because we care to match on the status code of the response, if anything was set.
         authTokenResponse map (response => response.getStatus) match {
           case Some(statusCode) if statusCode == SC_CREATED =>
-            val newAdminToken = Option(authTokenResponse.get.getHeaders).map(_.filter((header: Header) =>
-              header.getName.equalsIgnoreCase(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN)).head.getValue)
-
-            newAdminToken match {
+            authTokenResponse.get.getHeaders(OpenStackIdentityV3Headers.X_SUBJECT_TOKEN).asScala.headOption match {
               case Some(token) =>
                 logger.debug("Caching admin token")
 
@@ -300,15 +297,14 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
 
   private def buildIdentityServiceOverLimitException(serviceClientResponse: ServiceClientResponse): IdentityServiceOverLimitException = {
     val statusCode: Int = serviceClientResponse.getStatus
-    val retryHeaders = serviceClientResponse.getHeaders.filter { header => header.getName.equals(HttpHeaders.RETRY_AFTER) }
-    if (retryHeaders.isEmpty) {
-      logger.info(s"Missing ${HttpHeaders.RETRY_AFTER} header on OpenStack Identity Response status code: $statusCode")
-      val retryCalendar = new GregorianCalendar()
-      retryCalendar.add(Calendar.SECOND, 5)
-      val retryString = new HttpDate(retryCalendar.getTime).toRFC1123
-      new IdentityServiceOverLimitException("Rate limited by OpenStack Identity service", statusCode, retryString)
-    } else {
-      new IdentityServiceOverLimitException("Rate limited by OpenStack Identity service", statusCode, retryHeaders.head.getValue)
+    serviceClientResponse.getHeaders(HttpHeaders.RETRY_AFTER).asScala.headOption match {
+      case Some(retryValue) => new IdentityServiceOverLimitException("Rate limited by OpenStack Identity service", statusCode, retryValue)
+      case _ =>
+        logger.info(s"Missing ${HttpHeaders.RETRY_AFTER} header on OpenStack Identity Response status code: $statusCode")
+        val retryCalendar = new GregorianCalendar()
+        retryCalendar.add(Calendar.SECOND, 5)
+        val retryString = new HttpDate(retryCalendar.getTime).toRFC1123
+        new IdentityServiceOverLimitException("Rate limited by OpenStack Identity service", statusCode, retryString)
     }
   }
 }

@@ -22,13 +22,13 @@ package org.openrepose.filters.keystonev2basicauth
 import java.net.URL
 import java.util.concurrent.TimeUnit
 import java.util.{Calendar, GregorianCalendar}
-import javax.inject.{Inject, Named}
-import javax.servlet._
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.ws.rs.core.MediaType
 
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.StrictLogging
+import javax.inject.{Inject, Named}
+import javax.servlet._
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.ws.rs.core.{HttpHeaders, MediaType}
 import org.apache.commons.lang3.StringUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate}
@@ -39,7 +39,6 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
 import org.openrepose.filters.keystonev2basicauth.config.{KeystoneV2BasicAuthConfig, SecretType}
-import org.springframework.http.HttpHeaders
 
 import scala.collection.JavaConverters._
 import scala.io.Source
@@ -230,15 +229,11 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
             //Figure out what our Retry Headers are, if identity returned us a rate limited response.
             val retryHeaders: Option[String] = if (statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | statusCode == SC_TOO_MANY_REQUESTS) {
               // (413 | 429)
-              val identityRetryHeader = tokenResponse.getHeaders.filter { header => header.getName.equals(HttpHeaders.RETRY_AFTER) }
-              if (identityRetryHeader.isEmpty) {
+              tokenResponse.getHeaders(HttpHeaders.RETRY_AFTER).asScala.headOption.orElse {
                 logger.info(s"Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $statusCode")
                 val retryCalendar = new GregorianCalendar()
                 retryCalendar.add(Calendar.SECOND, 5)
-                val retryString = new HttpDate(retryCalendar.getTime).toRFC1123
-                Some(retryString)
-              } else {
-                Some(identityRetryHeader.head.getValue)
+                Option(new HttpDate(retryCalendar.getTime).toRFC1123)
               }
             } else {
               //Retry headers are only set for 413 or 429

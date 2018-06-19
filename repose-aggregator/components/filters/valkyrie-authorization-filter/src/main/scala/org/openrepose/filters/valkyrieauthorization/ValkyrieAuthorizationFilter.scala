@@ -346,7 +346,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
               case Failure(x) => ResponseResult(SC_BAD_GATEWAY, x.getMessage) //JSON Parsing failure
             }
           } else {
-            val retryTime = response.getHeaders.find(_.getName == RETRY_AFTER).map(_.getValue)
+            val retryTime = response.getHeaders(RETRY_AFTER).asScala.headOption
             (Option(configuration.getValkyrieServer.getUsername), Option(configuration.getValkyrieServer.getPassword)) match {
               //admin creds
               case (Some(_), Some(_)) =>

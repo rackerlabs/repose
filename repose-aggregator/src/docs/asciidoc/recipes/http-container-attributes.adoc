@@ -16,7 +16,7 @@ This page lists container supported HTTP attributes and defaults so that we can 
                         Default: `2097152` (2 megabytes).
 
 == Jetty
-(http://docs.codehaus.org/display/JETTY/Configuring+Connectors)
+(http://www.eclipse.org/jetty/documentation/9.4.x/configuring-connectors.html)
 
 * `headerBufferSize`      : Set the size of the buffer to be used for request and response headers.
                             An idle connection will at most have one buffer of this size allocated. +
