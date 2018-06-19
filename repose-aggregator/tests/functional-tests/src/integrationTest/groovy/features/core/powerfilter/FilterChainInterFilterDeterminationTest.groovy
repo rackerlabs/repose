@@ -23,7 +23,7 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Ignore
 
-class FilterChainDeterminationByUriTest extends ReposeValveTest {
+class FilterChainInterFilterDeterminationTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -31,7 +31,7 @@ class FilterChainDeterminationByUriTest extends ReposeValveTest {
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs('common', params)
-        repose.configurationProvider.applyConfigs('features/core/powerfilter/chaindetermination', params)
+        repose.configurationProvider.applyConfigs('features/core/powerfilter/chaindetermination/interfilter', params)
 
         repose.start()
         repose.waitForNon500FromUrl(reposeEndpoint)
