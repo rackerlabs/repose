@@ -328,7 +328,7 @@
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="mod:FilterCriterion">
-                <xs:attribute name="value" type="mod:MethodList">
+                <xs:attribute name="value" type="mod:MethodList" use="required">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>

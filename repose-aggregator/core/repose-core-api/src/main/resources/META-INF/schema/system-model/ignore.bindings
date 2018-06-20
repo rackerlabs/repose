@@ -18,13 +18,11 @@
   limitations under the License.
   =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
   -->
-
-
-<bindings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/jaxb"
+<bindings xmlns="http://java.sun.com/xml/ns/jaxb"
           version="2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://java.sun.com/xml/ns/jaxb http://java.sun.com/xml/ns/jaxb/bindingschema_2_0.xsd"
           schemaLocation="system-model.xsd">
-
     <schemaBindings>
         <package name="org.openrepose.core.systemmodel.config"/>
     </schemaBindings>
