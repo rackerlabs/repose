@@ -191,6 +191,7 @@ subprojects {
                     extension: '.xsd',
                     basedir: schemaBaseDir,
                     includes: "**/*.xsd",
+                    excludes: "**/system-model.xsd",
                     style: xsltFile,
                     destdir: "${outputDir}"
                 )
