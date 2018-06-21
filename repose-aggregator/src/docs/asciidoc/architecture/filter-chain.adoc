@@ -1,7 +1,7 @@
 = Filter Chain
 
 The *Repose* filter chain is the work horse of the system, and is responsible for nearly all enrichment that *Repose* provides.
-It's based on and uses the same contract as the https://docs.oracle.com/javaee/6/api/javax/servlet/FilterChain.html[JEE Filter Chain].
+It's based on and uses the same contract as the https://docs.oracle.com/javaee/7/api/javax/servlet/FilterChain.html[JEE Filter Chain].
 As the name implies it is a chain of filters that are followed in order.
 A request goes through them from the first, one after another, until the last is reached when the request which has possibly been mutated along the way is sent on to the origin service.
 When the response comes back from the origin service it works it's way back up the chain in the opposite order.

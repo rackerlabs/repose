@@ -171,6 +171,10 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
     contextHandler.setContextPath("/")
     contextHandler.addServlet(classOf[EmptyServlet], "/*")
 
+    // todo: when switching to the new ReposeFilterChain, replce the previous line with the following line
+    // todo: to wire in the routing servlet
+    // contextHandler.addServlet(new ServletHolder(appContext.getBean(classOf[ReposeServlet])), "/*")
+
     val cll = new ContextLoaderListener(appContext)
     contextHandler.addEventListener(cll)
 

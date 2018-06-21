@@ -1,0 +1,22 @@
+= Servlet Specification
+
+The https://javaee.github.io/servlet-spec/[Java Servlet Specification] is a document that details the design and API of a Java-based system that can respond to requests.
+To learn more about the specification itself, visit the link near the start of this paragraph.
+
+*Repose* is built on top of the servlet specification.
+However, *Repose* also constrains the specification in certain ways.
+For example, *Repose* can only service HTTP requests.
+
+To understand the architecture of *Repose*, it is vital that one understands the servlet specification.
+Currently, *Repose* complies with version 3.0 of the specification.
+
+== Filter Chain
+
+The `ReposeFilterChain` class implements the `FilterChain` API, and is responsible for the coordination between filters.
+That coordination includes things like dynamic determination of whether or not a filter should process a request or response, debug logging, and metrics gathering.
+To learn more about this component, visit the <<filter-chain.adoc#,filter chain documentation page>>.
+
+== Repose Servlet
+
+The `ReposeServlet` class implements the `Servlet` API, and is responsible for routing the HTTP request from *Repose* to the origin service after the filter chain has finished processing the request.
+It is the servlet that is registered with the servlet container.

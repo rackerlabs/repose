@@ -91,5 +91,9 @@ public class ReposeInitializer implements WebApplicationInitializer {
         servletContext.addServlet("emptyServlet", EmptyServlet.class).addMapping("/*");
         servletContext.addFilter("springDelegatingFilterProxy", new DelegatingFilterProxy("powerFilter"))
                 .addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
+
+        // todo: when switching to the new ReposeFilterChain, replce the previous line with the following line
+        // todo: to wire in the routing servlet
+        // servletContext.addServlet("reposeServlet", rootContext.getBean(ReposeServlet.class)).addMapping("/*");
     }
 }
