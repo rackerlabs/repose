@@ -122,7 +122,7 @@ class IntrafilterLoggingTest extends ReposeValveTest {
         assertHeadersExists(["X-Auth-Token", "x-pp-user", "x-tenant-name",
                              "x-user-id", "x-authorization", "Intrafilter-UUID"], authreqline2)
         assertKeyValueMatch([
-                "currentFilter": "context_1-ip-user",
+                "currentFilter": "ip-user",
                 "httpMethod"   : "GET",
                 "requestURI"   : "/servers/server123",
                 "requestBody"  : ""
@@ -134,7 +134,7 @@ class IntrafilterLoggingTest extends ReposeValveTest {
         def authrespline2 = convertToJson("Intrafilter Response Log", 0)
         assertHeadersExists(["Intrafilter-UUID", HttpHeaders.CONTENT_TYPE], authrespline2)
         assertKeyValueMatch([
-                "currentFilter"   : "context_1-ip-user",
+                "currentFilter"   : "ip-user",
                 "responseBody"    : responseBody,
                 "httpResponseCode": respcode
         ], authrespline2)
