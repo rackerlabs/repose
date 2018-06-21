@@ -1,20 +1,29 @@
 {
-  "servers" : [ {
-    "host" : "{{ jmxtrans.jmx.host }}",
-    "port" : "{{ jmxtrans.jmx.port }}",
-    "runPeriodSeconds": 1,
-    "queries" : [ {
-      "obj" : "java.lang:type=Memory",
-      "attr" : [ "HeapMemoryUsage", "NonHeapMemoryUsage" ],
-      "resultAlias": "memory",
-      "outputWriters" : [ {
-        "@class" : "com.googlecode.jmxtrans.model.output.GraphiteWriterFactory",
-        "rootPrefix": "jmxtrans.{{ repose_version|replace('.', '-') }}.{{ gatling.test.id|default(gatling.test.name) }}",
-        "host" : "{{ jmxtrans.graphite_writer.host }}",
-        "port" : "{{ jmxtrans.graphite_writer.port }}",
-        "flushStrategy" : "timeBased",
-        "flushDelayInSeconds": 10
-      } ]
-    } ]
-  } ]
+  "servers": [
+    {
+      "host": "{{ jmxtrans.jmx.host }}",
+      "port": "{{ jmxtrans.jmx.port }}",
+      "runPeriodSeconds": 1,
+      "queries": [
+        {
+          "obj": "java.lang:type=Memory",
+          "attr": [
+            "HeapMemoryUsage",
+            "NonHeapMemoryUsage"
+          ],
+          "resultAlias": "memory",
+          "outputWriters": [
+            {
+              "@class": "com.googlecode.jmxtrans.model.output.GraphiteWriterFactory",
+              "rootPrefix": "jmxtrans.{{ repose_version|replace('.', '-') }}.{{ gatling.test.id|default(gatling.test.name) }}",
+              "host": "{{ jmxtrans.graphite_writer.host }}",
+              "port": "{{ jmxtrans.graphite_writer.port }}",
+              "flushStrategy": "timeBased",
+              "flushDelayInSeconds": 10
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
