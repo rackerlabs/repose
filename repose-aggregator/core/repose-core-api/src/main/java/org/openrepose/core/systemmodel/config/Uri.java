@@ -19,6 +19,8 @@
  */
 package org.openrepose.core.systemmodel.config;
 
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -73,5 +75,10 @@ public class Uri
      */
     public void setRegex(String value) {
         this.regex = value;
+    }
+
+    @Override
+    boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper) {
+        return httpServletRequestWrapper.getRequestURI().matches(regex);
     }
 }

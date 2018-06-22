@@ -19,6 +19,8 @@
  */
 package org.openrepose.core.systemmodel.config;
 
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -94,8 +96,14 @@ public class And
      */
     public List<FilterCriterion> getFilterCriteria() {
         if (filterCriteria == null) {
-            filterCriteria = new ArrayList<FilterCriterion>();
+            filterCriteria = new ArrayList<>();
         }
         return this.filterCriteria;
+    }
+
+    @Override
+    boolean evaluate(HttpServletRequestWrapper httpServletRequestWraper) {
+        return getFilterCriteria().stream()
+            .allMatch(criterion -> criterion.evaluate(httpServletRequestWraper));
     }
 }

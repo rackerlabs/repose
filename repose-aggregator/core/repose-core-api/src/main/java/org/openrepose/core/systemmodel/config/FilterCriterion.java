@@ -19,6 +19,8 @@
  */
 package org.openrepose.core.systemmodel.config;
 
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
@@ -48,4 +50,6 @@ import java.io.Serializable;
 public abstract class FilterCriterion
     implements Serializable {
     private final static long serialVersionUID = 100L;
+
+    abstract boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper);
 }

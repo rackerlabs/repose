@@ -19,11 +19,14 @@
  */
 package org.openrepose.core.systemmodel.config;
 
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <pre>
@@ -96,5 +99,11 @@ public class Header
      */
     public void setValue(String value) {
         this.value = value;
+    }
+
+    @Override
+    boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper) {
+        return httpServletRequestWrapper.getHeadersList(name).stream()
+            .anyMatch(s -> value == null || value.equals(s));
     }
 }
