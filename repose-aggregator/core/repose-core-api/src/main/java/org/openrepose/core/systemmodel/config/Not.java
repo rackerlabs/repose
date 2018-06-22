@@ -19,6 +19,8 @@
  */
 package org.openrepose.core.systemmodel.config;
 
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
@@ -61,7 +63,6 @@ public class Not
         @XmlElement(name = "methods", type = Methods.class),
         @XmlElement(name = "header", type = Header.class),
         @XmlElement(name = "uri", type = Uri.class),
-        @XmlElement(name = "not", type = Not.class),
         @XmlElement(name = "and", type = And.class),
         @XmlElement(name = "or", type = Or.class)
     })
@@ -74,5 +75,10 @@ public class Not
 
     public void setFilterCriteria(FilterCriterion filterCriterion) {
         filterCriteria = filterCriterion;
+    }
+
+    @Override
+    boolean evaluate(HttpServletRequestWrapper httpServletRequestWraper) {
+        return !filterCriteria.evaluate(httpServletRequestWraper);
     }
 }

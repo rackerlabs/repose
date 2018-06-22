@@ -19,6 +19,8 @@
  */
 package org.openrepose.core.systemmodel.config;
 
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -54,7 +56,7 @@ public class Methods
     implements Serializable {
 
     private final static long serialVersionUID = 100L;
-    @XmlAttribute(name = "value")
+    @XmlAttribute(name = "value", required = true)
     protected List<String> value;
 
     /**
@@ -82,5 +84,10 @@ public class Methods
             value = new ArrayList<>();
         }
         return this.value;
+    }
+
+    @Override
+    boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper) {
+        return getValue().contains(httpServletRequestWrapper.getMethod());
     }
 }
