@@ -329,7 +329,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
             firstAttempt = false
             null
           } else {
-            UserPermissions(Vector.empty[String], Vector(DeviceToPermission(123456, "view_product"), DeviceToPermission(1234561, "view_product1"))).asInstanceOf[Serializable]
+            UserPermissions(Vector.empty[String], Map(123456 -> Set("view_product"), 1234561 -> Set("view_product1"))).asInstanceOf[Serializable]
           }
       })
       filter.configurationUpdated(createGenericValkyrieConfiguration(null))
@@ -346,7 +346,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       filter.doWork(mockServletRequest, mockServletResponse, mockFilterChain)
       mockServletResponse.getStatus shouldBe SC_FORBIDDEN
 
-      Mockito.verify(mockDatastore).put(s"${CachePrefix}anysomeTenant123456", UserPermissions(Vector.empty[String], Vector(DeviceToPermission(1234561, "view_product1"), DeviceToPermission(123456, "view_product"))), 300000, TimeUnit.MILLISECONDS)
+      Mockito.verify(mockDatastore).put(s"${CachePrefix}anysomeTenant123456", UserPermissions(Vector.empty[String], Map(1234561 -> Set("view_product1"), 123456 -> Set("view_product"))), 300000, TimeUnit.MILLISECONDS)
 
       val secondRequest = new MockHttpServletRequest
       val secondServletResponse = new MockHttpServletResponse
@@ -693,7 +693,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     it("should use the values from the datastore when available") {
       setupWithHeaders()
       Mockito.when(mockDatastore.get(CachePrefix + "any" + transformedTenant + contactId))
-        .thenReturn(UserPermissions(Vector("some_permission", "a_different_permission"), Vector.empty[DeviceToPermission]), Nil: _*)
+        .thenReturn(UserPermissions(Vector("some_permission", "a_different_permission"), Map.empty), Nil: _*)
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doWork(mockServletRequest, mockServletResponse, filterChain)
