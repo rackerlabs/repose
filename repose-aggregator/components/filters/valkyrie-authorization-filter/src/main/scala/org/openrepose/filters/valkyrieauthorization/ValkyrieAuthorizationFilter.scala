@@ -217,26 +217,15 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
 
       def authorize(deviceId: String, permissions: UserPermissions, method: String): ValkyrieResult = {
-        // todo: clean up this method
-        val deviceBasedResult: ValkyrieResult = permissions.devicePermissions.get(deviceId.toInt) map { devicePermissions =>
-          val authorizingPermissions = devicePermissions.filter(authorizedFor(method))
-          if (authorizingPermissions.nonEmpty) {
-            permissions.copy(roles = permissions.roles ++ authorizingPermissions)
-          } else {
-            ResponseResult(SC_FORBIDDEN, "Not Authorized")
-          }
-        } getOrElse {
-          ResponseResult(SC_FORBIDDEN, "Not Authorized")
-        }
+        val authorizingPermissions = permissions.devicePermissions.getOrElse(deviceId.toInt, Set.empty)
+          .filter(authorizedFor(method))
 
-        deviceBasedResult match {
-          case ResponseResult(SC_FORBIDDEN, _, _) =>
-            if (permissions.roles.contains(AccountAdmin) && configuration.isEnableBypassAccountAdmin) {
-              permissions
-            } else {
-              deviceBasedResult
-            }
-          case _ => deviceBasedResult
+        if (authorizingPermissions.nonEmpty) {
+          permissions.copy(roles = permissions.roles ++ authorizingPermissions)
+        } else if (permissions.roles.contains(AccountAdmin) && configuration.isEnableBypassAccountAdmin) {
+          permissions
+        } else {
+          ResponseResult(SC_FORBIDDEN, "Not Authorized")
         }
       }
 
