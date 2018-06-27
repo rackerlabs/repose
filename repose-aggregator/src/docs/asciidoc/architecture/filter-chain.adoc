@@ -89,6 +89,9 @@ This will add a header to the response for each filter with a name of `X-_filter
 
 It's worth noting that the reported time is inclusive of the processing time of all filter further down the chain and the origin service.
 
+We also start an *OpenTracing* span for each filter that is ran.
+If you'd like to get this data look into the <<../services/open-tracing.adoc, OpenTracing Service>>.
+
 == Bypass URI ==
 
 Sometimes you'd like a request to entirely bypass the filter chain entirely.
