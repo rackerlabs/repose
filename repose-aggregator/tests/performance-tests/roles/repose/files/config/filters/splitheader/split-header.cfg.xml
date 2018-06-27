@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<split-header xmlns='http://docs.openrepose.org/repose/split-header/v1.0'>
+    <request>
+        <header>request-test-1</header>
+        <header>request-test-2</header>
+        <header>request-test-3</header>
+        <header>request-test-4</header>
+        <header>request-test-5</header>
+    </request>
+    <response>
+        <header>response-test-1</header>
+        <header>response-test-2</header>
+        <header>response-test-3</header>
+        <header>response-test-4</header>
+        <header>response-test-5</header>
+    </response>
+</split-header>
