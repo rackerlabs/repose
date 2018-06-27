@@ -56,6 +56,7 @@ class MockValkyrie {
     void resetHandlers() {
         handler = this.&handleRequest
         authorizeHandler = this.&authorize
+        validationSuccess = this.&validationSuccessTemplate
     }
 
     void resetParameters() {
@@ -70,6 +71,7 @@ class MockValkyrie {
     }
 
     Closure<Response> authorizeHandler
+    Closure<String> validationSuccess
 
     String device_id = "234567"
     String device_id2 = "123456"
@@ -168,7 +170,7 @@ class MockValkyrie {
             if (request.getPath().contains("inventory")) {
                 body = inventorySuccessTemplate(params)
             } else /*if (request.getPath().contains("permissions"))*/ {
-                body = validationSuccessTemplate(params)
+                body = validationSuccess(params)
             }
         } else {
             code = 403
