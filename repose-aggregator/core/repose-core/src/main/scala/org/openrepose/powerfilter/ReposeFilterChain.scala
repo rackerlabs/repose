@@ -26,6 +26,7 @@ import com.codahale.metrics.MetricRegistry
 import com.fasterxml.jackson.annotation.{JsonAutoDetect, PropertyAccessor}
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.typesafe.scalalogging.slf4j.StrictLogging
+import io.opentracing.Tracer
 import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{Filter, FilterChain, ServletRequest, ServletResponse}
@@ -36,7 +37,7 @@ import org.openrepose.powerfilter.ReposeFilterChain._
 import org.openrepose.powerfilter.intrafilterlogging.{RequestLog, ResponseLog}
 import org.slf4j.{Logger, LoggerFactory}
 
-class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: FilterChain, bypassUrlRegex: Option[String], metricsRegistry: MetricRegistry)
+class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: FilterChain, bypassUrlRegex: Option[String], metricsRegistry: MetricRegistry, tracer: Tracer)
   extends FilterChain
     with StrictLogging {
 
@@ -71,7 +72,7 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
         logger.debug("Entering filter: {}", head.filterName)
         (doIntrafilterLogging(head.filterName)(_))
           .compose(doMetrics(head.filterName))
-          .apply(head.filter.doFilter(_, _, new ReposeFilterChain(tail, originalChain, None, metricsRegistry)))
+          .apply(head.filter.doFilter(_, _, new ReposeFilterChain(tail, originalChain, None, metricsRegistry, tracer)))
           .apply(request, response)
       case head :: tail =>
         logger.debug("Skipping filter: {}", head.filterName)
@@ -111,7 +112,11 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
   def doMetrics(filter: String)(requestProcess: (HttpServletRequest, HttpServletResponse) => Unit): (HttpServletRequest, HttpServletResponse) => Unit = (request, response) => {
     val startTime = System.currentTimeMillis()
 
+    val scope = tracer.buildSpan(s"Filter $filter").startActive(true)
+
     requestProcess(request, response)
+
+    scope.close()
 
     val elapsedTime = System.currentTimeMillis() - startTime
 
