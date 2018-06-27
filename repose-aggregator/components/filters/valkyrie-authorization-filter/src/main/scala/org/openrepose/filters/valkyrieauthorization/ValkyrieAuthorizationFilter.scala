@@ -435,7 +435,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         extractDeviceIdFieldValue(value) flatMap { deviceIdFieldValue =>
           parseDeviceId(deviceIdFieldValue)
         } map { deviceId =>
-          devicePermissions.keySet.exists(deviceId.toInt.==)
+          devicePermissions.keySet.contains(deviceId.toInt)
         } recover {
           case e@(_: InvalidJsonTypeException | _: NonMatchingRegexException) =>
             configuration.getCollectionResources.getDeviceIdMismatchAction match {
