@@ -49,7 +49,7 @@ import java.io.Serializable;
 @XmlType(name = "FilterCriterion")
 public abstract class FilterCriterion
     implements Serializable {
-    private final static long serialVersionUID = 100L;
+    private final static long serialVersionUID = 1530213507742L;
 
     abstract boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper);
 }

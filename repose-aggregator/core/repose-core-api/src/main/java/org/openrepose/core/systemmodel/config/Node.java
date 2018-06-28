@@ -58,7 +58,7 @@ public class Node
     implements Serializable
 {
 
-    private final static long serialVersionUID = 100L;
+    private final static long serialVersionUID = 1530213507742L;
     @XmlAttribute(name = "id", required = true)
     protected String id;
     @XmlAttribute(name = "hostname", required = true)

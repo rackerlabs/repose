@@ -53,7 +53,7 @@ public class Uri
     extends FilterCriterion
     implements Serializable {
 
-    private final static long serialVersionUID = 100L;
+    private final static long serialVersionUID = 1530213507742L;
     @XmlAttribute(name = "regex", required = true)
     protected String regex;
 

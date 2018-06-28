@@ -74,7 +74,7 @@ public class Filter
     implements Serializable
 {
 
-    private final static long serialVersionUID = 100L;
+    private final static long serialVersionUID = 1530213507742L;
     protected Methods methods;
     protected Header header;
     protected Uri uri;

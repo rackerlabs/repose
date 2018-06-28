@@ -61,7 +61,7 @@ public class NodeList
     implements Serializable
 {
 
-    private final static long serialVersionUID = 100L;
+    private final static long serialVersionUID = 1530213507742L;
     @XmlElement(required = true)
     protected List<Node> node;
 

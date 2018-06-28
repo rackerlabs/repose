@@ -60,7 +60,7 @@ public class Or
     extends FilterCriterion
     implements Serializable {
 
-    private final static long serialVersionUID = 100L;
+    private final static long serialVersionUID = 1530213507742L;
     @XmlElements({
         @XmlElement(name = "methods", type = Methods.class),
         @XmlElement(name = "header", type = Header.class),
