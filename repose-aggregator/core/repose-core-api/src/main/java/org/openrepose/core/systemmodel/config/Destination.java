@@ -19,12 +19,8 @@
  */
 package org.openrepose.core.systemmodel.config;
 
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlType;
 
 
 /**
@@ -51,8 +47,6 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Destination")
@@ -61,8 +55,7 @@ import javax.xml.bind.annotation.XmlType;
     DestinationEndpoint.class
 })
 public class Destination
-    implements Serializable
-{
+    implements Serializable {
 
     private final static long serialVersionUID = 1530213507742L;
     @XmlAttribute(name = "id", required = true)
@@ -77,10 +70,8 @@ public class Destination
     /**
      * Gets the value of the id property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     * {@link String }
      */
     public String getId() {
         return id;
@@ -89,10 +80,8 @@ public class Destination
     /**
      * Sets the value of the id property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setId(String value) {
         this.id = value;
@@ -101,10 +90,8 @@ public class Destination
     /**
      * Gets the value of the protocol property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     * {@link String }
      */
     public String getProtocol() {
         return protocol;
@@ -113,10 +100,8 @@ public class Destination
     /**
      * Sets the value of the protocol property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setProtocol(String value) {
         this.protocol = value;
@@ -125,10 +110,8 @@ public class Destination
     /**
      * Gets the value of the rootPath property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     * {@link String }
      */
     public String getRootPath() {
         if (rootPath == null) {
@@ -141,10 +124,8 @@ public class Destination
     /**
      * Sets the value of the rootPath property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setRootPath(String value) {
         this.rootPath = value;
@@ -153,10 +134,8 @@ public class Destination
     /**
      * Gets the value of the default property.
      *
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *
+     * @return possible object is
+     * {@link Boolean }
      */
     public boolean isDefault() {
         if (_default == null) {
@@ -169,10 +148,8 @@ public class Destination
     /**
      * Sets the value of the default property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *
+     * @param value allowed object is
+     *              {@link Boolean }
      */
     public void setDefault(Boolean value) {
         this._default = value;

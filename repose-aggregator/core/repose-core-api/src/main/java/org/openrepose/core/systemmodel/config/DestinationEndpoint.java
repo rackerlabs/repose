@@ -19,15 +19,14 @@
  */
 package org.openrepose.core.systemmodel.config;
 
-import java.io.Serializable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
+import java.io.Serializable;
 
 
 /**
- *
  * <pre>
  * &lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;html:p xmlns:html="http://www.w3.org/1999/xhtml" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:mod="http://docs.openrepose.org/repose/system-model/v2.0" xmlns:saxon="http://saxon.sf.net/" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xerces="http://xerces.apache.org" xmlns:xs="http://www.w3.org/2001/XMLSchema"&gt;Defines a single node that is a target destination reachable from a cluster&lt;/html:p&gt;
  * </pre>
@@ -47,15 +46,12 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DestinationEndpoint")
 public class DestinationEndpoint
     extends Destination
-    implements Serializable
-{
+    implements Serializable {
 
     private final static long serialVersionUID = 1530213507742L;
     @XmlAttribute(name = "hostname")
@@ -66,10 +62,8 @@ public class DestinationEndpoint
     /**
      * Gets the value of the hostname property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     * {@link String }
      */
     public String getHostname() {
         if (hostname == null) {
@@ -82,10 +76,8 @@ public class DestinationEndpoint
     /**
      * Sets the value of the hostname property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setHostname(String value) {
         this.hostname = value;
@@ -94,14 +86,12 @@ public class DestinationEndpoint
     /**
      * Gets the value of the port property.
      *
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *
+     * @return possible object is
+     * {@link Integer }
      */
     public int getPort() {
         if (port == null) {
-            return  0;
+            return 0;
         } else {
             return port;
         }
@@ -110,10 +100,8 @@ public class DestinationEndpoint
     /**
      * Sets the value of the port property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *
+     * @param value allowed object is
+     *              {@link Integer }
      */
     public void setPort(Integer value) {
         this.port = value;
