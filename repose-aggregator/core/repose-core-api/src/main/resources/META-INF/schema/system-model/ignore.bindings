@@ -27,6 +27,6 @@
         <package name="org.openrepose.core.systemmodel.config"/>
     </schemaBindings>
     <globalBindings>
-        <serializable uid="100"/>
+        <serializable uid="1530213507742"/>
     </globalBindings>
 </bindings>

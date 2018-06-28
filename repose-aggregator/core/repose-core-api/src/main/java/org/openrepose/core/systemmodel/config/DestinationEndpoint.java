@@ -57,7 +57,7 @@ public class DestinationEndpoint
     implements Serializable
 {
 
-    private final static long serialVersionUID = 100L;
+    private final static long serialVersionUID = 1530213507742L;
     @XmlAttribute(name = "hostname")
     protected String hostname;
     @XmlAttribute(name = "port")

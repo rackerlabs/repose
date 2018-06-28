@@ -67,7 +67,7 @@ public class SystemModel
     implements Serializable
 {
 
-    private final static long serialVersionUID = 100L;
+    private final static long serialVersionUID = 1530213507742L;
     @XmlElement(name = "repose-cluster", required = true)
     protected List<ReposeCluster> reposeCluster;
     @XmlElement(name = "service-cluster")

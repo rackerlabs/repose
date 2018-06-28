@@ -73,7 +73,7 @@ public class Cluster
     implements Serializable
 {
 
-    private final static long serialVersionUID = 100L;
+    private final static long serialVersionUID = 1530213507742L;
     @XmlElement(required = true)
     protected NodeList nodes;
     @XmlAttribute(name = "id", required = true)

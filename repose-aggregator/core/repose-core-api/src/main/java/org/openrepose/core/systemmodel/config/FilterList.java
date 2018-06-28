@@ -62,7 +62,7 @@ public class FilterList
     implements Serializable
 {
 
-    private final static long serialVersionUID = 100L;
+    private final static long serialVersionUID = 1530213507742L;
     protected List<Filter> filter;
     @XmlAttribute(name = "bypass-uri-regex")
     protected String bypassUriRegex;

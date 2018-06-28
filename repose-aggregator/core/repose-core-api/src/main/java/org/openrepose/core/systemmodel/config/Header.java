@@ -55,7 +55,7 @@ public class Header
     extends FilterCriterion
     implements Serializable {
 
-    private final static long serialVersionUID = 100L;
+    private final static long serialVersionUID = 1530213507742L;
     @XmlAttribute(name = "name", required = true)
     protected String name;
     @XmlAttribute(name = "value")
