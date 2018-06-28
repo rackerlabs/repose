@@ -19,16 +19,11 @@
  */
 package org.openrepose.core.systemmodel.config;
 
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
 
 
 /**
- *
  * <pre>
  * &lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;html:p xmlns:html="http://www.w3.org/1999/xhtml" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:mod="http://docs.openrepose.org/repose/system-model/v2.0" xmlns:saxon="http://saxon.sf.net/" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xerces="http://xerces.apache.org" xmlns:xs="http://www.w3.org/2001/XMLSchema"&gt;
  *                     Defines a single service cluster in the system model. A service cluster is a collection of nodes
@@ -56,8 +51,6 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ReposeCluster", propOrder = {
@@ -67,8 +60,7 @@ import javax.xml.bind.annotation.XmlType;
 })
 public class ReposeCluster
     extends Cluster
-    implements Serializable
-{
+    implements Serializable {
 
     private final static long serialVersionUID = 1530213507742L;
     protected FilterList filters;
@@ -81,10 +73,8 @@ public class ReposeCluster
     /**
      * Gets the value of the filters property.
      *
-     * @return
-     *     possible object is
-     *     {@link FilterList }
-     *
+     * @return possible object is
+     * {@link FilterList }
      */
     public FilterList getFilters() {
         return filters;
@@ -93,10 +83,8 @@ public class ReposeCluster
     /**
      * Sets the value of the filters property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link FilterList }
-     *
+     * @param value allowed object is
+     *              {@link FilterList }
      */
     public void setFilters(FilterList value) {
         this.filters = value;
@@ -105,10 +93,8 @@ public class ReposeCluster
     /**
      * Gets the value of the services property.
      *
-     * @return
-     *     possible object is
-     *     {@link ServicesList }
-     *
+     * @return possible object is
+     * {@link ServicesList }
      */
     public ServicesList getServices() {
         return services;
@@ -117,10 +103,8 @@ public class ReposeCluster
     /**
      * Sets the value of the services property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link ServicesList }
-     *
+     * @param value allowed object is
+     *              {@link ServicesList }
      */
     public void setServices(ServicesList value) {
         this.services = value;
@@ -129,10 +113,8 @@ public class ReposeCluster
     /**
      * Gets the value of the destinations property.
      *
-     * @return
-     *     possible object is
-     *     {@link DestinationList }
-     *
+     * @return possible object is
+     * {@link DestinationList }
      */
     public DestinationList getDestinations() {
         return destinations;
@@ -141,10 +123,8 @@ public class ReposeCluster
     /**
      * Sets the value of the destinations property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link DestinationList }
-     *
+     * @param value allowed object is
+     *              {@link DestinationList }
      */
     public void setDestinations(DestinationList value) {
         this.destinations = value;
@@ -153,10 +133,8 @@ public class ReposeCluster
     /**
      * Gets the value of the rewriteHostHeader property.
      *
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *
+     * @return possible object is
+     * {@link Boolean }
      */
     public boolean isRewriteHostHeader() {
         if (rewriteHostHeader == null) {
@@ -169,10 +147,8 @@ public class ReposeCluster
     /**
      * Sets the value of the rewriteHostHeader property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *
+     * @param value allowed object is
+     *              {@link Boolean }
      */
     public void setRewriteHostHeader(Boolean value) {
         this.rewriteHostHeader = value;

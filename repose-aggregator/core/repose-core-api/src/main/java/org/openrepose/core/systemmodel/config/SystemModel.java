@@ -19,17 +19,16 @@
  */
 package org.openrepose.core.systemmodel.config;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
- *
  * <pre>
  * &lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;html:p xmlns:html="http://www.w3.org/1999/xhtml" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:mod="http://docs.openrepose.org/repose/system-model/v2.0" xmlns:saxon="http://saxon.sf.net/" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xerces="http://xerces.apache.org" xmlns:xs="http://www.w3.org/2001/XMLSchema"&gt;Top level element for defining a power proxy system model&lt;/html:p&gt;
  * </pre>
@@ -53,8 +52,6 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SystemModel", propOrder = {
@@ -64,8 +61,7 @@ import javax.xml.bind.annotation.XmlType;
     "tracingHeader"
 })
 public class SystemModel
-    implements Serializable
-{
+    implements Serializable {
 
     private final static long serialVersionUID = 1530213507742L;
     @XmlElement(name = "repose-cluster", required = true)
@@ -79,25 +75,19 @@ public class SystemModel
 
     /**
      * Gets the value of the reposeCluster property.
-     *
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the reposeCluster property.
-     *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getReposeCluster().add(newItem);
      * </pre>
-     *
-     *
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link ReposeCluster }
-     *
-     *
      */
     public List<ReposeCluster> getReposeCluster() {
         if (reposeCluster == null) {
@@ -108,25 +98,19 @@ public class SystemModel
 
     /**
      * Gets the value of the serviceCluster property.
-     *
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the serviceCluster property.
-     *
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getServiceCluster().add(newItem);
      * </pre>
-     *
-     *
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link Cluster }
-     *
-     *
      */
     public List<Cluster> getServiceCluster() {
         if (serviceCluster == null) {
@@ -138,10 +122,8 @@ public class SystemModel
     /**
      * Gets the value of the phoneHome property.
      *
-     * @return
-     *     possible object is
-     *     {@link PhoneHomeServiceConfig }
-     *
+     * @return possible object is
+     * {@link PhoneHomeServiceConfig }
      */
     public PhoneHomeServiceConfig getPhoneHome() {
         return phoneHome;
@@ -150,10 +132,8 @@ public class SystemModel
     /**
      * Sets the value of the phoneHome property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link PhoneHomeServiceConfig }
-     *
+     * @param value allowed object is
+     *              {@link PhoneHomeServiceConfig }
      */
     public void setPhoneHome(PhoneHomeServiceConfig value) {
         this.phoneHome = value;
@@ -162,10 +142,8 @@ public class SystemModel
     /**
      * Gets the value of the tracingHeader property.
      *
-     * @return
-     *     possible object is
-     *     {@link TracingHeaderConfig }
-     *
+     * @return possible object is
+     * {@link TracingHeaderConfig }
      */
     public TracingHeaderConfig getTracingHeader() {
         return tracingHeader;
@@ -174,10 +152,8 @@ public class SystemModel
     /**
      * Sets the value of the tracingHeader property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link TracingHeaderConfig }
-     *
+     * @param value allowed object is
+     *              {@link TracingHeaderConfig }
      */
     public void setTracingHeader(TracingHeaderConfig value) {
         this.tracingHeader = value;

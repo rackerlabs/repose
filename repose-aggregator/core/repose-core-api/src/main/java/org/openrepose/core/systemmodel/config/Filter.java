@@ -19,16 +19,11 @@
  */
 package org.openrepose.core.systemmodel.config;
 
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
 
 
 /**
- *
  * <pre>
  * &lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;html:p xmlns:html="http://www.w3.org/1999/xhtml" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:mod="http://docs.openrepose.org/repose/system-model/v2.0" xmlns:saxon="http://saxon.sf.net/" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xerces="http://xerces.apache.org" xmlns:xs="http://www.w3.org/2001/XMLSchema"&gt;Defines a filter that can be used to process and route requests&lt;/html:p&gt;
  * </pre>
@@ -58,8 +53,6 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Filter", propOrder = {
@@ -71,8 +64,7 @@ import javax.xml.bind.annotation.XmlType;
     "or"
 })
 public class Filter
-    implements Serializable
-{
+    implements Serializable {
 
     private final static long serialVersionUID = 1530213507742L;
     protected Methods methods;
@@ -94,10 +86,8 @@ public class Filter
     /**
      * Gets the value of the methods property.
      *
-     * @return
-     *     possible object is
-     *     {@link Methods }
-     *
+     * @return possible object is
+     * {@link Methods }
      */
     public Methods getMethods() {
         return methods;
@@ -106,10 +96,8 @@ public class Filter
     /**
      * Sets the value of the methods property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Methods }
-     *
+     * @param value allowed object is
+     *              {@link Methods }
      */
     public void setMethods(Methods value) {
         this.methods = value;
@@ -118,10 +106,8 @@ public class Filter
     /**
      * Gets the value of the header property.
      *
-     * @return
-     *     possible object is
-     *     {@link Header }
-     *
+     * @return possible object is
+     * {@link Header }
      */
     public Header getHeader() {
         return header;
@@ -130,10 +116,8 @@ public class Filter
     /**
      * Sets the value of the header property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Header }
-     *
+     * @param value allowed object is
+     *              {@link Header }
      */
     public void setHeader(Header value) {
         this.header = value;
@@ -142,10 +126,8 @@ public class Filter
     /**
      * Gets the value of the uri property.
      *
-     * @return
-     *     possible object is
-     *     {@link Uri }
-     *
+     * @return possible object is
+     * {@link Uri }
      */
     public Uri getUri() {
         return uri;
@@ -154,10 +136,8 @@ public class Filter
     /**
      * Sets the value of the uri property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Uri }
-     *
+     * @param value allowed object is
+     *              {@link Uri }
      */
     public void setUri(Uri value) {
         this.uri = value;
@@ -166,10 +146,8 @@ public class Filter
     /**
      * Gets the value of the and property.
      *
-     * @return
-     *     possible object is
-     *     {@link And }
-     *
+     * @return possible object is
+     * {@link And }
      */
     public And getAnd() {
         return and;
@@ -178,10 +156,8 @@ public class Filter
     /**
      * Sets the value of the and property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link And }
-     *
+     * @param value allowed object is
+     *              {@link And }
      */
     public void setAnd(And value) {
         this.and = value;
@@ -190,10 +166,8 @@ public class Filter
     /**
      * Gets the value of the not property.
      *
-     * @return
-     *     possible object is
-     *     {@link Not }
-     *
+     * @return possible object is
+     * {@link Not }
      */
     public Not getNot() {
         return not;
@@ -202,10 +176,8 @@ public class Filter
     /**
      * Sets the value of the not property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Not }
-     *
+     * @param value allowed object is
+     *              {@link Not }
      */
     public void setNot(Not value) {
         this.not = value;
@@ -214,10 +186,8 @@ public class Filter
     /**
      * Gets the value of the or property.
      *
-     * @return
-     *     possible object is
-     *     {@link Or }
-     *
+     * @return possible object is
+     * {@link Or }
      */
     public Or getOr() {
         return or;
@@ -226,10 +196,8 @@ public class Filter
     /**
      * Sets the value of the or property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Or }
-     *
+     * @param value allowed object is
+     *              {@link Or }
      */
     public void setOr(Or value) {
         this.or = value;
@@ -238,10 +206,8 @@ public class Filter
     /**
      * Gets the value of the id property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     * {@link String }
      */
     public String getId() {
         return id;
@@ -250,10 +216,8 @@ public class Filter
     /**
      * Sets the value of the id property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setId(String value) {
         this.id = value;
@@ -262,10 +226,8 @@ public class Filter
     /**
      * Gets the value of the name property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     * {@link String }
      */
     public String getName() {
         return name;
@@ -274,10 +236,8 @@ public class Filter
     /**
      * Sets the value of the name property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setName(String value) {
         this.name = value;
@@ -286,10 +246,8 @@ public class Filter
     /**
      * Gets the value of the configuration property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     * {@link String }
      */
     public String getConfiguration() {
         if (configuration == null) {
@@ -302,10 +260,8 @@ public class Filter
     /**
      * Sets the value of the configuration property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setConfiguration(String value) {
         this.configuration = value;
@@ -314,10 +270,8 @@ public class Filter
     /**
      * Gets the value of the uriRegex property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     * {@link String }
      */
     public String getUriRegex() {
         return uriRegex;
@@ -326,10 +280,8 @@ public class Filter
     /**
      * Sets the value of the uriRegex property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setUriRegex(String value) {
         this.uriRegex = value;

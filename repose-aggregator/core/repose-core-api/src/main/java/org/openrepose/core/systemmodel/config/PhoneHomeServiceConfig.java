@@ -19,16 +19,11 @@
  */
 package org.openrepose.core.systemmodel.config;
 
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
 
 
 /**
- *
  * <pre>
  * &lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;html:p xmlns:html="http://www.w3.org/1999/xhtml" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:mod="http://docs.openrepose.org/repose/system-model/v2.0" xmlns:saxon="http://saxon.sf.net/" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xerces="http://xerces.apache.org" xmlns:xs="http://www.w3.org/2001/XMLSchema"&gt;
  *                     If present, enables the phone home service which will collect Repose usage data and send it to a
@@ -54,14 +49,11 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "PhoneHomeServiceConfig")
 public class PhoneHomeServiceConfig
-    implements Serializable
-{
+    implements Serializable {
 
     private final static long serialVersionUID = 1530213507742L;
     @XmlAttribute(name = "enabled", required = true)
@@ -76,7 +68,6 @@ public class PhoneHomeServiceConfig
 
     /**
      * Gets the value of the enabled property.
-     *
      */
     public boolean isEnabled() {
         return enabled;
@@ -84,7 +75,6 @@ public class PhoneHomeServiceConfig
 
     /**
      * Sets the value of the enabled property.
-     *
      */
     public void setEnabled(boolean value) {
         this.enabled = value;
@@ -93,10 +83,8 @@ public class PhoneHomeServiceConfig
     /**
      * Gets the value of the collectionUri property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     * {@link String }
      */
     public String getCollectionUri() {
         if (collectionUri == null) {
@@ -109,10 +97,8 @@ public class PhoneHomeServiceConfig
     /**
      * Sets the value of the collectionUri property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setCollectionUri(String value) {
         this.collectionUri = value;
@@ -121,10 +107,8 @@ public class PhoneHomeServiceConfig
     /**
      * Gets the value of the originServiceId property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     * {@link String }
      */
     public String getOriginServiceId() {
         return originServiceId;
@@ -133,10 +117,8 @@ public class PhoneHomeServiceConfig
     /**
      * Sets the value of the originServiceId property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setOriginServiceId(String value) {
         this.originServiceId = value;
@@ -145,10 +127,8 @@ public class PhoneHomeServiceConfig
     /**
      * Gets the value of the contactEmail property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     * {@link String }
      */
     public String getContactEmail() {
         return contactEmail;
@@ -157,10 +137,8 @@ public class PhoneHomeServiceConfig
     /**
      * Sets the value of the contactEmail property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setContactEmail(String value) {
         this.contactEmail = value;

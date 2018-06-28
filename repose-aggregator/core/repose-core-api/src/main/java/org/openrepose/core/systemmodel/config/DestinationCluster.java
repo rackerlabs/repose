@@ -19,17 +19,11 @@
  */
 package org.openrepose.core.systemmodel.config;
 
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlIDREF;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
 
 
 /**
- *
  * <pre>
  * &lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;html:p xmlns:html="http://www.w3.org/1999/xhtml" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:mod="http://docs.openrepose.org/repose/system-model/v2.0" xmlns:saxon="http://saxon.sf.net/" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xerces="http://xerces.apache.org" xmlns:xs="http://www.w3.org/2001/XMLSchema"&gt;Defines a single node that is a target destination reachable from a cluster&lt;/html:p&gt;
  * </pre>
@@ -48,15 +42,12 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DestinationCluster")
 public class DestinationCluster
     extends Destination
-    implements Serializable
-{
+    implements Serializable {
 
     private final static long serialVersionUID = 1530213507742L;
     @XmlAttribute(name = "cluster", required = true)
@@ -67,10 +58,8 @@ public class DestinationCluster
     /**
      * Gets the value of the cluster property.
      *
-     * @return
-     *     possible object is
-     *     {@link Object }
-     *
+     * @return possible object is
+     * {@link Object }
      */
     public Cluster getCluster() {
         return cluster;
@@ -79,10 +68,8 @@ public class DestinationCluster
     /**
      * Sets the value of the cluster property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Object }
-     *
+     * @param value allowed object is
+     *              {@link Object }
      */
     public void setCluster(Cluster value) {
         this.cluster = value;

@@ -19,15 +19,14 @@
  */
 package org.openrepose.core.systemmodel.config;
 
-import java.io.Serializable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
+import java.io.Serializable;
 
 
 /**
- *
  * <pre>
  * &lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;html:p xmlns:html="http://www.w3.org/1999/xhtml" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:mod="http://docs.openrepose.org/repose/system-model/v2.0" xmlns:saxon="http://saxon.sf.net/" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xerces="http://xerces.apache.org" xmlns:xs="http://www.w3.org/2001/XMLSchema"&gt;Defines a single host in the system model&lt;/html:p&gt;
  * </pre>
@@ -49,14 +48,11 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Node")
 public class Node
-    implements Serializable
-{
+    implements Serializable {
 
     private final static long serialVersionUID = 1530213507742L;
     @XmlAttribute(name = "id", required = true)
@@ -71,10 +67,8 @@ public class Node
     /**
      * Gets the value of the id property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     * {@link String }
      */
     public String getId() {
         return id;
@@ -83,10 +77,8 @@ public class Node
     /**
      * Sets the value of the id property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setId(String value) {
         this.id = value;
@@ -95,10 +87,8 @@ public class Node
     /**
      * Gets the value of the hostname property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     * {@link String }
      */
     public String getHostname() {
         return hostname;
@@ -107,10 +97,8 @@ public class Node
     /**
      * Sets the value of the hostname property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setHostname(String value) {
         this.hostname = value;
@@ -119,14 +107,12 @@ public class Node
     /**
      * Gets the value of the httpPort property.
      *
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *
+     * @return possible object is
+     * {@link Integer }
      */
     public int getHttpPort() {
         if (httpPort == null) {
-            return  0;
+            return 0;
         } else {
             return httpPort;
         }
@@ -135,10 +121,8 @@ public class Node
     /**
      * Sets the value of the httpPort property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *
+     * @param value allowed object is
+     *              {@link Integer }
      */
     public void setHttpPort(Integer value) {
         this.httpPort = value;
@@ -147,14 +131,12 @@ public class Node
     /**
      * Gets the value of the httpsPort property.
      *
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *
+     * @return possible object is
+     * {@link Integer }
      */
     public int getHttpsPort() {
         if (httpsPort == null) {
-            return  0;
+            return 0;
         } else {
             return httpsPort;
         }
@@ -163,10 +145,8 @@ public class Node
     /**
      * Sets the value of the httpsPort property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *
+     * @param value allowed object is
+     *              {@link Integer }
      */
     public void setHttpsPort(Integer value) {
         this.httpsPort = value;

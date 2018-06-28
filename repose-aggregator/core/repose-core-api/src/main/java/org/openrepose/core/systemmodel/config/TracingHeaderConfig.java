@@ -19,15 +19,14 @@
  */
 package org.openrepose.core.systemmodel.config;
 
-import java.io.Serializable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
+import java.io.Serializable;
 
 
 /**
- *
  * <pre>
  * &lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;html:p xmlns:html="http://www.w3.org/1999/xhtml" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:mod="http://docs.openrepose.org/repose/system-model/v2.0" xmlns:saxon="http://saxon.sf.net/" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xerces="http://xerces.apache.org" xmlns:xs="http://www.w3.org/2001/XMLSchema"&gt;
  *                     Allows you to configure the tracing header. If not present, feature will be enabled by default.
@@ -50,14 +49,11 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TracingHeaderConfig")
 public class TracingHeaderConfig
-    implements Serializable
-{
+    implements Serializable {
 
     private final static long serialVersionUID = 1530213507742L;
     @XmlAttribute(name = "enabled")
@@ -70,10 +66,8 @@ public class TracingHeaderConfig
     /**
      * Gets the value of the enabled property.
      *
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *
+     * @return possible object is
+     * {@link Boolean }
      */
     public boolean isEnabled() {
         if (enabled == null) {
@@ -86,10 +80,8 @@ public class TracingHeaderConfig
     /**
      * Sets the value of the enabled property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *
+     * @param value allowed object is
+     *              {@link Boolean }
      */
     public void setEnabled(Boolean value) {
         this.enabled = value;
@@ -98,10 +90,8 @@ public class TracingHeaderConfig
     /**
      * Gets the value of the rewriteHeader property.
      *
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *
+     * @return possible object is
+     * {@link Boolean }
      */
     public boolean isRewriteHeader() {
         if (rewriteHeader == null) {
@@ -114,10 +104,8 @@ public class TracingHeaderConfig
     /**
      * Sets the value of the rewriteHeader property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *
+     * @param value allowed object is
+     *              {@link Boolean }
      */
     public void setRewriteHeader(Boolean value) {
         this.rewriteHeader = value;
@@ -126,10 +114,8 @@ public class TracingHeaderConfig
     /**
      * Gets the value of the secondaryPlainText property.
      *
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *
+     * @return possible object is
+     * {@link Boolean }
      */
     public boolean isSecondaryPlainText() {
         if (secondaryPlainText == null) {
@@ -142,10 +128,8 @@ public class TracingHeaderConfig
     /**
      * Sets the value of the secondaryPlainText property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *
+     * @param value allowed object is
+     *              {@link Boolean }
      */
     public void setSecondaryPlainText(Boolean value) {
         this.secondaryPlainText = value;

@@ -26,7 +26,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * <pre>

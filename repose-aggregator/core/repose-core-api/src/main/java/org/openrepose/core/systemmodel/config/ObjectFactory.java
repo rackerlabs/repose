@@ -37,7 +37,6 @@ import javax.xml.namespace.QName;
  * type definitions, element declarations and model
  * groups.  Factory methods for each of these are
  * provided in this class.
- *
  */
 @XmlRegistry
 public class ObjectFactory {
@@ -46,14 +45,12 @@ public class ObjectFactory {
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: org.openrepose.core.systemmodel.config
-     *
      */
     public ObjectFactory() {
     }
 
     /**
      * Create an instance of {@link SystemModel }
-     *
      */
     public SystemModel createSystemModel() {
         return new SystemModel();
@@ -61,7 +58,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Destination }
-     *
      */
     public Destination createDestination() {
         return new Destination();
@@ -69,7 +65,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link DestinationCluster }
-     *
      */
     public DestinationCluster createDestinationCluster() {
         return new DestinationCluster();
@@ -77,7 +72,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link NodeList }
-     *
      */
     public NodeList createNodeList() {
         return new NodeList();
@@ -85,7 +79,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Node }
-     *
      */
     public Node createNode() {
         return new Node();
@@ -93,7 +86,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Cluster }
-     *
      */
     public Cluster createCluster() {
         return new Cluster();
@@ -101,7 +93,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Service }
-     *
      */
     public Service createService() {
         return new Service();
@@ -109,7 +100,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link ReposeCluster }
-     *
      */
     public ReposeCluster createReposeCluster() {
         return new ReposeCluster();
@@ -117,7 +107,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link FilterList }
-     *
      */
     public FilterList createFilterList() {
         return new FilterList();
@@ -125,7 +114,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link DestinationList }
-     *
      */
     public DestinationList createDestinationList() {
         return new DestinationList();
@@ -133,7 +121,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link Filter }
-     *
      */
     public Filter createFilter() {
         return new Filter();
@@ -141,7 +128,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link ServicesList }
-     *
      */
     public ServicesList createServicesList() {
         return new ServicesList();
@@ -149,7 +135,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link DestinationEndpoint }
-     *
      */
     public DestinationEndpoint createDestinationEndpoint() {
         return new DestinationEndpoint();
@@ -157,7 +142,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link TracingHeaderConfig }
-     *
      */
     public TracingHeaderConfig createTracingHeaderConfig() {
         return new TracingHeaderConfig();
@@ -165,7 +149,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link PhoneHomeServiceConfig }
-     *
      */
     public PhoneHomeServiceConfig createPhoneHomeServiceConfig() {
         return new PhoneHomeServiceConfig();
@@ -173,7 +156,6 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link SystemModel }{@code >}}
-     *
      */
     @XmlElementDecl(namespace = "http://docs.openrepose.org/repose/system-model/v2.0", name = "system-model")
     public JAXBElement<SystemModel> createSystemModel(SystemModel value) {
