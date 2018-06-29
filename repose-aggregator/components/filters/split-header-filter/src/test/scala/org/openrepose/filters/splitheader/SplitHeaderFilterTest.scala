@@ -280,7 +280,7 @@ class SplitHeaderFilterTest extends FunSpec with BeforeAndAfterEach with Mockito
     it("should adopt the configured request header name casing") {
       splitHeaderFilter.configuration = createConfig(requestHeaders = Seq("TEST"))
 
-      request.addHeader("test", "one")
+      request.addHeader("test", "one,two")
 
       splitHeaderFilter.doWork(request, response, filterChain)
 
@@ -291,7 +291,7 @@ class SplitHeaderFilterTest extends FunSpec with BeforeAndAfterEach with Mockito
     it("should adopt the configured response header name casing") {
       splitHeaderFilter.configuration = createConfig(responseHeaders = Seq("TEST"))
 
-      response.addHeader("test", "one")
+      response.addHeader("test", "one,two")
 
       splitHeaderFilter.doWork(request, response, filterChain)
 
