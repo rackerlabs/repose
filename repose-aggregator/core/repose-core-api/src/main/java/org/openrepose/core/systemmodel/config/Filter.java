@@ -21,6 +21,7 @@ package org.openrepose.core.systemmodel.config;
 
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
+import java.util.Optional;
 
 
 /**
@@ -82,6 +83,16 @@ public class Filter
     protected String configuration;
     @XmlAttribute(name = "uri-regex")
     protected String uriRegex;
+
+    public FilterCriterion getFilterCriterion() {
+        return Optional.<FilterCriterion>ofNullable(methods)
+            .orElseGet(() -> Optional.<FilterCriterion>ofNullable(header)
+                .orElseGet(() -> Optional.<FilterCriterion>ofNullable(uri)
+                    .orElseGet(() -> Optional.<FilterCriterion>ofNullable(and)
+                        .orElseGet(() -> Optional.<FilterCriterion>ofNullable(not)
+                            .orElseGet(() -> Optional.<FilterCriterion>ofNullable(or)
+                                .orElse(null))))));
+    }
 
     /**
      * Gets the value of the methods property.
