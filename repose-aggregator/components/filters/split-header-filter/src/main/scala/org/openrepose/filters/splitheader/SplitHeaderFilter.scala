@@ -74,8 +74,11 @@ class SplitHeaderFilter @Inject()(configurationService: ConfigurationService)
   private def splitHeaders(wrappedHttpMessage: HeaderInteractor, configuredHeaders: HeaderList): Unit = {
     Option(configuredHeaders).map(_.getHeader.asScala).getOrElse(Seq.empty) foreach { headerToSplit =>
       val headerValues = wrappedHttpMessage.getSplittableHeaders(headerToSplit).asScala
-      wrappedHttpMessage.removeHeader(headerToSplit)
-      headerValues.foreach(wrappedHttpMessage.addHeader(headerToSplit, _))
+      if (headerValues.size > wrappedHttpMessage.getHeadersList(headerToSplit).size) {
+        logger.debug("Splitting header {}", headerToSplit)
+        wrappedHttpMessage.removeHeader(headerToSplit)
+        headerValues.foreach(wrappedHttpMessage.addHeader(headerToSplit, _))
+      }
     }
   }
 }
