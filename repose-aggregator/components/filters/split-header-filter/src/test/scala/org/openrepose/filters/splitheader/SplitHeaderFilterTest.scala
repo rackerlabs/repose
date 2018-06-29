@@ -90,6 +90,21 @@ class SplitHeaderFilterTest extends FunSpec with BeforeAndAfterEach with Mockito
       response.getHeaderNames.asScala shouldBe empty
     }
 
+    it("should not modify headers if no headers match configured headers") {
+      val headerName = "Not-Configured"
+      val headerValue = "one,two,three"
+
+      splitHeaderFilter.configuration = createConfig(requestHeaders = Seq(TestHeaderName))
+
+      request.addHeader(headerName, headerValue)
+
+      splitHeaderFilter.doWork(request, response, filterChain)
+
+      val passedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
+      passedRequest.getHeaderNames.asScala.toSet should contain only headerName
+      passedRequest.getHeaders(headerName).asScala.toSeq should contain only headerValue
+    }
+
     it("should split a request header with multiple values on the one line") {
       splitHeaderFilter.configuration = createConfig(requestHeaders = Seq(TestHeaderName))
 
