@@ -1,6 +1,6 @@
 = Release Notes
 
-== In Progress
+== == 8.9.1.0 (2018-07-03)
 * https://repose.atlassian.net/browse/REP-7004[REP-7004] - Fixed a bug in the Keystone v2 Basic Auth, Keystone v2, Openstack Identity v3, and Valkyrie Authorization filters where headers were potentially processed in a case sensitive way.
 * https://repose.atlassian.net/browse/REP-6038[REP-6038] - Created the `ReposeFilterChain` this will eventually replace the `PowerFilterChain` and allow dynamic determination of the filter chain.
 * https://repose.atlassian.net/browse/REP-7008[REP-7008] - Created the 'ReposeServlet' which will eventually replace the `EmptyServlet` and allow routing to be done by the servlet rather than the filter chain.
