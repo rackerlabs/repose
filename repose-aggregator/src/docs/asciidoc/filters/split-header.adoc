@@ -31,7 +31,7 @@ This filter has no dependency on any other filter.
 === Request Headers Created
 Changes to request headers vary based on configuration.
 
-Existing response headers may be split across multiple lines.
+Existing request headers may be split across multiple lines.
 
 === Request Body Changes
 This filter does not modify the request body.
