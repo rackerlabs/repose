@@ -1,6 +1,6 @@
 = Split Header Filter
 
-The Split Header Filter splits a single line header with multiple values into multiple header lines each with a single value.
+The Split Header Filter splits header lines with multiple values into multiple header lines each with a single value.
 
 Header values are split using the comma character (,) as a delimiter.
 

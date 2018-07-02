@@ -96,7 +96,7 @@ Validates calls to an API by checking the URI format and HTTP method and enforci
 *IN PROGRESS*
 
 == <<split-header.adoc#,Split Header Filter>>
-Splits a single line header with multiple values into multiple header lines each with a single value.
+Splits header lines with multiple values into multiple header lines each with a single value.
 
 == <<tenant-culling.adoc#,Tenant Culling Filter>>
 Winnows away the tenants that are not relevant to the current request.
