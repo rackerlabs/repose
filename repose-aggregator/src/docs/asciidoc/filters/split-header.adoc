@@ -1,0 +1,184 @@
+= Split Header Filter
+
+The Split Header Filter splits header lines with multiple values into multiple header lines each with a single value.
+
+Header values are split using the comma character (,) as a delimiter.
+
+This filter can process both requests and responses.
+
+[WARNING]
+====
+This filter does not distinguish between headers that should and should not be split.
+Any header configured to be split will be split.
+Care should to taken to ensure that headers that should not be split (e.g., `User-Agent`) are not configured to be split.
+Please refer to https://tools.ietf.org/html/rfc7231#section-5[RFC7231] for details on standard HTTP headers and their syntax.
+====
+
+== General filter information
+* *Name:* split-header
+* *Default Configuration:* split-header.cfg.xml
+* *Released:* vTBD
+* *Bundle:* repose-filter-bundle
+* link:../schemas/split-header.xsd[Schema]
+
+== Prerequisites & Postconditions
+=== Required Request Headers
+This filter does not require any request headers.
+
+=== Required Preceding Filters
+This filter has no dependency on any other filter.
+
+=== Request Headers Created
+Changes to request headers vary based on configuration.
+
+Existing request headers may be split across multiple lines.
+
+=== Request Body Changes
+This filter does not modify the request body.
+
+=== Recommended Follow-On (Succeeding) Filters
+This filter has no recommended follow-on filters.
+
+=== Response Body Changes
+This filter does not modify the response body.
+
+=== Response Headers Created
+Changes to response headers vary based on configuration.
+
+Existing response headers may be split across multiple lines.
+
+=== Response Status Codes
+This filter does not modify the response code.
+
+== Examples
+=== Exhaustive
+This configuration will split the `Accept` and `X-Roles` headers on the request, and the `Cache-Control` header on the response.
+
+For example, if a request is made with the header lines:
+```
+Accept: application/json, application/xml
+Accept: text/plain
+```
+
+This filter will split those header lines into the header lines:
+```
+Accept: application/json
+Accept: application/xml
+Accept: text/plain
+```
+
+[source,xml]
+.split-header.cfg.xml
+----
+<split-header xmlns='http://docs.openrepose.org/repose/split-header/v1.0'>
+    <request> <!--1-->
+        <header>accept</header> <!--2-->
+        <header>x-roles</header> <!--3-->
+    </request>
+    <response> <!--4-->
+        <header>cache-control</header> <!--5-->
+    </response>
+</split-header>
+----
+<1> A container for all of the request headers that should be split by this filter.
+<2> A header to be split by this filter.
+    In this case, the standard HTTP `Accept` header will be split on requests.
+<3> A header to be split by this filter.
+    In this case, the *Repose*-specific `X-Roles` header will be split on requests.
+<4> A container for all of the response headers that should be split by this filter.
+<5> A header to be split by this filter.
+    In this case, the standard HTTP `Cache-Control` header will be split on responses.
+
+== Legacy
+This configuration will imitate the the behavior of *Repose* when header splitting was performed as a core function rather than by this filter.
+
+[source,xml]
+.split-header.cfg.xml
+----
+<split-header xmlns='http://docs.openrepose.org/repose/split-header/v1.0'>
+    <request>
+        <header>accept</header>
+        <header>accept-charset</header>
+        <header>accept-encoding</header>
+        <header>accept-language</header>
+        <header>allow</header>
+        <header>cache-control</header>
+        <header>connection</header>
+        <header>content-encoding</header>
+        <header>content-language</header>
+        <header>expect</header>
+        <header>pragma</header>
+        <header>proxy-authenticate</header>
+        <header>te</header>
+        <header>trailer</header>
+        <header>transfer-encoding</header>
+        <header>upgrade</header>
+        <header>warning</header>
+        <header>x-authenticated-by</header>
+        <header>x-authorization</header>
+        <header>x-catalog</header>
+        <header>x-contact-id</header>
+        <header>x-default-region</header>
+        <header>x-domain</header>
+        <header>x-domain-id</header>
+        <header>x-identity-status</header>
+        <header>x-impersonator-id</header>
+        <header>x-impersonator-name</header>
+        <header>x-impersonator-roles</header>
+        <header>x-map-roles</header>
+        <header>x-pp-next-route</header>
+        <header>x-pp-user</header>
+        <header>x-pp-groups</header>
+        <header>x-relevant-roles</header>
+        <header>x-roles</header>
+        <header>x-tenant-id</header>
+        <header>x-tenant-name</header>
+        <header>x-token-expires</header>
+        <header>x-ttl</header>
+        <header>x-user-name</header>
+        <header>x-user-id</header>
+    </request>
+    <response>
+        <header>accept</header>
+        <header>accept-charset</header>
+        <header>accept-encoding</header>
+        <header>accept-language</header>
+        <header>allow</header>
+        <header>cache-control</header>
+        <header>connection</header>
+        <header>content-encoding</header>
+        <header>content-language</header>
+        <header>expect</header>
+        <header>pragma</header>
+        <header>proxy-authenticate</header>
+        <header>te</header>
+        <header>trailer</header>
+        <header>transfer-encoding</header>
+        <header>upgrade</header>
+        <header>warning</header>
+        <header>x-authenticated-by</header>
+        <header>x-authorization</header>
+        <header>x-catalog</header>
+        <header>x-contact-id</header>
+        <header>x-default-region</header>
+        <header>x-domain</header>
+        <header>x-domain-id</header>
+        <header>x-identity-status</header>
+        <header>x-impersonator-id</header>
+        <header>x-impersonator-name</header>
+        <header>x-impersonator-roles</header>
+        <header>x-map-roles</header>
+        <header>x-pp-next-route</header>
+        <header>x-pp-user</header>
+        <header>x-pp-groups</header>
+        <header>x-relevant-roles</header>
+        <header>x-roles</header>
+        <header>x-tenant-id</header>
+        <header>x-tenant-name</header>
+        <header>x-token-expires</header>
+        <header>x-ttl</header>
+        <header>x-user-name</header>
+        <header>x-user-id</header>
+    </response>
+</split-header>
+----

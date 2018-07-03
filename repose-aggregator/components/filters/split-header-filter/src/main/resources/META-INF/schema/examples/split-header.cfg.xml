@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<split-header xmlns='http://docs.openrepose.org/repose/split-header/v1.0'>
+    <!-- both response/request configs are optional, if neither are specified, this filter is a no-op -->
+    <request>
+        <header>splitting-request-header</header>
+        <header>accept</header>
+    </request>
+    <response>
+        <header>splitting-response-header</header>
+        <header>allow</header>
+    </response>
+</split-header>

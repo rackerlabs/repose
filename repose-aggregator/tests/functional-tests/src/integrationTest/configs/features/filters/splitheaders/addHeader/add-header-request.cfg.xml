@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<add-headers xmlns="http://docs.openrepose.org/repose/add-header/v1.0">
+    <request>
+        <header name="request-test-1">split</header>
+        <header name="Request-Test-1">One,Two,Three</header>
+        <header name="rEQUEST-tEST-1">fOUR,  fIVE,  sIX</header>
+        <header name="REQUEST-TEST-1">SEVEN</header>
+        <header name="ReQuEsT-TeSt-2">OnE;TwO=2;ThReE=3</header>
+        <header name="rEqUeSt-tEsT-3">oNe,tWo,tHrEe</header>
+        <header name="Leave-Alone">FooServer;ver=1.0, BarServer 5000</header>
+    </request>
+</add-headers>

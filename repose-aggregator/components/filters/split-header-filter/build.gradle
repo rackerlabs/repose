@@ -1,0 +1,15 @@
+dependencies {
+    compile project(":repose-aggregator:core:repose-core-api")
+    compile "org.scala-lang:scala-library"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
+
+    compileOnly "javax.servlet:javax.servlet-api"
+    compileOnly "javax.inject:javax.inject"
+
+    testCompile project(":repose-aggregator:commons:commons-test")
+    testCompile "junit:junit"
+    testCompile "org.mockito:mockito-all"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
+    testCompile "org.slf4j:jcl-over-slf4j"
+    testCompile "org.springframework:spring-test"
+}
