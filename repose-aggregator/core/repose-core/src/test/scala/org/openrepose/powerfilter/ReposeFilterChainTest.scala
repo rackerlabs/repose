@@ -22,6 +22,7 @@ package org.openrepose.powerfilter
 import java.util.concurrent.TimeUnit
 
 import com.codahale.metrics.{MetricRegistry, Timer}
+import io.opentracing.mock.MockTracer
 import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{Filter, FilterChain}
@@ -49,6 +50,7 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
   var originalChain: FilterChain = _
   var metricsRegistry: MetricRegistry = _
   var timer: Timer = _
+  var tracer: MockTracer = _
 
   override protected def beforeEach(): Unit = {
     mockFilter = mock[Filter]
@@ -58,6 +60,7 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
     metricsRegistry = mock[MetricRegistry]
     timer = mock[Timer]
     when(metricsRegistry.timer(any[String])).thenReturn(timer)
+    tracer = new MockTracer()
   }
 
   describe("doFilter") {
@@ -65,7 +68,8 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
       val filterChain = new ReposeFilterChain(List(FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true)),
                                               originalChain,
                                               None,
-                                              metricsRegistry)
+                                              metricsRegistry,
+                                              tracer)
 
       filterChain.doFilter(mockRequest, mockResponse)
 
@@ -79,7 +83,8 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
                                                    FilterContext(mock[Filter], "bar", (request: HttpServletRequest) => true)),
                                               originalChain,
                                               None,
-                                              metricsRegistry)
+                                              metricsRegistry,
+                                              tracer)
 
       filterChain.doFilter(mockRequest, mockResponse)
 
@@ -93,7 +98,8 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
                                                    FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true)),
                                               originalChain,
                                               None,
-                                              metricsRegistry)
+                                              metricsRegistry,
+                                              tracer)
 
       filterChain.doFilter(mockRequest, mockResponse)
 
@@ -103,7 +109,11 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
     }
 
     it("should go to the original filter chain if it's empty") {
-      val filterChain = new ReposeFilterChain(List.empty, originalChain, None, metricsRegistry)
+      val filterChain = new ReposeFilterChain(List.empty,
+                                              originalChain,
+                                              None,
+                                              metricsRegistry,
+                                              tracer)
 
       filterChain.doFilter(mockRequest, mockResponse)
 
@@ -115,7 +125,8 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
                                                    FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true)),
                                               originalChain,
                                               Option(".*/bar"),
-                                              metricsRegistry)
+                                              metricsRegistry,
+                                              tracer)
 
       filterChain.doFilter(mockRequest, mockResponse)
 
@@ -127,7 +138,8 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
                                                    FilterContext(mock[Filter], "bar", (request: HttpServletRequest) => true)),
                                               originalChain,
                                               Option(".*/butts"),
-                                              metricsRegistry)
+                                              metricsRegistry,
+                                              tracer)
 
       filterChain.doFilter(mockRequest, mockResponse)
 
@@ -143,7 +155,8 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
       val filterChain = new ReposeFilterChain(List(FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true)),
                                               originalChain,
                                               None,
-                                              metricsRegistry)
+                                              metricsRegistry,
+                                              tracer)
 
       filterChain.doFilter(mockRequest, mockResponse)
 
@@ -161,7 +174,8 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
       val filterChain = new ReposeFilterChain(List.empty,
                                               originalChain,
                                               None,
-                                              metricsRegistry)
+                                              metricsRegistry,
+                                              tracer)
 
       filterChain.doFilter(mockRequest, mockResponse)
 
@@ -175,7 +189,8 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
                                                    FilterContext(mock[Filter], "bar", (request: HttpServletRequest) => true)),
                                               originalChain,
                                               None,
-                                              metricsRegistry)
+                                              metricsRegistry,
+                                              tracer)
 
       filterChain.doFilter(mockRequest, mockResponse)
 
@@ -186,7 +201,8 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
       val filterChain = new ReposeFilterChain(List.empty,
                                               originalChain,
                                               None,
-                                              metricsRegistry)
+                                              metricsRegistry,
+                                              tracer)
 
       filterChain.doFilter(mockRequest, mockResponse)
 
@@ -198,7 +214,8 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
                                                    FilterContext(mock[Filter], "bar", (request: HttpServletRequest) => true)),
                                               originalChain,
                                               None,
-                                              metricsRegistry)
+                                              metricsRegistry,
+                                              tracer)
       mockRequest.addHeader(TracingHeader, "true")
 
       filterChain.doFilter(mockRequest, mockResponse)
@@ -210,7 +227,8 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
       val filterChain = new ReposeFilterChain(List.empty,
                                               originalChain,
                                               None,
-                                              metricsRegistry)
+                                              metricsRegistry,
+                                              tracer)
       mockRequest.addHeader(TracingHeader, "true")
 
       filterChain.doFilter(mockRequest, mockResponse)
@@ -222,7 +240,8 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
       val filterChain = new ReposeFilterChain(List.empty,
                                               originalChain,
                                               None,
-                                              metricsRegistry)
+                                              metricsRegistry,
+                                              tracer)
       mockRequest.addHeader(TracingHeader, "true")
       mockResponse.setCommitted(true)
 
@@ -235,7 +254,8 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
       val filterChain = new ReposeFilterChain(List.empty,
                                               originalChain,
                                               None,
-                                              metricsRegistry)
+                                              metricsRegistry,
+                                              tracer)
       when(originalChain.doFilter(any[HttpServletRequest], any[HttpServletResponse])).thenThrow(new RuntimeException("test exception"))
 
       filterChain.doFilter(mockRequest, mockResponse)
@@ -247,7 +267,8 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
       val filterChain = new ReposeFilterChain(List.empty,
                                               originalChain,
                                               None,
-                                              metricsRegistry)
+                                              metricsRegistry,
+                                              tracer)
       when(originalChain.doFilter(any[HttpServletRequest], any[HttpServletResponse])).thenThrow(new RuntimeException("test exception"))
       mockResponse.setCommitted(true)
       val loggerContext = LogManager.getContext(false).asInstanceOf[LoggerContext]
@@ -258,6 +279,20 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
 
       val messageList = listAppender.getEvents.asScala.map(_.getMessage.getFormattedMessage)
       messageList.filter(_.contains("Exception thrown while processing the chain.")) should have length 1
+    }
+
+    it("should create a span with the filter name") {
+      val filterChain = new ReposeFilterChain(List(FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true),
+                                                   FilterContext(mock[Filter], "bar", (request: HttpServletRequest) => true)),
+                                              originalChain,
+                                              None,
+                                              metricsRegistry,
+                                              tracer)
+
+      filterChain.doFilter(mockRequest, mockResponse)
+
+      tracer.finishedSpans should have length 1
+      tracer.finishedSpans.asScala.head.operationName shouldBe "Filter foo"
     }
   }
 }
