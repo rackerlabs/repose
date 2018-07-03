@@ -190,7 +190,7 @@ class DeviceLevelPermissionToRolesTest extends ReposeValveTest {
         then: "in-scope permissions are added to the request as roles"
         roles.containsAll(readWritePerm)
         tenantScopedRoles.containsAll(readWritePerm)
-        if(readOnlyMethod.contains(method)) {
+        if (readOnlyMethod.contains(method)) {
             assert roles.containsAll(readOnlyPerm)
             assert tenantScopedRoles.containsAll(readOnlyPerm)
         }
