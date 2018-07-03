@@ -1,52 +1,78 @@
 = Merge Header Filter
 
-include::../_includes/in-progress.adoc[]
+The Merge Header Filter merges multiple header lines with the same name into a single header line with multiple comma-separated values.
+
+This filter can process both requests and responses.
 
 == General filter information
-* *Name:* ???
-* *Default Configuration:* ???.cfg.xml
-* *Released:* v?.?.?.?
+* *Name:* merge-header
+* *Default Configuration:* merge-header.cfg.xml
+* *Released:* v7.1.0.0
 * *Bundle:* repose-filter-bundle
 * link:../schemas/merge-header.xsd[Schema]
 
 == Prerequisites & Postconditions
 === Required Request Headers
-???.
+This filter does not require any request headers.
 
 === Required Preceding Filters
-???.
+This filter has no dependency on any other filter.
 
 === Request Headers Created
-???.
+Changes to request headers vary based on configuration.
+
+Existing request headers may be merged into a single line.
 
 === Request Body Changes
-???.
+This filter does not modify the request body.
 
 === Recommended Follow-On (Succeeding) Filters
-???.
+This filter has no recommended follow-on filters.
 
 === Response Body Changes
-???.
+This filter does not modify the response body.
 
 === Response Headers Created
-???.
+Changes to response headers vary based on configuration.
+
+Existing response headers may be merged into a single line.
 
 === Response Status Codes
-???.
+This filter does not modify the response code.
 
 == Examples
-=== Shows how to ???
-This configuration will ???.
+=== Exhaustive
+This configuration will merge the `Accept` and `X-Roles` headers on the request, and the `Cache-Control` header on the response.
+
+For example, if a request is made with the header lines:
+```
+Accept: application/json, application/xml
+Accept: text/plain
+```
+
+This filter will merge those header lines into the header line:
+```
+Accept: application/json, application/xml, text/plain
+```
 
 [source,xml]
-.???.cfg.xml
+.merge-header.cfg.xml
 ----
-<??? xmlns="http://docs.openrepose.org/repose/???/v1.0">
-    <???> <!--1-->
-    </???>
-</???>
+<merge-header xmlns='http://docs.openrepose.org/repose/merge-header/v1.0'>
+    <request> <!--1-->
+        <header>accept</header> <!--2-->
+        <header>x-roles</header> <!--3-->
+    </request>
+    <response> <!--4-->
+        <header>cache-control</header> <!--5-->
+    </response>
+</merge-header>
 ----
-<1> Specifies ???.
-
-== Additional Information
-*Remove this section if not needed.*
+<1> A container for all of the request headers that should be merged by this filter.
+<2> A header to be merged by this filter.
+    In this case, the standard HTTP `Accept` header will be merged on requests.
+<3> A header to be merged by this filter.
+    In this case, the *Repose*-specific `X-Roles` header will be merged on requests.
+<4> A container for all of the response headers that should be merged by this filter.
+<5> A header to be merged by this filter.
+    In this case, the standard HTTP `Cache-Control` header will be merged on responses.
