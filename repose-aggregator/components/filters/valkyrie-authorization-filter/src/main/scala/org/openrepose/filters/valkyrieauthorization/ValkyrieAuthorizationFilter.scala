@@ -115,17 +115,21 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       def parsePermissions(inputStream: InputStream): Try[UserPermissions] = {
 
         @tailrec
-        def parseJson(permissionName: List[String], deviceToPermissions: List[DeviceToPermission], values: List[JsValue]): UserPermissions = {
+        def parseJson(permissionName: List[String], deviceToPermissions: DeviceToPermissions, values: List[JsValue]): UserPermissions = {
           if (values.isEmpty) {
-            UserPermissions(permissionName.toVector, deviceToPermissions.toVector)
+            UserPermissions(permissionName.toVector, deviceToPermissions)
           } else {
             val currentPermission: JsValue = values.head
             (currentPermission \ "item_type_name").as[String] match {
               case "accounts" =>
                 parseJson((currentPermission \ "permission_name").as[String] +: permissionName, deviceToPermissions, values.tail)
               case "devices" =>
-                parseJson(permissionName,
-                  DeviceToPermission((currentPermission \ "item_id").as[Int], (currentPermission \ "permission_name").as[String]) +: deviceToPermissions, values.tail)
+                val deviceId = (currentPermission \ "item_id").as[Int]
+                val devicePermissionName = (currentPermission \ "permission_name").as[String]
+                parseJson(
+                  permissionName,
+                  deviceToPermissions + (deviceId -> (deviceToPermissions.getOrElse(deviceId, Set.empty) + devicePermissionName)),
+                  values.tail)
               case _ => parseJson(permissionName, deviceToPermissions, values.tail)
             }
           }
@@ -135,7 +139,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         try {
           val json = Json.parse(input)
           val permissions: List[JsValue] = (json \ "contact_permissions").as[List[JsValue]]
-          Success(parseJson(List.empty[String], List.empty[DeviceToPermission], permissions))
+          Success(parseJson(List.empty, Map.empty, permissions))
         } catch {
           case e: Exception =>
             logger.error(s"Invalid Json response from Valkyrie: $input", e)
@@ -159,14 +163,14 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       def parseInventory(inputStream: InputStream): Try[DevicePermissions] = {
 
         @tailrec
-        def parseJson(deviceToPermissions: List[DeviceToPermission], values: List[JsValue]): DevicePermissions = {
+        def parseJson(deviceToPermissions: DeviceToPermissions, values: List[JsValue]): DevicePermissions = {
           if (values.isEmpty) {
-            DevicePermissions(deviceToPermissions.toVector)
+            DevicePermissions(deviceToPermissions)
           } else {
             val currentItem: JsValue = values.head
             (currentItem \ "id").as[Int] match {
               case id if id > 0 =>
-                parseJson(DeviceToPermission(id, AccountAdmin) +: deviceToPermissions, values.tail)
+                parseJson(deviceToPermissions + (id -> (deviceToPermissions.getOrElse(id, Set.empty) + AccountAdmin)), values.tail)
               case _ => parseJson(deviceToPermissions, values.tail)
             }
           }
@@ -176,7 +180,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         try {
           val json = Json.parse(input)
           val inventory: List[JsValue] = (json \ "inventory").as[List[JsValue]]
-          Success(parseJson(List.empty[DeviceToPermission], inventory))
+          Success(parseJson(Map.empty, inventory))
         } catch {
           case e: Exception =>
             logger.error(s"Invalid Json response from Valkyrie: $input", e)
@@ -205,28 +209,23 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     }
 
     def authorizeDevice(valkyrieCallResult: ValkyrieResult, deviceIdHeader: Option[String]): ValkyrieResult = {
-      def authorize(deviceId: String, permissions: UserPermissions, method: String): ValkyrieResult = {
-        val deviceBasedResult: ValkyrieResult = permissions.devices.find(_.device.toString == deviceId).map { deviceToPermission =>
-          lazy val permissionsWithDevicePermissions = permissions.copy(roles = permissions.roles :+ deviceToPermission.permission)
-          deviceToPermission.permission match {
-            case "view_product" if List("GET", "HEAD").contains(method) => permissionsWithDevicePermissions
-            case "edit_product" => permissionsWithDevicePermissions
-            case "admin_product" => permissionsWithDevicePermissions
-            case AccountAdmin => permissionsWithDevicePermissions
-            case _ => ResponseResult(SC_FORBIDDEN, "Not Authorized")
-          }
-        } getOrElse {
-          ResponseResult(SC_FORBIDDEN, "Not Authorized")
-        }
+      def authorizedFor(method: String)(permission: String): Boolean = {
+        permission == "view_product" && Set("GET", "HEAD").contains(method) ||
+          permission == "edit_product" ||
+          permission == "admin_product" ||
+          permission == AccountAdmin
+      }
 
-        deviceBasedResult match {
-          case ResponseResult(SC_FORBIDDEN, _, _) =>
-            if (permissions.roles.contains(AccountAdmin) && configuration.isEnableBypassAccountAdmin) {
-              permissions
-            } else {
-              deviceBasedResult
-            }
-          case _ => deviceBasedResult
+      def authorize(deviceId: String, permissions: UserPermissions, method: String): ValkyrieResult = {
+        val authorizingPermissions = permissions.devicePermissions.getOrElse(deviceId.toInt, Set.empty)
+          .filter(authorizedFor(method))
+
+        if (authorizingPermissions.nonEmpty) {
+          permissions.copy(roles = permissions.roles ++ authorizingPermissions)
+        } else if (permissions.roles.contains(AccountAdmin) && configuration.isEnableBypassAccountAdmin) {
+          permissions
+        } else {
+          ResponseResult(SC_FORBIDDEN, "Not Authorized")
         }
       }
 
@@ -402,7 +401,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
     }
 
-    def cullJsonArray(jsonArray: Seq[JsValue], devicePath: DevicePath, devicePermissions: Vector[DeviceToPermission]): Seq[JsValue] = {
+    def cullJsonArray(jsonArray: Seq[JsValue], devicePath: DevicePath, devicePermissions: DeviceToPermissions): Seq[JsValue] = {
       def extractDeviceIdFieldValue(jsValue: JsValue): Try[String] = {
         Try(JSONPath.query(devicePath.getPath, jsValue)) match {
           case Success(value) => value match {
@@ -436,7 +435,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         extractDeviceIdFieldValue(value) flatMap { deviceIdFieldValue =>
           parseDeviceId(deviceIdFieldValue)
         } map { deviceId =>
-          devicePermissions.exists(_.device == deviceId.toInt)
+          devicePermissions.keySet.contains(deviceId.toInt)
         } recover {
           case e@(_: InvalidJsonTypeException | _: NonMatchingRegexException) =>
             configuration.getCollectionResources.getDeviceIdMismatchAction match {
@@ -511,11 +510,11 @@ object ValkyrieAuthorizationFilter {
   final val AccountAdmin = "account_admin"
   final val CachePrefix = "VALKYRIE-FILTER"
 
+  type DeviceToPermissions = Map[Int, Set[String]]
+
   sealed trait ValkyrieResult
   case class UserInfo(tenantId: String, contactId: String) extends ValkyrieResult
-  case class UserPermissions(roles: Vector[String], devices: Vector[DeviceToPermission]) extends ValkyrieResult
-  case class DevicePermissions(devices: Vector[DeviceToPermission]) extends ValkyrieResult
+  case class UserPermissions(roles: Vector[String], devicePermissions: DeviceToPermissions) extends ValkyrieResult
+  case class DevicePermissions(devicePermissions: DeviceToPermissions) extends ValkyrieResult
   case class ResponseResult(statusCode: Int, message: String = "", retryTime: Option[String] = None) extends ValkyrieResult
-
-  case class DeviceToPermission(device: Int, permission: String)
 }

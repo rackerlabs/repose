@@ -28,6 +28,7 @@ import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
 import static java.nio.charset.StandardCharsets.UTF_8
+import static javax.servlet.http.HttpServletResponse.SC_OK
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.ROLES
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ROLES_MAP
 
@@ -44,6 +45,11 @@ class DeviceLevelPermissionToRolesTest extends ReposeValveTest {
     def static MockIdentityV2Service fakeIdentityService
     def static MockValkyrie fakeValkyrie
     def static Map params = [:]
+
+    def static readOnlyMethod = ['GET', 'HEAD']
+    def static readWriteMethod = ['PUT', 'POST', 'DELETE']
+    def static readOnlyPerm = ['view_product']
+    def static readWritePerm = ['edit_product', 'admin_product']
 
     def static random = new Random()
 
@@ -147,7 +153,79 @@ class DeviceLevelPermissionToRolesTest extends ReposeValveTest {
         "DELETE" | randomTenant() | "520708" | "edit_product"  | ['view_product', 'admin_product'] | "200"
     }
 
+    @Unroll
+    def "#method with permissions #permissions should return an OK (200)"() {
+        given: "A device ID with a particular permission level defined in Valkyrie"
+        fakeIdentityService.with {
+            client_apikey = UUID.randomUUID().toString()
+            client_token = UUID.randomUUID().toString()
+            client_tenantid = randomTenant()
+        }
+
+        fakeValkyrie.with {
+            device_perm = (permissions as List<String>).join(",")
+            validationSuccess = { Map<String, String> params -> createValkyrieDevicePermissionsBody(params) }
+        }
+
+        when: "a request is made against a device with Valkyrie set permissions"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/" + fakeValkyrie.device_id, method: method,
+            headers: [
+                'content-type': 'application/json',
+                'X-Auth-Token': fakeIdentityService.client_token,
+            ]
+        )
+
+        then: "check response"
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings[0].request.headers.getFirstValue("x-device-id") == fakeValkyrie.device_id
+
+        when: "headers are parsed at the origin service"
+        def roles = mc.handlings[0].request.headers.findAll(ROLES)
+        def tenantToRolesHeader = mc.handlings[0].request.headers.getFirstValue(TENANT_ROLES_MAP)
+        def tenantToRoles = new JsonSlurper().parseText(new String(Base64.decoder.decode(tenantToRolesHeader), UTF_8))
+
+        and: "the roles are scoped to those associated with the requested tenant"
+        def tenantScopedRoles = tenantToRoles[fakeIdentityService.client_tenantid as String] as List
+
+        then: "in-scope permissions are added to the request as roles"
+        roles.containsAll(readWritePerm)
+        tenantScopedRoles.containsAll(readWritePerm)
+        if(readOnlyMethod.contains(method)) {
+            assert roles.containsAll(readOnlyPerm)
+            assert tenantScopedRoles.containsAll(readOnlyPerm)
+        }
+
+        where:
+        [permissions, method] << [
+            (readOnlyPerm + readWritePerm).permutations(),
+            (readOnlyMethod + readWriteMethod),
+        ].combinations()
+    }
+
     def String randomTenant() {
         "hybrid:" + random.nextInt()
+    }
+
+    def createValkyrieDevicePermissionsBody(Map<String, String> permissions) {
+        def deviceId = permissions['deviceID']
+        def permissionNames = permissions['permission'].tokenize(',')
+        def contactPermissions = permissionNames.inject("") { acc, permissionName ->
+            """$acc${if (!acc.empty) "," else ""}
+            |    {
+            |        "account_number":862323,
+            |        "contact_id": 818029,
+            |        "id": 0,
+            |        "item_id": $deviceId,
+            |        "item_type_id" : 1,
+            |        "item_type_name" : "devices",
+            |        "permission_name" : "$permissionName",
+            |        "permission_type_id" : 12
+            |    }""".stripMargin()
+        }
+        return """{
+        |  "contact_permissions" : [
+        |    ${contactPermissions}
+        |  ]
+        |}""".stripMargin()
     }
 }

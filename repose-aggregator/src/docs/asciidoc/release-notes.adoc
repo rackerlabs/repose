@@ -6,6 +6,8 @@
 * https://repose.atlassian.net/browse/REP-7008[REP-7008] - Created the 'ReposeServlet' which will eventually replace the `EmptyServlet` and allow routing to be done by the servlet rather than the filter chain.
 * https://repose.atlassian.net/browse/REP-5083[REP-5083] - Added the new <<filters/split-header.adoc#, Split Header Filter>>.
 * https://repose.atlassian.net/browse/REP-7081[REP-7081] - Added OpenTracing Support to the `ReposeFilterChain`.
+* https://repose.atlassian.net/browse/REP-7064[REP-7064] - Fixed the behavior of the Valkyrie filter where only the last device permission was considered when determining the authorization status of a request.
+  Now all device permissions are considered.
 
 == 8.9.0.1 (2018-06-08)
 * https://repose.atlassian.net/browse/REP-7054[REP-7054] - IP User filter - support to use X-Forwarded-For header for X-PP-Groups
