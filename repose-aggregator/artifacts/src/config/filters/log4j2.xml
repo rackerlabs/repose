@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration monitorInterval="15" packages="org.apache.logging.log4j.flume.appender">
+    <DynamicThresholdFilter key="x-trace-request" onMatch="ACCEPT" onMismatch="NEUTRAL">
+        <KeyValuePair key="true" value="TRACE"/>
+    </DynamicThresholdFilter>
     <Appenders>
         <Console name="STDOUT">
             <PatternLayout pattern="%d %-4r [%t] %-5p %c - %m%n"/>
