@@ -19,39 +19,14 @@
  */
 package org.openrepose.core.systemmodel.config;
 
+import lombok.Data;
+
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 
 
-/**
- * <pre>
- * &lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;html:p xmlns:html="http://www.w3.org/1999/xhtml" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:mod="http://docs.openrepose.org/repose/system-model/v2.0" xmlns:saxon="http://saxon.sf.net/" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xerces="http://xerces.apache.org" xmlns:xs="http://www.w3.org/2001/XMLSchema"&gt;
- *                     Defines a single service cluster in the system model. A service cluster is a collection of nodes
- *                     that provide equivalent functionality. If a service cluster represents a repose cluster, then
- *                     it will contain a filter list and a destination list.
- *                 &lt;/html:p&gt;
- * </pre>
- *
- *
- * <p>Java class for Cluster complex type.
- *
- * <p>The following schema fragment specifies the expected content contained within this class.
- *
- * <pre>
- * &lt;complexType name="Cluster">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;element name="nodes" type="{http://docs.openrepose.org/repose/system-model/v2.0}NodeList"/>
- *       &lt;/sequence>
- *       &lt;attribute name="id" use="required" type="{http://www.w3.org/2001/XMLSchema}ID" />
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Cluster", propOrder = {
     "nodes"
@@ -59,56 +34,17 @@ import java.io.Serializable;
 @XmlSeeAlso({
     ReposeCluster.class
 })
+@Data
 public class Cluster
     implements Serializable {
 
     private final static long serialVersionUID = 1530213507742L;
     @XmlElement(required = true)
-    protected NodeList nodes;
+    private NodeList nodes;
     @XmlAttribute(name = "id", required = true)
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @XmlID
     @XmlSchemaType(name = "ID")
-    protected String id;
-
-    /**
-     * Gets the value of the nodes property.
-     *
-     * @return possible object is
-     * {@link NodeList }
-     */
-    public NodeList getNodes() {
-        return nodes;
-    }
-
-    /**
-     * Sets the value of the nodes property.
-     *
-     * @param value allowed object is
-     *              {@link NodeList }
-     */
-    public void setNodes(NodeList value) {
-        this.nodes = value;
-    }
-
-    /**
-     * Gets the value of the id property.
-     *
-     * @return possible object is
-     * {@link String }
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * Sets the value of the id property.
-     *
-     * @param value allowed object is
-     *              {@link String }
-     */
-    public void setId(String value) {
-        this.id = value;
-    }
+    private String id;
 
 }
