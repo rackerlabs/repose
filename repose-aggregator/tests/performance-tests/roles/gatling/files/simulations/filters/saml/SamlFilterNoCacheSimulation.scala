@@ -28,6 +28,7 @@ import io.gatling.core.Predef._
 import io.gatling.core.config.GatlingFiles
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
+import org.openrepose.performance.test.AbstractReposeSimulation
 
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._
@@ -35,7 +36,7 @@ import scala.concurrent.duration._
 /**
   * SAML Policy Translation filter performance simulation.
   */
-class SamlFilterNoCacheSimulation extends Simulation {
+class SamlFilterNoCacheSimulation extends AbstractReposeSimulation {
   import SamlFilterNoCacheSimulation._
 
   // properties specific to this test simulation
@@ -47,21 +48,6 @@ class SamlFilterNoCacheSimulation extends Simulation {
   val sendXmlBody = samlConf.getBoolean(s"$samlConfRoot.xml_body")
   val acceptMediaTypes = samlConf.getStringList(s"$samlConfRoot.accept_types").asScala.toIndexedSeq
 
-  // properties to configure the Gatling test
-  val conf = ConfigFactory.load("application.conf")
-  val confRoot = "test"
-  val throughput = conf.getInt(s"$confRoot.throughput")
-  val duration = conf.getInt(s"$confRoot.duration")
-  val warmUpDuration = conf.getInt(s"$confRoot.warmup_duration")
-  val rampUpUsers = conf.getInt(s"$confRoot.ramp_up_users.new_per_sec")
-  val rampUpDuration = conf.getInt(s"$confRoot.ramp_up_users.duration_in_sec")
-  val percentile3ResponseTimeUpperBound = conf.getInt(s"$confRoot.expectations.percentile3_response_time_upper_bound")
-  val percentSuccessfulRequest = conf.getInt(s"$confRoot.expectations.percent_successful_requests")
-
-  // this value is provided through a Java property on the command line when Gatling is run
-  val baseUrl = conf.getString("test.base_url")
-
-  val httpConf = http.baseURL(s"http://$baseUrl")
   val httpRequestBuilder = if (sendXmlBody) {
     postAuthRequestWithSamlResponseXmlBody
   } else {
@@ -113,13 +99,7 @@ class SamlFilterNoCacheSimulation extends Simulation {
       jumpToRps(throughput), holdFor((warmUpDuration + duration) minutes))
 
   // run the scenarios
-  setUp(
-    warmup,
-    mainScenario
-  ).assertions(
-    global.responseTime.percentile3.lte(percentile3ResponseTimeUpperBound),
-    global.successfulRequests.percent.gte(percentSuccessfulRequest)
-  ).protocols(httpConf)
+  runScenarios
 
   def postAuthRequestWithSamlResponseBase64Form: HttpRequestBuilder = {
     http(session => session.scenario)

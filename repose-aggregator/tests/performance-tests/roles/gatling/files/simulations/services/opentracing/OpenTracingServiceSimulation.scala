@@ -24,30 +24,15 @@ import com.typesafe.config._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
+import org.openrepose.performance.test.AbstractReposeSimulation
 
 import scala.concurrent.duration._
 import scala.util.Random
 
 /**
- * Simple opentracing performance simulation (with keystone in the middle).
- */
-class OpenTracingServiceSimulation extends Simulation {
-  // properties to configure the Gatling test
-  val conf = ConfigFactory.load("application.conf")
-  val confRoot = "test"
-  val throughput = conf.getInt(s"$confRoot.throughput")
-  val duration = conf.getInt(s"$confRoot.duration")
-  val warmUpDuration = conf.getInt(s"$confRoot.warmup_duration")
-  val rampUpUsers = conf.getInt(s"$confRoot.ramp_up_users.new_per_sec")
-  val rampUpDuration = conf.getInt(s"$confRoot.ramp_up_users.duration_in_sec")
-  val percentile3ResponseTimeUpperBound = conf.getInt(s"$confRoot.expectations.percentile3_response_time_upper_bound")
-  val percentSuccessfulRequest = conf.getInt(s"$confRoot.expectations.percent_successful_requests")
-
-  // this value is provided through a Java property on the command line when Gatling is run
-  val baseUrl = conf.getString("test.base_url")
-
-  val httpConf = http.baseURL(s"http://$baseUrl")
-
+  * Simple opentracing performance simulation (with keystone in the middle).
+  */
+class OpenTracingServiceSimulation extends AbstractReposeSimulation {
   val feeder = Iterator.continually(Map("authToken" -> Random.alphanumeric.take(250).mkString))
 
   // set up the warm up scenario
@@ -75,13 +60,7 @@ class OpenTracingServiceSimulation extends Simulation {
       jumpToRps(throughput), holdFor((warmUpDuration + duration) minutes))
 
   // run the scenarios
-  setUp(
-    warmup,
-    mainScenario
-  ).assertions(
-    global.responseTime.percentile3.lte(percentile3ResponseTimeUpperBound),
-    global.successfulRequests.percent.gte(percentSuccessfulRequest)
-  ).protocols(httpConf)
+  runScenarios
 
   def getRequest: HttpRequestBuilder = {
     http(session => session.scenario)

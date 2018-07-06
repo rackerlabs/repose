@@ -20,11 +20,13 @@
 
 package filters.tenantculling
 
+import java.util.Base64
+
 import com.typesafe.config.ConfigFactory
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
-import java.util.Base64
+import org.openrepose.performance.test.AbstractReposeSimulation
 
 import scala.concurrent.duration._
 import scala.util.Random
@@ -32,19 +34,9 @@ import scala.util.Random
 /**
   * Tenant Culling filter performance simulation.
   */
-class TenantCullingFilterSimulation extends Simulation {
+class TenantCullingFilterSimulation extends AbstractReposeSimulation {
   import TenantCullingFilterSimulation._
 
-  // properties to configure the Gatling test
-  val conf = ConfigFactory.load("application.conf")
-  val confRoot = "test"
-  val throughput = conf.getInt(s"$confRoot.throughput")
-  val duration = conf.getInt(s"$confRoot.duration")
-  val warmUpDuration = conf.getInt(s"$confRoot.warmup_duration")
-  val rampUpUsers = conf.getInt(s"$confRoot.ramp_up_users.new_per_sec")
-  val rampUpDuration = conf.getInt(s"$confRoot.ramp_up_users.duration_in_sec")
-  val percentile3ResponseTimeUpperBound = conf.getInt(s"$confRoot.expectations.percentile3_response_time_upper_bound")
-  val percentSuccessfulRequest = conf.getInt(s"$confRoot.expectations.percent_successful_requests")
   val tenantToRolesMap = Map[String, Set[String]](
     "defaultTenant" -> Set.empty,
     "resourceTenant" -> Set("object-store:default", "compute:default"),
@@ -54,11 +46,6 @@ class TenantCullingFilterSimulation extends Simulation {
   val tenantToRolesJson =
     "{" + tenantToRolesMap.map({ case (tenant, roles) => s""""$tenant":[${roles.map('"' + _ + '"').mkString(",")}]""" }).mkString(",") + "}"
   val encodedTenantToRolesJson = base64Encode(tenantToRolesJson)
-
-  // this value is provided through a Java property on the command line when Gatling is run
-  val baseUrl = conf.getString("test.base_url")
-
-  val httpConf = http.baseURL(s"http://$baseUrl")
 
   val feeder = Iterator.continually(Map(
     "relevantRoles" -> getRelevantRoles
@@ -89,13 +76,7 @@ class TenantCullingFilterSimulation extends Simulation {
       jumpToRps(throughput), holdFor((warmUpDuration + duration) minutes))
 
   // run the scenarios
-  setUp(
-    warmup,
-    mainScenario
-  ).assertions(
-    global.responseTime.percentile3.lte(percentile3ResponseTimeUpperBound),
-    global.successfulRequests.percent.gte(percentSuccessfulRequest)
-  ).protocols(httpConf)
+  runScenarios
 
   def getRequest: HttpRequestBuilder = {
     http(session => session.scenario)
