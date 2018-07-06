@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,14 +19,17 @@
  */
 package org.openrepose.core.services.datastore.impl.distributed.remote.command;
 
+import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.core.services.datastore.distributed.RemoteBehavior;
 import org.openrepose.core.services.datastore.impl.distributed.CacheRequest;
 import org.openrepose.core.services.datastore.impl.distributed.DatastoreHeader;
 import org.openrepose.core.services.datastore.impl.distributed.remote.RemoteCommand;
+import org.slf4j.MDC;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public abstract class AbstractRemoteCommand implements RemoteCommand {
 
@@ -61,6 +64,9 @@ public abstract class AbstractRemoteCommand implements RemoteCommand {
     protected Map<String, String> getHeaders(RemoteBehavior remoteBehavior) {
         Map<String, String> headers = new HashMap<>();
         headers.put(DatastoreHeader.REMOTE_BEHAVIOR, remoteBehavior.name());
+
+        Optional.ofNullable(MDC.get(PowerApiHeader.TRACE_REQUEST))
+            .ifPresent(value -> headers.put(PowerApiHeader.TRACE_REQUEST, value));
 
         return headers;
     }

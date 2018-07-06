@@ -23,6 +23,7 @@ import io.opentracing.Scope;
 import io.opentracing.Tracer;
 import io.opentracing.tag.Tags;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
+import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.io.ObjectSerializer;
 import org.openrepose.commons.utils.logging.TracingHeaderHelper;
 import org.openrepose.commons.utils.logging.TracingKey;
@@ -46,6 +47,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -122,6 +124,9 @@ public class DistributedDatastoreServlet extends HttpServlet {
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Optional.ofNullable(req.getHeader(PowerApiHeader.TRACE_REQUEST))
+            .ifPresent(__ -> MDC.put(PowerApiHeader.TRACE_REQUEST, "true"));
+
         final Scope scope = startSpan(req, tracer, LOG, Tags.SPAN_KIND_SERVER, reposeVersion, uriRedactionService);
         try {
             if (isRequestValid(req, resp)) {
@@ -134,10 +139,10 @@ public class DistributedDatastoreServlet extends HttpServlet {
                 } else {
                     super.service(req, resp);
                 }
-                MDC.clear();
             }
         } finally {
             closeSpan(resp, scope);
+            MDC.clear();
         }
     }
 
