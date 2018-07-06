@@ -121,11 +121,7 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
     val elapsedTime = System.currentTimeMillis() - startTime
 
     metricsRegistry.timer(MetricRegistry.name(FilterProcessingMetric, filter))
-      .update(elapsedTime, TimeUnit.MILLISECONDS)
-
-    if (Option(request.getHeader(TracingHeader)).isDefined && !response.isCommitted) {
-      response.addHeader(s"X-$filter-Time", s"${elapsedTime}ms")
-    }
+                   .update(elapsedTime, TimeUnit.MILLISECONDS)
   }
 }
 
@@ -139,6 +135,4 @@ object ReposeFilterChain {
   IntrafilterObjectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY) //http://stackoverflow.com/a/8395924
 
   final val FilterProcessingMetric: String = "org.openrepose.core.FilterProcessingTime.Delay"
-
-  final val TracingHeader: String = "X-Trace-Request"
 }

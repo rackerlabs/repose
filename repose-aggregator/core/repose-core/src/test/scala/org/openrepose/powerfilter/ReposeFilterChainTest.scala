@@ -35,7 +35,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, anyLong, same, eq => meq}
 import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
-import org.openrepose.powerfilter.ReposeFilterChain.{FilterContext, TracingHeader}
+import org.openrepose.powerfilter.ReposeFilterChain.FilterContext
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
@@ -236,51 +236,6 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
       filterChain.doFilter(mockRequest, mockResponse)
 
       verify(timer).update(anyLong(), meq(TimeUnit.MILLISECONDS))
-    }
-
-    it("should add the metrics to the response when requested around a filter") {
-      val filterChain = new ReposeFilterChain(
-        List(
-          FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true),
-          FilterContext(mock[Filter], "bar", (request: HttpServletRequest) => true)),
-        originalChain,
-        None,
-        metricsRegistry,
-        tracer)
-      mockRequest.addHeader(TracingHeader, "true")
-
-      filterChain.doFilter(mockRequest, mockResponse)
-
-      mockResponse.getHeaderNames should contain("X-foo-Time")
-    }
-
-    it("should add the metrics to the response when requested around the origin service") {
-      val filterChain = new ReposeFilterChain(
-        List.empty,
-        originalChain,
-        None,
-        metricsRegistry,
-        tracer)
-      mockRequest.addHeader(TracingHeader, "true")
-
-      filterChain.doFilter(mockRequest, mockResponse)
-
-      mockResponse.getHeaderNames should contain("X-origin-Time")
-    }
-
-    it("should not add the metrics to the response when requested and the response is already committed") {
-      val filterChain = new ReposeFilterChain(
-        List.empty,
-        originalChain,
-        None,
-        metricsRegistry,
-        tracer)
-      mockRequest.addHeader(TracingHeader, "true")
-      mockResponse.setCommitted(true)
-
-      filterChain.doFilter(mockRequest, mockResponse)
-
-      mockResponse.getHeaderNames should not contain "X-origin-Time"
     }
 
     it("should return a 500 when an exception occurs") {
