@@ -30,6 +30,7 @@ public class PowerApiHeader {
     public static final String DOMAIN = "X-Domain";
     public static final String X_CATALOG = "x-catalog";
     public static final String RELEVANT_ROLES = "X-Relevant-Roles";
+    public static final String TRACE_REQUEST = "x-trace-request";
 
     private PowerApiHeader() {
         // This class should not be instantiated.
@@ -46,7 +47,8 @@ public class PowerApiHeader {
                 USER,
                 GROUPS,
                 DOMAIN,
-                X_CATALOG
+                X_CATALOG,
+                TRACE_REQUEST
         };
     }
 }

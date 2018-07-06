@@ -21,4 +21,5 @@ package org.openrepose.powerfilter
 
 class ReposeFilter {
   //todo: Set the start time attribute (header?) before invoking the filter chain, it didn't make any sense to be setting it everytime we entered the old filter chain
+  //todo: Conditionally add a trace request mapping to the logging MDC if a trace header is present on the request
 }
