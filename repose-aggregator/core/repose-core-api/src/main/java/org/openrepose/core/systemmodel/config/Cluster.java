@@ -38,7 +38,6 @@ import java.io.Serializable;
 public class Cluster
     implements Serializable {
 
-    private final static long serialVersionUID = 1530213507742L;
     @XmlElement(required = true)
     private NodeList nodes;
     @XmlAttribute(name = "id", required = true)

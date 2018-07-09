@@ -49,7 +49,6 @@ public class DestinationCluster
     extends Destination
     implements Serializable {
 
-    private final static long serialVersionUID = 1530213507742L;
     @XmlAttribute(name = "cluster", required = true)
     @XmlIDREF
     @XmlSchemaType(name = "IDREF")

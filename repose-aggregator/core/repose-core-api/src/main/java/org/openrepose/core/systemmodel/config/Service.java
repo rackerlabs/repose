@@ -59,7 +59,6 @@ import java.io.Serializable;
 public class Service
     implements Serializable {
 
-    private final static long serialVersionUID = 1530213507742L;
     @XmlAttribute(name = "name", required = true)
     protected String name;
 

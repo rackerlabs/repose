@@ -56,7 +56,6 @@ import java.util.List;
 public class ServicesList
     implements Serializable {
 
-    private final static long serialVersionUID = 1530213507742L;
     protected List<Service> service;
 
     /**
