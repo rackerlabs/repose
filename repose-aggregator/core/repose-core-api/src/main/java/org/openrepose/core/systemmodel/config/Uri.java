@@ -77,7 +77,7 @@ public class Uri
     }
 
     @Override
-    boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper) {
+    public boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper) {
         return httpServletRequestWrapper.getRequestURI().matches(regex);
     }
 }

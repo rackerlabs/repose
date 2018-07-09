@@ -100,7 +100,7 @@ public class Header
     }
 
     @Override
-    boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper) {
+    public boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper) {
         return httpServletRequestWrapper.getHeadersList(name).stream()
             .anyMatch(s -> value == null || value.equals(s));
     }

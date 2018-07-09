@@ -82,7 +82,7 @@ public class Methods
     }
 
     @Override
-    boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper) {
+    public boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper) {
         return getValue().contains(httpServletRequestWrapper.getMethod());
     }
 }

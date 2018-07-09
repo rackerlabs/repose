@@ -97,7 +97,7 @@ public class Or
     }
 
     @Override
-    boolean evaluate(HttpServletRequestWrapper httpServletRequestWraper) {
+    public boolean evaluate(HttpServletRequestWrapper httpServletRequestWraper) {
         return getFilterCriteria().stream()
             .anyMatch(criterion -> criterion.evaluate(httpServletRequestWraper));
     }

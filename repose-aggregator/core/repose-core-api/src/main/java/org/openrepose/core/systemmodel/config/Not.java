@@ -77,7 +77,7 @@ public class Not
     }
 
     @Override
-    boolean evaluate(HttpServletRequestWrapper httpServletRequestWraper) {
+    public boolean evaluate(HttpServletRequestWrapper httpServletRequestWraper) {
         return !filterCriteria.evaluate(httpServletRequestWraper);
     }
 }
