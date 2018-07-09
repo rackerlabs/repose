@@ -36,7 +36,6 @@ public class ReposeCluster
     extends Cluster
     implements Serializable {
 
-    private final static long serialVersionUID = 1530213507742L;
     private FilterList filters;
     private ServicesList services;
     @XmlElement(required = true)

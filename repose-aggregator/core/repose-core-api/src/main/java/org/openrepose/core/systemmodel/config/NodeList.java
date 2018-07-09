@@ -57,7 +57,6 @@ import java.util.List;
 public class NodeList
     implements Serializable {
 
-    private final static long serialVersionUID = 1530213507742L;
     @XmlElement(required = true)
     protected List<Node> node;
 

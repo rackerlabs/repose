@@ -31,7 +31,6 @@ import java.io.Serializable;
 public class PhoneHomeServiceConfig
     implements Serializable {
 
-    private final static long serialVersionUID = 1530213507742L;
     @XmlAttribute(name = "enabled", required = true)
     private boolean enabled;
     @XmlAttribute(name = "collection-uri")

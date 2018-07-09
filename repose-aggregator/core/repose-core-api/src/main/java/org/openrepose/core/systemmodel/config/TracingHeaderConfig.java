@@ -55,7 +55,6 @@ import java.io.Serializable;
 public class TracingHeaderConfig
     implements Serializable {
 
-    private final static long serialVersionUID = 1530213507742L;
     @XmlAttribute(name = "enabled")
     protected Boolean enabled;
     @XmlAttribute(name = "rewrite-header")

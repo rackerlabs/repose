@@ -39,7 +39,6 @@ import java.util.List;
 public class SystemModel
     implements Serializable {
 
-    private final static long serialVersionUID = 1530213507742L;
     @XmlElement(name = "repose-cluster", required = true)
     private List<ReposeCluster> reposeCluster = new ArrayList<>();
     @XmlElement(name = "service-cluster")

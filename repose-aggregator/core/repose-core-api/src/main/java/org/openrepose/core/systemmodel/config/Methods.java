@@ -55,7 +55,6 @@ public class Methods
     extends FilterCriterion
     implements Serializable {
 
-    private final static long serialVersionUID = 1530213507742L;
     @XmlAttribute(name = "value", required = true)
     protected List<String> value;
 
