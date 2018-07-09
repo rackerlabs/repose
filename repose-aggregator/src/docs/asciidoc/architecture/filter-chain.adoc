@@ -105,10 +105,8 @@ For more troubleshooting help see our <<../troubleshooting.adoc, guide>>.
 If you wish to see these numbers or exfiltrate them to another tool look into the <<../services/metrics.adoc, Metrics Service>>.
 They are listed under `org.openrepose.core.FilterProcessingTime.Delay` with an entry for each filter by name.
 
-If you are curious about the numbers for a specific request you can send in the `X-Trace-Request` header with a value of true.
-This will add a header to the response for each filter with a name of `X-_filter name_-Time` with the time it took that filter to process.
-
-It's worth noting that the reported time is inclusive of the processing time of all filter further down the chain and the origin service.
+If you are curious about the numbers for a specific request you can add the `X-Trace-Request` header to the request.
+See <<../troubleshooting.adoc#,Time Spent in Each Filter>> for more details.
 
 We also start an *OpenTracing* span for each filter that is ran.
 If you'd like to get this data look into the <<../services/open-tracing.adoc, OpenTracing Service>>.

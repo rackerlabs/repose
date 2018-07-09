@@ -172,14 +172,42 @@ This allows you to verify that all expected filters handled the request.
 To enable this, add the following header to the client request:
 `x-trace-request: true`
 
-The *Repose* response to the client will contain the following header added to the response, one for each filter which handled the request:
-`x-[filter name]: [time]ms`
+Technically, the value of the `x-trace-request` header does not matter at this time, but by convention, we pass a value of `true`.
+
+When that header is present on the request, *Repose* will add state to the logging context for the request that enables per-request tracing logging based on the Log4j configuration.
+The `filter-timing` logger is used to log the time each filter takes to process.
+Each filter will have its own log message.
+
+To configure Log4j to filter log messages based on the the content of the logging context, the https://logging.apache.org/log4j/2.0/manual/filters.html#ThreadContextMapFilter[ContextMapFilter] can be used:
+
+[source,xml]
+.log4j2.xml
+----
+...
+<Logger name="filter-timing" level="trace"> <!--1-->
+    <ContextMapFilter onMatch="ACCEPT" onMismatch="DENY"> <!--2-->
+        <KeyValuePair key="x-trace-request" value="true"/> <!--3-->
+    </ContextMapFilter>
+</Logger>
+...
+----
+<1> Declares the log level of the `filter-timing` logger to be `trace`.
+    The level should be set to `trace` since we will rely on the `ContextMapFilter` instead of log level to filter out log messages.
+<2> Defines a `ContextMapFilter` which will look at the state of the logging context and determine whether or not to log a message.
+<3> Defines the state that the `ContextMapFilter` is looking for in the logging context map.
+    *Repose* will set this state if the `x-trace-request` header is present on the request.
+    The value will always be set to `true`, even if the value of the `x-trace-request` header differs.
 
 The `x-trace-request` header can be easily added to a test request using curl and the -H [header] flag.
 For example:
 ----
 curl -v -H "x-trace-request: true" http://localhost:8080/
 ----
+
+[NOTE]
+====
+The reported time is inclusive of the processing time of all succeeding filters in the filter chain and the origin service.
+====
 
 === Sample Output
 The following example contains three headers which *Repose* added to the response.
