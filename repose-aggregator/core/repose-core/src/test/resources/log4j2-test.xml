@@ -18,5 +18,6 @@
         <Logger name="org.openrepose" level="debug"/>
         <Logger name="org.springframework" level="warn"/>
         <Logger name="intrafilter-logging" level="info"/>
+        <Logger name="filter-timing" level="trace"/>
     </Loggers>
 </Configuration>
