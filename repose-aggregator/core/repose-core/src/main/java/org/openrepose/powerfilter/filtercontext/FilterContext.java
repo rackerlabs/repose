@@ -21,10 +21,10 @@ package org.openrepose.powerfilter.filtercontext;
 
 import org.openrepose.commons.utils.Destroyable;
 import org.openrepose.core.systemmodel.config.FilterCriterion;
+import org.openrepose.core.systemmodel.config.Uri;
 import org.springframework.context.support.AbstractApplicationContext;
 
 import javax.servlet.Filter;
-import java.util.regex.Pattern;
 
 /**
  * Holds information about a filter, the filter itself and the filter's application context.
@@ -34,7 +34,6 @@ public class FilterContext implements Destroyable {
     private final Filter filter;
     private final org.openrepose.core.systemmodel.config.Filter filterConfig;
     private final String name;
-    private final Pattern uriPattern;
     private final FilterCriterion filterCriterion;
     private final AbstractApplicationContext filterAppContext;
 
@@ -43,13 +42,12 @@ public class FilterContext implements Destroyable {
         this.filterAppContext = filterAppContext;
         this.filterConfig = filterConfig;
         this.name = filterConfig.getName();
-        String uriRegex = filterConfig.getUriRegex();
-        if (uriRegex != null) {
-            this.uriPattern = Pattern.compile(uriRegex);
-            this.filterCriterion = null;
+        if (filterConfig.getUriRegex() != null) {
+            Uri uriFilterCriterion = new Uri();
+            uriFilterCriterion.setRegex(filterConfig.getUriRegex());
+            filterCriterion = uriFilterCriterion;
         } else {
-            this.uriPattern = null;
-            this.filterCriterion = filterConfig.getFilterCriterion();
+            filterCriterion = filterConfig.getFilterCriterion();
         }
     }
 
@@ -63,10 +61,6 @@ public class FilterContext implements Destroyable {
 
     public FilterCriterion getFilterCriterion() {
         return filterCriterion;
-    }
-
-    public Pattern getUriPattern() {
-        return uriPattern;
     }
 
     public String getName() {
