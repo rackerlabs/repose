@@ -101,7 +101,7 @@ public class And
     }
 
     @Override
-    boolean evaluate(HttpServletRequestWrapper httpServletRequestWraper) {
+    public boolean evaluate(HttpServletRequestWrapper httpServletRequestWraper) {
         return getFilterCriteria().stream()
             .allMatch(criterion -> criterion.evaluate(httpServletRequestWraper));
     }

@@ -49,5 +49,5 @@ import java.io.Serializable;
 @XmlType(name = "FilterCriterion")
 public abstract class FilterCriterion
     implements Serializable {
-    abstract boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper);
+    public abstract boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper);
 }
