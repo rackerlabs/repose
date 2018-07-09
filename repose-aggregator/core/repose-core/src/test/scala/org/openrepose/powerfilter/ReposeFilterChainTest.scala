@@ -238,6 +238,24 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
       verify(timer).update(anyLong(), meq(TimeUnit.MILLISECONDS))
     }
 
+    it("should log filter timing metrics") {
+      val filterChain = new ReposeFilterChain(List(FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true),
+                                                   FilterContext(mock[Filter], "bar", (request: HttpServletRequest) => true)),
+        originalChain,
+        None,
+        metricsRegistry,
+        tracer)
+      mockResponse.setCommitted(true)
+      val loggerContext = LogManager.getContext(false).asInstanceOf[LoggerContext]
+      val listAppender = loggerContext.getConfiguration.getAppender("List0").asInstanceOf[ListAppender]
+      listAppender.clear()
+
+      filterChain.doFilter(mockRequest, mockResponse)
+
+      val messageList = listAppender.getEvents.asScala.map(_.getMessage.getFormattedMessage)
+      messageList.find(_.startsWith("Filter foo spent")) should not be empty
+    }
+
     it("should return a 500 when an exception occurs") {
       val filterChain = new ReposeFilterChain(
         List.empty,

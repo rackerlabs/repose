@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <Configuration>
-    <DynamicThresholdFilter key="x-trace-request" onMatch="ACCEPT" onMismatch="NEUTRAL">
-        <KeyValuePair key="true" value="TRACE"/>
-    </DynamicThresholdFilter>
     <Appenders>
         <Console name="STDOUT">
             <PatternLayout pattern="%d %-4r [%t] %-5p %c - %m%n"/>
@@ -24,5 +21,10 @@
         <Logger name="org.openrepose" level="debug"/>
         <Logger name="org.springframework" level="warn"/>
         <Logger name="intrafilter-logging" level="info"/>
+        <Logger name="org.openrepose.nodeservice.distributed.servlet" level="trace">
+            <ContextMapFilter onMatch="ACCEPT" onMismatch="DENY">
+                <KeyValuePair key="x-trace-request" value="true"/>
+            </ContextMapFilter>
+        </Logger>
     </Loggers>
 </Configuration>

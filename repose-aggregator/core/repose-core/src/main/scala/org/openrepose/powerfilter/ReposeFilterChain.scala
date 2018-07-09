@@ -122,6 +122,8 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
 
     metricsRegistry.timer(MetricRegistry.name(FilterProcessingMetric, filter))
                    .update(elapsedTime, TimeUnit.MILLISECONDS)
+
+    FilterTimingLog.trace("Filter {} spent {}ms processing", filter, elapsedTime)
   }
 }
 
@@ -129,6 +131,7 @@ object ReposeFilterChain {
 
   case class FilterContext(filter: Filter, filterName: String, shouldRun: HttpServletRequestWrapper => Boolean)
 
+  final val FilterTimingLog: Logger = LoggerFactory.getLogger("filter-timing")
   final val IntrafilterLog: Logger = LoggerFactory.getLogger("intrafilter-logging")
 
   final val IntrafilterObjectMapper: ObjectMapper = new ObjectMapper

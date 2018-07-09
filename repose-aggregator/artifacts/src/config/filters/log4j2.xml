@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration monitorInterval="15" packages="org.apache.logging.log4j.flume.appender">
-    <DynamicThresholdFilter key="x-trace-request" onMatch="ACCEPT" onMismatch="NEUTRAL" defaultThreshold="TRACE">
-        <KeyValuePair key="ignored" value="TRACE"/>
-    </DynamicThresholdFilter>
     <Appenders>
         <Console name="STDOUT">
             <PatternLayout pattern="%d %-4r [%t] %-5p %c - %m%n"/>
@@ -29,9 +26,23 @@
         <Logger name="com.sun.jersey" level="off"/>
         <Logger name="net.sf.ehcache" level="error"/>
         <Logger name="org.apache" level="warn"/>
+        <Logger name="org.apache.http.wire" level="trace">
+            <ContextMapFilter onMatch="ACCEPT" onMismatch="DENY">
+                <KeyValuePair key="x-trace-request" value="true"/>
+            </ContextMapFilter>
+        </Logger>
         <Logger name="org.eclipse.jetty" level="off"/>
         <Logger name="org.springframework" level="warn"/>
-        <Logger name="intrafilter-logging" level="info"/>
+        <Logger name="intrafilter-logging" level="trace">
+            <ContextMapFilter onMatch="ACCEPT" onMismatch="DENY">
+                <KeyValuePair key="x-trace-request" value="true"/>
+            </ContextMapFilter>
+        </Logger>
+        <Logger name="filter-timing" level="trace">
+            <ContextMapFilter onMatch="ACCEPT" onMismatch="DENY">
+                <KeyValuePair key="x-trace-request" value="true"/>
+            </ContextMapFilter>
+        </Logger>
         <Logger name="org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper.headerWarning" level="warn"/>
         <Logger name="phone-home-message" level="info" additivity="false">
             <AppenderRef ref="PhoneHomeMessages"/>
