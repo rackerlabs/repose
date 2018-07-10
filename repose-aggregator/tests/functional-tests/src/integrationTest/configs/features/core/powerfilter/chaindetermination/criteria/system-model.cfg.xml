@@ -8,10 +8,10 @@
 
         <filters>
             <filter name="add-header" configuration="first.cfg.xml">
-                <method value="GET"/>
+                <methods value="GET"/>
             </filter>
             <filter name="add-header" configuration="second.cfg.xml">
-                <method value="POST"/>
+                <methods value="POST"/>
             </filter>
             <filter name="add-header" configuration="third.cfg.xml">
                 <uri regex="/th.rd"/>
@@ -24,23 +24,23 @@
             </filter>
             <filter name="add-header" configuration="sixth.cfg.xml">
                 <and>
-                    <method value="GET"/>
+                    <methods value="GET"/>
                     <uri regex="/get"/>
                 </and>
             </filter>
             <filter name="add-header" configuration="seventh.cfg.xml">
                 <or>
-                    <method value="HEAD"/>
+                    <methods value="HEAD"/>
                     <uri regex="/head"/>
                 </or>
             </filter>
             <filter name="add-header" configuration="eigth.cfg.xml">
                 <not>
                     <or>
-                        <method value="GET"/>
-                        <method value="HEAD"/>
-                        <method value="POST"/>
-                        <method value="DELETE"/>
+                        <methods value="GET"/>
+                        <methods value="HEAD"/>
+                        <methods value="POST"/>
+                        <methods value="DELETE"/>
                     </or>
                 </not>
             </filter>
