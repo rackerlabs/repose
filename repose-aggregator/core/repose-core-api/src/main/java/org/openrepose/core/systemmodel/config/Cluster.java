@@ -26,7 +26,6 @@ import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 
-
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Cluster", propOrder = {
     "nodes"
@@ -37,7 +36,6 @@ import java.io.Serializable;
 @Data
 public class Cluster
     implements Serializable {
-
     @XmlElement(required = true)
     private NodeList nodes;
     @XmlAttribute(name = "id", required = true)
@@ -45,5 +43,4 @@ public class Cluster
     @XmlID
     @XmlSchemaType(name = "ID")
     private String id;
-
 }

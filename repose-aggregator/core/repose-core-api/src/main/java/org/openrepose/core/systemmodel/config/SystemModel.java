@@ -26,7 +26,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @XmlRootElement(name = "system-model")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = {
@@ -38,7 +37,6 @@ import java.util.List;
 @Data
 public class SystemModel
     implements Serializable {
-
     @XmlElement(name = "repose-cluster", required = true)
     private List<ReposeCluster> reposeCluster = new ArrayList<>();
     @XmlElement(name = "service-cluster")
@@ -47,5 +45,4 @@ public class SystemModel
     private PhoneHomeServiceConfig phoneHome;
     @XmlElement(name = "tracing-header")
     private TracingHeaderConfig tracingHeader;
-
 }

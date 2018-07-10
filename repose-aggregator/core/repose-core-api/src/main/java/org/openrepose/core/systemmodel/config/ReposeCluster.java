@@ -20,10 +20,10 @@
 package org.openrepose.core.systemmodel.config;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ReposeCluster", propOrder = {
@@ -32,15 +32,14 @@ import java.io.Serializable;
     "destinations"
 })
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class ReposeCluster
     extends Cluster
     implements Serializable {
-
     private FilterList filters;
     private ServicesList services;
     @XmlElement(required = true)
     private DestinationList destinations;
     @XmlAttribute(name = "rewrite-host-header")
     private boolean rewriteHostHeader = true;
-
 }

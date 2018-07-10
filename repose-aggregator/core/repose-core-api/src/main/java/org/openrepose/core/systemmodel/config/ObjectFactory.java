@@ -24,7 +24,6 @@ import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
-
 /**
  * This object contains factory methods for each
  * Java content interface and Java element interface
@@ -159,7 +158,6 @@ public class ObjectFactory {
      */
     @XmlElementDecl(namespace = "http://docs.openrepose.org/repose/system-model/v2.0", name = "system-model")
     public JAXBElement<SystemModel> createSystemModel(SystemModel value) {
-        return new JAXBElement<SystemModel>(_SystemModel_QNAME, SystemModel.class, null, value);
+        return new JAXBElement<>(_SystemModel_QNAME, SystemModel.class, null, value);
     }
-
 }

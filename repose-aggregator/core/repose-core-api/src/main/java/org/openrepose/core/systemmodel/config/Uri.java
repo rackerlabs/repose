@@ -19,7 +19,11 @@
  */
 package org.openrepose.core.systemmodel.config;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -27,57 +31,21 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 
-/**
- * <pre>
- * &lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;html:p xmlns:html="http://www.w3.org/1999/xhtml" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:mod="http://docs.openrepose.org/repose/system-model/v2.0" xmlns:saxon="http://saxon.sf.net/" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xerces="http://xerces.apache.org" xmlns:xs="http://www.w3.org/2001/XMLSchema"&gt;Defines the URI conditional processing element.&lt;/html:p&gt;
- * </pre>
- *
- *
- * <p>Java class for Uri complex type.
- *
- * <p>The following schema fragment specifies the expected content contained within this class.
- *
- * <pre>
- * &lt;complexType name="Uri">
- *   &lt;complexContent>
- *     &lt;extension base="{http://docs.openrepose.org/repose/system-model/v2.0}FilterCriterion">
- *       &lt;attribute name="regex" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *     &lt;/extension>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Uri")
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class Uri
     extends FilterCriterion
     implements Serializable {
-
     @XmlAttribute(name = "regex", required = true)
-    protected String regex;
-
-    /**
-     * Gets the value of the regex property.
-     *
-     * @return possible object is
-     * {@link String }
-     */
-    public String getRegex() {
-        return regex;
-    }
-
-    /**
-     * Sets the value of the regex property.
-     *
-     * @param value allowed object is
-     *              {@link String }
-     */
-    public void setRegex(String value) {
-        this.regex = value;
-    }
+    private String regex;
 
     @Override
     public boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper) {
-        return httpServletRequestWrapper.getRequestURI().matches(regex);
+        boolean rtn = httpServletRequestWrapper.getRequestURI().matches(regex);
+        LOG.trace("The URI filter criterion regex {} did{} match the request URI.", regex, rtn ? "" : " not");
+        return rtn;
     }
+    private static final Logger LOG = LoggerFactory.getLogger(Uri.class);
 }
