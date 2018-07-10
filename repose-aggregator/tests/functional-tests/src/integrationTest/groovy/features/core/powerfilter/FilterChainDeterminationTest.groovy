@@ -57,21 +57,21 @@ class FilterChainDeterminationTest extends ReposeValveTest {
         messageChain.handlings[0].request.headers.findAll(HEADER_NAME).collect({ it as Integer }) == appliedFilters
 
         where:
-        criterion       | method   | path     | headers                      || appliedFilters
-        "method"        | "GET"    | ""       | [:]                          || [1]
-        "method"        | "POST"   | ""       | [:]                          || [2]
-        "path"          | "DELETE" | "/third" | [:]                          || [3]
-        "path"          | "DELETE" | "/thord" | [:]                          || [3]
-        "path"          | "DELETE" | "/THIRD" | [:]                          || []
-        "headers"       | "DELETE" | ""       | ['test-presence': "foo"]     || [4]
-        "headers"       | "DELETE" | ""       | ['tEsT-pReSeNcE': "foo"]     || [4]
-        "headers"       | "DELETE" | ""       | ['TEST-PRESENCE': "foo"]     || [4]
-        "headers"       | "DELETE" | ""       | ['test-value': "test value"] || [5]
-        "headers"       | "DELETE" | ""       | ['TEST-VALUE': "test value"] || [5]
-        "headers"       | "DELETE" | ""       | ['TEST-VALUE': "TEST VALUE"] || []
-        "methodAndPath" | "GET"    | "/get"   | [:]                          || [6]
-        "methodOrPath"  | "HEAD"   | ""       | [:]                          || [7]
-        "methodOrPath"  | "DELETE" | "/head"  | [:]                          || [7]
-        "notMethod"     | "PUT"    | ""       | [:]                          || [8]
+        criterion       | method   | path      | headers                      || appliedFilters
+        "method"        | "GET"    | ""        | [:]                          || [1]
+        "method"        | "POST"   | ""        | [:]                          || [2]
+        "path"          | "DELETE" | "/third"  | [:]                          || [3]
+        "path"          | "DELETE" | "/thord"  | [:]                          || [3]
+        "path"          | "DELETE" | "/THIRD"  | [:]                          || []
+        "headers"       | "DELETE" | ""        | ['test-presence': "foo"]     || [4]
+        "headers"       | "DELETE" | ""        | ['tEsT-pReSeNcE': "foo"]     || [4]
+        "headers"       | "DELETE" | ""        | ['TEST-PRESENCE': "foo"]     || [4]
+        "headers"       | "DELETE" | ""        | ['test-value': "test value"] || [5]
+        "headers"       | "DELETE" | ""        | ['TEST-VALUE': "test value"] || [5]
+        "headers"       | "DELETE" | ""        | ['TEST-VALUE': "TEST VALUE"] || []
+        "methodAndPath" | "DELETE" | "/delete" | [:]                          || [6]
+        "methodOrPath"  | "HEAD"   | ""        | [:]                          || [7]
+        "methodOrPath"  | "DELETE" | "/head"   | [:]                          || [7]
+        "notMethod"     | "PUT"    | ""        | [:]                          || [8]
     }
 }
