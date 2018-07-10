@@ -24,8 +24,8 @@
             </filter>
             <filter name="add-header" configuration="sixth.cfg.xml">
                 <and>
-                    <methods value="GET"/>
-                    <uri regex="/get"/>
+                    <methods value="DELETE"/>
+                    <uri regex="/delete"/>
                 </and>
             </filter>
             <filter name="add-header" configuration="seventh.cfg.xml">
