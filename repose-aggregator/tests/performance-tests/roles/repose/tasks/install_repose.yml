@@ -62,7 +62,7 @@
 
 # Note: Valve must be installed first since the other packages depend on it
 # Note: We also cannot trust the apt module to install repose_packages in the correct order
-# Node: See: https://github.com/ansible/ansible-modules-core/issues/1178
+# Note: See: https://github.com/ansible/ansible-modules-core/issues/1178
 - name: Install Repose Valve from a local package
   apt:
     deb: /tmp/repose/{{ repose_packages.files | map(attribute='path') | select('match','.*valve.*') | list | first | basename }}
