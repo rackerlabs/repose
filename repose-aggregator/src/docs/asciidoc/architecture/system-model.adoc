@@ -119,6 +119,55 @@ If set to localhost, any physical node will match and run the *Repose* node.
      The default destination endpoint will be responsible for handling all traffic that is not explicitly routed to a different destination endpoint.
      Remember that a target can be specified rather than an endpoint if you want to use round-robin routing to a service cluster.
 
+=== Boolean Filter Determination
+[source,xml]
+----
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+  <repose-cluster id="repose_cluster1"> <!--1-->
+    <nodes>
+      <node id="repose_node", hostname="localhost", http-port="8080"/> <!--2-->
+    </nodes>
+
+    <filters> <!--3-->
+      <filter name="ip-user"> <!--4-->
+          <and> <!--5-->
+            <methods value="GET HEAD POST PUT"/> <!--6-->
+            <or> <!--7-->
+              <header name="foo"/> <!--8-->
+              <header name="bar" value="BaZ"/> <!--9-->
+            </or>
+            <not> <!--10-->
+              <uri regex="^/v1/[^/]+/[^/]+/public/?"/> <!--11-->
+            </not>
+          </and>
+      </filter>
+    </filters>
+
+    <services/> <!--12-->
+
+    <destinations>
+      <endpoint id="origin_service", protocol="http", port="80", default="true"/> <!--13-->
+    </destinations>
+  </repose-cluster>
+</system-model>
+----
+<1> Defines a new *Repose* cluster with an ID that must be unique across all defined clusters.
+<2> Defines a new *Repose* node.
+<3> Defines a sequence of filters to run.
+<4> Defines the <<../filters/ip-user.adoc#,IP User Filter>> should be used by the nodes in this cluster.
+<5> Defines a boolean `AND` operator were all direct sub-elements must evaluate to `true`.
+<6> Defines the space separated list of case sensitive methods to check the current request against.
+<7> Defines a boolean `OR` operator were at least one direct sub-element must evaluate to `true`.
+<8> Defines that a header named `foo` (case insensitive) must be defined.
+<9> Defines that a header named `bar` (case insensitive) must be defined and have a value of `BaZ` (case sensitive).
+<10> Defines a boolean `NOT` operator that negates the result of the single direct sub-element's evaluation.
+<11> Defines the https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#sum[Java regular expression] the URI must match.
+     This particular one requires that it has exactly four total path segments, the first path segment must be `v1`, the fourth path segment is `public`, and the trailing slash is optional. +
+     Example: `/v1/two/three/public`
+<12> Defines a set of services to run.
+     In this case, no services are being used.
+<13> Defines the required one default endpoint.
+
 === Nova-API Localhost Deployment
 *IN PROGRESS*
 
