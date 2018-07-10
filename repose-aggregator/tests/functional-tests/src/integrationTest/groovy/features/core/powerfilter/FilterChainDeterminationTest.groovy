@@ -45,7 +45,6 @@ class FilterChainDeterminationTest extends ReposeValveTest {
     }
 
     @Unroll
-    @Ignore('todo: un-ignore this test once the filter chain supports advanced determination')
     def 'filter application should be determined based on #criterion for request to #method #path with #headers'() {
         when: 'a request is made to Repose'
         def messageChain = deproxy.makeRequest(
