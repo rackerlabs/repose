@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+<xs:schema xmlns="http://docs.openrepose.org/repose/versioning/v2.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/repose/versioning/v2.0"
+           jaxb:version="2.1">
+
+    <xs:element name="versioning" type="ServiceVersionMappingList"/>
+
+    <xs:complexType name="ServiceVersionMappingList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Versioning contains a list of version mappings and service root context.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="version-mapping" type="ServiceVersionMapping" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:attribute name="json-format" type="JsonFormat" use="optional" default="COMPUTE">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The format to use when returning JSON to describe the available versions.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:assert vc:minVersion="1.1"
+                   test="count(distinct-values(version-mapping/@id)) = count(version-mapping/@id)"
+                   xerces:message="Version mapping must have ids unique within their containing filter list"
+                   saxon:message="Version mapping must have ids unique within their containing filter list"
+                   xpathDefaultNamespace="##targetNamespace"/>
+    </xs:complexType>
+
+    <xs:simpleType name="JsonFormat">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The type of JSON Formats supported by this filter. The supported values are COMPUTE and IDENTITY.
+                </html:p>
+                <html:p>COMPUTE: http://developer.openstack.org/api-ref-compute-v2.1.html</html:p>
+                <html:p>IDENTITY: http://developer.openstack.org/api-ref-identity-v2.html</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="COMPUTE"/>
+            <xs:enumeration value="IDENTITY"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="ServiceVersionMapping">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Version mappings describe the versions available to the requester.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="media-types" type="MediaTypeList" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The ID is responsible for two things. First, a service version's ID
+                        must uniquely identify the version mapping within the configuration:
+                        no two service versions may share the same ID. In addition, the ID must
+                        be the resource variant that follows the service root which identifies this version.
+                        For example, in "http://service.api.vendor.com/root/[v1.0/]path/to/resource",
+                        the version variant is within square brackets.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="pp-dest-id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The Repose destination ID is used to identify which destination in
+                        system model will answer to versioned requests that match this version mapping.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="status" type="VersionStatus" use="optional" default="CURRENT">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        A status describes the current operational state of
+                        the given service version. The status described here
+                        will be reflected in the service version list response.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <!-- Types -->
+    <xs:simpleType name="VersionStatus">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The VersionStatus type describes the list of valid version status.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="DEPRECATED"/>
+            <xs:enumeration value="ALPHA"/>
+            <xs:enumeration value="BETA"/>
+            <xs:enumeration value="CURRENT"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="MediaTypeList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A MediaTypeList outlines a collection of valid media types supported
+                    by a given service version.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="media-type" type="MediaType" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <!--<xs:assert vc:minVersion="1.1"-->
+        <!--test="count(for $first-pass in media-type,-->
+        <!--$second-pass in media-type[ @base = $first-pass/@base and (: base are the same :)-->
+        <!--count(tokenize(string-join(tokenize(@type, ' '),''),';')) =-->
+        <!--count(tokenize(string-join(tokenize($first-pass/@type, ' '),''),';')) and (: types have the same count :)-->
+        <!--empty( for $t in tokenize(string-join(tokenize(@type, ' '),''),';')-->
+        <!--return if ($t = tokenize(string-join(tokenize($first-pass/@type, ' '),''),';'))-->
+        <!--then () else $t) (: removing the types in one list from another should result in the empty sequence :)-->
+        <!--] return $second-pass) (: The result of this mess should equal the number of elements because every-->
+        <!--element in the for expression should match itself and only itself :)-->
+        <!--= count(media-type)"-->
+        <!--xerces:message="MediaTypes should be unique within a version-mapping."-->
+        <!--saxon:message="MediaTypes should be unique within a version-mapping."-->
+        <!--xpathDefaultNamespace="##targetNamespace"/>-->
+    </xs:complexType>
+
+    <xs:complexType name="MediaType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A MediaType describes what content types the service version understands.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="base" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The base of a given media type describes the simple MIME type
+                        that will be passed to the origin in the Accept header.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="type" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The type attribute of a MediaType describes the MIME specific
+                        identifier for a media type of this specific version.
+                        This identifier can include a vendor namespace (
+                        <html:a href="http://tools.ietf.org/html/rfc2048">See RFC 2048</html:a>)
+                        as well as a version suffix.
+                    </html:p>
+                    <html:p>
+                        When the filter receives this media type in accept header, it will send
+                        base media type to the origin service.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>

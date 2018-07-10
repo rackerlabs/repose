@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:httpx="http://docs.rackspace.com/httpx/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.rackspace.com/httpx/v1.0"
+           xsi:schemaLocation="http://www.w3.org/2001/XMLSchema http://www.w3.org/2001/XMLSchema.xsd">
+
+    <!-- Simple Types -->
+    <xs:simpleType name="StringList">
+        <xs:list itemType="xs:string"/>
+    </xs:simpleType>
+
+    <!-- Complex Types -->
+    <xs:complexType name="SimpleParameter">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="value" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ComplexParameter">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="value" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="MediaRange">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="parameter" type="httpx:SimpleParameter" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:attribute name="type" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="subtype" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+
+    <!-- Message Fidelity -->
+    <xs:simpleType name="MessageFidelity">
+        <xs:list itemType="httpx:MessageDetail"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="MessageDetail">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="HEAD"/>
+            <xs:enumeration value="BODY"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+
+    <!-- Request Fidelity -->
+    <xs:simpleType name="RequestHeadFidelity">
+        <xs:list itemType="httpx:RequestHeadDetail"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="RequestHeaderFidelity">
+        <xs:list itemType="httpx:RequestHeaderDetail"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="RequestHeadDetail">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="URI_DETAIL"/>
+            <xs:enumeration value="HEADERS"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="RequestHeaderDetail">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="*"/>
+            <xs:enumeration value="ACCEPT"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+
+    <!-- Response Fidelity -->
+    <xs:simpleType name="ResponseHeadFidelity">
+        <xs:list itemType="httpx:ResponseHeadDetail"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="ResponseHeaderFidelity">
+        <xs:list itemType="httpx:ResponseHeaderDetail"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="ResponseHeadDetail">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="HEADERS"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="ResponseHeaderDetail">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="*"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+
+    <!-- HTTP Enumerations -->
+    <xs:simpleType name="Method">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    An enumeration for HTTP methods. See the
+                    <a href="http://tools.ietf.org/html/rfc2616#section-5.1.1">HTTP RFC - Section 5.1.1</a>
+                    for more information.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="OPTIONS"/>
+            <xs:enumeration value="GET"/>
+            <xs:enumeration value="HEAD"/>
+            <xs:enumeration value="POST"/>
+            <xs:enumeration value="PUT"/>
+            <xs:enumeration value="PATCH"/>
+            <xs:enumeration value="DELETE"/>
+            <xs:enumeration value="TRACE"/>
+            <xs:enumeration value="CONNECT"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="ReasonPhrase">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    An enumeration for HTTP/1.1 status code reason phrases. See the
+                    <a href="http://tools.ietf.org/html/rfc2616#section-10">HTTP RFC - Section 10</a>
+                    for more information.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <!-- Informational 1xx -->
+            <xs:enumeration value="Continue"/>
+            <xs:enumeration value="Switching Protocols"/>
+
+            <!-- Successful 2xx -->
+            <xs:enumeration value="OK"/>
+            <xs:enumeration value="Created"/>
+            <xs:enumeration value="Accepted"/>
+            <xs:enumeration value="Non-Authoritative Information"/>
+            <xs:enumeration value="No Content"/>
+            <xs:enumeration value="Reset Content"/>
+            <xs:enumeration value="Partial Content"/>
+
+            <!-- Redirection 3xx -->
+            <xs:enumeration value="Multiple Choices"/>
+            <xs:enumeration value="Moved Permanently"/>
+            <xs:enumeration value="Found"/>
+            <xs:enumeration value="See Other"/>
+            <xs:enumeration value="Not Modified"/>
+            <xs:enumeration value="Use Proxy"/>
+            <xs:enumeration value="Temporary Redirect"/>
+
+            <!-- Client Error 4xx -->
+            <xs:enumeration value="Bad Request"/>
+            <xs:enumeration value="Unauthorized"/>
+            <xs:enumeration value="Payment Required"/>
+            <xs:enumeration value="Forbidden"/>
+            <xs:enumeration value="Not Found"/>
+            <xs:enumeration value="Method Not Allowed"/>
+            <xs:enumeration value="Not Acceptable"/>
+            <xs:enumeration value="Proxy Authentication Required"/>
+            <xs:enumeration value="Request Timeout"/>
+            <xs:enumeration value="Confict"/>
+            <xs:enumeration value="Gone"/>
+            <xs:enumeration value="Length Required"/>
+            <xs:enumeration value="Request Entity Too Large"/>
+            <xs:enumeration value="Request-URI Too Long"/>
+            <xs:enumeration value="Unsupported Media Type"/>
+            <xs:enumeration value="Requested Range Not Satisfiable"/>
+            <xs:enumeration value="Expectation Failed"/>
+
+            <!-- Server Error 5xx -->
+            <xs:enumeration value="Internal Server Error"/>
+            <xs:enumeration value="Not Implemented"/>
+            <xs:enumeration value="Bad Gateway"/>
+            <xs:enumeration value="Service Uavailable"/>
+            <xs:enumeration value="HTTP Version Not Supported"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="StatusCode">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    An restricted type for HTTP/1.1 status codes. See the
+                    <a href="http://tools.ietf.org/html/rfc2616#section-10">HTTP RFC - Section 10</a>
+                    for more information.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:positiveInteger">
+            <xs:pattern value="[1-5][0-9][0-9]"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="Version">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    An restricted type for HTTP versions. See the
+                    <a href="http://tools.ietf.org/html/rfc2616#section-3.1">HTTP RFC - Section 3.1</a>
+                    for more information.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:pattern value="HTTP/[1-9]([0-9]+)?\.[0-9]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
