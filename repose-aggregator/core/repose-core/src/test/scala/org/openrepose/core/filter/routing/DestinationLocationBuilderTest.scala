@@ -20,7 +20,6 @@
 package org.openrepose.core.filter.routing
 
 import javax.servlet.http.HttpServletRequest
-
 import org.junit.runner.RunWith
 import org.mockito.Matchers.anyString
 import org.mockito.Mockito.when
@@ -127,7 +126,9 @@ class DestinationLocationBuilderTest extends FunSpec with Matchers with MockitoS
                             default: Boolean = false): DestinationEndpoint = {
       val d = new DestinationEndpoint()
       d.setId(id)
-      d.setHostname(hostname)
+      if (hostname != null) {
+        d.setHostname(hostname)
+      }
       d.setPort(port)
       d.setProtocol(protocol)
       d.setRootPath(rootPath)
@@ -162,7 +163,7 @@ class DestinationLocationBuilderTest extends FunSpec with Matchers with MockitoS
         result.getUri.toString shouldBe expectedUri
         result.getUrl.toExternalForm shouldBe expectedUrl
       }
-      it("returns local uri when no protocol or host port specified") {
+      it("returns local URI when no protocol or host port specified") {
         val instance = new DestinationLocationBuilder(routingService, localhost)
         val result = instance.build(destinationEndpoint(id = "destId", port = 0, protocol = "http", rootPath = "/no-port-root", default = true), uri, request)
         val expectedUri = "/no-port-root" + uri
@@ -195,7 +196,7 @@ class DestinationLocationBuilderTest extends FunSpec with Matchers with MockitoS
     }
 
     describe("when building remote endpoint locations") {
-      it("returns full url in uri to string for remote dispatch") {
+      it("returns full URL in URI to string for remote dispatch") {
         val instance = new DestinationLocationBuilder(routingService, localhost)
         val result = instance.build(destinationEndpoint(id = "destId", hostname = "otherhost", port = 8080, protocol = "http", rootPath = "/root", default = true), uri, request)
         val expectedUri = "/root" + uri
@@ -206,7 +207,7 @@ class DestinationLocationBuilderTest extends FunSpec with Matchers with MockitoS
         result.getUrl.toExternalForm shouldBe expectedUrl
 
       }
-      it("returns full url in uri to string for remote dispatch with no root path") {
+      it("returns full URL in URI to string for remote dispatch with no root path") {
         val instance = new DestinationLocationBuilder(routingService, localhost)
         val result = instance.build(destinationEndpoint(id = "destId", hostname = "otherhost", port = 8080, protocol = "http", default = true), uri, request)
         val expectedUri = uri
@@ -217,7 +218,7 @@ class DestinationLocationBuilderTest extends FunSpec with Matchers with MockitoS
         result.getUrl.toExternalForm shouldBe expectedUrl
       }
 
-      it("returns full url in uri to string for local different port dispatch") {
+      it("returns full URL in URI to string for local different port dispatch") {
         val instance = new DestinationLocationBuilder(routingService, localhost)
         val result = instance.build(destinationEndpoint(id = "destId", port = 8081, protocol = "http", rootPath = "/root", default = true), uri, request)
         val expectedUri = "/root" + uri
