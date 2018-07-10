@@ -19,139 +19,26 @@
  */
 package org.openrepose.core.systemmodel.config;
 
+import lombok.Data;
+
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
-
-/**
- * <p>Java class for Destination complex type.
- *
- * <p>The following schema fragment specifies the expected content contained within this class.
- *
- * <pre>
- * &lt;complexType name="Destination">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="id" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="protocol">
- *         &lt;simpleType>
- *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
- *             &lt;enumeration value="http"/>
- *             &lt;enumeration value="https"/>
- *           &lt;/restriction>
- *         &lt;/simpleType>
- *       &lt;/attribute>
- *       &lt;attribute name="root-path" type="{http://www.w3.org/2001/XMLSchema}string" default="" />
- *       &lt;attribute name="default" type="{http://www.w3.org/2001/XMLSchema}boolean" default="false" />
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Destination")
 @XmlSeeAlso({
     DestinationCluster.class,
     DestinationEndpoint.class
 })
+@Data
 public class Destination
     implements Serializable {
-
     @XmlAttribute(name = "id", required = true)
-    protected String id;
+    private String id;
     @XmlAttribute(name = "protocol")
-    protected String protocol;
+    private String protocol;
     @XmlAttribute(name = "root-path")
-    protected String rootPath;
+    private String rootPath = "";
     @XmlAttribute(name = "default")
-    protected Boolean _default;
-
-    /**
-     * Gets the value of the id property.
-     *
-     * @return possible object is
-     * {@link String }
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * Sets the value of the id property.
-     *
-     * @param value allowed object is
-     *              {@link String }
-     */
-    public void setId(String value) {
-        this.id = value;
-    }
-
-    /**
-     * Gets the value of the protocol property.
-     *
-     * @return possible object is
-     * {@link String }
-     */
-    public String getProtocol() {
-        return protocol;
-    }
-
-    /**
-     * Sets the value of the protocol property.
-     *
-     * @param value allowed object is
-     *              {@link String }
-     */
-    public void setProtocol(String value) {
-        this.protocol = value;
-    }
-
-    /**
-     * Gets the value of the rootPath property.
-     *
-     * @return possible object is
-     * {@link String }
-     */
-    public String getRootPath() {
-        if (rootPath == null) {
-            return "";
-        } else {
-            return rootPath;
-        }
-    }
-
-    /**
-     * Sets the value of the rootPath property.
-     *
-     * @param value allowed object is
-     *              {@link String }
-     */
-    public void setRootPath(String value) {
-        this.rootPath = value;
-    }
-
-    /**
-     * Gets the value of the default property.
-     *
-     * @return possible object is
-     * {@link Boolean }
-     */
-    public boolean isDefault() {
-        if (_default == null) {
-            return false;
-        } else {
-            return _default;
-        }
-    }
-
-    /**
-     * Sets the value of the default property.
-     *
-     * @param value allowed object is
-     *              {@link Boolean }
-     */
-    public void setDefault(Boolean value) {
-        this._default = value;
-    }
-
+    private boolean isDefault;
 }

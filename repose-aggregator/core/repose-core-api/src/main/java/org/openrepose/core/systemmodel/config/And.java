@@ -19,47 +19,26 @@
  */
 package org.openrepose.core.systemmodel.config;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * <pre>
- * &lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;html:p xmlns:html="http://www.w3.org/1999/xhtml" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:mod="http://docs.openrepose.org/repose/system-model/v2.0" xmlns:saxon="http://saxon.sf.net/" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xerces="http://xerces.apache.org" xmlns:xs="http://www.w3.org/2001/XMLSchema"&gt;Defines the logical AND conditional processing element.&lt;/html:p&gt;
- * </pre>
- *
- *
- * <p>Java class for And complex type.
- *
- * <p>The following schema fragment specifies the expected content contained within this class.
- *
- * <pre>
- * &lt;complexType name="And">
- *   &lt;complexContent>
- *     &lt;extension base="{http://docs.openrepose.org/repose/system-model/v2.0}FilterCriterion">
- *       &lt;choice maxOccurs="unbounded" minOccurs="2">
- *         &lt;element name="methods" type="{http://docs.openrepose.org/repose/system-model/v2.0}Methods"/>
- *         &lt;element name="header" type="{http://docs.openrepose.org/repose/system-model/v2.0}Header"/>
- *         &lt;element name="uri" type="{http://docs.openrepose.org/repose/system-model/v2.0}Uri"/>
- *         &lt;element name="not" type="{http://docs.openrepose.org/repose/system-model/v2.0}Not"/>
- *         &lt;element name="or" type="{http://docs.openrepose.org/repose/system-model/v2.0}Or"/>
- *       &lt;/choice>
- *     &lt;/extension>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "And", propOrder = {
     "filterCriteria"
 })
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class And
     extends FilterCriterion
     implements Serializable {
-
     @XmlElements({
         @XmlElement(name = "methods", type = Methods.class),
         @XmlElement(name = "header", type = Header.class),
@@ -67,42 +46,14 @@ public class And
         @XmlElement(name = "not", type = Not.class),
         @XmlElement(name = "or", type = Or.class)
     })
-    protected List<FilterCriterion> filterCriteria;
-
-    /**
-     * Gets the value of the methodsOrHeaderOrUri property.
-     * <p>
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the methodsOrHeaderOrUri property.
-     * <p>
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getMethodsOrHeaderOrUri().add(newItem);
-     * </pre>
-     * <p>
-     * <p>
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Methods }
-     * {@link Header }
-     * {@link Uri }
-     * {@link Not }
-     * {@link Or }
-     */
-    public List<FilterCriterion> getFilterCriteria() {
-        if (filterCriteria == null) {
-            filterCriteria = new ArrayList<>();
-        }
-        return this.filterCriteria;
-    }
+    private List<FilterCriterion> filterCriteria = new ArrayList<>();
 
     @Override
-    public boolean evaluate(HttpServletRequestWrapper httpServletRequestWraper) {
-        return getFilterCriteria().stream()
-            .allMatch(criterion -> criterion.evaluate(httpServletRequestWraper));
+    public boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper) {
+        boolean rtn = getFilterCriteria().stream()
+            .allMatch(criterion -> criterion.evaluate(httpServletRequestWrapper));
+        LOG.trace("{} of the sub-criterion matched the request.", rtn ? "All" : "None");
+        return rtn;
     }
+    private static final Logger LOG = LoggerFactory.getLogger(And.class);
 }

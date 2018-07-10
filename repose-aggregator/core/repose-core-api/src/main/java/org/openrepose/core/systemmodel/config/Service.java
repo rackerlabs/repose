@@ -19,67 +19,19 @@
  */
 package org.openrepose.core.systemmodel.config;
 
+import lombok.Data;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 
-
-/**
- * <pre>
- * &lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;html:p xmlns:html="http://www.w3.org/1999/xhtml" xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" xmlns:mod="http://docs.openrepose.org/repose/system-model/v2.0" xmlns:saxon="http://saxon.sf.net/" xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" xmlns:xerces="http://xerces.apache.org" xmlns:xs="http://www.w3.org/2001/XMLSchema"&gt;Defines a service that can be used to assist filters&lt;/html:p&gt;
- * </pre>
- *
- *
- * <p>Java class for Service complex type.
- *
- * <p>The following schema fragment specifies the expected content contained within this class.
- *
- * <pre>
- * &lt;complexType name="Service">
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;attribute name="name" use="required">
- *         &lt;simpleType>
- *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
- *             &lt;enumeration value="dist-datastore"/>
- *             &lt;enumeration value="remote-datastore"/>
- *             &lt;enumeration value="atom-feed-service"/>
- *           &lt;/restriction>
- *         &lt;/simpleType>
- *       &lt;/attribute>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Service")
+@Data
 public class Service
     implements Serializable {
-
     @XmlAttribute(name = "name", required = true)
-    protected String name;
-
-    /**
-     * Gets the value of the name property.
-     *
-     * @return possible object is
-     * {@link String }
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Sets the value of the name property.
-     *
-     * @param value allowed object is
-     *              {@link String }
-     */
-    public void setName(String value) {
-        this.name = value;
-    }
-
+    private String name;
 }

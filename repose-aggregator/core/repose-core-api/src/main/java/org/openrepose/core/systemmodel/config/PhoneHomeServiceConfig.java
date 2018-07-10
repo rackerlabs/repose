@@ -24,13 +24,11 @@ import lombok.Data;
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
-
 @XmlType(name = "PhoneHomeServiceConfig")
 @XmlAccessorType(XmlAccessType.FIELD)
 @Data
 public class PhoneHomeServiceConfig
     implements Serializable {
-
     @XmlAttribute(name = "enabled", required = true)
     private boolean enabled;
     @XmlAttribute(name = "collection-uri")
@@ -40,5 +38,4 @@ public class PhoneHomeServiceConfig
     private String originServiceId;
     @XmlAttribute(name = "contact-email")
     private String contactEmail;
-
 }
