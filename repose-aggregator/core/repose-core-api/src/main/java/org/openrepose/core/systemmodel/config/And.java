@@ -52,7 +52,7 @@ public class And
     public boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper) {
         boolean rtn = getFilterCriteria().stream()
             .allMatch(criterion -> criterion.evaluate(httpServletRequestWrapper));
-        LOG.trace("{} of the sub-criterion matched the request.", rtn ? "All" : "None");
+        LOG.trace("{} of the sub-criterion matched the request.", rtn ? "All" : "Some/None");
         return rtn;
     }
     private static final Logger LOG = LoggerFactory.getLogger(And.class);
