@@ -4,12 +4,12 @@
 * https://repose.atlassian.net/browse/REP-6969[REP-6969] - Added support for more expressive filter determination in the <<architecture/system-model.adoc#,System Model>> using boolean operators.
 
 == 8.9.1.0 (2018-07-03)
-* https://repose.atlassian.net/browse/REP-7004[REP-7004] - Fixed a bug in the Keystone v2 Basic Auth, Keystone v2, Openstack Identity v3, and Valkyrie Authorization filters where headers were potentially processed in a case sensitive way.
+* https://repose.atlassian.net/browse/REP-7004[REP-7004] - Fixed a bug in the <<filters/keystone-v2-basic-auth.adoc#, Keystone v2 Basic Auth>>, <<filters/keystone-v2.adoc#, Keystone v2>>, <<filters/openstack-identity-v3.adoc#, Openstack Identity v3>>, and <<filters/valkyrie-authorization.adoc#, Valkyrie Authorization>> filters where headers were potentially processed in a case sensitive way.
 * https://repose.atlassian.net/browse/REP-6038[REP-6038] - Created the `ReposeFilterChain` this will eventually replace the `PowerFilterChain` and allow dynamic determination of the filter chain.
-* https://repose.atlassian.net/browse/REP-7008[REP-7008] - Created the 'ReposeServlet' which will eventually replace the `EmptyServlet` and allow routing to be done by the servlet rather than the filter chain.
+* https://repose.atlassian.net/browse/REP-7008[REP-7008] - Created the `ReposeServlet` which will eventually replace the `EmptyServlet` and allow routing to be done by the servlet rather than the filter chain.
 * https://repose.atlassian.net/browse/REP-5083[REP-5083] - Added the new <<filters/split-header.adoc#, Split Header Filter>>.
 * https://repose.atlassian.net/browse/REP-7081[REP-7081] - Added OpenTracing Support to the `ReposeFilterChain`.
-* https://repose.atlassian.net/browse/REP-7064[REP-7064] - Fixed the behavior of the Valkyrie filter where only the last device permission was considered when determining the authorization status of a request.
+* https://repose.atlassian.net/browse/REP-7064[REP-7064] - Fixed the behavior of the <<filters/valkyrie-authorization.adoc#, Valkyrie Authorization filter>> where only the last device permission was considered when determining the authorization status of a request.
   Now all device permissions are considered.
 
 == 8.9.0.1 (2018-06-08)
