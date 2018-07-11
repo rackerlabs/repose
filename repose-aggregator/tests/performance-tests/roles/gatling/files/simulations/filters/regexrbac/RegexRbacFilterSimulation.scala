@@ -20,7 +20,6 @@
 
 package filters.regexrbac
 
-import com.typesafe.config.ConfigFactory
 import filters.regexrbac.RegexRbacFilterSimulation._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._

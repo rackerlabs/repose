@@ -20,7 +20,6 @@
 
 package filters.apivalidator
 
-import com.typesafe.config.ConfigFactory
 import filters.apivalidator.ApiValidatorFilterSimulation._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._

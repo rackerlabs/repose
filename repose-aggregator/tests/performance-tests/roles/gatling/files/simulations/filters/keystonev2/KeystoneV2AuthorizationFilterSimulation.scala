@@ -22,14 +22,12 @@ package filters.keystonev2
 
 import java.util.Base64
 
-import com.typesafe.config.ConfigFactory
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
 import org.openrepose.performance.test.AbstractReposeSimulation
 
 import scala.concurrent.duration._
-import scala.util.Random
 
 /**
   * Keystone v2 Authorization filter performance simulation.

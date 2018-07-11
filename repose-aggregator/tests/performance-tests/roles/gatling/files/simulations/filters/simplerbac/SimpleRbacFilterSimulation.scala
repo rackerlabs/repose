@@ -20,7 +20,6 @@
 
 package filters.simplerbac
 
-import com.typesafe.config.ConfigFactory
 import filters.simplerbac.SimpleRbacFilterSimulation._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._

@@ -20,16 +20,12 @@
 
 package filters.urinormalization
 
-import java.util.Base64
-
-import com.typesafe.config.ConfigFactory
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
 import org.openrepose.performance.test.AbstractReposeSimulation
 
 import scala.concurrent.duration._
-import scala.util.Random
 
 /**
   * URI Normalization filter performance simulation.

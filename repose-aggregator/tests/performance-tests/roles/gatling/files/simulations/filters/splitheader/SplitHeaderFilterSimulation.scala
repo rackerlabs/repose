@@ -19,7 +19,6 @@
  */
 package filters.splitheader
 
-import com.typesafe.config.ConfigFactory
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder

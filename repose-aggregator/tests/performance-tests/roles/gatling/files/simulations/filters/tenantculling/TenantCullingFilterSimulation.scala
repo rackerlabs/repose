@@ -22,7 +22,6 @@ package filters.tenantculling
 
 import java.util.Base64
 
-import com.typesafe.config.ConfigFactory
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
