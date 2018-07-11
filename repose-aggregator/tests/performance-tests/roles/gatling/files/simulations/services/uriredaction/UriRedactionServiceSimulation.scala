@@ -25,8 +25,6 @@ import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
 import org.openrepose.performance.test.AbstractReposeSimulation
 
-import scala.concurrent.duration._
-
 /**
   * Simple uriredaction performance simulation.
   */
@@ -35,31 +33,21 @@ class UriRedactionServiceSimulation extends AbstractReposeSimulation {
     (1 to 5).toArray map ( x => { Map( "version" -> x.toString) })
 
   // set up the warm up scenario
-  val warmup = scenario("Warmup")
+  override val warmupScenario = scenario("Warmup")
     .feed(versionLoop.circular)
     .forever() {
       exec(getRequest)
     }
-    .inject(
-      constantUsersPerSec(rampUpUsers) during(rampUpDuration seconds))
-    .throttle(
-      jumpToRps(throughput), holdFor(warmUpDuration minutes),  // warm up period
-      jumpToRps(0), holdFor(duration minutes))                 // stop scenario during actual test
 
   // set up the main scenario
-  val mainScenario = scenario("URI Redaction Service Test")
+  override val mainScenario = scenario("URI Redaction Service Test")
     .feed(versionLoop.circular)
     .forever() {
       exec(getRequest)
     }
-    .inject(
-      nothingFor(warmUpDuration minutes),  // do nothing during warm up period
-      constantUsersPerSec(rampUpUsers) during(rampUpDuration seconds))
-    .throttle(
-      jumpToRps(throughput), holdFor((warmUpDuration + duration) minutes))
 
   // run the scenarios
-  runScenarios
+  runScenarios()
 
   def getRequest: HttpRequestBuilder = {
     http(session => session.scenario)

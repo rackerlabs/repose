@@ -20,40 +20,61 @@
 
 package org.openrepose.performance.test
 
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{Config, ConfigFactory}
 import io.gatling.core.Predef._
 import io.gatling.core.scenario.Simulation
-import io.gatling.core.structure.PopulationBuilder
+import io.gatling.core.structure.{PopulationBuilder, ScenarioBuilder}
 import io.gatling.http.Predef._
+import io.gatling.http.protocol.HttpProtocolBuilder
+
+import scala.concurrent.duration._
+import scala.language.postfixOps
 
 abstract class AbstractReposeSimulation extends Simulation {
   // properties to configure the Gatling test
-  val conf = ConfigFactory.load("application.conf")
-  val confRoot = "test"
-  val throughput = conf.getInt(s"$confRoot.throughput")
-  val duration = conf.getInt(s"$confRoot.duration")
-  val warmUpDuration = conf.getInt(s"$confRoot.warmup_duration")
-  val rampUpUsers = conf.getInt(s"$confRoot.ramp_up_users.new_per_sec")
-  val rampUpDuration = conf.getInt(s"$confRoot.ramp_up_users.duration_in_sec")
-  val percentile3ResponseTimeUpperBound = conf.getInt(s"$confRoot.expectations.percentile3_response_time_upper_bound")
-  val percentSuccessfulRequest = conf.getInt(s"$confRoot.expectations.percent_successful_requests")
+  val conf: Config = ConfigFactory.load("application.conf")
+  val confRoot: String = "test"
+  val throughput: Int = conf.getInt(s"$confRoot.throughput")
+  val duration: Int = conf.getInt(s"$confRoot.duration")
+  val warmUpDuration: Int = conf.getInt(s"$confRoot.warmup_duration")
+  val rampUpUsers: Int = conf.getInt(s"$confRoot.ramp_up_users.new_per_sec")
+  val rampUpDuration: Int = conf.getInt(s"$confRoot.ramp_up_users.duration_in_sec")
+  val percentile3ResponseTimeUpperBound: Int = conf.getInt(s"$confRoot.expectations.percentile3_response_time_upper_bound")
+  val percentSuccessfulRequest: Int = conf.getInt(s"$confRoot.expectations.percent_successful_requests")
 
   // this value is provided through a Java property on the command line when Gatling is run
-  val baseUrl = conf.getString("test.base_url")
+  val baseUrl: String = conf.getString("test.base_url")
 
-  val httpConf = http.baseURL(s"http://$baseUrl")
+  val httpConf: HttpProtocolBuilder = http.baseURL(s"http://$baseUrl")
+
+  val warmupScenario: ScenarioBuilder
+  val mainScenario: ScenarioBuilder
 
   // the warm up scenario
-  val warmup: PopulationBuilder
+  def populateWarmupScenario: PopulationBuilder = {
+    warmupScenario
+      .inject(
+        constantUsersPerSec(rampUpUsers) during (rampUpDuration seconds))
+      .throttle(
+        jumpToRps(throughput), holdFor(warmUpDuration minutes), // warm up period
+        jumpToRps(0), holdFor(duration minutes)) // stop scenario during actual test
+  }
 
   // the main scenario
-  val mainScenario: PopulationBuilder
+  def populateMainScenario: PopulationBuilder = {
+    mainScenario
+      .inject(
+        nothingFor(warmUpDuration minutes), // do nothing during warm up period
+        constantUsersPerSec(rampUpUsers) during (rampUpDuration seconds))
+      .throttle(
+        jumpToRps(throughput), holdFor((warmUpDuration + duration) minutes))
+  }
 
   // run the scenarios
-  def runScenarios: Unit = {
+  def runScenarios(): Unit = {
     setUp(
-      warmup,
-      mainScenario
+      populateWarmupScenario,
+      populateMainScenario
     ).assertions(
       global.responseTime.percentile3.lte(percentile3ResponseTimeUpperBound),
       global.successfulRequests.percent.gte(percentSuccessfulRequest)

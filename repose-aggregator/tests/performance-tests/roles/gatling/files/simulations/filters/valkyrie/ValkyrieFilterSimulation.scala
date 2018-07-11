@@ -25,7 +25,6 @@ import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
 import org.openrepose.performance.test.AbstractReposeSimulation
 
-import scala.concurrent.duration._
 import scala.util.Random
 
 /**
@@ -42,31 +41,21 @@ class ValkyrieFilterSimulation extends AbstractReposeSimulation {
   ))
 
   // set up the warm up scenario
-  val warmup = scenario("Warmup")
+  override val warmupScenario = scenario("Warmup")
     .feed(feeder)
     .forever() {
       exec(getResourceWithDeviceId)
     }
-    .inject(
-      constantUsersPerSec(rampUpUsers) during(rampUpDuration seconds))
-    .throttle(
-      jumpToRps(throughput), holdFor(warmUpDuration minutes),  // warm up period
-      jumpToRps(0), holdFor(duration minutes))                 // stop scenario during actual test
 
   // set up the main scenario
-  val mainScenario = scenario("Valkyrie Filter Test")
+  override val mainScenario = scenario("Valkyrie Filter Test")
     .feed(feeder)
     .forever() {
       exec(getResourceWithDeviceId)
     }
-    .inject(
-      nothingFor(warmUpDuration minutes),  // do nothing during warm up period
-      constantUsersPerSec(rampUpUsers) during(rampUpDuration seconds))
-    .throttle(
-      jumpToRps(throughput), holdFor((warmUpDuration + duration) minutes))
 
   // run the scenarios
-  runScenarios
+  runScenarios()
 
   def getResourceWithDeviceId: HttpRequestBuilder = {
     def deviceId = Random.numeric.take(8).mkString
