@@ -22,7 +22,6 @@ package org.openrepose.powerfilter.filtercontext;
 import org.openrepose.commons.utils.Destroyable;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.systemmodel.config.FilterCriterion;
-import org.openrepose.core.systemmodel.config.Uri;
 import org.springframework.context.support.AbstractApplicationContext;
 
 import javax.servlet.Filter;
