@@ -20,6 +20,9 @@
 package org.openrepose.core.systemmodel.config;
 
 import lombok.Data;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
@@ -54,12 +57,28 @@ public class Filter
     private String uriRegex;
 
     public FilterCriterion getFilterCriterion() {
-        return Optional.<FilterCriterion>ofNullable(methods)
-            .orElseGet(() -> Optional.<FilterCriterion>ofNullable(header)
-                .orElseGet(() -> Optional.<FilterCriterion>ofNullable(uri)
-                    .orElseGet(() -> Optional.<FilterCriterion>ofNullable(and)
-                        .orElseGet(() -> Optional.<FilterCriterion>ofNullable(not)
-                            .orElseGet(() -> Optional.<FilterCriterion>ofNullable(or)
-                                .orElse(null))))));
+        // Remove this when the deprecated uri-regex attribute is deleted.
+        if (uriRegex != null) {
+            Uri uriFilterCriterion = new Uri();
+            uriFilterCriterion.setRegex(uriRegex);
+            return uriFilterCriterion;
+        } else {
+            return Optional.<FilterCriterion>ofNullable(methods)
+                .orElseGet(() -> Optional.<FilterCriterion>ofNullable(header)
+                    .orElseGet(() -> Optional.<FilterCriterion>ofNullable(uri)
+                        .orElseGet(() -> Optional.<FilterCriterion>ofNullable(and)
+                            .orElseGet(() -> Optional.<FilterCriterion>ofNullable(not)
+                                .orElseGet(() -> Optional.<FilterCriterion>ofNullable(or)
+                                    .orElse(DEFAULT_FILTER_CRITERION))))));
+        }
     }
+
+    private static final FilterCriterion DEFAULT_FILTER_CRITERION = new FilterCriterion() {
+        @Override
+        public boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper) {
+            LOG.trace("The default filter criterion is returning true.");
+            return true;
+        }
+    };
+    private static final Logger LOG = LoggerFactory.getLogger(Filter.class);
 }
