@@ -26,7 +26,6 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
-import spock.lang.Ignore
 
 import static javax.servlet.http.HttpServletResponse.SC_OK
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
@@ -37,7 +36,6 @@ import static org.openrepose.framework.test.util.saml.SamlUtilities.*
 /**
  * This functional test exercises the config reloading of the filter.
  */
-@Ignore
 class SamlFeedConfigLiveUpdateTest extends ReposeValveTest {
     static final int FEED_POLLING_FREQUENCY_SEC = 1
     static final int FEED_POLLING_FREQUENCY_MILLIS = FEED_POLLING_FREQUENCY_SEC * 1_000

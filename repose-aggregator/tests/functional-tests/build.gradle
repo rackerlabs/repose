@@ -145,12 +145,19 @@ processIntegrationTestResources {
 
 integrationTest {
     useJUnit {
-        if (!project.hasProperty('runAll')) {
-            includeCategories "scaffold.category.Smoke"
-        } else {
-            excludeCategories "scaffold.category.Release", "scaffold.category.Bug", "scaffold.category.Flaky"
-            //todo: we have one test annotated with release, and i don't think it ever runs, maybe jenny explicitly invokes it post release?
-            //todo: Maybe reevaluate whether we still want these tests and categories
+        def runTest = project.findProperty("run") ?: 'Smoke'
+        switch(runTest) {
+            case "main":
+                excludeCategories "scaffold.category.Bug", "scaffold.category.Intense"
+                break
+            case "intense":
+                includeCategories "scaffold.category.Intense"
+                break
+            case "all":
+                excludeCategories "scaffold.category.Bug"
+                break
+            default:
+                includeCategories "scaffold.category.Smoke"
         }
     }
 
