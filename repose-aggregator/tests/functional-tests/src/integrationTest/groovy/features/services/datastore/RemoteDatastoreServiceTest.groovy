@@ -21,8 +21,8 @@ package features.services.datastore
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.*
-import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Intense
 import spock.lang.Specification
 
 import java.util.concurrent.TimeUnit
@@ -31,7 +31,7 @@ import static javax.servlet.http.HttpServletResponse.SC_OK
 import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
 import static org.springframework.http.HttpStatus.I_AM_A_TEAPOT
 
-@Category(Slow.class)
+@Category(Intense.class)
 class RemoteDatastoreServiceTest extends Specification {
 
     ReposeValveLauncher repose1
