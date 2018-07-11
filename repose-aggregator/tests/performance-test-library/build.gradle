@@ -1,4 +1,5 @@
 dependencies {
-    compile 'io.gatling:gatling-test-framework:2.2.4'
     compile 'org.scala-lang:scala-library'
+    compile 'io.gatling:gatling-core'
+    compile 'io.gatling:gatling-http'
 }
