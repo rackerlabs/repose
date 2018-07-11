@@ -42,13 +42,7 @@ public class FilterContext implements Destroyable {
         this.filterAppContext = filterAppContext;
         this.filterConfig = filterConfig;
         this.name = filterConfig.getName();
-        if (filterConfig.getUriRegex() != null) {
-            Uri uriFilterCriterion = new Uri();
-            uriFilterCriterion.setRegex(filterConfig.getUriRegex());
-            filterCriterion = uriFilterCriterion;
-        } else {
-            filterCriterion = filterConfig.getFilterCriterion();
-        }
+        filterCriterion = filterConfig.getFilterCriterion();
     }
 
     public Filter getFilter() {
