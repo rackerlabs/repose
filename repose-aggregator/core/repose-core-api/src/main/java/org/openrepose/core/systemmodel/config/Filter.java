@@ -30,22 +30,20 @@ import java.util.Optional;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Filter", propOrder = {
-    "methods",
-    "header",
-    "uri",
-    "and",
-    "not",
-    "or"
+    "filterCriterion"
 })
 @Data
 public class Filter
     implements Serializable {
-    private Methods methods;
-    private Header header;
-    private Uri uri;
-    private And and;
-    private Not not;
-    private Or or;
+    @XmlElements({
+        @XmlElement(name = "methods", type = Methods.class),
+        @XmlElement(name = "header", type = Header.class),
+        @XmlElement(name = "uri", type = Uri.class),
+        @XmlElement(name = "and", type = And.class),
+        @XmlElement(name = "not", type = Not.class),
+        @XmlElement(name = "or", type = Or.class)
+    })
+    private FilterCriterion filterCriterion;
     @XmlAttribute(name = "id")
     private String id;
     @XmlAttribute(name = "name", required = true)
@@ -62,15 +60,8 @@ public class Filter
             Uri uriFilterCriterion = new Uri();
             uriFilterCriterion.setRegex(uriRegex);
             return uriFilterCriterion;
-        } else {
-            return Optional.<FilterCriterion>ofNullable(methods)
-                .orElseGet(() -> Optional.<FilterCriterion>ofNullable(header)
-                    .orElseGet(() -> Optional.<FilterCriterion>ofNullable(uri)
-                        .orElseGet(() -> Optional.<FilterCriterion>ofNullable(and)
-                            .orElseGet(() -> Optional.<FilterCriterion>ofNullable(not)
-                                .orElseGet(() -> Optional.<FilterCriterion>ofNullable(or)
-                                    .orElse(DEFAULT_FILTER_CRITERION))))));
         }
+        return Optional.ofNullable(filterCriterion).orElse(DEFAULT_FILTER_CRITERION);
     }
 
     private static final FilterCriterion DEFAULT_FILTER_CRITERION = new FilterCriterion() {
