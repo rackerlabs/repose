@@ -20,6 +20,7 @@
 package org.openrepose.powerfilter.filtercontext;
 
 import org.openrepose.commons.utils.Destroyable;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.systemmodel.config.FilterCriterion;
 import org.openrepose.core.systemmodel.config.Uri;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -53,8 +54,8 @@ public class FilterContext implements Destroyable {
         return filterConfig;
     }
 
-    public FilterCriterion getFilterCriterion() {
-        return filterCriterion;
+    public boolean shouldRun(HttpServletRequestWrapper request) {
+        return filterCriterion.evaluate(request);
     }
 
     public String getName() {

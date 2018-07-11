@@ -144,7 +144,7 @@ public class PowerFilterChain implements FilterChain {
             LOG.debug("URI: {} matched bypass criteria using empty filter chain", request.getRequestURI());
         } else {
             filterChainCopy.stream()
-                .filter(filterContext -> filterContext.getFilterCriterion().evaluate(request))
+                .filter(filterContext -> filterContext.shouldRun(request))
                 .forEach(filters::add);
         }
 
