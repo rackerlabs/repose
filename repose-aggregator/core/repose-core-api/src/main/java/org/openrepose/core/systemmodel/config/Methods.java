@@ -25,10 +25,7 @@ import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +37,8 @@ import java.util.List;
 public class Methods
     extends FilterCriterion
     implements Serializable {
+    @XmlTransient
+    private static final Logger LOG = LoggerFactory.getLogger(Methods.class);
     @XmlAttribute(name = "value", required = true)
     private List<String> value = new ArrayList<>();
 
@@ -49,5 +48,4 @@ public class Methods
         LOG.trace("The Method filter criterion {} did{} match the request method.", value, rtn ? "" : " not");
         return rtn;
     }
-    private static final Logger LOG = LoggerFactory.getLogger(Methods.class);
 }

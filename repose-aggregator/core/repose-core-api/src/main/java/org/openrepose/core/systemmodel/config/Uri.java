@@ -25,10 +25,7 @@ import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -38,6 +35,8 @@ import java.io.Serializable;
 public class Uri
     extends FilterCriterion
     implements Serializable {
+    @XmlTransient
+    private static final Logger LOG = LoggerFactory.getLogger(Uri.class);
     @XmlAttribute(name = "regex", required = true)
     private String regex;
 
@@ -47,5 +46,4 @@ public class Uri
         LOG.trace("The URI filter criterion regex {} did{} match the request URI.", regex, rtn ? "" : " not");
         return rtn;
     }
-    private static final Logger LOG = LoggerFactory.getLogger(Uri.class);
 }

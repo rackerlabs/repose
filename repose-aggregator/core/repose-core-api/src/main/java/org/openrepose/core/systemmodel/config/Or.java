@@ -39,6 +39,8 @@ import java.util.List;
 public class Or
     extends FilterCriterion
     implements Serializable {
+    @XmlTransient
+    private static final Logger LOG = LoggerFactory.getLogger(Or.class);
     @XmlElements({
         @XmlElement(name = "methods", type = Methods.class),
         @XmlElement(name = "header", type = Header.class),
@@ -55,5 +57,4 @@ public class Or
         LOG.trace("{} of the sub-criterion matched the request.", rtn ? "Some" : "None");
         return rtn;
     }
-    private static final Logger LOG = LoggerFactory.getLogger(Or.class);
 }

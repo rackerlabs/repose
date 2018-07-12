@@ -35,6 +35,16 @@ import java.util.Optional;
 @Data
 public class Filter
     implements Serializable {
+    @XmlTransient
+    private static final Logger LOG = LoggerFactory.getLogger(Filter.class);
+    @XmlTransient
+    private static final FilterCriterion DEFAULT_FILTER_CRITERION = new FilterCriterion() {
+        @Override
+        public boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper) {
+            LOG.trace("The default filter criterion is returning true.");
+            return true;
+        }
+    };
     @XmlElements({
         @XmlElement(name = "methods", type = Methods.class),
         @XmlElement(name = "header", type = Header.class),
@@ -63,13 +73,4 @@ public class Filter
         }
         return Optional.ofNullable(filterCriterion).orElse(DEFAULT_FILTER_CRITERION);
     }
-
-    private static final FilterCriterion DEFAULT_FILTER_CRITERION = new FilterCriterion() {
-        @Override
-        public boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper) {
-            LOG.trace("The default filter criterion is returning true.");
-            return true;
-        }
-    };
-    private static final Logger LOG = LoggerFactory.getLogger(Filter.class);
 }

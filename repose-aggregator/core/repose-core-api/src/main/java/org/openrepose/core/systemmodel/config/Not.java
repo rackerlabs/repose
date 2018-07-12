@@ -37,6 +37,8 @@ import java.io.Serializable;
 public class Not
     extends FilterCriterion
     implements Serializable {
+    @XmlTransient
+    private static final Logger LOG = LoggerFactory.getLogger(Not.class);
     @XmlElements({
         @XmlElement(name = "methods", type = Methods.class),
         @XmlElement(name = "header", type = Header.class),
@@ -52,5 +54,4 @@ public class Not
         LOG.trace("The sub-criterion did{} match the request; returning {}.", rtn ? " not" : "", rtn);
         return rtn;
     }
-    private static final Logger LOG = LoggerFactory.getLogger(Not.class);
 }

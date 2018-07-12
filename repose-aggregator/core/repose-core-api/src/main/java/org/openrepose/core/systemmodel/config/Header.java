@@ -25,10 +25,7 @@ import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -38,6 +35,8 @@ import java.io.Serializable;
 public class Header
     extends FilterCriterion
     implements Serializable {
+    @XmlTransient
+    private static final Logger LOG = LoggerFactory.getLogger(Header.class);
     @XmlAttribute(name = "name", required = true)
     private String name;
     @XmlAttribute(name = "value")
@@ -50,5 +49,4 @@ public class Header
         LOG.trace("The Header filter criterion {}{} did{} match the request headers.", name, value == null ? "" : ": " + value, rtn ? "" : " not");
         return rtn;
     }
-    private static final Logger LOG = LoggerFactory.getLogger(Header.class);
 }
