@@ -29,9 +29,7 @@ import java.io.Serializable;
 import java.util.Optional;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Filter", propOrder = {
-    "filterCriterion"
-})
+@XmlType(name = "Filter")
 @Data
 public class Filter
     implements Serializable {

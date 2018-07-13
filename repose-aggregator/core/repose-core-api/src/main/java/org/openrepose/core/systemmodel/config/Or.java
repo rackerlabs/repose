@@ -31,9 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Or", propOrder = {
-    "filterCriteria"
-})
+@XmlType(name = "Or")
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class Or

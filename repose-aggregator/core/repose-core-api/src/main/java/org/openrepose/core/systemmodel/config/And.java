@@ -31,9 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "And", propOrder = {
-    "filterCriteria"
-})
+@XmlType(name = "And")
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class And

@@ -30,9 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "FilterList", propOrder = {
-    "filter"
-})
+@XmlType(name = "FilterList")
 @Data
 public class FilterList
     implements Serializable {

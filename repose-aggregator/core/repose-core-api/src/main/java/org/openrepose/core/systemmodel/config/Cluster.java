@@ -27,9 +27,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Cluster", propOrder = {
-    "nodes"
-})
+@XmlType(name = "Cluster")
 @XmlSeeAlso({
     ReposeCluster.class
 })

@@ -29,9 +29,7 @@ import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "Not", propOrder = {
-    "filterCriteria"
-})
+@XmlType(name = "Not")
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class Not
