@@ -314,7 +314,7 @@ Each timeout value behaves in the following way:
 * If `-1`, caching is disabled.
 * If `0`, data is cached using the TTL in the token provided by the Keystone v2 Identity service. +
   In other words, data is eternal.
-* If greater than 0, data is cached for the value provided, in seconds.
+* If greater than `0`, data is cached for the value provided, in seconds.
 ====
 
 === Cache invalidation using an Atom Feed
@@ -446,7 +446,7 @@ These configured roles will be compared to the roles returned in a token from th
 === Require specific service endpoint for authorization
 [WARNING]
 ====
-Service endpoint requirements have been moved to the <<keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>>, and are considered deprecated in this filter.
+Service endpoint requirements have been moved to the <<keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>> and are considered deprecated in this filter.
 ====
 
 If endpoint authorization is enabled, then the user must have an endpoint in their catalog meeting the defined criteria.
@@ -472,5 +472,5 @@ If endpoint authorization is enabled, then the user must have an endpoint in the
 
 [NOTE]
 ====
-The `public-url`, `region`, `name`, and `type` attributes are all optional and can be combined as needed to achieve the desired restrictions.
+The `region`, `name`, and `type` attributes are all optional and can be combined as needed to achieve the desired restrictions.
 ====
