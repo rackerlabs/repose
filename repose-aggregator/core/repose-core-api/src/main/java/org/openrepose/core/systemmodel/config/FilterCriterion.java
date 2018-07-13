@@ -28,7 +28,6 @@ import java.io.Serializable;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "FilterCriterion")
-public abstract class FilterCriterion
-    implements Serializable {
-    public abstract boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper);
+public interface FilterCriterion {
+    boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper);
 }

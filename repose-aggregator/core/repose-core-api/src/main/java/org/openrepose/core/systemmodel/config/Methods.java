@@ -20,7 +20,6 @@
 package org.openrepose.core.systemmodel.config;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +32,8 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Methods")
 @Data
-@EqualsAndHashCode(callSuper = true)
 public class Methods
-    extends FilterCriterion
-    implements Serializable {
+    implements FilterCriterion, Serializable {
     @XmlTransient
     private static final Logger LOG = LoggerFactory.getLogger(Methods.class);
     @XmlAttribute(name = "value", required = true)
