@@ -24,7 +24,6 @@ import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
-import java.io.Serializable;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "FilterCriterion")

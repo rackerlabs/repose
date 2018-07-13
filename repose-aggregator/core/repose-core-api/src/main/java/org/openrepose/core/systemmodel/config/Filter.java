@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import java.util.Optional;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Filter")
