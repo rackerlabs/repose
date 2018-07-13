@@ -53,7 +53,7 @@ public class Filter
         @XmlElement(name = "not", type = Not.class),
         @XmlElement(name = "or", type = Or.class)
     })
-    private FilterCriterion filterCriterion;
+    private FilterCriterion filterCriterion = DEFAULT_FILTER_CRITERION;
     @XmlAttribute(name = "id")
     private String id;
     @XmlAttribute(name = "name", required = true)
@@ -65,12 +65,12 @@ public class Filter
     private String uriRegex;
 
     public FilterCriterion getFilterCriterion() {
-        // Remove this when the deprecated uri-regex attribute is deleted.
+        // TODO: Remove this when the deprecated uri-regex attribute is deleted.
         if (uriRegex != null) {
             Uri uriFilterCriterion = new Uri();
             uriFilterCriterion.setRegex(uriRegex);
             return uriFilterCriterion;
         }
-        return Optional.ofNullable(filterCriterion).orElse(DEFAULT_FILTER_CRITERION);
+        return filterCriterion;
     }
 }

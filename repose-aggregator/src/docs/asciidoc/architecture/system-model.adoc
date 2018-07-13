@@ -120,7 +120,7 @@ If set to localhost, any physical node will match and run the *Repose* node.
      The default destination endpoint will be responsible for handling all traffic that is not explicitly routed to a different destination endpoint.
      Remember that a target can be specified rather than an endpoint if you want to use round-robin routing to a service cluster.
 
-=== Boolean Filter Determination
+=== Filter Activation Determination
 [source,xml]
 .system-model.cfg.xml
 ----

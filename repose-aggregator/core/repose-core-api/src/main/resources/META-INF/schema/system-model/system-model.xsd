@@ -288,6 +288,7 @@
                 <xs:documentation>
                     <html:p>
                         Deprecated: This attribute is deprecated and will be removed in future major release.
+                        Use the new Filter Criterion elements instead.
                         Regex of what uri is allowed access.
                     </html:p>
                 </xs:documentation>
