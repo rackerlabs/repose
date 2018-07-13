@@ -20,68 +20,34 @@
 
 package services.uriredaction
 
-import com.typesafe.config._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
-
-import scala.concurrent.duration._
+import org.openrepose.performance.test.AbstractReposeSimulation
 
 /**
- * Simple uriredaction performance simulation.
- */
-class UriRedactionServiceSimulation extends Simulation {
-  // properties to configure the Gatling test
-  val conf = ConfigFactory.load("application.conf")
-  val confRoot = "test"
-  val throughput = conf.getInt(s"$confRoot.throughput")
-  val duration = conf.getInt(s"$confRoot.duration")
-  val warmUpDuration = conf.getInt(s"$confRoot.warmup_duration")
-  val rampUpUsers = conf.getInt(s"$confRoot.ramp_up_users.new_per_sec")
-  val rampUpDuration = conf.getInt(s"$confRoot.ramp_up_users.duration_in_sec")
-  val percentile3ResponseTimeUpperBound = conf.getInt(s"$confRoot.expectations.percentile3_response_time_upper_bound")
-  val percentSuccessfulRequest = conf.getInt(s"$confRoot.expectations.percent_successful_requests")
-
-  // this value is provided through a Java property on the command line when Gatling is run
-  val baseUrl = conf.getString("test.base_url")
-
-  val httpConf = http.baseURL(s"http://$baseUrl")
-
+  * Simple uriredaction performance simulation.
+  */
+class UriRedactionServiceSimulation extends AbstractReposeSimulation {
   var versionLoop:Array[Map[String,String]] =
     (1 to 5).toArray map ( x => { Map( "version" -> x.toString) })
 
   // set up the warm up scenario
-  val warmup = scenario("Warmup")
+  override val warmupScenario = scenario("Warmup")
     .feed(versionLoop.circular)
     .forever() {
       exec(getRequest)
     }
-    .inject(
-      constantUsersPerSec(rampUpUsers) during(rampUpDuration seconds))
-    .throttle(
-      jumpToRps(throughput), holdFor(warmUpDuration minutes),  // warm up period
-      jumpToRps(0), holdFor(duration minutes))                 // stop scenario during actual test
 
   // set up the main scenario
-  val mainScenario = scenario("URI Redaction Service Test")
+  override val mainScenario = scenario("URI Redaction Service Test")
     .feed(versionLoop.circular)
     .forever() {
       exec(getRequest)
     }
-    .inject(
-      nothingFor(warmUpDuration minutes),  // do nothing during warm up period
-      constantUsersPerSec(rampUpUsers) during(rampUpDuration seconds))
-    .throttle(
-      jumpToRps(throughput), holdFor((warmUpDuration + duration) minutes))
 
   // run the scenarios
-  setUp(
-    warmup,
-    mainScenario
-  ).assertions(
-    global.responseTime.percentile3.lte(percentile3ResponseTimeUpperBound),
-    global.successfulRequests.percent.gte(percentSuccessfulRequest)
-  ).protocols(httpConf)
+  runScenarios()
 
   def getRequest: HttpRequestBuilder = {
     http(session => session.scenario)

@@ -1,0 +1,12 @@
+// Note: We are using the testCompile configuration and source set so that simulations and dependencies
+// Note: are not added to the artifact that is currently being produced, keeping it minimal, at least.
+dependencies {
+    testCompile project(':repose-aggregator:tests:performance-test-library')
+    testCompile 'org.scala-lang:scala-library'
+    testCompile 'io.gatling:gatling-core'
+    testCompile 'io.gatling:gatling-http'
+}
+
+sourceSets.test.scala.srcDir 'roles/gatling/files/simulations'
+
+// todo: do not produce (or at least, do not publish) any artifacts for this project
