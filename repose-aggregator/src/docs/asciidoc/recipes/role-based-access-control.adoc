@@ -9,7 +9,7 @@ This guide takes you through the process of setting up RBAC with *Repose*.
 To prevent users from submitting their own roles, you will need to blacklist headers using the <<../filters/header-normalization.adoc#,Header Normalization filter>>.
 
 [source,xml]
-.header-normalization.cfg.xml
+.header-normalization.cfg.xml (partial)
 ----
 <header-filters>
 ...

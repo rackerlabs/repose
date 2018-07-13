@@ -11,7 +11,7 @@ For additional info on populating that header and on rate limiting by groups, se
 The filter can be enabled by adding it to the list of filters in the <<../architecture/system-model.adoc#,System Model>>.
 
 [source,xml]
-.system-model.cfg.xml
+.system-model.cfg.xml (partial)
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- To configure Repose see: http://wiki.openrepose.org/display/REPOSE/Configuration -->

@@ -102,6 +102,7 @@ Glassfish does has a configuration to resolve this problem; this configuration t
 This requires the addition of the following glassfish-web.xml:
 
 [source,xml]
+.glassfish-web.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE glassfish-web-app PUBLIC "-//GlassFish.org//DTD GlassFish Application Server 3.1 Servlet 3.0//EN" "http://glassfish.org/dtds/glassfish-web-app_3_0-1.dtd">

@@ -71,6 +71,7 @@ There are several ways to go about getting around this, but one of the most gene
 
 === Simple Pass-Through Proxy
 [source,xml]
+.system-model.cfg.xml
 ----
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
   <repose-cluster id="repose_cluster1"> <!--1-->
@@ -121,6 +122,7 @@ If set to localhost, any physical node will match and run the *Repose* node.
 
 === Boolean Filter Determination
 [source,xml]
+.system-model.cfg.xml
 ----
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
   <repose-cluster id="repose_cluster1"> <!--1-->
@@ -155,9 +157,9 @@ If set to localhost, any physical node will match and run the *Repose* node.
 <2> Defines a new *Repose* node.
 <3> Defines a sequence of filters to run.
 <4> Defines the <<../filters/ip-user.adoc#,IP User Filter>> should be used by the nodes in this cluster.
-<5> Defines a boolean `AND` operator were all direct sub-elements must evaluate to `true`.
+<5> Defines a boolean `AND` operator where all direct sub-elements must evaluate to `true`.
 <6> Defines the space separated list of case sensitive methods to check the current request against.
-<7> Defines a boolean `OR` operator were at least one direct sub-element must evaluate to `true`.
+<7> Defines a boolean `OR` operator where at least one direct sub-element must evaluate to `true`.
 <8> Defines that a header named `foo` (case insensitive) must be defined.
 <9> Defines that a header named `bar` (case insensitive) must be defined and have a value of `BaZ` (case sensitive).
 <10> Defines a boolean `NOT` operator that negates the result of the single direct sub-element's evaluation.
