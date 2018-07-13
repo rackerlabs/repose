@@ -22,7 +22,7 @@ nbactions.xml
 *.ipr
 *.iws
 .idea/
-local/
+local
 classes/
 
 # Gradle bits from: https://github.com/github/gitignore/blob/master/Gradle.gitignore
