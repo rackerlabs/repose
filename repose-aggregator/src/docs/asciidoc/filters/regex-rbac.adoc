@@ -101,7 +101,9 @@ That is to say, there can not be any extra characters in the request, including 
 
 [NOTE]
 ====
-Roles are only allowed to have spaces in the names through the use of an embedded Non-Breaking Space (NBSP) (i.e., Unicode character: `00A0`).
+Roles are allowed to have spaces in the names through the use of an embedded Non-Breaking Space (NBSP) (i.e., Unicode character: `00A0`).
+Simply input a non-breaking space, in the place where the role name should have a space. +
+See the following for more information: https://en.wikipedia.org/wiki/Non-breaking_space#Keyboard_entry_methods
 ====
 
 === Expanded Example with embedded Resources

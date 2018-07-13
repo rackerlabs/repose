@@ -213,7 +213,11 @@ This configuration expands the basic example in order to show off all of the fea
 <20> Enables use of the `rax:roles` extension in WADL files for determining resource access. +
      Default: `false` +
      *NOTE:* _IF_ `true`, _THEN_ `rax:roles` defined in the supplied WADL files will be used to determine resource access. +
-     *NOTE:* _IF_ `true`, _THEN_ `check-headers` will also be enabled regardless of it's setting.
+     *NOTE:* _IF_ `true`, _THEN_ `check-headers` will also be enabled regardless of it's setting. +
+     *NOTE:* Roles are allowed to have spaces in the names through the use of an embedded Non-Breaking Space (NBSP).
+     Simply input a non-breaking space, in the place where the role name should have a space.
+     The easiest way to do this is to use the entity `\&#xA0;`, but you can also input non-breaking spaces directly into the WADL.
+     See the following for more information: https://en.wikipedia.org/wiki/Non-breaking_space#Keyboard_entry_methods
 <21> Mask `rax-roles` with `404` and `405` errors.
      By default `rax-roles` responds with a `403` if there is a role mismatch.
      If this is set to `true`, then the response will be `404` if no methods are accessible or `405` if some methods are available. +
