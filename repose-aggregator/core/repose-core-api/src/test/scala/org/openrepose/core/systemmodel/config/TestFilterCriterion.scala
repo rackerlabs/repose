@@ -20,29 +20,8 @@
 
 package org.openrepose.core.systemmodel.config
 
-import javax.servlet.ServletInputStream
-import org.junit.runner.RunWith
-import org.mockito.Matchers.any
-import org.mockito.Mockito.when
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
-import org.scalatest._
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
-import org.springframework.mock.web.MockHttpServletRequest
 
-@RunWith(classOf[JUnitRunner])
-class NotTest extends FunSpec with Matchers with MockitoSugar {
-  describe("evaluate") {
-    Seq(true, false).foreach { subEvaluate =>
-      it(s"should return ${!subEvaluate} when the sub-criteria returns $subEvaluate") {
-        val filterCriterion = new Not()
-        filterCriterion.setFilterCriteria(new TestFilterCriterion(subEvaluate))
-        val originalRequest = new MockHttpServletRequest
-        val inputStream = mock[ServletInputStream]
-        val httpServletRequestWrapper = new HttpServletRequestWrapper(originalRequest, inputStream)
-
-        filterCriterion.evaluate(httpServletRequestWrapper) shouldBe !subEvaluate
-      }
-    }
-  }
+class TestFilterCriterion(val rtn: Boolean) extends FilterCriterion {
+  override def evaluate(httpServletRequestWrapper: HttpServletRequestWrapper): Boolean = rtn
 }

@@ -22,26 +22,23 @@ package org.openrepose.core.systemmodel.config
 
 import javax.servlet.ServletInputStream
 import org.junit.runner.RunWith
-import org.mockito.Matchers.any
-import org.mockito.Mockito.when
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
 
+import scala.collection.JavaConverters._
+
 @RunWith(classOf[JUnitRunner])
 class AndTest extends FunSpec with Matchers with MockitoSugar {
   describe("evaluate") {
     it("should return true when all of the sub criteria are true") {
-      val filterCriteriaOne = mock[FilterCriterion]
-      when(filterCriteriaOne.evaluate(any(classOf[HttpServletRequestWrapper]))).thenReturn(true)
-      val filterCriteriaTwo = mock[FilterCriterion]
-      when(filterCriteriaTwo.evaluate(any(classOf[HttpServletRequestWrapper]))).thenReturn(true)
       val filterCriterion = new And()
-      val subCriteria = filterCriterion.getFilterCriteria
-      subCriteria.add(filterCriteriaOne)
-      subCriteria.add(filterCriteriaTwo)
+      filterCriterion.setFilterCriteria(List[FilterCriterion](
+        new TestFilterCriterion(true),
+        new TestFilterCriterion(true)
+      ).asJava)
       val originalRequest = new MockHttpServletRequest
       val inputStream = mock[ServletInputStream]
       val httpServletRequestWrapper = new HttpServletRequestWrapper(originalRequest, inputStream)
@@ -59,17 +56,12 @@ class AndTest extends FunSpec with Matchers with MockitoSugar {
       (false, true, true)
     ).foreach { case (retOne, retTwo, retToo) =>
       it(s"should return false when any of the sub criteria are false [$retOne, $retTwo, $retToo]") {
-        val filterCriteriaOne = mock[FilterCriterion]
-        when(filterCriteriaOne.evaluate(any(classOf[HttpServletRequestWrapper]))).thenReturn(retOne)
-        val filterCriteriaTwo = mock[FilterCriterion]
-        when(filterCriteriaTwo.evaluate(any(classOf[HttpServletRequestWrapper]))).thenReturn(retTwo)
-        val filterCriteriaToo = mock[FilterCriterion]
-        when(filterCriteriaToo.evaluate(any(classOf[HttpServletRequestWrapper]))).thenReturn(retToo)
         val filterCriterion = new And()
-        val subCriteria = filterCriterion.getFilterCriteria
-        subCriteria.add(filterCriteriaOne)
-        subCriteria.add(filterCriteriaTwo)
-        subCriteria.add(filterCriteriaToo)
+        filterCriterion.setFilterCriteria(List[FilterCriterion](
+          new TestFilterCriterion(retOne),
+          new TestFilterCriterion(retTwo),
+          new TestFilterCriterion(retToo)
+        ).asJava)
         val originalRequest = new MockHttpServletRequest
         val inputStream = mock[ServletInputStream]
         val httpServletRequestWrapper = new HttpServletRequestWrapper(originalRequest, inputStream)
