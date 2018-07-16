@@ -140,7 +140,9 @@ class ReposeValveLauncher extends ReposeLauncher {
         if (!jmxPort) {
             jmxPort = PortFinder.instance.getNextOpenPort()
         }
-        jmxprops = "-Dspock=spocktest -Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true"
+        // todo: remove "-Dsun.zip.disableMemoryMapping=true" once multiple Repose instances can utilize the same
+        // todo: deployment directory without issue
+        jmxprops = "-Dspock=spocktest -Dcom.sun.management.jmxremote.port=${jmxPort} -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=true -Dsun.zip.disableMemoryMapping=true"
 
         if (!classPaths.isEmpty()) {
             classPath = "-cp " + (classPaths as Set).join(";")
