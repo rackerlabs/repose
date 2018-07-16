@@ -2,16 +2,5 @@
 
 <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
     <delegating/>
-    <identity-service
-            username="admin_username"
-            password="password"
-            uri="http://localhost:${identityPort}"
-            set-groups-in-header="true"
-            set-catalog-in-header="false"
-            />
-    <white-list>
-        <uri-regex>^$</uri-regex>
-        <uri-regex>/buildinfo</uri-regex>
-        <uri-regex>/get</uri-regex>
-    </white-list>
+    <identity-service uri="http://localhost:${identityPort}"/>
 </keystone-v2>
