@@ -290,6 +290,51 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         jsonRes.headers.'x-pp-user'.split(',').size() == 3
     }
 
+    def "Verify log all groups to x-pp-groups from translation filter going into echo filter"() {
+        given: "a unique token"
+        def client_token = UUID.randomUUID().toString()
+        fakeIdentityService.with {
+            client_tenantid = "mytenant"
+            client_tenantname = "mytenantname"
+        }
+        fakeIdentityService.client_token = client_token
+        fakeOpenstackService.client_token = client_token
+        def headers = [
+            'X-Auth-Token'   : client_token,
+            'X-Subject-Token': client_token,
+            'x-roles'        : 'raxRolesDisabled',
+            'X-Roles'        : 'test',
+            'X-ROLES'        : 'user',
+            "x-pp-groups"    : 'Repose_test_group',
+            'X-TRACE-REQUEST': 'true',
+        ]
+
+        when: "a request request with credentials is sent"
+        MessageChain mc = deproxy.makeRequest(
+            url: "$reposeEndpoint/test",
+            method: 'GET',
+            headers: headers)
+
+        then: "return with an OK (200) and it should reach the origin service"
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings.size() == 1
+
+        and: "the log should contain all the roles and groups"
+        def logSearch = reposeLogSearch.searchByString("${logPreStringRequest}derp$logPostStringAny")
+        assert logSearch.size() == 1
+        def json = convertToJson(logSearch[0])
+        json.headers["x-roles"].toString().contains("test")
+        json.headers["x-roles"].toString().contains("user")
+        json.headers["x-roles"].toString().contains("compute:admin")
+        json.headers["x-roles"].toString().contains("object-store:admin")
+        json.headers["x-roles"].toString().contains("service:admin-role1")
+        json.headers["x-pp-groups"].toString().contains("Repose_test_group")
+        json.headers["x-pp-groups"].toString().contains("0")
+        json.headers["x-pp-groups"].toString().contains("compute:admin")
+        json.headers["x-pp-groups"].toString().contains("object-store:admin")
+        json.headers["x-pp-groups"].toString().contains("service:admin-role1")
+    }
+
     private static convertToJson(String searchString) {
         def searchJson = searchString.substring(searchString.indexOf('{"preamble"'))
         println searchJson
