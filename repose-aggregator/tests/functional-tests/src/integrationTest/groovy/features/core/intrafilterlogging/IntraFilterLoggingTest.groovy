@@ -155,6 +155,99 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         ['x-trace-request': 'true'] || 1
     }
 
+    @Unroll
+    def "verify origin receives request body from client and that it is properly logged (#size)"() {
+        given: "a unique token"
+        def client_token = UUID.randomUUID().toString()
+        fakeIdentityService.client_token = client_token
+        fakeOpenstackService.client_token = client_token
+        def headers = [
+            'x-roles'        : 'raxRolesDisabled',
+            'X-Auth-Token'   : client_token,
+            'X-Subject-Token': client_token,
+        ]
+
+        when: "a request request with credentials and body content is sent"
+        MessageChain mc = deproxy.makeRequest(
+            url: "$reposeEndpoint/test",
+            method: 'POST',
+            headers: headers + addHeader,
+            requestBody: content)
+
+        then: "return with an OK (200) and it should reach the origin service"
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings.size() == 1
+
+        and: "origin service should receive the full body"
+        mc.sentRequest.body == content
+
+        and: "log at every filter on the request"
+        configuredFilters.each { filterName ->
+            def logSearch = reposeLogSearch.searchByString("$logPreStringRequest$filterName$logPostStringAny")
+            assert logSearch.size() == size
+            if (size > 0) {
+                def json = convertToJson(logSearch[0])
+                assertKeyValueMatch([
+                    'currentFilter': filterName,
+                    'httpMethod'   : 'POST',
+                    'requestURI'   : '/test',
+                    'requestBody'  : content,
+                ], json)
+            }
+        }
+
+        where:
+        addHeader                   || size
+        []                          || 0
+        ['X-Trace-Request': 'true'] || 1
+    }
+
+    @Unroll
+    def "verify client gets the response body from the origin and that it is properly logged (#size)"() {
+        given: "a unique token"
+        def client_token = UUID.randomUUID().toString()
+        fakeIdentityService.client_token = client_token
+        fakeOpenstackService.client_token = client_token
+        def headers = [
+            'x-roles'        : 'raxRolesDisabled',
+            'X-Auth-Token'   : client_token,
+            'X-Subject-Token': client_token,
+        ]
+
+        when: "a request request with credentials is sent"
+        MessageChain mc = deproxy.makeRequest(
+            url: "$reposeEndpoint/test",
+            method: 'GET',
+            headers: headers + addHeader,
+            defaultHandler: { new Response(SC_OK, 'OK', [], content) })
+
+        then: "return with an OK (200) and it should reach the origin service"
+        mc.receivedResponse.code as Integer == SC_OK
+        mc.handlings.size() == 1
+
+        and: "log at every filter on the response"
+        configuredFilters.each { filterName ->
+            def logSearch = reposeLogSearch.searchByString("$logPreStringResponse$filterName$logPostStringAny")
+            assert logSearch.size() == size
+            if (size > 0) {
+                def json = convertToJson(logSearch[0])
+                assertKeyValueMatch([
+                    'currentFilter'   : filterName,
+                    'responseBody'    : content,
+                    'httpResponseCode': SC_OK as String,
+                ], json)
+            }
+        }
+
+        and: "client should receive the full body"
+        mc.receivedResponse.body == content
+
+        where:
+        addHeader                   || size
+        []                          || 0
+        ['x-tRACE-rEQUEST': 'true'] || 1
+    }
+
     def "ensure that intrafilter logging isn't munching the x-pp-user headers"() {
         given: "a unique token"
         def client_token = UUID.randomUUID().toString()
