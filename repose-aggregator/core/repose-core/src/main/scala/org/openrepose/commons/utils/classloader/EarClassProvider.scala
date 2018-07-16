@@ -23,7 +23,7 @@ import java.io.{File, FileInputStream, FileOutputStream, IOException}
 import java.net.{URL, URLClassLoader}
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{FileVisitResult, Files, Path, SimpleFileVisitor}
-import java.util.zip.{ZipFile, ZipInputStream}
+import java.util.zip.{CRC32, ZipFile, ZipInputStream}
 
 import com.oracle.javaee6.{ApplicationType, FilterType, ObjectFactory, WebFragmentType}
 import javax.xml.bind.JAXBContext
@@ -137,23 +137,34 @@ class EarClassProvider(earFile: File, val outputDir: File) {
       val zis = new ZipInputStream(new FileInputStream(earFile))
 
       val buffer = new Array[Byte](1024)
-      Stream.continually(zis.getNextEntry).
-        takeWhile(_ != null).foreach(entry =>
-        //Unpack the entry
+      Stream.continually(zis.getNextEntry).takeWhile(_ != null) foreach { entry =>
+        val entryFile = new File(outputDir, entry.getName)
         if (entry.isDirectory) {
-          new File(outputDir, entry.getName).mkdir()
+          entryFile.mkdir()
         } else {
-          val outFile = new File(outputDir, entry.getName)
-          val ofs = new FileOutputStream(outFile)
-          Stream.continually(zis.read(buffer)).takeWhile(_ != -1).foreach(count => ofs.write(buffer, 0, count))
-          ofs.close()
+          // todo: what if multiple instances are writing the same file at the same time? do we want to use a FileLock?
+          if (!entryFile.exists() || entry.getCrc != crcFlie(entryFile)) {
+            val fos = new FileOutputStream(entryFile)
+            Stream.continually(zis.read(buffer)).takeWhile(_ != -1).foreach(count => fos.write(buffer, 0, count))
+            fos.close()
+          }
         }
-        )
+      }
       zis.close()
     } catch {
       case e: Exception =>
         log.warn("Error during ear extraction! Partial extraction at {}", outputDir.getAbsolutePath)
         throw new EarProcessingException("Unable to fully extract file", e);
     }
+  }
+
+  private def crcFlie(file: File): Long = {
+    val fis = new FileInputStream(file)
+    val buffer = new Array[Byte](2048)
+    val fileCrc = new CRC32()
+    Stream.continually(fis.read(buffer)).takeWhile(_ != -1) foreach { bytesRead =>
+      fileCrc.update(buffer, 0, bytesRead)
+    }
+    fileCrc.getValue
   }
 }
