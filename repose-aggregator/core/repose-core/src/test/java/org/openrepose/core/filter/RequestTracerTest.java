@@ -42,8 +42,8 @@ import static org.mockito.Mockito.*;
  */
 public class RequestTracerTest {
 
-    final LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
-    final ListAppender listAppender = (ListAppender) loggerContext.getConfiguration().getAppender("List0");
+    private final LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
+    private final ListAppender listAppender = (ListAppender) loggerContext.getConfiguration().getAppender("List0");
 
     HttpServletResponse response;
 
