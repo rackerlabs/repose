@@ -140,6 +140,11 @@ class IntraFilterLoggingTest extends ReposeValveTest {
                 ], json)
             }
         }
+        and: "log every filter-timing"
+        configuredFilters.each { filterName ->
+            def logSearch = reposeLogSearch.searchByString("TRACE filter-timing - Filter $filterName spent .*ms processing")
+            assert logSearch.size() == size
+        }
         and: "add the headers to the response"
         configuredFilters.each { filterName ->
             assert mc.receivedResponse.headers.findAll("X-$filterName-Time").size() == size
@@ -147,6 +152,13 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         and: "not log at any filter a NULL in the name"
         configuredFilters.each { filterName ->
             assert reposeLogSearch.searchByString("null-$filterName").size() == 0
+        }
+        and: "org.apache.http.wire should log"
+        def wireSearch = reposeLogSearch.searchByString("org.apache.http.wire.*X-Auth-Token: $client_token")
+        if (size == 0) {
+            assert wireSearch.size() == 0
+        } else {
+            assert wireSearch.size() > 0
         }
 
         where:
