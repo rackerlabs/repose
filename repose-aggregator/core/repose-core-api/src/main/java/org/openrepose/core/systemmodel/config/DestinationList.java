@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,27 +17,25 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.filter;
+package org.openrepose.core.systemmodel.config;
 
-import javax.servlet.*;
-import java.io.IOException;
+import lombok.Data;
 
-/**
- * @author fran
- */
-public class FakeFilterClassWithPrivateConstructor implements Filter {
-    private FakeFilterClassWithPrivateConstructor() {
-    }
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlType;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-    }
-
-    @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-    }
-
-    @Override
-    public void destroy() {
-    }
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "DestinationList", propOrder = {
+    "endpoint",
+    "target"
+})
+@Data
+public class DestinationList
+    implements Serializable {
+    private List<DestinationEndpoint> endpoint = new ArrayList<>();
+    private List<DestinationCluster> target = new ArrayList<>();
 }

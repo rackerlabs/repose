@@ -34,6 +34,7 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, anyLong, same, eq => meq}
 import org.mockito.Mockito.{verify, when}
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.powerfilter.ReposeFilterChain.{FilterContext, TracingHeader}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -73,8 +74,10 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
 
       filterChain.doFilter(mockRequest, mockResponse)
 
+      val request = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
       val argument = ArgumentCaptor.forClass(classOf[FilterChain])
-      verify(mockFilter).doFilter(same(mockRequest), same(mockResponse), argument.capture())
+      verify(mockFilter).doFilter(request.capture(), same(mockResponse), argument.capture())
+      request.getValue.getRequest shouldBe mockRequest
       argument.getValue.asInstanceOf[ReposeFilterChain].filterChain shouldBe empty
     }
 
@@ -88,8 +91,10 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
 
       filterChain.doFilter(mockRequest, mockResponse)
 
+      val request = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
       val argument = ArgumentCaptor.forClass(classOf[FilterChain])
-      verify(mockFilter).doFilter(same(mockRequest), same(mockResponse), argument.capture())
+      verify(mockFilter).doFilter(request.capture(), same(mockResponse), argument.capture())
+      request.getValue.getRequest shouldBe mockRequest
       argument.getValue.asInstanceOf[ReposeFilterChain].filterChain should have size 1
     }
 
@@ -103,8 +108,10 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
 
       filterChain.doFilter(mockRequest, mockResponse)
 
+      val request = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
       val argument = ArgumentCaptor.forClass(classOf[FilterChain])
-      verify(mockFilter).doFilter(same(mockRequest), same(mockResponse), argument.capture())
+      verify(mockFilter).doFilter(request.capture(), same(mockResponse), argument.capture())
+      request.getValue.getRequest shouldBe mockRequest
       argument.getValue.asInstanceOf[ReposeFilterChain].filterChain shouldBe empty
     }
 
@@ -117,7 +124,9 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
 
       filterChain.doFilter(mockRequest, mockResponse)
 
-      verify(originalChain).doFilter(mockRequest, mockResponse)
+      val request = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
+      verify(originalChain).doFilter(request.capture(), same(mockResponse))
+      request.getValue.getRequest shouldBe mockRequest
     }
 
     it("should skip the whole chain if the bypass url is hit") {
@@ -130,7 +139,9 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
 
       filterChain.doFilter(mockRequest, mockResponse)
 
-      verify(originalChain).doFilter(mockRequest, mockResponse)
+      val request = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
+      verify(originalChain).doFilter(request.capture(), same(mockResponse))
+      request.getValue.getRequest shouldBe mockRequest
     }
 
     it("should go into the the chain when the bypass url isn't hit") {
@@ -143,7 +154,9 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
 
       filterChain.doFilter(mockRequest, mockResponse)
 
-      verify(mockFilter).doFilter(same(mockRequest), same(mockResponse), any(classOf[FilterChain]))
+      val request = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
+      verify(mockFilter).doFilter(request.capture(), same(mockResponse), any(classOf[FilterChain]))
+      request.getValue.getRequest shouldBe mockRequest
     }
 
     it("should log out to intrafilter logging around a filter") {

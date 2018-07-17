@@ -17,23 +17,30 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.filter;
+package org.openrepose.core.systemmodel.config;
 
-import org.openrepose.core.systemmodel.config.Filter;
-import org.openrepose.core.systemmodel.config.FilterList;
+import lombok.Data;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import javax.xml.bind.annotation.*;
+import java.io.Serializable;
 
-/**
- * @author fran
- */
-public class FakeFilterListClass extends FilterList {
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "Uri")
+@Data
+public class Uri
+    implements FilterCriterion, Serializable {
+    @XmlTransient
+    private static final Logger LOG = LoggerFactory.getLogger(Uri.class);
+    @XmlAttribute(name = "regex", required = true)
+    private String regex;
 
-    public FakeFilterListClass() {
-        super.filter = new ArrayList<Filter>();
-    }
-
-    public void addFilter(Filter filter) {
-        super.filter.add(filter);
+    @Override
+    public boolean evaluate(HttpServletRequestWrapper httpServletRequestWrapper) {
+        boolean rtn = httpServletRequestWrapper.getRequestURI().matches(regex);
+        LOG.trace("The URI filter criterion regex {} did{} match the request URI.", regex, rtn ? "" : " not");
+        return rtn;
     }
 }

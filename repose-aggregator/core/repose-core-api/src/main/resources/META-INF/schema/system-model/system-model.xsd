@@ -131,7 +131,7 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-                    Allows you to configure the tracing header.  If not present, feature will be enabled by default.
+                    Allows you to configure the tracing header. If not present, feature will be enabled by default.
                 </html:p>
             </xs:documentation>
         </xs:annotation>
@@ -251,6 +251,14 @@
             </xs:documentation>
         </xs:annotation>
 
+        <xs:choice minOccurs="0">
+            <xs:element name="methods" type="mod:Methods"/>
+            <xs:element name="header" type="mod:Header"/>
+            <xs:element name="uri" type="mod:Uri"/>
+            <xs:element name="and" type="mod:And"/>
+            <xs:element name="not" type="mod:Not"/>
+            <xs:element name="or" type="mod:Or"/>
+        </xs:choice>
         <xs:attribute name="id" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
@@ -275,13 +283,171 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="uri-regex" type="xs:string" use="optional" default=".*">
+        <xs:attribute name="uri-regex" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Regex of what uri is allowed access.</html:p>
+                    <html:p>
+                        Deprecated: This attribute is deprecated and will be removed in future major release.
+                        Use the new Filter Criterion elements instead.
+                        Regex of what uri is allowed access.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="not(@uri-regex and (count(*) > 0))"
+                   xerces:message="Cannot define both a deprecated uri-regex attribute and any of the new conditional elements"
+                   saxon:message="Cannot define both a deprecated uri-regex attribute and any of the new conditional elements"/>
+    </xs:complexType>
+
+    <xs:complexType name="FilterCriterion" abstract="true">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines the parent of all the conditional filter processing elements.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+    </xs:complexType>
+
+    <xs:simpleType name="MethodList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A list defined as a string enumeration of HTTP method verbs as outlined in
+                    <a href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616 section 9.</a>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:list itemType="xs:string"/>
+    </xs:simpleType>
+
+    <xs:complexType name="Methods">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines the HTTP methods conditional processing element.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="mod:FilterCriterion">
+                <xs:attribute name="value" type="mod:MethodList" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                The HTTP methods that are being tested for.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Header">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines the HTTP header conditional processing element.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="mod:FilterCriterion">
+                <xs:attribute name="name" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                The case insensitive name of the header being tested for.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="value" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                The case sensitive value of the header being tested for.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Uri">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines the URI conditional processing element.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="mod:FilterCriterion">
+                <xs:attribute name="regex" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Regex defining what URI's this filter pertains too.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Not">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines the logical NOT conditional processing element.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="mod:FilterCriterion">
+                <xs:choice>
+                    <xs:element name="methods" type="mod:Methods"/>
+                    <xs:element name="header" type="mod:Header"/>
+                    <xs:element name="uri" type="mod:Uri"/>
+                    <xs:element name="and" type="mod:And"/>
+                    <xs:element name="or" type="mod:Or"/>
+                </xs:choice>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="And">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines the logical AND conditional processing element.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="mod:FilterCriterion">
+                <xs:choice minOccurs="2" maxOccurs="unbounded">
+                    <xs:element name="methods" type="mod:Methods"/>
+                    <xs:element name="header" type="mod:Header"/>
+                    <xs:element name="uri" type="mod:Uri"/>
+                    <xs:element name="not" type="mod:Not"/>
+                    <xs:element name="or" type="mod:Or"/>
+                </xs:choice>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Or">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines the logical OR conditional processing element.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="mod:FilterCriterion">
+                <xs:choice minOccurs="2" maxOccurs="unbounded">
+                    <xs:element name="methods" type="mod:Methods"/>
+                    <xs:element name="header" type="mod:Header"/>
+                    <xs:element name="uri" type="mod:Uri"/>
+                    <xs:element name="not" type="mod:Not"/>
+                    <xs:element name="and" type="mod:And"/>
+                </xs:choice>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="ServicesList">
@@ -290,16 +456,13 @@
                 <html:p>List of services that the proxy will then execute in order of definition</html:p>
             </xs:documentation>
         </xs:annotation>
-
         <xs:sequence>
             <xs:element name="service" type="mod:Service" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
-
         <xs:assert vc:minVersion="1.1" test="count(distinct-values(mod:service/@name)) = count(mod:service/@name)"
                    xerces:message="Services must have name unique within their containing service list"
                    saxon:message="Services must have name unique within their containing service list">
         </xs:assert>
-
     </xs:complexType>
 
     <xs:complexType name="Service">
@@ -308,14 +471,12 @@
                 <html:p>Defines a service that can be used to assist filters</html:p>
             </xs:documentation>
         </xs:annotation>
-
         <xs:attribute name="name" use="required">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>The system context specific name of the service to be used</html:p>
                 </xs:documentation>
             </xs:annotation>
-
             <xs:simpleType>
                 <xs:restriction base="xs:string">
                     <xs:enumeration value="dist-datastore"/>
@@ -377,7 +538,6 @@
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
-
             <xs:simpleType>
                 <xs:restriction base="xs:string">
                     <xs:enumeration value="http"/>
@@ -385,7 +545,6 @@
                 </xs:restriction>
             </xs:simpleType>
         </xs:attribute>
-
         <xs:attribute name="root-path" type="xs:string" use="optional" default="">
             <xs:annotation>
                 <xs:documentation>
@@ -437,7 +596,6 @@
                 <html:p>Defines a single node that is a target destination reachable from a cluster</html:p>
             </xs:documentation>
         </xs:annotation>
-
         <xs:complexContent>
             <xs:extension base="mod:Destination">
                 <xs:attribute name="cluster" type="xs:IDREF" use="required">
@@ -456,6 +614,5 @@
                 </xs:attribute>
             </xs:extension>
         </xs:complexContent>
-
     </xs:complexType>
 </xs:schema>

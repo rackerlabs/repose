@@ -117,6 +117,7 @@ Provided below are sample requests to give you a better idea of what that looks 
 
 .Configuration
 [source, xml]
+.rate-limiting.cfg.xml
 ----
 <rate-limiting datastore="distributed/hash-ring" use-capture-groups="false" xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
     <request-endpoint <!--1-->

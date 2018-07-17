@@ -20,10 +20,11 @@
 package org.openrepose.powerfilter.filtercontext;
 
 import org.openrepose.commons.utils.Destroyable;
+import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
+import org.openrepose.core.systemmodel.config.FilterCriterion;
 import org.springframework.context.support.AbstractApplicationContext;
 
 import javax.servlet.Filter;
-import java.util.regex.Pattern;
 
 /**
  * Holds information about a filter, the filter itself and the filter's application context.
@@ -33,29 +34,15 @@ public class FilterContext implements Destroyable {
     private final Filter filter;
     private final org.openrepose.core.systemmodel.config.Filter filterConfig;
     private final String name;
-    private final String uriRegex;
-    private final Pattern uriPattern;
+    private final FilterCriterion filterCriterion;
     private final AbstractApplicationContext filterAppContext;
-
-    public FilterContext(Filter filter, AbstractApplicationContext filterAppContext) {
-        this(filter, filterAppContext, null);
-    }
 
     public FilterContext(Filter filter, AbstractApplicationContext filterAppContext, org.openrepose.core.systemmodel.config.Filter filterConfig) {
         this.filter = filter;
         this.filterAppContext = filterAppContext;
         this.filterConfig = filterConfig;
-        if (filterConfig != null && filterConfig.getUriRegex() != null) {
-            filterConfig.getName();
-            this.name = filterConfig.getName();
-            this.uriRegex = filterConfig.getUriRegex();
-            this.uriPattern = Pattern.compile(uriRegex);
-        } else {
-            this.name = "n/a";
-            this.uriRegex = ".*";
-            this.uriPattern = Pattern.compile(this.uriRegex);
-        }
-
+        this.name = filterConfig.getName();
+        filterCriterion = filterConfig.getFilterCriterion();
     }
 
     public Filter getFilter() {
@@ -66,8 +53,8 @@ public class FilterContext implements Destroyable {
         return filterConfig;
     }
 
-    public Pattern getUriPattern() {
-        return uriPattern;
+    public boolean shouldRun(HttpServletRequestWrapper request) {
+        return filterCriterion.evaluate(request);
     }
 
     public String getName() {
@@ -76,10 +63,6 @@ public class FilterContext implements Destroyable {
 
     public boolean isFilterAvailable() {
         return filter != null;
-    }
-
-    public String getUriRegex() {
-        return uriRegex;
     }
 
     public AbstractApplicationContext getFilterAppContext() {

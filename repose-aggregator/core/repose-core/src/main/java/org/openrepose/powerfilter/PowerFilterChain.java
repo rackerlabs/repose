@@ -101,7 +101,7 @@ public class PowerFilterChain implements FilterChain {
         boolean useTrace = addTraceHeader || metricsService.isPresent();
 
         tracer = new RequestTracer(useTrace, addTraceHeader);
-        currentFilters = getFilterChainForRequest(wrappedRequest.getRequestURI());
+        currentFilters = getFilterChainForRequest(wrappedRequest);
         filterChainAvailable = isCurrentFilterChainAvailable();
         wrappedRequest.setAttribute("filterChainAvailableForRequest", filterChainAvailable);
         wrappedRequest.setAttribute("http://openrepose.org/requestUrl", wrappedRequest.getRequestURL().toString());
@@ -133,21 +133,19 @@ public class PowerFilterChain implements FilterChain {
     }
 
     /**
-     * Find the filters that are applicable to this request based on the uri-regex specified for each filter and the
+     * Find the filters that are applicable to this request based on the criteria specified for each filter and the
      * current request uri.
      * <p/>
      * If a necessary filter is not available, then return an empty filter list.
      */
-    private List<FilterContext> getFilterChainForRequest(String uri) {
+    private List<FilterContext> getFilterChainForRequest(HttpServletRequestWrapper request) {
         List<FilterContext> filters = new LinkedList<>();
-        if (bypassUrl.map(url -> Pattern.compile(url).matcher(uri).matches()).orElse(false)) {
-            LOG.debug("URI: {} matched bypass criteria using empty filter chain", uri);
+        if (bypassUrl.map(url -> Pattern.compile(url).matcher(request.getRequestURI()).matches()).orElse(false)) {
+            LOG.debug("URI: {} matched bypass criteria using empty filter chain", request.getRequestURI());
         } else {
-            for (FilterContext filter : filterChainCopy) {
-                if (filter.getUriPattern() == null || filter.getUriPattern().matcher(uri).matches()) {
-                    filters.add(filter);
-                }
-            }
+            filterChainCopy.stream()
+                .filter(filterContext -> filterContext.shouldRun(request))
+                .forEach(filters::add);
         }
 
         return filters;

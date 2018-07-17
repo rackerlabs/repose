@@ -42,7 +42,7 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
     with StrictLogging {
 
   override def doFilter(inboundRequest: ServletRequest, inboundResponse: ServletResponse): Unit = {
-    val request = inboundRequest.asInstanceOf[HttpServletRequest]
+    val request = new HttpServletRequestWrapper(inboundRequest.asInstanceOf[HttpServletRequest])
     val response = inboundResponse.asInstanceOf[HttpServletResponse]
     try {
       if (bypassUrlRegex.exists(_.r.pattern.matcher(request.getRequestURI).matches())) {
@@ -60,7 +60,7 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
     }
   }
 
-  def runNext(chain: List[FilterContext], request: HttpServletRequest, response: HttpServletResponse): Unit = {
+  def runNext(chain: List[FilterContext], request: HttpServletRequestWrapper, response: HttpServletResponse): Unit = {
     chain match {
       case Nil =>
         logger.debug("End of the filter chain reached")
@@ -130,7 +130,7 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
 }
 
 object ReposeFilterChain {
-  case class FilterContext(filter: Filter, filterName: String, shouldRun: HttpServletRequest => Boolean)
+  case class FilterContext(filter: Filter, filterName: String, shouldRun: HttpServletRequestWrapper => Boolean)
 
   final val IntrafilterLog: Logger = LoggerFactory.getLogger("intrafilter-logging")
 

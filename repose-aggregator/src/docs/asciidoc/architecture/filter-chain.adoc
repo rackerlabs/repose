@@ -40,9 +40,30 @@ Here's a simple example:
 It's worth noting that if anything changes the request uri while processing the filter chain that will potentially impact whether a filter is run.
 Or in other words the filters to be run is not determined up front, but instead evaluated when the request hits a given filter in the chain.
 
-=== New Fancy Criteria ===
+=== Filter Activation Determination ===
 
-TODO: Put some info here
+You can configure whether or not a filter should run based on each of the following HTTP Request criterion:
+
+* Method verb
+* Header presence
+* Header Value based on a https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[regular expression]
+* URI based on a https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[regular expression]
+
+This is further customizable through the use of the following boolean logic operators:
+
+* And
+* Or
+* Not
+
+[NOTE]
+====
+The filter chain is dynamic.
+It is not determined at the start of the request, rather before each filter is executed the request is compared against the configured criteria.
+This means that anything that modifies the request may effect whether a later filter will process or not.
+For example, the <<../filters/body-extractor-to-header.adoc#,Body Extractor to Header Filter>> could add a header based on the request body which is used to determine if a later filter executes.
+====
+
+Refer to <<system-model.adoc#_filter_activation_determination,System Model Filter Activation Determination>> for further details about configuring this capability.
 
 == Intrafilter Logging ==
 
@@ -103,7 +124,7 @@ We support this with a simple regular expression specified at the top of the fil
 ----
 ...
 <filters bypass-uri-regex="/healthcheck">  <!--1-->
-    <filter name="keystone-v2" uri-regex=".*/foo"/>
+    <filter name="keystone-v2"/>
     <filter name="api-validator"/>
 </filters>
 ...

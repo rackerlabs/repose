@@ -268,5 +268,326 @@ class SystemModelSchemaTest extends ConfigurationTest {
         validator.validateConfigString(config)
       }.getLocalizedMessage should include ("Destinations must have ids unique within their containing list")
     }
+
+    it("should successfully validate the config if a filter has a uri conditional") {
+      val config = """<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+                     |    <repose-cluster id="repose">
+                     |        <nodes>
+                     |            <node id="node1" hostname="10.0.0.1" http-port="8088"/>
+                     |        </nodes>
+                     |        <filters>
+                     |            <filter name="ip-user">
+                     |                <uri regex="foo"/>
+                     |            </filter>
+                     |        </filters>
+                     |        <destinations>
+                     |            <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"
+                     |                      default="true"/>
+                     |        </destinations>
+                     |    </repose-cluster>
+                     |</system-model>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should successfully validate the config if a filter has a header conditional without a value") {
+      val config = """<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+                     |    <repose-cluster id="repose">
+                     |        <nodes>
+                     |            <node id="node1" hostname="10.0.0.1" http-port="8088"/>
+                     |        </nodes>
+                     |        <filters>
+                     |            <filter name="ip-user">
+                     |                <header name="bar"/>
+                     |            </filter>
+                     |        </filters>
+                     |        <destinations>
+                     |            <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"
+                     |                      default="true"/>
+                     |        </destinations>
+                     |    </repose-cluster>
+                     |</system-model>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should successfully validate the config if a filter has a header conditional with a value") {
+      val config = """<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+                     |    <repose-cluster id="repose">
+                     |        <nodes>
+                     |            <node id="node1" hostname="10.0.0.1" http-port="8088"/>
+                     |        </nodes>
+                     |        <filters>
+                     |            <filter name="ip-user">
+                     |                <header name="bar" value="baz"/>
+                     |            </filter>
+                     |        </filters>
+                     |        <destinations>
+                     |            <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"
+                     |                      default="true"/>
+                     |        </destinations>
+                     |    </repose-cluster>
+                     |</system-model>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should successfully validate the config if a filter has a methods conditional") {
+      val config = """<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+                     |    <repose-cluster id="repose">
+                     |        <nodes>
+                     |            <node id="node1" hostname="10.0.0.1" http-port="8088"/>
+                     |        </nodes>
+                     |        <filters>
+                     |            <filter name="ip-user">
+                     |                <methods value="POST"/>
+                     |            </filter>
+                     |        </filters>
+                     |        <destinations>
+                     |            <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"
+                     |                      default="true"/>
+                     |        </destinations>
+                     |    </repose-cluster>
+                     |</system-model>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should successfully validate the config if a filter has a not conditional") {
+      val config = """<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+                     |    <repose-cluster id="repose">
+                     |        <nodes>
+                     |            <node id="node1" hostname="10.0.0.1" http-port="8088"/>
+                     |        </nodes>
+                     |        <filters>
+                     |            <filter name="ip-user">
+                     |                <not><methods value="POST PUT"/></not>
+                     |            </filter>
+                     |        </filters>
+                     |        <destinations>
+                     |            <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"
+                     |                      default="true"/>
+                     |        </destinations>
+                     |    </repose-cluster>
+                     |</system-model>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should successfully validate the config if a filter has and'd conditionals") {
+      val config = """<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+                     |    <repose-cluster id="repose">
+                     |        <nodes>
+                     |            <node id="node1" hostname="10.0.0.1" http-port="8088"/>
+                     |        </nodes>
+                     |        <filters>
+                     |            <filter name="ip-user">
+                     |                <and>
+                     |                    <uri regex="foo"/>
+                     |                    <header name="bar" value="baz"/>
+                     |                    <not><methods value="POST PUT GET"/></not>
+                     |                </and>
+                     |            </filter>
+                     |        </filters>
+                     |        <destinations>
+                     |            <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"
+                     |                      default="true"/>
+                     |        </destinations>
+                     |    </repose-cluster>
+                     |</system-model>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should successfully validate the config if a filter has or'd conditionals") {
+      val config = """<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+                     |    <repose-cluster id="repose">
+                     |        <nodes>
+                     |            <node id="node1" hostname="10.0.0.1" http-port="8088"/>
+                     |        </nodes>
+                     |        <filters>
+                     |            <filter name="ip-user">
+                     |                <or>
+                     |                    <uri regex="foo"/>
+                     |                    <header name="bar" value="baz"/>
+                     |                </or>
+                     |            </filter>
+                     |        </filters>
+                     |        <destinations>
+                     |            <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"
+                     |                      default="true"/>
+                     |        </destinations>
+                     |    </repose-cluster>
+                     |</system-model>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should successfully validate the config if a filter has nested or'd conditionals") {
+      val config = """<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+                     |    <repose-cluster id="repose">
+                     |        <nodes>
+                     |            <node id="node1" hostname="10.0.0.1" http-port="8088"/>
+                     |        </nodes>
+                     |        <filters>
+                     |            <filter name="ip-user">
+                     |                <and>
+                     |                    <or>
+                     |                        <uri regex="foo"/>
+                     |                        <header name="bar" value="baz"/>
+                     |                    </or>
+                     |                    <not><methods value="POST PUT GET HEAD"/></not>
+                     |                </and>
+                     |            </filter>
+                     |        </filters>
+                     |        <destinations>
+                     |            <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"
+                     |                      default="true"/>
+                     |        </destinations>
+                     |    </repose-cluster>
+                     |</system-model>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should successfully validate the config if a filter has nested and'd conditionals") {
+      val config = """<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+                     |    <repose-cluster id="repose">
+                     |        <nodes>
+                     |            <node id="node1" hostname="10.0.0.1" http-port="8088"/>
+                     |        </nodes>
+                     |        <filters>
+                     |            <filter name="ip-user">
+                     |                <or>
+                     |                    <and>
+                     |                        <uri regex="foo"/>
+                     |                        <not><methods value="POST PUT GET HEAD PATCH"/></not>
+                     |                    </and>
+                     |                    <header name="bar" value="baz"/>
+                     |                </or>
+                     |            </filter>
+                     |        </filters>
+                     |        <destinations>
+                     |            <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"
+                     |                      default="true"/>
+                     |        </destinations>
+                     |    </repose-cluster>
+                     |</system-model>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should reject the config if more than one top level conditional is present") {
+      val config = """<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+                     |    <repose-cluster id="repose">
+                     |        <nodes>
+                     |            <node id="node1" hostname="10.0.0.1" http-port="8088"/>
+                     |        </nodes>
+                     |        <filters>
+                     |            <filter name="ip-user">
+                     |                <uri regex="foo"/>
+                     |                <methods value="POST PUT GET HEAD PATCH TRACE"/>
+                     |            </filter>
+                     |        </filters>
+                     |        <destinations>
+                     |            <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"
+                     |                      default="true"/>
+                     |        </destinations>
+                     |    </repose-cluster>
+                     |</system-model>""".stripMargin
+      intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }.getLocalizedMessage should include ("Invalid content was found")
+    }
+
+    Seq(("methods", "value"), ("header", "name"), ("uri", "regex")).foreach { case (conditional, attribute) =>
+      it(s"should reject the config if the $conditional conditional is not empty") {
+        val config =
+          s"""<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+             |    <repose-cluster id="repose">
+             |        <nodes>
+             |            <node id="node1" hostname="10.0.0.1" http-port="8088"/>
+             |        </nodes>
+             |        <filters>
+             |            <filter name="ip-user">
+             |                <$conditional $attribute="foo">Not Empty</$conditional>
+             |            </filter>
+             |        </filters>
+             |        <destinations>
+             |            <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"
+             |                      default="true"/>
+             |        </destinations>
+             |    </repose-cluster>
+             |</system-model>""".stripMargin
+        intercept[SAXParseException] {
+          validator.validateConfigString(config)
+        }.getLocalizedMessage should include("must have no character or element information item")
+      }
+
+      it(s"should reject the config if both the uri-regex and $conditional conditional are used") {
+        val config =
+          s"""<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+             |    <repose-cluster id="repose">
+             |        <nodes>
+             |            <node id="node1" hostname="10.0.0.1" http-port="8088"/>
+             |        </nodes>
+             |        <filters>
+             |            <filter name="ip-user" uri-regex="foo">
+             |                <$conditional $attribute="foo"/>
+             |            </filter>
+             |        </filters>
+             |        <destinations>
+             |            <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"
+             |                      default="true"/>
+             |        </destinations>
+             |    </repose-cluster>
+             |</system-model>""".stripMargin
+        intercept[SAXParseException] {
+          validator.validateConfigString(config)
+        }.getLocalizedMessage should include("Cannot define both a deprecated uri-regex attribute and any of the new conditional elements")
+      }
+    }
+
+    it("should reject the config if both the uri-regex and not conditional are used") {
+      val config =
+        s"""<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+           |    <repose-cluster id="repose">
+           |        <nodes>
+           |            <node id="node1" hostname="10.0.0.1" http-port="8088"/>
+           |        </nodes>
+           |        <filters>
+           |            <filter name="ip-user" uri-regex="foo">
+           |                <not><header name="foo"/></not>
+           |            </filter>
+           |        </filters>
+           |        <destinations>
+           |            <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"
+           |                      default="true"/>
+           |        </destinations>
+           |    </repose-cluster>
+           |</system-model>""".stripMargin
+      intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }.getLocalizedMessage should include("Cannot define both a deprecated uri-regex attribute and any of the new conditional elements")
+    }
+
+    Seq("and", "or").foreach { conditional =>
+      it(s"should reject the config if both the uri-regex and $conditional conditional are used") {
+        val config =
+          s"""<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+             |    <repose-cluster id="repose">
+             |        <nodes>
+             |            <node id="node1" hostname="10.0.0.1" http-port="8088"/>
+             |        </nodes>
+             |        <filters>
+             |            <filter name="ip-user" uri-regex="foo">
+             |                <$conditional>
+             |                    <uri regex="foo"/>
+             |                    <header name="bar"/>
+             |                </$conditional>
+             |            </filter>
+             |        </filters>
+             |        <destinations>
+             |            <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"
+             |                      default="true"/>
+             |        </destinations>
+             |    </repose-cluster>
+             |</system-model>""".stripMargin
+        intercept[SAXParseException] {
+          validator.validateConfigString(config)
+        }.getLocalizedMessage should include ("Cannot define both a deprecated uri-regex attribute and any of the new conditional elements")
+      }
+    }
   }
 }
