@@ -150,3 +150,7 @@ integrationTest {
         }
     }
 }
+
+dependencyCheck {
+    skip = true
+}

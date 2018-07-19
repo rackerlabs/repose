@@ -24,3 +24,7 @@ jacocoTestCoverageVerification {
         }
     }
 }
+
+dependencyCheck {
+    skip = true
+}

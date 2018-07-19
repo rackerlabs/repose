@@ -42,3 +42,7 @@ jacocoTestCoverageVerification {
         }
     }
 }
+
+dependencyCheck {
+    skip = true
+}

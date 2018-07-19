@@ -5,3 +5,7 @@ dependencies {
     compile project(':repose-aggregator:tests:test-bundles:classloader-dependency-one')
     compile "org.scala-lang:scala-library"
 }
+
+dependencyCheck {
+    skip = true
+}

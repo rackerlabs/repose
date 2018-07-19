@@ -3,3 +3,7 @@ dependencies {
     compileOnly 'javax.servlet:javax.servlet-api'
     compileOnly 'javax.inject:javax.inject'
 }
+
+dependencyCheck {
+    skip = true
+}
