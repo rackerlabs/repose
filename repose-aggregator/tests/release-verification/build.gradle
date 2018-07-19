@@ -248,3 +248,7 @@ task smokeTest {
 
 // Note: At this time, release verification will be handled out-of-band with the release. Therefore,
 //       no wiring was added to place 'smokeTest' tasks into existing task flows.
+
+dependencyCheck {
+    skip = true
+}

@@ -10,3 +10,7 @@ jacocoTestCoverageVerification {
         }
     }
 }
+
+dependencyCheck {
+    skip = true
+}

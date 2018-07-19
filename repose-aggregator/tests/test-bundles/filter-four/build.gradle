@@ -7,3 +7,7 @@ dependencies {
     compileOnly 'javax.inject:javax.inject'
     compileOnly 'org.apache.commons:commons-lang3'
 }
+
+dependencyCheck {
+    skip = true
+}

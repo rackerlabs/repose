@@ -42,3 +42,7 @@ task buildAnsibleDirectory(type: Copy, dependsOn: ["processPerformanceTestResour
 }
 
 // todo: do not produce (or at least, do not publish) any artifacts for this project
+
+dependencyCheck {
+    skip = true
+}
