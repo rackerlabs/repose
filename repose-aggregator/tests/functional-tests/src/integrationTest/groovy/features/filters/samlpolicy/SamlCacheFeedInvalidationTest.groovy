@@ -21,10 +21,12 @@
 package features.filters.samlpolicy
 
 import features.filters.keystonev2.AtomFeedResponseSimulator
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
+import scaffold.category.Intense
 import spock.lang.Unroll
 
 import java.util.concurrent.TimeUnit
@@ -38,6 +40,7 @@ import static org.openrepose.framework.test.util.saml.SamlUtilities.*
 /**
  * This functional test exercises the cache feed invalidation.
  */
+@Category(Intense.class)
 class SamlCacheFeedInvalidationTest extends ReposeValveTest {
     static final int FEED_POLLING_FREQUENCY_SEC = 2
     static final String ATOM_FEED_LOG_SEARCH_STRING = "</atom:entry>"

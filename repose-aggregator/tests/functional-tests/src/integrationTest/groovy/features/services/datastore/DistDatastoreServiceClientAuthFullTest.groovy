@@ -19,14 +19,17 @@
  */
 package features.services.datastore
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.*
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.spockframework.runtime.SpockAssertionError
+import scaffold.category.Intense
 import spock.lang.Specification
 
 import java.util.concurrent.TimeUnit
 
+@Category(Intense.class)
 class DistDatastoreServiceClientAuthFullTest extends Specification {
     static String reposeEndpoint1
     static String reposeEndpoint2
