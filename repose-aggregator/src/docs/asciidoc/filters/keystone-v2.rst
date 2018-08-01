@@ -11,7 +11,7 @@ General filter information
 * **Default Configuration:** keystone-v2.cfg.xml
 * **Released:** v7.1.5.0
 * **Bundle:** repose-filter-bundle
-* link:../schemas/keystone-v2.xsd[Schema]
+* `Schema <../schemas/keystone-v2.xsd>`_
 
 ******************************
 Prerequisites & Postconditions
@@ -27,7 +27,7 @@ Required Preceding Filters
 ==========================
 This filter has no dependencies on other filters.
 
-However, it is a good practice to prevent spoofing of identities by putting the <<header-normalization.adoc#, Header Normalization filter>> before any authentication and/or authorization filters so that it can remove any headers that would be populated by them.
+However, it is a good practice to prevent spoofing of identities by putting the :doc:`header-normalization` before any authentication and/or authorization filters so that it can remove any headers that would be populated by them.
 
 =======================
 Request Headers Created
@@ -57,7 +57,7 @@ The following headers are created using the information returned from the authen
 
     *** IF **IN** Tenanted Mode AND NOT ``pre-authorized``, THEN only roles with no associated tenant or an associated tenant matching the tenant extracted from the request will be forwarded.
 
-The following headers are added for use by the <<rate-limiting.adoc#, Rate Limiting filter>>:
+The following headers are added for use by the :doc:`rate-limiting`:
 
 * ``X-PP-User`` - Identifies user name. (ex. "jjenkins")
 * ``X-PP-Groups`` - Identifies groups. (ex. "admin", "user")
@@ -70,7 +70,7 @@ If the ``set-catalog-in-header`` attribute is ``true``, then the service catalog
 
 The Keystone v2 Identity service supports impersonation.
 When an impersonation token is validated, the authentication service will return identifying information for the impersonator.
-This information allows impersonated calls to be tracked (e.g., via <<slf4j-http-logging.adoc#, SLF4J HTTP Logging filter>>).
+This information allows impersonated calls to be tracked (e.g., via :doc:`slf4j-http-logging`).
 The origin service can also determine when a request is impersonated and who the impersonator is.
 The information is placed in the following headers:
 
@@ -94,7 +94,7 @@ If any of this information is provided, then it will be passed in the following 
 **Deprecated** and marked for removal in **Repose** 9+.
 
 If delegation is enabled, then the ``X-Delegated`` header is created.
-This is mainly intended for use by the <<herp.adoc#, Highly Efficient Record Processor (HERP) filter>> and <<derp.adoc#, Delegation Response Processor (DeRP) filter>> for internal delegation processing within **Repose**.
+This is mainly intended for use by the :doc:`herp` and :doc:`derp` for internal delegation processing within **Repose**.
 However, it can be exposed to the origin service under certain configurations.
 
 ====================
@@ -108,10 +108,10 @@ Recommended Follow-On (Succeeding) Filters
 This filter is not strictly required by any other filters.
 However, the following filters may be useful:
 
-* <<simple-rbac.adoc#, Simple RBAC filter>> - Provides role-based access control to the origin service's API, which can be configured to directly use the ``X-PP-Groups``.
-* <<api-validator.adoc#, API Validator filter>> - Provides role-based access control to the origin service's API, making use of the ``X-PP-Groups`` header.
-* <<rate-limiting.adoc#, Rate Limiting filter>> - Provides rate limiting, making use of the ``X-PP-User`` header.
-* <<keystone-v2-authorization.adoc#, Keystone v2 Authorization filter>> - Provides authorization (e.g., tenant, endpoint) for the request based on user data.
+* :doc:`simple-rbac` - Provides role-based access control to the origin service's API, which can be configured to directly use the ``X-PP-Groups``.
+* :doc:`api-validator` - Provides role-based access control to the origin service's API, making use of the ``X-PP-Groups`` header.
+* :doc:`rate-limiting` - Provides rate limiting, making use of the ``X-PP-User`` header.
+* :doc:`keystone-v2-authorization` - Provides authorization (e.g., tenant, endpoint) for the request based on user data.
 
 =====================
 Response Body Changes
@@ -295,7 +295,7 @@ Configuring White-Listed URI's
 You can configure this filter to allow no-op processing of requests that do not require authentication.
 For example, a service might want all calls authenticated with the exception of the call for WADL retrieval.
 In this situation, you can configure the whitelist as shown in the example below.
-The whitelist contains a list of https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expressions] that **Repose** attempts to match against the full request URI.
+The whitelist contains a list of `Java Regular Expressions <https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html>`_ that **Repose** attempts to match against the full request URI.
 If the URI matches an expression in the white list, then the request is passed to the origin service.
 Otherwise, authentication is performed against the request.
 
@@ -310,7 +310,7 @@ Otherwise, authentication is performed against the request.
       </white-list>
   </keystone-v2>
 
-1. The https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] to allow matching URI's to pass without requiring authentication.
+1. The `Java Regular Expression <https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html>`_ to allow matching URI's to pass without requiring authentication.
 
 ==========================
 Configuring Cache Timeouts
@@ -358,14 +358,14 @@ Cache invalidation using an Atom Feed
 =====================================
 You can configure this filter to use an Atom Feed for cache expiration.
 This configuration blocks malicious users from accessing the origin service by repeatedly checking the Cloud Feed from the authentication service.
-To set up this filter to use Cloud Feeds for cache expiration, you will need to enable the <<../services/atom-feed-consumption.adoc#, Atom Feed Consumption service>> in the <<../architecture/system-model.adoc#, System model>>, configure the <<../services/atom-feed-consumption.adoc#, Atom Feed Consumption service>>, and configure this filter with which feeds to listen to.
+To set up this filter to use Cloud Feeds for cache expiration, you will need to enable the :doc:`../services/atom-feed-consumption` in the :doc:`../architecture/system-model`, configure the :doc:`../services/atom-feed-consumption`, and configure this filter with which feeds to listen to.
 
 .. note::
 
   The Rackspace infrastructure uses Cloud Feeds (formerly Atom Hopper) to notify services of events.
   This is not default OpenStack behavior, and may require additional services for use.
   A list of Rackspace Cloud Feeds endpoints for Identity Events can be found at
-  https://one.rackspace.com/display/auth/Identity+Endpoints#IdentityEndpoints-EndpointsConsumed[the internal Rackspace Wiki page linked here].
+  `the internal Rackspace Wiki page linked here <https://one.rackspace.com/display/auth/Identity+Endpoints#IdentityEndpoints-EndpointsConsumed>`_.
 
 .. code-block:: xml
   :caption: keystone-v2.cfg.xml
@@ -378,7 +378,7 @@ To set up this filter to use Cloud Feeds for cache expiration, you will need to 
       </cache>
   </keystone-v2>
 
-1. The unique ID of a feed defined in the <<../services/atom-feed-consumption.adoc#, Atom Feed Consumption service>> configuration.
+1. The unique ID of a feed defined in the :doc:`../services/atom-feed-consumption` configuration.
 
 ====================
 Tenant ID Validation
@@ -386,7 +386,7 @@ Tenant ID Validation
 
 .. warning::
 
-  Tenant validation has been moved to the <<keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>>, and is considered deprecated in this filter.
+  Tenant validation has been moved to the :doc:`keystone-v2-authorization`, and is considered deprecated in this filter.
 
 Tenant ID Validation is the capability of this filter to parse a tenant ID out of the request and validate it against the tenant ID(s) available in the response token from the Keystone v2 Identity service.
 
@@ -424,7 +424,7 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
 5. If in legacy roles mode, then all roles associated with a user token are forwarded.
     If NOT in legacy roles mode, then roles which aren't tied to the tenant provided in the request will NOT be forwarded UNLESS the user has a pre-authorized role. +
     Default: ``false``
-6. The https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] with at least one capture group.
+6. The `Java Regular Expression <https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html>`_ with at least one capture group.
     The first capture group must be around the portion of the URI to extract the Tenant ID from for validation.
 7. If this element is included, then include Quality parameters on all the tenant ID headers sent.
 8. The default tenant has the highest quality by default. +
@@ -437,7 +437,7 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
 .. warning::
 
   The ``uri-extraction-regex`` attribute is considered deprecated.
-  Consider using the <<url-extractor-to-header.adoc#, URL Extractor to Header Filter>> instead.
+  Consider using the :doc:`url-extractor-to-header` instead.
 
 .. note::
 
@@ -461,7 +461,7 @@ Tenant ID Validation Bypass
 
 .. warning::
 
-  Pre-authorized roles have been moved to the <<keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>>, and are considered deprecated in this filter.
+  Pre-authorized roles have been moved to the :doc:`keystone-v2-authorization`, and are considered deprecated in this filter.
 
 If Tenant ID Validation is enabled, then a list of roles that are allowed to bypass this check can be configured.
 These configured roles will be compared to the roles returned in a token from the Keystone v2 Identity service, and if there is a match, the Tenant ID check will be skipped.
@@ -486,7 +486,7 @@ Require specific service endpoint for authorization
 
 .. warning::
 
-  Service endpoint requirements have been moved to the <<keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>> and are considered deprecated in this filter.
+  Service endpoint requirements have been moved to the :doc:`keystone-v2-authorization` and are considered deprecated in this filter.
 
 If endpoint authorization is enabled, then the user must have an endpoint in their catalog meeting the defined criteria.
 
