@@ -237,10 +237,9 @@ This configuration will use an admin account instead of using the self-validatin
 <2> Admin password to access the Keystone v2 Identity service.
 <3> The Keystone v2 Identity service Endpoint URI.
 
-[NOTE]
-====
-IF either a `username` OR a `password` is supplied, THEN you must provide both a `username` AND a `password`.
-====
+.. note::
+
+  IF either a `username` OR a `password` is supplied, THEN you must provide both a `username` AND a `password`.
 
 =================================================
 Miscellaneous Identity Service element attributes
@@ -352,15 +351,14 @@ If the token's TTL exceeds the maximum allowed TTL value (2^31 - 1), the maximum
 <3> The number of seconds which cached groups will live in the datastore.
 <4> The number of seconds which cached endpoints will live in the datastore.
 
-[NOTE]
-====
-Each timeout value behaves in the following way:
+.. note::
 
-* If ``-1``, caching is disabled.
-* If ``0``, data is cached using the TTL in the token provided by the Keystone v2 Identity service. +
-  In other words, data is eternal.
-* If greater than ``0``, data is cached for the value provided, in seconds.
-====
+  Each timeout value behaves in the following way:
+
+  * If ``-1``, caching is disabled.
+  * If ``0``, data is cached using the TTL in the token provided by the Keystone v2 Identity service. +
+    In other words, data is eternal.
+  * If greater than ``0``, data is cached for the value provided, in seconds.
 
 =====================================
 Cache invalidation using an Atom Feed
@@ -369,13 +367,12 @@ You can configure this filter to use an Atom Feed for cache expiration.
 This configuration blocks malicious users from accessing the origin service by repeatedly checking the Cloud Feed from the authentication service.
 To set up this filter to use Cloud Feeds for cache expiration, you will need to enable the <<../services/atom-feed-consumption.adoc#, Atom Feed Consumption service>> in the <<../architecture/system-model.adoc#, System model>>, configure the <<../services/atom-feed-consumption.adoc#, Atom Feed Consumption service>>, and configure this filter with which feeds to listen to.
 
-[NOTE]
-====
-The Rackspace infrastructure uses Cloud Feeds (formerly Atom Hopper) to notify services of events.
-This is not default OpenStack behavior, and may require additional services for use.
-A list of Rackspace Cloud Feeds endpoints for Identity Events can be found at
-https://one.rackspace.com/display/auth/Identity+Endpoints#IdentityEndpoints-EndpointsConsumed[the internal Rackspace Wiki page linked here].
-====
+.. note::
+
+  The Rackspace infrastructure uses Cloud Feeds (formerly Atom Hopper) to notify services of events.
+  This is not default OpenStack behavior, and may require additional services for use.
+  A list of Rackspace Cloud Feeds endpoints for Identity Events can be found at
+  https://one.rackspace.com/display/auth/Identity+Endpoints#IdentityEndpoints-EndpointsConsumed[the internal Rackspace Wiki page linked here].
 
 [source,xml]
 .keystone-v2.cfg.xml
@@ -393,10 +390,10 @@ https://one.rackspace.com/display/auth/Identity+Endpoints#IdentityEndpoints-Endp
 ====================
 Tenant ID Validation
 ====================
-[WARNING]
-====
-Tenant validation has been moved to the <<keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>>, and is considered deprecated in this filter.
-====
+
+.. warning::
+
+  Tenant validation has been moved to the <<keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>>, and is considered deprecated in this filter.
 
 Tenant ID Validation is the capability of this filter to parse a tenant ID out of the request and validate it against the tenant ID(s) available in the response token from the Keystone v2 Identity service.
 
@@ -444,38 +441,34 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
 <10> Followed by the tenants from the roles by default. +
     Default: ``0.5``
 
-[WARNING]
-====
-The ``uri-extraction-regex`` attribute is considered deprecated.
-Consider using the <<url-extractor-to-header.adoc#, URL Extractor to Header Filter>> instead.
-====
+.. warning::
 
-[NOTE]
-====
-If the default tenant and a tenant extracted from the request are the same, then the highest quality between the two will be used.
-====
+  The ``uri-extraction-regex`` attribute is considered deprecated.
+  Consider using the <<url-extractor-to-header.adoc#, URL Extractor to Header Filter>> instead.
 
-[NOTE]
-====
-If the ``validate-tenant`` element is not present, then this filter will not attempt to validate a Tenant ID from the request.
+.. note::
 
-The ``uri-extraction-regex`` will be used to populate the ``X-Tenant-ID`` header with the value extracted by the capturing group.
-====
+  If the default tenant and a tenant extracted from the request are the same, then the highest quality between the two will be used.
 
-[NOTE]
-====
-There can be multiple ``uri-extraction-regex`` elements.
-This fascilitates complex Origin Service API's where the extraction point is not always in the same place.
-All values captured from the request will be validated.
-====
+.. note::
+
+  If the ``validate-tenant`` element is not present, then this filter will not attempt to validate a Tenant ID from the request.
+
+  The ``uri-extraction-regex`` will be used to populate the ``X-Tenant-ID`` header with the value extracted by the capturing group.
+
+.. note::
+
+  There can be multiple ``uri-extraction-regex`` elements.
+  This fascilitates complex Origin Service API's where the extraction point is not always in the same place.
+  All values captured from the request will be validated.
 
 ===========================
 Tenant ID Validation Bypass
 ===========================
-[WARNING]
-====
-Pre-authorized roles have been moved to the <<keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>>, and are considered deprecated in this filter.
-====
+
+.. warning::
+
+  Pre-authorized roles have been moved to the <<keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>>, and are considered deprecated in this filter.
 
 If Tenant ID Validation is enabled, then a list of roles that are allowed to bypass this check can be configured.
 These configured roles will be compared to the roles returned in a token from the Keystone v2 Identity service, and if there is a match, the Tenant ID check will be skipped.
@@ -497,10 +490,10 @@ These configured roles will be compared to the roles returned in a token from th
 ===================================================
 Require specific service endpoint for authorization
 ===================================================
-[WARNING]
-====
-Service endpoint requirements have been moved to the <<keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>> and are considered deprecated in this filter.
-====
+
+.. warning::
+
+  Service endpoint requirements have been moved to the <<keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>> and are considered deprecated in this filter.
 
 If endpoint authorization is enabled, then the user must have an endpoint in their catalog meeting the defined criteria.
 
@@ -523,7 +516,6 @@ If endpoint authorization is enabled, then the user must have an endpoint in the
 <4> Name of the service to match in the user's service catalog entry.
 <5> Type to match in the user's service catalog entry.
 
-[NOTE]
-====
-The ``region``, ``name``, and ``type`` attributes are all optional and can be combined as needed to achieve the desired restrictions.
-====
+.. note::
+
+  The ``region``, ``name``, and ``type`` attributes are all optional and can be combined as needed to achieve the desired restrictions.
