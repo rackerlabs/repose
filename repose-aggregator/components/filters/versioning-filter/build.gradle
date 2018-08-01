@@ -22,6 +22,7 @@ dependencies {
     testCompile "org.mockito:mockito-all"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.springframework:spring-test"
+    testCompile "org.springframework:spring-web"
     testCompile "org.slf4j:jcl-over-slf4j"
     testCompile "org.xmlunit:xmlunit-matchers"
 }

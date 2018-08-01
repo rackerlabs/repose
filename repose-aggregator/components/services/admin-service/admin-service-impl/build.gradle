@@ -1,0 +1,20 @@
+configurations {
+    compile.exclude module: "spring-boot-starter-tomcat"
+}
+
+dependencies {
+    compile project(":repose-aggregator:components:services:admin-service:admin-service-api")
+    compile project(":repose-aggregator:components:services:health-check-service:health-check-service-api")
+    compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-api")
+    compile project(":repose-aggregator:commons:commons-utilities")
+    compile project(":repose-aggregator:core:repose-core-api")
+    compile "org.scala-lang:scala-library"
+    compile "org.slf4j:slf4j-api"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
+    compile "org.springframework:spring-context"
+    compile "org.springframework.boot:spring-boot-starter-web"
+    compile "org.springframework.boot:spring-boot-starter-jetty"
+    compile "org.springframework.boot:spring-boot-starter-jersey"
+
+    compileOnly "javax.inject:javax.inject"
+}
