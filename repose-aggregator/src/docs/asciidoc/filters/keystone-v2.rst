@@ -1,25 +1,37 @@
-= Keystone v2 Filter
+##################
+Keystone v2 Filter
+##################
 
 Provides a mechanism for authenticating and enriching requests with data from an OpenStack Keystone v2 Identity service.
 
-== General filter information
+**************************
+General filter information
+**************************
 * **Name:** keystone-v2
 * **Default Configuration:** keystone-v2.cfg.xml
 * **Released:** v7.1.5.0
 * **Bundle:** repose-filter-bundle
 * link:../schemas/keystone-v2.xsd[Schema]
 
-== Prerequisites & Postconditions
-=== Required Request Headers
+******************************
+Prerequisites & Postconditions
+******************************
+========================
+Required Request Headers
+========================
 * ``X-Auth-Token`` - is a required header that is used by this filter to define the operating parameters of the HTTP transaction.
 If an incoming HTTP request is missing the ``X-Auth-Token`` header, then a response status code of *Unauthorized* (``401``) is returned.
 
-=== Required Preceding Filters
+==========================
+Required Preceding Filters
+==========================
 This filter has no dependencies on other filters.
 
 However, it is a good practice to prevent spoofing of identities by putting the <<header-normalization.adoc#, Header Normalization filter>> before any authentication and/or authorization filters so that it can remove any headers that would be populated by them.
 
-=== Request Headers Created
+=======================
+Request Headers Created
+=======================
 The following headers are created using the information returned from the authentication service:
 
 * ``X-Authorization`` - Informs origin service that user has been authenticated. (ex. "Proxy User")
@@ -85,10 +97,14 @@ If delegation is enabled, then the ``X-Delegated`` header is created.
 This is mainly intended for use by the <<herp.adoc#, Highly Efficient Record Processor (HERP) filter>> and <<derp.adoc#, Delegation Response Processor (DeRP) filter>> for internal delegation processing within **Repose**.
 However, it can be exposed to the origin service under certain configurations.
 
-=== Request Body Changes
+====================
+Request Body Changes
+====================
 This filter does not modify the request body.
 
-=== Recommended Follow-On (Succeeding) Filters
+==========================================
+Recommended Follow-On (Succeeding) Filters
+==========================================
 This filter is not strictly required by any other filters.
 However, the following filters may be useful:
 
@@ -97,15 +113,21 @@ However, the following filters may be useful:
 * <<rate-limiting.adoc#, Rate Limiting filter>> - Provides rate limiting, making use of the ``X-PP-User`` header.
 * <<keystone-v2-authorization.adoc#, Keystone v2 Authorization filter>> - Provides authorization (e.g., tenant, endpoint) for the request based on user data.
 
-=== Response Body Changes
+=====================
+Response Body Changes
+=====================
 This filter does not modify the response body.
 
-=== Response Headers Created
+========================
+Response Headers Created
+========================
 * ``Retry-After`` - This is included on all *Service Unavailable* (``503``) responses to indicate when it is appropriate to retry the request again.
 * ``WWW-Authenticate`` - This is included on all *Unauthorized* (``401``) responses to challenge the authorization of a user agent.
 This includes ``401``s from further down the filter chain as well as the origin service.
 
-=== Response Status Codes
+=====================
+Response Status Codes
+=====================
 [cols="a,a,a,a", options="header"]
 |===
 |When the Keystone v2 Identity service returns:
@@ -177,8 +199,12 @@ The Keystone v2 Identity service failed to process the request.
 | ``502``
 |===
 
-== Examples
-=== Basic Configuration
+********
+Examples
+********
+===================
+Basic Configuration
+===================
 This configuration will provide the basic headers using self-validating tokens.
 
 [source,xml]
@@ -191,7 +217,9 @@ This configuration will provide the basic headers using self-validating tokens.
 ----
 <1> The Keystone v2 Identity service Endpoint URI.
 
-=== Using an admin account (not recommended)
+========================================
+Using an admin account (not recommended)
+========================================
 This configuration will use an admin account instead of using the self-validating tokens feature.
 
 [source,xml]
@@ -214,7 +242,9 @@ This configuration will use an admin account instead of using the self-validatin
 IF either a `username` OR a `password` is supplied, THEN you must provide both a `username` AND a `password`.
 ====
 
-=== Miscellaneous Identity Service element attributes
+=================================================
+Miscellaneous Identity Service element attributes
+=================================================
 This configuration is an example using the ``identity-service`` element's configuration attributes that have not yet been shown in an example.
 
 [source,xml]
@@ -243,7 +273,9 @@ This configuration is an example using the ``identity-service`` element's config
 <6> Indicates whether or not to include the ``apply_rcn_roles`` query parameter when talking to the Keystone v2 Identity service. +
     Default: ``false``
 
-=== Enable Delegation
+=================
+Enable Delegation
+=================
 In some cases, you may want to delegate the decision to reject a request down the chain to either another filter or to the origin service.
 This filter allows a request to pass as either ``confirmed`` or ``indeterminate`` when configured to run in delegating mode.
 To place the filter in delegating mode, add the ``delegating`` element to the filter configuration with an optional ``quality`` attribute that determines the delegating priority.
@@ -265,7 +297,9 @@ The the ``X-Identity-Status`` header is in addition to the regular ``X-Delegated
     When setting up a chain of delegating filters the highest quality number will be the one that is eventually output to the logging mechanisms. +
     Default: ``0.7``
 
-=== Configuring White-Listed URI's
+==============================
+Configuring White-Listed URI's
+==============================
 You can configure this filter to allow no-op processing of requests that do not require authentication.
 For example, a service might want all calls authenticated with the exception of the call for WADL retrieval.
 In this situation, you can configure the whitelist as shown in the example below.
@@ -286,7 +320,9 @@ Otherwise, authentication is performed against the request.
 ----
 <1> The https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] to allow matching URI's to pass without requiring authentication.
 
-=== Configuring Cache Timeouts
+==========================
+Configuring Cache Timeouts
+==========================
 This filter caches authentication tokens.
 The length of time that tokens are cached is determined by the Time To Live (TTL) value that is returned from the authentication service (e.g., the Keystone v2 Identity service) during token validation.
 
@@ -326,7 +362,9 @@ Each timeout value behaves in the following way:
 * If greater than ``0``, data is cached for the value provided, in seconds.
 ====
 
-=== Cache invalidation using an Atom Feed
+=====================================
+Cache invalidation using an Atom Feed
+=====================================
 You can configure this filter to use an Atom Feed for cache expiration.
 This configuration blocks malicious users from accessing the origin service by repeatedly checking the Cloud Feed from the authentication service.
 To set up this filter to use Cloud Feeds for cache expiration, you will need to enable the <<../services/atom-feed-consumption.adoc#, Atom Feed Consumption service>> in the <<../architecture/system-model.adoc#, System model>>, configure the <<../services/atom-feed-consumption.adoc#, Atom Feed Consumption service>>, and configure this filter with which feeds to listen to.
@@ -352,7 +390,9 @@ https://one.rackspace.com/display/auth/Identity+Endpoints#IdentityEndpoints-Endp
 ----
 <1> The unique ID of a feed defined in the <<../services/atom-feed-consumption.adoc#, Atom Feed Consumption service>> configuration.
 
-=== Tenant ID Validation
+====================
+Tenant ID Validation
+====================
 [WARNING]
 ====
 Tenant validation has been moved to the <<keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>>, and is considered deprecated in this filter.
@@ -429,7 +469,9 @@ This fascilitates complex Origin Service API's where the extraction point is not
 All values captured from the request will be validated.
 ====
 
-=== Tenant ID Validation Bypass
+===========================
+Tenant ID Validation Bypass
+===========================
 [WARNING]
 ====
 Pre-authorized roles have been moved to the <<keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>>, and are considered deprecated in this filter.
@@ -452,7 +494,9 @@ These configured roles will be compared to the roles returned in a token from th
 <1> Enable Tenant ID Validation Bypass.
 <2> Defines a role for which the Tenant ID Validation check is not required.
 
-=== Require specific service endpoint for authorization
+===================================================
+Require specific service endpoint for authorization
+===================================================
 [WARNING]
 ====
 Service endpoint requirements have been moved to the <<keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>> and are considered deprecated in this filter.
