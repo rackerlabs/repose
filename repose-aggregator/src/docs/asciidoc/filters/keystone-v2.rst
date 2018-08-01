@@ -24,7 +24,9 @@ The following headers are created using the information returned from the authen
 
 * ``X-Authorization`` - Informs origin service that user has been authenticated. (ex. "Proxy User")
 * ``X-Identity-Status`` - Indicates if identity has been confirmed. (ex. "Confirmed", "Indeterminate")
-** Only if the ``delegating`` element is defined.
+
+  ** Only if the ``delegating`` element is defined.
+
 * ``X-User-Name`` - Identifies user name. (ex. "jjenkins")
 * ``X-User-ID`` - Identifies user ID. (ex. "12345")
 * ``X-Authenticated-By`` - Identifies the method(s) by which the request was authenticated.  (ex. "password")
@@ -32,18 +34,23 @@ The following headers are created using the information returned from the authen
   This header is a base 64 encoded JSON map of strings to arrays of strings (e.g., the base 64 encoding of ``{"someTenant": ["someRole", "sharedRole"], "otherTenant": ["otherRole", "sharedRole"]}``).
   Roles without a tenant association will be mapped to the ``repose/domain/roles`` key (e.g., ``{"repose/domain/roles": ["tenantlessRole"]}``).
 * ``X-Roles`` - Identifies roles. (ex. "admin", "user")
-** This header is only populated if the ``set-roles-in-header`` attribute is ``true`` and there are roles returned from the authentication service.
-** If the ``validate-tenant`` element is present, then **Tenanted Mode** is active and this effects the contents of this header as outlined below:
-*** IF **NOT IN** Tenanted Mode, THEN all roles in the user's token will be forwarded.
-*** IF **IN** Tenanted Mode AND ``pre-authorized``, THEN all roles in the user's token will be forwarded.
-**** In order for a user to be ``pre-authorized`` based on role, the role in question must either not have an associated tenant, or the associated tenant must match the tenant extracted from the request.
-*** IF **IN** Tenanted Mode AND NOT ``pre-authorized``, THEN only roles with no associated tenant or an associated tenant matching the tenant extracted from the request will be forwarded.
+
+  ** This header is only populated if the ``set-roles-in-header`` attribute is ``true`` and there are roles returned from the authentication service.
+  ** If the ``validate-tenant`` element is present, then **Tenanted Mode** is active and this effects the contents of this header as outlined below:
+
+    *** IF **NOT IN** Tenanted Mode, THEN all roles in the user's token will be forwarded.
+    *** IF **IN** Tenanted Mode AND ``pre-authorized``, THEN all roles in the user's token will be forwarded.
+
+      **** In order for a user to be ``pre-authorized`` based on role, the role in question must either not have an associated tenant, or the associated tenant must match the tenant extracted from the request.
+
+    *** IF **IN** Tenanted Mode AND NOT ``pre-authorized``, THEN only roles with no associated tenant or an associated tenant matching the tenant extracted from the request will be forwarded.
 
 The following headers are added for use by the <<rate-limiting.adoc#, Rate Limiting filter>>:
 
 * ``X-PP-User`` - Identifies user name. (ex. "jjenkins")
 * ``X-PP-Groups`` - Identifies groups. (ex. "admin", "user")
-** Only if the ``set-groups-in-header`` attribute is ``true``.
+
+  ** Only if the ``set-groups-in-header`` attribute is ``true``.
 
 If the ``set-catalog-in-header`` attribute is ``true``, then the service catalog from the authentication service is a base 64 encoded and placed in the following header:
 
@@ -66,7 +73,9 @@ If any of this information is provided, then it will be passed in the following 
 * ``X-Contact-ID`` - The Contact ID for the user.
 * ``X-Default-Region`` - The Default Region for the user.
 * ``X-Tenant-ID`` - The Tenant ID's for the user.
-** The value of this header is governed by ``send-all-tenant-ids`` attribute and what is provided by the Keystone v2 Identity service.
+
+    ** The value of this header is governed by ``send-all-tenant-ids`` attribute and what is provided by the Keystone v2 Identity service.
+
 * ``X-Tenant-Name`` - The Tenant Name for the user.
 * ``X-Token-Expires`` - The date/time of when the token provided by the Keystone v2 Identity service expires.
 * ``X-Auth-Token-Key`` - The key for the parsed version of the token response that is contained in the datastore service.
