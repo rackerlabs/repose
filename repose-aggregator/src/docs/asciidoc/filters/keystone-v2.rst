@@ -128,76 +128,69 @@ This includes ``401``s from further down the filter chain as well as the origin 
 =====================
 Response Status Codes
 =====================
-[cols="a,a,a,a", options="header"]
-|===
-|When the Keystone v2 Identity service returns:
-|**Repose** Get Admin Token Call Returns
-|**Repose** Validate Token Call Returns
-|**Repose** Groups Call Returns
+.. list-table::
+  :header-rows: 1
+  * - When the Keystone v2 Identity service returns:
+    - **Repose** Get Admin Token Call Returns
+    - **Repose** Validate Token Call Returns
+    - **Repose** Groups Call Returns
+  * - *Successful* (``2xx``)
+    - Request continues
+    - Request continues
+    - Request continues
+  * - ``400``
+    - ``500``
+    - ``500``
+    - ``500``
+  * - ``401``
 
-| *Successful* (``2xx``)
-| Request continues
-| Request continues
-| Request continues
+      * The admin credentials are invalid.
 
-| ``400``
-| ``500``
-| ``500``
-| ``500``
+    - ``500``
+    - ``500``
+    - ``500``
+  * - ``401``
 
-| ``401``
+      * Self-validating tokens are being used, and the user token has expired.
 
-* The admin credentials are invalid.
-| ``500``
-| ``500``
-| ``500``
+    -
+    - ``401``
+    - ``401``
+  * - ``403``
 
-| ``401``
+      The admin token is unauthorized.
 
-* Self-validating tokens are being used, and the user token has expired.
-|
-| ``401``
-| ``401``
+    - ``500``
+    - ``500``
+    - ``500``
+  * - ``404``
+    - ``401``
+    - ``401``
+    - Request continues
+  * - ``405``
+    - ``500``
+    - ``500``
+    - ``500``
+  * - ``413``
 
-| ``403``
+      ``429``
 
-The admin token is unauthorized.
-| ``500``
-| ``500``
-| ``500``
+      The Keystone v2 Identity service rate limited the **Repose** instance.
+    - ``503``
+    - ``503``
+    - ``503``
+  * - ``500``
 
-| ``404``
-| ``401``
-| ``401``
-| Request continues
+      ``501``
 
-| ``405``
-| ``500``
-| ``500``
-| ``500``
+      ``502``
 
-| ``413``
+      ``503``
 
-``429``
-
-The Keystone v2 Identity service rate limited the **Repose** instance.
-| ``503``
-| ``503``
-| ``503``
-
-| ``500``
-
-``501``
-
-``502``
-
-``503``
-
-The Keystone v2 Identity service failed to process the request.
-| ``502``
-| ``502``
-| ``502``
-|===
+      The Keystone v2 Identity service failed to process the request.
+    - ``502``
+    - ``502``
+    - ``502``
 
 ********
 Examples
