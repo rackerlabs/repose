@@ -207,35 +207,35 @@ Basic Configuration
 ===================
 This configuration will provide the basic headers using self-validating tokens.
 
-[source,xml]
-.keystone-v2.cfg.xml
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
-    <identity-service uri="http://identity.example.com"/> <!--1-->
-</keystone-v2>
-----
-<1> The Keystone v2 Identity service Endpoint URI.
+.. code-block:: xml
+  :caption: keystone-v2.cfg.xml
+
+  <?xml version="1.0" encoding="UTF-8"?>
+  <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+      <identity-service uri="http://identity.example.com"/> <!--1-->
+  </keystone-v2>
+
+1. The Keystone v2 Identity service Endpoint URI.
 
 ========================================
 Using an admin account (not recommended)
 ========================================
 This configuration will use an admin account instead of using the self-validating tokens feature.
 
-[source,xml]
-.keystone-v2.cfg.xml
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
-    <identity-service username="admin"                  <!--1-->
-                      password="$3Cr3+"                 <!--2-->
-                      uri="http://identity.example.com" <!--3-->
-    />
-</keystone-v2>
-----
-<1> Admin username to access the Keystone v2 Identity service.
-<2> Admin password to access the Keystone v2 Identity service.
-<3> The Keystone v2 Identity service Endpoint URI.
+.. code-block:: xml
+  :caption: keystone-v2.cfg.xml
+
+  <?xml version="1.0" encoding="UTF-8"?>
+  <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+      <identity-service username="admin"                  <!--1-->
+                        password="$3Cr3+"                 <!--2-->
+                        uri="http://identity.example.com" <!--3-->
+      />
+  </keystone-v2>
+
+1. Admin username to access the Keystone v2 Identity service.
+2. Admin password to access the Keystone v2 Identity service.
+3. The Keystone v2 Identity service Endpoint URI.
 
 .. note::
 
@@ -246,30 +246,30 @@ Miscellaneous Identity Service element attributes
 =================================================
 This configuration is an example using the ``identity-service`` element's configuration attributes that have not yet been shown in an example.
 
-[source,xml]
-.keystone-v2.cfg.xml
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
-    <identity-service uri="http://identity.example.com"  <!--1-->
-                      connection-pool-id="Keystone-Pool" <!--2-->
-                      set-roles-in-header="true"         <!--3-->
-                      set-groups-in-header="true"        <!--4-->
-                      set-catalog-in-header="false"      <!--5-->
-                      apply-rcn-roles="false"            <!--6-->
-    />
-</keystone-v2>
-----
-<1> The Keystone v2 Identity service Endpoint URI.
-<2> Http Connection pool ID to use when talking to the Keystone v2 Identity service. +
+.. code-block:: xml
+  :caption: keystone-v2.cfg.xml
+
+  <?xml version="1.0" encoding="UTF-8"?>
+  <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+      <identity-service uri="http://identity.example.com"  <!--1-->
+                        connection-pool-id="Keystone-Pool" <!--2-->
+                        set-roles-in-header="true"         <!--3-->
+                        set-groups-in-header="true"        <!--4-->
+                        set-catalog-in-header="false"      <!--5-->
+                        apply-rcn-roles="false"            <!--6-->
+      />
+  </keystone-v2>
+
+1. The Keystone v2 Identity service Endpoint URI.
+2. Http Connection pool ID to use when talking to the Keystone v2 Identity service. +
     **NOTE:** If the ``connection-pool-id`` is not defined, then the default pool is used.
-<3> Set the user's roles in the ``X-Roles`` header. +
+3. Set the user's roles in the ``X-Roles`` header. +
     Default: ``true``
-<4> Set the user's groups in the ``X-PP-Groups`` header. +
+4. Set the user's groups in the ``X-PP-Groups`` header. +
     Default: ``true``
-<5> Set the user's service catalog, base64 encoded, in the ``X-Catalog`` header. +
+5. Set the user's service catalog, base64 encoded, in the ``X-Catalog`` header. +
     Default: ``false``
-<6> Indicates whether or not to include the ``apply_rcn_roles`` query parameter when talking to the Keystone v2 Identity service. +
+6. Indicates whether or not to include the ``apply_rcn_roles`` query parameter when talking to the Keystone v2 Identity service. +
     Default: ``false``
 
 =================
@@ -281,18 +281,18 @@ To place the filter in delegating mode, add the ``delegating`` element to the fi
 When in delegating mode, the filter sets the ``X-Identity-Status`` header with a value of ``confirmed`` when valid credentials have been authenticated by the Keystone v2 Identity service and to ``indeterminate`` when the credentials are not.
 The the ``X-Identity-Status`` header is in addition to the regular ``X-Delegated`` delegation header being created.
 
-[source,xml]
-.keystone-v2.cfg.xml
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
-    <identity-service uri="http://identity.example.com"/>
-    <delegating quality="0.7"/> <!--1--> <!--2-->
-</keystone-v2>
-----
-<1> If this element is present, then delegation is enabled.
+.. code-block:: xml
+  :caption: keystone-v2.cfg.xml
+
+  <?xml version="1.0" encoding="UTF-8"?>
+  <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+      <identity-service uri="http://identity.example.com"/>
+      <delegating quality="0.7"/> <!--1--> <!--2-->
+  </keystone-v2>
+
+1. If this element is present, then delegation is enabled.
     Delegation will cause this filter to pass requests it would ordinarily reject along with a header detailing why it would have rejected the request.
-<2> Indicates the quality that will be added to any output headers.
+2. Indicates the quality that will be added to any output headers.
     When setting up a chain of delegating filters the highest quality number will be the one that is eventually output to the logging mechanisms. +
     Default: ``0.7``
 
@@ -306,18 +306,18 @@ The whitelist contains a list of https://docs.oracle.com/javase/8/docs/api/java/
 If the URI matches an expression in the white list, then the request is passed to the origin service.
 Otherwise, authentication is performed against the request.
 
-[source,xml]
-.keystone-v2.cfg.xml
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
-    <identity-service uri="http://identity.example.com"/>
-    <white-list>
-        <uri-regex>/application\.wadl$</uri-regex> <!--1-->
-    </white-list>
-</keystone-v2>
-----
-<1> The https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] to allow matching URI's to pass without requiring authentication.
+.. code-block:: xml
+  :caption: keystone-v2.cfg.xml
+
+  <?xml version="1.0" encoding="UTF-8"?>
+  <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+      <identity-service uri="http://identity.example.com"/>
+      <white-list>
+          <uri-regex>/application\.wadl$</uri-regex> <!--1-->
+      </white-list>
+  </keystone-v2>
+
+1. The https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] to allow matching URI's to pass without requiring authentication.
 
 ==========================
 Configuring Cache Timeouts
@@ -330,26 +330,26 @@ If you specify the token element value in the configuration file, this value is 
 This method prevents **Repose** from caching stale tokens.
 If the token's TTL exceeds the maximum allowed TTL value (2^31 - 1), the maximum allowed TTL is used.
 
-[source,xml]
-.keystone-v2.cfg.xml
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
-    <identity-service uri="http://identity.example.com"/>
-    <cache>
-        <timeouts variability="0">     <!--1-->
-            <token>600</token>         <!--2-->
-            <group>600</group>         <!--3-->
-            <endpoints>600</endpoints> <!--4-->
-        </timeouts>
-    </cache>
-</keystone-v2>
-----
-<1> This value will be added or subtracted to the cache timeouts to help ensure that the cached items have some variability so they don't all expire at the exact same time. +
+.. code-block:: xml
+  :caption: keystone-v2.cfg.xml
+
+  <?xml version="1.0" encoding="UTF-8"?>
+  <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+      <identity-service uri="http://identity.example.com"/>
+      <cache>
+          <timeouts variability="0">     <!--1-->
+              <token>600</token>         <!--2-->
+              <group>600</group>         <!--3-->
+              <endpoints>600</endpoints> <!--4-->
+          </timeouts>
+      </cache>
+  </keystone-v2>
+
+1. This value will be added or subtracted to the cache timeouts to help ensure that the cached items have some variability so they don't all expire at the exact same time. +
     Default: ``0``
-<2> The number of seconds which cached tokens will live in the datastore.
-<3> The number of seconds which cached groups will live in the datastore.
-<4> The number of seconds which cached endpoints will live in the datastore.
+2. The number of seconds which cached tokens will live in the datastore.
+3. The number of seconds which cached groups will live in the datastore.
+4. The number of seconds which cached endpoints will live in the datastore.
 
 .. note::
 
@@ -374,18 +374,18 @@ To set up this filter to use Cloud Feeds for cache expiration, you will need to 
   A list of Rackspace Cloud Feeds endpoints for Identity Events can be found at
   https://one.rackspace.com/display/auth/Identity+Endpoints#IdentityEndpoints-EndpointsConsumed[the internal Rackspace Wiki page linked here].
 
-[source,xml]
-.keystone-v2.cfg.xml
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
-    <identity-service uri="http://identity.example.com"/>
-    <cache>
-        <atom-feed id="some-feed"/> <!--1-->
-    </cache>
-</keystone-v2>
-----
-<1> The unique ID of a feed defined in the <<../services/atom-feed-consumption.adoc#, Atom Feed Consumption service>> configuration.
+.. code-block:: xml
+  :caption: keystone-v2.cfg.xml
+
+  <?xml version="1.0" encoding="UTF-8"?>
+  <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+      <identity-service uri="http://identity.example.com"/>
+      <cache>
+          <atom-feed id="some-feed"/> <!--1-->
+      </cache>
+  </keystone-v2>
+
+1. The unique ID of a feed defined in the <<../services/atom-feed-consumption.adoc#, Atom Feed Consumption service>> configuration.
 
 ====================
 Tenant ID Validation
@@ -397,48 +397,48 @@ Tenant ID Validation
 
 Tenant ID Validation is the capability of this filter to parse a tenant ID out of the request and validate it against the tenant ID(s) available in the response token from the Keystone v2 Identity service.
 
-[source,xml]
-.keystone-v2.cfg.xml
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0" ignored-roles="banana:phone"> <!--1-->
-    <identity-service uri="http://identity.example.com"/>
-    <tenant-handling send-all-tenant-ids="false"> <!--2-->
-        <validate-tenant strip-token-tenant-prefixes="/foo:/bar-" <!--3--> <!--4-->
-                         enable-legacy-roles-mode="false" <!--5-->
-        >
-            <uri-extraction-regex>${your-regex}</uri-extraction-regex> <!--6-->
-        </validate-tenant>
-        <send-tenant-id-quality default-tenant-quality="0.9" <!--7--> <!--8-->
-                                uri-tenant-quality="0.7" <!--9-->
-                                roles-tenant-quality="0.5" <!--10-->
-        >
-    </tenant-handling>
-</keystone-v2>
-----
-<1> The ``ignored-roles`` attribute indicates which roles from the keystone validation response should be ignored during all further processing. +
+.. code-block:: xml
+  :caption: keystone-v2.cfg.xml
+
+  <?xml version="1.0" encoding="UTF-8"?>
+  <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0" ignored-roles="banana:phone"> <!--1-->
+      <identity-service uri="http://identity.example.com"/>
+      <tenant-handling send-all-tenant-ids="false"> <!--2-->
+          <validate-tenant strip-token-tenant-prefixes="/foo:/bar-" <!--3--> <!--4-->
+                           enable-legacy-roles-mode="false" <!--5-->
+          >
+              <uri-extraction-regex>${your-regex}</uri-extraction-regex> <!--6-->
+          </validate-tenant>
+          <send-tenant-id-quality default-tenant-quality="0.9" <!--7--> <!--8-->
+                                  uri-tenant-quality="0.7" <!--9-->
+                                  roles-tenant-quality="0.5" <!--10-->
+          >
+      </tenant-handling>
+  </keystone-v2>
+
+1. The ``ignored-roles`` attribute indicates which roles from the keystone validation response should be ignored during all further processing. +
     Default: ``identity:tenant-access``
-<2> Indicates if all the Tenant IDs from the user and the roles the user has should be sent or not. +
+2. Indicates if all the Tenant IDs from the user and the roles the user has should be sent or not. +
     If true, all tenants associated with the user are sent.
     If false, only the matching tenants from the request are sent.
     If no request tenants match any user tenants, then the default user tenant is sent.
     If not default user tenant exists, then a random tenant from the set of role tenants is sent.
     If no role tenants exist, then no tenant is sent.
     Default: ``false``
-<3> If this element is included, then Tenant ID Validation will be enforced based on the value extracted from the request.
-<4> A ``/`` delimited list of prefixes to attempt to strip from the Tenant ID in the token response from the Keystone v2 Identity service.
+3. If this element is included, then Tenant ID Validation will be enforced based on the value extracted from the request.
+4. A ``/`` delimited list of prefixes to attempt to strip from the Tenant ID in the token response from the Keystone v2 Identity service.
     The post-strip Tenant ID is only used in the Tenant Validation check.
-<5> If in legacy roles mode, then all roles associated with a user token are forwarded.
+5. If in legacy roles mode, then all roles associated with a user token are forwarded.
     If NOT in legacy roles mode, then roles which aren't tied to the tenant provided in the request will NOT be forwarded UNLESS the user has a pre-authorized role. +
     Default: ``false``
-<6> The https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] with at least one capture group.
+6. The https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] with at least one capture group.
     The first capture group must be around the portion of the URI to extract the Tenant ID from for validation.
-<7> If this element is included, then include Quality parameters on all the tenant ID headers sent.
-<8> The default tenant has the highest quality by default. +
+7. If this element is included, then include Quality parameters on all the tenant ID headers sent.
+8. The default tenant has the highest quality by default. +
     Default: ``0.9``
-<9> Followed by the one that matches the tenant extracted from the request by default (if any). +
+9. Followed by the one that matches the tenant extracted from the request by default (if any). +
     Default: ``0.7``
-<10> Followed by the tenants from the roles by default. +
+10. Followed by the tenants from the roles by default. +
     Default: ``0.5``
 
 .. warning::
@@ -459,7 +459,7 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
 .. note::
 
   There can be multiple ``uri-extraction-regex`` elements.
-  This fascilitates complex Origin Service API's where the extraction point is not always in the same place.
+  This facilitates complex Origin Service APIs where the extraction point is not always in the same place.
   All values captured from the request will be validated.
 
 ===========================
@@ -473,19 +473,19 @@ Tenant ID Validation Bypass
 If Tenant ID Validation is enabled, then a list of roles that are allowed to bypass this check can be configured.
 These configured roles will be compared to the roles returned in a token from the Keystone v2 Identity service, and if there is a match, the Tenant ID check will be skipped.
 
-[source,xml]
-.keystone-v2.cfg.xml
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
-    <identity-service uri="http://identity.example.com"/>
-    <pre-authorized-roles> <!--1-->
-        <role>racker</role> <!--2-->
-    </pre-authorized-roles>
-</keystone-v2>
-----
-<1> Enable Tenant ID Validation Bypass.
-<2> Defines a role for which the Tenant ID Validation check is not required.
+.. code-block:: xml
+  :caption: keystone-v2.cfg.xml
+
+  <?xml version="1.0" encoding="UTF-8"?>
+  <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+      <identity-service uri="http://identity.example.com"/>
+      <pre-authorized-roles> <!--1-->
+          <role>racker</role> <!--2-->
+      </pre-authorized-roles>
+  </keystone-v2>
+
+1. Enable Tenant ID Validation Bypass.
+2. Defines a role for which the Tenant ID Validation check is not required.
 
 ===================================================
 Require specific service endpoint for authorization
@@ -497,24 +497,24 @@ Require specific service endpoint for authorization
 
 If endpoint authorization is enabled, then the user must have an endpoint in their catalog meeting the defined criteria.
 
-[source,xml]
-.keystone-v2.cfg.xml
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
-    <identity-service uri="http://identity.example.com"/>
-    <require-service-endpoint public-url="https://service.example.com" <!--1--> <!--2-->
-                              region="ORD" <!--3-->
-                              name="OpenStackCompute" <!--4-->
-                              type="compute" <!--5-->
-    />
-</keystone-v2>
-----
-<1> If this element is included, then endpoint authorization is enabled and will be enforced based attributes of this element.
-<2> Public URL to match on the user's service catalog entry.
-<3> Region to match on the user's service catalog entry.
-<4> Name of the service to match in the user's service catalog entry.
-<5> Type to match in the user's service catalog entry.
+.. code-block:: xml
+  :caption: keystone-v2.cfg.xml
+
+  <?xml version="1.0" encoding="UTF-8"?>
+  <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+      <identity-service uri="http://identity.example.com"/>
+      <require-service-endpoint public-url="https://service.example.com" <!--1--> <!--2-->
+                                region="ORD" <!--3-->
+                                name="OpenStackCompute" <!--4-->
+                                type="compute" <!--5-->
+      />
+  </keystone-v2>
+
+1. If this element is included, then endpoint authorization is enabled and will be enforced based attributes of this element.
+2. Public URL to match on the user's service catalog entry.
+3. Region to match on the user's service catalog entry.
+4. Name of the service to match in the user's service catalog entry.
+5. Type to match in the user's service catalog entry.
 
 .. note::
 
