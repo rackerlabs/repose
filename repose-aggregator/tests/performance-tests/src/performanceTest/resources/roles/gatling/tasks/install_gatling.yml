@@ -61,4 +61,4 @@
     dest: /root/gatling/current/lib/{{ item | basename }}
     mode: 0644
   with_fileglob:
-    - performance-test-library*.jar
+    - performance-test-framework*.jar
