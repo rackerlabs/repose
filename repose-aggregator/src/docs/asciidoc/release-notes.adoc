@@ -2,6 +2,7 @@
 
 == In Progress
 * https://repose.atlassian.net/browse/REP-6969[REP-6969] - Added support for more expressive filter determination in the <<architecture/system-model.adoc#,System Model>> using boolean operators.
+* https://repose.atlassian.net/browse/REP-7135[REP-7135] - Improved the artifact deployment strategy to handle multiple *Repose* instances running concurrently.
 
 == 8.9.1.0 (2018-07-03)
 * https://repose.atlassian.net/browse/REP-7004[REP-7004] - Fixed a bug in the <<filters/keystone-v2-basic-auth.adoc#, Keystone v2 Basic Auth>>, <<filters/keystone-v2.adoc#, Keystone v2>>, <<filters/openstack-identity-v3.adoc#, Openstack Identity v3>>, and <<filters/valkyrie-authorization.adoc#, Valkyrie Authorization>> filters where headers were potentially processed in a case sensitive way.
