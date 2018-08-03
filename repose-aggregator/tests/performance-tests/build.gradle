@@ -3,10 +3,19 @@ testSets {
 }
 
 dependencies {
+    //todo: not certain why this was neccessary, but it lets things compile
+    testCompile 'org.scala-lang:scala-library'
+
     performanceTestCompile project(':repose-aggregator:tests:performance-test-framework')
     performanceTestCompile 'org.scala-lang:scala-library'
     performanceTestCompile 'io.gatling:gatling-core'
     performanceTestCompile 'io.gatling:gatling-http'
+}
+
+license {
+    exclude "**/*.json"
+    exclude "**/saml*.xml"
+    exclude "**/*.xsl"
 }
 
 // todo: do not produce (or at least, do not publish) any artifacts for this project
