@@ -27,6 +27,7 @@ import java.util.zip.{ZipFile, ZipInputStream}
 
 import com.oracle.javaee6.{ApplicationType, FilterType, ObjectFactory, WebFragmentType}
 import javax.xml.bind.JAXBContext
+import org.apache.commons.io.FileUtils.checksumCRC32
 import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
 import org.openrepose.commons.config.resource.impl.BufferedURLConfigurationResource
 import org.slf4j.LoggerFactory
@@ -137,18 +138,31 @@ class EarClassProvider(earFile: File, val outputDir: File) {
       val zis = new ZipInputStream(new FileInputStream(earFile))
 
       val buffer = new Array[Byte](1024)
-      Stream.continually(zis.getNextEntry).
-        takeWhile(_ != null).foreach(entry =>
-        //Unpack the entry
+      Stream.continually(zis.getNextEntry).takeWhile(_ != null) foreach { entry =>
+        val entryFile = new File(outputDir, entry.getName)
         if (entry.isDirectory) {
-          new File(outputDir, entry.getName).mkdir()
+          entryFile.mkdir()
         } else {
-          val outFile = new File(outputDir, entry.getName)
-          val ofs = new FileOutputStream(outFile)
-          Stream.continually(zis.read(buffer)).takeWhile(_ != -1).foreach(count => ofs.write(buffer, 0, count))
-          ofs.close()
+          val ofs = new FileOutputStream(entryFile)
+          try {
+            log.debug("Obtaining file lock on: {}", entryFile)
+            val lock = ofs.getChannel.lock()
+            try {
+              if (!entryFile.exists() || entry.getCrc != checksumCRC32(entryFile)) {
+                log.debug("Unpacking: {}", entryFile)
+                Stream.continually(zis.read(buffer)).takeWhile(_ != -1).foreach(count => ofs.write(buffer, 0, count))
+              } else {
+                log.debug("File already exists in a valid condition. Skipping: {}", entryFile)
+              }
+            } finally {
+              log.debug("Releasing file lock on: {}", entryFile)
+              lock.release()
+            }
+          } finally {
+            ofs.close()
+          }
         }
-        )
+      }
       zis.close()
     } catch {
       case e: Exception =>
