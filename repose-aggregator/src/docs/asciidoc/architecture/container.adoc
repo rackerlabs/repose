@@ -111,7 +111,9 @@ If all of the follow conditions are met, *Repose* may delete deployment director
 * At least one *Repose* process has enabled the `auto-clean` feature.
 * One of the *Repose* processes with the `auto-clean` feature enabled stops gracefully.
 
-To avoid this situation, it is highly recommended that the same `deployment-directory` is not used for more than one *Repose* instance.
+To avoid this situation, it is highly recommended that the `deployment-directory` is not shared between more than one *Repose* instance if the `auto-clean` feature is used.
+
+If the `auto-clean` feature is not being used, it should be safe to share the `deployment-directory` between multiple *Repose* instances.
 ====
 
 [WARNING]
