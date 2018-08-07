@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core
+package org.openrepose.powerfilter
 
 class ReposeFilter {
   //todo: Set the start time attribute (header?) before invoking the filter chain, it didn't make any sense to be setting it everytime we entered the old filter chain

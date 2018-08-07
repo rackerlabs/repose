@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core
+package org.openrepose.powerfilter
 
 import java.io.IOException
 import java.net.{MalformedURLException, URL}
@@ -35,7 +35,6 @@ import org.openrepose.commons.utils.StringUriUtilities
 import org.openrepose.commons.utils.http.CommonRequestAttributes
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, RouteDestination}
-import org.openrepose.core.ReposeRoutingServlet._
 import org.openrepose.core.domain.Port
 import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.services.config.ConfigurationService
@@ -46,6 +45,7 @@ import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.core.systemmodel.config._
 import org.openrepose.nodeservice.request.RequestHeaderService
 import org.openrepose.nodeservice.response.ResponseHeaderService
+import org.openrepose.powerfilter.ReposeRoutingServlet._
 import org.springframework.beans.factory.annotation.Value
 
 import scala.collection.JavaConverters._

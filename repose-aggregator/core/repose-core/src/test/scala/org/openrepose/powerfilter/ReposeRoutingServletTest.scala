@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core
+package org.openrepose.powerfilter
 
 import java.io.IOException
 import java.net.URL
@@ -32,13 +32,13 @@ import org.mockito.Matchers.{any, anyString, eq => isEq}
 import org.mockito.Mockito.{never, verify, when}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException
-import org.openrepose.core.ReposeRoutingServletTest._
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.reporting.ReportingService
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.systemmodel.config._
 import org.openrepose.nodeservice.request.RequestHeaderService
 import org.openrepose.nodeservice.response.ResponseHeaderService
+import org.openrepose.powerfilter.ReposeRoutingServletTest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}

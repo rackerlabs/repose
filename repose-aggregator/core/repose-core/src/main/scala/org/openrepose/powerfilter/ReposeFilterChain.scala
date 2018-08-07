@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core
+package org.openrepose.powerfilter
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.util.concurrent.TimeUnit
@@ -33,7 +33,7 @@ import javax.servlet.{Filter, FilterChain, ServletRequest, ServletResponse}
 import org.openrepose.commons.utils.io.{BufferedServletInputStream, RawInputStreamReader}
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{PASSTHROUGH, READONLY}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
-import org.openrepose.core.ReposeFilterChain._
+import org.openrepose.powerfilter.ReposeFilterChain._
 import org.openrepose.powerfilter.intrafilterlogging.{RequestLog, ResponseLog}
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -121,7 +121,7 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
     val elapsedTime = System.currentTimeMillis() - startTime
 
     metricsRegistry.timer(MetricRegistry.name(FilterProcessingMetric, filter))
-                   .update(elapsedTime, TimeUnit.MILLISECONDS)
+      .update(elapsedTime, TimeUnit.MILLISECONDS)
 
     if (Option(request.getHeader(TracingHeader)).isDefined && !response.isCommitted) {
       response.addHeader(s"X-$filter-Time", s"${elapsedTime}ms")
@@ -130,6 +130,7 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
 }
 
 object ReposeFilterChain {
+
   case class FilterContext(filter: Filter, filterName: String, shouldRun: HttpServletRequestWrapper => Boolean)
 
   final val IntrafilterLog: Logger = LoggerFactory.getLogger("intrafilter-logging")
