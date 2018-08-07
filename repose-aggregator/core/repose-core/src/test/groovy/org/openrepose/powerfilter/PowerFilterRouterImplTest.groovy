@@ -137,7 +137,7 @@ class PowerFilterRouterImplTest extends Specification {
         when(destinationLocationBuilder.build(any(), anyString(), any(HttpServletRequest.class))).thenReturn(
             new DestinationLocation(
                 new URL(destinationOne.getProtocol(), "localhost", 8080, destinationOne.getRootPath()),
-                new URI("http", null, "localhost", 8080, destinationOne.getRootPath(),"", null)
+                new URI("http", null, "localhost", 8080, destinationOne.getRootPath(), "", null)
             )
         )
 
