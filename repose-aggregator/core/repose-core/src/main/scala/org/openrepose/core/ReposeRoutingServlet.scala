@@ -49,7 +49,7 @@ import org.openrepose.nodeservice.response.ResponseHeaderService
 import org.springframework.beans.factory.annotation.Value
 
 import scala.collection.JavaConverters._
-import scala.util.{Failure, Try}
+import scala.util.Try
 
 @Named
 class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
@@ -124,8 +124,8 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
       trySendError()
     } else {
       logger.trace("{} processing request...", this.getClass.getSimpleName)
-      Try(doRoute(new HttpServletRequestWrapper(req), resp)) match {
-        case Failure(e) =>
+      Try(doRoute(new HttpServletRequestWrapper(req), resp)) recover {
+        case e =>
           logger.error(FailedToRouteMessage, e)
           trySendError()
       }
@@ -289,7 +289,7 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
     logger.debug("           Request URI: {}", servletRequest.getRequestURI)
     logger.debug("          Context path: {}", targetContext.getContextPath)
     val startTime = System.currentTimeMillis
-    try {
+    Try {
       reportingService.incrementRequestCount(routeDest.getDestinationId)
       dispatcher.forward(servletRequest, servletResponse)
       // track response code for endpoint & across all endpoints
@@ -309,16 +309,13 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
         routeDest,
         locationUrl.getPath,
         destination.getRootPath)
-    } catch {
-      case e: IOException =>
-        if (e.getCause.isInstanceOf[ReadLimitReachedException]) {
-          logger.error("Error reading request content", e)
-          servletResponse.sendError(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Error reading request content")
-        }
-        else {
-          logger.error("Error communicating with {}", locationUrl.getPath, e)
-          servletResponse.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
-        }
+    } recover {
+      case e: IOException if e.getCause.isInstanceOf[ReadLimitReachedException] =>
+        logger.error("Error reading request content", e)
+        servletResponse.sendError(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Error reading request content")
+      case e =>
+        logger.error("Error communicating with {}", locationUrl.getPath, e)
+        servletResponse.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
     }
   }
 
