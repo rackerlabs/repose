@@ -54,7 +54,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
   var mockResponseHeaderService: ResponseHeaderService = _
   var mockReportingService: ReportingService = _
   var mockMetricsService: Option[MetricsService] = _
-  var reposeServlet: ReposeRoutingServlet = _
+  var reposeRoutingServlet: ReposeRoutingServlet = _
   var listAppender: ListAppender = _
 
   override def beforeEach(): Unit = {
@@ -66,7 +66,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     mockResponseHeaderService = mock[ResponseHeaderService]
     mockReportingService = mock[ReportingService]
     mockMetricsService = None
-    reposeServlet = new ReposeRoutingServlet(
+    reposeRoutingServlet = new ReposeRoutingServlet(
       DefaultClusterId,
       DefaultNodeId,
       mockConfigurationService,
@@ -81,7 +81,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
 
   describe("init") {
     it("should register configuration listener") {
-      reposeServlet.init(mockServletConfig)
+      reposeRoutingServlet.init(mockServletConfig)
 
       verify(mockConfigurationService).subscribeTo(
         isEq(ReposeRoutingServlet.SystemModelConfigurationFilename),
@@ -96,7 +96,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
 
   describe("destroy") {
     it("should unregister configuration listener") {
-      reposeServlet.destroy()
+      reposeRoutingServlet.destroy()
 
       verify(mockConfigurationService).unsubscribeFrom(
         isEq(ReposeRoutingServlet.SystemModelConfigurationFilename),
@@ -109,13 +109,13 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
 
   describe("isInitialized") {
     it("should return false if a configuration has not yet been read") {
-      reposeServlet.isInitialized shouldBe false
+      reposeRoutingServlet.isInitialized shouldBe false
     }
 
     it("should return true if a configuration has been read") {
-      reposeServlet.configurationUpdated(minimalConfiguration())
+      reposeRoutingServlet.configurationUpdated(minimalConfiguration())
 
-      reposeServlet.isInitialized shouldBe true
+      reposeRoutingServlet.isInitialized shouldBe true
     }
   }
 
@@ -167,9 +167,9 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
             when(requestDispatcher.forward(any(classOf[ServletRequest]), any(classOf[ServletResponse]))).thenThrow(dispatchError)
           }
 
-          reposeServlet.init(mockServletConfig)
-          reposeServlet.configurationUpdated(systemModel)
-          reposeServlet.service(request, response)
+          reposeRoutingServlet.init(mockServletConfig)
+          reposeRoutingServlet.configurationUpdated(systemModel)
+          reposeRoutingServlet.service(request, response)
 
           response.getStatus == responseCode
 
@@ -190,9 +190,9 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
 
       resp.sendError(SC_NOT_ACCEPTABLE)
 
-      reposeServlet.init(mockServletConfig)
-      reposeServlet.configurationUpdated(minimalConfiguration())
-      reposeServlet.service(req, resp)
+      reposeRoutingServlet.init(mockServletConfig)
+      reposeRoutingServlet.configurationUpdated(minimalConfiguration())
+      reposeRoutingServlet.service(req, resp)
 
       resp.getStatus shouldBe SC_NOT_ACCEPTABLE
     }

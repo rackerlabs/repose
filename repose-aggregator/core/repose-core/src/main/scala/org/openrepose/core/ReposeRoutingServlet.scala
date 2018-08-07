@@ -49,7 +49,7 @@ import org.openrepose.nodeservice.response.ResponseHeaderService
 import org.springframework.beans.factory.annotation.Value
 
 import scala.collection.JavaConverters._
-import scala.util.control.NonFatal
+import scala.util.{Failure, Try}
 
 @Named
 class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
@@ -102,8 +102,8 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
         val clusterNodes = cluster.getNodes.getNode.asScala.map(node => s"${node.getId}-${node.getHostname}")
         logger.debug("{}:{} - Nodes for this router: {}", clusterId, nodeId, clusterNodes)
         val destStrings = destinations.get()
-          .filter{ case (_, dest) => dest.isInstanceOf[DestinationEndpoint]}
-          .map{ case (_, endpoint) => s"${endpoint.getId}-${endpoint.asInstanceOf[DestinationEndpoint].getHostname}"}
+          .filter { case (_, dest) => dest.isInstanceOf[DestinationEndpoint] }
+          .map { case (_, endpoint) => s"${endpoint.getId}-${endpoint.asInstanceOf[DestinationEndpoint].getHostname}" }
         logger.debug("{}:{} - Destinations for this router: {}", clusterId, nodeId, destStrings)
       }
     }
@@ -124,10 +124,8 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
       trySendError()
     } else {
       logger.trace("{} processing request...", this.getClass.getSimpleName)
-      try {
-        doRoute(new HttpServletRequestWrapper(req), resp)
-      } catch {
-        case NonFatal(e) =>
+      Try(doRoute(new HttpServletRequestWrapper(req), resp)) match {
+        case Failure(e) =>
           logger.error(FailedToRouteMessage, e)
           trySendError()
       }
