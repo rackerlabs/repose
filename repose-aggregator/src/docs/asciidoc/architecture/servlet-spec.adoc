@@ -16,7 +16,7 @@ The `ReposeFilterChain` class implements the `FilterChain` API, and is responsib
 That coordination includes things like dynamic determination of whether or not a filter should process a request or response, debug logging, and metrics gathering.
 To learn more about this component, visit the <<filter-chain.adoc#,filter chain documentation page>>.
 
-== Repose Servlet
+== Repose Routing Servlet
 
-The `ReposeServlet` class implements the `Servlet` API, and is responsible for routing the HTTP request from *Repose* to the origin service after the filter chain has finished processing the request.
+The `ReposeRoutingServlet` class implements the `Servlet` API, and is responsible for routing the HTTP request from *Repose* to the origin service after the filter chain has finished processing the request.
 It is the servlet that is registered with the servlet container.
