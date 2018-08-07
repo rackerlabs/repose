@@ -305,7 +305,7 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
       filterChain.doFilter(mockRequest, mockResponse)
 
       tracer.finishedSpans should have length 1
-      tracer.finishedSpans.asScala.head.operationName shouldBe "Filter foo"
+      tracer.finishedSpans.asScala.headOption.map(_.operationName) shouldBe Some("Filter foo")
     }
   }
 }

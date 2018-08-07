@@ -34,7 +34,6 @@ import org.openrepose.commons.utils.io.{BufferedServletInputStream, RawInputStre
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{PASSTHROUGH, READONLY}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.core.ReposeFilterChain._
-import org.openrepose.core.ReposeFilterChain.FilterContext
 import org.openrepose.powerfilter.intrafilterlogging.{RequestLog, ResponseLog}
 import org.slf4j.{Logger, LoggerFactory}
 

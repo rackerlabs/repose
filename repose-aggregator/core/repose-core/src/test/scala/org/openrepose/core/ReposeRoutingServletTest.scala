@@ -32,6 +32,7 @@ import org.mockito.Matchers.{any, anyString, eq => isEq}
 import org.mockito.Mockito.{never, verify, when}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException
+import org.openrepose.core.ReposeRoutingServletTest._
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.reporting.ReportingService
 import org.openrepose.core.services.reporting.metrics.MetricsService
@@ -47,12 +48,6 @@ import scala.collection.JavaConversions._
 
 @RunWith(classOf[JUnitRunner])
 class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with MockitoSugar with Matchers {
-
-  final val DefaultClusterId = "defaultClusterId"
-  final val DefaultNodeId = "defaultNodeId"
-  final val DefaultNodeName = "defaultNodeName"
-  final val DefaultDestId = "defaultDestId"
-
   var mockServletConfig: ServletConfig = _
   var mockConfigurationService: ConfigurationService = _
   var mockRequestHeaderService: RequestHeaderService = _
@@ -61,7 +56,6 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
   var mockMetricsService: Option[MetricsService] = _
   var reposeServlet: ReposeRoutingServlet = _
   var listAppender: ListAppender = _
-
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -147,19 +141,19 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
           request.setServerPort(8080)
           val response = new MockHttpServletResponse()
           val systemModel = minimalConfiguration()
-          val destinationEndpointList = systemModel.getReposeCluster.head.getDestinations.getEndpoint
-          destinationEndpointList.clear()
+          val destinationEndpointList = systemModel.getReposeCluster.headOption.map(_.getDestinations).map(_.getEndpoint)
+          destinationEndpointList.foreach(_.clear())
           val destinationEndpointOne = new DestinationEndpoint()
           destinationEndpointOne.setDefault("one".equals(defaultDestinationId))
           destinationEndpointOne.setId("one")
           destinationEndpointOne.setProtocol("http")
           Option(port).foreach(p => destinationEndpointOne.setPort(p.asInstanceOf[Int]))
-          destinationEndpointList.add(destinationEndpointOne)
+          destinationEndpointList.foreach(_.add(destinationEndpointOne))
           val destinationEndpointTwo = new DestinationEndpoint()
           destinationEndpointTwo.setDefault("two".equals(defaultDestinationId))
           destinationEndpointTwo.setId("two")
           destinationEndpointTwo.setProtocol("http")
-          destinationEndpointList.add(destinationEndpointTwo)
+          destinationEndpointList.foreach(_.add(destinationEndpointTwo))
           val servletContext = mock[ServletContext]
           val targetServletContext = mock[ServletContext]
           val requestDispatcher = mock[RequestDispatcher]
@@ -225,4 +219,11 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     systemModel.getReposeCluster.add(reposeCluster)
     systemModel
   }
+}
+
+object ReposeRoutingServletTest {
+  final val DefaultClusterId = "defaultClusterId"
+  final val DefaultNodeId = "defaultNodeId"
+  final val DefaultNodeName = "defaultNodeName"
+  final val DefaultDestId = "defaultDestId"
 }

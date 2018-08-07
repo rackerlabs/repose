@@ -49,6 +49,7 @@ import org.openrepose.nodeservice.response.ResponseHeaderService
 import org.springframework.beans.factory.annotation.Value
 
 import scala.collection.JavaConverters._
+import scala.util.control.NonFatal
 
 @Named
 class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
@@ -83,16 +84,12 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
   }
 
   override def configurationUpdated(configurationObject: SystemModel): Unit = {
-    def getDestinations(destList: List[Destination]): Map[String, Destination] = {
-      destList.iterator map (dest => dest.getId -> dest) toMap
-    }
-
     //Set the current system model, and just update the nodes.
     val interrogator = new SystemModelInterrogator(clusterId, nodeId)
     localCluster.set(Option(interrogator.getLocalCluster(configurationObject).orElse(null)))
     localNode.set(Option(interrogator.getLocalNode(configurationObject).orElse(null)))
     defaultDestination.set(Option(interrogator.getDefaultDestination(configurationObject).orElse(null)))
-    destinations.set(??(localCluster.get().get.getDestinations) match {
+    destinations.set(localCluster.get().map(_.getDestinations) match {
       case Some(dests) => getDestinations(dests.getEndpoint.asScala.toList) ++ getDestinations(dests.getTarget.asScala.toList)
       case None => Map.empty[String, Destination]
     })
@@ -105,12 +102,16 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
         val clusterNodes = cluster.getNodes.getNode.asScala.map(node => s"${node.getId}-${node.getHostname}")
         logger.debug("{}:{} - Nodes for this router: {}", clusterId, nodeId, clusterNodes)
         val destStrings = destinations.get()
-          .filter(dest => dest._2.isInstanceOf[DestinationEndpoint])
-          .map(endpoint => s"${endpoint._2.getId}-${endpoint._2.asInstanceOf[DestinationEndpoint].getHostname}")
+          .filter{ case (_, dest) => dest.isInstanceOf[DestinationEndpoint]}
+          .map{ case (_, endpoint) => s"${endpoint.getId}-${endpoint.asInstanceOf[DestinationEndpoint].getHostname}"}
         logger.debug("{}:{} - Destinations for this router: {}", clusterId, nodeId, destStrings)
       }
     }
     initialized = true
+
+    def getDestinations(destList: List[Destination]): Map[String, Destination] = {
+      destList.iterator.map(dest => dest.getId -> dest).toMap
+    }
   }
 
   override def isInitialized: Boolean = {
@@ -118,33 +119,36 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
   }
 
   override def service(req: HttpServletRequest, resp: HttpServletResponse): Unit = {
-    try {
-      if (!initialized) {
-        logger.error(NotInitializedMessage)
-        resp.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, FailedToRouteMesage)
-      } else {
-        logger.trace("{} processing request...", this.getClass.getSimpleName)
-        try {
-          route(new HttpServletRequestWrapper(req), resp)
-        } catch {
-          case e: Exception =>
-            logger.error("Failed to route the request to the origin service", e)
-            resp.sendError(SC_INTERNAL_SERVER_ERROR, FailedToRouteMesage)
-        }
-        logger.trace("{} returning response...", this.getClass.getSimpleName)
+    if (!initialized) {
+      logger.error(NotInitializedMessage)
+      trySendError()
+    } else {
+      logger.trace("{} processing request...", this.getClass.getSimpleName)
+      try {
+        doRoute(new HttpServletRequestWrapper(req), resp)
+      } catch {
+        case NonFatal(e) =>
+          logger.error(FailedToRouteMessage, e)
+          trySendError()
       }
-    } catch {
-      case e: IllegalStateException =>
-        logger.error("Failed to Send Error due to response already being committed", e)
+      logger.trace("{} returning response...", this.getClass.getSimpleName)
+    }
+
+    def trySendError(): Unit = {
+      if (!resp.isCommitted) {
+        resp.sendError(SC_INTERNAL_SERVER_ERROR, FailedToRouteMessage)
+      } else {
+        logger.error("Failed to Send Error due to response already being committed")
+      }
     }
   }
 
-  def route(servletRequest: HttpServletRequestWrapper, servletResponse: HttpServletResponse): Unit = {
+  def doRoute(servletRequest: HttpServletRequestWrapper, servletResponse: HttpServletResponse): Unit = {
     val attributeDestinations =
       Option(servletRequest.getAttribute(CommonRequestAttributes.DESTINATIONS))
         .getOrElse(List.empty[RouteDestination]).asInstanceOf[List[RouteDestination]]
     val defaultDestinations = {
-      defaultDestination.get match {
+      defaultDestination.get() match {
         case Some(defDest) =>
           List[RouteDestination] {
             new RouteDestination(defDest.getId, servletRequest.getRequestURI, -1)
@@ -157,7 +161,7 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
       .headOption
       .foreach { routeDest =>
         localNode.get() match {
-          case Some(node) => doRoute(servletRequest, servletResponse, routeDest, node)
+          case Some(node) => doDestination(servletRequest, servletResponse, routeDest, node)
           case _ =>
             logger.error("Invalid local node definition")
             servletResponse.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
@@ -165,10 +169,10 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
       }
   }
 
-  def doRoute(servletRequest: HttpServletRequestWrapper, servletResponse: HttpServletResponse, routeDest: RouteDestination, node: Node): Unit = {
+  def doDestination(servletRequest: HttpServletRequestWrapper, servletResponse: HttpServletResponse, routeDest: RouteDestination, node: Node): Unit = {
     destinations.get().get(routeDest.getDestinationId) match {
       case Some(destination) =>
-        ??(localNode.get().get) match {
+        localNode.get() match {
           case Some(localhost) =>
             getDestinationLocation(servletRequest, destination, localhost, routeDest.getUri, servletRequest) match {
               case Some(locationUrl) =>
@@ -202,7 +206,7 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
             logger.warn("No valid local host defined; not forwarding")
         }
       case id =>
-        val localId = ??(localCluster.get().get.getId) match {
+        val localId = localCluster.get().map(_.getId) match {
           case Some(locId) => locId
           case None => ""
         }
@@ -221,7 +225,7 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
         Some(buildEndpoint(localhost, localPorts, endpoint, uri, servletRequest))
       case cluster: DestinationCluster =>
         // TODO: Remove this when routing to a cluster is removed.
-        ??(domains.get().get.getDomain(cluster.getCluster.getId)) match {
+        domains.get().map(_.getDomain(cluster.getCluster.getId)) match {
           case Some(clusterWrapper) =>
             val routableNode = clusterWrapper.getNextNode
             val port = if (HttpsProtocol.equalsIgnoreCase(cluster.getProtocol)) routableNode.getHttpsPort else routableNode.getHttpPort
@@ -355,14 +359,7 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
 object ReposeRoutingServlet {
   final val SystemModelConfigurationFilename = "system-model.cfg.xml"
   final val NotInitializedMessage = "The ReposeRoutingServlet has not yet been initialized"
-  final val FailedToRouteMesage = "Failed to route the request to the origin service"
+  final val FailedToRouteMessage = "Failed to route the request to the origin service"
   private val AllEndpoints = "All Endpoints"
   private val HttpsProtocol = "https"
-
-  // Snippet from:
-  // > https://stackoverflow.com/questions/1163393/best-scala-imitation-of-groovys-safe-dereference-operator
-  def ??[A](block: => A): Option[A] = block match {
-    case a: A => Some(a)
-    case _ => None
-  }
 }
