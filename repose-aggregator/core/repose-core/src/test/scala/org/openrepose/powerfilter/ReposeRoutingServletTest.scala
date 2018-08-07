@@ -21,6 +21,7 @@ package org.openrepose.powerfilter
 
 import java.io.IOException
 import java.net.URL
+import java.util.Optional
 
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
@@ -53,7 +54,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
   var mockRequestHeaderService: RequestHeaderService = _
   var mockResponseHeaderService: ResponseHeaderService = _
   var mockReportingService: ReportingService = _
-  var mockMetricsService: Option[MetricsService] = _
+  var mockMetricsService: Optional[MetricsService] = _
   var reposeRoutingServlet: ReposeRoutingServlet = _
   var listAppender: ListAppender = _
 
@@ -65,7 +66,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     mockRequestHeaderService = mock[RequestHeaderService]
     mockResponseHeaderService = mock[ResponseHeaderService]
     mockReportingService = mock[ReportingService]
-    mockMetricsService = None
+    mockMetricsService = Optional.empty()
     reposeRoutingServlet = new ReposeRoutingServlet(
       DefaultClusterId,
       DefaultNodeId,

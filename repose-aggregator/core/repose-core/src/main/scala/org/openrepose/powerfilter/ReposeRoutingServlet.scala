@@ -21,6 +21,7 @@ package org.openrepose.powerfilter
 
 import java.io.IOException
 import java.net.{MalformedURLException, URL}
+import java.util.Optional
 import java.util.concurrent.atomic.AtomicReference
 
 import com.codahale.metrics.MetricRegistry
@@ -58,11 +59,12 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
                                      requestHeaderService: RequestHeaderService,
                                      responseHeaderService: ResponseHeaderService,
                                      reportingService: ReportingService,
-                                     metricsService: Option[MetricsService]
+                                     optMetricsService: Optional[MetricsService]
                                     ) extends HttpServlet with UpdateListener[SystemModel] with StrictLogging {
 
   private val localCluster = new AtomicReference[Option[ReposeCluster]](None)
   private val localNode = new AtomicReference[Option[Node]](None)
+  private val metricsService = new AtomicReference[Option[MetricsService]](Option(optMetricsService.orElse(null)))
   private val defaultDestination = new AtomicReference[Option[Destination]](None)
   private val destinations = new AtomicReference[Map[String, Destination]](Map.empty[String, Destination])
   private val domains = new AtomicReference[Option[Clusters]](None) // TODO: Remove this when routing to a cluster is removed.
@@ -295,7 +297,7 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
       // track response code for endpoint & across all endpoints
       val endpoint = getEndpoint(destination, locationUrl)
       val servletResponseStatus = servletResponse.getStatus
-      metricsService.foreach { metSer =>
+      metricsService.get().foreach { metSer =>
         markResponseCodeHelper(metSer, servletResponseStatus, endpoint)
         markResponseCodeHelper(metSer, servletResponseStatus, AllEndpoints)
         markRequestTimeoutHelper(metSer, servletResponseStatus, endpoint)
