@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.powerfilter
+package org.openrepose.core
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.util.concurrent.TimeUnit
@@ -33,7 +33,8 @@ import javax.servlet.{Filter, FilterChain, ServletRequest, ServletResponse}
 import org.openrepose.commons.utils.io.{BufferedServletInputStream, RawInputStreamReader}
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{PASSTHROUGH, READONLY}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
-import org.openrepose.powerfilter.ReposeFilterChain._
+import org.openrepose.core.ReposeFilterChain._
+import org.openrepose.core.ReposeFilterChain.FilterContext
 import org.openrepose.powerfilter.intrafilterlogging.{RequestLog, ResponseLog}
 import org.slf4j.{Logger, LoggerFactory}
 

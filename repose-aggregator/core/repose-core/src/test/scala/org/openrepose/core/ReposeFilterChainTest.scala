@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.powerfilter
+package org.openrepose.core
 
 import java.util.concurrent.TimeUnit
 
@@ -35,7 +35,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, anyLong, same, eq => meq}
 import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
-import org.openrepose.powerfilter.ReposeFilterChain.{FilterContext, TracingHeader}
+import org.openrepose.core.ReposeFilterChain.{FilterContext, TracingHeader}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
