@@ -44,7 +44,6 @@ class EarClassProviderTest extends FunSpec with Matchers {
   val testProps = ConfigFactory.load("test.properties")
   val version = testProps.getString("earFilesVersion")
   val earFile = getEarFile("core-test-filter-bundle")
-  val random = new Random()
 
   def getEarFile(name: String): File = {
     new File(testProps.getString("earFilesLocation"), s"$name-$version.ear")
@@ -335,7 +334,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
       val artifactFile = new File(root, unpackedArtifactRelativePath)
       artifactFile.getParentFile.mkdirs()
       artifactFile.createNewFile()
-      new FileWriter(artifactFile).append(random.nextString(1024)).close()
+      new FileWriter(artifactFile).append(Random.nextString(1024)).close()
 
       val invalidArtifactCrc = FileUtils.checksumCRC32(artifactFile)
 
