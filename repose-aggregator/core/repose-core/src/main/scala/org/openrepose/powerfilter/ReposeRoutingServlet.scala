@@ -169,41 +169,36 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
       }
   }
 
-  def doDestination(servletRequest: HttpServletRequestWrapper, servletResponse: HttpServletResponse, routeDest: RouteDestination, node: Node): Unit = {
+  def doDestination(servletRequest: HttpServletRequestWrapper, servletResponse: HttpServletResponse, routeDest: RouteDestination, localhost: Node): Unit = {
     destinations.get().get(routeDest.getDestinationId) match {
       case Some(destination) =>
-        localNode.get() match {
-          case Some(localhost) =>
-            getDestinationLocation(servletRequest, destination, localhost, routeDest.getUri, servletRequest) match {
-              case Some(locationUrl) =>
-                // According to the Java 6 javadocs the routeDestination passed into getContext:
-                // "The given path [routeDestination] must begin with /, is interpreted relative to the server's document root
-                // and is matched against the context roots of other web applications hosted on this container."
-                Option(getServletContext.getContext(locationUrl.getPath)).foreach { targetContext =>
-                  // Capture this for Location header processing
-                  val locationUrlPath = locationUrl.getPath
-                  val targetContextPath = targetContext.getContextPath
-                  val dispatchPath = if (locationUrlPath.startsWith(targetContextPath)) locationUrlPath.substring(targetContextPath.length) else locationUrlPath
-                  Option(targetContext.getRequestDispatcher(dispatchPath)) match {
-                    case Some(dispatcher) =>
-                      doDispatch(
-                        servletRequest,
-                        servletResponse,
-                        locationUrl,
-                        dispatchPath,
-                        targetContext,
-                        routeDest,
-                        dispatcher,
-                        destination)
-                    case _ =>
-                      logger.warn(s"No Request Dispatcher found in Servlet Context for $dispatchPath; not forwarding")
-                  }
-                }
-              case _ =>
-                logger.warn("No route-able node found; not forwarding")
+        getDestinationLocation(servletRequest, destination, localhost, routeDest.getUri, servletRequest) match {
+          case Some(locationUrl) =>
+            // According to the Java 6 javadocs the routeDestination passed into getContext:
+            // "The given path [routeDestination] must begin with /, is interpreted relative to the server's document root
+            // and is matched against the context roots of other web applications hosted on this container."
+            Option(getServletContext.getContext(locationUrl.getPath)).foreach { targetContext =>
+              // Capture this for Location header processing
+              val locationUrlPath = locationUrl.getPath
+              val targetContextPath = targetContext.getContextPath
+              val dispatchPath = if (locationUrlPath.startsWith(targetContextPath)) locationUrlPath.substring(targetContextPath.length) else locationUrlPath
+              Option(targetContext.getRequestDispatcher(dispatchPath)) match {
+                case Some(dispatcher) =>
+                  doDispatch(
+                    servletRequest,
+                    servletResponse,
+                    locationUrl,
+                    dispatchPath,
+                    targetContext,
+                    routeDest,
+                    dispatcher,
+                    destination)
+                case _ =>
+                  logger.warn(s"No Request Dispatcher found in Servlet Context for $dispatchPath; not forwarding")
+              }
             }
           case _ =>
-            logger.warn("No valid local host defined; not forwarding")
+            logger.warn("No route-able node found; not forwarding")
         }
       case id =>
         val localId = localCluster.get().map(_.getId) match {
