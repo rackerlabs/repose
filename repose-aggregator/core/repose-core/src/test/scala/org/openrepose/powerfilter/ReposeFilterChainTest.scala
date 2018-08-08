@@ -39,6 +39,7 @@ import org.openrepose.powerfilter.ReposeFilterChain.{FilterContext, TracingHeade
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+import org.scalatest.LoneElement._
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.collection.JavaConverters._
@@ -293,7 +294,7 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
 
       filterChain.doFilter(mockRequest, mockResponse)
 
-      mockResponse.getStatus should be(SC_INTERNAL_SERVER_ERROR)
+      mockResponse.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
     }
 
     it("should log if there was a an exception and the response was already committed") {
@@ -327,8 +328,7 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
 
       filterChain.doFilter(mockRequest, mockResponse)
 
-      tracer.finishedSpans should have length 1
-      tracer.finishedSpans.asScala.headOption.map(_.operationName) shouldBe Some("Filter foo")
+      tracer.finishedSpans.asScala.loneElement.operationName() shouldBe "Filter foo"
     }
   }
 }

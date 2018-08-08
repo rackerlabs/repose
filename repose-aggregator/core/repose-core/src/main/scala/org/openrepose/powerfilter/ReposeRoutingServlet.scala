@@ -22,20 +22,19 @@ package org.openrepose.powerfilter
 import java.io.IOException
 import java.net.{MalformedURLException, URL}
 import java.util.Optional
-import java.util.concurrent.atomic.AtomicReference
 
 import com.codahale.metrics.MetricRegistry
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.inject.{Inject, Named}
-import javax.servlet.http.HttpServletResponse.{SC_INTERNAL_SERVER_ERROR, SC_REQUEST_TIMEOUT}
+import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 import javax.servlet.{RequestDispatcher, ServletContext}
 import org.apache.commons.lang3.StringUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.StringUriUtilities
-import org.openrepose.commons.utils.http.CommonRequestAttributes
+import org.openrepose.commons.utils.http.{CommonHttpHeader, CommonRequestAttributes}
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException
-import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, RouteDestination}
+import org.openrepose.commons.utils.servlet.http.{HttpServletRequestUtil, HttpServletRequestWrapper, RouteDestination}
 import org.openrepose.core.domain.Port
 import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.services.config.ConfigurationService
@@ -44,8 +43,8 @@ import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.services.routing.robin.Clusters
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.core.systemmodel.config._
-import org.openrepose.nodeservice.request.RequestHeaderService
-import org.openrepose.nodeservice.response.ResponseHeaderService
+import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService
+import org.openrepose.nodeservice.response.LocationHeaderBuilder
 import org.openrepose.powerfilter.ReposeRoutingServlet._
 import org.springframework.beans.factory.annotation.Value
 
@@ -53,21 +52,21 @@ import scala.collection.JavaConverters._
 import scala.util.Try
 
 @Named
-class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
+class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSION) reposeVersion: String,
+                                     @Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
                                      @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String,
                                      configurationService: ConfigurationService,
-                                     requestHeaderService: RequestHeaderService,
-                                     responseHeaderService: ResponseHeaderService,
+                                     containerConfigurationService: ContainerConfigurationService,
                                      reportingService: ReportingService,
                                      optMetricsService: Optional[MetricsService]
                                     ) extends HttpServlet with UpdateListener[SystemModel] with StrictLogging {
 
-  private val localCluster = new AtomicReference[Option[ReposeCluster]](None)
-  private val localNode = new AtomicReference[Option[Node]](None)
-  private val metricsService = new AtomicReference[Option[MetricsService]](Option(optMetricsService.orElse(null)))
-  private val defaultDestination = new AtomicReference[Option[Destination]](None)
-  private val destinations = new AtomicReference[Map[String, Destination]](Map.empty[String, Destination])
-  private val domains = new AtomicReference[Option[Clusters]](None) // TODO: Remove this when routing to a cluster is removed.
+  private var localCluster: Option[ReposeCluster] = None
+  private var localNode: Option[Node] = None
+  private val metricsService: Option[MetricsService] = Option(optMetricsService.orElse(null))
+  private var defaultDestination: Option[Destination] = None
+  private var destinations: Map[String, Destination] = Map.empty
+  private var domains: Option[Clusters] = None // TODO: Remove this when routing to a cluster is removed.
   private var initialized = false
 
   override def init(): Unit = {
@@ -78,42 +77,39 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
       this,
       classOf[SystemModel]
     )
+    logger.trace("initialized.")
   }
 
   override def destroy(): Unit = {
+    logger.trace("destroying ...")
     configurationService.unsubscribeFrom(SystemModelConfigurationFilename, this)
-    logger.info("{}:{} -- Obfuscated Quigley Matrix - Destroying Repose Routing Servlet", clusterId, nodeId)
+    logger.info("{}:{} -- Obfuscated Quigley Matrix - Destroyed Repose Routing Servlet", clusterId, nodeId)
   }
 
   override def configurationUpdated(configurationObject: SystemModel): Unit = {
+    logger.trace("received a configuration update")
     //Set the current system model, and just update the nodes.
     val interrogator = new SystemModelInterrogator(clusterId, nodeId)
-    localCluster.set(Option(interrogator.getLocalCluster(configurationObject).orElse(null)))
-    localNode.set(Option(interrogator.getLocalNode(configurationObject).orElse(null)))
-    defaultDestination.set(Option(interrogator.getDefaultDestination(configurationObject).orElse(null)))
-    destinations.set(localCluster.get().map(_.getDestinations) match {
-      case Some(dests) => getDestinations(dests.getEndpoint.asScala.toList) ++ getDestinations(dests.getTarget.asScala.toList)
-      case None => Map.empty[String, Destination]
-    })
-    domains.set(Option(new Clusters(configurationObject)))
+    localCluster = Option(interrogator.getLocalCluster(configurationObject).orElse(null))
+    localNode = Option(interrogator.getLocalNode(configurationObject).orElse(null))
+    defaultDestination = Option(interrogator.getDefaultDestination(configurationObject).orElse(null))
+    destinations = localCluster
+      .map(_.getDestinations)
+      .map(dests => (dests.getEndpoint.asScala ++ dests.getTarget.asScala).groupBy(_.getId).mapValues(_.head))
+      .getOrElse(Map.empty)
+    domains = Option(new Clusters(configurationObject))
 
-    if (logger.underlying.isDebugEnabled) {
-      localCluster.get().foreach { cluster =>
-        val clusterId: String = cluster.getId
-        //Build a list of the nodes in this cluster, just so we know what we're doing
-        val clusterNodes = cluster.getNodes.getNode.asScala.map(node => s"${node.getId}-${node.getHostname}")
-        logger.debug("{}:{} - Nodes for this router: {}", clusterId, nodeId, clusterNodes)
-        val destStrings = destinations.get()
-          .filter { case (_, dest) => dest.isInstanceOf[DestinationEndpoint] }
-          .map { case (_, endpoint) => s"${endpoint.getId}-${endpoint.asInstanceOf[DestinationEndpoint].getHostname}" }
-        logger.debug("{}:{} - Destinations for this router: {}", clusterId, nodeId, destStrings)
-      }
+    localCluster.foreach { cluster =>
+      val clusterId: String = cluster.getId
+      //Build a list of the nodes in this cluster, just so we know what we're doing
+      val clusterNodes = cluster.getNodes.getNode.asScala.map(node => s"${node.getId}-${node.getHostname}")
+      logger.debug("{}:{} - Nodes for this router: {}", clusterId, nodeId, clusterNodes)
+      val destStrings = destinations
+        .filter { case (_, dest) => dest.isInstanceOf[DestinationEndpoint] }
+        .map { case (_, endpoint) => s"${endpoint.getId}-${endpoint.asInstanceOf[DestinationEndpoint].getHostname}" }
+      logger.debug("{}:{} - Destinations for this router: {}", clusterId, nodeId, destStrings)
     }
     initialized = true
-
-    def getDestinations(destList: List[Destination]): Map[String, Destination] = {
-      destList.iterator.map(dest => dest.getId -> dest).toMap
-    }
   }
 
   override def isInitialized: Boolean = {
@@ -123,54 +119,51 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
   override def service(req: HttpServletRequest, resp: HttpServletResponse): Unit = {
     if (!initialized) {
       logger.error(NotInitializedMessage)
-      trySendError()
+      trySendError(resp, SC_INTERNAL_SERVER_ERROR, FailedToRouteMessage)
     } else {
-      logger.trace("{} processing request...", this.getClass.getSimpleName)
-      Try(doRoute(new HttpServletRequestWrapper(req), resp)) recover {
+      logger.trace("processing request...")
+      Try(doRoute(new HttpServletRequestWrapper(req), resp)).recover {
         case e =>
           logger.error(FailedToRouteMessage, e)
-          trySendError()
+          trySendError(resp, SC_INTERNAL_SERVER_ERROR, FailedToRouteMessage)
       }
-      logger.trace("{} returning response...", this.getClass.getSimpleName)
+      logger.trace("returning response...")
     }
+  }
 
-    def trySendError(): Unit = {
-      if (!resp.isCommitted) {
-        resp.sendError(SC_INTERNAL_SERVER_ERROR, FailedToRouteMessage)
-      } else {
-        logger.error("Failed to Send Error due to response already being committed")
-      }
+  def trySendError(resp: HttpServletResponse, sc: Int, msg: String): Unit = {
+    if (!resp.isCommitted) {
+      resp.sendError(sc, msg)
+    } else {
+      logger.error(s"Failed to Send Error $sc with message '$msg' due to response already being committed")
     }
   }
 
   def doRoute(servletRequest: HttpServletRequestWrapper, servletResponse: HttpServletResponse): Unit = {
-    val attributeDestinations =
-      Option(servletRequest.getAttribute(CommonRequestAttributes.DESTINATIONS))
-        .getOrElse(List.empty[RouteDestination]).asInstanceOf[List[RouteDestination]]
-    val defaultDestinations = {
-      defaultDestination.get() match {
-        case Some(defDest) =>
-          List[RouteDestination] {
-            new RouteDestination(defDest.getId, servletRequest.getRequestURI, -1)
-          }
-        case _ => List.empty[RouteDestination]
-      }
-    }
+    val attributeDestinations = Option(servletRequest.getAttribute(CommonRequestAttributes.DESTINATIONS))
+      .map(_.asInstanceOf[List[RouteDestination]])
+      .getOrElse(List.empty)
+    val defaultDestinations = defaultDestination
+      .map(defDest => new RouteDestination(defDest.getId, servletRequest.getRequestURI, -1))
+      .toList
     (attributeDestinations ++ defaultDestinations)
       .sortWith(_.compareTo(_) > 0) // Highest Quality first
-      .headOption
-      .foreach { routeDest =>
-        localNode.get() match {
+      .headOption match {
+      case Some(routeDest) =>
+        localNode match {
           case Some(node) => doDestination(servletRequest, servletResponse, routeDest, node)
           case _ =>
             logger.error("Invalid local node definition")
-            servletResponse.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
+            servletResponse.setStatus(SC_SERVICE_UNAVAILABLE)
         }
-      }
+      case _ =>
+        logger.warn("No Valid routing destination specified.")
+        servletResponse.setStatus(SC_INTERNAL_SERVER_ERROR)
+    }
   }
 
   def doDestination(servletRequest: HttpServletRequestWrapper, servletResponse: HttpServletResponse, routeDest: RouteDestination, localhost: Node): Unit = {
-    destinations.get().get(routeDest.getDestinationId) match {
+    destinations.get(routeDest.getDestinationId) match {
       case Some(destination) =>
         getDestinationLocation(servletRequest, destination, localhost, routeDest.getUri, servletRequest) match {
           case Some(locationUrl) =>
@@ -194,19 +187,16 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
                     dispatcher,
                     destination)
                 case _ =>
-                  logger.warn(s"No Request Dispatcher found in Servlet Context for $dispatchPath; not forwarding")
+                  logger.error(s"No Request Dispatcher found in Servlet Context for $dispatchPath; not forwarding")
               }
             }
           case _ =>
             logger.warn("No route-able node found; not forwarding")
         }
-      case id =>
-        val localId = localCluster.get().map(_.getId) match {
-          case Some(locId) => locId
-          case None => ""
-        }
-        logger.warn("Invalid routing destination specified: {} for cluster: {} ", id, localId)
-        servletResponse.setStatus(HttpServletResponse.SC_NOT_FOUND)
+      case _ =>
+        val localId = localCluster.map(_.getId).getOrElse("")
+        logger.warn("Invalid routing destination specified: {} for cluster: {} ", routeDest.getDestinationId, localId)
+        servletResponse.setStatus(SC_NOT_FOUND)
     }
   }
 
@@ -217,14 +207,14 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
 
     destination match {
       case endpoint: DestinationEndpoint =>
-        Some(buildEndpoint(localhost, localPorts, endpoint, uri, servletRequest))
+        Option(buildEndpoint(localhost, localPorts, endpoint, uri, servletRequest))
       case cluster: DestinationCluster =>
         // TODO: Remove this when routing to a cluster is removed.
-        domains.get().map(_.getDomain(cluster.getCluster.getId)) match {
+        domains.map(_.getDomain(cluster.getCluster.getId)) match {
           case Some(clusterWrapper) =>
             val routableNode = clusterWrapper.getNextNode
             val port = if (HttpsProtocol.equalsIgnoreCase(cluster.getProtocol)) routableNode.getHttpsPort else routableNode.getHttpPort
-            Some(new URL(cluster.getProtocol, routableNode.getHostname, port, cluster.getRootPath + uri))
+            Option(new URL(cluster.getProtocol, routableNode.getHostname, port, StringUriUtilities.concatUris(cluster.getRootPath, uri)))
           case None =>
             logger.warn("No routable node for domain: " + cluster.getId)
             None
@@ -278,8 +268,8 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
     servletRequest.setServerPort(locationUrl.getPort)
     servletRequest.setRequestURI(locationUrl.getPath)
 
-    requestHeaderService.setVia(servletRequest)
-    requestHeaderService.setXForwardedFor(servletRequest)
+    setVia(servletRequest)
+    setXForwardedFor(servletRequest)
     logger.debug("Attempting to route to: {}", locationUrl.getPath)
     logger.debug("  Using dispatcher for: {}", uri)
     logger.debug("           Request URL: {}", servletRequest.getRequestURL)
@@ -292,7 +282,7 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
       // track response code for endpoint & across all endpoints
       val endpoint = getEndpoint(destination, locationUrl)
       val servletResponseStatus = servletResponse.getStatus
-      metricsService.get().foreach { metSer =>
+      metricsService.foreach { metSer =>
         markResponseCodeHelper(metSer, servletResponseStatus, endpoint)
         markResponseCodeHelper(metSer, servletResponseStatus, AllEndpoints)
         markRequestTimeoutHelper(metSer, servletResponseStatus, endpoint)
@@ -300,7 +290,7 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
       }
       val stopTime = System.currentTimeMillis
       reportingService.recordServiceResponse(routeDest.getDestinationId, servletResponseStatus, stopTime - startTime)
-      responseHeaderService.fixLocationHeader(
+      fixLocationHeader(
         servletRequest.getRequest.asInstanceOf[HttpServletRequest],
         servletResponse,
         routeDest,
@@ -309,11 +299,29 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
     } recover {
       case e: IOException if e.getCause.isInstanceOf[ReadLimitReachedException] =>
         logger.error("Error reading request content", e)
-        servletResponse.sendError(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Error reading request content")
+        trySendError(servletResponse, SC_REQUEST_ENTITY_TOO_LARGE, "Error reading request content")
       case e =>
         logger.error("Error communicating with {}", locationUrl.getPath, e)
-        servletResponse.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
+        servletResponse.setStatus(SC_SERVICE_UNAVAILABLE)
     }
+  }
+
+  def setVia(request: HttpServletRequestWrapper): Unit = {
+    val builder = new StringBuilder
+    builder.append(HttpServletRequestUtil.getProtocolVersion(request))
+    val requestVia = containerConfigurationService.getRequestVia
+    builder.append(" ")
+    if (requestVia.isPresent) {
+      builder.append(requestVia.get)
+    } else {
+      builder.append(localNode.map(_.getHostname).getOrElse("Repose")).append(":").append(request.getLocalPort)
+    }
+    builder.append(" (Repose/").append(reposeVersion).append(")")
+    request.addHeader(CommonHttpHeader.VIA, builder.toString)
+  }
+
+  def setXForwardedFor(request: HttpServletRequestWrapper): Unit = {
+    request.addHeader(CommonHttpHeader.X_FORWARDED_FOR, request.getRemoteAddr)
   }
 
   def getEndpoint(dest: Destination, locationUrl: URL): String = {
@@ -346,12 +354,25 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_
         .mark()
     }
   }
+
+  def fixLocationHeader(originalRequest: HttpServletRequest, response: HttpServletResponse, destination: RouteDestination, destinationLocationUri: String, proxiedRootContext: String): Unit = {
+    var destinationUri = Option(destinationLocationUri).map(_.split("\\?")(0)).getOrElse("")
+    if (!destinationUri.matches("^https?://.*")) { // local dispatch
+      destinationUri = proxiedRootContext
+    }
+    try
+      LocationHeaderBuilder.setLocationHeader(originalRequest, response, destinationUri, destination.getContextRemoved, proxiedRootContext)
+    catch {
+      case ex: MalformedURLException =>
+        logger.warn("Invalid URL in location header processing", ex)
+    }
+  }
 }
 
 object ReposeRoutingServlet {
   final val SystemModelConfigurationFilename = "system-model.cfg.xml"
   final val NotInitializedMessage = "The ReposeRoutingServlet has not yet been initialized"
   final val FailedToRouteMessage = "Failed to route the request to the origin service"
-  private val AllEndpoints = "All Endpoints"
-  private val HttpsProtocol = "https"
+  private final val AllEndpoints = "All Endpoints"
+  private final val HttpsProtocol = "https"
 }
