@@ -91,6 +91,13 @@ To be more specific, the deployment process is comprised of the following steps:
 Since each artifact is extracted to a directory named the hash of said artifact, deployment directory names are consistent and predictable.
 As a result, there will be only one copy of the extracted contents of each artifact, and therefore, disk space usage should also be predictable.
 
+If an artifact file exists on disk prior to the deployment process, the checksum of the artifact file will be compared to the checksum of the artifact to be deployed.
+If the checksums match, deployment of the artifact in question will be skipped.
+If the checksums do not match, the artifact will be deployed, overwriting the existing artifact file.
+To prevent contention during the deployment process, a platform-dependent lock will be acquired on the artifact file.
+The lock should prevent other processes from accessing the artifact file while it is being processed.
+Ultimately, the checksum and locking strategy should ensure valid deployments while preventing unnecessary writes to disk and file contention when multiple *Repose* processes are running concurrently.
+
 The `auto-clean` feature may be used to delete deployment directories when *Repose* shuts down.
 This feature helps manage disk space usage, and remove the contents of artifacts which are no longer in use.
 Only deployment directories created by the instance of *Repose* which is shutting down will be deleted.
@@ -104,7 +111,16 @@ If all of the follow conditions are met, *Repose* may delete deployment director
 * At least one *Repose* process has enabled the `auto-clean` feature.
 * One of the *Repose* processes with the `auto-clean` feature enabled stops gracefully.
 
-To avoid this situation, it is highly recommended that the same `deployment-directory` is not used for more than one *Repose* instance.
+To avoid this situation, it is highly recommended that the `deployment-directory` is not shared between more than one *Repose* instance if the `auto-clean` feature is used.
+
+If the `auto-clean` feature is not being used, it should be safe to share the `deployment-directory` between multiple *Repose* instances.
+====
+
+[WARNING]
+====
+Files in the deployment directory are only removed if the `auto-clean` feature is used, and even then, only when *Repose* shuts down.
+Since files in the deployment directory are made accessible to *Repose* at runtime (via the classpath), files in the deployment directory that are not managed by *Repose* could affect the behavior of *Repose* and could even result in errors.
+As such, care should be taken to ensure that errant files do not end up in the deployment directory.
 ====
 
 == Via Header Configuration

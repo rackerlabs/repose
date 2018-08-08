@@ -19,12 +19,13 @@
  */
 package org.openrepose.commons.utils.classloader
 
-import java.io.{File, FileOutputStream, IOException}
+import java.io.{File, FileOutputStream, FileWriter, IOException}
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{FileVisitResult, Files, Path, SimpleFileVisitor}
-import javax.servlet.Filter
 
 import com.typesafe.config.ConfigFactory
+import javax.servlet.Filter
+import org.apache.commons.io.FileUtils
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.apache.logging.log4j.{Level, LogManager}
@@ -322,6 +323,50 @@ class EarClassProviderTest extends FunSpec with Matchers {
 
         bean shouldNot be(null)
       }
+    }
+  }
+
+  it ("writes the artifact file if the artifact file exists but is not valid") {
+    val packedArtifact = s"core-test-filter-$version.jar"
+    val unpackedArtifactRelativePath = s"lib/$packedArtifact"
+
+    withTempDir { root =>
+      val artifactFile = new File(root, unpackedArtifactRelativePath)
+      artifactFile.getParentFile.mkdirs()
+      artifactFile.createNewFile()
+      new FileWriter(artifactFile).append(Random.nextString(1024)).close()
+
+      val invalidArtifactCrc = FileUtils.checksumCRC32(artifactFile)
+
+      val earClassProvider = new EarClassProvider(earFile, root)
+      earClassProvider.getClassLoader()
+
+      artifactFile should exist
+      FileUtils.checksumCRC32(artifactFile) should not equal invalidArtifactCrc
+    }
+  }
+
+  it("does not write an artifact file if the artifact file exists and is valid") {
+    val packedArtifact = s"core-test-filter-$version.jar"
+    val unpackedArtifactRelativePath = s"lib/$packedArtifact"
+
+    withTempDir { root =>
+      val artifactFile = new File(root, unpackedArtifactRelativePath)
+
+      val earClassProvider = new EarClassProvider(earFile, root)
+      earClassProvider.getClassLoader()
+
+      val artifactModificationTime = artifactFile.lastModified()
+
+      Thread.sleep(100)
+
+      val earClassProvider2 = new EarClassProvider(earFile, root)
+      earClassProvider2.getClassLoader()
+
+      val artifactModificationTime2 = artifactFile.lastModified()
+
+      artifactFile should exist
+      artifactModificationTime shouldEqual artifactModificationTime2
     }
   }
 }
