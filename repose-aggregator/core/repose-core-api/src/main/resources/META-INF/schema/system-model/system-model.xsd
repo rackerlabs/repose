@@ -512,8 +512,8 @@
         </xs:assert>
         <xs:assert vc:minVersion="1.1"
                    test="count(mod:*[xs:boolean(@default) = true()]) eq 1"
-                   xerces:message="There should only be one default destination"
-                   saxon:message="There should only be one default destination">
+                   xerces:message="There should be one and only one default destination"
+                   saxon:message="There should be one and only one default destination">
         </xs:assert>
         <xs:assert vc:minVersion="1.1" test="count(distinct-values(mod:*/@id)) = count(mod:*/@id)"
                    xerces:message="Destinations must have ids unique within their containing list"
