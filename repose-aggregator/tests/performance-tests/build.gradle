@@ -18,4 +18,26 @@ license {
     exclude "**/*.xsl"
 }
 
+task buildAnsibleDirectory() {
+    dependsOn("processPerformanceTestResources")
+    ext.outputDir = "$buildDir/ansible_root"
+    inputs.files(processPerformanceTestResources.outputs,
+                sourceSets.performanceTest.scala.srcDirs)
+    outputs.dir(outputDir)
+
+    doLast {
+        file(outputDir).mkdirs()
+
+        copy {
+            from processPerformanceTestResources.outputs
+            into outputDir
+        }
+
+        copy {
+            from sourceSets.performanceTest.scala.srcDirs
+            into outputDir + "/roles/gatling/files/simulations"
+        }
+    }
+}
+
 // todo: do not produce (or at least, do not publish) any artifacts for this project
