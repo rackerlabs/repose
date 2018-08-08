@@ -21,10 +21,8 @@
 {
   gatling: {
     install: {
-      # Note: If the version of Gatling changes, it should also be changed in the Gradle versions properties
-      # Note: file so that our tests, test library, and Gatling runtime environment stay in sync.
-      download_url: "https://oss.sonatype.org/content/repositories/releases/io/gatling/highcharts/gatling-charts-highcharts-bundle/2.2.4/gatling-charts-highcharts-bundle-2.2.4-bundle.zip",
-      dir: "gatling-charts-highcharts-bundle-2.2.4"
+      download_url: "https://oss.sonatype.org/content/repositories/releases/io/gatling/highcharts/gatling-charts-highcharts-bundle/@gatlingVersion@/gatling-charts-highcharts-bundle-@gatlingVersion@-bundle.zip",
+      dir: "gatling-charts-highcharts-bundle-@gatlingVersion@"
     },
     test: {
       config: null,

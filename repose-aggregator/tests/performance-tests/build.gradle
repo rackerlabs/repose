@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 testSets {
     performanceTest
 }
@@ -16,6 +18,13 @@ license {
     exclude "**/*.json"
     exclude "**/saml*.xml"
     exclude "**/*.xsl"
+}
+
+processPerformanceTestResources {
+    //INFO: We'd like to use the more standard gradle 'expand( docsHome: docsHome)',
+    // however it chokes pretty hard on the regexs we sprinkle into our xml specifically the `\`.
+    // Instead I've elected to use ant based filtering.
+    filter(ReplaceTokens, tokens: [gatlingVersion: versionProperties.get('gatlingVersion')])
 }
 
 task buildAnsibleDirectory() {
