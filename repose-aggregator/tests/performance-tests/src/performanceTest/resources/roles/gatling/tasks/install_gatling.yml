@@ -75,10 +75,8 @@
     mode: 0644
     backup: yes
 
-- name: Copy the Repose library for Gatling
+- name: Copy the Repose libraries and dependencies
   copy:
-    src: "{{ item }}"
-    dest: /root/gatling/current/lib/{{ item | basename }}
+    src: libs
+    dest: /root/gatling/current/lib
     mode: 0644
-  with_fileglob:
-    - performance-test-framework*.jar
