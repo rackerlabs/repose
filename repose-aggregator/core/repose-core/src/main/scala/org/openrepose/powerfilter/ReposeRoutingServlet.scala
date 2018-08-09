@@ -360,9 +360,7 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
     if (!destinationUri.matches("^https?://.*")) { // local dispatch
       destinationUri = proxiedRootContext
     }
-    try
-      LocationHeaderBuilder.setLocationHeader(originalRequest, response, destinationUri, destination.getContextRemoved, proxiedRootContext)
-    catch {
+    Try(LocationHeaderBuilder.setLocationHeader(originalRequest, response, destinationUri, destination.getContextRemoved, proxiedRootContext)).recover {
       case ex: MalformedURLException =>
         logger.warn("Invalid URL in location header processing", ex)
     }
