@@ -37,8 +37,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.reporting.ReportingService
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.systemmodel.config._
-import org.openrepose.nodeservice.request.RequestHeaderService
-import org.openrepose.nodeservice.response.ResponseHeaderService
+import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService
 import org.openrepose.powerfilter.ReposeRoutingServletTest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -51,8 +50,7 @@ import scala.collection.JavaConversions._
 class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with MockitoSugar with Matchers {
   var mockServletConfig: ServletConfig = _
   var mockConfigurationService: ConfigurationService = _
-  var mockRequestHeaderService: RequestHeaderService = _
-  var mockResponseHeaderService: ResponseHeaderService = _
+  var mockContainerConfigurationService: ContainerConfigurationService = _
   var mockReportingService: ReportingService = _
   var mockMetricsService: Optional[MetricsService] = _
   var reposeRoutingServlet: ReposeRoutingServlet = _
@@ -63,16 +61,15 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
 
     mockServletConfig = new MockServletConfig()
     mockConfigurationService = mock[ConfigurationService]
-    mockRequestHeaderService = mock[RequestHeaderService]
-    mockResponseHeaderService = mock[ResponseHeaderService]
+    mockContainerConfigurationService = mock[ContainerConfigurationService]
     mockReportingService = mock[ReportingService]
     mockMetricsService = Optional.empty()
     reposeRoutingServlet = new ReposeRoutingServlet(
+      DefaultVersion,
       DefaultClusterId,
       DefaultNodeId,
       mockConfigurationService,
-      mockRequestHeaderService,
-      mockResponseHeaderService,
+      mockContainerConfigurationService,
       mockReportingService,
       mockMetricsService)
 
@@ -223,6 +220,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
 }
 
 object ReposeRoutingServletTest {
+  final val DefaultVersion = "0.0.0.0"
   final val DefaultClusterId = "defaultClusterId"
   final val DefaultNodeId = "defaultNodeId"
   final val DefaultNodeName = "defaultNodeName"
