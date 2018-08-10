@@ -14,7 +14,7 @@ def perfTests = []
 stage("Determine performance tests to run") {
     node("performance") {
         checkout scm
-        dir("repose-aggregator/tests/performance-tests/test_vars") {
+        dir("repose-aggregator/tests/performance-tests/src/performanceTest/resources/test_vars") {
             def files = findFiles(glob: "**/*.yml")
             for (int index = 0; index < files.size(); index++) {
                 perfTests.add(files[index].path.replace(".yml", ""))
@@ -56,9 +56,6 @@ stage("Performance Test") {
 
     // builds the Repose artifacts for performance test jobs to use
     build("repose-gradle-package")
-
-    // builds the performance test library used by all these jobs
-    build("performance-test-library")
 
     // starts the list of performance test jobs in parallel
     parallel(jobsToRun)
