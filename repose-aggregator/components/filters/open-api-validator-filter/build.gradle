@@ -1,0 +1,9 @@
+dependencies {
+    compile project(":repose-aggregator:commons:commons-utilities")
+    compile "org.scala-lang:scala-library"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
+    compile "com.atlassian.oai:swagger-request-validator-core"
+
+    compileOnly "javax.servlet:javax.servlet-api"
+    compileOnly "javax.inject:javax.inject"
+}

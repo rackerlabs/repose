@@ -25,6 +25,7 @@ dependencies {
     earlib project(":repose-aggregator:components:filters:keystone-v2-filter")
     earlib project(":repose-aggregator:components:filters:keystone-v2-basic-auth-filter")
     earlib project(":repose-aggregator:components:filters:merge-header-filter")
+    earlib project(":repose-aggregator:components:filters:open-api-validator-filter")
     earlib project(":repose-aggregator:components:filters:openstack-identity-v3-filter")
     earlib project(":repose-aggregator:components:filters:rate-limiting-filter")
     earlib project(":repose-aggregator:components:filters:regex-rbac-filter")
