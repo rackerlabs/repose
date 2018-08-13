@@ -33,7 +33,7 @@ class DefaultDestinationTest extends ReposeValveTest {
 
     Map params = [:]
 
-    String errorMessage = "There should only be one default destination."
+    String errorMessage = "There should be one and only one default destination."
 
     def setupSpec() {
         deproxy = new Deproxy()
