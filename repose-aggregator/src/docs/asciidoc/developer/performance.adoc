@@ -133,7 +133,7 @@ The directory structure of the performance tests is organized by `category` and 
 That is, each file is located in a directory named after the specific `test` which is itself located in a directory named after the `category` of test.
 For example, the repose configuration files directory:
 
-* `repose-aggregator/tests/performance-tests/roles/repose/files/config/`
+* `repose-aggregator/tests/performance-tests/src/performanceTest/resources/roles/repose/files/config/`
 
 contains the `category` sub-directories `filters/`, `services/`, and `use-cases/`.
 
@@ -141,7 +141,7 @@ Armed with this information, these are the basic steps to create a new test:
 
 . Create a vars file for the new test.
 .. This needs to be located at:
-* `repose-aggregator/tests/performance-tests/test_vars/{category}/{test}.yaml`
+* `repose-aggregator/tests/performance-tests/src/performanceTest/resources/test_vars/{category}/{test}.yaml`
 .. At a minimum, the vars file should contain:
 * `dir_prefix`
 +
@@ -164,7 +164,7 @@ The `name` should follow the Camel Cased pattern of `{Test}{Category}Simulation`
 ====
 . If necessary, add *Repose* configuration files.
 .. Template files should be placed in the directory:
-* `repose-aggregator/tests/performance-tests/roles/repose/templates/config/{dir_prefix}/`
+* `repose-aggregator/tests/performance-tests/src/performanceTest/resources/roles/repose/templates/config/{dir_prefix}/`
 +
 [NOTE]
 ====
@@ -173,14 +173,14 @@ These templates allow users to add dynamic content to files and Ansible variable
 Jinja2 templated files must have a `.j2` file extension appended to the file name and it will be removed as part of the templating process.
 ====
 .. Configuration files should be placed in the directory:
-* `repose-aggregator/tests/performance-tests/roles/repose/files/config/{dir_prefix}/`
+* `repose-aggregator/tests/performance-tests/src/performanceTest/resources/roles/repose/files/config/{dir_prefix}/`
 . Create a http://gatling.io/docs/current/general/concepts/#simulation[Gatling simulation].
 .. The Gatling simulation which will be responsible for generating test traffic and performance test data, should be created in the file:
-* `repose-aggregator/tests/performance-tests/roles/gatling/files/simulations/{package}/{name}.scala`
+* `repose-aggregator/tests/performance-tests/src/performanceTest/scala/{package}/{name}.scala`
 .. The Gatling simulation should, in most cases, extend the `AbstractReposeSimulation` class provided by the *Repose* `performance-test-library`.
 . If necessary, add mock services.
 .. Create any necessary mocks in the directory:
-* `repose-aggregator/tests/performance-tests/roles/repose/files/mocks/{dir_prefix}/`.
+* `repose-aggregator/tests/performance-tests/src/performanceTest/resources/roles/repose/files/mocks/{dir_prefix}/`.
 
 === Running a Test Automatically
 
@@ -325,15 +325,23 @@ Files and directories of interest:
 
 == Additional Information
 
+=== Test Preparation
+
+The Ansible directory is prepared by running the Gradle task `buildAnsibleDirectory`.
+The base ansible files are processed using an ant based templating, this allows any build time values to be templated in (such as the gatling version to use).
+The simulations are copied in from the source directory.
+Any dependencies of the simulations will be copied into place for placement in the Gatling `lib` directory.
+
 === Performance Test Library
 
-To reduce redundancy, the *Repose* team created the `performance-test-library` for Gatling.
+To reduce redundancy, the *Repose* team created the `performance-test-framework` for Gatling.
 This library includes the `AbstractReposeSimulation`, which is meant to serve as the basis for most, if not all, simulations.
 
-To utilize the `performance-test-library`, its JAR file must be placed in the Gatling `lib` directory.
+To utilize the `performance-test-framework`, its JAR file must be placed in the Gatling `lib` directory.
+This is handled along with any other dependencies by the Gradle task `buildAnsibleDirectory`.
 The `lib` directory is a sub-directory of the Gatling home directory.
 
-In the context of the <<Framework>>, Jenkins will build the `performance-test-library` and copy the resulting JAR into the Ansible directory structure where it will then be copied to the hosts running Gatling.
+In the context of the <<Framework>>, Jenkins will build the `performance-test-framework` and copy the resulting JAR into the Ansible directory structure where it will then be copied to the hosts running Gatling.
 
 === Warmup Duration
 

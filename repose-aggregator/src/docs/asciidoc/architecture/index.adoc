@@ -16,8 +16,3 @@ Provides details about the packages *Repose* maintains for easy installation by 
 
 == <<system-model.adoc#,System Model>>
 Provides detail about the *Repose* system model -- the configuration file which outlines the deployment topology.
-
-== Testing
-
-=== <<performance.adoc#,Performance Testing>>
-Provides detail about the performance testing framework.
