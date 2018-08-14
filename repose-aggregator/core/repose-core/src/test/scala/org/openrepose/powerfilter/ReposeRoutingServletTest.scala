@@ -64,6 +64,9 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     mockContainerConfigurationService = mock[ContainerConfigurationService]
     mockReportingService = mock[ReportingService]
     mockMetricsService = Optional.empty()
+
+    when(mockContainerConfigurationService.getRequestVia).thenReturn(Optional.empty[String]())
+
     reposeRoutingServlet = new ReposeRoutingServlet(
       DefaultVersion,
       DefaultClusterId,
@@ -101,7 +104,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
         any[UpdateListener[SystemModel]]()
       )
       val events = listAppender.getEvents.toList.map(_.getMessage.getFormattedMessage)
-      events.count(_.contains("Obfuscated Quigley Matrix - Destroying Repose Routing Servlet")) shouldBe 1
+      events.count(_.contains("Obfuscated Quigley Matrix - Destroyed Repose Routing Servlet")) shouldBe 1
     }
   }
 
