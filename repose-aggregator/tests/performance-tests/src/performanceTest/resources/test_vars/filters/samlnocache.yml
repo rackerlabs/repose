@@ -49,7 +49,10 @@
       ]
     },
     systemd_opts: {
-      java_opts: "-Xmx1g -Xms1g"
+      java_opts: [
+        "-Xmx1g",
+        "-Xms1g",
+      ],
     }
   },
   nodejs: {
