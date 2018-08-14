@@ -27,31 +27,17 @@ processPerformanceTestResources {
     filter(ReplaceTokens, tokens: [gatlingVersion: versionProperties.get('gatlingVersion')])
 }
 
-task buildAnsibleDirectory() {
-    dependsOn("processPerformanceTestResources")
-    ext.outputDir = "$buildDir/ansible_root"
-    inputs.files(configurations.performanceTestCompile.files,
-                processPerformanceTestResources.outputs,
-                sourceSets.performanceTest.scala.srcDirs)
-    outputs.dir(outputDir)
+task buildAnsibleDirectory(type: Copy, dependsOn: ["processPerformanceTestResources", ":repose-aggregator:tests:performance-test-framework:assemble"]) {
+    into "$buildDir/ansible_root"
 
-    doLast {
-        file(outputDir).mkdirs()
+    from(processPerformanceTestResources.outputs)
 
-        copy {
-            from processPerformanceTestResources.outputs
-            into outputDir
-        }
+    from(sourceSets.performanceTest.scala.srcDirs) {
+        into "/roles/gatling/files/simulations"
+    }
 
-        copy {
-            from sourceSets.performanceTest.scala.srcDirs
-            into outputDir + "/roles/gatling/files/simulations"
-        }
-
-        copy {
-            from configurations.performanceTestCompile.files
-            into outputDir + "/roles/gatling/files/libs"
-        }
+    from(configurations.performanceTestCompile.files) {
+        into "/roles/gatling/files/libs"
     }
 }
 
