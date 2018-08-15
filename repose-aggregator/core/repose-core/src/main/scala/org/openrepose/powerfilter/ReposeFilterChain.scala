@@ -121,7 +121,7 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
     val elapsedTime = System.currentTimeMillis() - startTime
 
     metricsRegistry.timer(MetricRegistry.name(FilterProcessingMetric, filter))
-                   .update(elapsedTime, TimeUnit.MILLISECONDS)
+      .update(elapsedTime, TimeUnit.MILLISECONDS)
 
     if (Option(request.getHeader(TracingHeader)).isDefined && !response.isCommitted) {
       response.addHeader(s"X-$filter-Time", s"${elapsedTime}ms")
@@ -130,6 +130,7 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
 }
 
 object ReposeFilterChain {
+
   case class FilterContext(filter: Filter, filterName: String, shouldRun: HttpServletRequestWrapper => Boolean)
 
   final val IntrafilterLog: Logger = LoggerFactory.getLogger("intrafilter-logging")

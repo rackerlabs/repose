@@ -77,6 +77,22 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        *     Before doing so, verify that this behavior is not useful.
        *
        * 11. Remove the population of X-Auth-Token-Key from Keystone v2 Filter.
+       *
+       * 12. The following classes should all be obsoleted when the `ReposeRoutingServlet` is put to use:
+       *     a. PowerFilterRouter
+       *     b. PowerFilterRouterImpl
+       *     c. PowerFilterRouterFactory
+       *     d. DispatchPathBuilder
+       *     e. RoutingService
+       *     f. RoundRobinRoutingService
+       *     g. DestinationLocation
+       *     h. DestinationLocationBuilder
+       *     i. EndpointUriBuilder
+       *     j. EndpointUrlBuilder
+       *     k. RequestHeaderService
+       *     l. RequestHeaderServiceImpl
+       *     m. ResponseHeaderService
+       *     n. ResponseHeaderServiceImpl
        */
     }
 

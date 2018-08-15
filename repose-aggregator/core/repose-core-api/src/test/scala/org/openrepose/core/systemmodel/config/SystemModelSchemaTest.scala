@@ -68,7 +68,7 @@ class SystemModelSchemaTest extends ConfigurationTest {
       }.getLocalizedMessage should include ("Each node should have a unique id")
     }
 
-    it("should successfully validate the config if each node either has an http-port or https-poort defined") {
+    it("should successfully validate the config if each node either has an http-port or https-port defined") {
       val config = """<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
                      |    <repose-cluster id="repose">
                      |        <nodes>
@@ -248,7 +248,7 @@ class SystemModelSchemaTest extends ConfigurationTest {
                      |</system-model>""".stripMargin
       intercept[SAXParseException] {
         validator.validateConfigString(config)
-      }.getLocalizedMessage should include ("There should only be one default destination")
+      }.getLocalizedMessage should include ("There should be one and only one default destination")
     }
 
     it("should reject the config if two destinations have the same ID") {

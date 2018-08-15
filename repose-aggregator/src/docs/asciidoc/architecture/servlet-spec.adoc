@@ -16,7 +16,20 @@ The `ReposeFilterChain` class implements the `FilterChain` API, and is responsib
 That coordination includes things like dynamic determination of whether or not a filter should process a request or response, debug logging, and metrics gathering.
 To learn more about this component, visit the <<filter-chain.adoc#,filter chain documentation page>>.
 
-== Repose Servlet
+== Repose Routing Servlet
 
-The `ReposeServlet` class implements the `Servlet` API, and is responsible for routing the HTTP request from *Repose* to the origin service after the filter chain has finished processing the request.
-It is the servlet that is registered with the servlet container.
+The `ReposeRoutingServlet` class implements the `Servlet` API and is registered with the servlet container.
+It is responsible for routing the HTTP request from *Repose* to the origin service after the filter chain has finished processing the request.
+
+This servlet uses the configuration information stored in the <<system-model.adoc#,System Model>> to determine what destinations are available.
+Routing to an app on the same host but in another container or environment is easily configured in a generic way.
+Dispatching to another app internal to the same servlet container is also possible when using the WAR deployment option.
+There is also a way to route to another *Repose* cluster defined in the <<system-model.adoc#,System Model>> using a basic built in Round Robin algorithm.
+
+Even though Internal Dispatch and Cluster Routing are possible, the complexity and inflexibility make their use viable in only the most specific situations.
+The Internal Dispatch will gain only a couple milliseconds on a given call vs routing to another container on the localhost.
+The Round Robin routing does not do any health checks and will route to unhealthy nodes.
+These are great options to have available for testing and early prototyping, but are not recommended for production.
+
+The preferred deployment strategy is to put a repose node as a side-car proxy on the same host as the origin service in a 1 to 1 fashion.
+If *Repose* needs to horizontally scale at a different rate from the origin service, then putting an external load balancer as the destination is the safer option.
