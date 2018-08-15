@@ -1,0 +1,66 @@
+#
+#_=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+#Repose
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Copyright (C) 2010 - 2015 Rackspace US, Inc.
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+#=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+#
+
+- name: Determining the directory name of the Gatling test based on its package name
+  set_fact:
+    gatling_test_dir: "{{ gatling.test.package | regex_replace('\\.', '/') }}"
+
+- name: Copy the Repose libraries and dependencies
+  copy:
+    src: libs/
+    dest: /root/gatling/current/lib/
+    mode: 0644
+
+- name: Create the test directory
+  file:
+    path: /root/gatling/current/user-files/simulations/{{ gatling_test_dir }}
+    state: directory
+  become: yes
+
+- name: Copy the test simulation
+  copy:
+    src: simulations/{{ gatling_test_dir }}/{{ gatling.test.name }}.scala
+    dest: /root/gatling/current/user-files/simulations/{{ gatling_test_dir }}/{{ gatling.test.name }}.scala
+    mode: 0640
+
+- name: Copy the common test configuration
+  template:
+    src: application.conf.j2
+    dest: /root/gatling/current/conf/application.conf
+
+- name: Copy the test-specific test configuration
+  template:
+    src: "{{ gatling.test.config }}.j2"
+    dest: /root/gatling/current/conf/{{ gatling.test.config | basename }}
+  when: gatling.test.config != None
+
+- name: Create the test payloads directory
+  file:
+    path: /root/gatling/current/user-files/bodies/{{ gatling.payloads.dest_dir }}
+    state: directory
+    mode: 0755
+  become: yes
+
+- name: Copy the test payloads
+  copy:
+    src: payloads/{{ gatling.payloads.src_dir }}/
+    dest: /root/gatling/current/user-files/bodies/{{ gatling.payloads.dest_dir }}
+    mode: 0640
+  when: gatling.payloads.dest_dir != None

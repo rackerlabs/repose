@@ -1,0 +1,5 @@
+dependencies {
+    compileOnly 'org.scala-lang:scala-library'
+    compileOnly 'io.gatling:gatling-core'
+    compileOnly 'io.gatling:gatling-http'
+}

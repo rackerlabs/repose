@@ -1,8 +1,0 @@
-- name: Create the Cloud Network for private communication between resources
-  local_action:
-    module: rax_network
-    credentials: ~/.raxpub
-    label: PerfNet
-    cidr: 192.168.3.0/24
-    region: IAD
-    state: present

@@ -1,9 +1,0 @@
-- include: install_gatling.yml
-  tags: [repose, origin]
-
-- include: setup_test.yml
-  tags: [repose, origin]
-
-- include: run_test.yml
-
-- include: fetch_results.yml

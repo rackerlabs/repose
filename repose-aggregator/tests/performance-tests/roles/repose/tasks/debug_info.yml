@@ -1,8 +1,0 @@
-- name: Print out the dynamic inventory
-  debug: var=groups.performance
-
-- name: Print out the dynamic inventory for the first server
-  debug: var=groups.performance[0]
-
-- name: Print out the dynamic inventory for hostvars
-  debug: var=hostvars[groups.performance[0]]

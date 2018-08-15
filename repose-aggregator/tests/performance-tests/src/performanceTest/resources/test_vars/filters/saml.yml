@@ -1,0 +1,85 @@
+#
+#_=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+#Repose
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Copyright (C) 2010 - 2015 Rackspace US, Inc.
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+#=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+#
+
+{
+  dir_prefix: "filters/saml",
+  repose: {
+    config: {
+      system_model: {
+        origin_port: 9090,
+        filters: [
+          { name: "saml-policy" }
+        ]
+      },
+      container: {
+        read_limit: 2097152
+      }
+    },
+    config_files: {
+      templates: [
+        "container.cfg.xml",
+        "system-model.cfg.xml",
+        "{{ dir_prefix }}/saml-policy.cfg.xml"
+      ],
+      files: [
+        "log4j2.xml",
+        "{{ dir_prefix }}/single.jks"
+      ]
+    },
+    systemd_opts: {
+      java_opts: [
+        "-Xmx1g",
+        "-Xms1g",
+      ],
+    }
+  },
+  nodejs: {
+    repo: "node_6.x"
+  },
+  mock: {
+    npm_package_file: "{{ dir_prefix }}/package.json",
+    backends: [
+      "{{ dir_prefix }}/keystone.js"
+    ]
+  },
+  gatling: {
+    test: {
+      name: "SamlFilterSimulation",
+      package: "filters.saml",
+      config: "{{ dir_prefix }}/saml_simulation.conf",
+      params: {
+        throughput: 100,
+        ramp_up_users: {
+          new_per_sec: 2,
+          duration_in_sec: 25
+        },
+        saml: {
+          num_of_issuers: 1,
+          include_legacy_issuer: false,
+          xml_body: false
+        }
+      }
+    },
+    payloads: {
+      src_dir: "{{ dir_prefix }}",
+      dest_dir: "saml-payloads"
+    }
+  }
+}

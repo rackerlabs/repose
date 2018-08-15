@@ -4,3 +4,8 @@ This is a living set of documentation with the tribal knowledge on how and what 
 
 == <<docker.adoc#,Docker tips and tricks>>
 This is a lot of information we found useful as developers on using Docker with *Repose*.
+
+== Testing
+
+=== <<performance.adoc#,Performance Testing>>
+Provides detail about the performance testing framework.

@@ -1,9 +1,0 @@
-- name: Check list of Node.js apps running
-  shell: forever list
-  register: forever_list
-  changed_when: false
-
-- name: Start mock Node.js apps
-  shell: forever start --sourceDir /opt/mocks {{ item | basename }}
-  when: "forever_list.stdout.find('/opt/mocks/{{ item | basename }}') == -1"
-  with_items: "{{ mock.backends }}"

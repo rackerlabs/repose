@@ -1,5 +1,0 @@
----
-- name: Start the jmxtrans service
-  service:
-    name: jmxtrans
-    state: started

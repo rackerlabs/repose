@@ -1,8 +1,0 @@
-- include: create_network.yml
-
-- include: create_load_balancer.yml
-
-- include: create_server_repose.yml
-
-- include: create_server_gatling.yml
-  tags: [repose, origin]

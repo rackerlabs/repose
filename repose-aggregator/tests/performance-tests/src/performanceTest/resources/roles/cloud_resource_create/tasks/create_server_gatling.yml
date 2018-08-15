@@ -1,0 +1,63 @@
+#
+#_=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+#Repose
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Copyright (C) 2010 - 2015 Rackspace US, Inc.
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+#=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+#
+
+- name: Create the test server that will run Gatling
+  local_action:
+    module: rax
+    credentials: ~/.raxpub
+    name: "{{ cloud.naming_prefix }}-testsuite%02d"
+    flavor: performance1-4
+    image: "{{ cloud.server.image }}"
+    files: "{{ cloud.server.files }}"
+    region: IAD
+    networks:
+      - public
+      - private
+      - PerfNet
+    state: present
+    count: 1
+    count_offset: 1
+    exact_count: yes
+    group: "{{ cloud.naming_prefix }}-test_agent"
+    wait: yes
+  register: cloud_server_test_create
+
+- name: Add server to test_agent group
+  local_action:
+    module: add_host
+    hostname: "{{ item.name }}"
+    ansible_host: "{{ item.rax_accessipv4 }}"
+    ansible_user: root
+    groupname: test_agent
+  with_items: "{{ cloud_server_test_create.instances }}"
+  changed_when: cloud_server_test_create.action == 'create'
+
+- name: Wait for Managed Cloud automation to complete for the test server
+  local_action:
+    module: rax_facts
+    credentials: ~/.raxpub
+    id: "{{ item.rax_id }}"
+    region: IAD
+  register: rax_facts
+  until: rax_facts.ansible_facts['rax_metadata']['rax_service_level_automation']|default('') == 'Complete'
+  retries: 30
+  delay: 10
+  with_items: "{{ cloud_server_test_create.instances }}"
+  when: cloud_server_test_create.changed

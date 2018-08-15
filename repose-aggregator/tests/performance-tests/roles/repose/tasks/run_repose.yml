@@ -1,6 +1,0 @@
-- name: Start Repose
-  repose:
-    state: "{{ repose.service.state }}"
-    listen_port: "{{ repose.config.system_model.http_port }}"
-    wait: yes
-    wait_timeout: "{{ repose.service.start_timeout_in_sec }}"

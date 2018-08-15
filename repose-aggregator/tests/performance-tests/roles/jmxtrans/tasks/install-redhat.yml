@@ -1,5 +1,0 @@
----
-- name: Install jmxtrans
-  yum:
-    name: "{{ jmxtrans.base_download_url }}.rpm"
-    state: present

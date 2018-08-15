@@ -1,0 +1,68 @@
+#
+#_=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+#Repose
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Copyright (C) 2010 - 2015 Rackspace US, Inc.
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+#=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+#
+
+{
+  dir_prefix: "services/opentracing",
+  repose: {
+    config: {
+      system_model: {
+        filters: [
+          { name: "keystone-v2" },
+          { name: "slf4j-http-logging" },
+          { name: "rate-limiting" }
+        ],
+        services: [
+          "dist-datastore"
+          # todo: when it becomes a service, add "opentracing"
+        ]
+      },
+      container: {
+        read_limit: 2097152
+      }
+    },
+    config_files: {
+      templates: [
+        "container.cfg.xml",
+        "system-model.cfg.xml",
+        "{{ dir_prefix }}/dist-datastore.cfg.xml",
+        "{{ dir_prefix }}/opentracing.cfg.xml",
+        "{{ dir_prefix }}/keystone-v2.cfg.xml"
+      ],
+      files: [
+        "log4j2.xml",
+        "{{ dir_prefix }}/rate-limiting.cfg.xml",
+        "{{ dir_prefix }}/slf4j-http-logging.cfg.xml"
+      ]
+    }
+  },
+  mock: {
+    backends: [
+      "main_backend.js",
+      "auth_backend.js",
+      "tracer_collector_backend.js"
+    ]
+  },
+  gatling: {
+    test: {
+      name: "OpenTracingServiceSimulation",
+      package: "services.opentracing"
+    }
+  }
+}

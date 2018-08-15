@@ -1,0 +1,94 @@
+#
+#_=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+#Repose
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Copyright (C) 2010 - 2015 Rackspace US, Inc.
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+#=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+#
+
+{
+  cloud: {
+    region: IAD,
+    naming_prefix: "perf-{{ dir_prefix | regex_replace('[^0-9a-zA-Z]+', '-') }}",
+    server: {
+      image: "5cf469a9-c4f3-4455-ab1b-7f07ed2b9dec"  # public Ubuntu 16.04 LTS (PVHVM)
+    }
+  },
+  repose: {
+    config: {
+      system_model: {
+        http_port: 7070,
+        origin_port: 8080,
+        tracer_port: 10000
+      }
+    }
+  },
+  jmxtrans: {
+    jmx: {
+      host: localhost,
+      port: 27755,
+    },
+    graphite_writer: {
+      host: influxdb.performance.openrepose.org,
+      port: 2003,
+    },
+  },
+  telegraf_influxdb_urls: [
+    "udp://influxdb.performance.openrepose.org:8089",
+  ],
+  telegraf_influxdb_database: "performance",
+  telegraf_omit_hostname: "true",
+  telegraf_agent_interval: "1s",
+  "telegraf_plugins": [
+    {
+      "name": "mem"
+    },
+    {
+      "name": "system"
+    },
+    {
+      "name": "cpu",
+      "options": {
+        "percpu": "true",
+        "totalcpu": "true",
+        "fielddrop": [
+          "time_*"
+        ]
+      }
+    },
+    {
+      "name": "disk",
+      "options": {
+        "mountpoints": [
+          "/"
+        ]
+      }
+    },
+    {
+      "name": "diskio",
+      "options": {
+        "skip_serial_number": "true"
+      }
+    },
+    {
+      "name": "net",
+      "options": {
+        "interfaces": [
+          "eth0"
+        ]
+      }
+    }
+  ]
+}

@@ -1,7 +1,0 @@
-- include: delete_server_gatling.yml
-  tags: [repose, origin]
-
-- include: delete_server_repose.yml
-  tags: [repose, origin]
-
-- include: delete_load_balancer.yml

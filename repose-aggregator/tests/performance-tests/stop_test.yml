@@ -1,7 +1,0 @@
-- hosts: localhost
-  connection: local
-  gather_facts: False
-  vars_files:
-    - test_vars/{{ perf_test }}.yml
-  roles:
-    - cloud_resource_delete
