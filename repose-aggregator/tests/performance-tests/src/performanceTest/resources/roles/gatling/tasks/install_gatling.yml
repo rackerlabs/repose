@@ -74,9 +74,3 @@
     dest: /root/gatling/current/conf/gatling.conf
     mode: 0644
     backup: yes
-
-- name: Copy the Repose libraries and dependencies
-  copy:
-    src: libs/
-    dest: /root/gatling/current/lib/
-    mode: 0644

@@ -22,6 +22,12 @@
   set_fact:
     gatling_test_dir: "{{ gatling.test.package | regex_replace('\\.', '/') }}"
 
+- name: Copy the Repose libraries and dependencies
+  copy:
+    src: libs/
+    dest: /root/gatling/current/lib/
+    mode: 0644
+
 - name: Create the test directory
   file:
     path: /root/gatling/current/user-files/simulations/{{ gatling_test_dir }}
