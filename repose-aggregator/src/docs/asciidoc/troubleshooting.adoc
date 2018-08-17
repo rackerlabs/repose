@@ -129,6 +129,10 @@ This can be achieved by adding a line like the following to the `log4j2.xml` fil
 <Logger name="intrafilter-logging" level="trace"/>
 ----
 
+Additionally, the `X-Trace-Request` header must be present on the HTTP request.
+Only requests with the `X-Trace-Request` header are eligible to have intrafilter logging enabled for them.
+This constraint provides per-request intrafilter logging, which is helpful in limiting the scope and magnitude of data in the logs making it easier for the logs to be analyzed.
+
 === Sample Output
 This is an example of the log line that you will see for the request and for the response.
 These lines are formatted for convenience.
