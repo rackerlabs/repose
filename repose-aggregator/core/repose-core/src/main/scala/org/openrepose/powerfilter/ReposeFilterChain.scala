@@ -85,7 +85,7 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
     var conditionallyWrappedRequest = request
     var conditionallyWrappedResponse = response
 
-    val doLogging = Option(MDC.get(TRACE_REQUEST)).isDefined
+    val doLogging = IntrafilterLog.isTraceEnabled && Option(MDC.get(TRACE_REQUEST)).isDefined
 
     if (doLogging) {
       var inputStream = request.getInputStream

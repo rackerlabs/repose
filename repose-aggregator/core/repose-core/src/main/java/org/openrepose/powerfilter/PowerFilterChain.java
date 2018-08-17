@@ -182,7 +182,8 @@ public class PowerFilterChain implements FilterChain {
 
         try {
             // we don't want to handle trace logging being turned on in the middle of a request, so check upfront
-            boolean isIntraFilterLoggingEnabled = Optional.ofNullable(MDC.get(PowerApiHeader.TRACE_REQUEST)).isPresent();
+            boolean isIntraFilterLoggingEnabled = INTRAFILTER_LOG.isTraceEnabled() &&
+                Optional.ofNullable(MDC.get(PowerApiHeader.TRACE_REQUEST)).isPresent();
 
             if (isIntraFilterLoggingEnabled) {
                 ServletInputStream inputStream = maybeWrappedServletRequest.getInputStream();
