@@ -29,14 +29,7 @@
         <Logger name="org.openrepose" level="debug"/>
         <Logger name="org.rackspace.deproxy" level="info"/>
         <Logger name="org.springframework" level="warn"/>
-        <Logger name="intrafilter-logging" level="trace">
-            <Filters>
-                <ContextMapFilter onMatch="ACCEPT" onMismatch="NEUTRAL">
-                    <KeyValuePair key="x-trace-request" value="true"/>
-                </ContextMapFilter>
-                <ThresholdFilter level="INFO" onMatch="NEUTRAL" onMismatch="DENY"/>
-            </Filters>
-        </Logger>
+        <Logger name="intrafilter-logging" level="trace"/>
         <Logger name="filter-timing" level="trace">
             <ContextMapFilter onMatch="ACCEPT" onMismatch="DENY">
                 <KeyValuePair key="x-trace-request" value="true"/>

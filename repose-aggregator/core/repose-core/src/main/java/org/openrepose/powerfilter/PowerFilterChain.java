@@ -38,6 +38,7 @@ import org.openrepose.powerfilter.intrafilterlogging.RequestLog;
 import org.openrepose.powerfilter.intrafilterlogging.ResponseLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -181,7 +182,7 @@ public class PowerFilterChain implements FilterChain {
 
         try {
             // we don't want to handle trace logging being turned on in the middle of a request, so check upfront
-            boolean isIntraFilterLoggingEnabled = INTRAFILTER_LOG.isTraceEnabled();
+            boolean isIntraFilterLoggingEnabled = Optional.ofNullable(MDC.get(PowerApiHeader.TRACE_REQUEST)).isPresent();
 
             if (isIntraFilterLoggingEnabled) {
                 ServletInputStream inputStream = maybeWrappedServletRequest.getInputStream();

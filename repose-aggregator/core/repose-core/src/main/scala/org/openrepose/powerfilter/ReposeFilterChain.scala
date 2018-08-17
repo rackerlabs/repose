@@ -30,12 +30,13 @@ import io.opentracing.Tracer
 import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{Filter, FilterChain, ServletRequest, ServletResponse}
+import org.openrepose.commons.utils.http.PowerApiHeader.TRACE_REQUEST
 import org.openrepose.commons.utils.io.{BufferedServletInputStream, RawInputStreamReader}
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{PASSTHROUGH, READONLY}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.powerfilter.ReposeFilterChain._
 import org.openrepose.powerfilter.intrafilterlogging.{RequestLog, ResponseLog}
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.{Logger, LoggerFactory, MDC}
 
 class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: FilterChain, bypassUrlRegex: Option[String], metricsRegistry: MetricRegistry, tracer: Tracer)
   extends FilterChain
@@ -84,7 +85,7 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
     var conditionallyWrappedRequest = request
     var conditionallyWrappedResponse = response
 
-    val doLogging = IntrafilterLog.isTraceEnabled
+    val doLogging = Option(MDC.get(TRACE_REQUEST)).isDefined
 
     if (doLogging) {
       var inputStream = request.getInputStream
