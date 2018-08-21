@@ -90,7 +90,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
     }
 
     @Unroll
-    def "Verify intra filter log for current filter no longer have 'null' in the description (#size)"() {
+    def "verify intra filter log for current filter no longer have 'null' in the description (#size)"() {
         given: "a unique token"
         def client_token = UUID.randomUUID().toString()
         fakeIdentityService.client_token = client_token
@@ -101,7 +101,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
             'X-Subject-Token': client_token,
         ]
 
-        when: "a request request with credentials is sent"
+        when: "a request with credentials is sent"
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint/test",
             method: 'GET',
@@ -179,7 +179,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
             'X-Subject-Token': client_token,
         ]
 
-        when: "a request request with credentials and body content is sent"
+        when: "a request with credentials and body content is sent"
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint/test",
             method: 'POST',
@@ -226,7 +226,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
             'X-Subject-Token': client_token,
         ]
 
-        when: "a request request with credentials is sent"
+        when: "a request with credentials is sent"
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint/test",
             method: 'GET',
@@ -273,7 +273,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
             'X-TRACE-REQUEST': 'true',
         ]
 
-        when: "a request request with multiple x-pp-user headers"
+        when: "a request with multiple x-pp-user headers"
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint/test",
             method: 'GET',
@@ -302,7 +302,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         jsonRes.headers.'x-pp-user'.split(',').size() == 3
     }
 
-    def "Verify log all groups to x-pp-groups from translation filter going into echo filter"() {
+    def "verify log all groups to x-pp-groups from translation filter going into echo filter"() {
         given: "a unique token"
         def client_token = UUID.randomUUID().toString()
         fakeIdentityService.with {
@@ -321,7 +321,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
             'X-TRACE-REQUEST': 'true',
         ]
 
-        when: "a request request with credentials is sent"
+        when: "a request with credentials is sent"
         MessageChain mc = deproxy.makeRequest(
             url: "$reposeEndpoint/test",
             method: 'GET',
@@ -342,9 +342,6 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         json.headers["x-roles"].toString().contains("service:admin-role1")
         json.headers["x-pp-groups"].toString().contains("Repose_test_group")
         json.headers["x-pp-groups"].toString().contains("0")
-        json.headers["x-pp-groups"].toString().contains("compute:admin")
-        json.headers["x-pp-groups"].toString().contains("object-store:admin")
-        json.headers["x-pp-groups"].toString().contains("service:admin-role1")
     }
 
     private static convertToJson(String searchString) {

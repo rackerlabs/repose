@@ -42,15 +42,19 @@ class ApiValidatorDelegatingWAuditingTest extends ReposeValveTest {
 
     def "delegating mode should not break intra-filter logging"() {
         when:
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/audit", method: method, headers: headers, requestBody: "horrible input")
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint + "/audit",
+            method: method,
+            headers: ['x-tRACE-rEQUEST': 'true'] + headers,
+            requestBody: "horrible input")
 
+        then:
         String logLine = reposeLogSearch.searchByString("TRACE intrafilter-logging - .*\"currentFilter\":\"derp\",\"httpMethod\":\"POST\"")
+        logLine.length() > 0
         String jsonpart = logLine.substring(logLine.indexOf("{"))
         println(jsonpart)
         def slurper = new JsonSlurper()
         def result = slurper.parseText(jsonpart)
-
-        then:
         reposeLogSearch.searchByString("intrafilterlogging.RequestLog - Unable to populate request body").size() != 0
         reposeLogSearch.searchByString("java.io.IOException: Stream closed").size() != 0
         mc.receivedResponse.code == "400"
@@ -58,7 +62,6 @@ class ApiValidatorDelegatingWAuditingTest extends ReposeValveTest {
         result.httpMethod == method
         result.headers["Host"] == reposeEndpoint - "http://"
         result.headers["User-Agent"].contains("deproxy")
-
 
         where:
         method | headers
