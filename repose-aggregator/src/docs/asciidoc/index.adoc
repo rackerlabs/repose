@@ -23,7 +23,7 @@ Take a look here to see how *Repose* works its magic and how to turn on some of 
 
 === <<filters/index.adoc#, Filters>>
 You are a pro at working with *Repose*, you just need to know how to configure that one feature on that one filter.
-Well step right up here's where you'll find in depth information on every filter, how to toggle every who's it and what's it, what it's expecting to come in on your request and response, and what it might do to your request and response.
+This is where you'll find in depth information on every filter, how to toggle every who's it and what's it, what it's expecting to come in on your request and response, and what it might do to your request and response.
 
 === <<services/index.adoc#, Services>>
 All that stuff for the filters? Yeah, same thing but for all the services *Repose* offers.
@@ -38,7 +38,7 @@ If you want to know when something specific came into *Repose* you'll find it he
 
 === <<style-guide.adoc#, Style Guide>>
 You found something missing from the docs?
-If there was something missing and you want to help, here's where you would go to figure out how we make a page.
+If there was something missing and you want to help, this is where you would go to figure out how we make a page.
 
 === <<developer/index.adoc#, Developer Documentation>>
 So you have this great idea for a *Repose* feature and you need it like yesterday.
