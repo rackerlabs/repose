@@ -34,12 +34,14 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, anyLong, same, eq => meq}
 import org.mockito.Mockito.{verify, when}
+import org.openrepose.commons.utils.http.PowerApiHeader.TRACE_REQUEST
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
-import org.openrepose.powerfilter.ReposeFilterChain.{FilterContext, TracingHeader}
+import org.openrepose.powerfilter.ReposeFilterChain.FilterContext
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.scalatest.LoneElement._
+import org.slf4j.MDC
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.collection.JavaConverters._
@@ -170,11 +172,55 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
       request.getValue.getRequest shouldBe mockRequest
     }
 
+    it("should not log out to intrafilter logging if the trace header is not present") {
+      val loggerContext = LogManager.getContext(false).asInstanceOf[LoggerContext]
+      val listAppender = loggerContext.getConfiguration.getAppender("List0").asInstanceOf[ListAppender]
+      listAppender.clear()
+      Configurator.setLevel(ReposeFilterChain.IntrafilterLog.getName, Level.TRACE)
+
+      val filterChain = new ReposeFilterChain(
+        List(FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true)),
+        originalChain,
+        None,
+        metricsRegistry,
+        tracer)
+
+      filterChain.doFilter(mockRequest, mockResponse)
+
+      val messageList = listAppender.getEvents.asScala.map(_.getMessage.getFormattedMessage)
+      messageList.filter(_.contains("Intrafilter Request Log")) shouldBe empty
+      messageList.filter(_.contains("Intrafilter Response Log")) shouldBe empty
+    }
+
+    it("should not log out to intrafilter logging if the log level is set too low") {
+      val loggerContext = LogManager.getContext(false).asInstanceOf[LoggerContext]
+      val listAppender = loggerContext.getConfiguration.getAppender("List0").asInstanceOf[ListAppender]
+      listAppender.clear()
+      Configurator.setLevel(ReposeFilterChain.IntrafilterLog.getName, Level.INFO)
+
+      MDC.put(TRACE_REQUEST, "true")
+
+      val filterChain = new ReposeFilterChain(
+        List(FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true)),
+        originalChain,
+        None,
+        metricsRegistry,
+        tracer)
+
+      filterChain.doFilter(mockRequest, mockResponse)
+
+      val messageList = listAppender.getEvents.asScala.map(_.getMessage.getFormattedMessage)
+      messageList.filter(_.contains("Intrafilter Request Log")) shouldBe empty
+      messageList.filter(_.contains("Intrafilter Response Log")) shouldBe empty
+    }
+
     it("should log out to intrafilter logging around a filter") {
       val loggerContext = LogManager.getContext(false).asInstanceOf[LoggerContext]
       val listAppender = loggerContext.getConfiguration.getAppender("List0").asInstanceOf[ListAppender]
       listAppender.clear()
       Configurator.setLevel(ReposeFilterChain.IntrafilterLog.getName, Level.TRACE)
+
+      MDC.put(TRACE_REQUEST, "true")
 
       val filterChain = new ReposeFilterChain(
         List(FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true)),
@@ -195,6 +241,8 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
       val listAppender = loggerContext.getConfiguration.getAppender("List0").asInstanceOf[ListAppender]
       listAppender.clear()
       Configurator.setLevel(ReposeFilterChain.IntrafilterLog.getName, Level.TRACE)
+
+      MDC.put(TRACE_REQUEST, "true")
 
       val filterChain = new ReposeFilterChain(
         List.empty,
@@ -238,49 +286,22 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
       verify(timer).update(anyLong(), meq(TimeUnit.MILLISECONDS))
     }
 
-    it("should add the metrics to the response when requested around a filter") {
-      val filterChain = new ReposeFilterChain(
-        List(
-          FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true),
-          FilterContext(mock[Filter], "bar", (request: HttpServletRequest) => true)),
+    it("should log filter timing metrics") {
+      val filterChain = new ReposeFilterChain(List(FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true),
+                                                   FilterContext(mock[Filter], "bar", (request: HttpServletRequest) => true)),
         originalChain,
         None,
         metricsRegistry,
         tracer)
-      mockRequest.addHeader(TracingHeader, "true")
-
-      filterChain.doFilter(mockRequest, mockResponse)
-
-      mockResponse.getHeaderNames should contain("X-foo-Time")
-    }
-
-    it("should add the metrics to the response when requested around the origin service") {
-      val filterChain = new ReposeFilterChain(
-        List.empty,
-        originalChain,
-        None,
-        metricsRegistry,
-        tracer)
-      mockRequest.addHeader(TracingHeader, "true")
-
-      filterChain.doFilter(mockRequest, mockResponse)
-
-      mockResponse.getHeaderNames should contain("X-origin-Time")
-    }
-
-    it("should not add the metrics to the response when requested and the response is already committed") {
-      val filterChain = new ReposeFilterChain(
-        List.empty,
-        originalChain,
-        None,
-        metricsRegistry,
-        tracer)
-      mockRequest.addHeader(TracingHeader, "true")
       mockResponse.setCommitted(true)
+      val loggerContext = LogManager.getContext(false).asInstanceOf[LoggerContext]
+      val listAppender = loggerContext.getConfiguration.getAppender("List0").asInstanceOf[ListAppender]
+      listAppender.clear()
 
       filterChain.doFilter(mockRequest, mockResponse)
 
-      mockResponse.getHeaderNames should not contain "X-origin-Time"
+      val messageList = listAppender.getEvents.asScala.map(_.getMessage.getFormattedMessage)
+      messageList.find(_.startsWith("Filter foo spent")) should not be empty
     }
 
     it("should return a 500 when an exception occurs") {

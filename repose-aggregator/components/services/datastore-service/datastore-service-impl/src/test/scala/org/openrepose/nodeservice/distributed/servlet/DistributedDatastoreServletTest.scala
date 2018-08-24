@@ -25,9 +25,13 @@ import java.util.Collections
 import io.opentracing.mock.MockTracer
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpServletResponse._
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.core.LoggerContext
+import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.mockito.Mockito.when
+import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.core.services.datastore.distributed.ClusterConfiguration
 import org.openrepose.core.services.datastore.distributed.config._
 import org.openrepose.core.services.datastore.impl.distributed.CacheRequest.CACHE_URI_PATH
@@ -38,6 +42,7 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 
+import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
 class DistributedDatastoreServletTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
@@ -51,6 +56,9 @@ class DistributedDatastoreServletTest extends FunSpec with BeforeAndAfterEach wi
   var distributedDatastoreServlet: DistributedDatastoreServlet = _
   var servletRequest: MockHttpServletRequest = _
   var servletResponse: HttpServletResponse = _
+
+  val loggerContext: LoggerContext = LogManager.getContext(false).asInstanceOf[LoggerContext]
+  val listAppender: ListAppender = loggerContext.getConfiguration.getAppender("List0").asInstanceOf[ListAppender]
 
   override def beforeEach(): Unit = {
     mockDatastoreService = mock[DatastoreService]
@@ -72,6 +80,7 @@ class DistributedDatastoreServletTest extends FunSpec with BeforeAndAfterEach wi
     servletRequest.setRequestURI(CACHE_URI_PATH)
     servletRequest.setProtocol("1.1")
     servletResponse = new MockHttpServletResponse
+    listAppender.clear()
   }
 
   describe("Distributed Datastore calls without a Cache Key") {
@@ -95,6 +104,25 @@ class DistributedDatastoreServletTest extends FunSpec with BeforeAndAfterEach wi
         distributedDatastoreServlet.service(servletRequest, servletResponse)
         mockTracer.finishedSpans.size shouldEqual 1
         mockTracer.finishedSpans.get(0).operationName() shouldEqual s"$method $CACHE_URI_PATH"
+      }
+
+      it(s"should not put per-request tracing flag in the logging context if the header is not present for HTTP method $method") {
+        servletRequest.setMethod(method)
+
+        distributedDatastoreServlet.service(servletRequest, servletResponse)
+
+        val messageList = listAppender.getMessages.asScala
+        messageList.find(_.startsWith("TRACE")) shouldBe empty
+      }
+
+      it(s"should put per-request tracing flag in the logging context if the header is present for HTTP method $method") {
+        servletRequest.setMethod(method)
+        servletRequest.addHeader(PowerApiHeader.TRACE_REQUEST, "true")
+
+        distributedDatastoreServlet.service(servletRequest, servletResponse)
+
+        val messageList = listAppender.getMessages.asScala
+        messageList.find(_.startsWith("TRACE")) should not be empty
       }
 
       it(s"should return $result for HTTP method $method") {

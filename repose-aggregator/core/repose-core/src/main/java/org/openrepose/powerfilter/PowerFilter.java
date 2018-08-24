@@ -25,6 +25,7 @@ import io.opentracing.Tracer;
 import io.opentracing.tag.Tags;
 import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.config.manager.UpdateListener;
+import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.io.BufferedServletInputStream;
 import org.openrepose.commons.utils.io.stream.LimitedReadInputStream;
 import org.openrepose.commons.utils.logging.TracingHeaderHelper;
@@ -367,6 +368,9 @@ public class PowerFilter extends DelegatingFilterProxy {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         final long startTime = System.currentTimeMillis();
 
+        Optional.ofNullable(((HttpServletRequest) request).getHeader(PowerApiHeader.TRACE_REQUEST))
+            .ifPresent(__ -> MDC.put(PowerApiHeader.TRACE_REQUEST, "true"));
+
         final Optional<Long> contentBodyReadLimit = containerConfigurationService.getContentBodyReadLimit();
         final InputStream requestBodyInputStream = contentBodyReadLimit.isPresent() ?
             new LimitedReadInputStream(contentBodyReadLimit.get(), request.getInputStream()) :
@@ -476,7 +480,7 @@ public class PowerFilter extends DelegatingFilterProxy {
 
             reportingService.incrementReposeStatusCodeCount(((HttpServletResponse) response).getStatus(), stopTime - startTime);
         }
-        //Clear out the tracing header, now that we're done with this request
+        // Clear out the logger context now that we are done with this request
         MDC.clear();
     }
 

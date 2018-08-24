@@ -30,12 +30,13 @@ import io.opentracing.Tracer
 import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{Filter, FilterChain, ServletRequest, ServletResponse}
+import org.openrepose.commons.utils.http.PowerApiHeader.TRACE_REQUEST
 import org.openrepose.commons.utils.io.{BufferedServletInputStream, RawInputStreamReader}
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{PASSTHROUGH, READONLY}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.powerfilter.ReposeFilterChain._
 import org.openrepose.powerfilter.intrafilterlogging.{RequestLog, ResponseLog}
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.{Logger, LoggerFactory, MDC}
 
 class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: FilterChain, bypassUrlRegex: Option[String], metricsRegistry: MetricRegistry, tracer: Tracer)
   extends FilterChain
@@ -84,7 +85,7 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
     var conditionallyWrappedRequest = request
     var conditionallyWrappedResponse = response
 
-    val doLogging = IntrafilterLog.isTraceEnabled
+    val doLogging = IntrafilterLog.isTraceEnabled && Option(MDC.get(TRACE_REQUEST)).isDefined
 
     if (doLogging) {
       var inputStream = request.getInputStream
@@ -121,11 +122,9 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
     val elapsedTime = System.currentTimeMillis() - startTime
 
     metricsRegistry.timer(MetricRegistry.name(FilterProcessingMetric, filter))
-      .update(elapsedTime, TimeUnit.MILLISECONDS)
+                   .update(elapsedTime, TimeUnit.MILLISECONDS)
 
-    if (Option(request.getHeader(TracingHeader)).isDefined && !response.isCommitted) {
-      response.addHeader(s"X-$filter-Time", s"${elapsedTime}ms")
-    }
+    FilterTimingLog.trace("Filter {} spent {}ms processing", filter, elapsedTime)
   }
 }
 
@@ -133,12 +132,11 @@ object ReposeFilterChain {
 
   case class FilterContext(filter: Filter, filterName: String, shouldRun: HttpServletRequestWrapper => Boolean)
 
+  final val FilterTimingLog: Logger = LoggerFactory.getLogger("filter-timing")
   final val IntrafilterLog: Logger = LoggerFactory.getLogger("intrafilter-logging")
 
   final val IntrafilterObjectMapper: ObjectMapper = new ObjectMapper
   IntrafilterObjectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY) //http://stackoverflow.com/a/8395924
 
   final val FilterProcessingMetric: String = "org.openrepose.core.FilterProcessingTime.Delay"
-
-  final val TracingHeader: String = "X-Trace-Request"
 }

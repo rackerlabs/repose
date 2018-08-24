@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,10 +19,17 @@
  */
 package org.openrepose.core.filter;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.test.appender.ListAppender;
+import org.hamcrest.Matchers;
+import org.junit.Before;
 import org.junit.Test;
 import org.openrepose.powerfilter.RequestTracer;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
@@ -35,7 +42,15 @@ import static org.mockito.Mockito.*;
  */
 public class RequestTracerTest {
 
+    private final LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
+    private final ListAppender listAppender = (ListAppender) loggerContext.getConfiguration().getAppender("List0");
+
     HttpServletResponse response;
+
+    @Before
+    public void setUp() {
+        listAppender.clear();
+    }
 
     @Test
     public void shouldReturnTimeSinceInitialization() throws Exception {
@@ -157,5 +172,35 @@ public class RequestTracerTest {
         assertThat("The returned time should be 0", time, equalTo(0L));
         // The x-trace-request header should not have been added to the response
         verify(response, never()).addHeader(eq("X-myFilter-Time"), anyString());
+    }
+
+    @Test
+    public void shouldNotLogProcessingTime() {
+        RequestTracer rt = new RequestTracer(true, false);
+
+        response = mock(HttpServletResponse.class);
+
+        rt.traceEnter();
+        rt.traceExit(response, "myFilter");
+
+        List<String> messageList = listAppender.getEvents().stream()
+            .map(event -> event.getMessage().getFormattedMessage())
+            .collect(Collectors.toList());
+        assertThat(messageList, not(Matchers.contains(Matchers.startsWith("Filter myFilter spent"))));
+    }
+
+    @Test
+    public void shouldLogProcessingTime() {
+        RequestTracer rt = new RequestTracer(true, true);
+
+        response = mock(HttpServletResponse.class);
+
+        rt.traceEnter();
+        rt.traceExit(response, "myFilter");
+
+        List<String> messageList = listAppender.getEvents().stream()
+            .map(event -> event.getMessage().getFormattedMessage())
+            .collect(Collectors.toList());
+        assertThat(messageList, Matchers.contains(Matchers.startsWith("Filter myFilter spent")));
     }
 }

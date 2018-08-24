@@ -19,9 +19,11 @@
  */
 package org.openrepose.core.services.datastore.impl.distributed.remote.command
 
+import org.hamcrest.Matchers
 import org.junit.Before
 import org.junit.Test
 import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.http.ServiceClientResponse
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.commons.utils.logging.TracingKey
@@ -30,9 +32,13 @@ import org.openrepose.core.services.datastore.distributed.RemoteBehavior
 import org.openrepose.core.services.datastore.impl.distributed.DatastoreHeader
 import org.slf4j.MDC
 
+import static org.hamcrest.Matchers.equalTo
+import static org.hamcrest.Matchers.nullValue
+import static org.junit.Assert.assertThat
+
 class AbstractRemoteCommandTest {
 
-    private AbstractRemoteCommand arc;
+    private AbstractRemoteCommand arc
 
     @Before
     void setUp() {
@@ -50,11 +56,32 @@ class AbstractRemoteCommandTest {
     }
 
     @Test
-    void shouldContainAddedHeaders() {
+    void shouldContainAddedTraceGuidHeader() {
         MDC.put(TracingKey.TRACING_KEY, "tracingKey")
         Map<String, String> headers = arc.getHeaders(RemoteBehavior.ALLOW_FORWARDING)
 
-        assert (TracingHeaderHelper.getTraceGuid(headers.get(CommonHttpHeader.TRACE_GUID)).equals("tracingKey"));
-        assert (headers.get(DatastoreHeader.REMOTE_BEHAVIOR).equals("ALLOW_FORWARDING"));
+        assertThat(TracingHeaderHelper.getTraceGuid(headers.get(CommonHttpHeader.TRACE_GUID)),
+            equalTo("tracingKey"))
+        assertThat(headers.get(DatastoreHeader.REMOTE_BEHAVIOR), equalTo("ALLOW_FORWARDING"))
+    }
+
+    @Test
+    void shouldContainAddedTraceLoggingHeader() {
+        String traceValue = "true"
+
+        MDC.put(PowerApiHeader.TRACE_REQUEST, traceValue)
+        Map<String, String> headers = arc.getHeaders(RemoteBehavior.ALLOW_FORWARDING)
+
+        assertThat(headers.get(PowerApiHeader.TRACE_REQUEST), equalTo(traceValue))
+        assertThat(headers.get(DatastoreHeader.REMOTE_BEHAVIOR), equalTo(RemoteBehavior.ALLOW_FORWARDING.name()))
+    }
+
+    @Test
+    void shouldNotContainAddedTraceLoggingHeader() {
+        MDC.clear()
+        Map<String, String> headers = arc.getHeaders(RemoteBehavior.ALLOW_FORWARDING)
+
+        assertThat(headers.get(PowerApiHeader.TRACE_REQUEST), nullValue())
+        assertThat(headers.get(DatastoreHeader.REMOTE_BEHAVIOR), equalTo(RemoteBehavior.ALLOW_FORWARDING.name()))
     }
 }
