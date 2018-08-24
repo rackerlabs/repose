@@ -116,7 +116,7 @@ abstract class ReposeValveTest extends Specification {
             logSearch.cleanLog()
         MessageChain mc
         try {
-            waitForCondition(clock, '35s', '1s', {
+            waitForCondition(clock, '90s', '1s', {
                 if (checkLogMessage &&
                         //TODO: this will not work, because of clusterID/NodeId awareness
                         //This needs to do a bit more regexp
