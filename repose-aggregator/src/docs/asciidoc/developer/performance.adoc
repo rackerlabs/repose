@@ -125,7 +125,7 @@ To learn more about how InfluxDB handles Graphite input, see https://github.com/
 
 The following diagram illustrates the interactions between each component referenced in the <<Design>>.
 
-image::../images/performance-test-framework.png[Performance Test Framework]
+image::../../_images/performance-test-framework.png[Performance Test Framework]
 
 === Creating a New Test
 

@@ -1,6 +1,6 @@
 = Packages
 
-include::../_includes/in-progress.adoc[]
+include::./_includes/in-progress.adoc[]
 
 Provides details about the packages *Repose* maintains for easy installation by our users.
 

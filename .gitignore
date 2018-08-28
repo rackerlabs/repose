@@ -71,3 +71,10 @@ saxon-license.lic
 # Performance test
 *.raxpub
 *.retry
+
+## AsciiBinder-specific ignores
+_preview
+_package
+*.swp
+diag-*.png
+diag-*.png.cache

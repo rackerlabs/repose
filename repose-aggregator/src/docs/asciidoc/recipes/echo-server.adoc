@@ -1,3 +1,3 @@
 = Echo Server
 
-include::../_includes/in-progress.adoc[]
+include::./_includes/in-progress.adoc[]

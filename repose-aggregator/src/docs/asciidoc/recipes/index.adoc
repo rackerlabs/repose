@@ -1,6 +1,6 @@
 = Recipes
 
-include::../_includes/in-progress.adoc[]
+include::./_includes/in-progress.adoc[]
 
 == <<quick-start.adoc#,Quick Start>>
 Learn how to stand up Repose as quickly as possible!

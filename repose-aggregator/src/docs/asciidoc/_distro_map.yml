@@ -1,0 +1,11 @@
+---
+ascii_binder:
+  name: "&#8226;"
+  author: Repose Team <Repose-Core@Rackspace.com>
+  site: main
+  site_name: Home
+  site_url: http://openrepose.org/
+  branches:
+    REP-7202_AsciiBinderTest:
+      name: Latest
+      dir: latest

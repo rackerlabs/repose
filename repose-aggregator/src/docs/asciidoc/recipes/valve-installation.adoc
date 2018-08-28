@@ -1,7 +1,7 @@
 = Valve Installation
 :nexus-releases: https://maven.research.rackspacecloud.com/content/repositories/releases/org/openrepose
 
-include::../_includes/in-progress.adoc[]
+include::./_includes/in-progress.adoc[]
 
 Covers the typical *Repose* setup -- a Valve installation (i.e., standalone application) running as a Linux service.
 

@@ -1,6 +1,6 @@
 = URI User Filter
 
-include::../_includes/in-progress.adoc[]
+include::./_includes/in-progress.adoc[]
 
 == General filter information
 * *Name:* ???

@@ -1,6 +1,6 @@
 = Tomcat Setup
 
-include::../_includes/in-progress.adoc[]
+include::./_includes/in-progress.adoc[]
 
 This page describes how to run the *Repose* WAR in a Tomcat container.
 

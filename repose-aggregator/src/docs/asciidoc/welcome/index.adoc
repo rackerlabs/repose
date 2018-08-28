@@ -48,8 +48,3 @@ You'll find tribal knowledge of what makes *Repose* tick and how to do things in
 
 === <<faq.adoc#, Frequently Asked Questions (FAQ)>>
 Couldn't find the answer to your question elsewhere? Maybe it is hiding on our FAQ page.
-
-=== Search
-Know vaguely what you're looking for? You can use the following Google Custom Search Engine to search all of our documentation.
-
-include::_includes/search.adoc[]

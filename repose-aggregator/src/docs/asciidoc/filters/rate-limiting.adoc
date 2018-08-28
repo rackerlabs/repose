@@ -305,7 +305,7 @@ Consider the following example.
 Five requests are allowed per minute for each time-block, but the one-minute window that lands in between the two units has seven requests.
 This shows that limits may be broken for a given window of time, however, across multiple units of time, the allowed requests average less than or equal to five requests per minute.
 
-image::../images/rl-time-block.png[Rate Limiting Time Block Diagram]
+image::../../_images/rl-time-block.png[Rate Limiting Time Block Diagram]
 
 === Querying Limits
 This filter tracks limits by user, and consequently, requires a user be provided when querying limits.

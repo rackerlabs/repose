@@ -1,6 +1,6 @@
 = Architecture
 
-include::../_includes/in-progress.adoc[]
+include::./_includes/in-progress.adoc[]
 
 == <<configuration.adoc#,Configuration>>
 Provides some context as to the interaction of the different configuration files.

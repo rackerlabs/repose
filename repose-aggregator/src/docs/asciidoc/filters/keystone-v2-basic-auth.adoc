@@ -1,6 +1,6 @@
 = Keystone v2 Basic Auth Filter
 
-include::../_includes/in-progress.adoc[]
+include::./_includes/in-progress.adoc[]
 
 == General filter information
 * *Name:* ???

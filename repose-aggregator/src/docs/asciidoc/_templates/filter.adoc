@@ -1,6 +1,6 @@
 = Some Filter
 
-include::../_includes/in-progress.adoc[]
+include::./_includes/in-progress.adoc[]
 
 This filter does something really exciting.
 

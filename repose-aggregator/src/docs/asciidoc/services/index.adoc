@@ -1,6 +1,6 @@
 = Services
 
-include::../_includes/in-progress.adoc[]
+include::./_includes/in-progress.adoc[]
 
 == <<atom-feed-consumption.adoc#,Atom Feed Consumption Service>>
 Consolidates the consumption of Atom feeds and provides a simple interface to retrieve consumed data.

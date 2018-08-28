@@ -1,6 +1,6 @@
 = System Model
 
-include::../_includes/in-progress.adoc[]
+include::./_includes/in-progress.adoc[]
 
 The *Repose* `system-model.cfg.xml` is the main configuration file for *Repose*.
 It outlines the entire deployment layout for the service cluster.
