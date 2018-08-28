@@ -3,6 +3,12 @@
         {
             "contentHash": "fa7822145fefe7e75a68c67439ea06a6",
             "originalClassName": "Version",
+            "id": "8.10.0.0",
+            "released": "2018-08-28"
+        },
+        {
+            "contentHash": "fa7822145fefe7e75a68c67439ea06a6",
+            "originalClassName": "Version",
             "id": "8.9.1.0",
             "released": "2018-07-10"
         },

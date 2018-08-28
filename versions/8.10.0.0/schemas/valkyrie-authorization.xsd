@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns:this="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/valkyrie-authorization/v1.0"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+>
+
+    <!-- Elements -->
+    <xs:element name="valkyrie-authorization" type="this:ValkyrieAuthorizationConfig"/>
+
+    <!-- Types -->
+    <xs:complexType name="ValkyrieAuthorizationConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The root config type for the valkyrie authorization filter configuration file.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="delegating" type="this:DelegatingType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="valkyrie-server" type="this:ValkyrieServer" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="translate-permissions-to-roles" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="collection-resources" type="this:CollectionResources" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="pre-authorized-roles" type="this:RolesList" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="cache-timeout-millis" type="this:ZeroOrPositiveInteger" use="optional" default="300000">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Time in milliseconds to cache valkyrie response. The default is 5 minutes.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="enable-masking-403s" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Instead of returning a 403, instead return a 404 instead</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="enable-bypass-account-admin" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If disabled (false), then a secondary authorization call will be made and has the potential to
+                        increase in the response time (DEFAULT).
+                    </html:p>
+                    <html:p>
+                        If enabled (true), then the secondary authorization call is bypassed and also no culling of the
+                        Origin Service response will occur.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="connection-pool-id" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Http Connection pool ID to use when talking to Valkyrie</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="pass-non-dedicated-tenant" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If enabled (true), the Valkyrie filter WILL pass the request to the next filter in the filter
+                        chain IF the tenant ID presented is NOT a dedicated tenant ID (i.e., starts with "hybrid:").
+                    </html:p>
+                    <html:p>
+                        If disabled (false), the Valkyrie filter WILL NOT pass the request to the next filter in the
+                        filter chain IF the tenant ID presented is NOT a dedicated tenant ID
+                        (i.e., starts with "hybrid:"). Instead, the request will be considered unauthorized.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ValkyrieServer">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Description of the Valkyrie endpoint</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="uri" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The target Valkyrie URI for credential requests including host, port, and path to service.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="username" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>DEPRECATED - Username to authenticate against the Valkyrie endpoint.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="password" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>DEPRECATED - Password to authenticate against the Valkyrie endpoint.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:assert vc:minVersion="1.1"
+                   test="(@username and @password) or (not(@username) and not(@password))"
+                   xerces:message="Username and password must be specified or neither."
+                   saxon:message="Username and password must be specified or neither."
+        />
+    </xs:complexType>
+
+    <xs:complexType name="DelegatingType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Whether or not you would like this filter to populate the delegation headers.
+                    Inclusion means you do.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="quality" type="this:QualityType" use="optional" default="0.1">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        What quality you want any output headers to be.
+                        When setting up a chain of delegating filters the highest quality number will be the one that is
+                        eventually output.
+                        Default is 0.1
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="QualityType">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="ZeroOrPositiveInteger">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="RolesList">
+        <xs:sequence>
+            <xs:element name="role" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="CollectionResources">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A list of resources that return responses that contain a collection of items that should be culled
+                    based on valkyrie permissions.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="resource" type="this:Resource" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="device-id-mismatch-action" type="this:DeviceIdMismatchAction" use="optional" default="fail">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The action to take when a null or non-matching value is found where a device ID is expected.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="Resource">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A specific ReST resource that contains one or more collections that need culling based on valkyrie
+                    permissions.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="path-regex" type="this:PathRegex" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="collection" type="this:Collection" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="PathRegex">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="http-methods" type="this:HttpMethodList" use="optional" default="ALL">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                List of HTTP Methods this resource wants to cull on.
+                                Valid values include:
+                                GET, DELETE, POST, PUT, PATCH, HEAD, OPTIONS, CONNECT, TRACE, ALL
+                                NOTE: If this attribute is present, then it must not be empty.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:assert vc:minVersion="1.1"
+                           test="if (exists(@http-methods)) then (string-length(string(@http-methods)) > 0) else true()"
+                           xerces:message="If the http-methods attribute is present, then it must not be empty."
+                           saxon:message="If the http-methods attribute is present, then it must not be empty."
+                />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:simpleType name="HttpMethodList">
+        <xs:list itemType="this:HttpMethod"/>
+    </xs:simpleType>
+
+    <!-- This was taken from limits.xsd and should be extracted to an importable Repose Type Definitions schema. -->
+    <xs:simpleType name="HttpMethod">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The HttpMethod simple type defines a string
+                    enumeration of HTTP method verbs as outlined in
+                    <a href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616</a>
+                    section 9.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="GET"/>
+            <xs:enumeration value="DELETE"/>
+            <xs:enumeration value="POST"/>
+            <xs:enumeration value="PUT"/>
+            <xs:enumeration value="PATCH"/>
+            <xs:enumeration value="HEAD"/>
+            <xs:enumeration value="OPTIONS"/>
+            <xs:enumeration value="CONNECT"/>
+            <xs:enumeration value="TRACE"/>
+            <xs:enumeration value="ALL"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="Collection">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Specifies how to find the information needed for culling the collection.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="json" type="this:pathTriplet" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Specifies the JSON paths necessary to make changes to the collection.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <!-- We'll add this when we come back to support xml. At that point the json should switch to a minimum of 0
+                 and validation should be in place so that they have at least one of the two specified.-->
+            <!--<xs:element name="xml" type="this:pathTriplet" minOccurs="0" maxOccurs="1">-->
+            <!--<xs:annotation>-->
+            <!--<xs:documentation>-->
+            <!--<html:p>Specifies the x-paths necessary to make changes to the collection.</html:p>-->
+            <!--</xs:documentation>-->
+            <!--</xs:annotation>-->
+            <!--</xs:element>-->
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="pathTriplet">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The three paths needed to determine whether an item is viewable and the item count to be updated.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="path-to-collection" type="xs:string" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The path to the collection to be culled relative to the entire document.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="path-to-device-id" type="this:DevicePath" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The path to the device id relative to the objects contained in the collection.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="path-to-item-count" type="xs:string" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            The path to the item count for the collection to be culled relative to the entire document.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="DevicePath">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The path and regex for getting the device id.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="path" type="xs:string" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="regex" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute name="capture-group" type="xs:int" use="optional" default="1"/>
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="DeviceIdMismatchAction">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="keep"/>
+            <xs:enumeration value="remove"/>
+            <xs:enumeration value="fail"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
