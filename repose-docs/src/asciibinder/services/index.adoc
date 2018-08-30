@@ -1,0 +1,34 @@
+= Services
+
+include::./_includes/in-progress.adoc[]
+
+== <<atom-feed-consumption.adoc#,Atom Feed Consumption Service>>
+Consolidates the consumption of Atom feeds and provides a simple interface to retrieve consumed data.
+
+== <<datastores.adoc#,Datastores>>
+Enables the local *Repose* node or an entire cluster to store various types of data.
+
+== <<health-check.adoc#,Health Check service>>
+*IN PROGRESS*
+
+== <<http-connection-pool.adoc#,HTTP Connection Pool service>>
+The HTTP Connection Pool service is used for all outbound communication, and allows you to specify a number of things about those connections.
+
+== <<logging.adoc#,Logging Service>>
+Enables user configuration of the logging library used by *Repose*.
+
+== <<metrics.adoc#,Metrics Service>>
+Enables the registration, collection, and reporting of metrics across *Repose*.
+Such metrics provide insight into the state of *Repose* and its components at any given time.
+
+== <<open-tracing.adoc#,OpenTracing Service>>
+Enables sending data to an external Tracing service.
+
+== <<phone-home.adoc#,Phone Home Service>>
+Sends basic configuration data to the *Repose Team*.
+
+== <<response-messaging.adoc#,Response Messaging service>>
+Enables *Repose* to conditionally overwrite the response body with a pre-configured message.
+
+== <<uri-redaction.adoc#,URI Redaction service>>
+Enables *Repose* to redact sensitive information contained in a URI before logging or creating tracing information.

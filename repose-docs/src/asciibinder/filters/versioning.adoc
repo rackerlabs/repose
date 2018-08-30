@@ -1,0 +1,67 @@
+= Versioning Filter
+
+include::./_includes/in-progress.adoc[]
+
+== General filter information
+* *Name:* ???
+* *Default Configuration:* ???.cfg.xml
+* *Released:* v?.?.?.?
+* *Bundle:* repose-filter-bundle
+* link:../schemas/versioning-configuration.xsd[Schema]
+
+== Prerequisites & Postconditions
+=== Required Request Headers
+???.
+
+=== Required Preceding Filters
+???.
+
+=== Request Headers Created
+???.
+
+=== Request Body Changes
+???.
+
+=== Recommended Follow-On (Succeeding) Filters
+???.
+
+=== Response Body Changes
+???.
+
+=== Response Headers Created
+???.
+
+=== Response Status Codes
+???.
+
+== Examples
+=== Shows how to ???
+This configuration will ???.
+
+[source,xml]
+.???.cfg.xml
+----
+<??? xmlns="http://docs.openrepose.org/repose/???/v1.0">
+    <???> <!--1-->
+    </???>
+</???>
+----
+<1> Specifies ???.
+
+== Additional Information
+
+=== Metrics
+
+This component reports the following metrics to the <<../services/metrics.adoc#, Metrics Service>>:
+
+[cols="3", options="header,autowidth"]
+|===
+|Metric Type
+|Metric Name
+|Description
+
+| Meter
+| `org.openrepose.filters.versioning.VersioningFilter.VersionedRequest.<name>`
+| Counts the number of times any request is processed using a version mapping specified by `<name>`.
+`<name>` is the `id` attribute of the `version-mapping` element in this filter's configuration.
+|===

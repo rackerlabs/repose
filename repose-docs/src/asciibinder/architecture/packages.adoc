@@ -1,0 +1,46 @@
+= Packages
+
+include::./_includes/in-progress.adoc[]
+
+Provides details about the packages *Repose* maintains for easy installation by our users.
+
+== Directory Layout
+This section outlines where *Repose* files live in the filesystem after being extracted from one of our packages.
+
+[cols="3", options="header, autowidth"]
+|===
+|Files |Directory/File |Purpose
+
+|EAR Files
+|/usr/share/repose/filters
+|Location of all of the artifacts for *Repose* to use.
+
+|Valve JAR File
+|/usr/share/repose/repose-valve.jar
+|The repose-valve.jar that starts Valve.
+
+|Log Files
+|/var/log/repose
+|System and HTTP logs.
+
+|Configuration Files
+|/etc/repose
+|XML configuration files.
+
+|Example Configuration Files
+|/etc/repose/examples
+|Example XML configuration files.
+ These files are for example purposes only, and are not used to determine the behavior of Repose.
+
+|Unit File
+|/lib/systemd/system/repose-valve.service
+|SystemD service unit file.
+
+|Service Script
+|/etc/init.d/repose-valve
+|*(Deprecated)* Script used by System V or Upstart's `service` command.
+
+|Deployment
+|/var/repose
+|Working directory for artifacts being used when *Repose* is running.
+|===

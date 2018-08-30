@@ -1,0 +1,18 @@
+= Architecture
+
+include::./_includes/in-progress.adoc[]
+
+== <<configuration.adoc#,Configuration>>
+Provides some context as to the interaction of the different configuration files.
+
+== <<container.adoc#,Container>>
+Provides detail about the *Repose* container -- the configuration file which outlines how a particular container should execute.
+
+== <<packages.adoc#,Packages>>
+Provides details about the packages *Repose* maintains for easy installation by our users.
+
+//== <<servlet-spec.adoc#,Servlet Specification>>
+//Provides information about the JEE Servlet Specification, and how *Repose* utilizes that specification.
+
+== <<system-model.adoc#,System Model>>
+Provides detail about the *Repose* system model -- the configuration file which outlines the deployment topology.
