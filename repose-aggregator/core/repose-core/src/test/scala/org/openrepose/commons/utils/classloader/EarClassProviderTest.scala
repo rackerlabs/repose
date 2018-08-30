@@ -366,7 +366,7 @@ class EarClassProviderTest extends FunSpec with Matchers {
       val artifactModificationTime2 = artifactFile.lastModified()
 
       artifactFile should exist
-      artifactModificationTime shouldEqual artifactModificationTime2
+      artifactModificationTime2 shouldEqual artifactModificationTime +- 1000
     }
   }
 }
