@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<http-clients xmlns="http://docs.openrepose.org/repose/http-client-service/v1.0">
+
+    <!-- Configuration for the default client. Any users of the service will by default, retrieve HTTP connections
+         using this default client configuration. Connections to the origin service will also be made using the default
+         client.
+    -->
+    <client id="default"
+            default="true"
+            http.conn-manager.max-total="200"
+            http.conn-manager.max-per-route="20"
+            http.socket.timeout="30000"
+            http.socket.buffer-size="8192"
+            http.connection.timeout="30000"
+            http.connection.max-line-length="8192"
+            http.connection.max-header-count="100"
+            http.connection.max-status-line-garbage="100"
+            http.tcp.nodelay="true"
+            keepalive.timeout="0"
+            cache.ttl="500"
+            chunked-encoding="true"/>
+
+    <!-- Configuration for a custom client that overrides specific default settings -->
+    <client id="myserviceclient" default="false" http.tcp.nodelay="false"/>
+
+    <!-- Configuration for a custom client that uses all default values -->
+    <client id="alldefaultsclient" default="false"/>
+
+    <!-- Configuration for a connection client that uses SSL/TLS Client Authentication -->
+    <client id="clientAuthentication"
+            default="false"
+            keystore-filename="keystore.jks"
+            keystore-password="password"
+            key-password="secret"
+            truststore-filename="truststore.jks"
+            truststore-password="trusting"/>
+
+</http-clients>

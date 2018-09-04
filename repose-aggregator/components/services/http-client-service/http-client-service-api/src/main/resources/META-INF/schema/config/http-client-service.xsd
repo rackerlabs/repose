@@ -19,18 +19,17 @@
   =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
   -->
 
-
 <xs:schema xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0"
+           xmlns="http://docs.openrepose.org/repose/http-client-service/v1.0"
            attributeFormDefault="unqualified"
            elementFormDefault="qualified"
-           targetNamespace="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
+           targetNamespace="http://docs.openrepose.org/repose/http-client-service/v1.0">
 
-    <xs:element name="http-connection-pools" type="HttpConnectionPoolConfig"/>
+    <xs:element name="http-clients" type="HttpClientServiceConfig"/>
 
     <!-- Type definitions -->
     <xs:simpleType name="PositiveInt">
@@ -45,10 +44,10 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:complexType name="HttpConnectionPoolConfig">
+    <xs:complexType name="HttpClientServiceConfig">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Connection Pool Management settings.</html:p>
+                <html:p>HTTP client settings.</html:p>
                 <html:p>
                     Please refer to
                     <html:a href="http://hc.apache.org/httpcomponents-client-ga/tutorial/html/connmgmt.html">
@@ -59,24 +58,45 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="pool" type="PoolType" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="client" type="HttpClientConfig" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:assert vc:minVersion="1.1"
-                   test="count(distinct-values(pool/@id)) = count(pool/@id)"
-                   xerces:message="Pools must have unique ids"
-                   saxon:message="Pools must have unique ids" xpathDefaultNamespace="##targetNamespace"/>
+                   test="count(distinct-values(client/@id)) = count(client/@id)"
+                   xerces:message="Clients must have unique ids"
+                   saxon:message="Clients must have unique ids" xpathDefaultNamespace="##targetNamespace"/>
 
         <xs:assert vc:minVersion="1.1"
-                   test="count(pool[xs:boolean(@default)=true()]) = 1"
-                   xerces:message="One and only one default pool must be defined"
-                   saxon:message="One and only one default pool must be defined"/>
+                   test="count(client[xs:boolean(@default)=true()]) = 1"
+                   xerces:message="One and only one default client must be defined"
+                   saxon:message="One and only one default client must be defined"/>
     </xs:complexType>
 
-    <xs:complexType name="PoolType">
+    <xs:complexType name="HttpClientConfig">
         <xs:sequence>
-            <xs:element type="headerListType" name="headers" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="headers" type="HeaderList" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
+
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Unique client identifier.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="default" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Determines whether or not this client configuration should
+                        be considered the default when a client of HTTP connections is requested from the service.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
 
         <xs:attribute name="http.conn-manager.max-total" type="PositiveInt" use="optional" default="400">
             <xs:annotation>
@@ -218,28 +238,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="id" type="xs:string" use="required">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        Unique pool identifier.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="default" type="xs:boolean" use="optional" default="false">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        Determines whether or not this pool configuration should
-                        be considered the default when a pool of HTTP connections is requested from the service.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="chunked-encoding" type="chunkedEncodingType" use="optional" default="true">
+        <xs:attribute name="chunked-encoding" type="ChunkedEncoding" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -250,8 +249,8 @@
                         If set to true, chunked data will always be sent.
                         If set to false, chunked data will never be sent.
                         If set to auto, chunked data will only be sent if the original request to Repose was chunked.
-                        Note that the auto setting only has meaning for the default connection pool, as that is the only
-                        pool that will be used to make requests to the origin service.
+                        Note that the auto setting only has meaning for the default client connection pool, as that is
+                        the only pool that will be used to make requests to the origin service.
                     </html:p>
                     <html:p>
                         WARNING: Setting this attribute to false may cause repose to attempt to retrieve the
@@ -261,6 +260,36 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <xs:attribute name="cache.ttl" type="PositiveInt" use="optional" default="500">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The amount of time in milliseconds to cache the HTTP interaction (i.e., the sending of the
+                        request and receiving of the response).
+                        While more than one request may be made to the HTTP client at the same time with the same
+                        cache key, only one request will be made by the HTTP client at a time per cache key.
+                        In effect, this means the first request made to the HTTP client is cached until the HTTP client
+                        receives a response, at which point the response is cached.
+                    </html:p>
+                    <html:p>
+                        For example, if request A is made to the HTTP client 1 millisecond before request B and both
+                        requests have the same cache key, request A will be sent over the wire by the HTTP client
+                        and both requester A and requester B will await the response for request A.
+                        Both requester A and requester B will receive the same response once the response for request A
+                        is available.
+                        If request C is made 250 milliseconds after request B (with the same cache key,
+                        within the defined ttl), requester C will immediately receive the response for request A.
+                        This is the same response that requester A and requester B received.
+                        If request D is made 501 milliseconds after request B (with the same cache key,
+                        not within the defined ttl), request D will be sent over the wire by the HTTP client
+                        and requester D will receive a response different from the response received by requesters
+                        A, B, and C.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
         <xs:attribute name="keystore-filename" type="xs:anyURI" use="optional">
             <xs:annotation>
                 <xs:documentation>
@@ -273,6 +302,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
         <xs:attribute name="keystore-password" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
@@ -280,6 +310,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
         <xs:attribute name="key-password" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
@@ -287,16 +318,18 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
         <xs:attribute name="truststore-filename" type="xs:anyURI" use="optional">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        The truststore used for validating the server this pool is connecting to.
+                        The truststore used for validating the server this client is connecting to.
                         This is typically set to the same path as the client authentication keystore.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
         <xs:attribute name="truststore-password" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
@@ -307,29 +340,31 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
         <xs:assert vc:minVersion="1.1"
                    test="(@http.conn-manager.max-per-route) &lt;= (@http.conn-manager.max-total)"
                    xerces:message="Max connections per route must be less than or equal to total max connections"
                    saxon:message="Max connections per route must be less than or equal to total max connections"/>
+
         <xs:assert vc:minVersion="1.1"
                    test="if (@keystore-filename or @keystore-password or @key-password) then (@keystore-filename and @keystore-password and @key-password) else true()"
                    xerces:message="IF a keystore filename, password, or key password is provided, THEN all must be provided"
                    saxon:message="IF a keystore filename, password, or key password is provided, THEN all must be provided"/>
     </xs:complexType>
 
-    <xs:complexType name="headerListType">
+    <xs:complexType name="HeaderList">
         <xs:annotation>
             <xs:documentation>
-                <html:p>List of headers to add to each request made using this connection pool.</html:p>
+                <html:p>List of headers to add to each request made using this connection client.</html:p>
             </xs:documentation>
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element type="headerType" name="header" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="header" type="Header" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="headerType">
+    <xs:complexType name="Header">
         <xs:annotation>
             <xs:documentation>
                 <html:p>Header with a name and a value.</html:p>
@@ -340,7 +375,7 @@
         <xs:attribute name="value" type="xs:string" use="required"/>
     </xs:complexType>
 
-    <xs:simpleType name="chunkedEncodingType">
+    <xs:simpleType name="ChunkedEncoding">
         <xs:restriction base="xs:string">
             <xs:enumeration value="true"/>
             <xs:enumeration value="false"/>
