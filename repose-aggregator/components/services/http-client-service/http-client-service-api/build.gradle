@@ -1,21 +1,10 @@
-
 dependencies {
     compile "org.apache.httpcomponents:httpclient"
+    compile "org.slf4j:jcl-over-slf4j"
+
+    compileOnly 'org.projectlombok:lombok'
 
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
-}
-
-jacocoTestCoverageVerification {
-    violationRules {
-        rules.forEach { rule ->
-            rule.limits.forEach { limit ->
-                if (limit.counter == 'INSTRUCTION' && limit.value == 'COVEREDRATIO') {
-                    // todo: set to the current coverage -- need more coverage, but we don't want the build to fail for the baseline
-                    limit.minimum = 0.02
-                }
-            }
-        }
-    }
 }
