@@ -57,28 +57,24 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        *    a. http-port
        *    b. https-port
        *
-       * 4. Remove these values from the chunkedEncodingType enumeration in http-connection-pool.xsd:
-       *    a. 1
-       *    b. 0
+       * 4. Remove the flush output filter
        *
-       * 5. Remove the flush output filter
+       * 5. Extract common XML types (e.g., keystore configuration).
        *
-       * 6. Extract common XML types (e.g., keystore configuration).
-       *
-       * 7. Remove the Container Configuration's `cluster-config` element's deprecated `via` attribute.
+       * 6. Remove the Container Configuration's `cluster-config` element's deprecated `via` attribute.
        *    a. This needs done in the XSD.
        *    b. There will also be some tests that should be removed also.
        *
-       * 8. Allow the Container config to provide empty [in|ex]cluded-[protocols|ciphers].
+       * 7. Allow the Container config to provide empty [in|ex]cluded-[protocols|ciphers].
        *
-       * 9. Remove the uri-extraction-regex attribute from the Keystone filters' configuration.
+       * 8. Remove the uri-extraction-regex attribute from the Keystone filters' configuration.
        *
-       * 10. For Keystone Authorization, when the default tenant ID matches a request tenant, use the configured request tenant quality rather than using the higher of the request tenant and default tenant qualities.
+       * 9. For Keystone Authorization, when the default tenant ID matches a request tenant, use the configured request tenant quality rather than using the higher of the request tenant and default tenant qualities.
        *     Before doing so, verify that this behavior is not useful.
        *
-       * 11. Remove the population of X-Auth-Token-Key from Keystone v2 Filter.
+       * 10. Remove the population of X-Auth-Token-Key from Keystone v2 Filter.
        *
-       * 12. The following classes should all be obsoleted when the `ReposeRoutingServlet` is put to use:
+       * 11. The following classes should all be obsoleted when the `ReposeRoutingServlet` is put to use:
        *     a. PowerFilterRouter
        *     b. PowerFilterRouterImpl
        *     c. PowerFilterRouterFactory
