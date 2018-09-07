@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<http-clients xmlns="http://docs.openrepose.org/repose/http-client-service/v1.0">
+    <client id="default"
+            default="true"/>
+    <client id="remote-datastore-pool"
+            keystore-filename="client.jks"
+            keystore-password="password"
+            key-password="password"
+            truststore-filename="server.jks"
+            truststore-password="password"/>
+</http-clients>
