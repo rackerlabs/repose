@@ -4,11 +4,13 @@
   <meta charset="utf-8">
   <meta content="IE=edge" http-equiv="X-UA-Compatible">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title><%= distro %> <%= version %> | <%= [group_title, subgroup_title, topic_title].compact.join(' | ') %></title>
+  <title><%= version %> | <%= [group_title, subgroup_title, topic_title].compact.join(' | ') %></title>
 
   <!-- Bootstrap -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="<%= File.join(css_path, "asciibinder.css") %>" >
+  <link rel="stylesheet" href="<%= File.join(css_path, "repose.css") %>" >
 
   <%= render("_templates/_css.html.erb", :css_path => css_path) %>
 
@@ -27,7 +29,7 @@
   <div class="navbar navbar-default" role="navigation">
     <div class="container-fluid">
       <div class="navbar-header">
-        <a class="navbar-brand" href="http://www.asciibinder.org/"><img alt="AsciiBinder" src="<%= File.join(images_path, "asciibinder-logo-horizontal.png") %>"></a>
+        <a class="navbar-brand" href="http://www.openrepose.org/"><img alt="OpenRepose" src="<%= File.join(images_path, "repose-logo.png") %>"></a>
       </div>
     </div>
   </div>
