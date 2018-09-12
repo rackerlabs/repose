@@ -146,7 +146,7 @@ task('stageDocs', dependsOn: asciibindersearch) {
         }
 
         copy {
-            from("${project.rootDir}/repose-docs/src/resources")
+            from("${project.rootDir}/repose-aggregator/docs/src/resources")
             into("${project.buildDir}/gh-pages/")
         }
 
