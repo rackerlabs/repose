@@ -30,32 +30,25 @@ task copyTemplates(type: Copy) {
     expand(version: version)
 }
 
-task asciibinderGitInit(type: Exec, dependsOn: [copySrc, copyTemplates]) {
-    workingDir "${project.buildDir}/asciibinder"
-    commandLine 'git', 'init'
+task asciibinderGit(dependsOn: [copySrc, copyTemplates]) {
+    doLast {
+        def grgit = Grgit.init(dir: "${project.buildDir}/asciibinder")
+        grgit.add(patterns: ['.'])
+        grgit.commit(message: 'initial_commit')
+    }
 }
 
-task asciibinderGitAdd(type: Exec, dependsOn: asciibinderGitInit) {
-    workingDir "${project.buildDir}/asciibinder"
-    commandLine 'git', 'add', '.'
-}
-
-task asciibinderGitCommit(type: Exec, dependsOn: asciibinderGitAdd) {
-    workingDir "${project.buildDir}/asciibinder"
-    commandLine 'git', 'commit', '-m', 'initial_commit'
-}
-
-task asciibinderDockerRun(type: Exec, dependsOn: asciibinderGitCommit) {
+task asciibinderDockerRun(type: Exec, dependsOn: asciibinderGit) {
     workingDir "${project.buildDir}/asciibinder"
     commandLine 'docker', 'run', '--tty', '--user', "${uid}:${gid}", '--volume', "${project.buildDir}/asciibinder:/docs:z", 'projectatomic/ascii_binder'
 }
 
-task asciibinderGitRm(type: Exec, dependsOn: asciibinderDockerRun) {
+task asciibinderRmGit(type: Exec, dependsOn: asciibinderDockerRun) {
     workingDir "${project.buildDir}/asciibinder"
     commandLine 'rm', '-Rf', '.git'
 }
 
-task asciibinderCreateVersionsHtml(dependsOn: asciibinderGitRm) {
+task asciibinderCreateVersionsHtml(dependsOn: asciibinderRmGit) {
     doLast {
         // Write the versions includes file
         def includesFile = new File("${project.buildDir}/asciibinder/_package/main/_includes/versions.html")
