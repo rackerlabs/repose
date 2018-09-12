@@ -4,7 +4,7 @@ ascii_binder:
   author: Repose Team <Repose-Core@Rackspace.com>
   site: main
   site_name: Home
-  site_url: http://openrepose.org/
+  site_url: http://openrepose.org/versions
   branches:
     master:
       name: ${version}

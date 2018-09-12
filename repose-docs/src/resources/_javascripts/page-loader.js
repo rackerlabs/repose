@@ -6,7 +6,7 @@ function versionSelector(list) {
   var pathArray = window.location.pathname.split( '/' );
 
   // so we can get the current version
-  currentVersion = pathArray[1];
+  currentVersion = pathArray[2];
 
   // the file path is just the version number + the end of the path
   var fileRequested =
@@ -17,7 +17,7 @@ function versionSelector(list) {
 
   // without doing async loads, there is no way to know if the path actually
   // exists - so we will just have to load
-  window.location = "/" + newVersion + fileRequested;
+  window.location = "/versions/" + newVersion + fileRequested;
 }
 
 function selectVersion(currentVersion) {
