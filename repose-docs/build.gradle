@@ -94,39 +94,6 @@ task asciibindersearchDockerChown(type: Exec, dependsOn: asciibindersearchDocker
 task asciibindersearch(dependsOn: asciibindersearchDockerChown, group: 'build', description: 'Builds the search for the latest version of the docs') {
 }
 
-//asciidoctor {
-//    requires 'asciidoctor-diagram'
-//    options template_dirs: ["${project.projectDir}/src/docs/asciidoc/_backends/haml"]
-//    attributes 'source-highlighter': 'coderay',
-//        'stylesdir': "${project.projectDir}/src/docs/asciidoc/_stylesheets",
-//        'stylesheet': 'repose.css',
-//        'toc': 'left',
-//        'icons': 'font',
-//        'docinfo': 'shared',
-//        'sectanchors': ''
-//
-//    resources {
-//        from 'src/docs/resources'
-//        into '.'
-//    }
-//
-//    ext.capturedOutput = []
-//    def listener = { ext.capturedOutput << it } as StandardOutputListener
-//
-//    logging.addStandardErrorListener(listener)
-//    logging.addStandardOutputListener(listener)
-//
-//    doLast {
-//        logging.removeStandardOutputListener(listener)
-//        logging.removeStandardErrorListener(listener)
-//        ext.capturedOutput.join('').with { output ->
-//            if (output =~ /WARNING:/ || output =~ /ERROR:/) {
-//                throw new RuntimeException("See output above for specific cause of failure(s).")
-//            }
-//        }
-//    }
-//}
-
 linkchecker {
     inputDir = file("${buildDir}/asciibinder/_package/main")
     httpURLConnectionTimeout = 1000
