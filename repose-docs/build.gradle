@@ -30,29 +30,44 @@ task copyTemplates(type: Copy) {
     expand(version: version)
 }
 
-task asciibinder0(type: Exec, dependsOn: [copySrc, copyTemplates]) {
+task asciibinderGitInit(type: Exec, dependsOn: [copySrc, copyTemplates]) {
     workingDir "${project.buildDir}/asciibinder"
     commandLine 'git', 'init'
 }
 
-task asciibinder1(type: Exec, dependsOn: asciibinder0) {
+task asciibinderGitAdd(type: Exec, dependsOn: asciibinderGitInit) {
     workingDir "${project.buildDir}/asciibinder"
     commandLine 'git', 'add', '.'
 }
 
-task asciibinder2(type: Exec, dependsOn: asciibinder1) {
+task asciibinderGitCommit(type: Exec, dependsOn: asciibinderGitAdd) {
     workingDir "${project.buildDir}/asciibinder"
     commandLine 'git', 'commit', '-m', 'initial_commit'
 }
 
-task asciibinder3(type: Exec, dependsOn: asciibinder2) {
+task asciibinderDockerRun(type: Exec, dependsOn: asciibinderGitCommit) {
     workingDir "${project.buildDir}/asciibinder"
     commandLine 'docker', 'run', '--tty', '--user', "${uid}:${gid}", '--volume', "${project.buildDir}/asciibinder:/docs:z", 'projectatomic/ascii_binder'
 }
 
-task asciibinder(type: Exec, dependsOn: asciibinder3, group: 'build', description: 'Builds the latest version of the docs') {
+task asciibinderGitRm(type: Exec, dependsOn: asciibinderDockerRun) {
     workingDir "${project.buildDir}/asciibinder"
     commandLine 'rm', '-Rf', '.git'
+}
+
+task asciibinderCreateVersionsHtml(dependsOn: asciibinderGitRm) {
+    doLast {
+        // Write the versions includes file
+        def includesFile = new File("${project.buildDir}/asciibinder/_package/main/_includes/versions.html")
+        includesFile.getParentFile().mkdirs()
+        includesFile.createNewFile()
+        def includesWriter = new PrintWriter(includesFile)
+        includesWriter.println("""<option value="${version}">v${version}</option>""")
+        includesWriter.close()
+    }
+}
+
+task asciibinder(dependsOn: asciibinderCreateVersionsHtml, group: 'build', description: 'Builds the latest version of the docs') {
 }
 
 task copyXsds(type: Copy, dependsOn: asciibinder) {
@@ -85,14 +100,17 @@ task copyCentosDockerfile(type: Copy, dependsOn: asciibinder) {
     into("${project.buildDir}/asciibinder/_package/main/latest/resources/centos/")
 }
 
-task asciibindersearch0(type: Exec, dependsOn: [copyXsds, copyCentosDockerfile, copyUbuntuDockerfile]) {
+task asciibindersearchDockerRun(type: Exec, dependsOn: [copyXsds, copyCentosDockerfile, copyUbuntuDockerfile]) {
     workingDir "${project.buildDir}/asciibinder"
     commandLine 'docker', 'run', '--tty', '--volume', "${project.buildDir}/asciibinder:/docs:z", 'python:3', '/bin/sh', '-c', 'pip install git+https://github.com/smitthakkar96/ascii_binder_search_plugin && cd /docs && ascii_binder_search -i front_end_indexer -v'
 }
 
-task asciibindersearch(type: Exec, dependsOn: asciibindersearch0, group: 'build', description: 'Builds the search for the latest version of the docs') {
+task asciibindersearchDockerChown(type: Exec, dependsOn: asciibindersearchDockerRun, group: 'build', description: 'Builds the search for the latest version of the docs') {
     workingDir "${project.buildDir}/asciibinder"
     commandLine 'docker', 'run', '--tty', '--volume', "${project.buildDir}/asciibinder:/docs:z", 'python:3', '/bin/chown', '-R', "${uid}:${gid}", '/docs'
+}
+
+task asciibindersearch(dependsOn: asciibindersearchDockerChown, group: 'build', description: 'Builds the search for the latest version of the docs') {
 }
 
 //asciidoctor {
