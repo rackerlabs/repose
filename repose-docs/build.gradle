@@ -40,7 +40,7 @@ task asciibinderGit(dependsOn: [copySrc, copyTemplates]) {
 
 task asciibinderDockerRun(type: Exec, dependsOn: asciibinderGit) {
     workingDir "${project.buildDir}/asciibinder"
-    commandLine 'docker', 'run', '--tty', '--user', "${uid}:${gid}", '--volume', "${project.buildDir}/asciibinder:/docs:z", 'projectatomic/ascii_binder'
+    commandLine 'docker', 'run', '--tty', '--user', "${uid}:${gid}", '--volume', "${project.buildDir}/asciibinder:/docs:z", 'projectatomic/ascii_binder:v0.1.13'
 }
 
 task asciibinderRmGit(type: Exec, dependsOn: asciibinderDockerRun) {
