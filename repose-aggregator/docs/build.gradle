@@ -31,6 +31,8 @@ task copyTemplates(type: Copy) {
 }
 
 task asciibinderGit(dependsOn: [copySrc, copyTemplates]) {
+    inputs.dir(file("${project.projectDir}/src"))
+    outputs.dir(file("${project.buildDir}/asciibinder"))
     doLast {
         def grgit = Grgit.init(dir: "${project.buildDir}/asciibinder")
         grgit.add(patterns: ['.'])
@@ -39,11 +41,16 @@ task asciibinderGit(dependsOn: [copySrc, copyTemplates]) {
 }
 
 task asciibinderDockerRun(type: Exec, dependsOn: asciibinderGit) {
+    inputs.dir(file("${project.projectDir}/src"))
+    outputs.dir(file("${project.buildDir}/asciibinder"))
     workingDir "${project.buildDir}/asciibinder"
     commandLine 'docker', 'run', '--tty', '--user', "${uid}:${gid}", '--volume', "${project.buildDir}/asciibinder:/docs:z", 'projectatomic/ascii_binder:v0.1.13'
 }
 
 task asciibinderRmGit(type: Exec, dependsOn: asciibinderDockerRun) {
+    outputs.upToDateWhen {
+        !(new File("${project.buildDir}/asciibinder/.git")).exists()
+    }
     workingDir "${project.buildDir}/asciibinder"
     commandLine 'rm', '-Rf', '.git'
 }
@@ -82,11 +89,15 @@ task copyCentosDockerfile(type: Copy, dependsOn: asciibinder) {
 }
 
 task asciibindersearchDockerRun(type: Exec, dependsOn: [copyXsds, copyCentosDockerfile, copyUbuntuDockerfile]) {
+    inputs.dir(file("${project.projectDir}/src"))
+    outputs.dir(file("${project.buildDir}/asciibinder"))
     workingDir "${project.buildDir}/asciibinder"
     commandLine 'docker', 'run', '--tty', '--volume', "${project.buildDir}/asciibinder:/docs:z", 'python:3', '/bin/sh', '-c', 'pip install git+https://github.com/smitthakkar96/ascii_binder_search_plugin && cd /docs && ascii_binder_search -i front_end_indexer -v'
 }
 
 task asciibindersearchDockerChown(type: Exec, dependsOn: asciibindersearchDockerRun, group: 'build', description: 'Builds the search for the latest version of the docs') {
+    inputs.dir(file("${project.projectDir}/src"))
+    outputs.dir(file("${project.buildDir}/asciibinder"))
     workingDir "${project.buildDir}/asciibinder"
     commandLine 'docker', 'run', '--tty', '--volume', "${project.buildDir}/asciibinder:/docs:z", 'python:3', '/bin/chown', '-R', "${uid}:${gid}", '/docs'
 }
@@ -105,6 +116,8 @@ linkchecker {
 }
 
 task('stageDocs', dependsOn: asciibindersearch) {
+    inputs.dir(file("${project.projectDir}/src"))
+    outputs.dir(file("${project.buildDir}/gh-pages"))
     doLast {
         def workingDir = project.file("${project.buildDir}/gh-pages")
 
@@ -146,7 +159,7 @@ task('stageDocs', dependsOn: asciibindersearch) {
         }
 
         copy {
-            from("${project.rootDir}/repose-aggregator/docs/src/resources")
+            from("${project.projectDir}/src/resources")
             into("${project.buildDir}/gh-pages/")
         }
 
