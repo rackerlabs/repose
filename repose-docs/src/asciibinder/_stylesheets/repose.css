@@ -163,7 +163,7 @@ img { display: inline-block; vertical-align: middle; }
 
 textarea { height: auto; min-height: 50px; }
 
-select { width: 100%; }
+select { width: 49%; }
 
 object, svg { display: inline-block; vertical-align: middle; }
 
@@ -730,3 +730,11 @@ p { margin-bottom: 1.25rem; }
   .print-only { display: block !important; }
   .hide-for-print { display: none !important; }
   .show-for-print { display: inherit !important; } }
+
+.container {
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: 2%;
+    margin-left: 2%;
+    width: 96%
+}
