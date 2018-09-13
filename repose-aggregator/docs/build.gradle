@@ -12,50 +12,37 @@ def username = System.properties['user.name']
 def uid = ["id", "-u", username].execute().text.trim()
 def gid = ["id", "-g", username].execute().text.trim()
 
-task copySrc(type: Copy) {
-    // Copy the Repose Docs source.
-    from(fileTree("${project.projectDir}/src/asciibinder"))
-
-    // Place all source into the build directory.
-    into("${project.buildDir}/asciibinder")
-}
-
-task copyTemplates(type: Copy) {
-    // Copy the Repose Docs source.
-    from(fileTree("${project.projectDir}/src/templates"))
-
-    // Place all source into the build directory.
-    into("${project.buildDir}/asciibinder")
-
-    expand(version: version)
-}
-
-task asciibinderGit(dependsOn: [copySrc, copyTemplates]) {
+task asciibinder(group: 'build', description: 'Builds the latest version of the docs') {
     inputs.dir(file("${project.projectDir}/src"))
     outputs.dir(file("${project.buildDir}/asciibinder"))
     doLast {
+        copy {
+            from(fileTree("${project.projectDir}/src/asciibinder"))
+            into("${project.buildDir}/asciibinder")
+        }
+        copy {
+            from(fileTree("${project.projectDir}/src/templates"))
+            into("${project.buildDir}/asciibinder")
+            expand(version: version)
+        }
+
         def grgit = Grgit.init(dir: "${project.buildDir}/asciibinder")
         grgit.add(patterns: ['.'])
         grgit.commit(message: 'initial_commit')
+
+        def runProcess =
+            "docker run --tty --user ${uid}:${gid} --volume ${project.buildDir}/asciibinder:/docs:z projectatomic/ascii_binder:v0.1.13"
+                .execute(null, file("${project.buildDir}/asciibinder"))
+        try {
+            runProcess.waitFor()
+            logger.debug new String(runProcess.getInputStream().bytes)
+            if (runProcess.exitValue() != 0) {
+                logger.error new String(runProcess.getErrorStream().bytes)
+            }
+        } finally {
+            file("${project.buildDir}/asciibinder/.git").deleteDir()
+        }
     }
-}
-
-task asciibinderDockerRun(type: Exec, dependsOn: asciibinderGit) {
-    inputs.dir(file("${project.projectDir}/src"))
-    outputs.dir(file("${project.buildDir}/asciibinder"))
-    workingDir "${project.buildDir}/asciibinder"
-    commandLine 'docker', 'run', '--tty', '--user', "${uid}:${gid}", '--volume', "${project.buildDir}/asciibinder:/docs:z", 'projectatomic/ascii_binder:v0.1.13'
-}
-
-task asciibinderRmGit(type: Exec, dependsOn: asciibinderDockerRun) {
-    outputs.upToDateWhen {
-        !(new File("${project.buildDir}/asciibinder/.git")).exists()
-    }
-    workingDir "${project.buildDir}/asciibinder"
-    commandLine 'rm', '-Rf', '.git'
-}
-
-task asciibinder(dependsOn: asciibinderRmGit, group: 'build', description: 'Builds the latest version of the docs') {
 }
 
 task copyXsds(type: Copy, dependsOn: asciibinder) {
@@ -88,49 +75,51 @@ task copyCentosDockerfile(type: Copy, dependsOn: asciibinder) {
     into("${project.buildDir}/asciibinder/_package/main/${version}/resources/centos/")
 }
 
-task asciibindersearchDockerRun(type: Exec, dependsOn: [copyXsds, copyCentosDockerfile, copyUbuntuDockerfile]) {
-    inputs.dir(file("${project.projectDir}/src"))
-    outputs.dir(file("${project.buildDir}/asciibinder"))
-    workingDir "${project.buildDir}/asciibinder"
-    commandLine 'docker', 'run', '--tty', '--volume', "${project.buildDir}/asciibinder:/docs:z", 'python:3', '/bin/sh', '-c', 'pip install git+https://github.com/smitthakkar96/ascii_binder_search_plugin && cd /docs && ascii_binder_search -i front_end_indexer -v'
+task asciibindersearch(dependsOn: [copyXsds, copyCentosDockerfile, copyUbuntuDockerfile], group: 'build', description: 'Builds the search for the latest version of the docs') {
+    inputs.dir(file("${project.buildDir}/asciibinder/_package/main/${version}"))
+    outputs.files(
+        file("${project.buildDir}/asciibinder/_package/main/search.html"),
+        file("${project.buildDir}/asciibinder/_package/main/data_${version}.json"),
+        file("${project.buildDir}/asciibinder/_package/main/versions.json")
+    )
+    doLast {
+        def buildProcess =
+            "docker build --tag local/asciibindersearch ${project.projectDir}/src/docker/Python3/"
+                .execute(null, file("${project.buildDir}/asciibinder"))
+        buildProcess.waitFor()
+        logger.debug new String(buildProcess.getInputStream().bytes)
+        if (buildProcess.exitValue() != 0) {
+            logger.error new String(buildProcess.getErrorStream().bytes)
+        }
+
+        def runProcess =
+            "docker run --tty --user ${uid}:${gid} --volume ${project.buildDir}/asciibinder:/docs:z local/asciibindersearch"
+                .execute(null, file("${project.buildDir}/asciibinder"))
+        runProcess.waitFor()
+        logger.debug new String(runProcess.getInputStream().bytes)
+        if (runProcess.exitValue() != 0) {
+            logger.error new String(runProcess.getErrorStream().bytes)
+        }
+    }
 }
 
-task asciibindersearchDockerChown(type: Exec, dependsOn: asciibindersearchDockerRun, group: 'build', description: 'Builds the search for the latest version of the docs') {
-    inputs.dir(file("${project.projectDir}/src"))
-    outputs.dir(file("${project.buildDir}/asciibinder"))
-    workingDir "${project.buildDir}/asciibinder"
-    commandLine 'docker', 'run', '--tty', '--volume', "${project.buildDir}/asciibinder:/docs:z", 'python:3', '/bin/chown', '-R', "${uid}:${gid}", '/docs'
-}
-
-task asciibindersearch(dependsOn: asciibindersearchDockerChown, group: 'build', description: 'Builds the search for the latest version of the docs') {
-}
-
-linkchecker {
-    inputDir = file("${buildDir}/asciibinder/_package/main")
-    httpURLConnectionTimeout = 1000
-    ignoreHostRegexs = [
-        /one\.rackspace\.com/,      // Prevents an infinite loop issue.
-        /openrepose\.org/,          // Prevents a false positive.
-        /repose\.atlassian\.net/,   // Saves ~30 secs.
-    ]
-}
-
-task('stageDocs', dependsOn: asciibindersearch) {
-    inputs.dir(file("${project.projectDir}/src"))
+task stageDocs(dependsOn: asciibindersearch) {
+    inputs.dir(file("${project.projectDir}/src/resources"))
+    inputs.dir(file("${project.buildDir}/asciibinder/_package/main"))
     outputs.dir(file("${project.buildDir}/gh-pages"))
     doLast {
-        def workingDir = project.file("${project.buildDir}/gh-pages")
+        def workingDir = file("${project.buildDir}/gh-pages")
 
         workingDir.deleteDir()
 
-        def repo = Grgit.clone(
+        Grgit.clone(
             uri: 'git@github.com:rackerlabs/repose.git',
             refToCheckout: 'gh-pages',
             dir: workingDir,
         )
 
         // Amend the versions list
-        def versionsFile = project.file("${project.buildDir}/gh-pages/_includes/versions.json")
+        def versionsFile = file("${project.buildDir}/gh-pages/_includes/versions.json")
         def versionsJson = new JsonSlurper().parse(versionsFile)
         def modifiedVersions = versionsJson.versions.collect { new Version(id: it.id, released: it.released) }
         def newVersionIndex = modifiedVersions.findIndexOf { compareVersions(String.valueOf(version), it.id) > 0 }
@@ -144,7 +133,7 @@ task('stageDocs', dependsOn: asciibindersearch) {
         jsonWriter.close()
 
         // Write the versions includes file
-        def includesWriter = new PrintWriter(project.file("${project.buildDir}/gh-pages/_includes/versions.html"))
+        def includesWriter = new PrintWriter(file("${project.buildDir}/gh-pages/_includes/versions.html"))
         includesWriter.println("""<option value="latest">Latest</option>""")
         modifiedVersions.forEach { Version v ->
             includesWriter.println("""<option value="${v.id}">v${v.id}</option>""")
@@ -162,17 +151,6 @@ task('stageDocs', dependsOn: asciibindersearch) {
             from("${project.projectDir}/src/resources")
             into("${project.buildDir}/gh-pages/")
         }
-
-        copy {
-            from "${project.buildDir}/asciibinder/_package/main/${version}"
-            into "${project.buildDir}/gh-pages/versions/$version"
-        }
-
-        copy {
-            from "${project.buildDir}/asciibinder/_package/main/data_${version}.json"
-            into "${project.buildDir}/gh-pages/versions/"
-        }
-
         copy {
             from "${project.buildDir}/asciibinder/_package/main/"
             into "${project.buildDir}/gh-pages/versions/"
@@ -180,9 +158,20 @@ task('stageDocs', dependsOn: asciibindersearch) {
     }
 }
 
-task('publishDocs', dependsOn: stageDocs, group: 'release', description: 'Adds the new version of the docs to github pages') {
-        doLast {
-        repo.with {
+linkchecker {
+    inputDir = file("${project.buildDir}/gh-pages/versions/$version/welcome")
+    httpURLConnectionTimeout = 1000
+    ignoreHostRegexs = [
+        /one\.rackspace\.com/,      // Prevents an infinite loop issue.
+        /openrepose\.org/,          // Prevents a false positive.
+        /repose\.atlassian\.net/,   // Saves ~30 secs.
+    ]
+}
+
+task publishDocs(dependsOn: stageDocs, group: 'release', description: 'Adds the new version of the docs to github pages') {
+    doLast {
+        grgit = Grgit.open(dir: "${project.buildDir}/gh-pages")
+        grgit.with {
             add(patterns: ['.'])
             commit(message: "Adding documentation for $version")
             push()
@@ -191,7 +180,7 @@ task('publishDocs', dependsOn: stageDocs, group: 'release', description: 'Adds t
 }
 
 build.dependsOn asciibindersearch
-tasks.linkchecker.dependsOn asciibindersearch
+tasks.linkchecker.dependsOn stageDocs
 check.dependsOn tasks.linkchecker
 publishDocs.dependsOn project.tasks.getByPath(':buildAll')
 project.tasks.getByPath(':release').dependsOn publishDocs
