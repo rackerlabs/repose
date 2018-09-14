@@ -110,13 +110,32 @@ task stageDocs(dependsOn: asciibindersearch) {
     doLast {
         def workingDir = file("${project.buildDir}/gh-pages")
 
-        workingDir.deleteDir()
-
-        Grgit.clone(
-            uri: 'git@github.com:rackerlabs/repose.git',
-            refToCheckout: 'gh-pages',
-            dir: workingDir,
-        )
+        // IF the gh-pages dir exists,
+        // THEN just clean it up;
+        // ELSE clone the repo and checkout the correct branch.
+        if (file("${project.buildDir}/gh-pages/.git").exists()) {
+            workingDir.listFiles(new FilenameFilter() {
+                @Override
+                boolean accept(File dir, String name) {
+                    return !(name == '.git')
+                }
+            }).each { file ->
+                if (file.isDirectory()) {
+                    file.deleteDir()
+                } else {
+                    file.delete()
+                }
+            }
+            def grgit = Grgit.open(dir: workingDir.getAbsolutePath())
+            grgit.checkout(branch: 'gh-pages')
+            grgit.reset(mode: 'HARD')
+        } else {
+            Grgit.clone(
+                uri: 'git@github.com:rackerlabs/repose.git',
+                refToCheckout: 'gh-pages',
+                dir: workingDir,
+            )
+        }
 
         // Amend the versions list
         def versionsFile = file("${project.buildDir}/gh-pages/_includes/versions.json")
