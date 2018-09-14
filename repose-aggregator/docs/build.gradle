@@ -38,6 +38,12 @@ task asciibinder(group: 'build', description: 'Builds the latest version of the 
             logger.debug new String(runProcess.getInputStream().bytes)
             if (runProcess.exitValue() != 0) {
                 logger.error new String(runProcess.getErrorStream().bytes)
+            } else {
+                copy {
+                    from(fileTree("${project.projectDir}/src/redirects"))
+                    into("${project.buildDir}/asciibinder/_package/main/")
+                    expand(version: version)
+                }
             }
         } finally {
             file("${project.buildDir}/asciibinder/.git").deleteDir()
