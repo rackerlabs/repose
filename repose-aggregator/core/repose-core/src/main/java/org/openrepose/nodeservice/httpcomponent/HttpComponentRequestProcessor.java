@@ -156,14 +156,12 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
         int entityLength = -1;
         switch (chunkedEncoding.toLowerCase()) {
             case "true":
-            case "1":
                 break;
             case "auto":
                 if (StringUtils.equalsIgnoreCase(sourceRequest.getHeader("transfer-encoding"), "chunked")) {
                     break;
                 }
             case "false":
-            case "0":
                 entityLength = getSizeOfRequestBody();
                 break;
             default:

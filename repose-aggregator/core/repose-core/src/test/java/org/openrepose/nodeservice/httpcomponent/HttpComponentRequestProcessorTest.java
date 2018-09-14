@@ -44,172 +44,141 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
-@RunWith(Enclosed.class)
 public class HttpComponentRequestProcessorTest {
+    private URI uri;
+    private HttpServletRequest request;
+    private HttpComponentRequestProcessor processor;
+    private String queryString = "param1%5B%5D=value1&param2=value21&param2=value22";
+    private String[] headers = {"header1", "header2"};
+    private String[] values1 = {"value1"};
+    private String[] values2 = {"value21", "value22"};
+    private HttpHost host;
+    private HttpEntityEnclosingRequestBase method;
+    private HttpParams methodParams;
 
-    public static class WhenProcessingRequests {
-        private URI uri;
-        private HttpServletRequest request;
-        private HttpComponentRequestProcessor processor;
-        private String queryString = "param1%5B%5D=value1&param2=value21&param2=value22";
-        private String[] headers = {"header1", "header2"};
-        private String[] values1 = {"value1"};
-        private String[] values2 = {"value21", "value22"};
-        private HttpHost host;
-        private HttpEntityEnclosingRequestBase method;
-        private HttpParams methodParams;
+    @Before
+    public void setUp() throws URISyntaxException, IOException {
+        request = mock(HttpServletRequest.class);
+        uri = new URI("http://www.openrepose.org"); // mock(URI.class);
+        host = new HttpHost("somename");
+        method = mock(HttpEntityEnclosingRequestBase.class);
+        methodParams = mock(HttpParams.class);
 
-        @Before
-        public void setUp() throws URISyntaxException, IOException {
-            request = mock(HttpServletRequest.class);
-            uri = new URI("http://www.openrepose.org"); // mock(URI.class);
-            host = new HttpHost("somename");
-            method = mock(HttpEntityEnclosingRequestBase.class);
-            methodParams = mock(HttpParams.class);
+        when(request.getHeaderNames()).thenReturn(Collections.enumeration(Arrays.asList(headers)));
+        when(request.getHeaders(eq("header1"))).thenReturn(Collections.enumeration(Arrays.asList(values1)));
+        when(request.getHeaders(eq("header2"))).thenReturn(Collections.enumeration(Arrays.asList(values2)));
+        when(request.getQueryString()).thenReturn(queryString);
+        when(method.getParams()).thenReturn(methodParams);
+        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "true");
+    }
 
-            when(request.getHeaderNames()).thenReturn(Collections.enumeration(Arrays.asList(headers)));
-            when(request.getHeaders(eq("header1"))).thenReturn(Collections.enumeration(Arrays.asList(values1)));
-            when(request.getHeaders(eq("header2"))).thenReturn(Collections.enumeration(Arrays.asList(values2)));
-            when(request.getQueryString()).thenReturn(queryString);
-            when(method.getParams()).thenReturn(methodParams);
-            processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "true");
+    @Test
+    public void shouldSetHeaders() throws IOException {
+        when(request.getInputStream())
+                .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{})));
+
+        processor.process(method);
+
+        verify(request).getHeaderNames();
+        for (String header : headers) {
+            verify(request).getHeaders(eq(header));
         }
 
-        @Test
-        public void shouldSetHeaders() throws IOException {
-            when(request.getInputStream())
-                    .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{})));
-
-            processor.process(method);
-
-            verify(request).getHeaderNames();
-            for (String header : headers) {
-                verify(request).getHeaders(eq(header));
-            }
-
-            for (String value : values1) {
-                verify(method).addHeader(eq("header1"), eq(value));
-            }
-
-            for (String value : values2) {
-                verify(method).addHeader(eq("header2"), eq(value));
-            }
+        for (String value : values1) {
+            verify(method).addHeader(eq("header1"), eq(value));
         }
 
-        @Test
-        public void shouldSetParams() throws Exception {
-            when(request.getInputStream())
-                    .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{})));
-
-            URI uri = processor.getUri("http://foo.com");
-
-            assertThat(uri.getRawQuery(), allOf(containsString("param1%5B%5D=value1"), containsString("param2=value21"), containsString("param2=value22")));
+        for (String value : values2) {
+            verify(method).addHeader(eq("header2"), eq(value));
         }
+    }
 
-        @Test
-        public void shouldSetInputStream() throws IOException {
-            when(request.getInputStream())
-                    .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{})));
+    @Test
+    public void shouldSetParams() throws Exception {
+        when(request.getInputStream())
+                .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{})));
 
-            processor.process(method);
+        URI uri = processor.getUri("http://foo.com");
 
-            verify(method).setEntity(any(InputStreamEntity.class));
-        }
+        assertThat(uri.getRawQuery(), allOf(containsString("param1%5B%5D=value1"), containsString("param2=value21"), containsString("param2=value22")));
+    }
 
-        @Test
-        public void shouldSetUnknownContentLengthIfChunkedIsInvalid() throws Exception {
-            when(request.getInputStream())
-                    .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{})));
+    @Test
+    public void shouldSetInputStream() throws IOException {
+        when(request.getInputStream())
+                .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{})));
 
-            ArgumentCaptor<InputStreamEntity> requestEntityCaptor = ArgumentCaptor.forClass(InputStreamEntity.class);
-            processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "invalid");
-            processor.process(method);
+        processor.process(method);
 
-            verify(method).setEntity(requestEntityCaptor.capture());
-            assertEquals(-1, requestEntityCaptor.getValue().getContentLength());
-        }
+        verify(method).setEntity(any(InputStreamEntity.class));
+    }
 
-        @Test
-        public void shouldSetUnknownContentLengthIfChunkedIsTrue() throws Exception {
-            when(request.getInputStream())
-                    .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{})));
+    @Test
+    public void shouldSetUnknownContentLengthIfChunkedIsInvalid() throws Exception {
+        when(request.getInputStream())
+                .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{})));
 
-            ArgumentCaptor<InputStreamEntity> requestEntityCaptor = ArgumentCaptor.forClass(InputStreamEntity.class);
-            processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "true");
-            processor.process(method);
+        ArgumentCaptor<InputStreamEntity> requestEntityCaptor = ArgumentCaptor.forClass(InputStreamEntity.class);
+        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "invalid");
+        processor.process(method);
 
-            verify(method).setEntity(requestEntityCaptor.capture());
-            assertEquals(-1, requestEntityCaptor.getValue().getContentLength());
-        }
+        verify(method).setEntity(requestEntityCaptor.capture());
+        assertEquals(-1, requestEntityCaptor.getValue().getContentLength());
+    }
 
-        @Test
-        public void shouldSetUnknownContentLengthIfChunkedIs1() throws Exception {
-            when(request.getInputStream())
-                    .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{})));
+    @Test
+    public void shouldSetUnknownContentLengthIfChunkedIsTrue() throws Exception {
+        when(request.getInputStream())
+                .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{})));
 
-            ArgumentCaptor<InputStreamEntity> requestEntityCaptor = ArgumentCaptor.forClass(InputStreamEntity.class);
-            processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "1");
-            processor.process(method);
+        ArgumentCaptor<InputStreamEntity> requestEntityCaptor = ArgumentCaptor.forClass(InputStreamEntity.class);
+        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "true");
+        processor.process(method);
 
-            verify(method).setEntity(requestEntityCaptor.capture());
-            assertEquals(-1, requestEntityCaptor.getValue().getContentLength());
-        }
+        verify(method).setEntity(requestEntityCaptor.capture());
+        assertEquals(-1, requestEntityCaptor.getValue().getContentLength());
+    }
 
-        @Test
-        public void shouldSetActualContentLengthIfChunkedIsFalse() throws Exception {
-            String body = "test";
-            when(request.getInputStream())
-                    .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(body.getBytes())));
+    @Test
+    public void shouldSetActualContentLengthIfChunkedIsFalse() throws Exception {
+        String body = "test";
+        when(request.getInputStream())
+                .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(body.getBytes())));
 
-            ArgumentCaptor<InputStreamEntity> requestEntityCaptor = ArgumentCaptor.forClass(InputStreamEntity.class);
-            processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "false");
-            processor.process(method);
+        ArgumentCaptor<InputStreamEntity> requestEntityCaptor = ArgumentCaptor.forClass(InputStreamEntity.class);
+        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "false");
+        processor.process(method);
 
-            verify(method).setEntity(requestEntityCaptor.capture());
-            assertEquals(body.length(), requestEntityCaptor.getValue().getContentLength());
-        }
+        verify(method).setEntity(requestEntityCaptor.capture());
+        assertEquals(body.length(), requestEntityCaptor.getValue().getContentLength());
+    }
 
-        @Test
-        public void shouldSetActualContentLengthIfChunkedIs0() throws Exception {
-            String body = "test";
-            when(request.getInputStream())
-                    .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(body.getBytes())));
+    @Test
+    public void shouldSetUnknownContentLengthIfChunkedIsAutoAndOriginalRequestWasChunked() throws Exception {
+        when(request.getInputStream())
+                .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{})));
+        when(request.getHeader(eq("transfer-encoding")))
+                .thenReturn("chunked");
 
-            ArgumentCaptor<InputStreamEntity> requestEntityCaptor = ArgumentCaptor.forClass(InputStreamEntity.class);
-            processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "0");
-            processor.process(method);
+        ArgumentCaptor<InputStreamEntity> requestEntityCaptor = ArgumentCaptor.forClass(InputStreamEntity.class);
+        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "auto");
+        processor.process(method);
 
-            verify(method).setEntity(requestEntityCaptor.capture());
-            assertEquals(body.length(), requestEntityCaptor.getValue().getContentLength());
-        }
+        verify(method).setEntity(requestEntityCaptor.capture());
+        assertEquals(-1, requestEntityCaptor.getValue().getContentLength());
+    }
 
-        @Test
-        public void shouldSetUnknownContentLengthIfChunkedIsAutoAndOriginalRequestWasChunked() throws Exception {
-            when(request.getInputStream())
-                    .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{})));
-            when(request.getHeader(eq("transfer-encoding")))
-                    .thenReturn("chunked");
+    @Test
+    public void shouldSetActualContentLengthIfChunkedIsAutoAndOriginalRequestWasNotChunked() throws Exception {
+        String body = "test";
+        when(request.getInputStream())
+                .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(body.getBytes())));
 
-            ArgumentCaptor<InputStreamEntity> requestEntityCaptor = ArgumentCaptor.forClass(InputStreamEntity.class);
-            processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "auto");
-            processor.process(method);
+        ArgumentCaptor<InputStreamEntity> requestEntityCaptor = ArgumentCaptor.forClass(InputStreamEntity.class);
+        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "auto");
+        processor.process(method);
 
-            verify(method).setEntity(requestEntityCaptor.capture());
-            assertEquals(-1, requestEntityCaptor.getValue().getContentLength());
-        }
-
-        @Test
-        public void shouldSetActualContentLengthIfChunkedIsAutoAndOriginalRequestWasNotChunked() throws Exception {
-            String body = "test";
-            when(request.getInputStream())
-                    .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(body.getBytes())));
-
-            ArgumentCaptor<InputStreamEntity> requestEntityCaptor = ArgumentCaptor.forClass(InputStreamEntity.class);
-            processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "auto");
-            processor.process(method);
-
-            verify(method).setEntity(requestEntityCaptor.capture());
-            assertEquals(body.length(), requestEntityCaptor.getValue().getContentLength());
-        }
+        verify(method).setEntity(requestEntityCaptor.capture());
+        assertEquals(body.length(), requestEntityCaptor.getValue().getContentLength());
     }
 }
