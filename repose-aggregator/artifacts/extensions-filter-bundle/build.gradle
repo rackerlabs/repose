@@ -3,9 +3,7 @@ apply plugin: 'nebula.ospackage'
 
 dependencies {
     earlib project(":repose-aggregator:components:filters:api-validator-filter")
-    earlib project(":repose-aggregator:components:filters:attribute-mapping-policy-validation-filter")
     earlib project(":repose-aggregator:components:filters:simple-rbac-filter")
-    earlib project(":repose-aggregator:components:filters:saml-policy-translation-filter")
 }
 
 ear {

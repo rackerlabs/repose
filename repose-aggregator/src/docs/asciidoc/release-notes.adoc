@@ -152,8 +152,8 @@ If the `org.openrepose.powerfilter.PowerFilter.trace-id-logging` Logger has not 
 ** <<filters/ip-user.adoc#,IP User Filter>>
 ** <<filters/keystone-v2-basic-auth.adoc#, Keystone v2 Basic Auth Filter>>
 ** <<filters/openstack-identity-v3.adoc#, Openstack Identity v3 Filter>>
-** <<filters/rackspace-auth-user.adoc#, Rackspace Auth User Filter>>
-** <<filters/saml-policy.adoc#, SAML Policy Translation Filter>>
+** Rackspace Auth User Filter
+** SAML Policy Translation Filter
 
 [IMPORTANT]
 ====
@@ -162,7 +162,7 @@ As part of this correction, any configurations that were taking advantage of thi
 
 * https://repose.atlassian.net/browse/REP-5748[REP-5748] - Updated the <<services/phone-home.adoc#, Phone Home Service>> to correct a bug that was preventing the message from actually reaching back.
 * https://repose.atlassian.net/browse/REP-5823[REP-5823] - Updated the <<filters/keystone-v2.adoc#, Keystone v2 Filter>> to support multiple https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expressions] for URI tenant extraction.
-* https://repose.atlassian.net/browse/REP-5853[REP-5853] - Updated the <<filters/saml-policy.adoc#, SAML Policy Translation Filter>> and <<filters/attribute-mapping-policy-validation.adoc#,Attribute Mapping Policy Validation Filter>> to recover support for XML and JSON (which was removed in <<8.6.2.0 (2017-06-13)>>).
+* https://repose.atlassian.net/browse/REP-5853[REP-5853] - Updated the SAML Policy Translation Filter and Attribute Mapping Policy Validation Filter to recover support for XML and JSON (which was removed in <<8.6.2.0 (2017-06-13)>>).
 * https://repose.atlassian.net/browse/REP-5617[REP-5617] - Updated the the internal HTTP Servlet Response Wrapper to log a WARNING when addHeader, addIntHeader, addDateHeader, or appendHeader is called after the response has been committed.
 
 [NOTE]
@@ -181,21 +181,21 @@ This message is logged to a separate logger and can be disabled by adding the fo
 * https://repose.atlassian.net/browse/REP-3502[REP-3502] - Confirmed the correct use of the default `ALL` HTTP Method in all of the configuration files.
 
 == 8.6.2.0 (2017-06-13)
-* https://repose.atlassian.net/browse/REP-5757[REP-5757] - Updated the <<filters/saml-policy.adoc#, SAML Policy Translation Filter>> to utilize YAML policy files.
+* https://repose.atlassian.net/browse/REP-5757[REP-5757] - Updated the SAML Policy Translation Filter to utilize YAML policy files.
 ** Updated the `attribute-mapper` library from v1.1.1 to v1.2.0 to bring in the YAML updates made in https://repose.atlassian.net/browse/REP-5632[REP-5632]
-* https://repose.atlassian.net/browse/REP-5592[REP-5592] - Updated the <<filters/attribute-mapping-policy-validation.adoc#,Attribute Mapping Policy Validation Filter>> to only work for YAML bodies.
+* https://repose.atlassian.net/browse/REP-5592[REP-5592] - Updated the Attribute Mapping Policy Validation Filter to only work for YAML bodies.
 * https://repose.atlassian.net/browse/REP-5694[REP-5694] - Updated the <<filters/valkyrie-authorization.adoc#,Valkyrie Authorization Filter>> versioned docs to point to the current Valkyrie service documentation.
 
 == 8.6.1.1 (2017-06-08)
 * https://repose.atlassian.net/browse/REP-5520[REP-5520] - Updated the <<filters/keystone-v2.adoc#, Keystone v2 Filter>> to provide the token cache key, and to generally handle `401` - _Unauthroized_ responses.
 * https://repose.atlassian.net/browse/REP-5347[REP-5347] - Updated the Attribute Mapping library from v1.0.2 to v1.1.1.
-* https://repose.atlassian.net/browse/REP-5595[REP-5595] - Updated the <<filters/attribute-mapping-policy-validation.adoc#,Attribute Mapping Policy Validation Filter>> to utilize new Attribute Mapping library features for cleaner JSON validation.
+* https://repose.atlassian.net/browse/REP-5595[REP-5595] - Updated the Attribute Mapping Policy Validation Filter to utilize new Attribute Mapping library features for cleaner JSON validation.
 
 == 8.6.0.0 (2017-06-02)
 * https://repose.atlassian.net/browse/REP-5234[REP-5234] - Added the new <<services/datastores.adoc#_remote_datastore, Remote Datastore service>> which allows the Distributed Datastore service concept to work in dynamic containerized environments like OpenShift.
 * https://repose.atlassian.net/browse/REP-5343[REP-5343] - Updated the Keystone v2 Filter to support the new Apply RCN Roles feature of Rackspace Keystone v2 Identity.
 Converted the https://repose.atlassian.net/wiki/display/REPOSE/Keystone+v2+filter[old Keystone v2 Filter documentation] over to the <<filters/keystone-v2.adoc#, new versioned docs>>.
-* https://repose.atlassian.net/browse/REP-5345[REP-5345] - The <<filters/attribute-mapping-policy-validation.adoc#,Attribute Mapping Policy Validation Filter>> has been released!
+* https://repose.atlassian.net/browse/REP-5345[REP-5345] - The Attribute Mapping Policy Validation Filter has been released!
 * https://repose.atlassian.net/browse/REP-5523[REP-5523] - The <<recipes/functional-test-framework.adoc#,Repose Functional Test Framework>> has been released!
 * https://repose.atlassian.net/browse/REP-5221[REP-5221] - Updated the API Checker library from v2.1.1 to v2.2.1.
 ** This brings the bulk metadata feature to the <<filters/api-validator.adoc#, API Validator filter>>.
@@ -203,7 +203,7 @@ Converted the https://repose.atlassian.net/wiki/display/REPOSE/Keystone+v2+filte
 == 8.5.0.1 (2017-04-14)
 * https://repose.atlassian.net/browse/REP-4024[REP-4024] - The <<filters/header-normalization.adoc#, Header Normalization Filter>> updated to include removing headers on the Response.
 * https://repose.atlassian.net/browse/REP-3901[REP-3901] - The Debian and RPM Repose Valve and WAR artifacts will now create the `repose` user and group even if the configuration files are already present.
-* https://repose.atlassian.net/browse/REP-5130[REP-5130] - <<filters/rackspace-auth-user.adoc#, Rackspace Auth User Filter>> now gives a more specific and quieter log message when it runs into a non-xml or non-json content type.
+* https://repose.atlassian.net/browse/REP-5130[REP-5130] - Rackspace Auth User Filter now gives a more specific and quieter log message when it runs into a non-xml or non-json content type.
 * https://repose.atlassian.net/browse/REP-4754[REP-4754] - The <<filters/rate-limiting.adoc#, Rate Limiting Filter>> now returns a 406 if a user requests limits with an unsupported media type in the `Accept` header.
 * https://repose.atlassian.net/browse/REP-4725[REP-4725] - Repose will no longer add a `Server` header to responses from neither the main endpoint nor the Dist-Datastore endpoint.
 * https://repose.atlassian.net/browse/REP-5204[REP-5204] - The <<services/metrics.adoc#, Metrics Service>> library has been updated from Yammer v2.2.0 to Dropwizard v3.2.0.
@@ -221,15 +221,15 @@ However, there were some internal contract changes with the Via and Location hea
 * https://repose.atlassian.net/browse/REP-4465[REP-4465] - Certain enums provided by Repose have been replaced by classes holding the same constant values.
 
 == 8.4.1.0 (2017-02-24)
-* https://repose.atlassian.net/browse/REP-5101[REP-5101] - <<filters/saml-policy.adoc#, SAML Policy Translation Filter>> now allows un-encoded `application/xml` requests in addition to the previous `application/x-www-form-urlencoded` requests.
+* https://repose.atlassian.net/browse/REP-5101[REP-5101] - SAML Policy Translation Filter now allows un-encoded `application/xml` requests in addition to the previous `application/x-www-form-urlencoded` requests.
 
 == 8.4.0.2 (2017-02-21)
 * https://repose.atlassian.net/browse/REP-5100[REP-5100] - <<filters/rate-limiting.adoc#, Rate Limiting Filter>> was mistakenly getting the full parameter map, and not just the query parameters.
 * https://repose.atlassian.net/browse/REP-5071[REP-5071] - Repose is now using Attribute Mapping v1.0.2.
 
 == 8.4.0.1 (2017-02-04)
-* https://repose.atlassian.net/browse/REP-4795[REP-4795] https://repose.atlassian.net/browse/REP-4831[REP-4831] - the <<filters/saml-policy.adoc#, SAML Policy Translation Filter>> has been released!
-* https://repose.atlassian.net/browse/REP-4653[REP-4653] - The <<filters/rackspace-auth-user.adoc#, Rackspace Auth User Filter>> updated to read request body of Forgot Password request to get the username and the <<filters/herp.adoc#, Highly Efficient Record Processor (HERP) Filter>> was updated to get `X-User-Name` from response headers.
+* https://repose.atlassian.net/browse/REP-4795[REP-4795] https://repose.atlassian.net/browse/REP-4831[REP-4831] - the SAML Policy Translation Filter has been released!
+* https://repose.atlassian.net/browse/REP-4653[REP-4653] - The Rackspace Auth User Filter updated to read request body of Forgot Password request to get the username and the <<filters/herp.adoc#, Highly Efficient Record Processor (HERP) Filter>> was updated to get `X-User-Name` from response headers.
 * https://repose.atlassian.net/browse/REP-4928[REP-4928] - The <<filters/keystone-v2.adoc#, Keystone v2 Filter>> will now return a 401 if self-validating tokens are being used and the Identity service responds with a 401.
 * https://repose.atlassian.net/browse/REP-4841[REP-4841] - A more unique ID will be used for User Access Events (UAE) in support of Cloud Auditing Data Federation (CADF).
 * https://repose.atlassian.net/browse/REP-4867[REP-4867] - The <<filters/valkyrie-authorization.adoc#, Valkyrie Authorization Filter>> now supports multiple Character Encoding schemes.
