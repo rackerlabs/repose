@@ -32,7 +32,7 @@ The example configuration for rate limiting is sufficient for testing and will l
 [source,xml]
 .rate-limiting.cfg.xml
 ----
-include::../../../../components/filters/rate-limiting-filter/src/main/resources/META-INF/schema/examples/rate-limiting.cfg.xml[]
+include::/repose-aggregator/components/filters/rate-limiting-filter/src/main/resources/META-INF/schema/examples/rate-limiting.cfg.xml[]
 ----
 
 == Testing
