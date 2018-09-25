@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>8.6.2.0 | Welcome to Repose | Troubleshooting</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="/_stylesheets/asciibinder.css" >
+  <link rel="stylesheet" href="/_stylesheets/repose.css" >
+
+   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+   <!--[if lt IE 9]>
+     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+   <![endif]-->
+
+  <link href="/_images/favicon32x32.png" rel="shortcut icon" type="text/css">
+  <!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
+  <meta content="AsciiBinder" name="application-name">
+</head>
+<body onload="selectVersion('8.6.2.0');">
+  <div class="container">
+    <p class="toggle-nav visible-xs pull-left">
+      <button class="btn btn-default btn-sm" type="button" data-toggle="offcanvas">Toggle nav</button>
+    </p>
+    <ol class="breadcrumb">
+      <li class="sitename">
+        <a class="navbar-brand" href="http://www.openrepose.org/">
+          <img alt="OpenRepose" src="/_images/repose-logo.png" align="bottom">
+        </a>
+      </li>
+      <li class="sitename">
+        <a href="../../index.html">
+          Home
+        </a>
+      </li>
+      <li class="hidden-xs active">
+        <a href="/versions/8.6.2.0/welcome/index.html">
+          Repose
+        </a>
+        <select id="version-selector" onchange="versionSelector(this);" w3-include-html="/_includes/versions.html">
+        </select>
+      </li>
+      <li class="hidden-xs active">
+        <a href="../welcome/index.html">Welcome to Repose</a>
+      </li>
+      
+      <li class="hidden-xs active">
+        Troubleshooting
+      </li>
+    </ol>
+    <div class="row row-offcanvas row-offcanvas-left">
+      <div class="col-xs-8 col-sm-3 col-md-3 sidebar sidebar-offcanvas">
+        <a class="navbar-search" href="/versions/search.html">
+          <span class="glyphicon glyphicon-search"/>
+          Search
+        </a>
+        <ul class="nav nav-sidebar">
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup0">
+        <span id="tgSpan0" class="fa fa-angle-down"></span>Welcome to Repose
+      </a>
+      <ul id="topicGroup0" class="collapse in list-unstyled">
+            <li><a class="" href="../welcome/index.html">Welcome</a></li>
+            <li><a class=" active" href="../welcome/troubleshooting.html">Troubleshooting</a></li>
+            <li><a class="" href="../welcome/release-notes.html">Release Notes</a></li>
+            <li><a class="" href="../welcome/style-guide.html">Style Guide</a></li>
+            <li><a class="" href="../welcome/faq.html">FAQ</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup1">
+        <span id="tgSpan1" class="fa fa-angle-right"></span>Architecture
+      </a>
+      <ul id="topicGroup1" class="collapse  list-unstyled">
+            <li><a class="" href="../architecture/index.html">Overview</a></li>
+            <li><a class="" href="../architecture/configuration.html">Configuration</a></li>
+            <li><a class="" href="../architecture/container.html">Container</a></li>
+            <li><a class="" href="../architecture/packages.html">Packages</a></li>
+            <li><a class="" href="../architecture/system-model.html">System Model</a></li>
+            <li><a class="" href="../architecture/performance.html">Performance</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup2">
+        <span id="tgSpan2" class="fa fa-angle-right"></span>Recipes
+      </a>
+      <ul id="topicGroup2" class="collapse  list-unstyled">
+            <li><a class="" href="../recipes/index.html">Overview</a></li>
+            <li><a class="" href="../recipes/quick-setup.html">Quick Setup</a></li>
+            <li><a class="" href="../recipes/getting-started.html">Getting Started</a></li>
+            <li><a class="" href="../recipes/custom-filter-for-repose.html">Custom Filter for Repose</a></li>
+            <li><a class="" href="../recipes/docker.html">Docker</a></li>
+            <li><a class="" href="../recipes/performance-best-practices.html">Performance Best Practices</a></li>
+            <li><a class="" href="../recipes/role-based-access-control.html">Role Based Access Control</a></li>
+            <li><a class="" href="../recipes/running-valve.html">Running Valve</a></li>
+            <li><a class="" href="../recipes/vagrant.html">Vagrant</a></li>
+            <li><a class="" href="../recipes/valve-installation.html">Valve Installation</a></li>
+            <li><a class="" href="../recipes/war-installation.html">WAR Installation</a></li>
+            <li><a class="" href="../recipes/echo-server.html">Echo Server</a></li>
+            <li><a class="" href="../recipes/rate-limiting.html">Rate Limiting</a></li>
+            <li><a class="" href="../recipes/user-access-events.html">User Access Events</a></li>
+            <li><a class="" href="../recipes/basic-authentication.html">Basic Authentication</a></li>
+            <li><a class="" href="../recipes/distributed-rate-limiting.html">Distributed Rate Limiting</a></li>
+            <li><a class="" href="../recipes/delegation.html">Delegation</a></li>
+            <li><a class="" href="../recipes/preventing-xml-bomb.html">Preventing XML bomb attacks</a></li>
+            <li><a class="" href="../recipes/api-event-flume.html">API Access Event Recording with Flume</a></li>
+            <li><a class="" href="../recipes/xsd-versioning.html">XSD Versioning Guidelines</a></li>
+            <li><a class="" href="../recipes/client-authentication.html">SSL/TLS Client Authentication</a></li>
+            <li><a class="" href="../recipes/functional-test-framework.html">Functional Test Framework</a></li>
+            <li><a class="" href="../recipes/glassfish-setup.html">Glassfish Setup</a></li>
+            <li><a class="" href="../recipes/tomcat-setup.html">Tomcat Setup</a></li>
+            <li><a class="" href="../recipes/http-container-attributes.html">HTTP Container Attributes</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup3">
+        <span id="tgSpan3" class="fa fa-angle-right"></span>Filters
+      </a>
+      <ul id="topicGroup3" class="collapse  list-unstyled">
+            <li><a class="" href="../filters/index.html">Overview</a></li>
+            <li><a class="" href="../filters/add-header.html">Add Header Filter</a></li>
+            <li><a class="" href="../filters/api-validator.html">API Validator Filter</a></li>
+            <li><a class="" href="../filters/attribute-mapping-policy-validation.html">Attribute Mapping Policy Validation filter</a></li>
+            <li><a class="" href="../filters/body-extractor-to-header.html">Body Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/body-patcher.html">Body Patcher Filter</a></li>
+            <li><a class="" href="../filters/compression.html">Compression Filter</a></li>
+            <li><a class="" href="../filters/content-type-stripper.html">Content Type Stripper Filter</a></li>
+            <li><a class="" href="../filters/cors.html">CORS Filter</a></li>
+            <li><a class="" href="../filters/derp.html">Delegation Response Processor (DeRP) Filter</a></li>
+            <li><a class="" href="../filters/destination-router.html">Destination Router Filter</a></li>
+            <li><a class="" href="../filters/echo.html">Echo Filter</a></li>
+            <li><a class="" href="../filters/exception.html">Exception Filter</a></li>
+            <li><a class="" href="../filters/forwarded-proto.html">Forwarded Protocol Filter</a></li>
+            <li><a class="" href="../filters/header-normalization.html">Header Normalization filter</a></li>
+            <li><a class="" href="../filters/header-translation.html">Header Translation Filter</a></li>
+            <li><a class="" href="../filters/header-user.html">Header User Filter</a></li>
+            <li><a class="" href="../filters/herp.html">Highly Efficient Record Processor (HERP) Filter</a></li>
+            <li><a class="" href="../filters/ip-user.html">IP User Filter</a></li>
+            <li><a class="" href="../filters/iri-validator.html">IRI Validator Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2.html">Keystone v2 Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-basic-auth.html">Keystone v2 Basic Auth Filter</a></li>
+            <li><a class="" href="../filters/merge-header.html">Merge Header Filter</a></li>
+            <li><a class="" href="../filters/openstack-identity-v3.html">Openstack Identity v3 Filter</a></li>
+            <li><a class="" href="../filters/rackspace-auth-user.html">Rackspace Auth User Filter</a></li>
+            <li><a class="" href="../filters/rate-limiting.html">Rate Limiting Filter</a></li>
+            <li><a class="" href="../filters/saml-policy.html">SAML Policy Translation Filter</a></li>
+            <li><a class="" href="../filters/scripting.html">Scripting Filter</a></li>
+            <li><a class="" href="../filters/simple-rbac.html">Simple Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/slf4j-http-logging.html">SFL4J HTTP Logging Filter</a></li>
+            <li><a class="" href="../filters/translation.html">Translation Filter</a></li>
+            <li><a class="" href="../filters/uri-normalization.html">URI Normalization Filter</a></li>
+            <li><a class="" href="../filters/uri-stripper.html">URI Stripper Filter</a></li>
+            <li><a class="" href="../filters/uri-user.html">URI User Filter</a></li>
+            <li><a class="" href="../filters/url-extractor-to-header.html">URL Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a></li>
+            <li><a class="" href="../filters/versioning.html">Versioning Filter</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup4">
+        <span id="tgSpan4" class="fa fa-angle-right"></span>Services
+      </a>
+      <ul id="topicGroup4" class="collapse  list-unstyled">
+            <li><a class="" href="../services/index.html">Overview</a></li>
+            <li><a class="" href="../services/atom-feed-consumption.html">Atom Feed Consumption Service</a></li>
+            <li><a class="" href="../services/datastores.html">Datastores</a></li>
+            <li><a class="" href="../services/health-check.html">Health Check service</a></li>
+            <li><a class="" href="../services/http-connection-pool.html">HTTP Connection Pool service</a></li>
+            <li><a class="" href="../services/metrics.html">Metrics Service</a></li>
+            <li><a class="" href="../services/phone-home.html">Phone Home Service</a></li>
+            <li><a class="" href="../services/response-messaging.html">Response Messaging service</a></li>
+      </ul>
+    </li>
+</ul>
+      </div>
+      <div class="col-xs-12 col-sm-9 col-md-9 main">
+        <div class="page-header">
+          <h2>Troubleshooting</h2>
+        </div>
+        <div id="preamble">
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>This version of the docs is a work in progress.
+If you don&#8217;t see what you are looking for check the legacy <a href="http://wiki.openrepose.org">wiki</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This page summarizes the different methods which can be used to get more information on the state of Repose and how it interacts with the clients, origin service, and third party services.
+Most of these methods can be used in a production deployment.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="intrafilter-logging"><a class="anchor" href="#intrafilter-logging"></a>Intrafilter Logging</h2>
+<div class="sectionbody">
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>This should be used in a controlled environment (i.e. not production) and should not be used for more than a few minutes at a time due to the amount of logging that occurs.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Intrafilter Logging allows you to see the modified output of each filter as the request goes through the filter chain which makes debugging configurations easier.
+This setting adds a UUID header to the request and another to the response.</p>
+</div>
+<div class="paragraph">
+<p>When the logger is set to TRACE, you will see the following information:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Time stamp</p>
+</li>
+<li>
+<p>UUID</p>
+</li>
+<li>
+<p>Headers</p>
+</li>
+<li>
+<p>Content (logged at the lowest level)</p>
+</li>
+<li>
+<p>Status code</p>
+</li>
+<li>
+<p>Request path</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The TRACE setting is the most verbose logging setting.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="enabling"><a class="anchor" href="#enabling"></a>Enabling</h3>
+<div class="paragraph">
+<p>To enable intrafilter logging, the corresponding named log4j2 logger should be set to the <code>TRACE</code> level.
+This can be achieved by adding a line like the following to the <code>log4j2.xml</code> file in your Repose configuration directory.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;Logger</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">intrafilter-logging</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">level</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">trace</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="sample-output"><a class="anchor" href="#sample-output"></a>Sample Output</h3>
+<div class="paragraph">
+<p>This is an example of the log line that you will see for the request and for the response.
+These lines are formatted for convenience.
+The log line will be a single line without carriage returns.</p>
+</div>
+<div class="listingblock">
+<div class="title">Request</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="json">{<span style="color:#606"><span style="color:#404">&quot;</span><span>preamble</span><span style="color:#404">&quot;</span></span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Intrafilter Request Log</span><span style="color:#710">&quot;</span></span>
+ <span style="color:#606"><span style="color:#404">&quot;</span><span>timestamp</span><span style="color:#404">&quot;</span></span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">2014-05-21T15:29:34.244-05:00</span><span style="color:#710">&quot;</span></span>
+ <span style="color:#606"><span style="color:#404">&quot;</span><span>currentFilter</span><span style="color:#404">&quot;</span></span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">client-auth</span><span style="color:#710">&quot;</span></span>
+ <span style="color:#606"><span style="color:#404">&quot;</span><span>httpMethod</span><span style="color:#404">&quot;</span></span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">GET</span><span style="color:#710">&quot;</span></span>,<span style="color:#606"><span style="color:#404">&quot;</span><span>requestURI</span><span style="color:#404">&quot;</span></span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/</span><span style="color:#710">&quot;</span></span>
+ <span style="color:#606"><span style="color:#404">&quot;</span><span>requestBody</span><span style="color:#404">&quot;</span></span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#710">&quot;</span></span>
+ <span style="color:#606"><span style="color:#404">&quot;</span><span>headers</span><span style="color:#404">&quot;</span></span>:{
+   <span style="color:#606"><span style="color:#404">&quot;</span><span>Intrafilter-Request-UUID</span><span style="color:#404">&quot;</span></span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">db7e62b4-4923-2881-811d-49816ea77b63</span><span style="color:#710">&quot;</span></span>
+   <span style="color:#606"><span style="color:#404">&quot;</span><span>Host</span><span style="color:#404">&quot;</span></span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">localhost:10000</span><span style="color:#710">&quot;</span></span>
+   <span style="color:#606"><span style="color:#404">&quot;</span><span>User-Agent</span><span style="color:#404">&quot;</span></span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Apache-HttpClient/4.2.5 (java 1.5)</span><span style="color:#710">&quot;</span></span>,
+   <span style="color:#606"><span style="color:#404">&quot;</span><span>Connection</span><span style="color:#404">&quot;</span></span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">keep-alive</span><span style="color:#710">&quot;</span></span>}}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Response</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="json">{<span style="color:#606"><span style="color:#404">&quot;</span><span>preamble</span><span style="color:#404">&quot;</span></span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">intrafilter Response Log</span><span style="color:#710">&quot;</span></span>
+ <span style="color:#606"><span style="color:#404">&quot;</span><span>timestamp</span><span style="color:#404">&quot;</span></span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">2014-05-21T17:44:38.161-05:00</span><span style="color:#710">&quot;</span></span>
+ <span style="color:#606"><span style="color:#404">&quot;</span><span>currentFilter</span><span style="color:#404">&quot;</span></span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">ip-identity</span><span style="color:#710">&quot;</span></span>
+ <span style="color:#606"><span style="color:#404">&quot;</span><span>httpResponseCode</span><span style="color:#404">&quot;</span></span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">200</span><span style="color:#710">&quot;</span></span>
+ <span style="color:#606"><span style="color:#404">&quot;</span><span>responseBody</span><span style="color:#404">&quot;</span></span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#710">&quot;</span></span>
+ <span style="color:#606"><span style="color:#404">&quot;</span><span>headers</span><span style="color:#404">&quot;</span></span>:{
+   <span style="color:#606"><span style="color:#404">&quot;</span><span>Date</span><span style="color:#404">&quot;</span></span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Wed 21 May 2014 22:44:38 GMT</span><span style="color:#710">&quot;</span></span>
+   <span style="color:#606"><span style="color:#404">&quot;</span><span>Intrafilter-Response-UUID</span><span style="color:#404">&quot;</span></span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">95c37a94-6174-54de-8743-540b230bf8b7</span><span style="color:#710">&quot;</span></span>
+   <span style="color:#606"><span style="color:#404">&quot;</span><span>Deproxy-Request-ID</span><span style="color:#404">&quot;</span></span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">0d1a822e-68c8-4d67-866b-8aec45e9dfe0</span><span style="color:#710">&quot;</span></span>
+   <span style="color:#606"><span style="color:#404">&quot;</span><span>Content-Length</span><span style="color:#404">&quot;</span></span>:<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">0</span><span style="color:#710">&quot;</span></span>}}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="time-spent-in-each-filter"><a class="anchor" href="#time-spent-in-each-filter"></a>Time Spent in Each Filter</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Repose can report on which filters handled the client request and how long each filter took.
+This allows you to verify that all expected filters handled the request.</p>
+</div>
+<div class="sect2">
+<h3 id="enabling-2"><a class="anchor" href="#enabling-2"></a>Enabling</h3>
+<div class="paragraph">
+<p>To enable this, add the following header to the client request:
+<code>x-trace-request: true</code></p>
+</div>
+<div class="paragraph">
+<p>The Repose response to the client will contain the following header added to the response, one for each filter which handled the request:
+<code>x-[filter name]: [time]ms</code></p>
+</div>
+<div class="paragraph">
+<p>The <code>x-trace-request</code> header can be easily added to a test request using curl and the -H [header] flag.
+For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>curl -v -H "x-trace-request: true" http://localhost:8080/</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="sample-output-2"><a class="anchor" href="#sample-output-2"></a>Sample Output</h3>
+<div class="paragraph">
+<p>The following example contains three headers which Repose added to the response.
+These headers indicate that the the client-auth, http-logging, and default-router all handled the request, taking 0, 6, and 0 ms respectively.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>x-client-auth-time: 0ms
+x-http-logging-time: 6ms
+x-default-router-time: 0ms</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="log-all-requestsresponses-to-the-origin-service-and-third-party-apis"><a class="anchor" href="#log-all-requestsresponses-to-the-origin-service-and-third-party-apis"></a>Log All Requests/Responses to the Origin Service and Third Party APIs</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>You can view all of the data being sent and received to the origin service and other third party APIs (e.g. Identity) by turning on Apache HttpClient logging.</p>
+</div>
+<div class="sect2">
+<h3 id="enabling-3"><a class="anchor" href="#enabling-3"></a>Enabling</h3>
+<div class="paragraph">
+<p>In <code>log4j2.xml</code>, update the <code>org.apache</code> logger to the <code>debug</code> level. For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;Logger</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">org.apache</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">level</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">debug</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="sample-output-3"><a class="anchor" href="#sample-output-3"></a>Sample Output</h3>
+<details>
+    <summary>Click Here to Expand...</summary>
+    <p>
+<div class="listingblock">
+<div class="content">
+<pre>Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,527 655550 [qtp1589228348-31] INFO org.openrepose.powerfilter.PowerFilter - Tracing header: {"requestId":"f863f80f-914d-4c01-a579-648673206a96","origin":null}
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,533 655556 [qtp1589228348-31] DEBUG org.apache.http.impl.conn.PoolingClientConnectionManager - Connection request: [route: {}-&gt;http://localhost:8000][total kept alive: 0; route allocated: 0 of 200; total allocated: 0 of 400]
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,534 655557 [qtp1589228348-31] DEBUG org.apache.http.impl.conn.PoolingClientConnectionManager - Connection leased: [id: 2][route: {}-&gt;http://localhost:8000][total kept alive: 0; route allocated: 1 of 200; total allocated: 1 of 400]
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,534 655557 [qtp1589228348-31] DEBUG org.apache.http.impl.conn.DefaultClientConnectionOperator - Connecting to localhost:8000
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,535 655558 [qtp1589228348-31] DEBUG org.apache.http.client.protocol.RequestAddCookies - CookieSpec selected: ignoreCookies
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,535 655558 [qtp1589228348-31] DEBUG org.apache.http.client.protocol.RequestAuthCache - Auth cache not set in the context
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,535 655558 [qtp1589228348-31] DEBUG org.apache.http.client.protocol.RequestTargetAuthentication - Target auth state: UNCHALLENGED
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,536 655559 [qtp1589228348-31] DEBUG org.apache.http.client.protocol.RequestProxyAuthentication - Proxy auth state: UNCHALLENGED
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,536 655559 [qtp1589228348-31] DEBUG org.apache.http.impl.client.DefaultHttpClient - Attempt 1 to execute request
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,536 655559 [qtp1589228348-31] DEBUG org.apache.http.impl.conn.DefaultClientConnection - Sending request: POST /post HTTP/1.1
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,536 655559 [qtp1589228348-31] DEBUG org.apache.http.wire - &gt;&gt; "POST /post HTTP/1.1[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,537 655560 [qtp1589228348-31] DEBUG org.apache.http.wire - &gt;&gt; "via: 1.1 localhost:8080 (Repose/7.2.2.0)[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,537 655560 [qtp1589228348-31] DEBUG org.apache.http.wire - &gt;&gt; "x-forwarded-for: 0:0:0:0:0:0:0:1[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,537 655560 [qtp1589228348-31] DEBUG org.apache.http.wire - &gt;&gt; "Host: localhost:8000[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,537 655560 [qtp1589228348-31] DEBUG org.apache.http.wire - &gt;&gt; "x-pp-user: repose_user[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,538 655561 [qtp1589228348-31] DEBUG org.apache.http.wire - &gt;&gt; "x-trans-id: eyJyZXF1ZXN0SWQiOiJmODYzZjgwZi05MTRkLTRjMDEtYTU3OS02NDg2NzMyMDZhOTYiLCJvcmlnaW4iOm51bGx9[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,538 655561 [qtp1589228348-31] DEBUG org.apache.http.wire - &gt;&gt; "Accept-Encoding: gzip[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,538 655561 [qtp1589228348-31] DEBUG org.apache.http.wire - &gt;&gt; "Accept-Encoding: deflate[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,538 655561 [qtp1589228348-31] DEBUG org.apache.http.wire - &gt;&gt; "User-Agent: HTTPie/0.9.2[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,538 655561 [qtp1589228348-31] DEBUG org.apache.http.wire - &gt;&gt; "Accept: application/json[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,539 655562 [qtp1589228348-31] DEBUG org.apache.http.wire - &gt;&gt; "Content-Type: application/json[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,539 655562 [qtp1589228348-31] DEBUG org.apache.http.wire - &gt;&gt; "Content-Length: 17[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,539 655562 [qtp1589228348-31] DEBUG org.apache.http.wire - &gt;&gt; "Connection: Keep-Alive[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,539 655562 [qtp1589228348-31] DEBUG org.apache.http.wire - &gt;&gt; "[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,540 655563 [qtp1589228348-31] DEBUG org.apache.http.headers - &gt;&gt; POST /post HTTP/1.1
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,540 655563 [qtp1589228348-31] DEBUG org.apache.http.headers - &gt;&gt; via: 1.1 localhost:8080 (Repose/7.2.2.0)
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,540 655563 [qtp1589228348-31] DEBUG org.apache.http.headers - &gt;&gt; x-forwarded-for: 0:0:0:0:0:0:0:1
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,540 655563 [qtp1589228348-31] DEBUG org.apache.http.headers - &gt;&gt; Host: localhost:8000
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,540 655563 [qtp1589228348-31] DEBUG org.apache.http.headers - &gt;&gt; x-pp-user: repose_user
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,540 655563 [qtp1589228348-31] DEBUG org.apache.http.headers - &gt;&gt; x-trans-id: eyJyZXF1ZXN0SWQiOiJmODYzZjgwZi05MTRkLTRjMDEtYTU3OS02NDg2NzMyMDZhOTYiLCJvcmlnaW4iOm51bGx9
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,540 655563 [qtp1589228348-31] DEBUG org.apache.http.headers - &gt;&gt; Accept-Encoding: gzip
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,541 655564 [qtp1589228348-31] DEBUG org.apache.http.headers - &gt;&gt; Accept-Encoding: deflate
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,541 655564 [qtp1589228348-31] DEBUG org.apache.http.headers - &gt;&gt; User-Agent: HTTPie/0.9.2
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,541 655564 [qtp1589228348-31] DEBUG org.apache.http.headers - &gt;&gt; Accept: application/json
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,541 655564 [qtp1589228348-31] DEBUG org.apache.http.headers - &gt;&gt; Content-Type: application/json
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,541 655564 [qtp1589228348-31] DEBUG org.apache.http.headers - &gt;&gt; Content-Length: 17
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,541 655564 [qtp1589228348-31] DEBUG org.apache.http.headers - &gt;&gt; Connection: Keep-Alive
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,542 655565 [qtp1589228348-31] DEBUG org.apache.http.wire - &gt;&gt; "{"server": "bob"}"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,543 655566 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; "HTTP/1.1 200 OK[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,544 655567 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; "Server: gunicorn/19.4.1[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,544 655567 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; "Date: Fri, 04 Dec 2015 17:10:57 GMT[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,544 655567 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; "Connection: close[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,544 655567 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; "Content-Type: application/json[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,544 655567 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; "Content-Length: 652[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,545 655568 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; "Access-Control-Allow-Origin: *[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,545 655568 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; "Access-Control-Allow-Credentials: true[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,545 655568 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; "[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,545 655568 [qtp1589228348-31] DEBUG org.apache.http.impl.conn.DefaultClientConnection - Receiving response: HTTP/1.1 200 OK
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,545 655568 [qtp1589228348-31] DEBUG org.apache.http.headers - &lt;&lt; HTTP/1.1 200 OK
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,545 655568 [qtp1589228348-31] DEBUG org.apache.http.headers - &lt;&lt; Server: gunicorn/19.4.1
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,546 655569 [qtp1589228348-31] DEBUG org.apache.http.headers - &lt;&lt; Date: Fri, 04 Dec 2015 17:10:57 GMT
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,546 655569 [qtp1589228348-31] DEBUG org.apache.http.headers - &lt;&lt; Connection: close
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,546 655569 [qtp1589228348-31] DEBUG org.apache.http.headers - &lt;&lt; Content-Type: application/json
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,546 655569 [qtp1589228348-31] DEBUG org.apache.http.headers - &lt;&lt; Content-Length: 652
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,546 655569 [qtp1589228348-31] DEBUG org.apache.http.headers - &lt;&lt; Access-Control-Allow-Origin: *
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,546 655569 [qtp1589228348-31] DEBUG org.apache.http.headers - &lt;&lt; Access-Control-Allow-Credentials: true
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,547 655570 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; "{[\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,547 655570 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " "args": {}, [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,548 655571 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " "data": "{\"server\": \"bob\"}", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,548 655571 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " "files": {}, [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,548 655571 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " "form": {}, [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,548 655571 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " "headers": {[\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,548 655571 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " "Accept": "application/json", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,548 655571 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " "Accept-Encoding": "gzip,deflate", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,549 655572 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " "Connection": "Keep-Alive", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,549 655572 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " "Content-Length": "17", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,549 655572 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " "Content-Type": "application/json", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,549 655572 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " "Host": "localhost:8000", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,549 655572 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " "User-Agent": "HTTPie/0.9.2", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,549 655572 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " "Via": "1.1 localhost:8080 (Repose/7.2.2.0)", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,550 655573 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " "X-Pp-User": "repose_user", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,550 655573 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " "X-Trans-Id": "eyJyZXF1ZXN0SWQiOiJmODYzZjgwZi05MTRkLTRjMDEtYTU3OS02NDg2NzMyMDZhOTYiLCJvcmlnaW4iOm51bGx9"[\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,550 655573 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " }, [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,550 655573 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " "json": {[\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,551 655574 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " "server": "bob"[\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,551 655574 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " }, [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,551 655574 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " "origin": "0:0:0:0:0:0:0:1", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,551 655574 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; " "url": "http://localhost:8000/post"[\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,551 655574 [qtp1589228348-31] DEBUG org.apache.http.wire - &lt;&lt; "}[\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,552 655575 [qtp1589228348-31] DEBUG org.apache.http.impl.conn.DefaultClientConnection - Connection 0.0.0.0:60510&lt;-&gt;127.0.0.1:8000 closed
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,552 655575 [qtp1589228348-31] DEBUG org.apache.http.impl.conn.PoolingClientConnectionManager - Connection released: [id: 2][route: {}-&gt;http://localhost:8000][total kept alive: 0; route allocated: 0 of 200; total allocated: 0 of 400]</pre>
+</div>
+</div>
+    </p>
+</details>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="access-repose-internal-metrics-and-instrumentation"><a class="anchor" href="#access-repose-internal-metrics-and-instrumentation"></a>Access Repose Internal Metrics and Instrumentation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Repose instruments its internal operations, such as the types of response codes returned from Repose or the origin service and the number of active requests.
+This information is published through JMX and can be accessed through any JMX client.
+JConsole is a popular choice to access information published through JMX as it is shipped with the JDK.</p>
+</div>
+<div class="paragraph">
+<p><strong>IN PROGRESS</strong></p>
+</div>
+</div>
+</div>
+      </div>
+    </div>
+  </div>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="/_javascripts/bootstrap-offcanvas.js" type="text/javascript"></script>
+  <script src="/_javascripts/page-loader.js" type="text/javascript"></script>
+  <script src="/_javascripts/include-html.js" type="text/javascript"></script>
+  <script>includeHTML();</script>
+  <script type="text/javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+      $("[id^='topicGroup']").on('show.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicGroup']").on('hide.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicSubGroup']").on('show.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+      $("[id^='topicSubGroup']").on('hide.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+    });
+    /*]]>*/
+  </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link rel="stylesheet" href="_stylesheets/materialize.min.css">
+    <link rel="stylesheet" href="_stylesheets/pagination.css">
+    <link rel="stylesheet" href="_stylesheets/search.css">
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body>
+    <!--Import jQuery before materialize.js-->
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="_javascripts/materialize.min.js"></script>
+    <script src="_javascripts/axios.min.js"></script>
+    <script src="_javascripts/pagination.min.js"></script>
+
+    <div class="container">
+        <div class="row" style="text-align: center">
+            <div class="input-field col s12 m6 l6 offset-m2 offset-l2">
+                <i class="material-icons prefix" style="padding-top: 15px;">search</i>
+                <input id="searchBox" placeholder="Search">
+            </div>
+            <div class="col s12 m3 l3">
+                <select class="browser-default" style="margin-top: 18px">
+                </select>
+            </div>
+
+        </div>
+
+        <div class="result-wrapper">
+            <div class="results"></div>
+            <div class="pagination-wrapper row">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+</body>
+<script src="_javascripts/elasticlunr.min.js"></script>
+<script src="_javascripts/base.js"></script>
+<script src="_javascripts/search.js"></script>
+
+</html>
