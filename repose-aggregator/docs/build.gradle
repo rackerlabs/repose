@@ -1,10 +1,8 @@
-import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
 import org.ajoberstar.grgit.Grgit
 
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.text.SimpleDateFormat
+import java.util.regex.Pattern
 
 apply plugin: 'org.openrepose.gradle.plugins.linkchecker'
 
@@ -56,9 +54,9 @@ task asciibinder(group: 'build', description: 'Builds the latest version of the 
             } else {
                 logger.info(runProcessInputStreamAsString)
                 copy {
-                    from(fileTree("${project.projectDir}/src/redirects"))
-                    into("${project.buildDir}/asciibinder/_package/main/")
-                    expand(version: version)
+                    from(fileTree("${project.projectDir}/src/redirects/index.html"))
+                    into("${project.buildDir}/asciibinder/_package/main/${version}/")
+                    expand(target: "./welcome/index.html")
                 }
             }
         } finally {
@@ -163,35 +161,7 @@ task stageDocs(dependsOn: asciibindersearch) {
             )
         }
 
-        // Amend the versions list
-        def versionsFile = file("${project.buildDir}/gh-pages/_includes/versions.json")
-        def versionsJson = new JsonSlurper().parse(versionsFile)
-        def modifiedVersions = versionsJson.versions.collect { new Version(id: it.id, released: it.released) }
-        def newVersionIndex = modifiedVersions.findIndexOf { compareVersions(String.valueOf(version), it.id) > 0 }
-        def date = new SimpleDateFormat('yyyy-MM-dd').format(new Date())
-        newVersionIndex = newVersionIndex == -1 ? modifiedVersions.size() : newVersionIndex
-        modifiedVersions.add(newVersionIndex, new Version(id: String.valueOf(version), released: date))
-
-        // Write the versions list as JSON
-        def jsonWriter = new PrintWriter(versionsFile.newWriter())
-        jsonWriter.println(JsonOutput.prettyPrint(JsonOutput.toJson(versions: modifiedVersions)))
-        jsonWriter.close()
-
-        // Write the versions includes file
-        def includesWriter = new PrintWriter(file("${project.buildDir}/gh-pages/_includes/versions.html"))
-        includesWriter.println("""<option value="latest">Latest</option>""")
-        modifiedVersions.forEach { Version v ->
-            includesWriter.println("""<option value="${v.id}">v${v.id}</option>""")
-        }
-        includesWriter.close()
-
-        // Update the latest link, if applicable
-        def latestLinkPath = project.buildDir.toPath().resolve(Paths.get('gh-pages', 'versions', 'latest'))
-        if (newVersionIndex == 0) {
-            Files.deleteIfExists(latestLinkPath)
-            Files.createSymbolicLink(latestLinkPath, Paths.get(String.valueOf(version)))
-        }
-
+        file("${project.buildDir}/gh-pages/versions/$version").deleteDir()
         copy {
             from("${project.projectDir}/src/resources")
             into("${project.buildDir}/gh-pages/")
@@ -200,11 +170,91 @@ task stageDocs(dependsOn: asciibindersearch) {
             from "${project.buildDir}/asciibinder/_package/main/"
             into "${project.buildDir}/gh-pages/versions/"
         }
+
+        // Setup the version utilities
+        def versionsDir = file("${project.buildDir}/gh-pages/versions")
+        def versionComparator = new Comparator() {
+            @Override
+            int compare(Object o1, Object o2) {
+                List<String> v1Parts = ((String) o1).tokenize('.')
+                List<String> v2Parts = ((String) o2).tokenize('.')
+
+                int minLen = Math.min(v1Parts.size(), v2Parts.size())
+
+                // Compare each number from the versions until either the numbers do not match,
+                // or the end of a version string is hit.
+                for (int i = 0; i < minLen; ++i) {
+                    int n1 = v1Parts[i] as int
+                    int n2 = v2Parts[i] as int
+
+                    if (n1 != n2) {
+                        return n1 <=> n2
+                    }
+                }
+
+                // If we got this far, then one version is a substring of the other.
+                // Therefore, whichever version is longer is the greater version.
+                return v1Parts.size() <=> v2Parts.size()
+            }
+        }
+
+        // Write the searchable versions list as JSON
+        def jsonFile = file("${project.buildDir}/gh-pages/versions/versions.json")
+        Files.deleteIfExists(jsonFile.toPath())
+        def jsonWriter = new PrintWriter(jsonFile)
+        jsonWriter.print("""{"versions": [""")
+        def jsonVersions = versionsDir.list(new FilenameFilter() {
+            def pattern = Pattern.compile("""^data_\\d+\\.\\d+\\.\\d+\\.\\d+\\.json\$""")
+
+            @Override
+            boolean accept(File dir, String name) {
+                return pattern.matcher(new File(name).getName()).matches()
+            }
+        }).collect { it.replace("data_", "").replace(".json", "") }
+        jsonVersions.sort(versionComparator)
+        jsonVersions.reverse(true)
+        jsonVersions.eachWithIndex { String entry, int i ->
+            if (i != 0) {
+                jsonWriter.print(',')
+            }
+            jsonWriter.print("\"${entry}\"")
+        }
+        jsonWriter.print("""]}""")
+        jsonWriter.close()
+
+        // Write the versions includes file
+        def htmlFile = file("${project.buildDir}/gh-pages/_includes/versions.html")
+        Files.deleteIfExists(htmlFile.toPath())
+        def htmlWriter = new PrintWriter(htmlFile)
+        def htmlVersions = versionsDir.list(new FilenameFilter() {
+            def pattern = Pattern.compile("""\\d+\\.\\d+\\.\\d+\\.\\d+\$""")
+
+            @Override
+            boolean accept(File dir, String name) {
+                return pattern.matcher(new File(name).getName()).matches()
+            }
+        }).collect()
+        htmlVersions.sort(versionComparator)
+        htmlVersions.reverse(true)
+        htmlVersions.forEach {
+            htmlWriter.println("""<option value="${it}">v${it}</option>""")
+        }
+        htmlWriter.close()
+
+        // Update the latest link, if applicable
+        copy {
+            from(fileTree("${project.projectDir}/src/redirects/index.html"))
+            into "${project.buildDir}/gh-pages/versions/"
+            expand(target: "./${htmlVersions.head()}/welcome/index.html")
+        }
+        def latestLinkPath = project.buildDir.toPath().resolve(Paths.get('gh-pages', 'versions', 'latest'))
+        Files.deleteIfExists(latestLinkPath)
+        Files.createSymbolicLink(latestLinkPath, Paths.get(htmlVersions.head()))
     }
 }
 
 linkchecker {
-    inputDir = file("${project.buildDir}/gh-pages/versions/$version/welcome")
+    inputDir = file("${project.buildDir}/gh-pages/versions/$version")
     httpURLConnectionTimeout = 1000
     ignoreHostRegexs = [
         /one\.rackspace\.com/,      // Prevents an infinite loop issue.
@@ -226,40 +276,9 @@ task publishDocs(dependsOn: stageDocs, group: 'release', description: 'Adds the 
 
 build.dependsOn asciibindersearch
 tasks.linkchecker.dependsOn stageDocs
-check.dependsOn tasks.linkchecker
+//check.dependsOn tasks.linkchecker
 publishDocs.dependsOn project.tasks.getByPath(':buildAll')
 project.tasks.getByPath(':release').dependsOn publishDocs
-
-/**
- * @return -1 if v1 is a lower version than v2, 0 if they are equal, and 1 if v1 is a greater version than v2
- */
-int compareVersions(String v1, String v2) {
-    List<String> v1Parts = v1.tokenize('.')
-    List<String> v2Parts = v2.tokenize('.')
-
-    int minLen = Math.min(v1Parts.size(), v2Parts.size())
-
-    // Compare each number from the versions until either the numbers do not match,
-    // or the end of a version string is hit.
-    for (int i = 0; i < minLen; ++i) {
-        int n1 = v1Parts[i] as int
-        int n2 = v2Parts[i] as int
-
-        if (n1 != n2) {
-            return n1 <=> n2
-        }
-    }
-
-    // If we got this far, then one version is a substring of the other.
-    // Therefore, whichever version is longer is the greater version.
-    return v1Parts.size() <=> v2Parts.size()
-}
-
-boolean isLatestVersion(String version, List<String> otherVersions) {
-    return !otherVersions.any {
-        it ==~ /(\d+\.)*\d+/ && compareVersions(version, it) < 0
-    }
-}
 
 class Version {
     String id
