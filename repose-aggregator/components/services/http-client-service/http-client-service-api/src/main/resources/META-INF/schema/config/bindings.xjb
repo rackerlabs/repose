@@ -23,9 +23,9 @@
 <bindings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/jaxb"
           version="2.0"
           xsi:schemaLocation="http://java.sun.com/xml/ns/jaxb http://java.sun.com/xml/ns/jaxb/bindingschema_2_0.xsd"
-          schemaLocation="http-client-service.xsd">
+          schemaLocation="http-connection-pool.xsd">
 
     <schemaBindings>
-        <package name="org.openrepose.core.services.httpclient.config"/>
+        <package name="org.openrepose.core.service.httpclient.config"/>
     </schemaBindings>
 </bindings>

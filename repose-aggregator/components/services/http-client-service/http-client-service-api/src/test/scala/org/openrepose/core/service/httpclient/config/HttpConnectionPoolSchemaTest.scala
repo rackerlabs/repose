@@ -18,7 +18,7 @@
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
 
-package org.openrepose.core.services.httpclient.config
+package org.openrepose.core.service.httpclient.config
 
 import java.net.URL
 
@@ -28,136 +28,136 @@ import org.scalatest.junit.JUnitRunner
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])
-class HttpClientServiceSchemaTest extends ConfigurationTest {
-  override val schema: URL = getClass.getResource("/META-INF/schema/config/http-client-service.xsd")
-  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/http-client-service.cfg.xml")
+class HttpConnectionPoolSchemaTest extends ConfigurationTest {
+  override val schema: URL = getClass.getResource("/META-INF/schema/config/http-connection-pool.xsd")
+  override val exampleConfig: URL = getClass.getResource("/META-INF/schema/examples/http-connection-pool.cfg.xml")
   override val jaxbContextPath: String = classOf[ObjectFactory].getPackage.getName
 
   describe("schema validation") {
-    it("should successfully validate config containing clients with unique IDs and one default client") {
-      val config = """<http-clients xmlns="http://docs.openrepose.org/repose/http-client-service/v1.0">
-                     |    <client id="apple" default="true"/>
-                     |    <client id="banana" default="false"/>
-                     |    <client id="orange"/>
-                     |</http-clients>""".stripMargin
+    it("should successfully validate config containing pools with unique IDs and one default pool") {
+      val config = """<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
+                     |    <pool id="apple" default="true"/>
+                     |    <pool id="banana" default="false"/>
+                     |    <pool id="orange"/>
+                     |</http-connection-pools>""".stripMargin
       validator.validateConfigString(config)
     }
 
-    it("should reject config if any of the clients have the same ID") {
-      val config = """<http-clients xmlns="http://docs.openrepose.org/repose/http-client-service/v1.0">
-                     |    <client id="apple" default="true"/>
-                     |    <client id="banana" default="false"/>
-                     |    <client id="apple"/>
-                     |</http-clients>""".stripMargin
+    it("should reject config if any of the pools have the same ID") {
+      val config = """<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
+                     |    <pool id="apple" default="true"/>
+                     |    <pool id="banana" default="false"/>
+                     |    <pool id="apple"/>
+                     |</http-connection-pools>""".stripMargin
       intercept[SAXParseException] {
         validator.validateConfigString(config)
-      }.getLocalizedMessage should include ("Clients must have unique ids")
+      }.getLocalizedMessage should include ("Pools must have unique ids")
     }
 
-    it("should reject config if there are no default clients") {
-      val config = """<http-clients xmlns="http://docs.openrepose.org/repose/http-client-service/v1.0">
-                     |    <client id="apple" default="false"/>
-                     |    <client id="banana" default="false"/>
-                     |    <client id="orange"/>
-                     |</http-clients>""".stripMargin
+    it("should reject config if there are no default pools") {
+      val config = """<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
+                     |    <pool id="apple" default="false"/>
+                     |    <pool id="banana" default="false"/>
+                     |    <pool id="orange"/>
+                     |</http-connection-pools>""".stripMargin
       intercept[SAXParseException] {
         validator.validateConfigString(config)
-      }.getLocalizedMessage should include ("One and only one default client must be defined")
+      }.getLocalizedMessage should include ("One and only one default pool must be defined")
     }
 
-    it("should reject config if there is more than one default client") {
-      val config = """<http-clients xmlns="http://docs.openrepose.org/repose/http-client-service/v1.0">
-                     |    <client id="apple" default="true"/>
-                     |    <client id="banana" default="true"/>
-                     |    <client id="orange"/>
-                     |</http-clients>""".stripMargin
+    it("should reject config if there is more than one default pool") {
+      val config = """<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
+                     |    <pool id="apple" default="true"/>
+                     |    <pool id="banana" default="true"/>
+                     |    <pool id="orange"/>
+                     |</http-connection-pools>""".stripMargin
       intercept[SAXParseException] {
         validator.validateConfigString(config)
-      }.getLocalizedMessage should include ("One and only one default client must be defined")
+      }.getLocalizedMessage should include ("One and only one default pool must be defined")
     }
 
     it("should successfully validate config with max connections per route set to less than total max connections") {
-      val config = """<http-clients xmlns="http://docs.openrepose.org/repose/http-client-service/v1.0">
-                     |    <client id="apple"
+      val config = """<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
+                     |    <pool id="apple"
                      |        default="true"
                      |        http.conn-manager.max-per-route="8"
                      |        http.conn-manager.max-total="10"/>
-                     |</http-clients>""".stripMargin
+                     |</http-connection-pools>""".stripMargin
       validator.validateConfigString(config)
     }
 
     it("should successfully validate config with max connections per route set to the same as total max connections") {
-      val config = """<http-clients xmlns="http://docs.openrepose.org/repose/http-client-service/v1.0">
-                     |    <client id="apple"
+      val config = """<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
+                     |    <pool id="apple"
                      |        default="true"
                      |        http.conn-manager.max-per-route="10"
                      |        http.conn-manager.max-total="10"/>
-                     |</http-clients>""".stripMargin
+                     |</http-connection-pools>""".stripMargin
       validator.validateConfigString(config)
     }
 
     it("should reject config with max connections per route set to more than total max connections") {
-      val config = """<http-clients xmlns="http://docs.openrepose.org/repose/http-client-service/v1.0">
-                     |    <client id="apple"
+      val config = """<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
+                     |    <pool id="apple"
                      |        default="true"
                      |        http.conn-manager.max-per-route="12"
                      |        http.conn-manager.max-total="10"/>
-                     |</http-clients>""".stripMargin
+                     |</http-connection-pools>""".stripMargin
       intercept[SAXParseException] {
         validator.validateConfigString(config)
       }.getLocalizedMessage should include ("Max connections per route must be less than or equal to total max connections")
     }
 
     it("should reject config missing keystore-filename") {
-      val config = """<http-clients xmlns="http://docs.openrepose.org/repose/http-client-service/v1.0">
-                     |    <client id="clientAuthentication"
+      val config = """<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
+                     |    <pool id="clientAuthentication"
                      |          default="false"
                      |          keystore-password="password"
                      |          key-password="secret"
                      |          truststore-filename="truststore.jks"
                      |          truststore-password="trusting"/>
-                     |</http-clients>""".stripMargin
+                     |</http-connection-pools>""".stripMargin
       intercept[SAXParseException] {
         validator.validateConfigString(config)
       }.getLocalizedMessage should include ("IF a keystore filename, password, or key password is provided, THEN all must be provided")
     }
 
     it("should reject config missing keystore-password") {
-      val config = """<http-clients xmlns="http://docs.openrepose.org/repose/http-client-service/v1.0">
-                     |    <client id="clientAuthentication"
+      val config = """<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
+                     |    <pool id="clientAuthentication"
                      |          default="false"
                      |          keystore-filename="keystore.jks"
                      |          key-password="secret"
                      |          truststore-filename="truststore.jks"
                      |          truststore-password="trusting"/>
-                     |</http-clients>""".stripMargin
+                     |</http-connection-pools>""".stripMargin
       intercept[SAXParseException] {
         validator.validateConfigString(config)
       }.getLocalizedMessage should include ("IF a keystore filename, password, or key password is provided, THEN all must be provided")
     }
 
     it("should reject config missing key-password") {
-      val config = """<http-clients xmlns="http://docs.openrepose.org/repose/http-client-service/v1.0">
-                     |    <client id="clientAuthentication"
+      val config = """<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
+                     |    <pool id="clientAuthentication"
                      |          default="false"
                      |          keystore-filename="keystore.jks"
                      |          keystore-password="password"
                      |          truststore-filename="truststore.jks"
                      |          truststore-password="trusting"/>
-                     |</http-clients>""".stripMargin
+                     |</http-connection-pools>""".stripMargin
       intercept[SAXParseException] {
         validator.validateConfigString(config)
       }.getLocalizedMessage should include ("IF a keystore filename, password, or key password is provided, THEN all must be provided")
     }
 
     it("should not validate if chunked-encoding is configured wrong") {
-      val xml = """<http-clients xmlns='http://docs.openrepose.org/repose/http-client-service/v1.0'>
-                  |    <client id='default'
+      val xml = """<http-connection-pools xmlns='http://docs.openrepose.org/repose/http-connection-pool/v1.0'>
+                  |    <pool id='default'
                   |          default='true'
                   |          chunked-encoding='blah'
                   |          http.conn-manager.max-per-route='200'
                   |          http.conn-manager.max-total='199'/>
-                  |</http-clients>
+                  |</http-connection-pools>
                 """.stripMargin
       intercept[SAXParseException] {
         validator.validateConfigString(xml)
