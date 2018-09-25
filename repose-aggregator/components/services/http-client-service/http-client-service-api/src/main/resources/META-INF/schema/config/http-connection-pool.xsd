@@ -30,7 +30,7 @@
            elementFormDefault="qualified"
            targetNamespace="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
 
-    <xs:element name="http-connection-pools" type="HttpConnectionPoolConfig"/>
+    <xs:element name="http-connection-pools" type="HttpConnectionPoolsConfig"/>
 
     <!-- Type definitions -->
     <xs:simpleType name="PositiveInt">
@@ -45,7 +45,7 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:complexType name="HttpConnectionPoolConfig">
+    <xs:complexType name="HttpConnectionPoolsConfig">
         <xs:annotation>
             <xs:documentation>
                 <html:p>Connection Pool Management settings.</html:p>
@@ -59,7 +59,7 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="pool" type="PoolType" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="pool" type="PoolConfig" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:assert vc:minVersion="1.1"
@@ -73,9 +73,9 @@
                    saxon:message="One and only one default pool must be defined"/>
     </xs:complexType>
 
-    <xs:complexType name="PoolType">
+    <xs:complexType name="PoolConfig">
         <xs:sequence>
-            <xs:element type="headerListType" name="headers" minOccurs="0" maxOccurs="1"/>
+            <xs:element type="HeaderList" name="headers" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
 
         <xs:attribute name="http.conn-manager.max-total" type="PositiveInt" use="optional" default="400">
@@ -239,7 +239,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="chunked-encoding" type="chunkedEncodingType" use="optional" default="true">
+        <xs:attribute name="chunked-encoding" type="ChunkedEncoding" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -261,6 +261,36 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <xs:attribute name="cache.ttl" type="PositiveInt" use="optional" default="500">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The amount of time in milliseconds to cache the HTTP interaction (i.e., the sending of the
+                        request and receiving of the response).
+                        While more than one request may be made to the HTTP client at the same time with the same
+                        cache key, only one request will be made by the HTTP client at a time per cache key.
+                        In effect, this means the first request made to the HTTP client is cached until the HTTP client
+                        receives a response, at which point the response is cached.
+                    </html:p>
+                    <html:p>
+                        For example, if request A is made to the HTTP client 1 millisecond before request B and both
+                        requests have the same cache key, request A will be sent over the wire by the HTTP client
+                        and both requester A and requester B will await the response for request A.
+                        Both requester A and requester B will receive the same response once the response for request A
+                        is available.
+                        If request C is made 250 milliseconds after request B (with the same cache key,
+                        within the defined ttl), requester C will immediately receive the response for request A.
+                        This is the same response that requester A and requester B received.
+                        If request D is made 501 milliseconds after request B (with the same cache key,
+                        not within the defined ttl), request D will be sent over the wire by the HTTP client
+                        and requester D will receive a response different from the response received by requesters
+                        A, B, and C.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
         <xs:attribute name="keystore-filename" type="xs:anyURI" use="optional">
             <xs:annotation>
                 <xs:documentation>
@@ -317,7 +347,7 @@
                    saxon:message="IF a keystore filename, password, or key password is provided, THEN all must be provided"/>
     </xs:complexType>
 
-    <xs:complexType name="headerListType">
+    <xs:complexType name="HeaderList">
         <xs:annotation>
             <xs:documentation>
                 <html:p>List of headers to add to each request made using this connection pool.</html:p>
@@ -325,11 +355,11 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element type="headerType" name="header" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element type="Header" name="header" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="headerType">
+    <xs:complexType name="Header">
         <xs:annotation>
             <xs:documentation>
                 <html:p>Header with a name and a value.</html:p>
@@ -340,7 +370,7 @@
         <xs:attribute name="value" type="xs:string" use="required"/>
     </xs:complexType>
 
-    <xs:simpleType name="chunkedEncodingType">
+    <xs:simpleType name="ChunkedEncoding">
         <xs:restriction base="xs:string">
             <xs:enumeration value="true"/>
             <xs:enumeration value="false"/>

@@ -17,6 +17,7 @@
           http.connection.max-header-count="100"
           http.connection.max-status-line-garbage="100"
           http.tcp.nodelay="true"
+          cache.ttl="500"
           keepalive.timeout="0"/>
 
     <!-- Configuration for a custom pool that overrides specific default settings -->
