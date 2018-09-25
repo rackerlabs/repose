@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<http-clients xmlns="http://docs.openrepose.org/repose/http-client-service/v1.0">
-    <client id="default"
-            default="true"
-            keystore-filename="single.jks"
-            keystore-password="password"
-            key-password="password"/>
-</http-clients>

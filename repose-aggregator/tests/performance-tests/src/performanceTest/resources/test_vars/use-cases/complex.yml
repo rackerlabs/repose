@@ -57,7 +57,7 @@
         "{{ dir_prefix }}/header-normalization.cfg.xml",
         "{{ dir_prefix }}/header-translation.cfg.xml",
         "{{ dir_prefix }}/highly-efficient-record-processor.cfg.xml",
-        "{{ dir_prefix }}/http-client-service.cfg.xml",
+        "{{ dir_prefix }}/http-connection-pool.cfg.xml",
         "{{ dir_prefix }}/keystone-v2-basic-auth.cfg.xml",
         "{{ dir_prefix }}/keystone-v2.cfg.xml",
         "{{ dir_prefix }}/keystone-v2_tenantid.cfg.xml",
