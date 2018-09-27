@@ -1,3 +1,4 @@
+import groovy.json.JsonBuilder
 import org.ajoberstar.grgit.Grgit
 
 import java.nio.file.Files
@@ -24,6 +25,7 @@ task asciibinder(group: 'build', description: 'Builds the latest version of the 
             expand(version: version)
         }
 
+        // This Git repo is strictly to appease ASCII Binder's way of doing business.
         def grgit = Grgit.init(dir: "${project.buildDir}/asciibinder")
         grgit.add(patterns: ['.'])
         grgit.commit(message: 'initial_commit')
@@ -39,6 +41,7 @@ task asciibinder(group: 'build', description: 'Builds the latest version of the 
             logger.info new String(buildProcess.getInputStream().bytes)
         }
 
+        // The repose-aggregator mount is for docs that reference things that are in the codebase itself.
         def runProcess =
             "docker run --tty --user ${uid}:${gid} --volume ${project.buildDir}/asciibinder:/docs:z --volume ${project.rootDir}/repose-aggregator:/repose-aggregator:z local/ascii_binder"
                 .execute(null, file("${project.buildDir}/asciibinder"))
@@ -84,7 +87,6 @@ task copyUbuntuDockerfile(type: Copy, dependsOn: asciibinder) {
 
     // Place the file into a resources subdirectory.
     into("${project.buildDir}/asciibinder/_package/main/${version}/resources/ubuntu/")
-
 }
 
 task copyCentosDockerfile(type: Copy, dependsOn: asciibinder) {
@@ -104,7 +106,7 @@ task asciibindersearch(dependsOn: [copyXsds, copyCentosDockerfile, copyUbuntuDoc
     )
     doLast {
         def buildProcess =
-            "docker build --tag local/asciibindersearch ${project.projectDir}/src/docker/Python3/"
+            "docker build --tag local/asciibindersearch ${project.projectDir}/src/docker/AsciiBinderSearch/"
                 .execute(null, file("${project.buildDir}/asciibinder"))
         buildProcess.waitFor()
         if (buildProcess.exitValue() != 0) {
@@ -121,6 +123,7 @@ task asciibindersearch(dependsOn: [copyXsds, copyCentosDockerfile, copyUbuntuDoc
         if (runProcess.exitValue() != 0) {
             logger.error new String(runProcess.getInputStream().bytes)
             logger.error new String(runProcess.getErrorStream().bytes)
+            throw new RuntimeException("See output above for specific cause of AsciiBinder Search failure(s).")
         } else {
             logger.info new String(runProcess.getInputStream().bytes)
         }
@@ -138,21 +141,12 @@ task stageDocs(dependsOn: asciibindersearch) {
         // THEN just clean it up;
         // ELSE clone the repo and checkout the correct branch.
         if (file("${project.buildDir}/gh-pages/.git").exists()) {
-            workingDir.listFiles(new FilenameFilter() {
-                @Override
-                boolean accept(File dir, String name) {
-                    return !(name == '.git')
-                }
-            }).each { file ->
-                if (file.isDirectory()) {
-                    file.deleteDir()
-                } else {
-                    file.delete()
-                }
-            }
             def grgit = Grgit.open(dir: workingDir.getAbsolutePath())
-            grgit.checkout(branch: 'gh-pages')
+            grgit.fetch(prune: true, tagMode: 'ALL')
             grgit.reset(mode: 'HARD')
+            grgit.checkout(branch: 'gh-pages')
+            grgit.reset(mode: 'HARD', commit: 'origin/gh-pages')
+            grgit.clean(directories: true)
         } else {
             Grgit.clone(
                 uri: 'git@github.com:rackerlabs/repose.git',
@@ -172,12 +166,18 @@ task stageDocs(dependsOn: asciibindersearch) {
         }
 
         // Setup the version utilities
-        def versionsDir = file("${project.buildDir}/gh-pages/versions")
-        def versionComparator = new Comparator() {
+        def versionsList = file("${project.buildDir}/gh-pages/versions").list(new FilenameFilter() {
+            def pattern = Pattern.compile("""\\d+\\.\\d+\\.\\d+\\.\\d+\$""")
+
             @Override
-            int compare(Object o1, Object o2) {
-                List<String> v1Parts = ((String) o1).tokenize('.')
-                List<String> v2Parts = ((String) o2).tokenize('.')
+            boolean accept(File dir, String name) {
+                return pattern.matcher(new File(name).getName()).matches()
+            }
+        }).collect()
+        versionsList.sort { o1, o2 ->
+                // Natural order is reversed.
+                List<String> v1Parts = ((String) o2).tokenize('.')
+                List<String> v2Parts = ((String) o1).tokenize('.')
 
                 int minLen = Math.min(v1Parts.size(), v2Parts.size())
 
@@ -195,48 +195,22 @@ task stageDocs(dependsOn: asciibindersearch) {
                 // If we got this far, then one version is a substring of the other.
                 // Therefore, whichever version is longer is the greater version.
                 return v1Parts.size() <=> v2Parts.size()
-            }
         }
 
         // Write the searchable versions list as JSON
         def jsonFile = file("${project.buildDir}/gh-pages/versions/versions.json")
         Files.deleteIfExists(jsonFile.toPath())
+        def jsonBuilder = new JsonBuilder(versions: versionsList)
         def jsonWriter = new PrintWriter(jsonFile)
-        jsonWriter.print("""{"versions": [""")
-        def jsonVersions = versionsDir.list(new FilenameFilter() {
-            def pattern = Pattern.compile("""^data_\\d+\\.\\d+\\.\\d+\\.\\d+\\.json\$""")
-
-            @Override
-            boolean accept(File dir, String name) {
-                return pattern.matcher(new File(name).getName()).matches()
-            }
-        }).collect { it.replace("data_", "").replace(".json", "") }
-        jsonVersions.sort(versionComparator)
-        jsonVersions.reverse(true)
-        jsonVersions.eachWithIndex { String entry, int i ->
-            if (i != 0) {
-                jsonWriter.print(',')
-            }
-            jsonWriter.print("\"${entry}\"")
-        }
-        jsonWriter.print("""]}""")
+        jsonWriter.print(jsonBuilder.toString())
         jsonWriter.close()
 
         // Write the versions includes file
         def htmlFile = file("${project.buildDir}/gh-pages/_includes/versions.html")
         Files.deleteIfExists(htmlFile.toPath())
         def htmlWriter = new PrintWriter(htmlFile)
-        def htmlVersions = versionsDir.list(new FilenameFilter() {
-            def pattern = Pattern.compile("""\\d+\\.\\d+\\.\\d+\\.\\d+\$""")
-
-            @Override
-            boolean accept(File dir, String name) {
-                return pattern.matcher(new File(name).getName()).matches()
-            }
-        }).collect()
-        htmlVersions.sort(versionComparator)
-        htmlVersions.reverse(true)
-        htmlVersions.forEach {
+        htmlWriter.println("""<option value="latest">Latest</option>""")
+        versionsList.forEach {
             htmlWriter.println("""<option value="${it}">v${it}</option>""")
         }
         htmlWriter.close()
@@ -245,11 +219,11 @@ task stageDocs(dependsOn: asciibindersearch) {
         copy {
             from(fileTree("${project.projectDir}/src/redirects/index.html"))
             into "${project.buildDir}/gh-pages/versions/"
-            expand(target: "./${htmlVersions.head()}/welcome/index.html")
+            expand(target: "./${versionsList.head()}/welcome/index.html")
         }
         def latestLinkPath = project.buildDir.toPath().resolve(Paths.get('gh-pages', 'versions', 'latest'))
         Files.deleteIfExists(latestLinkPath)
-        Files.createSymbolicLink(latestLinkPath, Paths.get(htmlVersions.head()))
+        Files.createSymbolicLink(latestLinkPath, Paths.get(versionsList.head()))
     }
 }
 
@@ -279,8 +253,3 @@ tasks.linkchecker.dependsOn stageDocs
 //check.dependsOn tasks.linkchecker
 publishDocs.dependsOn project.tasks.getByPath(':buildAll')
 project.tasks.getByPath(':release').dependsOn publishDocs
-
-class Version {
-    String id
-    String released
-}
