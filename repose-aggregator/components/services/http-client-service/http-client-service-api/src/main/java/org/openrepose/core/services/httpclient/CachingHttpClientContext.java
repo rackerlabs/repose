@@ -28,70 +28,70 @@ import org.apache.http.protocol.HttpContext;
  */
 public class CachingHttpClientContext extends HttpClientContext {
 
-  /**
-   * Designates whether or not the cache should be used.
-   * <p>
-   * If used, the {@link org.apache.http.client.HttpClient} will attempt
-   * to satisfy the HTTP request associated with this context with a
-   * previously cached interaction.
-   */
-  public static final String CACHE_USE = "repose.cache.use";
+    /**
+     * Designates whether or not the cache should be used.
+     * <p>
+     * If used, the {@link org.apache.http.client.HttpClient} will attempt
+     * to satisfy the HTTP request associated with this context with a
+     * previously cached interaction.
+     */
+    public static final String CACHE_USE = "repose.cache.use";
 
-  /**
-   * Identifies what cache data may be used to satisfy the HTTP request
-   * if the cache should be used.
-   * <p>
-   * This attribute must be set
-   */
-  public static final String CACHE_KEY = "repose.cache.key";
+    /**
+     * Identifies what cache data may be used to satisfy the HTTP request
+     * if the cache should be used.
+     * <p>
+     * This attribute must be set
+     */
+    public static final String CACHE_KEY = "repose.cache.key";
 
-  /**
-   * Designates whether or not to overwrite the cache data for the
-   * given cache key if cache data was not used to satisfy the request.
-   */
-  public static final String CACHE_FORCE_REFRESH = "repose.cache.refresh";
+    /**
+     * Designates whether or not to overwrite the cache data for the
+     * given cache key if cache data was not used to satisfy the request.
+     */
+    public static final String CACHE_FORCE_REFRESH = "repose.cache.refresh";
 
-  public static CachingHttpClientContext adapt(final HttpContext context) {
-    if (context instanceof HttpClientContext) {
-      return (CachingHttpClientContext) context;
-    } else {
-      return new CachingHttpClientContext(context);
+    public static CachingHttpClientContext adapt(final HttpContext context) {
+        if (context instanceof HttpClientContext) {
+            return (CachingHttpClientContext) context;
+        } else {
+            return new CachingHttpClientContext(context);
+        }
     }
-  }
 
-  public static CachingHttpClientContext create() {
-    return new CachingHttpClientContext();
-  }
+    public static CachingHttpClientContext create() {
+        return new CachingHttpClientContext();
+    }
 
-  public CachingHttpClientContext(final HttpContext context) {
-    super(context);
-  }
+    public CachingHttpClientContext(final HttpContext context) {
+        super(context);
+    }
 
-  public CachingHttpClientContext() {
-    super();
-  }
+    public CachingHttpClientContext() {
+        super();
+    }
 
-  public boolean getUseCache() {
-    return getAttribute(CACHE_USE, Boolean.class);
-  }
+    public Boolean getUseCache() {
+        return getAttribute(CACHE_USE, Boolean.class);
+    }
 
-  public void setUseCache(boolean useCache) {
-    setAttribute(CACHE_USE, useCache);
-  }
+    public void setUseCache(Boolean useCache) {
+        setAttribute(CACHE_USE, useCache);
+    }
 
-  public String getCacheKey() {
-    return getAttribute(CACHE_KEY, String.class);
-  }
+    public String getCacheKey() {
+        return getAttribute(CACHE_KEY, String.class);
+    }
 
-  public void setCacheKey(String cacheKey) {
-    setAttribute(CACHE_KEY, cacheKey);
-  }
+    public void setCacheKey(String cacheKey) {
+        setAttribute(CACHE_KEY, cacheKey);
+    }
 
-  public boolean getForceRefreshCache() {
-    return getAttribute(CACHE_FORCE_REFRESH, Boolean.class);
-  }
+    public Boolean getForceRefreshCache() {
+        return getAttribute(CACHE_FORCE_REFRESH, Boolean.class);
+    }
 
-  public void setForceRefreshCache(boolean forceRefreshCache) {
-    setAttribute(CACHE_FORCE_REFRESH, forceRefreshCache);
-  }
+    public void setForceRefreshCache(Boolean forceRefreshCache) {
+        setAttribute(CACHE_FORCE_REFRESH, forceRefreshCache);
+    }
 }

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,40 +17,34 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.httpclient.impl;
+package org.openrepose.core.services.httpclient
 
-import org.apache.http.client.HttpClient;
-import org.openrepose.core.services.httpclient.HttpClientContainer;
+import org.apache.http.impl.client.CloseableHttpClient
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.{FunSpec, Matchers}
 
-/**
- * An HttpClientContainer that generates a unique UUID
- */
-public class HttpClientContainerImpl implements HttpClientContainer {
+@RunWith(classOf[JUnitRunner])
+class InternalHttpClientTest extends FunSpec with MockitoSugar with Matchers {
 
-    private HttpClient httpClient;
-    private String clientInstanceId;
-    private String userId;
+  describe("getInstanceId") {
+    it("should store an accessible instance ID") {
+      val instanceId = "some-instance-id"
 
-    public HttpClientContainerImpl(HttpClient httpClient,
-                                   String clientInstanceId,
-                                   String userId) {
-        this.httpClient = httpClient;
-        this.clientInstanceId = clientInstanceId;
-        this.userId = userId;
+      val internalHttpClient = new InternalHttpClient(instanceId, null)
+
+      internalHttpClient.getInstanceId shouldEqual instanceId
     }
+  }
 
-    @Override
-    public HttpClient getHttpClient() {
-        return httpClient;
-    }
+  describe("getClient") {
+    it("should store an accessible HTTP client") {
+      val httpClient = mock[CloseableHttpClient]
 
-    @Override
-    public String getClientInstanceId() {
-        return clientInstanceId;
-    }
+      val internalHttpClient = new InternalHttpClient(null, httpClient)
 
-    @Override
-    public String getUserId() {
-        return userId;
+      internalHttpClient.getClient shouldEqual httpClient
     }
+  }
 }

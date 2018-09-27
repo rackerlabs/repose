@@ -20,8 +20,11 @@
 package org.openrepose.core.services.httpclient
 
 import org.apache.http.protocol.BasicHttpContext
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
+@RunWith(classOf[JUnitRunner])
 class CachingHttpClientContextTest extends FunSpec with Matchers {
 
   describe("adapt") {

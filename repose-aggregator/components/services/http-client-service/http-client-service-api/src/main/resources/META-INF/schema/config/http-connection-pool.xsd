@@ -45,6 +45,12 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:simpleType name="NonNegativeLong">
+        <xs:restriction base="xs:long">
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:complexType name="HttpConnectionPoolsConfig">
         <xs:annotation>
             <xs:documentation>
@@ -165,21 +171,6 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="http.connection.max-status-line-garbage" type="PositiveInt" use="optional" default="100">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        Defines the maximum number of ignorable lines before we expect a HTTP response's
-                        status line. With HTTP/1.1 persistent connections, the problem arises that broken scripts could
-                        return a wrong Content-Length (there are more bytes sent than specified). Unfortunately, in some
-                        cases, this cannot be detected after the bad response, but only before the next one. So
-                        HttpClient must be able to skip those surplus lines this way. 0 disallows all garbage/empty
-                        lines before the status line. Use java.lang.Integer#MAX_VALUE for unlimited number.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
         <xs:attribute name="http.tcp.nodelay" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
@@ -200,8 +191,7 @@
                     <html:p>Some HTTP servers use a non-standard Keep-Alive header to communicate to the client the
                         period of time in seconds they intend to keep the connection alive on the server side. If this
                         header is present in the response, the value in this header will be used to determine the
-                        maximum
-                        length of time to keep a persistent connection open for.
+                        maximum length of time to keep a persistent connection open for.
                     </html:p>
                     <html:p>
                         If the Keep-Alive header is NOT present in the response, the value of keepalive.timeout is
@@ -262,7 +252,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="cache.ttl" type="PositiveInt" use="optional" default="500">
+        <xs:attribute name="cache.ttl" type="NonNegativeLong" use="optional" default="500">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>

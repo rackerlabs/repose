@@ -20,24 +20,22 @@
 package org.openrepose.core.services.httpclient;
 
 /**
- * Manages the configuration and lifecycle of {@link org.apache.http.client.HttpClient HttpClients}.
+ * Tracks usage of {@link org.apache.http.client.HttpClient HttpClients}.
  */
-public interface HttpClientService {
+interface HttpClientUserManager {
+    /**
+     * Marks an {@link org.apache.http.client.HttpClient} as in use.
+     *
+     * @param clientInstanceId a unique identifier for an {@link org.apache.http.client.HttpClient}
+     * @param userId           a unique identifier for a user
+     */
+    void registerUser(String clientInstanceId, String userId);
 
     /**
-     * See {@link #getClient(String)}.
+     * Marks an {@link org.apache.http.client.HttpClient} as not in use.
      *
-     * @return the default configured {@link org.apache.http.client.HttpClient}
+     * @param clientInstanceId a unique identifier for an {@link org.apache.http.client.HttpClient}
+     * @param userId           a unique identifier for a user
      */
-    HttpClientServiceClient getDefaultClient();
-
-    /**
-     * Given an identifier, will return the corresponding {@link org.apache.http.client.HttpClient}.
-     * <p/>
-     * Implementations should return the default client if an unmapped clientId or null is passed.
-     *
-     * @param clientId an identifier for an {@link org.apache.http.client.HttpClient}
-     * @return the {@link org.apache.http.client.HttpClient} identified by the clientId parameter
-     */
-    HttpClientServiceClient getClient(String clientId);
+    void deregisterUser(String clientInstanceId, String userId);
 }

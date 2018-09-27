@@ -22,14 +22,7 @@ package org.openrepose.core.services.httpclient;
 /**
  * Manages the configuration and lifecycle of {@link org.apache.http.client.HttpClient HttpClients}.
  */
-public interface HttpClientService {
-
-    /**
-     * See {@link #getClient(String)}.
-     *
-     * @return the default configured {@link org.apache.http.client.HttpClient}
-     */
-    HttpClientServiceClient getDefaultClient();
+interface InternalHttpClientService {
 
     /**
      * Given an identifier, will return the corresponding {@link org.apache.http.client.HttpClient}.
@@ -37,7 +30,7 @@ public interface HttpClientService {
      * Implementations should return the default client if an unmapped clientId or null is passed.
      *
      * @param clientId an identifier for an {@link org.apache.http.client.HttpClient}
-     * @return the {@link org.apache.http.client.HttpClient} identified by the clientId parameter
+     * @return the raw {@link org.apache.http.client.HttpClient} identified by the clientId parameter
      */
-    HttpClientServiceClient getClient(String clientId);
+    InternalHttpClient getInternalClient(String clientId);
 }

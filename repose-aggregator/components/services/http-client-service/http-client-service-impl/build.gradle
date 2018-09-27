@@ -1,19 +1,24 @@
 dependencies {
     compile project(":repose-aggregator:core:repose-core-api")
-    compile project(":repose-aggregator:components:services:http-client-service:http-client-service-api")
     compile project(":repose-aggregator:components:services:health-check-service:health-check-service-api")
+    compile project(":repose-aggregator:components:services:http-client-service:http-client-service-api")
+    compile "org.scala-lang:scala-library"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "org.slf4j:slf4j-api"
     compile "org.slf4j:jcl-over-slf4j"
     compile "org.springframework:spring-beans"
     compile "io.opentracing:opentracing-api"
+    compile "io.opentracing:opentracing-noop"
+    compile "com.google.guava:guava"
+    compile "io.dropwizard.metrics:metrics-httpclient"
 
     compileOnly "javax.inject:javax.inject"
 
-    testCompile "junit:junit:4.12"
-    testCompile "org.hamcrest:hamcrest-all"
-    testCompile "org.codehaus.groovy:groovy-all"
-    testCompile "org.eclipse.jetty:jetty-server"
+    testCompile "junit:junit"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
+    testCompile "commons-io:commons-io"
+    testCompile "org.codehaus.groovy:groovy-all" // todo: remove this -- groovy code is not actually present in this project
+    testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
     testCompile "org.mockito:mockito-all"
-    testCompile "xerces:xerces-xsd11"
     testCompile "io.opentracing:opentracing-mock"
 }

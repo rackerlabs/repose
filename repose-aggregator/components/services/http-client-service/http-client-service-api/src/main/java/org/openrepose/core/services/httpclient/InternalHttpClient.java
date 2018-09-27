@@ -19,25 +19,17 @@
  */
 package org.openrepose.core.services.httpclient;
 
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Setter;
+import org.apache.http.impl.client.CloseableHttpClient;
+
 /**
- * Manages the configuration and lifecycle of {@link org.apache.http.client.HttpClient HttpClients}.
+ * Pairs an {@link org.apache.http.client.HttpClient} with a unique identifier.
  */
-public interface HttpClientService {
-
-    /**
-     * See {@link #getClient(String)}.
-     *
-     * @return the default configured {@link org.apache.http.client.HttpClient}
-     */
-    HttpClientServiceClient getDefaultClient();
-
-    /**
-     * Given an identifier, will return the corresponding {@link org.apache.http.client.HttpClient}.
-     * <p/>
-     * Implementations should return the default client if an unmapped clientId or null is passed.
-     *
-     * @param clientId an identifier for an {@link org.apache.http.client.HttpClient}
-     * @return the {@link org.apache.http.client.HttpClient} identified by the clientId parameter
-     */
-    HttpClientServiceClient getClient(String clientId);
+@Data
+@Setter(AccessLevel.NONE)
+class InternalHttpClient {
+    private final String instanceId;
+    private final CloseableHttpClient client;
 }
