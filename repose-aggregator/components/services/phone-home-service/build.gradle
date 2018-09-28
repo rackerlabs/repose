@@ -1,12 +1,13 @@
 dependencies {
     compile project(":repose-aggregator:core:repose-core-api")
     compile project(":repose-aggregator:commons:commons-utilities")
-    compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-api")
+    compile project(':repose-aggregator:components:services:http-client-service:http-client-service-api')
     compile "org.scala-lang:scala-library"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "org.springframework:spring-beans"
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
     compile "io.opentracing:opentracing-api"
+    compile "org.apache.httpcomponents:httpclient"
 
     compileOnly "javax.inject:javax.inject"
     compileOnly "javax.ws.rs:javax.ws.rs-api"
