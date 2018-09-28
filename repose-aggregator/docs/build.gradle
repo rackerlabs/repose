@@ -141,6 +141,7 @@ task stageDocs(dependsOn: asciibindersearch) {
             def grgit = Grgit.open(dir: workingDir.getAbsolutePath())
             grgit.fetch(prune: true, tagMode: 'ALL')
             grgit.reset(mode: 'HARD')
+            grgit.clean(directories: true)
             grgit.checkout(branch: 'gh-pages')
             grgit.reset(mode: 'HARD', commit: 'origin/gh-pages')
             grgit.clean(directories: true)
