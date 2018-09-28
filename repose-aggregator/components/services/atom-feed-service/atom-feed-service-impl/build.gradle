@@ -1,7 +1,7 @@
 dependencies {
     compile project(":repose-aggregator:core:repose-core-api")
-    compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-api")
     compile project(":repose-aggregator:components:services:atom-feed-service:atom-feed-service-api")
+    compile project(':repose-aggregator:components:services:http-client-service:http-client-service-api')
     compile project(":repose-aggregator:commons:commons-utilities")
     compile "org.slf4j:slf4j-api"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"

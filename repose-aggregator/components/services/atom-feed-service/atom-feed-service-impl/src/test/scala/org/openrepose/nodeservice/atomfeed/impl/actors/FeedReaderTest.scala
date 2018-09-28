@@ -29,14 +29,16 @@ import io.opentracing.Tracer.SpanBuilder
 import io.opentracing.{Scope, Span, Tracer}
 import org.apache.abdera.Abdera
 import org.apache.abdera.model.Feed
+import org.apache.http
 import org.apache.http.client.HttpClient
+import org.apache.http.client.methods.HttpUriRequest
 import org.apache.http.impl.client.HttpClients
 import org.junit.runner.RunWith
 import org.mockito.AdditionalAnswers
 import org.mockito.Matchers.{any, anyBoolean, anyString}
 import org.mockito.Mockito.{reset, verify, when}
 import org.openrepose.commons.utils.logging.TracingKey
-import org.openrepose.core.services.httpclient.{HttpClientContainer, HttpClientService}
+import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
 import org.openrepose.docs.repose.atom_feed_service.v1.EntryOrderType
 import org.openrepose.nodeservice.atomfeed.impl.MockService
 import org.openrepose.nodeservice.atomfeed.impl.actors.FeedReader.{CancelScheduledReading, ReadFeed, ScheduleReading}
@@ -72,13 +74,7 @@ class FeedReaderTest(_system: ActorSystem)
 
   override def beforeEach() = {
     mockHttpClientService = mock[HttpClientService]
-    when(mockHttpClientService.getClient(anyString)).thenReturn(new HttpClientContainer {
-      override def getClientInstanceId: String = ""
-
-      override def getUserId: String = ""
-
-      override def getHttpClient: HttpClient = HttpClients.createDefault()
-    })
+    when(mockHttpClientService.getClient(anyString)).thenReturn(getTestClient)
 
     mockTracer = mock[Tracer]
     mockSpanBuilder = mock[SpanBuilder]
@@ -424,5 +420,11 @@ class FeedReaderTest(_system: ActorSystem)
     notifierProbe.expectNoMsg()
     assert(messages(0).atomEntry.hashCode == oldEntryHash)
     assert(messages(1).atomEntry.hashCode == newEntryHash)
+  }
+
+  def getTestClient: HttpClientServiceClient = new HttpClientServiceClient(null, null, null) {
+    val client: HttpClient = HttpClients.createDefault()
+
+    override def execute(request: HttpUriRequest): http.HttpResponse = client.execute(request)
   }
 }

@@ -112,7 +112,7 @@ class FeedReader(feedURIString: String,
 
   override def receive: Receive = {
     case ReadFeed =>
-      val httpClientContainer = httpClientService.getClient(connectionPoolId)
+      val httpClient = httpClientService.getClient(connectionPoolId)
       val requestId = java.util.UUID.randomUUID().toString
       MDC.put(TracingKey.TRACING_KEY, requestId)
 
@@ -123,7 +123,7 @@ class FeedReader(feedURIString: String,
         // todo: add authenticatedRequestFactory and authenticationTimeout to the AuthenticationRequestContextImpl?
         def getStream = AtomEntryStreamBuilder.build(
           feedURI,
-          httpClientContainer.getHttpClient,
+          httpClient,
           AuthenticationRequestContextImpl(reposeVersion, requestId),
           authenticatedRequestFactory,
           authenticationTimeout)
@@ -168,7 +168,6 @@ class FeedReader(feedURIString: String,
           logger.error("Feed was unable to be read", e)
           scope.span.setTag(Tags.ERROR.getKey, true)
       } finally {
-        httpClientService.releaseClient(httpClientContainer)
         scope.close()
       }
     case ScheduleReading =>
