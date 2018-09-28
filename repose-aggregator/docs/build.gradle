@@ -26,6 +26,7 @@ task asciibinder(group: 'build', description: 'Builds the latest version of the 
         }
 
         // This Git repo is strictly to appease ASCII Binder's way of doing business.
+        file("${project.buildDir}/asciibinder/.git").deleteDir()
         def grgit = Grgit.init(dir: "${project.buildDir}/asciibinder")
         grgit.add(patterns: ['.'])
         grgit.commit(message: 'initial_commit')
@@ -45,25 +46,21 @@ task asciibinder(group: 'build', description: 'Builds the latest version of the 
         def runProcess =
             "docker run --tty --user ${uid}:${gid} --volume ${project.buildDir}/asciibinder:/docs:z --volume ${project.rootDir}/repose-aggregator:/repose-aggregator:z local/ascii_binder"
                 .execute(null, file("${project.buildDir}/asciibinder"))
-        try {
-            runProcess.waitFor()
-            def runProcessInputStreamAsString = new String(runProcess.getInputStream().bytes)
-            if (runProcessInputStreamAsString =~ /asciidoctor: WARNING:/ ||
-                runProcessInputStreamAsString =~ /asciidoctor: ERROR:/ ||
-                runProcess.exitValue() != 0) {
-                logger.error(runProcessInputStreamAsString)
-                logger.error(new String(runProcess.getErrorStream().bytes))
-                throw new RuntimeException("See output above for specific cause of AsciiBinder failure(s).")
-            } else {
-                logger.info(runProcessInputStreamAsString)
-                copy {
-                    from(fileTree("${project.projectDir}/src/redirects/index.html"))
-                    into("${project.buildDir}/asciibinder/_package/main/${version}/")
-                    expand(target: "./welcome/index.html")
-                }
+        runProcess.waitFor()
+        def runProcessInputStreamAsString = new String(runProcess.getInputStream().bytes)
+        if (runProcessInputStreamAsString =~ /asciidoctor: WARNING:/ ||
+            runProcessInputStreamAsString =~ /asciidoctor: ERROR:/ ||
+            runProcess.exitValue() != 0) {
+            logger.error(runProcessInputStreamAsString)
+            logger.error(new String(runProcess.getErrorStream().bytes))
+            throw new RuntimeException("See output above for specific cause of AsciiBinder failure(s).")
+        } else {
+            logger.info(runProcessInputStreamAsString)
+            copy {
+                from(fileTree("${project.projectDir}/src/redirects/index.html"))
+                into("${project.buildDir}/asciibinder/_package/main/${version}/")
+                expand(target: "./welcome/index.html")
             }
-        } finally {
-            file("${project.buildDir}/asciibinder/.git").deleteDir()
         }
     }
 }
