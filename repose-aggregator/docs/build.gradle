@@ -198,10 +198,8 @@ task stageDocs(dependsOn: asciibindersearch) {
         // Write the searchable versions list as JSON
         def jsonFile = file("${project.buildDir}/gh-pages/versions/versions.json")
         Files.deleteIfExists(jsonFile.toPath())
-        def jsonBuilder = new JsonBuilder(versions: versionsList)
         def jsonWriter = new PrintWriter(jsonFile)
-        jsonWriter.print(jsonBuilder.toString())
-        jsonWriter.close()
+        new JsonBuilder(versions: versionsList).writeTo(jsonWriter).close()
 
         // Write the versions includes file
         def htmlFile = file("${project.buildDir}/gh-pages/_includes/versions.html")
