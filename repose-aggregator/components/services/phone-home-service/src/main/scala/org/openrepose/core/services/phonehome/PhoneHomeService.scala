@@ -30,6 +30,7 @@ import javax.inject.{Inject, Named}
 import org.apache.http.client.entity.EntityBuilder
 import org.apache.http.client.methods.RequestBuilder
 import org.apache.http.entity.ContentType
+import org.apache.http.util.EntityUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.opentracing.ReposeTags
@@ -189,13 +190,17 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
 
         val response = httpClient.execute(request, cachingContext)
 
-        // Handle error status codes
-        if (response.getStatusLine.getStatusCode < 200 || response.getStatusLine.getStatusCode > 299) {
-          logger.error(buildLogMessage(
-            s"""Update to the collection service failed with status code ${response.getStatusLine.getStatusCode}""",
-            message,
-            collectionUri
-          ))
+        try {
+          // Handle error status codes
+          if (response.getStatusLine.getStatusCode < 200 || response.getStatusLine.getStatusCode > 299) {
+            logger.error(buildLogMessage(
+              s"""Update to the collection service failed with status code ${response.getStatusLine.getStatusCode}""",
+              message,
+              collectionUri
+            ))
+          }
+        } finally {
+          EntityUtils.consumeQuietly(response.getEntity)
         }
       } catch {
         case e: Exception =>

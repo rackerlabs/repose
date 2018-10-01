@@ -22,7 +22,7 @@ package org.openrepose.core.services.phonehome
 import io.opentracing.Tracer.SpanBuilder
 import io.opentracing.{Scope, Span, Tracer}
 import org.apache.http.HttpVersion
-import org.apache.http.client.methods.{HttpEntityEnclosingRequestBase, HttpPost, HttpUriRequest}
+import org.apache.http.client.methods.{CloseableHttpResponse, HttpEntityEnclosingRequestBase, HttpPost, HttpUriRequest}
 import org.apache.http.entity.ContentType
 import org.apache.http.message.BasicHttpResponse
 import org.apache.http.protocol.HttpContext
@@ -118,7 +118,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
         mockHttpClient.execute(
           any[HttpUriRequest],
           any[HttpContext])
-      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, null))
+      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      })
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
@@ -151,7 +153,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
         mockHttpClient.execute(
           any[HttpUriRequest],
           any[HttpContext])
-      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, null))
+      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      })
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
@@ -228,7 +232,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
         mockHttpClient.execute(
           any[HttpUriRequest],
           any[HttpContext])
-      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 400, null))
+      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 400, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      })
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
@@ -271,7 +277,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
         mockHttpClient.execute(
           any[HttpUriRequest],
           any[HttpContext])
-      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, null))
+      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      })
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
@@ -307,7 +315,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
         mockHttpClient.execute(
           any[HttpUriRequest],
           any[HttpContext])
-      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, null))
+      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      })
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
@@ -365,7 +375,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
         mockHttpClient.execute(
           any[HttpUriRequest],
           any[HttpContext])
-      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, null))
+      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      })
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
@@ -422,7 +434,9 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
         mockHttpClient.execute(
           any[HttpUriRequest],
           any[HttpContext])
-      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, null))
+      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      })
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",

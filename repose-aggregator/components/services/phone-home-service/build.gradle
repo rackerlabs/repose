@@ -8,6 +8,7 @@ dependencies {
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
     compile "io.opentracing:opentracing-api"
     compile "org.apache.httpcomponents:httpclient"
+    compile "org.apache.httpcomponents:httpcore"
 
     compileOnly "javax.inject:javax.inject"
     compileOnly "javax.ws.rs:javax.ws.rs-api"
