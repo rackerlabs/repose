@@ -14,6 +14,7 @@ dependencies {
     compile "org.springframework:spring-context"
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
     compile "org.apache.httpcomponents:httpclient"
+    compile "org.apache.httpcomponents:httpcore"
     compile "io.opentracing:opentracing-api"
 
     compileOnly "javax.servlet:javax.servlet-api"

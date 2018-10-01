@@ -27,7 +27,7 @@ import org.apache.abdera.Abdera
 import org.apache.abdera.model.{Entry, Feed}
 import org.apache.abdera.parser.stax.util.FOMList
 import org.apache.http.client.HttpClient
-import org.apache.http.client.methods.HttpGet
+import org.apache.http.client.methods.{HttpGet, RequestBuilder}
 import org.apache.http.util.EntityUtils
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
@@ -91,7 +91,7 @@ object AtomEntryStreamBuilder {
         val tracingHeader = TracingHeaderHelper.createTracingHeader(context.getRequestId, "1.1 Repose (Repose/" + context.getReposeVersion + ")", None)
         feedReadRequest.getHeaders.put(CommonHttpHeader.TRACE_GUID, util.Arrays.asList(tracingHeader))
 
-        val httpGet = new HttpGet(feedReadRequest.getURI)
+        val httpGet = RequestBuilder.get(feedReadRequest.getURI).build()
         feedReadRequest.getHeaders foreach { case (key, values) =>
           values.foreach(value => httpGet.addHeader(key, value))
         }

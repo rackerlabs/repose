@@ -29,10 +29,8 @@ import io.opentracing.Tracer.SpanBuilder
 import io.opentracing.{Scope, Span, Tracer}
 import org.apache.abdera.Abdera
 import org.apache.abdera.model.Feed
-import org.apache.http
-import org.apache.http.client.HttpClient
-import org.apache.http.client.methods.HttpUriRequest
-import org.apache.http.impl.client.HttpClients
+import org.apache.http.client.methods.{CloseableHttpResponse, HttpUriRequest}
+import org.apache.http.impl.client.{CloseableHttpClient, HttpClients}
 import org.junit.runner.RunWith
 import org.mockito.AdditionalAnswers
 import org.mockito.Matchers.{any, anyBoolean, anyString}
@@ -423,8 +421,8 @@ class FeedReaderTest(_system: ActorSystem)
   }
 
   def getTestClient: HttpClientServiceClient = new HttpClientServiceClient(null, null, null) {
-    val client: HttpClient = HttpClients.createDefault()
+    val client: CloseableHttpClient = HttpClients.createDefault()
 
-    override def execute(request: HttpUriRequest): http.HttpResponse = client.execute(request)
+    override def execute(request: HttpUriRequest): CloseableHttpResponse = client.execute(request)
   }
 }

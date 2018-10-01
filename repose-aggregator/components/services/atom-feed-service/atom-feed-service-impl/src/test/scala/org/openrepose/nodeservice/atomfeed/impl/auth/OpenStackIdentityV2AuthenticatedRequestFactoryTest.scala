@@ -19,22 +19,20 @@
  */
 package org.openrepose.nodeservice.atomfeed.impl.auth
 
-import java.io.ByteArrayInputStream
 import java.net.URI
 
 import javax.servlet.http.HttpServletResponse._
-import javax.ws.rs.core.MediaType
+import org.apache.http.HttpVersion
 import org.apache.http.client.entity.EntityBuilder
-import org.apache.http.{Header, HttpVersion}
-import org.apache.http.client.methods.{HttpPost, HttpUriRequest}
-import org.apache.http.message.{BasicHeader, BasicHttpResponse}
+import org.apache.http.client.methods.{CloseableHttpResponse, HttpPost, HttpUriRequest}
+import org.apache.http.message.BasicHttpResponse
 import org.apache.http.protocol.HttpContext
 import org.junit.runner.RunWith
 import org.mockito.AdditionalMatchers._
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
+import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
 import org.openrepose.docs.repose.atom_feed_service.v1.{AtomFeedConfigType, OpenStackIdentityV2AuthenticationType}
 import org.openrepose.nodeservice.atomfeed.{AuthenticationRequestException, FeedReadRequest}
@@ -90,7 +88,9 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
       val responseEntity = EntityBuilder.create()
         .setBinary("access.token.id=test-token".getBytes)
         .build()
-      val response = new BasicHttpResponse(HttpVersion.HTTP_1_1, SC_OK, null)
+      val response = new BasicHttpResponse(HttpVersion.HTTP_1_1, SC_OK, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      }
       response.addHeader("ContentTypes", "text/plain")
       response.setEntity(responseEntity)
 
@@ -108,7 +108,9 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
       val responseEntity = EntityBuilder.create()
         .setBinary("BODY".getBytes)
         .build()
-      val response = new BasicHttpResponse(HttpVersion.HTTP_1_1, SC_FORBIDDEN, null)
+      val response = new BasicHttpResponse(HttpVersion.HTTP_1_1, SC_FORBIDDEN, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      }
       response.addHeader("ContentTypes", "text/plain")
       response.setEntity(responseEntity)
 
@@ -126,7 +128,9 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
       val responseEntity = EntityBuilder.create()
         .setBinary("""{"access":{"token":{"id":"test-token"}}}""".getBytes)
         .build()
-      val response = new BasicHttpResponse(HttpVersion.HTTP_1_1, SC_OK, null)
+      val response = new BasicHttpResponse(HttpVersion.HTTP_1_1, SC_OK, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      }
       response.addHeader("ContentTypes", "application/json")
       response.setEntity(responseEntity)
 
@@ -144,7 +148,9 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
         val responseEntity = EntityBuilder.create()
           .setBinary("""{"access":{"token":{"id":"test-token"}}}""".getBytes)
           .build()
-        val response = new BasicHttpResponse(HttpVersion.HTTP_1_1, SC_OK, null)
+        val response = new BasicHttpResponse(HttpVersion.HTTP_1_1, SC_OK, null) with CloseableHttpResponse {
+          override def close(): Unit = {}
+        }
         response.addHeader("ContentTypes", "application/json")
         response.setEntity(responseEntity)
 
