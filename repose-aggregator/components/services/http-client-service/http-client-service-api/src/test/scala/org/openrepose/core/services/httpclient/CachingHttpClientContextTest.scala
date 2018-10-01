@@ -57,68 +57,38 @@ class CachingHttpClientContextTest extends FunSpec with Matchers {
     }
   }
 
-  describe("getUseCache") {
-    it("should return the value of the use cache attribute") {
+  describe("useCache") {
+    it("should set and return the value of the use cache attribute") {
       val useCache = false
-      val context = CachingHttpClientContext.create()
 
-      context.setAttribute(CachingHttpClientContext.CACHE_USE, useCache)
+      val context = CachingHttpClientContext.create()
+        .setUseCache(useCache)
 
       context.getUseCache shouldEqual useCache
-    }
-  }
-
-  describe("setUseCache") {
-    it("should set the value of the use cache attribute") {
-      val useCache = false
-      val context = CachingHttpClientContext.create()
-
-      context.setUseCache(useCache)
-
       context.getAttribute(CachingHttpClientContext.CACHE_USE) shouldEqual useCache
     }
   }
 
-  describe("getCacheKey") {
-    it("should return the value of the cache key attribute") {
+  describe("cacheKey") {
+    it("should set and return the value of the cache key attribute") {
       val cacheKey = "testKey"
-      val context = CachingHttpClientContext.create()
 
-      context.setAttribute(CachingHttpClientContext.CACHE_KEY, cacheKey)
+      val context = CachingHttpClientContext.create()
+        .setCacheKey(cacheKey)
 
       context.getCacheKey shouldEqual cacheKey
-    }
-  }
-
-  describe("setCacheKey") {
-    it("should set the value of the cache key attribute") {
-      val cacheKey = "testKey"
-      val context = CachingHttpClientContext.create()
-
-      context.setCacheKey(cacheKey)
-
       context.getAttribute(CachingHttpClientContext.CACHE_KEY) shouldEqual cacheKey
     }
   }
 
-  describe("getForceRefreshCache") {
-    it("should return the value of the force refresh cache attribute") {
+  describe("forceRefreshCache") {
+    it("should set and return the value of the force refresh cache attribute") {
       val forceRefresh = true
-      val context = CachingHttpClientContext.create()
 
-      context.setAttribute(CachingHttpClientContext.CACHE_FORCE_REFRESH, forceRefresh)
+      val context = CachingHttpClientContext.create()
+        .setForceRefreshCache(forceRefresh)
 
       context.getForceRefreshCache shouldEqual forceRefresh
-    }
-  }
-
-  describe("setForceRefreshCache") {
-    it("should set the value of the force refresh cache attribute") {
-      val forceRefresh = true
-      val context = CachingHttpClientContext.create()
-
-      context.setForceRefreshCache(forceRefresh)
-
       context.getAttribute(CachingHttpClientContext.CACHE_FORCE_REFRESH) shouldEqual forceRefresh
     }
   }

@@ -75,23 +75,26 @@ public class CachingHttpClientContext extends HttpClientContext {
         return getAttribute(CACHE_USE, Boolean.class);
     }
 
-    public void setUseCache(Boolean useCache) {
+    public CachingHttpClientContext setUseCache(Boolean useCache) {
         setAttribute(CACHE_USE, useCache);
+        return this;
     }
 
     public String getCacheKey() {
         return getAttribute(CACHE_KEY, String.class);
     }
 
-    public void setCacheKey(String cacheKey) {
+    public CachingHttpClientContext setCacheKey(String cacheKey) {
         setAttribute(CACHE_KEY, cacheKey);
+        return this;
     }
 
     public Boolean getForceRefreshCache() {
         return getAttribute(CACHE_FORCE_REFRESH, Boolean.class);
     }
 
-    public void setForceRefreshCache(Boolean forceRefreshCache) {
+    public CachingHttpClientContext setForceRefreshCache(Boolean forceRefreshCache) {
         setAttribute(CACHE_FORCE_REFRESH, forceRefreshCache);
+        return this;
     }
 }
