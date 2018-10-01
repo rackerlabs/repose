@@ -22,12 +22,10 @@ package org.openrepose.core.services.httpclient;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 
@@ -44,109 +42,22 @@ import java.util.UUID;
  * Since the client is acquired for each request, it is effectively a single-use client.
  * In addition to providing an up-to-date HTTP client, this also ensures that connections are not leaked.
  * <p>
- * Extends {@link HttpClient} to provide a friendly, familiar API.
+ * Extends {@link CloseableHttpClient} to provide a friendly, familiar, and full-featured API.
  */
 @RequiredArgsConstructor
-public class HttpClientServiceClient implements HttpClient {
+public class HttpClientServiceClient extends CloseableHttpClient {
 
     private final InternalHttpClientService httpClientService;
     private final HttpClientUserManager httpClientUserManager;
     private final String clientId;
 
-    /*
-     * Delegating execution methods that have been enhanced to manage usage.
-     */
     @Override
-    public HttpResponse execute(HttpHost target, HttpRequest request, HttpContext context) throws IOException, ClientProtocolException {
+    protected CloseableHttpResponse doExecute(HttpHost target, HttpRequest request, HttpContext context) throws IOException, ClientProtocolException {
         InternalHttpClient internalHttpClient = httpClientService.getInternalClient(clientId);
         String userId = UUID.randomUUID().toString();
         httpClientUserManager.registerUser(internalHttpClient.getInstanceId(), userId);
         try {
             return internalHttpClient.getClient().execute(target, request, context);
-        } finally {
-            httpClientUserManager.deregisterUser(internalHttpClient.getInstanceId(), userId);
-        }
-    }
-
-    @Override
-    public HttpResponse execute(HttpUriRequest request, HttpContext context) throws IOException, ClientProtocolException {
-        InternalHttpClient internalHttpClient = httpClientService.getInternalClient(clientId);
-        String userId = UUID.randomUUID().toString();
-        httpClientUserManager.registerUser(internalHttpClient.getInstanceId(), userId);
-        try {
-            return internalHttpClient.getClient().execute(request, context);
-        } finally {
-            httpClientUserManager.deregisterUser(internalHttpClient.getInstanceId(), userId);
-        }
-    }
-
-    @Override
-    public HttpResponse execute(HttpUriRequest request) throws IOException, ClientProtocolException {
-        InternalHttpClient internalHttpClient = httpClientService.getInternalClient(clientId);
-        String userId = UUID.randomUUID().toString();
-        httpClientUserManager.registerUser(internalHttpClient.getInstanceId(), userId);
-        try {
-            return internalHttpClient.getClient().execute(request);
-        } finally {
-            httpClientUserManager.deregisterUser(internalHttpClient.getInstanceId(), userId);
-        }
-    }
-
-    @Override
-    public HttpResponse execute(HttpHost target, HttpRequest request) throws IOException, ClientProtocolException {
-        InternalHttpClient internalHttpClient = httpClientService.getInternalClient(clientId);
-        String userId = UUID.randomUUID().toString();
-        httpClientUserManager.registerUser(internalHttpClient.getInstanceId(), userId);
-        try {
-            return internalHttpClient.getClient().execute(target, request);
-        } finally {
-            httpClientUserManager.deregisterUser(internalHttpClient.getInstanceId(), userId);
-        }
-    }
-
-    @Override
-    public <T> T execute(HttpUriRequest request, ResponseHandler<? extends T> responseHandler) throws IOException, ClientProtocolException {
-        InternalHttpClient internalHttpClient = httpClientService.getInternalClient(clientId);
-        String userId = UUID.randomUUID().toString();
-        httpClientUserManager.registerUser(internalHttpClient.getInstanceId(), userId);
-        try {
-            return internalHttpClient.getClient().execute(request, responseHandler);
-        } finally {
-            httpClientUserManager.deregisterUser(internalHttpClient.getInstanceId(), userId);
-        }
-    }
-
-    @Override
-    public <T> T execute(HttpUriRequest request, ResponseHandler<? extends T> responseHandler, HttpContext context) throws IOException, ClientProtocolException {
-        InternalHttpClient internalHttpClient = httpClientService.getInternalClient(clientId);
-        String userId = UUID.randomUUID().toString();
-        httpClientUserManager.registerUser(internalHttpClient.getInstanceId(), userId);
-        try {
-            return internalHttpClient.getClient().execute(request, responseHandler, context);
-        } finally {
-            httpClientUserManager.deregisterUser(internalHttpClient.getInstanceId(), userId);
-        }
-    }
-
-    @Override
-    public <T> T execute(HttpHost target, HttpRequest request, ResponseHandler<? extends T> responseHandler) throws IOException, ClientProtocolException {
-        InternalHttpClient internalHttpClient = httpClientService.getInternalClient(clientId);
-        String userId = UUID.randomUUID().toString();
-        httpClientUserManager.registerUser(internalHttpClient.getInstanceId(), userId);
-        try {
-            return internalHttpClient.getClient().execute(target, request, responseHandler);
-        } finally {
-            httpClientUserManager.deregisterUser(internalHttpClient.getInstanceId(), userId);
-        }
-    }
-
-    @Override
-    public <T> T execute(HttpHost target, HttpRequest request, ResponseHandler<? extends T> responseHandler, HttpContext context) throws IOException, ClientProtocolException {
-        InternalHttpClient internalHttpClient = httpClientService.getInternalClient(clientId);
-        String userId = UUID.randomUUID().toString();
-        httpClientUserManager.registerUser(internalHttpClient.getInstanceId(), userId);
-        try {
-            return internalHttpClient.getClient().execute(target, request, responseHandler, context);
         } finally {
             httpClientUserManager.deregisterUser(internalHttpClient.getInstanceId(), userId);
         }
@@ -162,5 +73,11 @@ public class HttpClientServiceClient implements HttpClient {
     @Deprecated
     public ClientConnectionManager getConnectionManager() {
         return httpClientService.getInternalClient(clientId).getClient().getConnectionManager();
+    }
+
+    @Override
+    public void close() throws IOException {
+        // Intentional no-op to prevent the end-user from closing the HTTP client
+        // since the HTTP client lifecycle is being managed by the HTTP client service.
     }
 }

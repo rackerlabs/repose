@@ -22,7 +22,7 @@ package org.openrepose.core.services.httpclient
 import java.io.IOException
 import java.util.UUID
 
-import org.apache.http.client.methods.{CloseableHttpResponse, HttpUriRequest}
+import org.apache.http.client.methods.{CloseableHttpResponse, RequestBuilder}
 import org.apache.http.client.{ClientProtocolException, ResponseHandler}
 import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.protocol.HttpContext
@@ -63,53 +63,62 @@ class HttpClientServiceClientTest extends FunSpec with BeforeAndAfterEach with M
 
   describe("execute") {
     it("should delegate request to the wrapped client") {
-      val request = mock[HttpUriRequest]
+      val request = RequestBuilder.get("localhost").build()
 
-      when(httpClient.execute(any[HttpUriRequest])).thenReturn(httpResponse)
+      when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext])).thenReturn(httpResponse)
 
       val response = httpClientServiceClient.execute(request)
 
       verify(internalHttpClientService).getInternalClient(clientId)
       verify(httpClientUserManager).registerUser(isEq(internalHttpClient.getInstanceId), any[String])
-      verify(httpClient).execute(request)
+      verify(httpClient).execute(
+        any[HttpHost],
+        isEq(request),
+        any[HttpContext])
       verify(httpClientUserManager).deregisterUser(isEq(internalHttpClient.getInstanceId), any[String])
       response shouldBe httpResponse
     }
 
     it("should delegate request and context to the wrapped client") {
-      val request = mock[HttpUriRequest]
-      val context = mock[HttpContext]
+      val request = RequestBuilder.get("localhost").build()
+      val context = CachingHttpClientContext.create()
 
-      when(httpClient.execute(any[HttpUriRequest], any[HttpContext])).thenReturn(httpResponse)
+      when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext])).thenReturn(httpResponse)
 
       val response = httpClientServiceClient.execute(request, context)
 
       verify(internalHttpClientService).getInternalClient(clientId)
       verify(httpClientUserManager).registerUser(isEq(internalHttpClient.getInstanceId), any[String])
-      verify(httpClient).execute(request, context)
+      verify(httpClient).execute(
+        any[HttpHost],
+        isEq(request),
+        any[HttpContext])
       verify(httpClientUserManager).deregisterUser(isEq(internalHttpClient.getInstanceId), any[String])
       response shouldBe httpResponse
     }
 
     it("should delegate target and request to the wrapped client") {
       val target = HttpHost.create("localhost")
-      val request = mock[HttpRequest]
+      val request = RequestBuilder.get("localhost").build()
 
-      when(httpClient.execute(any[HttpHost], any[HttpRequest])).thenReturn(httpResponse)
+      when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext])).thenReturn(httpResponse)
 
       val response = httpClientServiceClient.execute(target, request)
 
       verify(internalHttpClientService).getInternalClient(clientId)
       verify(httpClientUserManager).registerUser(isEq(internalHttpClient.getInstanceId), any[String])
-      verify(httpClient).execute(target, request)
+      verify(httpClient).execute(
+        any[HttpHost],
+        isEq(request),
+        any[HttpContext])
       verify(httpClientUserManager).deregisterUser(isEq(internalHttpClient.getInstanceId), any[String])
       response shouldBe httpResponse
     }
 
     it("should delegate target, request, and context to the wrapped client") {
       val target = HttpHost.create("localhost")
-      val request = mock[HttpRequest]
-      val context = mock[HttpContext]
+      val request = RequestBuilder.get("localhost").build()
+      val context = CachingHttpClientContext.create()
 
       when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext])).thenReturn(httpResponse)
 
@@ -117,71 +126,94 @@ class HttpClientServiceClientTest extends FunSpec with BeforeAndAfterEach with M
 
       verify(internalHttpClientService).getInternalClient(clientId)
       verify(httpClientUserManager).registerUser(isEq(internalHttpClient.getInstanceId), any[String])
-      verify(httpClient).execute(target, request, context)
+      verify(httpClient).execute(
+        any[HttpHost],
+        isEq(request),
+        any[HttpContext])
       verify(httpClientUserManager).deregisterUser(isEq(internalHttpClient.getInstanceId), any[String])
       response shouldBe httpResponse
     }
 
     it("should delegate request and response handler to the wrapped client") {
-      val request = mock[HttpUriRequest]
-      val responseHandler = mock[ResponseHandler[HttpResponse]]
+      val request = RequestBuilder.get("localhost").build()
+      val responseHandler = new ResponseHandler[CloseableHttpResponse] {
+        override def handleResponse(response: HttpResponse): CloseableHttpResponse = response.asInstanceOf[CloseableHttpResponse]
+      }
 
-      when(httpClient.execute(any[HttpUriRequest], any[ResponseHandler[HttpResponse]])).thenReturn(httpResponse)
+      when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext])).thenReturn(httpResponse)
 
       val response = httpClientServiceClient.execute(request, responseHandler)
 
       verify(internalHttpClientService).getInternalClient(clientId)
       verify(httpClientUserManager).registerUser(isEq(internalHttpClient.getInstanceId), any[String])
-      verify(httpClient).execute(request, responseHandler)
+      verify(httpClient).execute(
+        any[HttpHost],
+        isEq(request),
+        any[HttpContext])
       verify(httpClientUserManager).deregisterUser(isEq(internalHttpClient.getInstanceId), any[String])
       response shouldBe httpResponse
     }
 
     it("should delegate request, response handler, and context to the wrapped client") {
-      val request = mock[HttpUriRequest]
-      val responseHandler = mock[ResponseHandler[HttpResponse]]
-      val context = mock[HttpContext]
+      val request = RequestBuilder.get("localhost").build()
+      val context = CachingHttpClientContext.create()
+      val responseHandler = new ResponseHandler[CloseableHttpResponse] {
+        override def handleResponse(response: HttpResponse): CloseableHttpResponse = response.asInstanceOf[CloseableHttpResponse]
+      }
 
-      when(httpClient.execute(any[HttpUriRequest], any[ResponseHandler[HttpResponse]], any[HttpContext])).thenReturn(httpResponse)
+      when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext])).thenReturn(httpResponse)
 
       val response = httpClientServiceClient.execute(request, responseHandler, context)
 
       verify(internalHttpClientService).getInternalClient(clientId)
       verify(httpClientUserManager).registerUser(isEq(internalHttpClient.getInstanceId), any[String])
-      verify(httpClient).execute(request, responseHandler, context)
+      verify(httpClient).execute(
+        any[HttpHost],
+        isEq(request),
+        any[HttpContext])
       verify(httpClientUserManager).deregisterUser(isEq(internalHttpClient.getInstanceId), any[String])
       response shouldBe httpResponse
     }
 
     it("should delegate target, request, and response handler to the wrapped client") {
       val target = HttpHost.create("localhost")
-      val request = mock[HttpRequest]
-      val responseHandler = mock[ResponseHandler[HttpResponse]]
+      val request = RequestBuilder.get().build()
+      val responseHandler = new ResponseHandler[CloseableHttpResponse] {
+        override def handleResponse(response: HttpResponse): CloseableHttpResponse = response.asInstanceOf[CloseableHttpResponse]
+      }
 
-      when(httpClient.execute(any[HttpHost], any[HttpRequest], any[ResponseHandler[HttpResponse]])).thenReturn(httpResponse)
+      when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext])).thenReturn(httpResponse)
 
       val response = httpClientServiceClient.execute(target, request, responseHandler)
 
       verify(internalHttpClientService).getInternalClient(clientId)
       verify(httpClientUserManager).registerUser(isEq(internalHttpClient.getInstanceId), any[String])
-      verify(httpClient).execute(target, request, responseHandler)
+      verify(httpClient).execute(
+        any[HttpHost],
+        isEq(request),
+        any[HttpContext])
       verify(httpClientUserManager).deregisterUser(isEq(internalHttpClient.getInstanceId), any[String])
       response shouldBe httpResponse
     }
 
     it("should delegate target, request, response handler, and context to the wrapped client") {
       val target = HttpHost.create("localhost")
-      val request = mock[HttpRequest]
-      val responseHandler = mock[ResponseHandler[HttpResponse]]
-      val context = mock[HttpContext]
+      val request = RequestBuilder.get().build()
+      val context = CachingHttpClientContext.create()
+      val responseHandler = new ResponseHandler[CloseableHttpResponse] {
+        override def handleResponse(response: HttpResponse): CloseableHttpResponse = response.asInstanceOf[CloseableHttpResponse]
+      }
 
-      when(httpClient.execute(any[HttpHost], any[HttpRequest], any[ResponseHandler[HttpResponse]], any[HttpContext])).thenReturn(httpResponse)
+      when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext])).thenReturn(httpResponse)
 
       val response = httpClientServiceClient.execute(target, request, responseHandler, context)
 
       verify(internalHttpClientService).getInternalClient(clientId)
       verify(httpClientUserManager).registerUser(isEq(internalHttpClient.getInstanceId), any[String])
-      verify(httpClient).execute(target, request, responseHandler, context)
+      verify(httpClient).execute(
+        any[HttpHost],
+        isEq(request),
+        any[HttpContext])
       verify(httpClientUserManager).deregisterUser(isEq(internalHttpClient.getInstanceId), any[String])
       response shouldBe httpResponse
     }
@@ -192,50 +224,59 @@ class HttpClientServiceClientTest extends FunSpec with BeforeAndAfterEach with M
       new RuntimeException()
     ).foreach { exception =>
       it(s"should remove the user when an ${exception.getClass.getSimpleName} is thrown on execute request") {
-        val request = mock[HttpUriRequest]
+        val request = RequestBuilder.get("localhost").build()
 
-        when(httpClient.execute(any[HttpUriRequest])).thenThrow(exception)
+        when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext])).thenThrow(exception)
 
         an[exception.type] should be thrownBy httpClientServiceClient.execute(request)
 
         verify(internalHttpClientService).getInternalClient(clientId)
         verify(httpClientUserManager).registerUser(isEq(internalHttpClient.getInstanceId), any[String])
-        verify(httpClient).execute(request)
+        verify(httpClient).execute(
+          any[HttpHost],
+          isEq(request),
+          any[HttpContext])
         verify(httpClientUserManager).deregisterUser(isEq(internalHttpClient.getInstanceId), any[String])
       }
 
       it(s"should remove the user when an ${exception.getClass.getSimpleName} is thrown on execute request and context") {
-        val request = mock[HttpUriRequest]
-        val context = mock[HttpContext]
+        val request = RequestBuilder.get("localhost").build()
+        val context = CachingHttpClientContext.create()
 
-        when(httpClient.execute(any[HttpUriRequest], any[HttpContext])).thenThrow(exception)
+        when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext])).thenThrow(exception)
 
         an[exception.type] should be thrownBy httpClientServiceClient.execute(request, context)
 
         verify(internalHttpClientService).getInternalClient(clientId)
         verify(httpClientUserManager).registerUser(isEq(internalHttpClient.getInstanceId), any[String])
-        verify(httpClient).execute(request, context)
+        verify(httpClient).execute(
+          any[HttpHost],
+          isEq(request),
+          any[HttpContext])
         verify(httpClientUserManager).deregisterUser(isEq(internalHttpClient.getInstanceId), any[String])
       }
 
       it(s"should remove the user when an ${exception.getClass.getSimpleName} is thrown on execute target and request") {
         val target = HttpHost.create("localhost")
-        val request = mock[HttpRequest]
+        val request = RequestBuilder.get().build()
 
-        when(httpClient.execute(any[HttpHost], any[HttpRequest])).thenThrow(exception)
+        when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext])).thenThrow(exception)
 
         an[exception.type] should be thrownBy httpClientServiceClient.execute(target, request)
 
         verify(internalHttpClientService).getInternalClient(clientId)
         verify(httpClientUserManager).registerUser(isEq(internalHttpClient.getInstanceId), any[String])
-        verify(httpClient).execute(target, request)
+        verify(httpClient).execute(
+          any[HttpHost],
+          isEq(request),
+          any[HttpContext])
         verify(httpClientUserManager).deregisterUser(isEq(internalHttpClient.getInstanceId), any[String])
       }
 
       it(s"should remove the user when an ${exception.getClass.getSimpleName} is thrown on execute target, request, and context") {
         val target = HttpHost.create("localhost")
-        val request = mock[HttpRequest]
-        val context = mock[HttpContext]
+        val request = RequestBuilder.get().build()
+        val context = CachingHttpClientContext.create()
 
         when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext])).thenThrow(exception)
 
@@ -243,67 +284,90 @@ class HttpClientServiceClientTest extends FunSpec with BeforeAndAfterEach with M
 
         verify(internalHttpClientService).getInternalClient(clientId)
         verify(httpClientUserManager).registerUser(isEq(internalHttpClient.getInstanceId), any[String])
-        verify(httpClient).execute(target, request, context)
+        verify(httpClient).execute(
+          any[HttpHost],
+          isEq(request),
+          any[HttpContext])
         verify(httpClientUserManager).deregisterUser(isEq(internalHttpClient.getInstanceId), any[String])
       }
 
       it(s"should remove the user when an ${exception.getClass.getSimpleName} is thrown on execute request and response handler") {
-        val request = mock[HttpUriRequest]
-        val responseHandler = mock[ResponseHandler[_]]
+        val request = RequestBuilder.get("localhost").build()
+        val responseHandler = new ResponseHandler[CloseableHttpResponse] {
+          override def handleResponse(response: HttpResponse): CloseableHttpResponse = response.asInstanceOf[CloseableHttpResponse]
+        }
 
-        when(httpClient.execute(any[HttpUriRequest], any[ResponseHandler[_]])).thenThrow(exception)
+        when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext])).thenThrow(exception)
 
         an[exception.type] should be thrownBy httpClientServiceClient.execute(request, responseHandler)
 
         verify(internalHttpClientService).getInternalClient(clientId)
         verify(httpClientUserManager).registerUser(isEq(internalHttpClient.getInstanceId), any[String])
-        verify(httpClient).execute(request, responseHandler)
+        verify(httpClient).execute(
+          any[HttpHost],
+          isEq(request),
+          any[HttpContext])
         verify(httpClientUserManager).deregisterUser(isEq(internalHttpClient.getInstanceId), any[String])
       }
 
       it(s"should remove the user when an ${exception.getClass.getSimpleName} is thrown on execute request, response handler, and context") {
-        val request = mock[HttpUriRequest]
-        val responseHandler = mock[ResponseHandler[_]]
-        val context = mock[HttpContext]
+        val request = RequestBuilder.get("localhost").build()
+        val context = CachingHttpClientContext.create()
+        val responseHandler = new ResponseHandler[CloseableHttpResponse] {
+          override def handleResponse(response: HttpResponse): CloseableHttpResponse = response.asInstanceOf[CloseableHttpResponse]
+        }
 
-        when(httpClient.execute(any[HttpUriRequest], any[ResponseHandler[_]], any[HttpContext])).thenThrow(exception)
+        when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext])).thenThrow(exception)
 
         an[exception.type] should be thrownBy httpClientServiceClient.execute(request, responseHandler, context)
 
         verify(internalHttpClientService).getInternalClient(clientId)
         verify(httpClientUserManager).registerUser(isEq(internalHttpClient.getInstanceId), any[String])
-        verify(httpClient).execute(request, responseHandler, context)
+        verify(httpClient).execute(
+          any[HttpHost],
+          isEq(request),
+          any[HttpContext])
         verify(httpClientUserManager).deregisterUser(isEq(internalHttpClient.getInstanceId), any[String])
       }
 
       it(s"should remove the user when an ${exception.getClass.getSimpleName} is thrown on execute target, request, and response handler") {
         val target = HttpHost.create("localhost")
-        val request = mock[HttpRequest]
-        val responseHandler = mock[ResponseHandler[_]]
+        val request = RequestBuilder.get().build()
+        val responseHandler = new ResponseHandler[CloseableHttpResponse] {
+          override def handleResponse(response: HttpResponse): CloseableHttpResponse = response.asInstanceOf[CloseableHttpResponse]
+        }
 
-        when(httpClient.execute(any[HttpHost], any[HttpRequest], any[ResponseHandler[_]])).thenThrow(exception)
+        when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext])).thenThrow(exception)
 
         an[exception.type] should be thrownBy httpClientServiceClient.execute(target, request, responseHandler)
 
         verify(internalHttpClientService).getInternalClient(clientId)
         verify(httpClientUserManager).registerUser(isEq(internalHttpClient.getInstanceId), any[String])
-        verify(httpClient).execute(target, request, responseHandler)
+        verify(httpClient).execute(
+          any[HttpHost],
+          isEq(request),
+          any[HttpContext])
         verify(httpClientUserManager).deregisterUser(isEq(internalHttpClient.getInstanceId), any[String])
       }
 
       it(s"should remove the user when an ${exception.getClass.getSimpleName} is thrown on execute target, request, response handler, and context") {
         val target = HttpHost.create("localhost")
-        val request = mock[HttpRequest]
-        val responseHandler = mock[ResponseHandler[_]]
-        val context = mock[HttpContext]
+        val request = RequestBuilder.get().build()
+        val context = CachingHttpClientContext.create()
+        val responseHandler = new ResponseHandler[CloseableHttpResponse] {
+          override def handleResponse(response: HttpResponse): CloseableHttpResponse = response.asInstanceOf[CloseableHttpResponse]
+        }
 
-        when(httpClient.execute(any[HttpHost], any[HttpRequest], any[ResponseHandler[_]], any[HttpContext])).thenThrow(exception)
+        when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext])).thenThrow(exception)
 
         an[exception.type] should be thrownBy httpClientServiceClient.execute(target, request, responseHandler, context)
 
         verify(internalHttpClientService).getInternalClient(clientId)
         verify(httpClientUserManager).registerUser(isEq(internalHttpClient.getInstanceId), any[String])
-        verify(httpClient).execute(target, request, responseHandler, context)
+        verify(httpClient).execute(
+          any[HttpHost],
+          isEq(request),
+          any[HttpContext])
         verify(httpClientUserManager).deregisterUser(isEq(internalHttpClient.getInstanceId), any[String])
       }
     }
