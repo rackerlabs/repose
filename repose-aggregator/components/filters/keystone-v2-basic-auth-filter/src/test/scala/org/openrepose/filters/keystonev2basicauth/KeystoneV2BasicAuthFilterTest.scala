@@ -21,7 +21,6 @@ package org.openrepose.filters.keystonev2basicauth
 
 import javax.servlet.{FilterChain, FilterConfig}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
@@ -34,7 +33,7 @@ import org.openrepose.commons.utils.servlet.filter.FilterAction
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
+import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
 import org.openrepose.filters.keystonev2basicauth.config.KeystoneV2BasicAuthConfig
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
@@ -50,8 +49,8 @@ class KeystoneV2BasicAuthFilterTest extends FunSpec with BeforeAndAfterEach with
   var filterChain: FilterChain = _
   var mockDatastore: Datastore = _
   var mockDatastoreService: DatastoreService = _
-  var mockAkkaServiceClient: AkkaServiceClient = _
-  var mockAkkaServiceClientFactory: AkkaServiceClientFactory = _
+  var mockHttpClientService: HttpClientService = _
+  var mockHttpClient: HttpClientServiceClient = _
   var mockConfigService: ConfigurationService = _
   var config: KeystoneV2BasicAuthConfig = _
   var filter: KeystoneV2BasicAuthFilter = _
@@ -62,15 +61,15 @@ class KeystoneV2BasicAuthFilterTest extends FunSpec with BeforeAndAfterEach with
     filterChain = mock[FilterChain]
     mockDatastore = mock[Datastore]
     mockDatastoreService = mock[DatastoreService]
-    mockAkkaServiceClient = mock[AkkaServiceClient]
-    mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+    mockHttpClientService = mock[HttpClientService]
+    mockHttpClient = mock[HttpClientServiceClient]
     mockConfigService = mock[ConfigurationService]
     config = new KeystoneV2BasicAuthConfig
-    filter = new KeystoneV2BasicAuthFilter(mockConfigService, mockAkkaServiceClientFactory, mockDatastoreService)
+    filter = new KeystoneV2BasicAuthFilter(mockConfigService, mockHttpClientService, mockDatastoreService)
 
     when(mockDatastore.get(anyString)).thenReturn(null, Nil: _*)
     when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
-    when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
+    when(mockHttpClientService.getClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockHttpClient)
   }
 
   describe("the init method") {
@@ -96,11 +95,11 @@ class KeystoneV2BasicAuthFilterTest extends FunSpec with BeforeAndAfterEach with
       assert(filter.isInitialized)
     }
 
-    it("should destroy the previous akka service client") {
+    it("should obtain a client to use") {
       // given: two different clients will be returned on subsequent calls to the factory to create new instances
-      val firstAkkaServiceClient = mock[AkkaServiceClient]
-      val secondAkkaServiceClient = mock[AkkaServiceClient]
-      when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String])))
+      val firstAkkaServiceClient = mock[HttpClientServiceClient]
+      val secondAkkaServiceClient = mock[HttpClientServiceClient]
+      when(mockHttpClientService.getClient(or(anyString(), isNull.asInstanceOf[String])))
         .thenReturn(firstAkkaServiceClient)
         .thenReturn(secondAkkaServiceClient)
 
@@ -108,10 +107,8 @@ class KeystoneV2BasicAuthFilterTest extends FunSpec with BeforeAndAfterEach with
       filter.configurationUpdated(config)
       filter.configurationUpdated(config)
 
-      // then: the factory is used twice, and the previous client is destroyed
-      verify(mockAkkaServiceClientFactory, times(2)).newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))
-      verify(firstAkkaServiceClient, times(1)).destroy()
-      verify(secondAkkaServiceClient, never()).destroy()
+      // then: the service is used twice
+      verify(mockHttpClientService, times(2)).getClient(or(anyString(), isNull.asInstanceOf[String]))
     }
   }
 
@@ -164,19 +161,6 @@ class KeystoneV2BasicAuthFilterTest extends FunSpec with BeforeAndAfterEach with
       // then: "the filter's response status code should be No Content (204)"
       filterAction should not be FilterAction.NOT_SET
       mockServletResponse.getStatus shouldBe HttpServletResponse.SC_NO_CONTENT
-    }
-  }
-
-  describe("when destroying the filter") {
-    it("should destroy the akka service client") {
-      // given: the akka service client exists
-      filter.configurationUpdated(config)
-
-      // when: the filter is destroyed
-      filter.destroy()
-
-      // then: the akka service client is destroyed, too
-      verify(mockAkkaServiceClient).destroy()
     }
   }
 }

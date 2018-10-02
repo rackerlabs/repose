@@ -28,8 +28,12 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.ws.rs.core.{HttpHeaders, MediaType}
+import javax.ws.rs.core.HttpHeaders
 import org.apache.commons.lang3.StringUtils
+import org.apache.http.client.entity.EntityBuilder
+import org.apache.http.client.methods.RequestBuilder
+import org.apache.http.entity.ContentType
+import org.apache.http.util.EntityUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate}
 import org.openrepose.commons.utils.servlet.filter.FilterAction
@@ -37,16 +41,16 @@ import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
+import org.openrepose.core.services.httpclient.{CachingHttpClientContext, HttpClientService, HttpClientServiceClient}
 import org.openrepose.filters.keystonev2basicauth.config.{KeystoneV2BasicAuthConfig, SecretType}
 
-import scala.collection.JavaConverters._
-import scala.io.Source
+import scala.Function.tupled
+import scala.util.Try
 import scala.xml.XML
 
 @Named
 class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationService,
-                                          akkaServiceClientFactory: AkkaServiceClientFactory,
+                                          httpClientService: HttpClientService,
                                           datastoreService: DatastoreService)
   extends Filter
     with UpdateListener[KeystoneV2BasicAuthConfig]
@@ -66,7 +70,7 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
   private var tokenCacheTtlMillis: Int = _
   private var delegationWithQuality: Option[Double] = _
   private var secretType: SecretType = _
-  private var akkaServiceClient: AkkaServiceClient = _
+  private var httpClient: HttpClientServiceClient = _
 
   override def init(filterConfig: FilterConfig) {
     config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
@@ -88,9 +92,7 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
     delegationWithQuality = Option(config.getDelegating).map(_.getQuality)
     secretType = config.getSecretType
 
-    val akkaServiceClientOld = Option(akkaServiceClient)
-    akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(config.getConnectionPoolId)
-    akkaServiceClientOld.foreach(_.destroy())
+    httpClient = httpClientService.getClient(config.getConnectionPoolId)
 
     initialized = true
   }
@@ -211,37 +213,41 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
       } else {
         // Request a User Token based on the extracted username/secret
         val requestTracingHeader = Option(httpServletRequestWrapper.getHeader(CommonHttpHeader.TRACE_GUID))
-          .map(guid => Map(CommonHttpHeader.TRACE_GUID -> guid)).getOrElse(Map())
-        val authTokenResponse = Option(akkaServiceClient.post(authValue,
-          identityServiceUri + TOKEN_ENDPOINT,
-          requestTracingHeader.asJava,
-          createAuthRequest(authValue).toString(),
-          MediaType.APPLICATION_XML_TYPE))
+          .map(guid => Map(CommonHttpHeader.TRACE_GUID -> guid)).getOrElse(Map.empty)
 
-        authTokenResponse.map { tokenResponse =>
-          val statusCode = tokenResponse.getStatus
-          if (statusCode == HttpServletResponse.SC_OK) {
-            val xmlString = XML.loadString(Source.fromInputStream(tokenResponse.getData).mkString)
-            val idString = (xmlString \\ "access" \ "token" \ "@id").text
-            TokenCreationInfo(statusCode, Option(idString), userName)
-          } else {
-            val responseBody = Some(Source.fromInputStream(tokenResponse.getData).mkString)
-            //Figure out what our Retry Headers are, if identity returned us a rate limited response.
-            val retryHeaders: Option[String] = if (statusCode == HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | statusCode == SC_TOO_MANY_REQUESTS) {
-              // (413 | 429)
-              tokenResponse.getHeaders(HttpHeaders.RETRY_AFTER).asScala.headOption.orElse {
-                logger.info(s"Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: $statusCode")
+        val requestBody = EntityBuilder.create()
+          .setText(createAuthRequest(authValue).toString())
+          .setContentType(ContentType.APPLICATION_XML)
+          .build()
+        val requestBuilder = RequestBuilder.post(identityServiceUri + TOKEN_ENDPOINT)
+          .setEntity(requestBody)
+        requestTracingHeader.foreach(tupled(requestBuilder.addHeader))
+        val request = requestBuilder.build()
+
+        val cachingContext = CachingHttpClientContext.create()
+          .setCacheKey(authValue)
+
+        val tryResponse = Try(httpClient.execute(request, cachingContext))
+
+        tryResponse.map { response =>
+          val responseBody = EntityUtils.toString(response.getEntity)
+          response.getStatusLine.getStatusCode match {
+            case HttpServletResponse.SC_OK =>
+              val xmlString = XML.loadString(responseBody)
+              val idString = (xmlString \\ "access" \ "token" \ "@id").text
+              TokenCreationInfo(response.getStatusLine.getStatusCode, Option(idString), userName)
+            case HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
+              val retryHeaders = response.getHeaders(HttpHeaders.RETRY_AFTER).headOption.map(_.getValue).orElse {
+                logger.info(s"Missing ${HttpHeaders.RETRY_AFTER} header on Auth Response status code: ${response.getStatusLine.getStatusCode}")
                 val retryCalendar = new GregorianCalendar()
                 retryCalendar.add(Calendar.SECOND, 5)
                 Option(new HttpDate(retryCalendar.getTime).toRFC1123)
               }
-            } else {
-              //Retry headers are only set for 413 or 429
-              None
-            }
-            TokenCreationInfo(statusCode, None, userName, retryHeaders, responseBody)
+              TokenCreationInfo(response.getStatusLine.getStatusCode, None, userName, retryHeaders, Some(responseBody))
+            case _ =>
+              TokenCreationInfo(response.getStatusLine.getStatusCode, None, userName, None, Some(responseBody))
           }
-        } getOrElse {
+        }.getOrElse {
           TokenCreationInfo(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, None, userName)
         }
       }
@@ -301,7 +307,6 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
   }
 
   override def destroy() {
-    Option(akkaServiceClient).foreach(_.destroy())
     configurationService.unsubscribeFrom(config, this.asInstanceOf[UpdateListener[_]])
   }
 
