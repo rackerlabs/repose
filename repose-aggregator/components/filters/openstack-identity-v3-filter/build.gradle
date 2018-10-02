@@ -3,9 +3,9 @@ dependencies {
 
     compile project(":repose-aggregator:core:repose-core-api")
     compile project(":repose-aggregator:commons:commons-utilities")
-    compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-api")
     compile project(":repose-aggregator:components:services:datastore-service:datastore-service-api")
     compile project(":repose-aggregator:components:services:atom-feed-service:atom-feed-service-api")
+    compile project(':repose-aggregator:components:services:http-client-service:http-client-service-api')
     compile "org.scala-lang:scala-library"
     compile "org.scala-lang.modules:scala-xml_2.11"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
@@ -15,6 +15,8 @@ dependencies {
     compile "joda-time:joda-time"
     compile "org.joda:joda-convert"
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
+    compile "org.apache.httpcomponents:httpclient"
+    compile "org.apache.httpcomponents:httpcore"
 
     compileOnly "javax.servlet:javax.servlet-api"
     compileOnly "javax.inject:javax.inject"

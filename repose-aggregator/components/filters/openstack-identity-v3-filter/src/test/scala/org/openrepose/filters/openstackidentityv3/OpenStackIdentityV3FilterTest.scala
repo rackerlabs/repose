@@ -28,8 +28,7 @@ import org.mockito.{Matchers => MockitoMatchers}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.types.PatchableSet
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
-import org.openrepose.core.services.httpclient.HttpClientService
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
+import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityService, OpenstackIdentityV3Config}
 import org.openrepose.filters.openstackidentityv3.utilities.Cache._
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService}
@@ -42,8 +41,7 @@ class OpenStackIdentityV3FilterTest extends FunSpec with BeforeAndAfterEach with
 
   val mockConfigurationService = mock[ConfigurationService]
   val mockHttpClientService = mock[HttpClientService]
-  val mockAkkaServiceClient = mock[AkkaServiceClient]
-  val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+  val mockHttpClient = mock[HttpClientServiceClient]
   val mockDatastoreService = mock[DatastoreService]
   val mockDatastore = mock[Datastore]
   val mockAtomFeedService = mock[AtomFeedService]
@@ -61,12 +59,12 @@ class OpenStackIdentityV3FilterTest extends FunSpec with BeforeAndAfterEach with
 
   override def beforeEach() = {
     reset(mockConfigurationService)
-    reset(mockAkkaServiceClientFactory)
+    reset(mockHttpClientService)
     reset(mockDatastore)
     reset(mockAtomFeedService)
 
     when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
-    when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(MockitoMatchers.anyString(), MockitoMatchers.isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
+    when(mockHttpClientService.getClient(or(MockitoMatchers.anyString(), MockitoMatchers.isNull.asInstanceOf[String]))).thenReturn(mockHttpClient)
     when(mockAtomFeedService.registerListener(MockitoMatchers.eq(atomFeedIdOne), MockitoMatchers.any[AtomFeedListener]))
       .thenReturn(idPrefix + atomFeedIdOne)
     when(mockAtomFeedService.registerListener(MockitoMatchers.eq(atomFeedIdTwo), MockitoMatchers.any[AtomFeedListener]))
@@ -77,8 +75,7 @@ class OpenStackIdentityV3FilterTest extends FunSpec with BeforeAndAfterEach with
     filter = new OpenStackIdentityV3Filter(mockConfigurationService,
       mockDatastoreService,
       mockAtomFeedService,
-      mockHttpClientService,
-      mockAkkaServiceClientFactory)
+      mockHttpClientService)
   }
 
   describe("configurationUpdated") {
@@ -92,13 +89,13 @@ class OpenStackIdentityV3FilterTest extends FunSpec with BeforeAndAfterEach with
 
       filter.configurationUpdated(config)
 
-      verify(mockAkkaServiceClientFactory).newAkkaServiceClient(connectionPoolId)
+      verify(mockHttpClientService).getClient(connectionPoolId)
     }
 
-    it("should destroy the previous akka service client") {
-      val firstAkkaServiceClient = mock[AkkaServiceClient]
-      val secondAkkaServiceClient = mock[AkkaServiceClient]
-      when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(MockitoMatchers.anyString(), MockitoMatchers.isNull.asInstanceOf[String])))
+    it("should obtain a client client") {
+      val firstAkkaServiceClient = mock[HttpClientServiceClient]
+      val secondAkkaServiceClient = mock[HttpClientServiceClient]
+      when(mockHttpClientService.getClient(or(MockitoMatchers.anyString(), MockitoMatchers.isNull.asInstanceOf[String])))
         .thenReturn(firstAkkaServiceClient)
         .thenReturn(secondAkkaServiceClient)
 
@@ -110,23 +107,7 @@ class OpenStackIdentityV3FilterTest extends FunSpec with BeforeAndAfterEach with
       filter.configurationUpdated(config)
       filter.configurationUpdated(config)
 
-      verify(mockAkkaServiceClientFactory, times(2)).newAkkaServiceClient(or(MockitoMatchers.anyString(), MockitoMatchers.isNull.asInstanceOf[String]))
-      verify(firstAkkaServiceClient, times(1)).destroy()
-      verify(secondAkkaServiceClient, never()).destroy()
-    }
-  }
-
-  describe("destroy") {
-    it("should destroy the akka service client") {
-      val identityService = new OpenstackIdentityService()
-      identityService.setUri("")
-      val config = new OpenstackIdentityV3Config()
-      config.setOpenstackIdentityService(identityService)
-      filter.configurationUpdated(config)
-
-      filter.destroy()
-
-      verify(mockAkkaServiceClient).destroy()
+      verify(mockHttpClientService, times(2)).getClient(or(MockitoMatchers.anyString(), MockitoMatchers.isNull.asInstanceOf[String]))
     }
   }
 
