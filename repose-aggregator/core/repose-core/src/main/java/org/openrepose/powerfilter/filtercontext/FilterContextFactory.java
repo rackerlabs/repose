@@ -38,6 +38,8 @@ import javax.servlet.ServletException;
 import java.util.*;
 
 
+// @TODO: This class is OBE'd with REP-7231
+@Deprecated
 @Named
 public class FilterContextFactory {
 

@@ -94,6 +94,8 @@ import static org.openrepose.commons.utils.opentracing.ScopeHelper.startSpan;
  * TODO: this also needs to check the properties to make sure they exist before we start up like the empty servlet used
  * to do.
  */
+// @TODO: This class is OBE'd with REP-7231
+@Deprecated
 @Named("powerFilter")
 public class PowerFilter extends DelegatingFilterProxy {
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";

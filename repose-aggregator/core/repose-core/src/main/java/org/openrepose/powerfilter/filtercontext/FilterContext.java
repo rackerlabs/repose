@@ -29,6 +29,8 @@ import javax.servlet.Filter;
 /**
  * Holds information about a filter, the filter itself and the filter's application context.
  */
+// @TODO: This class is OBE'd with REP-7231
+@Deprecated
 public class FilterContext implements Destroyable {
 
     private final Filter filter;

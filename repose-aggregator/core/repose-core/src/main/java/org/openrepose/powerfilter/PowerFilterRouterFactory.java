@@ -39,6 +39,8 @@ import javax.inject.Named;
 import javax.servlet.ServletContext;
 import java.util.*;
 
+// @TODO: This class is OBE'd with REP-7231
+@Deprecated
 @Named
 public class PowerFilterRouterFactory {
 
