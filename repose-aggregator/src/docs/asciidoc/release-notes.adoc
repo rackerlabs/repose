@@ -4,6 +4,7 @@
 <<ver-9-upgrade-notes.adoc, Upgrade Notes>>
 
 * https://repose.atlassian.net/browse/REP-4992[REP-4922] - Removed ambiguous setting for chunked encoding options on <<services/http-connection-pool.adoc, HTTP Client/Connection Pool Service>>.
+* https://repose.atlassian.net/browse/REP-7201[REP-7201] - The Rackspace Auth User, SAML Policy Translation, and Attribute Mapping Policy Validation filters were removed and placed in their own bundle.
 
 == 8.10.0.0 (2018-08-27)
 * https://repose.atlassian.net/browse/REP-6969[REP-6969] - Added support for more expressive filter determination in the <<architecture/system-model.adoc#,System Model>> using boolean operators.
