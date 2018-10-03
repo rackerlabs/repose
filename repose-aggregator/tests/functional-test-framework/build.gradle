@@ -10,9 +10,6 @@ dependencies {
     compile 'javax.ws.rs:javax.ws.rs-api'
     compile 'joda-time:joda-time'
     compile 'org.linkedin:org.linkedin.util-groovy'
-    compile 'org.opensaml:opensaml-core'
-    compile 'org.opensaml:opensaml-saml-impl'
-    compile 'org.yaml:snakeyaml'
     compile 'org.apache.thrift:libthrift'
     compile 'io.jaegertracing:jaeger-core'
 }
