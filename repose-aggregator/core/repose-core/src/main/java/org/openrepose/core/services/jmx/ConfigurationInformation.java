@@ -56,6 +56,8 @@ public class ConfigurationInformation implements ConfigurationInformationMBean {
         this.configurationService = configurationService;
     }
 
+    // @TODO: There will be only one cluster after REP-7314
+    @Deprecated
     private String key(String clusterId, String nodeId) {
         return clusterId + "-" + nodeId;
     }
@@ -75,10 +77,23 @@ public class ConfigurationInformation implements ConfigurationInformationMBean {
         return data;
     }
 
+    // @TODO: There will be only one cluster after REP-7314
+    @Deprecated
     @Override
     @ManagedAttribute(description = "tells you if this node is ready")
     public boolean isNodeReady(String clusterId, String nodeId) {
         Boolean result = nodeStatus.get(key(clusterId, nodeId));
+        if (result == null) {
+            return false;
+        } else {
+            return result;
+        }
+    }
+
+    @Override
+    @ManagedAttribute(description = "tells you if this node is ready")
+    public boolean isNodeReady(String nodeId) {
+        Boolean result = nodeStatus.get(nodeId);
         if (result == null) {
             return false;
         } else {
@@ -93,8 +108,20 @@ public class ConfigurationInformation implements ConfigurationInformationMBean {
      * @param nodeId    the node ID we care about
      * @param ready     Is this node ready?
      */
+    // @TODO: There will be only one cluster after REP-7314
+    @Deprecated
     public void updateNodeStatus(String clusterId, String nodeId, boolean ready) {
         nodeStatus.put(key(clusterId, nodeId), ready);
+    }
+
+    /**
+     * Used by things to indicate if a node is ready to work or not...
+     *
+     * @param nodeId    the node ID we care about
+     * @param ready     Is this node ready?
+     */
+    public void updateNodeStatus(String nodeId, boolean ready) {
+        nodeStatus.put(nodeId, ready);
     }
 
     @PostConstruct
