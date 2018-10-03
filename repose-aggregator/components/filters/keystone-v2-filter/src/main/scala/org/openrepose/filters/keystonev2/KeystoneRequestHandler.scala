@@ -26,22 +26,28 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.servlet.http.HttpServletResponse._
 import javax.ws.rs.core.{HttpHeaders, MediaType}
+import org.apache.http.HttpResponse
+import org.apache.http.client.HttpClient
+import org.apache.http.client.entity.EntityBuilder
+import org.apache.http.client.methods.RequestBuilder
 import org.apache.http.client.utils.DateUtils
+import org.apache.http.entity.ContentType
+import org.apache.http.util.EntityUtils
 import org.joda.time.format.ISODateTimeFormat
-import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClient
+import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.core.services.httpclient.CachingHttpClientContext
 import org.openrepose.filters.keystonev2.KeystoneV2Common.{Endpoint, EndpointsData, Role, ValidToken}
 import play.api.libs.json.Reads._
 import play.api.libs.json._
 
-import scala.collection.JavaConverters._
+import scala.Function.tupled
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
 /**
   * Contains the functions which interact with the Keystone API.
   */
-class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: AkkaServiceClient, traceId: Option[String])
+class KeystoneRequestHandler(identityServiceUri: String, httpClient: HttpClient, traceId: Option[String])
   extends StrictLogging {
 
   import KeystoneRequestHandler._
@@ -69,29 +75,41 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       )
     )
 
-    val akkaResponse = Try(akkaServiceClient.post(ADMIN_TOKEN_KEY,
-      s"$identityServiceUri$TOKEN_ENDPOINT",
-      (Map(HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
-        ++ traceId.map(CommonHttpHeader.TRACE_GUID -> _)).asJava,
-      Json.stringify(authenticationPayload),
-      MediaType.APPLICATION_JSON_TYPE,
-      checkCache
-    ))
+    val requestHeaders = Map(HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
+      .++(traceId.map(CommonHttpHeader.TRACE_GUID -> _))
+    val requestEntity = EntityBuilder.create()
+      .setText(Json.stringify(authenticationPayload))
+      .setContentType(ContentType.APPLICATION_JSON)
+      .build()
+    val requestBuilder = RequestBuilder.post(s"$identityServiceUri$TOKEN_ENDPOINT")
+      .setEntity(requestEntity)
+    requestHeaders.foreach(tupled(requestBuilder.addHeader))
+    val request = requestBuilder.build()
 
-    akkaResponse match {
-      case Success(serviceClientResponse) =>
-        serviceClientResponse.getStatus match {
+    val cacheContext = CachingHttpClientContext.create()
+      .setCacheKey(ADMIN_TOKEN_KEY)
+      .setUseCache(checkCache)
+
+    val tryResponse = Try(httpClient.execute(request, cacheContext))
+
+    tryResponse match {
+      case Success(response) =>
+        response.getStatusLine.getStatusCode match {
           case statusCode if statusCode >= 200 && statusCode < 300 =>
-            // TODO: Handle character encoding set in the content-type header rather than relying on the default system encoding
-            val jsonResponse = Source.fromInputStream(serviceClientResponse.getData).getLines().mkString("")
-            val json = Json.parse(jsonResponse)
-            Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
-              case Success(s) => s
-              case Failure(f) =>
-                Failure(IdentityCommunicationException("Token not found in identity response during admin authentication", f))
+            val responseEntity = response.getEntity
+            try {
+              // todo: test character encoding resolution
+              val json = Json.parse(responseEntity.getContent)
+              Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
+                case Success(s) => s
+                case Failure(f) =>
+                  Failure(IdentityCommunicationException("Token not found in identity response during admin authentication", f))
+              }
+            } finally {
+              EntityUtils.consumeQuietly(responseEntity)
             }
           case statusCode@(SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS) =>
-            Failure(OverLimitException(statusCode, buildRetryValue(serviceClientResponse), "Rate limited when getting admin token"))
+            Failure(OverLimitException(statusCode, buildRetryValue(response), "Rate limited when getting admin token"))
           case statusCode if statusCode >= 500 =>
             Failure(IdentityCommunicationException("Identity Service not available to get admin token"))
           case _ => Failure(IdentityResponseProcessingException("Unable to successfully get admin token from Identity"))
@@ -149,15 +167,21 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       }
     }
 
-    val akkaResponse = Try(akkaServiceClient.get(
-      s"$TOKEN_KEY_PREFIX$validatableToken",
-      s"$identityServiceUri$TOKEN_ENDPOINT/$validatableToken${getApplyRcnRoles(applyRcnRoles)}",
-      (Map(CommonHttpHeader.AUTH_TOKEN -> validatingToken,
-        HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
-        ++ traceId.map(CommonHttpHeader.TRACE_GUID -> _)).asJava,
-      checkCache))
+    val requestHeaders = Map(
+      CommonHttpHeader.AUTH_TOKEN -> validatingToken,
+      HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
+      .++(traceId.map(CommonHttpHeader.TRACE_GUID -> _))
+    val requestBuilder = RequestBuilder.get(s"$identityServiceUri$TOKEN_ENDPOINT/$validatableToken${getApplyRcnRoles(applyRcnRoles)}")
+    requestHeaders.foreach(tupled(requestBuilder.addHeader))
+    val request = requestBuilder.build()
 
-    handleResponse("validate token", akkaResponse, extractUserInformation)
+    val cacheContext = CachingHttpClientContext.create()
+      .setCacheKey(s"$TOKEN_KEY_PREFIX$validatableToken")
+      .setUseCache(checkCache)
+
+    val tryResponse = Try(httpClient.execute(request, cacheContext))
+
+    handleResponse("validate token", tryResponse, extractUserInformation)
   }
 
   final def getEndpointsForToken(authenticatingToken: String, forToken: String, applyRcnRoles: Boolean, checkCache: Boolean = true): Try[EndpointsData] = {
@@ -176,15 +200,21 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       }
     }
 
-    val akkaResponse = Try(akkaServiceClient.get(
-      s"$ENDPOINTS_KEY_PREFIX$forToken",
-      s"$identityServiceUri${ENDPOINTS_ENDPOINT(forToken)}${getApplyRcnRoles(applyRcnRoles)}",
-      (Map(CommonHttpHeader.AUTH_TOKEN -> authenticatingToken,
-        HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
-        ++ traceId.map(CommonHttpHeader.TRACE_GUID -> _)).asJava,
-      checkCache))
+    val requestHeaders = Map(
+      CommonHttpHeader.AUTH_TOKEN -> authenticatingToken,
+      HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
+      .++(traceId.map(CommonHttpHeader.TRACE_GUID -> _))
+    val requestBuilder = RequestBuilder.get(s"$identityServiceUri${ENDPOINTS_ENDPOINT(forToken)}${getApplyRcnRoles(applyRcnRoles)}")
+    requestHeaders.foreach(tupled(requestBuilder.addHeader))
+    val request = requestBuilder.build()
 
-    handleResponse("endpoints", akkaResponse, extractEndpointInfo)
+    val cacheContext = CachingHttpClientContext.create()
+      .setCacheKey(s"$ENDPOINTS_KEY_PREFIX$forToken")
+      .setUseCache(checkCache)
+
+    val tryResponse = Try(httpClient.execute(request, cacheContext))
+
+    handleResponse("endpoints", tryResponse, extractEndpointInfo)
   }
 
   final def getGroups(authenticatingToken: String, forToken: String, checkCache: Boolean = true): Try[Vector[String]] = {
@@ -198,15 +228,21 @@ class KeystoneRequestHandler(identityServiceUri: String, akkaServiceClient: Akka
       }
     }
 
-    val akkaResponse = Try(akkaServiceClient.get(
-      s"$GROUPS_KEY_PREFIX$forToken",
-      s"$identityServiceUri${GROUPS_ENDPOINT(forToken)}",
-      (Map(CommonHttpHeader.AUTH_TOKEN -> authenticatingToken,
-        HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
-        ++ traceId.map(CommonHttpHeader.TRACE_GUID -> _)).asJava,
-      checkCache))
+    val requestHeaders = Map(
+      CommonHttpHeader.AUTH_TOKEN -> authenticatingToken,
+      HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
+      .++(traceId.map(CommonHttpHeader.TRACE_GUID -> _))
+    val requestBuilder = RequestBuilder.get(s"$identityServiceUri${GROUPS_ENDPOINT(forToken)}")
+    requestHeaders.foreach(tupled(requestBuilder.addHeader))
+    val request = requestBuilder.build()
 
-    handleResponse("groups", akkaResponse, extractGroupInfo)
+    val cacheContext = CachingHttpClientContext.create()
+      .setCacheKey(s"$GROUPS_KEY_PREFIX$forToken")
+      .setUseCache(checkCache)
+
+    val tryResponse = Try(httpClient.execute(request, cacheContext))
+
+    handleResponse("groups", tryResponse, extractGroupInfo)
   }
 
   private def getApplyRcnRoles(applyRcnRoles: Boolean): String = {
@@ -230,26 +266,32 @@ object KeystoneRequestHandler {
     DateUtils.formatDate(dateTime.toDate)
   }
 
-  def buildRetryValue(response: ServiceClientResponse): String = {
-    response.getHeaders(HttpHeaders.RETRY_AFTER).asScala.headOption.getOrElse {
+  def buildRetryValue(response: HttpResponse): String = {
+    response.getHeaders(HttpHeaders.RETRY_AFTER).headOption.map(_.getValue).getOrElse {
       val retryCalendar: Calendar = new GregorianCalendar
       retryCalendar.add(Calendar.SECOND, 5)
       DateUtils.formatDate(retryCalendar.getTime)
     }
   }
 
-  def handleResponse[T](call: String, response: Try[ServiceClientResponse], onSuccess: InputStream => Try[T]): Try[T] = {
-    response match {
-      case Success(serviceClientResponse) =>
-        serviceClientResponse.getStatus match {
-          case statusCode if statusCode >= 200 && statusCode < 300 => onSuccess(serviceClientResponse.getData)
+  def handleResponse[T](call: String, tryResponse: Try[HttpResponse], onSuccess: InputStream => Try[T]): Try[T] = {
+    tryResponse match {
+      case Success(response) =>
+        response.getStatusLine.getStatusCode match {
+          case statusCode if statusCode >= 200 && statusCode < 300 =>
+            val responseEntity = response.getEntity
+            try {
+              onSuccess(responseEntity.getContent)
+            } finally {
+              EntityUtils.consume(responseEntity)
+            }
           case SC_BAD_REQUEST => Failure(BadRequestException(s"Bad $call request to identity"))
           case SC_UNAUTHORIZED =>
             Failure(AdminTokenUnauthorizedException(s"Admin token unauthorized to make $call request"))
           case SC_FORBIDDEN => Failure(IdentityAdminTokenException(s"Admin token forbidden from making $call request"))
           case SC_NOT_FOUND => Failure(NotFoundException(s"Resource not found for $call request"))
           case statusCode@(SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS) =>
-            Failure(OverLimitException(statusCode, buildRetryValue(serviceClientResponse), s"Rate limited when making $call request"))
+            Failure(OverLimitException(statusCode, buildRetryValue(response), s"Rate limited when making $call request"))
           case statusCode if statusCode >= 500 =>
             Failure(IdentityCommunicationException(s"Identity Service not available for $call request"))
           case _ => Failure(IdentityResponseProcessingException(s"Unhandled response from Identity for $call request"))

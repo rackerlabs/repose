@@ -20,20 +20,26 @@
 package org.openrepose.filters.keystonev2
 
 import java.io.{ByteArrayInputStream, InputStream}
+
+import com.rackspace.httpdelegation.HttpDelegationManager
 import javax.servlet.FilterConfig
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-
-import com.rackspace.httpdelegation.HttpDelegationManager
-import org.hamcrest.Matchers.hasEntry
+import org.apache.http.client.entity.EntityBuilder
+import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet, HttpUriRequest}
+import org.apache.http.message.BasicHttpResponse
+import org.apache.http.protocol.HttpContext
+import org.apache.http.{HttpEntity, HttpHost, HttpRequest, HttpVersion}
 import org.junit.runner.RunWith
 import org.mockito.AdditionalMatchers._
-import org.mockito.Matchers.{eq => mockitoEq, _}
+import org.mockito.Matchers._
 import org.mockito.Mockito._
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
 import org.openrepose.commons.utils.http._
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
+import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
 import org.openrepose.core.systemmodel.config.{SystemModel, TracingHeaderConfig}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
@@ -53,8 +59,8 @@ class KeystoneV2FilterRcnTest extends FunSpec
   with IdentityResponses
   with HttpDelegationManager {
 
-  private var mockAkkaServiceClient: AkkaServiceClient = _
-  private val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+  private var mockHttpClient = mock[HttpClientServiceClient]
+  private val mockHttpClientService = mock[HttpClientService]
   private val mockDatastore = mock[Datastore]
   private val mockDatastoreService = mock[DatastoreService]
   private var mockConfigurationService: ConfigurationService = _
@@ -68,8 +74,8 @@ class KeystoneV2FilterRcnTest extends FunSpec
 
   override def beforeEach(): Unit = {
     mockConfigurationService = mock[ConfigurationService]
-    mockAkkaServiceClient = mock[AkkaServiceClient]
-    when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
+    mockHttpClient = mock[HttpClientServiceClient]
+    when(mockHttpClientService.getClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockHttpClient)
   }
 
   Seq(true, false) foreach { applyRcnRoles =>
@@ -90,7 +96,7 @@ class KeystoneV2FilterRcnTest extends FunSpec
       )
 
       it(s"${shouldOrNot(applyRcnRoles)} append the apply_rcn_roles query parameter to the Identity interactions") {
-        filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
+        filter = new KeystoneV2Filter(mockConfigurationService, mockHttpClientService, mock[AtomFeedService], mockDatastoreService)
         filter.init(mockFilterConfig)
         filter.configurationUpdated(configuration)
         filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
@@ -102,24 +108,39 @@ class KeystoneV2FilterRcnTest extends FunSpec
         response.setStatus(responseStatus)
         val filterChain = new MockFilterChain()
 
-        when(mockAkkaServiceClient.get(
-          mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"),
-          mockitoEq(s"$identityServiceUri$TOKEN_ENDPOINT/$VALID_TOKEN${appendRcnParameter(applyRcnRoles)}"),
-          argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)),
-          anyBoolean()
-        )).thenReturn(new ServiceClientResponse(SC_OK, validateTokenResponse(userId = VALID_USER_ID)))
-        when(mockAkkaServiceClient.get(
-          mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"),
-          mockitoEq(s"$identityServiceUri${ENDPOINTS_ENDPOINT(VALID_TOKEN)}${appendRcnParameter(applyRcnRoles)}"),
-          argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)),
-          anyBoolean()
-        )).thenReturn(new ServiceClientResponse(SC_OK, endpointsResponse()))
-        when(mockAkkaServiceClient.get(
-          mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_USER_ID"),
-          mockitoEq(s"$identityServiceUri${GROUPS_ENDPOINT(VALID_USER_ID)}"),
-          argThat(hasEntry(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)),
-          anyBoolean()
-        )).thenReturn(new ServiceClientResponse(SC_OK, groupsResponse()))
+        when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
+            .thenAnswer(new Answer[CloseableHttpResponse] {
+              override def answer(invocation: InvocationOnMock): CloseableHttpResponse = {
+                val request = invocation.getArguments()(0).asInstanceOf[HttpUriRequest]
+                val requestUri = request.getURI.toString
+                val authTokenHeaders = request.getHeaders(CommonHttpHeader.AUTH_TOKEN)
+
+                if (request.getMethod != HttpGet.METHOD_NAME) return null
+                if (!authTokenHeaders.map(_.getValue).contains(VALID_TOKEN)) return null
+
+                val tokenUri = s"$identityServiceUri$TOKEN_ENDPOINT/$VALID_TOKEN${appendRcnParameter(applyRcnRoles)}"
+                val endpointsUri = s"$identityServiceUri${ENDPOINTS_ENDPOINT(VALID_TOKEN)}${appendRcnParameter(applyRcnRoles)}"
+                val groupsUri = s"$identityServiceUri${GROUPS_ENDPOINT(VALID_USER_ID)}"
+                if (requestUri.equals(tokenUri)) {
+                  val responseBody = EntityBuilder.create()
+                    .setText(validateTokenResponse(userId = VALID_USER_ID))
+                    .build()
+                  makeResponse(SC_OK, responseBody)
+                } else if (requestUri.equals(endpointsUri)) {
+                  val responseBody = EntityBuilder.create()
+                    .setText(endpointsResponse())
+                    .build()
+                  makeResponse(SC_OK, responseBody)
+                } else if (requestUri.equals(groupsUri)) {
+                  val responseBody = EntityBuilder.create()
+                    .setText(groupsResponse())
+                    .build()
+                  makeResponse(SC_OK, responseBody)
+                } else {
+                  null
+                }
+              }
+            })
 
         filter.doFilter(request, response, filterChain)
 
@@ -131,6 +152,14 @@ class KeystoneV2FilterRcnTest extends FunSpec
         filterChainResponse.getStatus shouldBe responseStatus
       }
     }
+  }
+
+  def makeResponse(statusCode: Int, entity: HttpEntity = null): CloseableHttpResponse = {
+    val response = new BasicHttpResponse(HttpVersion.HTTP_1_1, statusCode, null) with CloseableHttpResponse {
+      override def close(): Unit = {}
+    }
+    Option(entity).foreach(response.setEntity)
+    response
   }
 
   implicit def stringToInputStream(s: String): InputStream = new ByteArrayInputStream(s.getBytes)

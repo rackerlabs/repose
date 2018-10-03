@@ -30,7 +30,7 @@ import org.mockito.Matchers._
 import org.mockito.{ArgumentCaptor, Mockito, Matchers => MockitoMatcher}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
+import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
 import org.openrepose.core.systemmodel.config.{SystemModel, TracingHeaderConfig}
 import org.openrepose.filters.keystonev2.config.KeystoneV2AuthenticationConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService}
@@ -61,11 +61,11 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
 
   describe("when the filter is initialized") {
     it("should initialize the configuration") {
-      val mockAkkaServiceClient = mock[AkkaServiceClient]
-      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+      val mockHttpClient = mock[HttpClientServiceClient]
+      val mockHttpClientService = mock[HttpClientService]
       val mockConfigurationService = mock[ConfigurationService]
-      Mockito.when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
-      val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
+      Mockito.when(mockHttpClientService.getClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockHttpClient)
+      val filter = new KeystoneV2Filter(mockConfigurationService, mockHttpClientService, mock[AtomFeedService], mockDatastoreService)
 
       val config = new MockFilterConfig("KeystoneV2Filter")
 
@@ -88,11 +88,11 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
     }
 
     it("should initialize a configuration with a different name") {
-      val mockAkkaServiceClient = mock[AkkaServiceClient]
-      val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+      val mockHttpClient = mock[HttpClientServiceClient]
+      val mockHttpClientService = mock[HttpClientService]
       val mockConfigurationService = mock[ConfigurationService]
-      Mockito.when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
-      val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
+      Mockito.when(mockHttpClientService.getClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockHttpClient)
+      val filter = new KeystoneV2Filter(mockConfigurationService, mockHttpClientService, mock[AtomFeedService], mockDatastoreService)
 
       val config = new MockFilterConfig("KeystoneV2Filter")
       config.addInitParameter("filter-config", "some-other-config.xml")
@@ -118,7 +118,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
 
   it("deregisters from the configuration service when destroying") {
     val mockConfigurationService = mock[ConfigurationService]
-    val filter = new KeystoneV2Filter(mockConfigurationService, mock[AkkaServiceClientFactory], mock[AtomFeedService], mockDatastoreService)
+    val filter = new KeystoneV2Filter(mockConfigurationService, mock[HttpClientService], mock[AtomFeedService], mockDatastoreService)
 
     val config = new MockFilterConfig
     filter.init(config)
@@ -129,7 +129,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
 
   describe("when the configuration is updated") {
     it("sets the current configuration on the filter asserting the defaults and initialized is true") {
-      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mock[AtomFeedService], mockDatastoreService)
+      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[HttpClientService], mock[AtomFeedService], mockDatastoreService)
       filter.isInitialized shouldBe false
 
       val configuration = Marshaller.keystoneV2ConfigFromString(
@@ -167,7 +167,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
     }
 
     it("sets the default delegating quality to 0.7") {
-      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mock[AtomFeedService], mockDatastoreService)
+      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[HttpClientService], mock[AtomFeedService], mockDatastoreService)
       filter.isInitialized shouldBe false
 
       val configuration = Marshaller.keystoneV2ConfigFromString(
@@ -191,7 +191,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
 
     it("should register to listen to the Atom Feed") {
       val mockAtomFeedService = mock[AtomFeedService]
-      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mockAtomFeedService, mockDatastoreService)
+      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[HttpClientService], mockAtomFeedService, mockDatastoreService)
 
       filter.configurationUpdated(Marshaller.keystoneV2ConfigFromString(
         """<?xml version="1.0" encoding="UTF-8"?>
@@ -222,7 +222,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
       Mockito.when(
         mockAtomFeedService.registerListener(MockitoMatcher.eq(mortyFeed), MockitoMatcher.any[AtomFeedListener])
       ).thenReturn(mortyId)
-      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mockAtomFeedService, mockDatastoreService)
+      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[HttpClientService], mockAtomFeedService, mockDatastoreService)
 
       filter.configurationUpdated(Marshaller.keystoneV2ConfigFromString(
         s"""<?xml version="1.0" encoding="UTF-8"?>
@@ -261,7 +261,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
     }
 
     it("should log a deprecation warning if validate tenant is used") {
-      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mock[AtomFeedService], mockDatastoreService)
+      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[HttpClientService], mock[AtomFeedService], mockDatastoreService)
 
       filter.configurationUpdated(Marshaller.keystoneV2ConfigFromString(
         """<?xml version="1.0" encoding="UTF-8"?>
@@ -281,7 +281,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
     }
 
     it("should log a deprecation warning if require service endpoint is used") {
-      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mock[AtomFeedService], mockDatastoreService)
+      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[HttpClientService], mock[AtomFeedService], mockDatastoreService)
 
       filter.configurationUpdated(Marshaller.keystoneV2ConfigFromString(
         """<?xml version="1.0" encoding="UTF-8"?>
@@ -297,7 +297,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
     }
 
     it("should log a deprecation warning if pre-authorized role is used") {
-      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[AkkaServiceClientFactory], mock[AtomFeedService], mockDatastoreService)
+      val filter = new KeystoneV2Filter(mock[ConfigurationService], mock[HttpClientService], mock[AtomFeedService], mockDatastoreService)
 
       filter.configurationUpdated(Marshaller.keystoneV2ConfigFromString(
         """<?xml version="1.0" encoding="UTF-8"?>

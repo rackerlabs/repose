@@ -19,18 +19,17 @@
  */
 package org.openrepose.filters.keystonev2
 
-import java.io.InputStream
 import java.util.GregorianCalendar
 
 import javax.servlet.http.HttpServletResponse.SC_OK
 import javax.ws.rs.core.HttpHeaders.RETRY_AFTER
-import org.apache.http.Header
-import org.apache.http.message.BasicHeader
+import org.apache.http.HttpVersion
+import org.apache.http.message.BasicHttpResponse
 import org.junit.runner.RunWith
-import org.openrepose.commons.utils.http.{HttpDate, ServiceClientResponse}
-import org.scalatest.{FunSpec, Matchers}
+import org.openrepose.commons.utils.http.HttpDate
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
+import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])
 class KeystoneRequestHandlerTest extends FunSpec with Matchers with MockitoSugar {
@@ -38,20 +37,21 @@ class KeystoneRequestHandlerTest extends FunSpec with Matchers with MockitoSugar
     Seq("retry-after", "retry-After", "Retry-After", "RETRY-AFTER", "rETRY-aFTER").foreach { headerName =>
       it(s"should retrieve the provided Retry After header value given $headerName") {
         val retryString = new HttpDate(new GregorianCalendar().getTime).toRFC1123
-        val serviceClientResponse = new ServiceClientResponse(
+        val response = new BasicHttpResponse(
+          HttpVersion.HTTP_1_1,
           SC_OK,
-          Array(new BasicHeader(RETRY_AFTER, retryString)),
-          mock[InputStream])
-        KeystoneRequestHandler.buildRetryValue(serviceClientResponse) shouldBe retryString
+          null)
+        response.addHeader(RETRY_AFTER, retryString)
+        KeystoneRequestHandler.buildRetryValue(response) shouldBe retryString
       }
     }
 
     it("should build a new Retry After header value if one is not provided") {
-      val serviceClientResponse = new ServiceClientResponse(
+      val response = new BasicHttpResponse(
+        HttpVersion.HTTP_1_1,
         SC_OK,
-        Array.empty[Header],
-        mock[InputStream])
-      KeystoneRequestHandler.buildRetryValue(serviceClientResponse) shouldNot be(null)
+        null)
+      KeystoneRequestHandler.buildRetryValue(response) shouldNot be(null)
     }
   }
 }
