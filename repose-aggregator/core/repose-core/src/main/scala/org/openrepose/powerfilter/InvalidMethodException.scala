@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,16 +17,6 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.powerfilter;
+package org.openrepose.powerfilter
 
-/**
- * Created with IntelliJ IDEA.
- * User: adrian
- * Date: 7/8/15
- * Time: 9:55 AM
- */
-public class InvalidMethodException extends Exception {
-    public InvalidMethodException(String message) {
-        super(message);
-    }
-}
+class InvalidMethodException(message: String, cause: Throwable = null) extends Exception(message, cause) {}
