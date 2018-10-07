@@ -1,8 +1,8 @@
 dependencies {
     compile project(":repose-aggregator:core:repose-core-api")
     compile project(":repose-aggregator:commons:commons-utilities")
-    compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-api")
     compile project(":repose-aggregator:components:services:datastore-service:datastore-service-api")
+    compile project(":repose-aggregator:components:services:http-client-service:http-client-service-api")
     compile "org.scala-lang:scala-library"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "org.openrepose:http-delegation"
@@ -12,6 +12,8 @@ dependencies {
     }
     compile "io.gatling:jsonpath_$scalaMajDotMin"
     compile "com.fasterxml.jackson.core:jackson-core"
+    compile "org.apache.httpcomponents:httpclient"
+    compile "org.apache.httpcomponents:httpcore"
 
     compileOnly "javax.servlet:javax.servlet-api"
     compileOnly "javax.inject:javax.inject"

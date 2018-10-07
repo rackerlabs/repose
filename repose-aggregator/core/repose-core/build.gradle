@@ -5,7 +5,6 @@ configurations {
 dependencies {
     compile project(":repose-aggregator:commons:commons-configuration")
     compile project(":repose-aggregator:commons:commons-utilities")
-    compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-impl")
     compile project(":repose-aggregator:components:services:atom-feed-service:atom-feed-service-impl")
     compile project(":repose-aggregator:components:services:container-configuration-service:api")
     compile project(":repose-aggregator:components:services:container-configuration-service:impl")
@@ -14,7 +13,6 @@ dependencies {
     compile project(":repose-aggregator:components:services:health-check-service:health-check-service-api")
     compile project(":repose-aggregator:components:services:health-check-service:health-check-service-impl")
     compile project(":repose-aggregator:components:services:http-client-service:http-client-service-api")
-    compile project(":repose-aggregator:components:services:http-client-service:http-client-service-impl")
     compile project(":repose-aggregator:components:services:open-tracing-service")
     compile project(":repose-aggregator:components:services:phone-home-service")
     compile project(":repose-aggregator:components:services:uri-redaction-service:uri-redaction-service-api")

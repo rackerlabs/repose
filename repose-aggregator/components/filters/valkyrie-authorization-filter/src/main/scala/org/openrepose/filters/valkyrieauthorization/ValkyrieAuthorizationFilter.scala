@@ -23,21 +23,22 @@ import java.io.{ByteArrayInputStream, InputStream}
 import java.net.URL
 import java.util.concurrent.TimeUnit
 import java.util.regex.PatternSyntaxException
+
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.HttpHeaders.RETRY_AFTER
-
 import com.fasterxml.jackson.core.JsonParseException
 import com.josephpconley.jsonpath.JSONPath
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.jsonpath.AST.{Field, PathToken, RootNode}
 import io.gatling.jsonpath.Parser
+import org.apache.http.client.methods.{CloseableHttpResponse, RequestBuilder}
+import org.apache.http.util.EntityUtils
 import org.openrepose.commons.utils.http.CommonHttpHeader.{AUTH_TOKEN, TRACE_GUID}
 import org.openrepose.commons.utils.http.OpenStackServiceHeader.{CONTACT_ID, ROLES, TENANT_ID, TENANT_ROLES_MAP}
-import org.openrepose.commons.utils.http.ServiceClientResponse
 import org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TOO_MANY_REQUESTS
 import org.openrepose.commons.utils.json.JsonHeaderHelper.{anyToJsonHeader, jsonHeaderToValue}
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
@@ -46,11 +47,12 @@ import org.openrepose.commons.utils.string.RegexStringOperators
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
+import org.openrepose.core.services.httpclient.{CachingHttpClientContext, HttpClientService, HttpClientServiceClient}
 import org.openrepose.filters.valkyrieauthorization.config.DeviceIdMismatchAction.{FAIL, KEEP, REMOVE}
 import org.openrepose.filters.valkyrieauthorization.config._
 import play.api.libs.json._
 
+import scala.Function.tupled
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.io.Source
@@ -58,7 +60,7 @@ import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
 @Named
-class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationService, akkaServiceClientFactory: AkkaServiceClientFactory, datastoreService: DatastoreService)
+class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationService, httpClientService: HttpClientService, datastoreService: DatastoreService)
   extends AbstractConfiguredFilter[ValkyrieAuthorizationConfig](configurationService)
     with HttpDelegationManager
     with RegexStringOperators
@@ -71,11 +73,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 
   val datastore = datastoreService.getDefaultDatastore
 
-  var akkaServiceClient: AkkaServiceClient = _
-
-  override def doDestroy(): Unit = {
-    Option(akkaServiceClient).foreach(_.destroy())
-  }
+  var httpClient: HttpClientServiceClient = _
 
   override def doWork(servletRequest: HttpServletRequest, servletResponse: HttpServletResponse, filterChain: FilterChain): Unit = {
     val httpRequest = new HttpServletRequestWrapper(servletRequest)
@@ -112,7 +110,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     }
 
     def getPermissions(headerResult: ValkyrieResult): ValkyrieResult = {
-      def parsePermissions(inputStream: InputStream): Try[UserPermissions] = {
+      def parsePermissions(input: String): Try[UserPermissions] = {
 
         @tailrec
         def parseJson(permissionName: List[String], deviceToPermissions: DeviceToPermissions, values: List[JsValue]): UserPermissions = {
@@ -135,7 +133,6 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
           }
         }
 
-        val input: String = Source.fromInputStream(inputStream).getLines() mkString ""
         try {
           val json = Json.parse(input)
           val permissions: List[JsValue] = (json \ "contact_permissions").as[List[JsValue]]
@@ -160,7 +157,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
     }
 
     def getInventory(userPermissions: ValkyrieResult, checkHeader: ValkyrieResult): ValkyrieResult = {
-      def parseInventory(inputStream: InputStream): Try[DevicePermissions] = {
+      def parseInventory(input: String): Try[DevicePermissions] = {
 
         @tailrec
         def parseJson(deviceToPermissions: DeviceToPermissions, values: List[JsValue]): DevicePermissions = {
@@ -176,7 +173,6 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
           }
         }
 
-        val input: String = Source.fromInputStream(inputStream).getLines() mkString ""
         try {
           val json = Json.parse(input)
           val inventory: List[JsValue] = (json \ "inventory").as[List[JsValue]]
@@ -310,10 +306,9 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
                      valkyrieServer: ValkyrieServer,
                      authToken: Option[String],
                      datastoreTransform: java.io.Serializable => ValkyrieResult,
-                     responseParser: InputStream => Try[java.io.Serializable],
+                     responseParser: String => Try[java.io.Serializable],
                      tracingHeader: Option[String] = None): ValkyrieResult = {
-    def tryValkyrieCall(): Try[ServiceClientResponse] = {
-      import collection.JavaConversions._
+    def tryValkyrieCall(): Try[CloseableHttpResponse] = {
       val requestTracingHeader = tracingHeader.map(guid => Map(TRACE_GUID -> guid)).getOrElse(Map())
       val uri = if (callType.equals(AccountAdmin)) {
         s"/account/$transformedTenant/inventory"
@@ -322,34 +317,45 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
       }
       (Option(valkyrieServer.getUsername), Option(valkyrieServer.getPassword)) match {
         case (Some(username), Some(password)) =>
-          Try(akkaServiceClient.get(cacheKey(callType, transformedTenant, contactId),
-            valkyrieServer.getUri + uri,
-            Map("X-Auth-User" -> username, "X-Auth-Token" -> password) ++ requestTracingHeader)
-          )
+          val requestHeaders = Map("X-Auth-User" -> username, "X-Auth-Token" -> password) ++ requestTracingHeader
+          val requestBuilder = RequestBuilder.get(valkyrieServer.getUri + uri)
+          requestHeaders.foreach(tupled(requestBuilder.addHeader))
+          val request = requestBuilder.build()
+
+          val cacheContext = CachingHttpClientContext.create()
+            .setCacheKey(cacheKey(callType, transformedTenant, contactId))
+
+          Try(httpClient.execute(request, cacheContext))
         case _ =>
-          Try(akkaServiceClient.get(cacheKey(callType, transformedTenant, contactId),
-            valkyrieServer.getUri + uri,
-            authToken.map(token => Map(AUTH_TOKEN -> token)).getOrElse(Map.empty) ++ requestTracingHeader)
-          )
+          val requestHeaders = authToken.map(token => Map(AUTH_TOKEN -> token)).getOrElse(Map.empty) ++ requestTracingHeader
+          val requestBuilder = RequestBuilder.get(valkyrieServer.getUri + uri)
+          requestHeaders.foreach(tupled(requestBuilder.addHeader))
+          val request = requestBuilder.build()
+
+          val cacheContext = CachingHttpClientContext.create()
+            .setCacheKey(cacheKey(callType, transformedTenant, contactId))
+
+          Try(httpClient.execute(request, cacheContext))
       }
     }
 
     def valkyrieAuthorize(): ValkyrieResult = {
       tryValkyrieCall() match {
         case Success(response) =>
-          if (response.getStatus == SC_OK) {
-            responseParser(response.getData) match {
+          val responseBody = EntityUtils.toString(response.getEntity)
+          if (response.getStatusLine.getStatusCode == SC_OK) {
+            responseParser(responseBody) match {
               case Success(values) =>
                 datastore.put(cacheKey(callType, transformedTenant, contactId), values, configuration.getCacheTimeoutMillis, TimeUnit.MILLISECONDS)
                 datastoreTransform(values)
               case Failure(x) => ResponseResult(SC_BAD_GATEWAY, x.getMessage) //JSON Parsing failure
             }
           } else {
-            val retryTime = response.getHeaders(RETRY_AFTER).asScala.headOption
+            val retryTime = response.getHeaders(RETRY_AFTER).map(_.getValue).headOption
             (Option(configuration.getValkyrieServer.getUsername), Option(configuration.getValkyrieServer.getPassword)) match {
               //admin creds
               case (Some(_), Some(_)) =>
-                response.getStatus match {
+                response.getStatusLine.getStatusCode match {
                   case SC_BAD_REQUEST => ResponseResult(SC_INTERNAL_SERVER_ERROR, "Valkyrie rejected the request for being bad")
                   case SC_UNAUTHORIZED => ResponseResult(SC_INTERNAL_SERVER_ERROR, "Valkyrie said the credentials weren't authorized")
                   case SC_FORBIDDEN => ResponseResult(SC_INTERNAL_SERVER_ERROR, "Valkyrie said the credentials were forbidden")
@@ -359,7 +365,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
                 }
               //user token
               case _ =>
-                response.getStatus match {
+                response.getStatusLine.getStatusCode match {
                   case SC_BAD_REQUEST => ResponseResult(SC_INTERNAL_SERVER_ERROR, "Valkyrie rejected the request for being bad")
                   case SC_UNAUTHORIZED => ResponseResult(SC_UNAUTHORIZED, "Valkyrie said the user was unauthorized")
                   case SC_FORBIDDEN => ResponseResult(SC_FORBIDDEN, "Valkyrie said the user was forbidden")
@@ -497,9 +503,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   }
 
   override def doConfigurationUpdated(newConfig: ValkyrieAuthorizationConfig): ValkyrieAuthorizationConfig = {
-    val akkaServiceClientOld = Option(akkaServiceClient)
-    akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(newConfig.getConnectionPoolId)
-    akkaServiceClientOld.foreach(_.destroy())
+    httpClient = httpClientService.getClient(newConfig.getConnectionPoolId)
 
     newConfig
   }
