@@ -24,7 +24,7 @@ import java.io._
 import java.net.URI
 import java.security._
 import java.security.cert.X509Certificate
-import java.util.concurrent.{Callable, TimeUnit, TimeoutException}
+import java.util.concurrent.{Callable, TimeUnit}
 import java.util.{Base64, Collections}
 
 import com.fasterxml.jackson.core.{JsonGenerator, JsonProcessingException}
@@ -57,10 +57,9 @@ import org.openrepose.commons.utils.io.{BufferedServletInputStream, FileUtilitie
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.serviceclient.akka.AkkaServiceClientException
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.core.systemmodel.config.SystemModel
-import org.openrepose.filters.samlpolicy.SamlIdentityClient.{GenericIdentityException, OverLimitException, UnexpectedStatusCodeException, UnsupportedPolicyFormatException}
+import org.openrepose.filters.samlpolicy.SamlIdentityClient.{OverLimitException, UnexpectedStatusCodeException, UnsupportedPolicyFormatException}
 import org.openrepose.filters.samlpolicy.config.SamlPolicyConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService, LifecycleEvents}
 import org.springframework.beans.factory.annotation.Value
@@ -374,7 +373,7 @@ class SamlPolicyTranslationFilter @Inject()(configurationService: ConfigurationS
         throw SamlPolicyException(SC_UNAUTHORIZED, "Policy not found", e)
       case e: UnexpectedStatusCodeException if e.statusCode >= 500 && e.statusCode < 600 =>
         throw SamlPolicyException(SC_BAD_GATEWAY, "Call to Identity failed", e)
-      case e: GenericIdentityException if e.getCause.isInstanceOf[AkkaServiceClientException] && e.getCause.getCause.isInstanceOf[TimeoutException] =>
+      case e: InterruptedIOException =>
         throw SamlPolicyException(SC_GATEWAY_TIMEOUT, "Call to Identity timed out", e)
     } get
   }

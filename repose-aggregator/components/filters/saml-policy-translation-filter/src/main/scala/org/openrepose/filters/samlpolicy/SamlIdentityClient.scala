@@ -25,14 +25,18 @@ import java.time.{ZoneId, ZonedDateTime}
 
 import javax.inject.{Inject, Named}
 import javax.servlet.http.HttpServletResponse.{SC_OK, SC_REQUEST_ENTITY_TOO_LARGE, SC_UNAUTHORIZED}
-import javax.ws.rs.core.{HttpHeaders, MediaType}
-import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
+import javax.ws.rs.core.MediaType
+import org.apache.http.HttpHeaders
+import org.apache.http.client.entity.EntityBuilder
+import org.apache.http.client.methods.{CloseableHttpResponse, RequestBuilder}
+import org.apache.http.entity.ContentType
+import org.apache.http.util.EntityUtils
+import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.core.services.httpclient.{CachingHttpClientContext, HttpClientService, HttpClientServiceClient}
 import org.springframework.web.util.UriUtils
 import play.api.libs.json.{JsArray, Json}
 
-import scala.collection.JavaConverters._
-import scala.io.Source
+import scala.Function.tupled
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -41,8 +45,9 @@ import scala.util.{Failure, Success, Try}
   * The default singleton scope is used, and works, due entirely to the separation of
   * Spring contexts between filters.
   */
+// todo: do not update since this filter was moved out of our control -- rebase after REP-7201
 @Named
-class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFactory) {
+class SamlIdentityClient @Inject()(httpClientService: HttpClientService) {
 
   import SamlIdentityClient._
 
@@ -61,21 +66,19 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
 
     val optTokenServiceClient = Option(tokenServiceClient)
     if (optTokenServiceClient.isEmpty || tokenServiceClient.poolId != tokenPoolId) {
-      optTokenServiceClient.foreach(_.akkaServiceClient.destroy())
       tokenServiceClient = ServiceClient(
         tokenPoolId,
-        tokenPoolId.map(akkaServiceClientFactory.newAkkaServiceClient)
-          .getOrElse(akkaServiceClientFactory.newAkkaServiceClient)
+        tokenPoolId.map(httpClientService.getClient)
+          .getOrElse(httpClientService.getDefaultClient)
       )
     }
 
     val optPolicyServiceClient = Option(policyServiceClient)
     if (optPolicyServiceClient.isEmpty || policyServiceClient.poolId != policyPoolId) {
-      optPolicyServiceClient.foreach(_.akkaServiceClient.destroy())
       policyServiceClient = ServiceClient(
         policyPoolId,
-        policyPoolId.map(akkaServiceClientFactory.newAkkaServiceClient)
-          .getOrElse(akkaServiceClientFactory.newAkkaServiceClient)
+        policyPoolId.map(httpClientService.getClient)
+          .getOrElse(httpClientService.getDefaultClient)
       )
     }
   }
@@ -98,34 +101,35 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
       )
     )
 
-    val akkaResponse = Try(tokenServiceClient.akkaServiceClient.post(
-      TokenRequestKey,
-      s"$tokenUri$TokenPath",
-      (Map(HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON)
-        ++ traceId.map(CommonHttpHeader.TRACE_GUID.->)).asJava,
-      Json.stringify(authenticationPayload),
-      MediaType.APPLICATION_JSON_TYPE
-    ))
+    val requestHeaders = Map(HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON) ++
+      traceId.map(CommonHttpHeader.TRACE_GUID.->)
+    val requestEntity = EntityBuilder.create()
+      .setText(Json.stringify(authenticationPayload))
+      .setContentType(ContentType.APPLICATION_JSON)
+      .build()
+    val requestBuilder = RequestBuilder.post(s"$tokenUri$TokenPath")
+      .setEntity(requestEntity)
+    requestHeaders.foreach(tupled(requestBuilder.addHeader))
+    val request = requestBuilder.build()
 
-    akkaResponse match {
-      case Success(serviceClientResponse) =>
-        serviceClientResponse.getStatus match {
+    val cacheContext = CachingHttpClientContext.create()
+      .setCacheKey(TokenRequestKey)
+
+    val tryResponse = Try(tokenServiceClient.httpClient.execute(request, cacheContext))
+
+    tryResponse match {
+      case Success(httpResponse) =>
+        httpResponse.getStatusLine.getStatusCode match {
           case SC_OK =>
             Try {
-              val responseEncoding = serviceClientResponse.getHeaderElements(HttpHeaders.CONTENT_TYPE).asScala.headOption
-                .map(_.getParameterByName("charset"))
-                .flatMap(Option.apply)
-                .map(_.getValue)
-                .getOrElse(StandardCharsets.ISO_8859_1.name())
-              val jsonResponse = Source.fromInputStream(serviceClientResponse.getData, responseEncoding).getLines.mkString
-              val json = Json.parse(jsonResponse)
+              val json = Json.parse(EntityUtils.toString(httpResponse.getEntity))
               (json \ "access" \ "token" \ "id").as[String]
             } recover {
               case f: Exception =>
                 throw GenericIdentityException("Token could not be parsed from response from Identity", f)
             }
           case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
-            Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when getting token"))
+            Failure(OverLimitException(buildRetryValue(httpResponse), "Rate limited when getting token"))
           case statusCode =>
             Failure(UnexpectedStatusCodeException(statusCode, "Unexpected response from Identity"))
         }
@@ -143,28 +147,26 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
     * @return the IDP ID if successful, or a failure if unsuccessful
     */
   def getIdpId(issuer: String, token: String, traceId: Option[String], checkCache: Boolean): Try[ProviderInfo] = {
-    val akkaResponse = Try(policyServiceClient.akkaServiceClient.get(
-      IdpRequestKey(issuer),
-      s"$policyUri${IdpPath(issuer)}",
-      (Map(
-        HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON,
-        CommonHttpHeader.AUTH_TOKEN -> token
-      ) ++ traceId.map(CommonHttpHeader.TRACE_GUID.->)).asJava,
-      checkCache
-    ))
+    val requestHeaders = Map(
+      HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON,
+      CommonHttpHeader.AUTH_TOKEN -> token) ++
+      traceId.map(CommonHttpHeader.TRACE_GUID.->)
+    val requestBuilder = RequestBuilder.get(s"$policyUri${IdpPath(issuer)}")
+    requestHeaders.foreach(tupled(requestBuilder.addHeader))
+    val request = requestBuilder.build()
 
-    akkaResponse match {
-      case Success(serviceClientResponse) =>
-        serviceClientResponse.getStatus match {
+    val cacheContext = CachingHttpClientContext.create()
+      .setCacheKey(IdpRequestKey(issuer))
+      .setUseCache(checkCache)
+
+    val tryResponse = Try(policyServiceClient.httpClient.execute(request, cacheContext))
+
+    tryResponse match {
+      case Success(httpResponse) =>
+        httpResponse.getStatusLine.getStatusCode match {
           case SC_OK =>
             Try {
-              val responseEncoding = serviceClientResponse.getHeaderElements(HttpHeaders.CONTENT_TYPE).asScala.headOption
-                .map(_.getParameterByName("charset"))
-                .flatMap(Option.apply)
-                .map(_.getValue)
-                .getOrElse(StandardCharsets.ISO_8859_1.name())
-              val jsonResponse = Source.fromInputStream(serviceClientResponse.getData, responseEncoding).getLines.mkString
-              val json = Json.parse(jsonResponse)
+              val json = Json.parse(EntityUtils.toString(httpResponse.getEntity))
               val idp = (json \ "RAX-AUTH:identityProviders").as[JsArray].value
                 .headOption
                 .getOrElse(throw SamlPolicyException(SC_UNAUTHORIZED, "Unknown issuer"))
@@ -176,7 +178,7 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
                 throw GenericIdentityException("IDP ID could not be parsed from response from Identity", f)
             }
           case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
-            Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when getting IDP ID"))
+            Failure(OverLimitException(buildRetryValue(httpResponse), "Rate limited when getting IDP ID"))
           case statusCode =>
             Failure(UnexpectedStatusCodeException(statusCode, "Unexpected response from Identity"))
         }
@@ -194,37 +196,38 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
     * @return the policy if successful, or a failure if unsuccessful
     */
   def getPolicy(provider: ProviderInfo, token: String, traceId: Option[String], checkCache: Boolean): Try[Policy] = {
-    val akkaResponse = Try(policyServiceClient.akkaServiceClient.get(
-      PolicyRequestKey(provider.idpId),
-      s"$policyUri${PolicyPath(provider.idpId)}",
-      (Map(
-        HttpHeaders.ACCEPT -> String.join(",", TextYaml, MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML),
-        CommonHttpHeader.AUTH_TOKEN -> token
-      ) ++ traceId.map(CommonHttpHeader.TRACE_GUID.->)).asJava,
-      checkCache
-    ))
+    val requestHeaders = Map(
+      HttpHeaders.ACCEPT -> String.join(",", TextYaml, MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML),
+      CommonHttpHeader.AUTH_TOKEN -> token) ++
+      traceId.map(CommonHttpHeader.TRACE_GUID.->)
+    val requestBuilder = RequestBuilder.get(s"$policyUri${PolicyPath(provider.idpId)}")
+    requestHeaders.foreach(tupled(requestBuilder.addHeader))
+    val request = requestBuilder.build()
 
-    akkaResponse match {
-      case Success(serviceClientResponse) =>
-        serviceClientResponse.getStatus match {
+    val cacheContext = CachingHttpClientContext.create()
+      .setCacheKey(PolicyRequestKey(provider.idpId))
+      .setUseCache(checkCache)
+
+    val tryResponse = Try(policyServiceClient.httpClient.execute(request, cacheContext))
+
+    tryResponse match {
+      case Success(httpResponse) =>
+        httpResponse.getStatusLine.getStatusCode match {
           case SC_OK =>
             Try {
-              val contentTypeHeader = serviceClientResponse.getHeaderElements(HttpHeaders.CONTENT_TYPE).asScala.headOption
-              val responseEncoding = contentTypeHeader
-                .map(_.getParameterByName("charset"))
-                .flatMap(Option.apply) // Gets rid of any nulls
-                .map(_.getValue)
-                .getOrElse(StandardCharsets.ISO_8859_1.name())
+              //Option(httpResponse.getEntity.getContentType).map(_.getValue)
+              val contentTypeHeader = Try(ContentType.get(httpResponse.getEntity)).map(_.getMimeType)
+              val content = EntityUtils.toString(httpResponse.getEntity)
               Policy(
-                Source.fromInputStream(serviceClientResponse.getData, responseEncoding).getLines.mkString("\n"),
-                contentTypeHeader.map(_.getName).getOrElse(TextYaml),
+                content,
+                contentTypeHeader.getOrElse(TextYaml),
                 provider.domains)
             } recover {
               case f: Exception =>
                 throw GenericIdentityException("Policy in response from Identity could not be read", f)
             }
           case SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS =>
-            Failure(OverLimitException(buildRetryValue(serviceClientResponse), "Rate limited when getting policy"))
+            Failure(OverLimitException(buildRetryValue(httpResponse), "Rate limited when getting policy"))
           case statusCode =>
             Failure(UnexpectedStatusCodeException(statusCode, "Unexpected response from Identity"))
         }
@@ -233,7 +236,7 @@ class SamlIdentityClient @Inject()(akkaServiceClientFactory: AkkaServiceClientFa
     }
   }
 
-  private case class ServiceClient(poolId: Option[String], akkaServiceClient: AkkaServiceClient)
+  private case class ServiceClient(poolId: Option[String], httpClient: HttpClientServiceClient)
 
 }
 
@@ -249,8 +252,8 @@ object SamlIdentityClient {
   final val PolicyPath: (String) => String =
     (idpId: String) => s"/v2.0/RAX-AUTH/federation/identity-providers/$idpId/mapping"
 
-  def buildRetryValue(response: ServiceClientResponse): String = {
-    response.getHeaders(HttpHeaders.RETRY_AFTER).asScala.headOption
+  def buildRetryValue(response: CloseableHttpResponse): String = {
+    response.getHeaders(HttpHeaders.RETRY_AFTER).headOption.map(_.getValue)
       .getOrElse(DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.now(ZoneId.of("GMT")).plusSeconds(5)))
   }
 

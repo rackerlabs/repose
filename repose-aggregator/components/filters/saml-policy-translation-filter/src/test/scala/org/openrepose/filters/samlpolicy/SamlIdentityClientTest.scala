@@ -19,20 +19,23 @@
  */
 package org.openrepose.filters.samlpolicy
 
-import java.io.ByteArrayInputStream
 import java.nio.charset.{Charset, StandardCharsets}
-import javax.servlet.http.HttpServletResponse._
-import javax.ws.rs.core.HttpHeaders._
-import javax.ws.rs.core.MediaType
 
-import org.apache.http.message.BasicHeader
-import org.hamcrest.{Matchers => HM}
+import javax.servlet.http.HttpServletResponse._
+import org.apache.http.client.entity.EntityBuilder
+import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet, HttpPost, HttpUriRequest}
+import org.apache.http.entity.ContentType
+import org.apache.http.message.BasicHttpResponse
+import org.apache.http.protocol.HttpContext
+import org.apache.http.{HttpEntity, HttpVersion}
 import org.junit.runner.RunWith
-import org.mockito.Mockito.{never, verify, when}
-import org.mockito.{Matchers => MM}
+import org.mockito.Mockito.{verify, when}
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
+import org.mockito.{ArgumentCaptor, Matchers => MM}
+import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.CommonHttpHeader.TRACE_GUID
-import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
+import org.openrepose.core.services.httpclient.{CachingHttpClientContext, HttpClientService, HttpClientServiceClient}
 import org.openrepose.filters.samlpolicy.SamlIdentityClient.{OverLimitException, ProviderInfo, SC_TOO_MANY_REQUESTS}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -40,6 +43,7 @@ import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.web.util.UriUtils
 import play.api.libs.json.Json
 
+import scala.Function.tupled
 import scala.language.implicitConversions
 import scala.util.{Failure, Success}
 
@@ -49,28 +53,28 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
   final val TokenServiceClientId = "token-service-client"
   final val PolicyServiceClientId = "policy-service-client"
 
-  var defaultServiceClient: AkkaServiceClient = _
-  var tokenServiceClient: AkkaServiceClient = _
-  var policyServiceClient: AkkaServiceClient = _
-  var akkaServiceClientFactory: AkkaServiceClientFactory = _
+  var defaultHttpClient: HttpClientServiceClient = _
+  var tokenHttpClient: HttpClientServiceClient = _
+  var policyHttpClient: HttpClientServiceClient = _
+  var httpClientService: HttpClientService = _
   var samlPolicyProvider: SamlIdentityClient = _
 
   override def beforeEach(): Unit = {
-    defaultServiceClient = mock[AkkaServiceClient]
-    tokenServiceClient = mock[AkkaServiceClient]
-    policyServiceClient = mock[AkkaServiceClient]
-    akkaServiceClientFactory = mock[AkkaServiceClientFactory]
+    defaultHttpClient = mock[HttpClientServiceClient]
+    tokenHttpClient = mock[HttpClientServiceClient]
+    policyHttpClient = mock[HttpClientServiceClient]
+    httpClientService = mock[HttpClientService]
 
-    samlPolicyProvider = new SamlIdentityClient(akkaServiceClientFactory)
+    samlPolicyProvider = new SamlIdentityClient(httpClientService)
 
-    when(akkaServiceClientFactory.newAkkaServiceClient())
-      .thenReturn(defaultServiceClient)
-    when(akkaServiceClientFactory.newAkkaServiceClient(MM.anyString()))
-      .thenReturn(defaultServiceClient)
-    when(akkaServiceClientFactory.newAkkaServiceClient(MM.eq(TokenServiceClientId)))
-      .thenReturn(tokenServiceClient)
-    when(akkaServiceClientFactory.newAkkaServiceClient(MM.eq(PolicyServiceClientId)))
-      .thenReturn(policyServiceClient)
+    when(httpClientService.getDefaultClient)
+      .thenReturn(defaultHttpClient)
+    when(httpClientService.getClient(MM.anyString()))
+      .thenReturn(defaultHttpClient)
+    when(httpClientService.getClient(MM.eq(TokenServiceClientId)))
+      .thenReturn(tokenHttpClient)
+    when(httpClientService.getClient(MM.eq(PolicyServiceClientId)))
+      .thenReturn(policyHttpClient)
   }
 
   describe("using") {
@@ -78,86 +82,76 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       samlPolicyProvider.using("tokenUri", "policyUri", Some("foo"), Some("baz"))
       samlPolicyProvider.using("tokenUri", "policyUri", Some("bar"), Some("baz"))
 
-      verify(akkaServiceClientFactory).newAkkaServiceClient("foo")
-      verify(defaultServiceClient).destroy()
-      verify(akkaServiceClientFactory).newAkkaServiceClient("bar")
+      verify(httpClientService).getClient("foo")
+      verify(httpClientService).getClient("bar")
     }
 
     it("should build a new service client when the token connection pool ID changes from None") {
       samlPolicyProvider.using("tokenUri", "policyUri", None, Some("baz"))
       samlPolicyProvider.using("tokenUri", "policyUri", Some("bar"), Some("baz"))
 
-      verify(akkaServiceClientFactory).newAkkaServiceClient()
-      verify(defaultServiceClient).destroy()
-      verify(akkaServiceClientFactory).newAkkaServiceClient("bar")
+      verify(httpClientService).getDefaultClient()
+      verify(httpClientService).getClient("bar")
     }
 
     it("should build a new service client when the token connection pool ID changes to None") {
       samlPolicyProvider.using("tokenUri", "policyUri", Some("foo"), Some("baz"))
       samlPolicyProvider.using("tokenUri", "policyUri", None, Some("baz"))
 
-      verify(akkaServiceClientFactory).newAkkaServiceClient("foo")
-      verify(defaultServiceClient).destroy()
-      verify(akkaServiceClientFactory).newAkkaServiceClient()
+      verify(httpClientService).getClient("foo")
+      verify(httpClientService).getDefaultClient()
     }
 
     it("should not build a new service client if the token connection pool ID does not change") {
       samlPolicyProvider.using("tokenUri", "policyUri", Some("foo"), Some("baz"))
       samlPolicyProvider.using("tokenUri", "policyUri", Some("foo"), Some("baz"))
 
-      verify(akkaServiceClientFactory).newAkkaServiceClient("foo")
-      verify(defaultServiceClient, never).destroy()
+      verify(httpClientService).getClient("foo")
     }
 
     it("should not build a new service client if the token connection pool ID does not change from/to null") {
       samlPolicyProvider.using("tokenUri", "policyUri", None, Some("baz"))
       samlPolicyProvider.using("tokenUri", "policyUri", None, Some("baz"))
 
-      verify(akkaServiceClientFactory).newAkkaServiceClient()
-      verify(defaultServiceClient, never).destroy()
+      verify(httpClientService).getDefaultClient()
     }
 
     it("should build a new service client when the policy connection pool ID changes") {
       samlPolicyProvider.using("tokenUri", "policyUri", Some("baz"), Some("foo"))
       samlPolicyProvider.using("tokenUri", "policyUri", Some("baz"), Some("bar"))
 
-      verify(akkaServiceClientFactory).newAkkaServiceClient("foo")
-      verify(defaultServiceClient).destroy()
-      verify(akkaServiceClientFactory).newAkkaServiceClient("bar")
+      verify(httpClientService).getClient("foo")
+      verify(httpClientService).getClient("bar")
     }
 
     it("should build a new service client when the policy connection pool ID changes from None") {
       samlPolicyProvider.using("tokenUri", "policyUri", Some("baz"), None)
       samlPolicyProvider.using("tokenUri", "policyUri", Some("baz"), Some("bar"))
 
-      verify(akkaServiceClientFactory).newAkkaServiceClient()
-      verify(defaultServiceClient).destroy()
-      verify(akkaServiceClientFactory).newAkkaServiceClient("bar")
+      verify(httpClientService).getDefaultClient()
+      verify(httpClientService).getClient("bar")
     }
 
     it("should build a new service client when the policy connection pool ID changes to None") {
       samlPolicyProvider.using("tokenUri", "policyUri", Some("baz"), Some("foo"))
       samlPolicyProvider.using("tokenUri", "policyUri", Some("baz"), None)
 
-      verify(akkaServiceClientFactory).newAkkaServiceClient("foo")
-      verify(defaultServiceClient).destroy()
-      verify(akkaServiceClientFactory).newAkkaServiceClient()
+      verify(httpClientService).getClient("foo")
+      verify(httpClientService).getDefaultClient()
     }
 
     it("should not build a new service client if the policy connection pool ID does not change") {
       samlPolicyProvider.using("tokenUri", "policyUri", Some("baz"), Some("foo"))
       samlPolicyProvider.using("tokenUri", "policyUri", Some("baz"), Some("foo"))
 
-      verify(akkaServiceClientFactory).newAkkaServiceClient("foo")
-      verify(defaultServiceClient, never).destroy()
+      verify(httpClientService).getClient("foo")
     }
 
     it("should not build a new service client if the policy connection pool ID does not change from/to null") {
       samlPolicyProvider.using("tokenUri", "policyUri", Some("baz"), None)
       samlPolicyProvider.using("tokenUri", "policyUri", Some("baz"), None)
 
-      verify(akkaServiceClientFactory).newAkkaServiceClient()
-      verify(defaultServiceClient, never).destroy()
+      verify(httpClientService).getDefaultClient()
     }
   }
 
@@ -174,13 +168,13 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       """.stripMargin
 
     it("should return a Failure if the service client cannot connect") {
-      when(tokenServiceClient.post(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyString(),
-        MM.any[MediaType]
-      )).thenThrow(new RuntimeException("Could not connect"))
+      when(tokenHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpPost.METHOD_NAME.equals(request.getMethod)) throw new RuntimeException("Could not connect")
+        else null
+      ))
 
       samlPolicyProvider.using("", "", Some(TokenServiceClientId), None)
 
@@ -190,68 +184,68 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should forward a trace ID if provided") {
-      when(tokenServiceClient.post(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyString(),
-        MM.any[MediaType]
-      )).thenReturn(new ServiceClientResponse(SC_OK, null))
+      when(tokenHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpPost.METHOD_NAME.equals(request.getMethod)) makeResponse(SC_OK)
+        else null
+      ))
 
       samlPolicyProvider.using("", "", Some(TokenServiceClientId), None)
 
       samlPolicyProvider.getToken("username", "password", Some("trace-id"))
 
-      verify(tokenServiceClient).post(
-        MM.anyString(),
-        MM.anyString(),
-        MM.argThat(HM.hasEntry(TRACE_GUID, "trace-id")),
-        MM.anyString(),
-        MM.any[MediaType]
-      )
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpUriRequest])
+      verify(tokenHttpClient).execute(requestCaptor.capture(), MM.any[HttpContext])
+
+      val request = requestCaptor.getValue
+      request.getMethod shouldEqual HttpPost.METHOD_NAME
+      request.getFirstHeader(TRACE_GUID).getValue shouldEqual "trace-id"
     }
 
     it("should not forward a trace ID if not provided") {
-      when(tokenServiceClient.post(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyString(),
-        MM.any[MediaType]
-      )).thenReturn(new ServiceClientResponse(SC_OK, null))
+      when(tokenHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpPost.METHOD_NAME.equals(request.getMethod)) makeResponse(SC_OK)
+        else null
+      ))
 
       samlPolicyProvider.using("", "", Some(TokenServiceClientId), None)
 
       samlPolicyProvider.getToken("username", "password", None)
 
-      verify(tokenServiceClient).post(
-        MM.anyString(),
-        MM.anyString(),
-        MM.argThat(HM.not(HM.hasKey(TRACE_GUID))),
-        MM.anyString(),
-        MM.any[MediaType]
-      )
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpUriRequest])
+      verify(tokenHttpClient).execute(requestCaptor.capture(), MM.any[HttpContext])
+
+      val request = requestCaptor.getValue
+      request.getMethod shouldEqual HttpPost.METHOD_NAME
+      request.getHeaders(TRACE_GUID) shouldBe empty
     }
 
     it("should return a Failure if the response cannot be parsed") {
-      when(tokenServiceClient.post(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyString(),
-        MM.any[MediaType]
-      )).thenReturn(new ServiceClientResponse(
-        SC_OK,
-        Array(new BasicHeader(
-          CONTENT_TYPE,
-          MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
-        )),
-        new ByteArrayInputStream(
-          """
-            |{
-            |}
-          """.stripMargin.getBytes
-        )
+      when(tokenHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpPost.METHOD_NAME.equals(request.getMethod)) {
+          val responseContent = EntityBuilder.create()
+            .setText(
+              """
+                |{
+                |}
+              """.stripMargin)
+            .setContentType(ContentType.APPLICATION_JSON.withCharset(Charset.defaultCharset()))
+            .build()
+          makeResponse(
+            SC_OK,
+            responseContent
+          )
+        } else {
+          null
+        }
       ))
 
       samlPolicyProvider.using("", "", Some(TokenServiceClientId), None)
@@ -266,13 +260,13 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       SC_TOO_MANY_REQUESTS
     ) foreach { statusCode =>
       it(s"should return a Failure if the request is rate limited with a $statusCode") {
-        when(tokenServiceClient.post(
-          MM.anyString(),
-          MM.anyString(),
-          MM.anyMapOf(classOf[String], classOf[String]),
-          MM.anyString(),
-          MM.any[MediaType]
-        )).thenReturn(new ServiceClientResponse(statusCode, null))
+        when(tokenHttpClient.execute(
+          MM.any[HttpUriRequest],
+          MM.any[HttpContext]
+        )).thenAnswer(makeAnswer((request, _) =>
+          if (HttpPost.METHOD_NAME.equals(request.getMethod)) makeResponse(statusCode)
+          else null
+        ))
 
         samlPolicyProvider.using("", "", Some(TokenServiceClientId), None)
 
@@ -284,19 +278,22 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should return a Success if the response is a 200") {
-      when(tokenServiceClient.post(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyString(),
-        MM.any[MediaType]
-      )).thenReturn(new ServiceClientResponse(
-        SC_OK,
-        Array(new BasicHeader(
-          CONTENT_TYPE,
-          MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
-        )),
-        new ByteArrayInputStream(sampleToken.getBytes)
+      when(tokenHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpPost.METHOD_NAME.equals(request.getMethod)) {
+          val responseContent = EntityBuilder.create()
+            .setText(sampleToken)
+            .setContentType(ContentType.APPLICATION_JSON.withCharset(Charset.defaultCharset()))
+            .build()
+          makeResponse(
+            SC_OK,
+            responseContent
+          )
+        } else {
+          null
+        }
       ))
 
       samlPolicyProvider.using("", "", Some(TokenServiceClientId), None)
@@ -325,13 +322,13 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       SC_SERVICE_UNAVAILABLE
     ) foreach { responseCode =>
       it(s"should return a Failure if the response is a $responseCode") {
-        when(tokenServiceClient.post(
-          MM.anyString(),
-          MM.anyString(),
-          MM.anyMapOf(classOf[String], classOf[String]),
-          MM.anyString(),
-          MM.any[MediaType]
-        )).thenReturn(new ServiceClientResponse(responseCode, null))
+        when(tokenHttpClient.execute(
+          MM.any[HttpUriRequest],
+          MM.any[HttpContext]
+        )).thenAnswer(makeAnswer((request, _) =>
+          if (HttpPost.METHOD_NAME.equals(request.getMethod)) makeResponse(responseCode)
+          else null
+        ))
 
         samlPolicyProvider.using("", "", Some(TokenServiceClientId), None)
 
@@ -348,19 +345,22 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       StandardCharsets.UTF_16
     ) foreach { charset =>
       it(s"should handle $charset response encoding") {
-        when(tokenServiceClient.post(
-          MM.anyString(),
-          MM.anyString(),
-          MM.anyMapOf(classOf[String], classOf[String]),
-          MM.anyString(),
-          MM.any[MediaType]
-        )).thenReturn(new ServiceClientResponse(
-          SC_OK,
-          Array(new BasicHeader(
-            CONTENT_TYPE,
-            MediaType.APPLICATION_JSON + "; charset=" + charset.name()
-          )),
-          new ByteArrayInputStream(sampleToken.getBytes(charset))
+        when(tokenHttpClient.execute(
+          MM.any[HttpUriRequest],
+          MM.any[HttpContext]
+        )).thenAnswer(makeAnswer((request, _) =>
+          if (HttpPost.METHOD_NAME.equals(request.getMethod)) {
+            val responseContent = EntityBuilder.create()
+              .setText(sampleToken)
+              .setContentType(ContentType.APPLICATION_JSON.withCharset(Charset.defaultCharset()))
+              .build()
+            makeResponse(
+              SC_OK,
+              responseContent
+            )
+          } else {
+            null
+          }
         ))
 
         samlPolicyProvider.using("", "", Some(TokenServiceClientId), None)
@@ -373,32 +373,33 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should always check the HTTP request cache") {
-      when(tokenServiceClient.post(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyString(),
-        MM.any[MediaType]
-      )).thenReturn(new ServiceClientResponse(
-        SC_OK,
-        Array(new BasicHeader(
-          CONTENT_TYPE,
-          MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
-        )),
-        new ByteArrayInputStream(sampleToken.getBytes)
+      when(tokenHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpPost.METHOD_NAME.equals(request.getMethod)) {
+          val responseContent = EntityBuilder.create()
+            .setText(sampleToken)
+            .setContentType(ContentType.APPLICATION_JSON.withCharset(Charset.defaultCharset()))
+            .build()
+          makeResponse(
+            SC_OK,
+            responseContent
+          )
+        } else {
+          null
+        }
       ))
 
       samlPolicyProvider.using("", "", Some(TokenServiceClientId), None)
 
       samlPolicyProvider.getToken("username", "password", None)
 
-      verify(tokenServiceClient).post(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyString(),
-        MM.any[MediaType]
-      )
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpUriRequest])
+      verify(tokenHttpClient).execute(requestCaptor.capture(), MM.any[HttpContext])
+
+      val request = requestCaptor.getValue
+      request.getMethod shouldEqual HttpPost.METHOD_NAME
     }
   }
 
@@ -419,12 +420,13 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       """.stripMargin
 
     it("should return a Failure if the service client cannot connect") {
-      when(policyServiceClient.get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyBoolean()
-      )).thenThrow(new RuntimeException("Could not connect"))
+      when(policyHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpGet.METHOD_NAME.equals(request.getMethod)) throw new RuntimeException("Could not connect")
+        else null
+      ))
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
@@ -434,85 +436,88 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should forward a trace ID if provided") {
-      when(policyServiceClient.get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyBoolean()
-      )).thenReturn(new ServiceClientResponse(SC_OK, null))
+      when(policyHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpGet.METHOD_NAME.equals(request.getMethod)) makeResponse(SC_OK)
+        else null
+      ))
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getIdpId("issuer", "token", Some("trace-id"), checkCache = true)
 
-      verify(policyServiceClient).get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.argThat(HM.hasEntry(TRACE_GUID, "trace-id")),
-        MM.anyBoolean()
-      )
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpUriRequest])
+      verify(policyHttpClient).execute(requestCaptor.capture(), MM.any[HttpContext])
+
+      val request = requestCaptor.getValue
+      request.getMethod shouldEqual HttpGet.METHOD_NAME
+      request.getFirstHeader(TRACE_GUID).getValue shouldEqual "trace-id"
     }
 
     it("should not forward a trace ID if not provided") {
-      when(policyServiceClient.get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyBoolean()
-      )).thenReturn(new ServiceClientResponse(SC_OK, null))
+      when(policyHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpGet.METHOD_NAME.equals(request.getMethod)) makeResponse(SC_OK)
+        else null
+      ))
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
-      verify(policyServiceClient).get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.argThat(HM.not(HM.hasKey(TRACE_GUID))),
-        MM.anyBoolean()
-      )
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpUriRequest])
+      verify(policyHttpClient).execute(requestCaptor.capture(), MM.any[HttpContext])
+
+      val request = requestCaptor.getValue
+      request.getMethod shouldEqual HttpGet.METHOD_NAME
+      request.getHeaders(TRACE_GUID) shouldBe empty
     }
 
     it("should forward the provided token as a header") {
       val token = "a-unique-token"
 
-      when(policyServiceClient.get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyBoolean()
-      )).thenReturn(new ServiceClientResponse(SC_OK, null))
+      when(policyHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpGet.METHOD_NAME.equals(request.getMethod)) makeResponse(SC_OK)
+        else null
+      ))
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getIdpId("issuer", token, Some("trace-id"), checkCache = true)
 
-      verify(policyServiceClient).get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.argThat(HM.hasEntry(CommonHttpHeader.AUTH_TOKEN, token)),
-        MM.anyBoolean()
-      )
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpUriRequest])
+      verify(policyHttpClient).execute(requestCaptor.capture(), MM.any[HttpContext])
+
+      val request = requestCaptor.getValue
+      request.getMethod shouldEqual HttpGet.METHOD_NAME
+      request.getFirstHeader(CommonHttpHeader.AUTH_TOKEN).getValue shouldEqual token
     }
 
     it("should return a Failure if the response cannot be parsed") {
-      when(policyServiceClient.get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyBoolean()
-      )).thenReturn(new ServiceClientResponse(
-        SC_OK,
-        Array(new BasicHeader(
-          CONTENT_TYPE,
-          MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
-        )),
-        new ByteArrayInputStream(
-          """
-            |{
-            |}
-          """.stripMargin.getBytes
-        )
+      when(policyHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpGet.METHOD_NAME.equals(request.getMethod)) {
+          val content = EntityBuilder.create()
+            .setText(
+              """
+                |{
+                |}
+              """.stripMargin)
+            .setContentType(ContentType.APPLICATION_JSON.withCharset(Charset.defaultCharset()))
+            .build()
+          makeResponse(SC_OK, content)
+        } else {
+          null
+        }
       ))
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
@@ -527,12 +532,13 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       SC_TOO_MANY_REQUESTS
     ) foreach { statusCode =>
       it(s"should return a Failure if the request is rate limited with a $statusCode") {
-        when(policyServiceClient.get(
-          MM.anyString(),
-          MM.anyString(),
-          MM.anyMapOf(classOf[String], classOf[String]),
-          MM.anyBoolean()
-        )).thenReturn(new ServiceClientResponse(statusCode, null))
+        when(policyHttpClient.execute(
+          MM.any[HttpUriRequest],
+          MM.any[HttpContext]
+        )).thenAnswer(makeAnswer((request, _) =>
+          if (HttpGet.METHOD_NAME.equals(request.getMethod)) makeResponse(statusCode)
+          else null
+        ))
 
         samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
@@ -544,18 +550,19 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should return a Success if the response is a 200") {
-      when(policyServiceClient.get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyBoolean()
-      )).thenReturn(new ServiceClientResponse(
-        SC_OK,
-        Array(new BasicHeader(
-          CONTENT_TYPE,
-          MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
-        )),
-        new ByteArrayInputStream(sampleIdp.getBytes)
+      when(policyHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpGet.METHOD_NAME.equals(request.getMethod)) {
+          val content = EntityBuilder.create()
+            .setText(sampleIdp)
+            .setContentType(ContentType.APPLICATION_JSON.withCharset(Charset.defaultCharset()))
+            .build()
+          makeResponse(SC_OK, content)
+        } else {
+          null
+        }
       ))
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
@@ -585,12 +592,13 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       SC_SERVICE_UNAVAILABLE
     ) foreach { responseCode =>
       it(s"should return a Failure if the response is a $responseCode") {
-        when(policyServiceClient.get(
-          MM.anyString(),
-          MM.anyString(),
-          MM.anyMapOf(classOf[String], classOf[String]),
-          MM.anyBoolean()
-        )).thenReturn(new ServiceClientResponse(responseCode, null))
+        when(policyHttpClient.execute(
+          MM.any[HttpUriRequest],
+          MM.any[HttpContext]
+        )).thenAnswer(makeAnswer((request, _) =>
+          if (HttpGet.METHOD_NAME.equals(request.getMethod)) makeResponse(responseCode)
+          else null
+        ))
 
         samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
@@ -607,18 +615,19 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       StandardCharsets.UTF_16
     ) foreach { charset =>
       it(s"should handle $charset response encoding") {
-        when(policyServiceClient.get(
-          MM.anyString(),
-          MM.anyString(),
-          MM.anyMapOf(classOf[String], classOf[String]),
-          MM.anyBoolean()
-        )).thenReturn(new ServiceClientResponse(
-          SC_OK,
-          Array(new BasicHeader(
-            CONTENT_TYPE,
-            MediaType.APPLICATION_JSON + "; charset=" + charset.name
-          )),
-          new ByteArrayInputStream(sampleIdp.getBytes(charset))
+        when(policyHttpClient.execute(
+          MM.any[HttpUriRequest],
+          MM.any[HttpContext]
+        )).thenAnswer(makeAnswer((request, _) =>
+          if (HttpGet.METHOD_NAME.equals(request.getMethod)) {
+            val content = EntityBuilder.create()
+              .setText(sampleIdp)
+              .setContentType(ContentType.APPLICATION_JSON.withCharset(Charset.defaultCharset()))
+              .build()
+            makeResponse(SC_OK, content)
+          } else {
+            null
+          }
         ))
 
         samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
@@ -632,57 +641,63 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should check the HTTP request cache if not retrying") {
-      when(policyServiceClient.get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyBoolean()
-      )).thenReturn(new ServiceClientResponse(
-        SC_OK,
-        Array(new BasicHeader(
-          CONTENT_TYPE,
-          MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
-        )),
-        new ByteArrayInputStream(sampleIdp.getBytes)
+      when(policyHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpGet.METHOD_NAME.equals(request.getMethod)) {
+          val content = EntityBuilder.create()
+            .setText(sampleIdp)
+            .setContentType(ContentType.APPLICATION_JSON.withCharset(Charset.defaultCharset()))
+            .build()
+          makeResponse(SC_OK, content)
+        } else {
+          null
+        }
       ))
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = true)
 
-      verify(policyServiceClient).get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.eq(true)
-      )
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpUriRequest])
+      val contextCaptor = ArgumentCaptor.forClass(classOf[CachingHttpClientContext])
+      verify(policyHttpClient).execute(requestCaptor.capture(), contextCaptor.capture())
+
+      val request = requestCaptor.getValue
+      val context = contextCaptor.getValue
+      request.getMethod shouldEqual HttpGet.METHOD_NAME
+      context.getUseCache shouldBe true
     }
 
     it("should not check the HTTP request cache if retrying") {
-      when(policyServiceClient.get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyBoolean()
-      )).thenReturn(new ServiceClientResponse(
-        SC_OK,
-        Array(new BasicHeader(
-          CONTENT_TYPE,
-          MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
-        )),
-        new ByteArrayInputStream(sampleIdp.getBytes)
+      when(policyHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpGet.METHOD_NAME.equals(request.getMethod)) {
+          val content = EntityBuilder.create()
+            .setText(sampleIdp)
+            .setContentType(ContentType.APPLICATION_JSON.withCharset(Charset.defaultCharset()))
+            .build()
+          makeResponse(SC_OK, content)
+        } else {
+          null
+        }
       ))
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getIdpId("issuer", "token", None, checkCache = false)
 
-      verify(policyServiceClient).get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.eq(false)
-      )
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpUriRequest])
+      val contextCaptor = ArgumentCaptor.forClass(classOf[CachingHttpClientContext])
+      verify(policyHttpClient).execute(requestCaptor.capture(), contextCaptor.capture())
+
+      val request = requestCaptor.getValue
+      val context = contextCaptor.getValue
+      request.getMethod shouldEqual HttpGet.METHOD_NAME
+      context.getUseCache shouldBe false
     }
 
     it("should encode the issuer query parameter") {
@@ -694,12 +709,12 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         samlPolicyProvider.getIdpId(issuer, "token", None, checkCache = false)
       } catch { case _: Throwable => }
 
-      verify(policyServiceClient).get(
-        MM.anyString(),
-        MM.endsWith(UriUtils.encodeQueryParam(issuer, StandardCharsets.UTF_8.name())),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyBoolean()
-      )
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpUriRequest])
+      verify(policyHttpClient).execute(requestCaptor.capture(), MM.any[HttpContext])
+
+      val request = requestCaptor.getValue
+      request.getMethod shouldEqual HttpGet.METHOD_NAME
+      request.getURI.toString should endWith (UriUtils.encodeQueryParam(issuer, StandardCharsets.UTF_8.name()))
     }
   }
 
@@ -728,12 +743,13 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       """.stripMargin
 
     it("should return a Failure if the service client cannot connect") {
-      when(policyServiceClient.get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyBoolean()
-      )).thenThrow(new RuntimeException("Could not connect"))
+      when(policyHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpGet.METHOD_NAME.equals(request.getMethod)) throw new RuntimeException("Could not connect")
+        else null
+      ))
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
@@ -743,65 +759,68 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should forward a trace ID if provided") {
-      when(policyServiceClient.get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyBoolean()
-      )).thenReturn(new ServiceClientResponse(SC_OK, null))
+      when(policyHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpGet.METHOD_NAME.equals(request.getMethod)) makeResponse(SC_OK)
+        else null
+      ))
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getPolicy(ProviderInfo("idpId", Array.empty), "token", Some("trace-id"), checkCache = true)
 
-      verify(policyServiceClient).get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.argThat(HM.hasEntry(TRACE_GUID, "trace-id")),
-        MM.anyBoolean()
-      )
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpUriRequest])
+      verify(policyHttpClient).execute(requestCaptor.capture(), MM.any[HttpContext])
+
+      val request = requestCaptor.getValue
+      request.getMethod shouldEqual HttpGet.METHOD_NAME
+      request.getFirstHeader(TRACE_GUID).getValue shouldEqual "trace-id"
     }
 
     it("should not forward a trace ID if not provided") {
-      when(policyServiceClient.get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyBoolean()
-      )).thenReturn(new ServiceClientResponse(SC_OK, null))
+      when(policyHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpGet.METHOD_NAME.equals(request.getMethod)) makeResponse(SC_OK)
+        else null
+      ))
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getPolicy(ProviderInfo("idpId", Array.empty), "token", None, checkCache = true)
 
-      verify(policyServiceClient).get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.argThat(HM.not(HM.hasKey(TRACE_GUID))),
-        MM.anyBoolean()
-      )
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpUriRequest])
+      verify(policyHttpClient).execute(requestCaptor.capture(), MM.any[HttpContext])
+
+      val request = requestCaptor.getValue
+      request.getMethod shouldEqual HttpGet.METHOD_NAME
+      request.getHeaders(TRACE_GUID) shouldBe empty
     }
 
     it("should forward the provided token as a header") {
       val token = "a-unique-token"
 
-      when(policyServiceClient.get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyBoolean()
-      )).thenReturn(new ServiceClientResponse(SC_OK, null))
+      when(policyHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpGet.METHOD_NAME.equals(request.getMethod)) makeResponse(SC_OK)
+        else null
+      ))
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getPolicy(ProviderInfo("idpId", Array.empty), token, Some("trace-id"), checkCache = true)
 
-      verify(policyServiceClient).get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.argThat(HM.hasEntry(CommonHttpHeader.AUTH_TOKEN, token)),
-        MM.anyBoolean()
-      )
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpUriRequest])
+      verify(policyHttpClient).execute(requestCaptor.capture(), MM.any[HttpContext])
+
+      val request = requestCaptor.getValue
+      request.getMethod shouldEqual HttpGet.METHOD_NAME
+      request.getFirstHeader(CommonHttpHeader.AUTH_TOKEN).getValue shouldEqual token
     }
 
     Set(
@@ -809,12 +828,13 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       SC_TOO_MANY_REQUESTS
     ) foreach { statusCode =>
       it(s"should return a Failure if the request is rate limited with a $statusCode") {
-        when(policyServiceClient.get(
-          MM.anyString(),
-          MM.anyString(),
-          MM.anyMapOf(classOf[String], classOf[String]),
-          MM.anyBoolean()
-        )).thenReturn(new ServiceClientResponse(statusCode, null))
+        when(policyHttpClient.execute(
+          MM.any[HttpUriRequest],
+          MM.any[HttpContext]
+        )).thenAnswer(makeAnswer((request, _) =>
+          if (HttpGet.METHOD_NAME.equals(request.getMethod)) makeResponse(statusCode)
+          else null
+        ))
 
         samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
@@ -826,18 +846,19 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should return a Success if the response is a 200") {
-      when(policyServiceClient.get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyBoolean()
-      )).thenReturn(new ServiceClientResponse(
-        SC_OK,
-        Array(new BasicHeader(
-          CONTENT_TYPE,
-          MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
-        )),
-        new ByteArrayInputStream(samplePolicy.getBytes)
+      when(policyHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpGet.METHOD_NAME.equals(request.getMethod)) {
+          val content = EntityBuilder.create()
+            .setText(samplePolicy)
+            .setContentType(ContentType.APPLICATION_JSON.withCharset(Charset.defaultCharset()))
+            .build()
+          makeResponse(SC_OK, content)
+        } else {
+          null
+        }
       ))
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
@@ -866,12 +887,13 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       SC_SERVICE_UNAVAILABLE
     ) foreach { responseCode =>
       it(s"should return a Failure if the response is a $responseCode") {
-        when(policyServiceClient.get(
-          MM.anyString(),
-          MM.anyString(),
-          MM.anyMapOf(classOf[String], classOf[String]),
-          MM.anyBoolean()
-        )).thenReturn(new ServiceClientResponse(responseCode, null))
+        when(policyHttpClient.execute(
+          MM.any[HttpUriRequest],
+          MM.any[HttpContext]
+        )).thenAnswer(makeAnswer((request, _) =>
+          if (HttpGet.METHOD_NAME.equals(request.getMethod)) makeResponse(responseCode)
+          else null
+        ))
 
         samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
@@ -888,18 +910,19 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
       StandardCharsets.UTF_16
     ) foreach { charset =>
       it(s"should handle $charset response encoding") {
-        when(policyServiceClient.get(
-          MM.anyString(),
-          MM.anyString(),
-          MM.anyMapOf(classOf[String], classOf[String]),
-          MM.anyBoolean()
-        )).thenReturn(new ServiceClientResponse(
-          SC_OK,
-          Array(new BasicHeader(
-            CONTENT_TYPE,
-            MediaType.APPLICATION_JSON + "; charset=" + charset.name
-          )),
-          new ByteArrayInputStream(samplePolicy.getBytes(charset))
+        when(policyHttpClient.execute(
+          MM.any[HttpUriRequest],
+          MM.any[HttpContext]
+        )).thenAnswer(makeAnswer((request, _) =>
+          if (HttpGet.METHOD_NAME.equals(request.getMethod)) {
+            val content = EntityBuilder.create()
+              .setText(samplePolicy)
+              .setContentType(ContentType.APPLICATION_JSON.withCharset(Charset.defaultCharset()))
+              .build()
+            makeResponse(SC_OK, content)
+          } else {
+            null
+          }
         ))
 
         samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
@@ -912,18 +935,19 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it(s"should pass on domains") {
-      when(policyServiceClient.get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyBoolean()
-      )).thenReturn(new ServiceClientResponse(
-        SC_OK,
-        Array(new BasicHeader(
-          CONTENT_TYPE,
-          MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
-        )),
-        new ByteArrayInputStream(samplePolicy.getBytes)
+      when(policyHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpGet.METHOD_NAME.equals(request.getMethod)) {
+          val content = EntityBuilder.create()
+            .setText(samplePolicy)
+            .setContentType(ContentType.APPLICATION_JSON.withCharset(Charset.defaultCharset()))
+            .build()
+          makeResponse(SC_OK, content)
+        } else {
+          null
+        }
       ))
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
@@ -935,78 +959,79 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
     }
 
     it("should check the HTTP request cache if not retrying") {
-      when(policyServiceClient.get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyBoolean()
-      )).thenReturn(new ServiceClientResponse(
-        SC_OK,
-        Array(new BasicHeader(
-          CONTENT_TYPE,
-          MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
-        )),
-        new ByteArrayInputStream(samplePolicy.getBytes)
+      when(policyHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpGet.METHOD_NAME.equals(request.getMethod)) {
+          val content = EntityBuilder.create()
+            .setText(samplePolicy)
+            .setContentType(ContentType.APPLICATION_JSON.withCharset(Charset.defaultCharset()))
+            .build()
+          makeResponse(SC_OK, content)
+        } else {
+          null
+        }
       ))
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getPolicy(ProviderInfo("idpId", Array.empty), "token", None, checkCache = true)
 
-      verify(policyServiceClient).get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.eq(true)
-      )
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpUriRequest])
+      verify(policyHttpClient).execute(requestCaptor.capture(), MM.any[HttpContext])
+
+      val request = requestCaptor.getValue
+      request.getMethod shouldEqual HttpGet.METHOD_NAME
     }
 
     it("should not check the HTTP request cache if retrying") {
-      when(policyServiceClient.get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.anyBoolean()
-      )).thenReturn(new ServiceClientResponse(
-        SC_OK,
-        Array(new BasicHeader(
-          CONTENT_TYPE,
-          MediaType.APPLICATION_JSON + "; charset=" + Charset.defaultCharset().name()
-        )),
-        new ByteArrayInputStream(samplePolicy.getBytes)
+      when(policyHttpClient.execute(
+        MM.any[HttpUriRequest],
+        MM.any[HttpContext]
+      )).thenAnswer(makeAnswer((request, _) =>
+        if (HttpGet.METHOD_NAME.equals(request.getMethod)) {
+          val content = EntityBuilder.create()
+            .setText(samplePolicy)
+            .setContentType(ContentType.APPLICATION_JSON.withCharset(Charset.defaultCharset()))
+            .build()
+          makeResponse(SC_OK, content)
+        } else {
+          null
+        }
       ))
 
       samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
 
       samlPolicyProvider.getPolicy(ProviderInfo("idpId", Array.empty), "token", None, checkCache = false)
 
-      verify(policyServiceClient).get(
-        MM.anyString(),
-        MM.anyString(),
-        MM.anyMapOf(classOf[String], classOf[String]),
-        MM.eq(false)
-      )
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpUriRequest])
+      verify(policyHttpClient).execute(requestCaptor.capture(), MM.any[HttpContext])
+
+      val request = requestCaptor.getValue
+      request.getMethod shouldEqual HttpGet.METHOD_NAME
     }
 
     Seq(
-      SamlIdentityClient.TextYaml,
-      MediaType.APPLICATION_JSON,
-      MediaType.APPLICATION_XML,
-      MediaType.TEXT_PLAIN
+      ContentType.create(SamlIdentityClient.TextYaml),
+      ContentType.APPLICATION_JSON,
+      ContentType.APPLICATION_XML,
+      ContentType.TEXT_PLAIN
     ) foreach { contentType =>
       it(s"should return the content type of the $contentType policy") {
-        when(policyServiceClient.get(
-          MM.anyString(),
-          MM.anyString(),
-          MM.anyMapOf(classOf[String], classOf[String]),
-          MM.anyBoolean()
-        )).thenReturn(new ServiceClientResponse(
-          SC_OK,
-          Array(new BasicHeader(
-            CONTENT_TYPE,
-            contentType
-          )),
-          new ByteArrayInputStream(Array.empty[Byte])
+        when(policyHttpClient.execute(
+          MM.any[HttpUriRequest],
+          MM.any[HttpContext]
+        )).thenAnswer(makeAnswer((request, _) =>
+          if (HttpGet.METHOD_NAME.equals(request.getMethod)) {
+            val content = EntityBuilder.create()
+              .setText("")
+              .setContentType(contentType)
+              .build()
+            makeResponse(SC_OK, content)
+          } else {
+            null
+          }
         ))
 
         samlPolicyProvider.using("", "", None, Some(PolicyServiceClientId))
@@ -1014,9 +1039,30 @@ class SamlIdentityClientTest extends FunSpec with BeforeAndAfterEach with Matche
         val result = samlPolicyProvider.getPolicy(ProviderInfo("idpId", Array.empty), "token", None, checkCache = false)
 
         result shouldBe a[Success[_]]
-        result.get.contentType shouldEqual contentType
+        result.get.contentType shouldEqual contentType.getMimeType
       }
     }
+  }
+
+  def makeAnswer(f: (HttpUriRequest, CachingHttpClientContext) => CloseableHttpResponse): Answer[CloseableHttpResponse] = {
+    new Answer[CloseableHttpResponse] {
+      override def answer(invocation: InvocationOnMock): CloseableHttpResponse = {
+        val request = invocation.getArguments()(0).asInstanceOf[HttpUriRequest]
+        val context = CachingHttpClientContext.adapt(invocation.getArguments()(1).asInstanceOf[HttpContext])
+        f(request, context)
+      }
+    }
+  }
+
+  def makeResponse(statusCode: Int, entity: HttpEntity = null, headers: Map[String, Seq[String]] = Map.empty): CloseableHttpResponse = {
+    val response = new BasicHttpResponse(HttpVersion.HTTP_1_1, statusCode, null) with CloseableHttpResponse {
+      override def close(): Unit = {}
+    }
+    Option(entity).foreach(response.setEntity)
+    headers.foldLeft(Seq.empty[(String, String)]) { case (aggregate, (headerName, headerValues)) =>
+      aggregate ++ headerValues.map(headerName -> _)
+    }.foreach(tupled(response.addHeader))
+    response
   }
 
   implicit def looseToStrictStringMap(sm: java.util.Map[_, _]): java.util.Map[String, String] =
