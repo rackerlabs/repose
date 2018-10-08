@@ -34,8 +34,8 @@ The id/name of the pool corresponds to the connection pool id found in other ser
           keystore-password="password" <!--14-->
           key-password="password" <!--15-->
           truststore-filename="servers.jks" <!--16-->
-          truststore-password="password"> <!--16-->
-        <headers> <!--17-->
+          truststore-password="password"> <!--17-->
+        <headers> <!--18-->
             <header name="foo" value="bar"/> <!--19-->
         </headers>
     </pool>
@@ -96,7 +96,7 @@ The id/name of the pool corresponds to the connection pool id found in other ser
 <14> The password to access the keystore. +
      NOTE: The `keystore-filename`, `keystore-password`, and `key-password` are all mutually required.
      If one exists, then they all must exist and client authentication is assumed to be required.
-<16> The password for the particular key within the keystore. +
+<15> The password for the particular key within the keystore. +
      NOTE: The `keystore-filename`, `keystore-password`, and `key-password` are all mutually required.
      If one exists, then they all must exist and client authentication is assumed to be required.
 <16> The truststore filename either fully qualified or relative to the *Repose* <<../architecture/configuration.adoc#, configuration directory>>.
