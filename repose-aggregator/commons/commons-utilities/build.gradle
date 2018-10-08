@@ -11,6 +11,7 @@ dependencies {
     compile "com.fasterxml.jackson.core:jackson-core"
     compile "com.fasterxml.jackson.core:jackson-databind"
     compile "org.apache.httpcomponents:httpclient"
+    compile "org.apache.httpcomponents:httpcore"
     compile "org.jvnet.jaxb2_commons:jaxb2-basics-runtime"
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
     compile "io.opentracing:opentracing-api"
