@@ -59,8 +59,8 @@ class KeystoneRequestHandler(identityServiceUri: String, httpClient: HttpClient,
     * Generally speaking, checkCache should have a value of true. The reason is that the admin token is shared by
     * all users, whereas a token, groups, or endpoints are user specific. If checkCache were to be false on retry,
     * then every time the admin token expires, every user request currently in flight is likely to force a unique
-    * connection to be made to the Identity service. That is exactly the problem that the Akka service client was
-    * made to solve.
+    * connection to be made to the Identity service. That is exactly the problem that caching was implemented
+    * to solve.
     *
     * @return a Successful token, or a Failure
     */
