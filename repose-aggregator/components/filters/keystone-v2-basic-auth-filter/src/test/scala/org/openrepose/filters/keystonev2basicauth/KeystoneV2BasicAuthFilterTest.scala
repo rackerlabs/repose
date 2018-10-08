@@ -97,11 +97,11 @@ class KeystoneV2BasicAuthFilterTest extends FunSpec with BeforeAndAfterEach with
 
     it("should obtain a client to use") {
       // given: two different clients will be returned on subsequent calls to the factory to create new instances
-      val firstAkkaServiceClient = mock[HttpClientServiceClient]
-      val secondAkkaServiceClient = mock[HttpClientServiceClient]
+      val firstHttpClient = mock[HttpClientServiceClient]
+      val secondHttpClient = mock[HttpClientServiceClient]
       when(mockHttpClientService.getClient(or(anyString(), isNull.asInstanceOf[String])))
-        .thenReturn(firstAkkaServiceClient)
-        .thenReturn(secondAkkaServiceClient)
+        .thenReturn(firstHttpClient)
+        .thenReturn(secondHttpClient)
 
       // when: configuration is updated twice
       filter.configurationUpdated(config)
