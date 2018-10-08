@@ -20,26 +20,24 @@
 package org.openrepose.nodeservice.httpcomponent
 
 import org.apache.http.HttpEntity
-import org.apache.http.HttpResponse
 import org.apache.http.HttpVersion
 import org.apache.http.StatusLine
-import org.apache.http.client.HttpClient
+import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.client.methods.HttpPatch
 import org.apache.http.client.methods.HttpUriRequest
+import org.apache.http.impl.execchain.HttpResponseProxy
 import org.apache.http.message.BasicHttpResponse
-import org.apache.http.params.BasicHttpParams
+import org.apache.http.protocol.HttpContext
 import org.apache.logging.log4j.ThreadContext
 import org.mockito.ArgumentCaptor
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.commons.utils.logging.TracingKey
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.healthcheck.HealthCheckService
-import org.openrepose.core.services.httpclient.HttpClientContainer
 import org.openrepose.core.services.httpclient.HttpClientService
+import org.openrepose.core.services.httpclient.HttpClientServiceClient
 import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.core.systemmodel.config.TracingHeaderConfig
-import org.springframework.mock.web.MockHttpServletRequest
-import org.springframework.mock.web.MockHttpServletResponse
 import spock.lang.Specification
 
 import static org.mockito.Matchers.any
@@ -48,19 +46,17 @@ import static org.mockito.Mockito.*
 
 class RequestProxyServiceImplTest extends Specification {
     RequestProxyServiceImpl requestProxyService
-    HttpClient httpClient
+    HttpClientServiceClient httpClient
     HttpClientService httpClientService
 
     def setup() {
-        httpClient = mock(HttpClient)
-        HttpClientContainer httpClientContainer = mock(HttpClientContainer)
-        when(httpClientContainer.getHttpClient()).thenReturn(httpClient)
+        httpClient = mock(HttpClientServiceClient)
         httpClientService = mock(HttpClientService)
-        when(httpClientService.getDefaultClient()).thenReturn(httpClientContainer)
-        when(httpClientService.getClient(anyString())).thenReturn(httpClientContainer)
+        when(httpClientService.getDefaultClient()).thenReturn(httpClient)
+        when(httpClientService.getClient(anyString())).thenReturn(httpClient)
         requestProxyService = new RequestProxyServiceImpl(
-                mock(ConfigurationService.class),
-                mock(HealthCheckService.class),
+                mock(ConfigurationService),
+                mock(HealthCheckService),
                 httpClientService,
                 "cluster",
                 "node")
@@ -72,11 +68,11 @@ class RequestProxyServiceImplTest extends Specification {
         when(statusLine.getStatusCode()).thenReturn(418)
         HttpEntity httpEntity = mock(HttpEntity)
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream([1, 2, 3] as byte[]))
-        HttpResponse httpResponse = mock(HttpResponse)
+        CloseableHttpResponse httpResponse = mock(CloseableHttpResponse)
         when(httpResponse.getStatusLine()).thenReturn(statusLine)
         when(httpResponse.getEntity()).thenReturn(httpEntity)
         ArgumentCaptor<HttpPatch> captor = ArgumentCaptor.forClass(HttpPatch)
-        when(httpClient.execute(captor.capture())).thenReturn(httpResponse)
+        when(httpClient.execute(captor.capture(), any(HttpContext) as HttpContext)).thenReturn(httpResponse)
 
         when:
         byte[] sentBytes = [4, 5, 6] as byte[]
@@ -104,11 +100,11 @@ class RequestProxyServiceImplTest extends Specification {
         when(statusLine.getStatusCode()).thenReturn(418)
         HttpEntity httpEntity = mock(HttpEntity)
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream([1, 2, 3] as byte[]))
-        HttpResponse httpResponse = mock(HttpResponse)
+        CloseableHttpResponse httpResponse = mock(CloseableHttpResponse)
         when(httpResponse.getStatusLine()).thenReturn(statusLine)
         when(httpResponse.getEntity()).thenReturn(httpEntity)
         ArgumentCaptor<HttpPatch> captor = ArgumentCaptor.forClass(HttpPatch)
-        when(httpClient.execute(captor.capture())).thenReturn(httpResponse)
+        when(httpClient.execute(captor.capture(), any(HttpContext) as HttpContext)).thenReturn(httpResponse)
 
         when:
         byte[] sentBytes = [4, 5, 6] as byte[]
@@ -141,11 +137,11 @@ class RequestProxyServiceImplTest extends Specification {
         when(statusLine.getStatusCode()).thenReturn(418)
         HttpEntity httpEntity = mock(HttpEntity)
         when(httpEntity.getContent()).thenReturn(new ByteArrayInputStream([1, 2, 3] as byte[]))
-        HttpResponse httpResponse = mock(HttpResponse)
+        CloseableHttpResponse httpResponse = mock(CloseableHttpResponse)
         when(httpResponse.getStatusLine()).thenReturn(statusLine)
         when(httpResponse.getEntity()).thenReturn(httpEntity)
         ArgumentCaptor<HttpPatch> captor = ArgumentCaptor.forClass(HttpPatch)
-        when(httpClient.execute(captor.capture())).thenReturn(httpResponse)
+        when(httpClient.execute(captor.capture(), any(HttpContext) as HttpContext)).thenReturn(httpResponse)
 
         when:
         byte[] sentBytes = [4, 5, 6] as byte[]
@@ -168,37 +164,10 @@ class RequestProxyServiceImplTest extends Specification {
         ThreadContext.clearAll()
     }
 
-    def "proxyRequest(host, request, response, null) will try to use the default connection pool"() {
-        given:
-        when(httpClient.execute(any(HttpUriRequest.class)))
-                .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"))
-        when(httpClient.getParams()).thenReturn(new BasicHttpParams())
-
-        when:
-        requestProxyService.proxyRequest("http://www.google.com", new MockHttpServletRequest(), new MockHttpServletResponse())
-
-        then:
-        verification { verify(httpClientService).getClient(null) }
-    }
-
-    def "proxyRequest(host, request, response, connPoolId) will try to use a given connection pool"() {
-        given:
-        String testPoolId = "test-pool-id"
-        when(httpClient.execute(any(HttpUriRequest.class)))
-                .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"))
-        when(httpClient.getParams()).thenReturn(new BasicHttpParams())
-
-        when:
-        requestProxyService.proxyRequest("http://www.google.com", new MockHttpServletRequest(), new MockHttpServletResponse(), testPoolId)
-
-        then:
-        verification { verify(httpClientService).getClient(testPoolId) }
-    }
-
     def "get(uri, headers, null) will try to use the default connection pool"() {
         given:
-        when(httpClient.execute(any(HttpUriRequest.class)))
-                .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"))
+        when(httpClient.execute(any(HttpUriRequest), any(HttpContext) as HttpContext))
+                .thenReturn(new HttpResponseProxy(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"), null))
 
         when:
         requestProxyService.get("http://www.google.com", Collections.emptyMap(), null)
@@ -210,8 +179,8 @@ class RequestProxyServiceImplTest extends Specification {
     def "get(uri, headers, connPoolId) will try to use a given connection pool"() {
         given:
         String testPoolId = "test-pool-id"
-        when(httpClient.execute(any(HttpUriRequest.class)))
-                .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"))
+        when(httpClient.execute(any(HttpUriRequest), any(HttpContext) as HttpContext))
+                .thenReturn(new HttpResponseProxy(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"), null))
         when:
         requestProxyService.get("http://www.google.com", Collections.emptyMap(), testPoolId)
 
@@ -221,8 +190,8 @@ class RequestProxyServiceImplTest extends Specification {
 
     def "get(uri, extraUri, headers, null) will try to use the default connection pool"() {
         given:
-        when(httpClient.execute(any(HttpUriRequest.class)))
-                .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"))
+        when(httpClient.execute(any(HttpUriRequest), any(HttpContext) as HttpContext))
+                .thenReturn(new HttpResponseProxy(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"), null))
         when:
         requestProxyService.get("http://www.google.com", "key", Collections.emptyMap(), null)
 
@@ -233,8 +202,8 @@ class RequestProxyServiceImplTest extends Specification {
     def "get(uri, extraUri, headers, connPoolId) will try to use a given connection pool"() {
         given:
         String testPoolId = "test-pool-id"
-        when(httpClient.execute(any(HttpUriRequest.class)))
-                .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"))
+        when(httpClient.execute(any(HttpUriRequest), any(HttpContext) as HttpContext))
+                .thenReturn(new HttpResponseProxy(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"), null))
 
         when:
         requestProxyService.get("http://www.google.com", "key", Collections.emptyMap(), testPoolId)
@@ -245,8 +214,8 @@ class RequestProxyServiceImplTest extends Specification {
 
     def "put(uri, headers, body, null) will try to use the default connection pool"() {
         given:
-        when(httpClient.execute(any(HttpUriRequest.class)))
-                .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 204, "OK"))
+        when(httpClient.execute(any(HttpUriRequest), any(HttpContext) as HttpContext))
+                .thenReturn(new HttpResponseProxy(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"), null))
 
         when:
         requestProxyService.put("http://www.google.com", Collections.emptyMap(), [] as byte[], null)
@@ -258,8 +227,8 @@ class RequestProxyServiceImplTest extends Specification {
     def "put(uri, headers, body, connPoolId) will try to use a given connection pool"() {
         given:
         String testPoolId = "test-pool-id"
-        when(httpClient.execute(any(HttpUriRequest.class)))
-                .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 204, "OK"))
+        when(httpClient.execute(any(HttpUriRequest), any(HttpContext) as HttpContext))
+                .thenReturn(new HttpResponseProxy(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"), null))
 
         when:
         requestProxyService.put("http://www.google.com", Collections.emptyMap(), [] as byte[], testPoolId)
@@ -270,8 +239,8 @@ class RequestProxyServiceImplTest extends Specification {
 
     def "put(uri, path, headers, body, null) will try to use the default connection pool"() {
         given:
-        when(httpClient.execute(any(HttpUriRequest.class)))
-                .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 204, "OK"))
+        when(httpClient.execute(any(HttpUriRequest), any(HttpContext) as HttpContext))
+                .thenReturn(new HttpResponseProxy(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"), null))
 
         when:
         requestProxyService.put("http://www.google.com", "", Collections.emptyMap(), [] as byte[], null)
@@ -283,8 +252,8 @@ class RequestProxyServiceImplTest extends Specification {
     def "put(uri, path, headers, body, connPoolId) will try to use a given connection pool"() {
         given:
         String testPoolId = "test-pool-id"
-        when(httpClient.execute(any(HttpUriRequest.class)))
-                .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 204, "OK"))
+        when(httpClient.execute(any(HttpUriRequest), any(HttpContext) as HttpContext))
+                .thenReturn(new HttpResponseProxy(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"), null))
 
         when:
         requestProxyService.put("http://www.google.com", "", Collections.emptyMap(), [] as byte[], testPoolId)
@@ -295,8 +264,8 @@ class RequestProxyServiceImplTest extends Specification {
 
     def "patch(uri, path, headers, body, null) will try to use the default connection pool"() {
         given:
-        when(httpClient.execute(any(HttpUriRequest.class)))
-                .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 204, "OK"))
+        when(httpClient.execute(any(HttpUriRequest), any(HttpContext) as HttpContext))
+                .thenReturn(new HttpResponseProxy(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"), null))
 
         when:
         requestProxyService.patch("http://www.google.com", "", Collections.emptyMap(), [] as byte[], null)
@@ -308,8 +277,8 @@ class RequestProxyServiceImplTest extends Specification {
     def "patch(uri, path, headers, body, connPoolId) will try to use a given connection pool"() {
         given:
         String testPoolId = "test-pool-id"
-        when(httpClient.execute(any(HttpUriRequest.class)))
-                .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 204, "OK"))
+        when(httpClient.execute(any(HttpUriRequest), any(HttpContext) as HttpContext))
+                .thenReturn(new HttpResponseProxy(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"), null))
 
         when:
         requestProxyService.patch("http://www.google.com", "", Collections.emptyMap(), [] as byte[], testPoolId)
@@ -320,8 +289,8 @@ class RequestProxyServiceImplTest extends Specification {
 
     def "delete(uri, path, headers, null) will try to use the default connection pool"() {
         given:
-        when(httpClient.execute(any(HttpUriRequest.class)))
-                .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 204, "OK"))
+        when(httpClient.execute(any(HttpUriRequest), any(HttpContext) as HttpContext))
+                .thenReturn(new HttpResponseProxy(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"), null))
 
         when:
         requestProxyService.patch("http://www.google.com", "", Collections.emptyMap(), [] as byte[], null)
@@ -333,8 +302,8 @@ class RequestProxyServiceImplTest extends Specification {
     def "delete(uri, path, headers, connPoolId) will try to use a given connection pool"() {
         given:
         String testPoolId = "test-pool-id"
-        when(httpClient.execute(any(HttpUriRequest.class)))
-                .thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 204, "OK"))
+        when(httpClient.execute(any(HttpUriRequest), any(HttpContext) as HttpContext))
+                .thenReturn(new HttpResponseProxy(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"), null))
 
         when:
         requestProxyService.delete("http://www.google.com", "", Collections.emptyMap(), testPoolId)

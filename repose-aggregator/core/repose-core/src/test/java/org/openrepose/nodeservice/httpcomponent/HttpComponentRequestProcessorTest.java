@@ -19,16 +19,16 @@
  */
 package org.openrepose.nodeservice.httpcomponent;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.params.HttpParams;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper;
+import org.openrepose.core.systemmodel.config.ChunkedEncoding;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
@@ -69,7 +69,7 @@ public class HttpComponentRequestProcessorTest {
         when(request.getHeaders(eq("header2"))).thenReturn(Collections.enumeration(Arrays.asList(values2)));
         when(request.getQueryString()).thenReturn(queryString);
         when(method.getParams()).thenReturn(methodParams);
-        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "true");
+        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, ChunkedEncoding.TRUE);
     }
 
     @Test
@@ -114,12 +114,12 @@ public class HttpComponentRequestProcessorTest {
     }
 
     @Test
-    public void shouldSetUnknownContentLengthIfChunkedIsInvalid() throws Exception {
+    public void shouldSetUnknownContentLengthIfChunkedIsNull() throws Exception {
         when(request.getInputStream())
                 .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{})));
 
-        ArgumentCaptor<InputStreamEntity> requestEntityCaptor = ArgumentCaptor.forClass(InputStreamEntity.class);
-        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "invalid");
+        ArgumentCaptor<HttpEntity> requestEntityCaptor = ArgumentCaptor.forClass(HttpEntity.class);
+        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, null);
         processor.process(method);
 
         verify(method).setEntity(requestEntityCaptor.capture());
@@ -131,8 +131,8 @@ public class HttpComponentRequestProcessorTest {
         when(request.getInputStream())
                 .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{})));
 
-        ArgumentCaptor<InputStreamEntity> requestEntityCaptor = ArgumentCaptor.forClass(InputStreamEntity.class);
-        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "true");
+        ArgumentCaptor<HttpEntity> requestEntityCaptor = ArgumentCaptor.forClass(HttpEntity.class);
+        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, ChunkedEncoding.TRUE);
         processor.process(method);
 
         verify(method).setEntity(requestEntityCaptor.capture());
@@ -145,8 +145,8 @@ public class HttpComponentRequestProcessorTest {
         when(request.getInputStream())
                 .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(body.getBytes())));
 
-        ArgumentCaptor<InputStreamEntity> requestEntityCaptor = ArgumentCaptor.forClass(InputStreamEntity.class);
-        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "false");
+        ArgumentCaptor<HttpEntity> requestEntityCaptor = ArgumentCaptor.forClass(HttpEntity.class);
+        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, ChunkedEncoding.TRUE);
         processor.process(method);
 
         verify(method).setEntity(requestEntityCaptor.capture());
@@ -160,8 +160,8 @@ public class HttpComponentRequestProcessorTest {
         when(request.getHeader(eq("transfer-encoding")))
                 .thenReturn("chunked");
 
-        ArgumentCaptor<InputStreamEntity> requestEntityCaptor = ArgumentCaptor.forClass(InputStreamEntity.class);
-        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "auto");
+        ArgumentCaptor<HttpEntity> requestEntityCaptor = ArgumentCaptor.forClass(HttpEntity.class);
+        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, ChunkedEncoding.AUTO);
         processor.process(method);
 
         verify(method).setEntity(requestEntityCaptor.capture());
@@ -174,8 +174,8 @@ public class HttpComponentRequestProcessorTest {
         when(request.getInputStream())
                 .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(body.getBytes())));
 
-        ArgumentCaptor<InputStreamEntity> requestEntityCaptor = ArgumentCaptor.forClass(InputStreamEntity.class);
-        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, "auto");
+        ArgumentCaptor<HttpEntity> requestEntityCaptor = ArgumentCaptor.forClass(HttpEntity.class);
+        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, ChunkedEncoding.AUTO);
         processor.process(method);
 
         verify(method).setEntity(requestEntityCaptor.capture());

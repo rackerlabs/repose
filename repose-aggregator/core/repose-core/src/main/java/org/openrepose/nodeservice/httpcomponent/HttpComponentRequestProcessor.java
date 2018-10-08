@@ -20,15 +20,17 @@
 package org.openrepose.nodeservice.httpcomponent;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
-import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.io.BufferedServletInputStream;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.core.proxy.common.AbstractRequestProcessor;
+import org.openrepose.core.systemmodel.config.ChunkedEncoding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,9 +40,13 @@ import javax.ws.rs.core.HttpHeaders;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
+
+import static org.apache.http.HttpHeaders.TRANSFER_ENCODING;
+import static org.apache.http.protocol.HTTP.CHUNK_CODING;
 
 /**
  * Process a request to copy over header values, query string parameters, and
@@ -54,10 +60,10 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
     private final URI targetHost;
 
     private HttpServletRequest sourceRequest;
-    private String chunkedEncoding;
+    private ChunkedEncoding chunkedEncoding;
 
     public HttpComponentRequestProcessor(HttpServletRequest request, URI host, boolean rewriteHostHeader,
-                                         String chunkedEncoding) {
+                                         ChunkedEncoding chunkedEncoding) {
         this.sourceRequest = request;
         this.targetHost = host;
         this.rewriteHostHeader = rewriteHostHeader;
@@ -105,7 +111,7 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
      *
      * @param method
      */
-    private void setHeaders(HttpRequestBase method) {
+    private void setHeaders(HttpUriRequest method) {
         final Enumeration<String> headerNames = sourceRequest.getHeaderNames();
 
         while (headerNames.hasMoreElements()) {
@@ -125,53 +131,70 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
     }
 
     /**
-     * Process a base http request. Base http methods will not contain a message body.
-     *
-     * @param method
-     * @return
-     */
-    public HttpRequestBase process(HttpRequestBase method) {
-        setHeaders(method);
-        return method;
-    }
-
-    /**
-     * Process an entity enclosing http method. These methods can handle a request body.
+     * Process an http method. These methods can handle a request body.
      *
      * @param method
      * @return
      * @throws IOException
      */
     // todo: remove the need for a synchronized method -- this is the only method that needs to be synchronized for now
-    //       since it modifies the sourceRequest
-    public synchronized HttpRequestBase process(HttpEntityEnclosingRequestBase method) throws IOException {
-        final int contentLength = getEntityLength();
+    public synchronized HttpUriRequest process(HttpUriRequest method) throws IOException {
         setHeaders(method);
-        method.setEntity(new InputStreamEntity(sourceRequest.getInputStream(), contentLength));
+
+        if (method instanceof HttpEntityEnclosingRequestBase) {
+            ((HttpEntityEnclosingRequestBase) method).setEntity(getEntity(sourceRequest.getInputStream()));
+        }
+
         return method;
     }
 
-    private int getEntityLength() throws IOException {
-        // Default to -1, which will be treated as an unknown entity length leading to the usage of chunked encoding.
-        int entityLength = -1;
-        switch (chunkedEncoding.toLowerCase()) {
-            case "true":
+    /*
+     * todo: Replace new-ing entities with Apache's EntityBuilder if/when it supports not setting the
+     * todo: content-type on an entity.
+     * todo: Content-Type is not a required HTTP header, and we do not want to add it if the original request
+     * todo: did not contain it.
+     * todo: Instead, we rely on setting the Content-Type header to convey the Content-Type.
+     *
+     * private HttpEntity getEntity(InputStream sourceStream) throws IOException {
+     *     final EntityBuilder entityBuilder = EntityBuilder.create()
+     *         .setStream(sourceStream);
+     *     switch (chunkedEncoding) {
+     *         case TRUE:
+     *             break;
+     *         case AUTO:
+     *             if (StringUtils.equalsIgnoreCase(sourceRequest.getHeader(TRANSFER_ENCODING), CHUNK_CODING)) {
+     *                 break;
+     *             }
+     *         case FALSE:
+     *             entityBuilder.setBinary(readSourceStream());
+     *             break;
+     *         default:
+     *             LOG.warn("Invalid chunked encoding value -- using chunked encoding");
+     *             break;
+     *     }
+     *     return entityBuilder.build();
+     * }
+     */
+    private HttpEntity getEntity(InputStream sourceStream) throws IOException {
+        HttpEntity httpEntity = new InputStreamEntity(sourceStream, -1);
+        switch (chunkedEncoding) {
+            case TRUE:
                 break;
-            case "auto":
-                if (StringUtils.equalsIgnoreCase(sourceRequest.getHeader("transfer-encoding"), "chunked")) {
+            case AUTO:
+                if (StringUtils.equalsIgnoreCase(sourceRequest.getHeader(TRANSFER_ENCODING), CHUNK_CODING)) {
                     break;
                 }
-            case "false":
-                entityLength = getSizeOfRequestBody();
+            case FALSE:
+                httpEntity = new ByteArrayEntity(readSourceStream());
                 break;
             default:
                 LOG.warn("Invalid chunked encoding value -- using chunked encoding");
                 break;
         }
-        return entityLength;
+        return httpEntity;
     }
 
-    private int getSizeOfRequestBody() throws IOException {
+    private byte[] readSourceStream() throws IOException {
         // todo: optimize so subsequent calls to this method do not need to read/copy the entity
         final ByteArrayOutputStream sourceEntity = new ByteArrayOutputStream();
         RawInputStreamReader.instance().copyTo(sourceRequest.getInputStream(), sourceEntity);
@@ -179,6 +202,6 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
         final ServletInputStream readableEntity = new BufferedServletInputStream(new ByteArrayInputStream(sourceEntity.toByteArray()));
         sourceRequest = new HttpServletRequestWrapper(sourceRequest, readableEntity);
 
-        return sourceEntity.size();
+        return sourceEntity.toByteArray();
     }
 }

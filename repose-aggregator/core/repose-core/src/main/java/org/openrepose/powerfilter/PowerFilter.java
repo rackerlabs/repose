@@ -54,7 +54,6 @@ import org.openrepose.core.services.uriredaction.UriRedactionService;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.core.systemmodel.config.*;
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService;
-import org.openrepose.nodeservice.httpcomponent.HttpComponentFactory;
 import org.openrepose.nodeservice.response.ResponseHeaderService;
 import org.openrepose.powerfilter.filtercontext.FilterContext;
 import org.openrepose.powerfilter.filtercontext.FilterContextFactory;
@@ -414,12 +413,6 @@ public class PowerFilter extends DelegatingFilterProxy {
         MDC.put(TracingKey.TRACING_KEY, traceGUID);
 
         try {
-            try {
-                // ensures that the method name exists
-                HttpComponentFactory.valueOf(wrappedRequest.getMethod().toUpperCase());
-            } catch (IllegalArgumentException iae) {
-                throw new InvalidMethodException("Request contained an unknown method.", iae);
-            }
             // Ensure the request URI is a valid URI
             // This object is only being created to ensure its validity.
             // So it is safe to suppress warning squid:S1848
@@ -444,9 +437,6 @@ public class PowerFilter extends DelegatingFilterProxy {
 
                 requestFilterChain.startFilterChain(wrappedRequest, wrappedResponse);
             }
-        } catch (InvalidMethodException ime) {
-            LOG.debug("{}:{} -- Invalid HTTP method requested: {}", clusterId, nodeId, wrappedRequest.getMethod(), ime);
-            wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
         } catch (URISyntaxException use) {
             LOG.debug("{}:{} -- Invalid URI requested: {}", clusterId, nodeId, wrappedRequest.getRequestURI(), use);
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");

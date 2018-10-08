@@ -46,9 +46,11 @@ import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
-import org.openrepose.core.services.httpclient.HttpClientContainer;
+import org.openrepose.core.services.httpclient.CachingHttpClientContext;
 import org.openrepose.core.services.httpclient.HttpClientService;
+import org.openrepose.core.services.httpclient.HttpClientServiceClient;
 import org.openrepose.core.spring.ReposeSpringProperties;
+import org.openrepose.core.systemmodel.config.ChunkedEncoding;
 import org.openrepose.core.systemmodel.config.ReposeCluster;
 import org.openrepose.core.systemmodel.config.SystemModel;
 import org.slf4j.Logger;
@@ -78,7 +80,6 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
-    private static final String CHUNKED_ENCODING_PARAM = "chunked-encoding";
 
     private final ConfigurationService configurationService;
     private final SystemModelListener systemModelListener;
@@ -87,6 +88,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private final HttpClientService httpClientService;
     private final HealthCheckServiceProxy healthCheckServiceProxy;
     private boolean rewriteHostHeader = false;
+    private ChunkedEncoding chunkedEncoding = ChunkedEncoding.TRUE;
 
     @Inject
     public RequestProxyServiceImpl(ConfigurationService configurationService,
@@ -126,44 +128,35 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         throw new HttpException("Invalid target host");
     }
 
-    private HttpClientContainer getClient(String clientId) {
-        return httpClientService.getClient(clientId);
-    }
-
+    // todo: this method is only used by the dispatcher and can be deleted when the WAR deployment is dropped
     @Override
     public int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        return proxyRequest(targetHost, request, response, null);
-    }
-
-    @Override
-    public int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response, String connPoolId) throws IOException {
-        HttpClientContainer httpClientContainer = getClient(connPoolId);
+        HttpClientServiceClient httpClient = httpClientService.getDefaultClient();
 
         try {
-            final String chunkedEncoding = (String) httpClientContainer.getHttpClient().getParams().getParameter(CHUNKED_ENCODING_PARAM);
             final HttpHost proxiedHost = getProxiedHost(targetHost);
             final String target = proxiedHost.toURI() + request.getRequestURI();
             final HttpComponentRequestProcessor processor = new HttpComponentRequestProcessor(request, new URI(proxiedHost.toURI()), rewriteHostHeader, chunkedEncoding);
-            final HttpComponentProcessableRequest method = HttpComponentFactory.getMethod(request.getMethod(), processor.getUri(target));
+            final HttpUriRequest method = RequestBuilder.create(request.getMethod())
+                .setUri(processor.getUri(target))
+                .build();
 
             if (method != null) {
-                HttpRequestBase processedMethod = method.process(processor);
+                HttpUriRequest processedMethod = processor.process(method);
 
-                return executeProxyRequest(httpClientContainer.getHttpClient(), processedMethod, response);
+                return executeProxyRequest(httpClient, processedMethod, response);
             }
         } catch (URISyntaxException | HttpException ex) {
             LOG.error("Error processing request", ex);
-        } finally {
-            httpClientService.releaseClient(httpClientContainer);
         }
 
         //Something exploded; return a status code that doesn't exist
         return -1;
     }
 
-    private int executeProxyRequest(HttpClient httpClient, HttpRequestBase httpMethodProxyRequest, HttpServletResponse response) throws IOException, HttpException {
+    private int executeProxyRequest(HttpClient httpClient, HttpUriRequest httpMethodProxyRequest, HttpServletResponse response) throws IOException, HttpException {
         try {
-            HttpResponse httpResponse = httpClient.execute(httpMethodProxyRequest);
+            HttpResponse httpResponse = httpClient.execute(httpMethodProxyRequest, CachingHttpClientContext.create().setUseCache(false));
             int responseCode = httpResponse.getStatusLine().getStatusCode();
             HttpComponentResponseProcessor responseProcessor = new HttpComponentResponseProcessor(httpResponse, response, responseCode);
 
@@ -211,9 +204,9 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         // I'm not exactly sure why this rule is triggering on this since HttpClientContainer does NOT implement one of the required interfaces.
         // It is also not simply closed, but it is released back to the pool from which it was originally retrieved.
         // So it is safe to suppress warning squid:S2093
-        HttpClientContainer httpClientContainer = getClient(connPoolId);
+        HttpClientServiceClient httpClient = httpClientService.getClient(connPoolId);
         try {
-            HttpResponse httpResponse = httpClientContainer.getHttpClient().execute(base);
+            HttpResponse httpResponse = httpClient.execute(base, CachingHttpClientContext.create().setUseCache(false));
             HttpEntity entity = httpResponse.getEntity();
             int responseCode = httpResponse.getStatusLine().getStatusCode();
 
@@ -226,9 +219,6 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             return new ServiceClientResponse(responseCode, stream);
         } catch (IOException ex) {
             LOG.error("Error executing request to {}", base.getURI().toString(), ex);
-        } finally {
-            base.releaseConnection();
-            httpClientService.releaseClient(httpClientContainer);
         }
 
         return new ServiceClientResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, null);
@@ -278,11 +268,6 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         return execute(patch, connPoolId);
     }
 
-    @Override
-    public void setRewriteHostHeader(boolean value) {
-        this.rewriteHostHeader = value;
-    }
-
     private class SystemModelListener implements UpdateListener<SystemModel> {
 
         private boolean isInitialized = false;
@@ -293,7 +278,8 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             Optional<ReposeCluster> localCluster = systemModelInterrogator.getLocalCluster(config);
 
             if (localCluster.isPresent()) {
-                setRewriteHostHeader(localCluster.get().isRewriteHostHeader());
+                rewriteHostHeader = localCluster.get().isRewriteHostHeader();
+                chunkedEncoding = localCluster.get().getChunkedEncoding();
                 isInitialized = true;
 
                 healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
