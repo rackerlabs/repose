@@ -45,7 +45,6 @@ import scala.util.{Failure, Success, Try}
   * The default singleton scope is used, and works, due entirely to the separation of
   * Spring contexts between filters.
   */
-// todo: do not update since this filter was moved out of our control -- rebase after REP-7201
 @Named
 class SamlIdentityClient @Inject()(httpClientService: HttpClientService) {
 
