@@ -19,19 +19,17 @@
  */
 package org.openrepose.filters.headernormalization
 
-import java.net.URL
 import java.util.Optional
-import javax.inject.{Inject, Named}
-import javax.servlet._
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.codahale.metrics.MetricRegistry
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.openrepose.commons.config.manager.UpdateListener
+import javax.inject.{Inject, Named}
+import javax.servlet._
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.commons.utils.string.RegexString
-import org.openrepose.core.filter.FilterConfigHelper
+import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.reporting.metrics.{MetricNameUtility, MetricsService}
 import org.openrepose.filters.headernormalization.HeaderNormalizationFilter._
@@ -41,36 +39,16 @@ import scala.collection.JavaConverters._
 
 @Named
 class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationService, optMetricsService: Optional[MetricsService])
-  extends Filter with UpdateListener[HeaderNormalizationConfig] with StrictLogging {
+  extends AbstractConfiguredFilter[HeaderNormalizationConfig](configurationService) with StrictLogging {
 
-  private final val NormalizationMetricPrefix = MetricRegistry.name(classOf[HeaderNormalizationFilter], "Normalization")
-  private final val RequestNormalizationMetricPrefix = MetricRegistry.name(NormalizationMetricPrefix, "request")
-  private final val ResponseNormalizationMetricPrefix = MetricRegistry.name(NormalizationMetricPrefix, "response")
+  override val DEFAULT_CONFIG: String = "header-normalization.cfg.xml"
+  override val SCHEMA_LOCATION: String = "/META-INF/schema/config/header-normalization-configuration.xsd"
 
-  private var configurationFile: String = DEFAULT_CONFIG
-  private var initialized = false
   private var configRequest: Seq[Target] = _
   private var configResponse: Seq[Target] = _
   private val metricsService = Option(optMetricsService.orElse(null))
 
-  override def init(filterConfig: FilterConfig): Unit = {
-    logger.trace("Header Normalization filter initializing...")
-    configurationFile = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
-
-    logger.info(s"Initializing Header Normalization filter using config $configurationFile")
-    val xsdUrl: URL = getClass.getResource(SCHEMA_FILE_NAME)
-    configurationService.subscribeTo(filterConfig.getFilterName, configurationFile, xsdUrl, this, classOf[HeaderNormalizationConfig])
-
-    logger.trace("Header Normalization filter initialized.")
-  }
-
-  override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
-    if (!isInitialized) {
-      logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
-      servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
-      return
-    }
-
+  override def doWork(servletRequest: HttpServletRequest, servletResponse: HttpServletResponse, filterChain: FilterChain): Unit = {
     val wrappedRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
 
     configRequest find { target =>
@@ -130,13 +108,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
     if (wrappedResponse.isDefined) wrappedResponse.get.commitToResponse()
   }
 
-  override def destroy(): Unit = {
-    logger.trace("Header Normalization filter destroying...")
-    configurationService.unsubscribeFrom(configurationFile, this.asInstanceOf[UpdateListener[_]])
-    logger.trace("Header Normalization filter destroyed.")
-  }
-
-  override def configurationUpdated(config: HeaderNormalizationConfig): Unit = {
+  override def doConfigurationUpdated(config: HeaderNormalizationConfig): HeaderNormalizationConfig = {
     def getTarget(target: ConfigTarget, accessList: AccessList, headers: HttpHeaderList): Option[Target] = {
       Option(Target(
         new RegexString(Option(target.getUriRegex).getOrElse(".*")), // if not configured, default is ".*"
@@ -189,16 +161,15 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
       }
     }
 
-    initialized = true
+    config
   }
-
-  override def isInitialized: Boolean = initialized
-
 }
 
 object HeaderNormalizationFilter {
-  private final val DEFAULT_CONFIG = "header-normalization.cfg.xml"
-  private final val SCHEMA_FILE_NAME = "/META-INF/schema/config/header-normalization-configuration.xsd"
+
+  val NormalizationMetricPrefix: String = MetricRegistry.name(classOf[HeaderNormalizationFilter], "Normalization")
+  val RequestNormalizationMetricPrefix: String = MetricRegistry.name(NormalizationMetricPrefix, "request")
+  val ResponseNormalizationMetricPrefix: String = MetricRegistry.name(NormalizationMetricPrefix, "response")
 
   val AllHttpMethods: String = HttpMethod.ALL.toString
 
