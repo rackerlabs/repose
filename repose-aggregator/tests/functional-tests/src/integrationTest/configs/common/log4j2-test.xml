@@ -35,7 +35,6 @@
                 <KeyValuePair key="x-trace-request" value="true"/>
             </ContextMapFilter>
         </Logger>
-        <!--<Logger name="org.openrepose.core.services.serviceclient.akka.impl.AkkaServiceClientImpl" level="trace"/>-->
 
         <!-- I need debug info from JMX! -->
         <!-- useful: https://docs.oracle.com/javase/8/docs/technotes/guides/jmx/logging.html -->

@@ -15,7 +15,6 @@
           http.connection.timeout="30000"
           http.connection.max-line-length="8192"
           http.connection.max-header-count="100"
-          http.connection.max-status-line-garbage="100"
           http.tcp.nodelay="true"
           keepalive.timeout="0"/>
 
@@ -29,7 +28,6 @@
           http.connection.timeout="30000"
           http.connection.max-line-length="8192"
           http.connection.max-header-count="100"
-          http.connection.max-status-line-garbage="100"
           http.tcp.nodelay="true"
           keepalive.timeout="0">
         <headers>
