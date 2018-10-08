@@ -93,11 +93,11 @@ class OpenStackIdentityV3FilterTest extends FunSpec with BeforeAndAfterEach with
     }
 
     it("should obtain a client client") {
-      val firstAkkaServiceClient = mock[HttpClientServiceClient]
-      val secondAkkaServiceClient = mock[HttpClientServiceClient]
+      val firstHttpClient = mock[HttpClientServiceClient]
+      val secondHttpClient = mock[HttpClientServiceClient]
       when(mockHttpClientService.getClient(or(MockitoMatchers.anyString(), MockitoMatchers.isNull.asInstanceOf[String])))
-        .thenReturn(firstAkkaServiceClient)
-        .thenReturn(secondAkkaServiceClient)
+        .thenReturn(firstHttpClient)
+        .thenReturn(secondHttpClient)
 
       val identityService = new OpenstackIdentityService()
       identityService.setUri("")
