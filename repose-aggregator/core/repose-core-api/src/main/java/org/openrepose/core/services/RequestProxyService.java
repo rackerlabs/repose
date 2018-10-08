@@ -31,11 +31,6 @@ public interface RequestProxyService {
     //TODO: this is the most terrible return value ever
     int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response) throws IOException;
 
-    int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response, String connPoolId)
-            throws IOException;
-
-    void setRewriteHostHeader(boolean value);
-
     ServiceClientResponse get(String uri, Map<String, String> headers, String connPoolId);
 
     ServiceClientResponse get(String baseUri, String extraUri, Map<String, String> headers, String connPoolId);
