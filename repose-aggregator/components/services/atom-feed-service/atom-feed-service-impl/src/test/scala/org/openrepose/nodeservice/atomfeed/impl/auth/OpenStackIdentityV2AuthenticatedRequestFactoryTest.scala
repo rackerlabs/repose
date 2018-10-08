@@ -144,7 +144,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
     }
 
     it("should cache a token until invalidated") {
-      def resetAkkaServiceClient = {
+      def resetHttpClient = {
         val responseEntity = EntityBuilder.create()
           .setBinary("""{"access":{"token":{"id":"test-token"}}}""".getBytes)
           .build()
@@ -159,12 +159,12 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
         when(mockHttpClientService.getClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockHttpClient)
       }
       finishSetup()
-      resetAkkaServiceClient
+      resetHttpClient
 
       osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
       feedReadRequest.getHeaders.get(CommonHttpHeader.AUTH_TOKEN) should contain only "test-token"
       verify(mockHttpClient, times(1)).execute(any[HttpUriRequest], any[HttpContext])
-      resetAkkaServiceClient
+      resetHttpClient
 
       feedReadRequest.setURI(new URI("http://example.com"))
       feedReadRequest.getHeaders.clear()
@@ -172,7 +172,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
       osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
       feedReadRequest.getHeaders.get(CommonHttpHeader.AUTH_TOKEN) should contain only "test-token"
       verify(mockHttpClient, times(1)).execute(any[HttpUriRequest], any[HttpContext])
-      resetAkkaServiceClient
+      resetHttpClient
 
       osiarf.onInvalidCredentials()
 
