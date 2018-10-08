@@ -52,7 +52,7 @@ public class CachingHttpClientContext extends HttpClientContext {
     public static final String CACHE_FORCE_REFRESH = "repose.cache.refresh";
 
     public static CachingHttpClientContext adapt(final HttpContext context) {
-        if (context instanceof HttpClientContext) {
+        if (context instanceof CachingHttpClientContext) {
             return (CachingHttpClientContext) context;
         } else {
             return new CachingHttpClientContext(context);
