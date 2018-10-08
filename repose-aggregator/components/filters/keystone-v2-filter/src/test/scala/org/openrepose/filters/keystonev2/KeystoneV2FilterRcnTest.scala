@@ -29,7 +29,7 @@ import org.apache.http.client.entity.EntityBuilder
 import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet, HttpUriRequest}
 import org.apache.http.message.BasicHttpResponse
 import org.apache.http.protocol.HttpContext
-import org.apache.http.{HttpEntity, HttpHost, HttpRequest, HttpVersion}
+import org.apache.http.{HttpEntity, HttpVersion}
 import org.junit.runner.RunWith
 import org.mockito.AdditionalMatchers._
 import org.mockito.Matchers._
