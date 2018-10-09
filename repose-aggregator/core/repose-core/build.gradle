@@ -13,6 +13,7 @@ dependencies {
     compile project(":repose-aggregator:components:services:health-check-service:health-check-service-api")
     compile project(":repose-aggregator:components:services:health-check-service:health-check-service-impl")
     compile project(":repose-aggregator:components:services:http-client-service:http-client-service-api")
+    compile project(":repose-aggregator:components:services:http-client-service:http-client-service-impl")
     compile project(":repose-aggregator:components:services:open-tracing-service")
     compile project(":repose-aggregator:components:services:phone-home-service")
     compile project(":repose-aggregator:components:services:uri-redaction-service:uri-redaction-service-api")
