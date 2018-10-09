@@ -38,6 +38,8 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static org.apache.http.HttpHeaders.TRANSFER_ENCODING;
+import static org.apache.http.protocol.HTTP.CHUNK_CODING;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
@@ -114,19 +116,6 @@ public class HttpComponentRequestProcessorTest {
     }
 
     @Test
-    public void shouldSetUnknownContentLengthIfChunkedIsNull() throws Exception {
-        when(request.getInputStream())
-                .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{})));
-
-        ArgumentCaptor<HttpEntity> requestEntityCaptor = ArgumentCaptor.forClass(HttpEntity.class);
-        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, null);
-        processor.process(method);
-
-        verify(method).setEntity(requestEntityCaptor.capture());
-        assertEquals(-1, requestEntityCaptor.getValue().getContentLength());
-    }
-
-    @Test
     public void shouldSetUnknownContentLengthIfChunkedIsTrue() throws Exception {
         when(request.getInputStream())
                 .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{})));
@@ -146,7 +135,7 @@ public class HttpComponentRequestProcessorTest {
                 .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(body.getBytes())));
 
         ArgumentCaptor<HttpEntity> requestEntityCaptor = ArgumentCaptor.forClass(HttpEntity.class);
-        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, ChunkedEncoding.TRUE);
+        processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, ChunkedEncoding.FALSE);
         processor.process(method);
 
         verify(method).setEntity(requestEntityCaptor.capture());
@@ -157,8 +146,8 @@ public class HttpComponentRequestProcessorTest {
     public void shouldSetUnknownContentLengthIfChunkedIsAutoAndOriginalRequestWasChunked() throws Exception {
         when(request.getInputStream())
                 .thenReturn(new ServletInputStreamWrapper(new ByteArrayInputStream(new byte[]{})));
-        when(request.getHeader(eq("transfer-encoding")))
-                .thenReturn("chunked");
+        when(request.getHeader(eq(TRANSFER_ENCODING)))
+                .thenReturn(CHUNK_CODING);
 
         ArgumentCaptor<HttpEntity> requestEntityCaptor = ArgumentCaptor.forClass(HttpEntity.class);
         processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true, ChunkedEncoding.AUTO);
