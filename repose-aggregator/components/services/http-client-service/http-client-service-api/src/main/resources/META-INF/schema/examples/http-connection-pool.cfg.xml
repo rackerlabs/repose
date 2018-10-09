@@ -17,8 +17,7 @@
           http.connection.max-header-count="100"
           http.tcp.nodelay="true"
           keepalive.timeout="0"
-          cache.ttl="500"
-          chunked-encoding="true"/>
+          cache.ttl="500"/>
 
     <!-- Configuration for a custom pool that overrides specific default settings -->
     <pool id="myservicepool" default="false" http.tcp.nodelay="false"/>

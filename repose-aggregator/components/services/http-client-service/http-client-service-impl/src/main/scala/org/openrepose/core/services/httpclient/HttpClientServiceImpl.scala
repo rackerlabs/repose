@@ -134,8 +134,8 @@ class HttpClientServiceImpl @Inject()(configurationService: ConfigurationService
 
 object HttpClientServiceImpl {
   final val ServiceName: String = "http-client-service"
-  final val DefaultConfig: String = ServiceName + ".cfg.xml"
-  final val DefaultConfigSchema: String = "/META-INF/schema/config/http-client-service.xsd"
+  final val DefaultConfig: String = "http-connection-pool.cfg.xml"
+  final val DefaultConfigSchema: String = "/META-INF/schema/config/http-connection-pool.xsd"
   final val HealthCheckConfigurationIssue: String = "HttpClientServiceReport"
   final val HealthCheckConfigurationMessage: String = "Http Client Service Configuration Error"
 }

@@ -149,19 +149,5 @@ class HttpConnectionPoolSchemaTest extends ConfigurationTest {
         validator.validateConfigString(config)
       }.getLocalizedMessage should include ("IF a keystore filename, password, or key password is provided, THEN all must be provided")
     }
-
-    it("should not validate if chunked-encoding is configured wrong") {
-      val xml = """<http-connection-pools xmlns='http://docs.openrepose.org/repose/http-connection-pool/v1.0'>
-                  |    <pool id='default'
-                  |          default='true'
-                  |          chunked-encoding='blah'
-                  |          http.conn-manager.max-per-route='200'
-                  |          http.conn-manager.max-total='199'/>
-                  |</http-connection-pools>
-                """.stripMargin
-      intercept[SAXParseException] {
-        validator.validateConfigString(xml)
-      }.getLocalizedMessage should include("'blah' is not facet-valid with respect to enumeration")
-    }
   }
 }
