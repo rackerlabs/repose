@@ -90,10 +90,6 @@ class HttpClientServiceImplTest extends FunSpec with BeforeAndAfterEach with Moc
   }
 
   describe("getDefaultClient") {
-    it("should throw an exception if the service has not yet initialized") {
-      an[IllegalStateException] should be thrownBy httpClientService.getDefaultClient()
-    }
-
     it("should return the default client") {
       httpClientService.init()
 
@@ -129,10 +125,6 @@ class HttpClientServiceImplTest extends FunSpec with BeforeAndAfterEach with Moc
   }
 
   describe("getClient") {
-    it("should throw an exception if the service has not yet initialized") {
-      an[IllegalStateException] should be thrownBy httpClientService.getClient(null)
-    }
-
     it("should return the default client if passed null") {
       httpClientService.init()
 

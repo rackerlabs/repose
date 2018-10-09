@@ -77,8 +77,6 @@ class HttpClientServiceImpl @Inject()(configurationService: ConfigurationService
   }
 
   override def getClient(clientId: String): HttpClientServiceClient = {
-    verifyInitialized()
-
     new HttpClientServiceClient(this, httpClientDecommissioner, clientId)
   }
 
