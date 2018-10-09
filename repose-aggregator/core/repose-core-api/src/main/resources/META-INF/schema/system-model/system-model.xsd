@@ -106,7 +106,7 @@
                     </xs:annotation>
                 </xs:attribute>
 
-                <xs:attribute name="chunked-encoding" type="ChunkedEncoding" use="optional" default="true">
+                <xs:attribute name="chunked-encoding" type="mod:ChunkedEncoding" use="optional" default="true">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>
