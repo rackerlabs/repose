@@ -162,24 +162,24 @@ class HttpClientProvider @Inject()(@Value(ReposeSpringProperties.CORE.CONFIG_ROO
       .map(_.toCharArray)
       .orNull
 
-    val truststore = Option(truststoreFilename) match {
+    val (truststoreFile, truststorePass) = Option(truststoreFilename) match {
       case Some(filename) =>
-        val truststoreFile = Paths.get(configRoot)
+        val tsFile = Paths.get(configRoot)
           .resolve(filename)
           .toFile
 
-        val truststorePass = Option(truststorePassword)
+        val tsPass = Option(truststorePassword)
           .map(_.toCharArray)
           .orNull
 
-        (truststoreFile, truststorePass)
+        (tsFile, tsPass)
       case None =>
         (keystoreFile, keystorePass)
     }
 
     getSslContextBuilder
       .loadKeyMaterial(keystoreFile, keystorePass, keyPass)
-      .loadTrustMaterial(truststore._1, truststore._2)
+      .loadTrustMaterial(truststoreFile, truststorePass)
       .build()
   }
 
