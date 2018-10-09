@@ -23,6 +23,7 @@ import org.apache.http.HttpResponse
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
+import org.apache.http.impl.client.HttpClients
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Request
@@ -68,7 +69,7 @@ class ReliabilityTest extends ReposeValveTest {
                 def threadNum = x
 
                 for (i in 1..callsPerClient) {
-                    def HttpClient client = new DefaultHttpClient()
+                    def HttpClient client = HttpClients.createDefault()
 
                     HttpGet httpGet = new HttpGet(reposeEndpoint)
                     httpGet.addHeader('X-OneToMany-A', 'lisa.rocks')

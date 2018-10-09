@@ -23,6 +23,7 @@ import org.apache.http.client.ClientProtocolException
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
+import org.apache.http.impl.client.HttpClients
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
@@ -67,7 +68,7 @@ abstract class ReposeLauncher {
         waitForCondition(clock, "${timeoutInSeconds}s", "${intervalInSeconds}s") {
             try {
                 print(".")
-                HttpClient client = new DefaultHttpClient()
+                HttpClient client = HttpClients.createDefault()
                 isResponseAcceptable(client.execute(new HttpGet(url)).statusLine.statusCode)
             } catch (IOException ignored) {
             } catch (ClientProtocolException ignored) {
