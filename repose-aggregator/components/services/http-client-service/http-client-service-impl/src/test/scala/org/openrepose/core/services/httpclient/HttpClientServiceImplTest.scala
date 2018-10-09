@@ -22,8 +22,10 @@ package org.openrepose.core.services.httpclient
 import java.net.URL
 import java.util.UUID
 
+import org.apache.http.HttpHost
 import org.apache.http.client.methods.RequestBuilder
 import org.apache.http.impl.client.CloseableHttpClient
+import org.apache.http.protocol.HttpContext
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, eq => isEq, _}
@@ -122,7 +124,7 @@ class HttpClientServiceImplTest extends FunSpec with BeforeAndAfterEach with Moc
       val request = RequestBuilder.get().build()
       client.execute(request)
 
-      verify(defaultClient).execute(request)
+      verify(defaultClient).execute(any[HttpHost], same(request), any[HttpContext])
     }
   }
 
@@ -161,7 +163,7 @@ class HttpClientServiceImplTest extends FunSpec with BeforeAndAfterEach with Moc
       val request = RequestBuilder.get().build()
       client.execute(request)
 
-      verify(defaultClient).execute(request)
+      verify(defaultClient).execute(any[HttpHost], same(request), any[HttpContext])
     }
 
     it("should return the default client if passed an id for a client that does not exist") {
@@ -194,7 +196,7 @@ class HttpClientServiceImplTest extends FunSpec with BeforeAndAfterEach with Moc
       val request = RequestBuilder.get().build()
       client.execute(request)
 
-      verify(defaultClient).execute(request)
+      verify(defaultClient).execute(any[HttpHost], same(request), any[HttpContext])
     }
 
     it("should return the client identified by the id") {
@@ -227,7 +229,7 @@ class HttpClientServiceImplTest extends FunSpec with BeforeAndAfterEach with Moc
       val request = RequestBuilder.get().build()
       client.execute(request)
 
-      verify(otherClient).execute(request)
+      verify(otherClient).execute(any[HttpHost], same(request), any[HttpContext])
     }
   }
 
