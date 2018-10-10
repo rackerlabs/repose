@@ -247,10 +247,10 @@
                         Both requester A and requester B will receive the same response once the response for request A
                         is available.
                         If request C is made 250 milliseconds after request B (with the same cache key,
-                        within the defined ttl), requester C will immediately receive the response for request A.
+                        within the defined TTL), requester C will immediately receive the response for request A.
                         This is the same response that requester A and requester B received.
                         If request D is made 501 milliseconds after request B (with the same cache key,
-                        not within the defined ttl), request D will be sent over the wire by the HTTP client
+                        not within the defined TTL), request D will be sent over the wire by the HTTP client
                         and requester D will receive a response different from the response received by requesters
                         A, B, and C.
                     </html:p>

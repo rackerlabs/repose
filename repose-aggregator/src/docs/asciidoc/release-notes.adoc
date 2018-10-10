@@ -4,6 +4,19 @@
 <<ver-9-upgrade-notes.adoc, Upgrade Notes>>
 
 * https://repose.atlassian.net/browse/REP-4992[REP-4922] - Removed ambiguous setting for chunked encoding options on <<services/http-connection-pool.adoc, HTTP Client/Connection Pool Service>>.
+* https://repose.atlassian.net/browse/REP-3589[REP-3589] - Rewrote the <<services/http-client.adoc#, HTTP Client Service>>.
+** Redesigned the <<services/http-client.adoc#, HTTP Client Service>> API.
+** Moved the `chunked-encoding` configuration from the <<services/http-client.adoc#configuration, HTTP Client Service configuration>> to the <<architecture/system-model.adoc#configuration, System Model configuration>>.
+** Updated HTTP Components dependencies:
+*** `httpclient`:  4.5.3 → 4.5.6
+*** `httpcore`: 4.4.6 → 4.4.10
+** Migrated deprecated client parameter configuration to client builder configuration.
+** Instrumented HTTP clients to report certain metrics via the <<services/metrics.adoc#, Metrics Service>>.
+** Removed the `akka-http-client-service`.
+*** Added caching functionality to the <<services/http-client.adoc#, HTTP Client Service>>.
+** Removed the `ServiceClient` utility.
+** Removed the `HttpComponentFactory` utility.
+** Removed part of the `RequestProxyService` API.
 
 == 8.10.0.0 (2018-08-27)
 * https://repose.atlassian.net/browse/REP-6969[REP-6969] - Added support for more expressive filter determination in the <<architecture/system-model.adoc#,System Model>> using boolean operators.

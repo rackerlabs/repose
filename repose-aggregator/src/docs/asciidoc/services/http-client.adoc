@@ -1,11 +1,16 @@
-= HTTP Connection Pool service
+= HTTP Client Service
 
-The HTTP Connection Pool Service allows a centralized way of managing and reusing http connections for outbound communication.
+The HTTP Client Service provides a centralized way of managing and reusing HTTP clients for outbound communication.
 
-The connection pool service uses the concept of named pools.
-A named pool has a number of configuration options on it that describe how a connection from that pool should behave.
+This service introduces the concept of named connection pools.
+A named connection pool is described by a number of configuration options that dictate how a connection from that pool should behave.
 Connections from a pool are reused to cut down on the overhead of connection negotiation when resources are frequently accessed.
-The id/name of the pool corresponds to the connection pool id found in other service's and filter's configurations, indicating that outbound connections from that component should use the matching pool.
+The id/name of the pool corresponds to the connection pool id found in other services' and filters' configurations, indicating that outbound connections from that component should use the matching pool.
+
+While named connection pools are the abstraction presented for configuration, HTTP clients are the abstraction presented for use in code.
+In reality, an HTTP client manages a connection pool.
+A developer leveraging this service will interact with the HTTP client abstraction.
+An operator configuring this service will interact with the named connection pool abstraction.
 
 == Configuration
 * *Default Configuration:* http-connection-pool.cfg.xml
@@ -20,7 +25,7 @@ The id/name of the pool corresponds to the connection pool id found in other ser
 <http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
     <pool id="default" <!--1-->
           default="true" <!--2-->
-          chunked-encoding="true" <!--3-->
+          cache.ttl="500" <!--3-->
           http.conn-manager.max-total="400" <!--4-->
           http.conn-manager.max-per-route="200" <!--5-->
           http.socket.timeout="30000" <!--6-->
@@ -48,15 +53,15 @@ The id/name of the pool corresponds to the connection pool id found in other ser
 <2> Whether or not this pool is the default pool for the connection service.
     You must have exactly one pool marked as the default.
     This pool is the one that will be used to make connections to the origin service.
-<3> Determines whether or not this client should send chunked data when forwarding requests to the origin service.
-    If set to true, chunked data will always be sent.
-    If set to false, chunked data will never be sent.
-    If set to auto, chunked data will only be sent if the original request to *Repose* was chunked.
-    Note that the auto setting only has meaning for the default connection pool, as that is the only pool that will be used to make requests to the origin service. +
-    *WARNING*: Setting this attribute to false may cause *Repose* to attempt to retrieve the actual content length through reading the ServletInputStream.
-    This will cause some performance degradation as request body is no longer always streamed through. +
-    It is recommended that users leave this value as true unless their service does not support chunked encoding. +
-    Default: `true`
+<3> Amount of time, in milliseconds, to cache the HTTP interaction (i.e., the sending of the request and receiving of the response).
+    While more than one request may be made to the HTTP client at the same time with the same cache key, only one request will be made by the HTTP client at a time per cache key.
+    In effect, this means the first request made to the HTTP client is cached until the HTTP client receives a response, at which point the response is cached (up to the defined TTL).
+    For example, if request A is made to the HTTP client 1 millisecond before request B and both requests have the same cache key, request A will be sent over the wire by the HTTP client, and both requester A and requester B will await the response for request A.
+    Both requester A and requester B will receive the same response once the response for request A is available.
+    If request C is made 250 milliseconds after request B (with the same cache key, within the defined TTL), requester C will immediately receive the response for request A.
+    This is the same response that requester A and requester B received.
+    If request D is made 501 milliseconds after request B (with the same cache key, not within the defined TTL), request D will be sent over the wire by the HTTP client, and requester D will receive a response different from the response received by requesters A, B, and C. +
+    Default: `500`
 <4> Maximum number of connections opened across all endpoints in this connection pool.
     If this is set too high, you may run out of memory. +
     Default: `400`
@@ -113,29 +118,6 @@ The id/name of the pool corresponds to the connection pool id found in other ser
 <20> A second pool is defined here that uses all the defaults.
 
 == Common Use Cases/Problems
-
-=== Origin Service doesn't support chunked encoding (e.g., WSGI)
-
-If the origin service doesn't support chunked encoding, it can be turned off easily.
-Add or update the `chunked-encoding` attribute for your default pool to false.
-
-[source,xml]
-.partial http-connection-pool.cfg
-----
-<pool id="default"
-      default="true" <!--1-->
-      ... <!--2-->
-      chunked-encoding="false"/> <!--3-->
-</pool>
-----
-<1> Be sure it's the default pool being updated.
-<2> Here are the rest of the pool attributes.
-<3> Add `chunked-encoding` if not already present and set it to false.
-
-[NOTE]
-====
-This can be done for any other pool as well, if it's known that it will be used to communicate to a service that doesn't support chunked encoding.
-====
 
 === Need higher concurrency
 
