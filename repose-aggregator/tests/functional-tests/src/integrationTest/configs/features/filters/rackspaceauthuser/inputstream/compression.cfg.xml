@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<content-compression xmlns="http://docs.openrepose.org/repose/content-compression/v1.0">
-    <compression compression-threshold="1024" include-content-types="application/xml application/json"/>
-</content-compression>

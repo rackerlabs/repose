@@ -2,3 +2,6 @@
 
 == HTTP Client/Connection Pool Service
 . If setting the `chunked-encoding` attribute, change `0` to `false` and `1` to `true`.
+
+== Rackspace Auth User, SAML Policy Translation, and Attribute Mapping Policy Validation Filters
+. Consult with identity for where these filters now live.

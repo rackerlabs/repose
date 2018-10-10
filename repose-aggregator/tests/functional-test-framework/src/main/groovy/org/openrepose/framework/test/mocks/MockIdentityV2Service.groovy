@@ -27,8 +27,6 @@ import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
-import org.yaml.snakeyaml.DumperOptions
-import org.yaml.snakeyaml.Yaml
 
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.Schema
@@ -37,9 +35,6 @@ import javax.xml.validation.Validator
 import java.util.concurrent.atomic.AtomicInteger
 
 import static javax.servlet.http.HttpServletResponse.*
-import static org.openrepose.framework.test.util.saml.SamlUtilities.generateUniqueIdpId
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE
-import static org.springframework.http.MediaType.APPLICATION_XML_VALUE
 
 /**
  * Created by jennyvo on 6/16/15.
@@ -51,24 +46,13 @@ class MockIdentityV2Service {
     static final String PATH_REGEX_GROUPS = '^/v2.0/users/([^/]+)/RAX-KSGRP'
     static final String PATH_REGEX_ENDPOINTS = '^/v2.0/tokens/([^/]+)/endpoints'
     static final String PATH_REGEX_VALIDATE_TOKEN = '^/v2.0/tokens/([^/]+)/?$'
-    static final String PATH_REGEX_SAML_IDP_ISSUER = $/^/v2.0/RAX-AUTH/federation/identity-providers/?(\?.*)?/$
-    static final String PATH_REGEX_SAML_MAPPING = '^/v2.0/RAX-AUTH/federation/identity-providers/([^/]+)/mapping'
-
-    static final String SAML_AUTH_BY_PASSWORD = "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport"
-    static final String SAML_AUTH_BY_RSAKEY = "urn:oasis:names:tc:SAML:2.0:ac:classes:TimeSyncToken"
-
-    static final String TEXT_YAML = "text/yaml"
 
     private AtomicInteger validateTokenCount = new AtomicInteger(0)
     private AtomicInteger getGroupsCount = new AtomicInteger(0)
     private AtomicInteger generateTokenCount = new AtomicInteger(0)
     private AtomicInteger getEndpointsCount = new AtomicInteger(0)
-    private AtomicInteger getIdpFromIssuerCount = new AtomicInteger(0)
-    private AtomicInteger getMappingPolicyForIdpCount = new AtomicInteger(0)
-    private AtomicInteger generateTokenFromSamlResponseCount = new AtomicInteger(0)
 
     def templateEngine = new SimpleTemplateEngine()
-    def xmlSlurper = new XmlSlurper()
     def random = new Random()
 
     // these fields are initialized by the constructor
@@ -116,9 +100,6 @@ class MockIdentityV2Service {
     Closure<Response> getGroupsHandler
     Closure<Response> generateTokenHandler
     Closure<Response> getEndpointsHandler
-    Closure<Response> getIdpFromIssuerHandler
-    Closure<Response> getMappingPolicyForIdpHandler
-    Closure<Response> generateTokenFromSamlResponseHandler
 
     MockIdentityV2Service(int identityPort, int originServicePort) {
         resetHandlers()
@@ -151,18 +132,6 @@ class MockIdentityV2Service {
         getEndpointsCount.get()
     }
 
-    int getGetIdpFromIssuerCount() {
-        getIdpFromIssuerCount.get()
-    }
-
-    int getGetMappingPolicyForIdpCount() {
-        getMappingPolicyForIdpCount.get()
-    }
-
-    int getGenerateTokenFromSamlResponseCount() {
-        generateTokenFromSamlResponseCount.get()
-    }
-
     /**
      * Reset all counts set to zero (initial state).
      */
@@ -171,9 +140,6 @@ class MockIdentityV2Service {
         getGroupsCount.set(0)
         generateTokenCount.set(0)
         getEndpointsCount.set(0)
-        getIdpFromIssuerCount.set(0)
-        getMappingPolicyForIdpCount.set(0)
-        generateTokenFromSamlResponseCount.set(0)
     }
 
     /**
@@ -185,9 +151,6 @@ class MockIdentityV2Service {
         getGroupsHandler = this.&listUserGroups
         generateTokenHandler = this.&generateToken
         getEndpointsHandler = this.&listEndpointsForToken
-        getIdpFromIssuerHandler = createGetIdpFromIssuerHandler()
-        getMappingPolicyForIdpHandler = createGetMappingPolicyForIdp()
-        generateTokenFromSamlResponseHandler = this.&generateTokenFromSamlResponse
     }
 
     /**
@@ -258,22 +221,6 @@ class MockIdentityV2Service {
          * X-Auth-Token : String - A valid authentication token for an administrative user.
          * List groups for a specified user.
          *
-         * GET
-         * /v2.0/RAX-AUTH/federation/identity-providers?issuer={issuer}
-         * X-Auth-Token : String - A valid authentication token for a user that can read IDP info.
-         * issuer : String - The issuer of the IDP that should be returned.
-         * Returns a list with a single IDP whose issuer matches the requested value.
-         *
-         * GET
-         * /v2.0/RAX-AUTH/federation/identity-providers/{idp_id}/mapping
-         * X-Auth-Token : String - A valid authentication token for a user that can read IDP info.
-         * idp_id : String - The internal ID representation of the IDP whose Mapping Policy should be returned.
-         * The Mapping Policy for the requested IDP.
-         *
-         * POST
-         * /v2.0/RAX-AUTH/federation/saml/auth
-         * Authenticates using a saml:response and generates a token.
-         *
          */
 
         def fullPath = request.path
@@ -332,30 +279,6 @@ class MockIdentityV2Service {
                     return new Response(SC_METHOD_NOT_ALLOWED)
                 }
             }
-        } else if (path.startsWith("/v2.0/RAX-AUTH/federation/")) {
-            if (isSamlIdpIssuerCallPath(path)) {
-                if (method == "GET") {
-                    getIdpFromIssuerCount.incrementAndGet()
-                    return getIdpFromIssuerHandler(queryParams.issuer, request)
-                } else {
-                    return new Response(SC_METHOD_NOT_ALLOWED)
-                }
-            } else if (isSamlIdpMappingPolicyCallPath(path)) {
-                if (method == "GET") {
-                    getMappingPolicyForIdpCount.incrementAndGet()
-                    def idpId = (path =~ PATH_REGEX_SAML_MAPPING)[0][1]
-                    return getMappingPolicyForIdpHandler(idpId, request)
-                } else {
-                    return new Response(SC_METHOD_NOT_ALLOWED)
-                }
-            } else if (isSamlAuthCallPath(path)) {
-                if (method == "POST") {
-                    generateTokenFromSamlResponseCount.incrementAndGet()
-                    return generateTokenFromSamlResponseHandler(request, shouldReturnXml)
-                } else {
-                    return new Response(SC_METHOD_NOT_ALLOWED)
-                }
-            }
         }
 
         return new Response(SC_NOT_IMPLEMENTED)
@@ -375,18 +298,6 @@ class MockIdentityV2Service {
 
     static boolean isGenerateTokenCallPath(String path) {
         path == "/v2.0/tokens"
-    }
-
-    static boolean isSamlIdpIssuerCallPath(String path) {
-        path ==~ PATH_REGEX_SAML_IDP_ISSUER
-    }
-
-    static boolean isSamlIdpMappingPolicyCallPath(String path) {
-        path ==~ PATH_REGEX_SAML_MAPPING
-    }
-
-    static boolean isSamlAuthCallPath(String path) {
-        path.startsWith("/v2.0/RAX-AUTH/federation/saml/auth")
     }
 
     /**
@@ -657,255 +568,6 @@ class MockIdentityV2Service {
 
         def body = templateEngine.createTemplate(template).make(params)
         return new Response(SC_OK, null, headers, body)
-    }
-
-    Closure<Response> createGetIdpFromIssuerHandler(Map values = [:]) {
-        def headers = ['Content-type': 'application/json']
-
-        return { String issuer, Request request ->
-            if (admin_token != request.getHeaders().getFirstValue("X-Auth-Token") && !values.skipAuthCheck) {
-                new Response(SC_UNAUTHORIZED, null, headers, UNAUTHORIZED_JSON)
-            } else {
-                def body = createIdpJsonWithValues([issuer: issuer] + values)
-
-                new Response(SC_OK, null, headers, body)
-            }
-        }
-    }
-
-    Closure<Response> createGetMappingPolicyForIdp(String acceptType = APPLICATION_XML_VALUE, Map values = [defaultMapping: true]) {
-        def xmlHeaders = ['Content-type': APPLICATION_XML_VALUE]
-        def jsonHeaders = ['Content-type': APPLICATION_JSON_VALUE]
-        def yamlHeaders = ['Content-type': TEXT_YAML]
-
-        return { String idpId, Request request ->
-            if (admin_token != request.getHeaders().getFirstValue("X-Auth-Token") && !values.skipAuthCheck) {
-                new Response(SC_UNAUTHORIZED, null, jsonHeaders, UNAUTHORIZED_JSON)
-            } else {
-                def mappingForIdpId = values.mappings?.get(idpId)
-
-                if (mappingForIdpId) {
-                    if (acceptType.equalsIgnoreCase(APPLICATION_XML_VALUE)) {
-                        new Response(SC_OK, null, xmlHeaders, mappingForIdpId)
-                    } else if (acceptType.equalsIgnoreCase(APPLICATION_JSON_VALUE)) {
-                        new Response(SC_OK, null, jsonHeaders, mappingForIdpId)
-                    } else {
-                        new Response(SC_OK, null, yamlHeaders, mappingForIdpId)
-                    }
-                } else if (values.defaultMapping) {
-                    if (acceptType.equalsIgnoreCase(APPLICATION_XML_VALUE)) {
-                        new Response(SC_OK, null, xmlHeaders, DEFAULT_MAPPING_POLICY_XML)
-                    } else if (acceptType.equalsIgnoreCase(APPLICATION_JSON_VALUE)) {
-                        new Response(SC_OK, null, jsonHeaders, DEFAULT_MAPPING_POLICY_JSON)
-                    } else {
-                        new Response(SC_OK, null, yamlHeaders, DEFAULT_MAPPING_POLICY_YAML)
-                    }
-                } else {
-                    def body = createIdentityFaultJsonWithValues(
-                        name: "itemNotFound",
-                        code: SC_NOT_FOUND,
-                        message: "Identity Provider with id/name: '$idpId' was not found.")
-                    new Response(SC_NOT_FOUND, null, jsonHeaders, body)
-                }
-            }
-        }
-    }
-
-    Response generateTokenFromSamlResponse(Request request, boolean shouldReturnXml) {
-        def samlResponse = xmlSlurper.parseText(request.body as String)
-                .declareNamespace(saml2p: "urn:oasis:names:tc:SAML:2.0:protocol", saml2: "urn:oasis:names:tc:SAML:2.0:assertion")
-        Map<String, List<String>> samlAttributes = samlResponse.'saml2:Assertion'[0].'saml2:AttributeStatement'.'saml2:Attribute'
-                .collectEntries { [(it.@Name): it.'saml2:AttributeValue'*.text() as List] }
-
-        def username = samlResponse.'saml2:Assertion'[0].'saml2:Subject'.'saml2::NameID'.text()
-        def idpAuthBy = samlResponse.'saml2:Assertion'[0].'saml2:AuthnStatement'.'saml2:AuthnContext'.'saml2:AuthnContextClassRef'.text()
-
-        def authBy = ["FEDERATION"]
-        if (idpAuthBy == SAML_AUTH_BY_PASSWORD) {
-            authBy << "PASSWORD"
-        } else if (idpAuthBy == SAML_AUTH_BY_RSAKEY) {
-            authBy << "RSAKEY"
-        }
-
-        def bodyBuilder = shouldReturnXml ? this.&createAccessXmlWithValues : this.&createAccessJsonWithValues
-        def body = bodyBuilder(
-            username: username,
-            roles: samlAttributes.roles.collect { roleName -> [name: roleName] },
-            authBy: authBy)
-        def headers = ['Content-type': shouldReturnXml ? 'application/xml' : 'application/json']
-
-        new Response(SC_OK, null, headers, body)
-    }
-
-    static String createIdpJsonWithValues(Map values = [:]) {
-        def json = new JsonBuilder()
-
-        json {
-            'RAX-AUTH:identityProviders'([
-                    {
-                        name values.getOrDefault('name', 'External IDP')
-                        federationType values.getOrDefault('federationType', 'DOMAIN')
-                        approvedDomainIds values.getOrDefault('approvedDomainIds', ['77366'])
-                        description values.getOrDefault('description', 'An External IDP Description')
-                        id values.getOrDefault('id', generateUniqueIdpId())
-                        issuer values.getOrDefault('issuer', 'http://idp.external.com')
-                    }
-            ])
-        }
-
-        json.toString()
-    }
-
-    static String createMappingXmlWithValues(Map values = [:]) {
-        def xmlWriter = new StringWriter()
-        def xml = new MarkupBuilder(xmlWriter)
-        xml.mkp.xmlDeclaration(version: "1.0", encoding: "UTF-8")
-        xml.mapping(
-            xmlns: 'http://docs.rackspace.com/identity/api/ext/MappingRules',
-            'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-            'xmlns:xs': 'http://www.w3.org/2001/XMLSchema',
-            version: 'RAX-1'
-        ) {
-            rules {
-                rule {
-                    local {
-                        user {
-                            domain(value: values.domain ?: DEFAULT_MAPPING_VALUE)
-                            name(value: values.name ?: DEFAULT_MAPPING_VALUE)
-                            email(value: values.email ?: DEFAULT_MAPPING_VALUE)
-                            groups(value: values.groups ?: DEFAULT_MAPPING_VALUE)
-                            roles(value: values.roles ?: DEFAULT_MAPPING_VALUE)
-                            expire(value: values.expire ?: DEFAULT_MAPPING_VALUE)
-                            if (values.userExtAttribs) {
-                                values.userExtAttribs.each { key, value ->
-                                    if (value instanceof Collection) {
-                                        "$key"(['value': value.join(', '), 'xsi:type': 'LocalAttribute', 'multiValue': 'true'])
-                                    } else {
-                                        "$key"(['value': value, 'xsi:type': 'LocalAttribute'])
-                                    }
-                                }
-                            }
-                        }
-                        if (values.local) {
-                            group('xsi:type': 'LocalAttributeGroup') {
-                                values.local.each { key, value ->
-                                    if (value instanceof Collection) {
-                                        "$key"(['value': value.join(', '), 'xsi:type': 'LocalAttribute', 'multiValue': 'true'])
-                                    } else {
-                                        "$key"(['value': value, 'xsi:type': 'LocalAttribute'])
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (values.remote) {
-                        remote {
-                            values.remote.each { keyValue ->
-                                keyValue.each { key, value ->
-                                    "attribute"("$key": value)
-                                }
-                            }
-                        }
-                    }
-                }
-                if (values.rules) {
-                    values.rules.each { keyValue ->
-                        keyValue.each { key, value ->
-                            if (value instanceof Map) {
-                                "$key" {
-                                    value.each { subKey, subValue ->
-                                        if (subValue instanceof Map) {
-                                            "$subKey" {
-                                                subValue.each { subSubKey, subSubValue ->
-                                                    if (subSubValue instanceof Collection) {
-                                                        "$subSubKey"(['value': subSubValue.join(', '), 'multiValue': 'true'])
-                                                    } else {
-                                                        "$subSubKey"(['value': subSubValue])
-                                                    }
-                                                }
-                                            }
-                                        } else if (subValue instanceof Collection) {
-                                            "$subKey"(['value': subValue.join(', '), 'multiValue': 'true'])
-                                        } else {
-                                            "$subKey"(['value': subValue])
-                                        }
-                                    }
-                                }
-                            } else if (value instanceof Collection) {
-                                "$key"(['value': value.join(', '), 'multiValue': 'true'])
-                            } else {
-                                "$key"(['value': value])
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        xmlWriter.toString()
-    }
-
-    static String createMappingJsonWithValues(Map values = [:]) {
-        def json = new JsonBuilder()
-
-        json {
-            mapping {
-                rules([
-                        {
-                            local {
-                                user {
-                                    domain values.domain ?: DEFAULT_MAPPING_VALUE
-                                    name values.name ?: DEFAULT_MAPPING_VALUE
-                                    email values.email ?: DEFAULT_MAPPING_VALUE
-                                    groups values.groups ?: DEFAULT_MAPPING_VALUE
-                                    roles values.roles ?: DEFAULT_MAPPING_VALUE
-                                    expire values.expire ?: DEFAULT_MAPPING_VALUE
-                                    if (values.userExtAttribs) {
-                                        values.userExtAttribs.each { key, value ->
-                                            "$key" value
-                                        }
-                                    }
-                                }
-                                if (values.local) {
-                                    values.local.each { key, value ->
-                                        "$key" value
-                                    }
-                                }
-                            }
-                            if (values.remote) {
-                                remote values.remote
-                            }
-                        }
-                ] + (values.rules ?: []))
-                version "RAX-1"
-            }
-        }
-
-        json.toString()
-    }
-
-    static String createMappingYamlWithValues(Map values = [:]) {
-        DumperOptions options = new DumperOptions()
-        options.setExplicitStart(true)
-        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK)
-        new Yaml(options).dump([
-                mapping: [
-                        rules  : [[
-                                          local: [
-                                                  user: [
-                                                          domain: (values.domain ?: DEFAULT_MAPPING_VALUE),
-                                                          name  : (values.name ?: DEFAULT_MAPPING_VALUE),
-                                                          email : (values.email ?: DEFAULT_MAPPING_VALUE),
-                                                          groups: (values.groups ?: DEFAULT_MAPPING_VALUE),
-                                                          roles : (values.roles ?: DEFAULT_MAPPING_VALUE),
-                                                          expire: (values.expire ?: DEFAULT_MAPPING_VALUE)
-                                                  ] + (values.userExtAttribs ?: [])
-                                          ] + (values.local ?: []),
-                                  ] + (values.remote ? [remote: values.remote] : [:])
-                        ] + (values.rules ?: []),
-                        version: "RAX-1"
-                ]
-        ])
     }
 
     String createAccessJsonWithValues(Map values = [:]) {
@@ -1525,76 +1187,5 @@ class MockIdentityV2Service {
     }
   }
 }
-"""
-
-    static final String IDP_NO_RESULTS = """\
-{
-    "RAX-AUTH:identityProviders": []
-}"""
-
-    static final String DEFAULT_MAPPING_VALUE = "{D}"
-
-    static final String DEFAULT_MAPPING_POLICY_XML = """\
-<?xml version="1.0" encoding="UTF-8"?>
-<mapping xmlns="http://docs.rackspace.com/identity/api/ext/MappingRules"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns:xs="http://www.w3.org/2001/XMLSchema"
-         xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
-         version="RAX-1">
-   <description>
-      Default mapping policy
-   </description> 
-   <rules>
-      <rule>
-        <local>
-            <user>
-               <domain value="{D}"/>
-               <email value="{D}"/>
-               <groups value="{D}"/>
-               <expire value="{D}"/>
-               <name value="{D}"/>
-               <roles value="{D}"/>
-            </user>
-         </local>
-      </rule>
-   </rules>
-</mapping>
-"""
-    static final String DEFAULT_MAPPING_POLICY_JSON = """\
-{
-    "mapping": {
-        "version": "RAX-1",
-        "description": "Default mapping policy",
-        "rules": [
-            {
-                "local": {
-                    "user": {
-                        "domain": "{D}",
-                        "email": "{D}",
-                        "groups": "{D}",
-                        "expire": "{D}",
-                        "name": "{D}",
-                        "roles": "{D}"
-                    }
-                }
-            }
-        ]
-    }
-}"""
-
-    static final String DEFAULT_MAPPING_POLICY_YAML = """\
----
-mapping:
-  description: 'Default mapping policy'
-  rules:
-  - local:
-      user:
-        domain: '{D}'
-        email: '{D}'
-        groups: '{D}'
-        expire: '{D}'
-        name: '{D}'
-        roles: '{D}'
-  version: RAX-1
 """
 }

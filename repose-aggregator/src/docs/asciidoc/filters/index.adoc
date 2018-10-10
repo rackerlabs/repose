@@ -8,9 +8,6 @@ Enables users to add new headers and header values to a request and/or response.
 == <<api-validator.adoc#,API Validator Filter>>
 Validates calls to an API by checking the URI format, enforcing <<../recipes/role-based-access-control.adoc#,Role-Based Access Control (RBAC)>>, ensuring payload schema compliance, and much more.
 
-== <<attribute-mapping-policy-validation.adoc#,Attribute Mapping Policy Validation filter>>
-For Identity usage in validating attribute mapping policies which may be applied by the <<saml-policy.adoc#,SAML Policy Translation Filter>>.
-
 == <<body-extractor-to-header.adoc#,Body Extractor to Header Filter>>
 Extracts a value from the request body and puts it in a request header.
 
@@ -74,17 +71,11 @@ Merges multiple header lines with the same name into a single header line with m
 == <<openstack-identity-v3.adoc#,Openstack Identity v3 Filter>>
 *IN PROGRESS*
 
-== <<rackspace-auth-user.adoc#,Rackspace Auth User Filter>>
-For identity usage for rate limiting and user access events.
-
 == <<rate-limiting.adoc#,Rate Limiting Filter>>
 Limits the number of requests allowed through *Repose* to the origin service.
 
 == <<regex-rbac.adoc#,RegEx Role Based Access Control (RBAC) Filter>>
 Validates calls to an API by checking the requested URI against a series Regular Expressions to enforce <<../recipes/role-based-access-control.adoc#,Role-Based Access Control (RBAC)>>.
-
-== <<saml-policy.adoc#,SAML Policy Translation Filter>>
-Allows the translation and addition of new assertions to a SAML response request.
 
 == <<scripting.adoc#,Scripting Filter>>
 Enables users to write custom filters for *Repose* using a variety of scripting languages.
