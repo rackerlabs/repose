@@ -96,17 +96,13 @@ class KeystoneRequestHandler(identityServiceUri: String, httpClient: HttpClient,
       case Success(response) =>
         response.getStatusLine.getStatusCode match {
           case statusCode if statusCode >= 200 && statusCode < 300 =>
-            val responseEntity = response.getEntity
-            try {
-              // todo: test character encoding resolution
-              val json = Json.parse(responseEntity.getContent)
-              Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
-                case Success(s) => s
-                case Failure(f) =>
-                  Failure(IdentityCommunicationException("Token not found in identity response during admin authentication", f))
-              }
-            } finally {
-              EntityUtils.consumeQuietly(responseEntity)
+            val responseContent = EntityUtils.toString(response.getEntity)
+            // todo: test character encoding resolution
+            val json = Json.parse(responseContent)
+            Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
+              case Success(s) => s
+              case Failure(f) =>
+                Failure(IdentityCommunicationException("Token not found in identity response during admin authentication", f))
             }
           case statusCode@(SC_REQUEST_ENTITY_TOO_LARGE | SC_TOO_MANY_REQUESTS) =>
             Failure(OverLimitException(statusCode, buildRetryValue(response), "Rate limited when getting admin token"))
@@ -119,11 +115,10 @@ class KeystoneRequestHandler(identityServiceUri: String, httpClient: HttpClient,
   }
 
   final def validateToken(validatingToken: String, validatableToken: String, applyRcnRoles: Boolean, ignoredRoles: Set[String], checkCache: Boolean = true): Try[ValidToken] = {
-    def extractUserInformation(keystoneResponse: InputStream): Try[ValidToken] = {
+    def extractUserInformation(keystoneResponse: String): Try[ValidToken] = {
       // TODO: Handle character encoding set in the content-type header rather than relying on the default system encoding
-      val input: String = Source.fromInputStream(keystoneResponse).getLines mkString ""
       try {
-        val json = Json.parse(input)
+        val json = Json.parse(keystoneResponse)
         //Have to convert it to a vector, because List isn't serializeable in 2.10
         val userId = (json \ "access" \ "user" \ "id").as[String]
         val roles = (json \ "access" \ "user" \ "roles").as[JsArray].value
@@ -185,16 +180,15 @@ class KeystoneRequestHandler(identityServiceUri: String, httpClient: HttpClient,
   }
 
   final def getEndpointsForToken(authenticatingToken: String, forToken: String, applyRcnRoles: Boolean, checkCache: Boolean = true): Try[EndpointsData] = {
-    def extractEndpointInfo(inputStream: InputStream): Try[EndpointsData] = {
+    def extractEndpointInfo(keystoneResponse: String): Try[EndpointsData] = {
       // TODO: Handle character encoding set in the content-type header rather than relying on the default system encoding
-      val jsonString = Source.fromInputStream(inputStream).getLines mkString ""
-      val json = Json.parse(jsonString)
+      val json = Json.parse(keystoneResponse)
 
       //Have to convert it to a vector, because List isn't serializeable in 2.10
       (json \ "endpoints").validate[Vector[Endpoint]] match {
         case s: JsSuccess[Vector[Endpoint]] =>
           val endpoints = s.get
-          Success(EndpointsData(jsonString, endpoints))
+          Success(EndpointsData(keystoneResponse, endpoints))
         case _: JsError =>
           Failure(IdentityCommunicationException("Identity didn't respond with proper Endpoints JSON"))
       }
@@ -218,11 +212,10 @@ class KeystoneRequestHandler(identityServiceUri: String, httpClient: HttpClient,
   }
 
   final def getGroups(authenticatingToken: String, forToken: String, checkCache: Boolean = true): Try[Vector[String]] = {
-    def extractGroupInfo(inputStream: InputStream): Try[Vector[String]] = {
+    def extractGroupInfo(keystoneResponse: String): Try[Vector[String]] = {
       Try {
         // TODO: Handle character encoding set in the content-type header rather than relying on the default system encoding
-        val input: String = Source.fromInputStream(inputStream).getLines mkString ""
-        val json = Json.parse(input)
+        val json = Json.parse(keystoneResponse)
 
         (json \ "RAX-KSGRP:groups" \\ "id").map(_.as[String]).toVector
       }
@@ -274,17 +267,13 @@ object KeystoneRequestHandler {
     }
   }
 
-  def handleResponse[T](call: String, tryResponse: Try[HttpResponse], onSuccess: InputStream => Try[T]): Try[T] = {
+  def handleResponse[T](call: String, tryResponse: Try[HttpResponse], onSuccess: String => Try[T]): Try[T] = {
     tryResponse match {
       case Success(response) =>
         response.getStatusLine.getStatusCode match {
           case statusCode if statusCode >= 200 && statusCode < 300 =>
-            val responseEntity = response.getEntity
-            try {
-              onSuccess(responseEntity.getContent)
-            } finally {
-              EntityUtils.consume(responseEntity)
-            }
+            val responseContent = EntityUtils.toString(response.getEntity)
+            onSuccess(responseContent)
           case SC_BAD_REQUEST => Failure(BadRequestException(s"Bad $call request to identity"))
           case SC_UNAUTHORIZED =>
             Failure(AdminTokenUnauthorizedException(s"Admin token unauthorized to make $call request"))
