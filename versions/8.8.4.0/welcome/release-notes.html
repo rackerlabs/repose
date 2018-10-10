@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>8.8.4.0 | Welcome to Repose | Release Notes</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="/_stylesheets/asciibinder.css" >
+  <link rel="stylesheet" href="/_stylesheets/repose.css" >
+
+   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+   <!--[if lt IE 9]>
+     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+   <![endif]-->
+
+  <link href="/_images/favicon32x32.png" rel="shortcut icon" type="text/css">
+  <!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
+  <meta content="AsciiBinder" name="application-name">
+</head>
+<body onload="selectVersion('8.8.4.0');">
+  <div class="container">
+    <p class="toggle-nav visible-xs pull-left">
+      <button class="btn btn-default btn-sm" type="button" data-toggle="offcanvas">Toggle nav</button>
+    </p>
+    <ol class="breadcrumb">
+      <li class="sitename">
+        <a class="navbar-brand" href="http://www.openrepose.org/">
+          <img alt="OpenRepose" src="/_images/repose-logo.png" align="bottom">
+        </a>
+      </li>
+      <li class="sitename">
+        <a href="../../index.html">
+          Home
+        </a>
+      </li>
+      <li class="hidden-xs active">
+        <a href="/versions/8.8.4.0/welcome/index.html">
+          Repose
+        </a>
+        <select id="version-selector" onchange="versionSelector(this);" w3-include-html="/_includes/versions.html">
+        </select>
+      </li>
+      <li class="hidden-xs active">
+        <a href="../welcome/index.html">Welcome to Repose</a>
+      </li>
+      
+      <li class="hidden-xs active">
+        Release Notes
+      </li>
+    </ol>
+    <div class="row row-offcanvas row-offcanvas-left">
+      <div class="col-xs-8 col-sm-3 col-md-3 sidebar sidebar-offcanvas">
+        <a class="navbar-search" href="/versions/search.html">
+          <span class="glyphicon glyphicon-search"/>
+          Search
+        </a>
+        <ul class="nav nav-sidebar">
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup0">
+        <span id="tgSpan0" class="fa fa-angle-down"></span>Welcome to Repose
+      </a>
+      <ul id="topicGroup0" class="collapse in list-unstyled">
+            <li><a class="" href="../welcome/index.html">Welcome</a></li>
+            <li><a class="" href="../welcome/troubleshooting.html">Troubleshooting</a></li>
+            <li><a class=" active" href="../welcome/release-notes.html">Release Notes</a></li>
+            <li><a class="" href="../welcome/style-guide.html">Style Guide</a></li>
+            <li><a class="" href="../welcome/faq.html">FAQ</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup1">
+        <span id="tgSpan1" class="fa fa-angle-right"></span>Architecture
+      </a>
+      <ul id="topicGroup1" class="collapse  list-unstyled">
+            <li><a class="" href="../architecture/index.html">Overview</a></li>
+            <li><a class="" href="../architecture/configuration.html">Configuration</a></li>
+            <li><a class="" href="../architecture/container.html">Container</a></li>
+            <li><a class="" href="../architecture/packages.html">Packages</a></li>
+            <li><a class="" href="../architecture/system-model.html">System Model</a></li>
+            <li><a class="" href="../architecture/performance.html">Performance</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup2">
+        <span id="tgSpan2" class="fa fa-angle-right"></span>Recipes
+      </a>
+      <ul id="topicGroup2" class="collapse  list-unstyled">
+            <li><a class="" href="../recipes/index.html">Overview</a></li>
+            <li><a class="" href="../recipes/quick-start.html">Quick Start</a></li>
+            <li><a class="" href="../recipes/getting-started.html">Getting Started</a></li>
+            <li><a class="" href="../recipes/custom-filter-for-repose.html">Custom Filter for Repose</a></li>
+            <li><a class="" href="../recipes/docker.html">Docker</a></li>
+            <li><a class="" href="../recipes/performance-best-practices.html">Performance Best Practices</a></li>
+            <li><a class="" href="../recipes/role-based-access-control.html">Role Based Access Control</a></li>
+            <li><a class="" href="../recipes/running-valve.html">Running Valve</a></li>
+            <li><a class="" href="../recipes/valve-installation.html">Valve Installation</a></li>
+            <li><a class="" href="../recipes/war-installation.html">WAR Installation</a></li>
+            <li><a class="" href="../recipes/echo-server.html">Echo Server</a></li>
+            <li><a class="" href="../recipes/rate-limiting.html">Rate Limiting</a></li>
+            <li><a class="" href="../recipes/user-access-events.html">User Access Events</a></li>
+            <li><a class="" href="../recipes/basic-authentication.html">Basic Authentication</a></li>
+            <li><a class="" href="../recipes/delegation.html">Delegation</a></li>
+            <li><a class="" href="../recipes/preventing-xml-bomb.html">Preventing XML bomb attacks</a></li>
+            <li><a class="" href="../recipes/api-event-flume.html">API Access Event Recording with Flume</a></li>
+            <li><a class="" href="../recipes/xsd-versioning.html">XSD Versioning Guidelines</a></li>
+            <li><a class="" href="../recipes/client-authentication.html">SSL/TLS Client Authentication</a></li>
+            <li><a class="" href="../recipes/functional-test-framework.html">Functional Test Framework</a></li>
+            <li><a class="" href="../recipes/glassfish-setup.html">Glassfish Setup</a></li>
+            <li><a class="" href="../recipes/tomcat-setup.html">Tomcat Setup</a></li>
+            <li><a class="" href="../recipes/http-container-attributes.html">HTTP Container Attributes</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup3">
+        <span id="tgSpan3" class="fa fa-angle-right"></span>Filters
+      </a>
+      <ul id="topicGroup3" class="collapse  list-unstyled">
+            <li><a class="" href="../filters/index.html">Overview</a></li>
+            <li><a class="" href="../filters/add-header.html">Add Header Filter</a></li>
+            <li><a class="" href="../filters/api-validator.html">API Validator Filter</a></li>
+            <li><a class="" href="../filters/attribute-mapping-policy-validation.html">Attribute Mapping Policy Validation filter</a></li>
+            <li><a class="" href="../filters/body-extractor-to-header.html">Body Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/body-patcher.html">Body Patcher Filter</a></li>
+            <li><a class="" href="../filters/compression.html">Compression Filter</a></li>
+            <li><a class="" href="../filters/content-type-stripper.html">Content Type Stripper Filter</a></li>
+            <li><a class="" href="../filters/cors.html">CORS Filter</a></li>
+            <li><a class="" href="../filters/derp.html">Delegation Response Processor (DeRP) Filter</a></li>
+            <li><a class="" href="../filters/destination-router.html">Destination Router Filter</a></li>
+            <li><a class="" href="../filters/echo.html">Echo Filter</a></li>
+            <li><a class="" href="../filters/exception.html">Exception Filter</a></li>
+            <li><a class="" href="../filters/forwarded-proto.html">Forwarded Protocol Filter</a></li>
+            <li><a class="" href="../filters/header-normalization.html">Header Normalization filter</a></li>
+            <li><a class="" href="../filters/header-translation.html">Header Translation Filter</a></li>
+            <li><a class="" href="../filters/header-user.html">Header User Filter</a></li>
+            <li><a class="" href="../filters/herp.html">Highly Efficient Record Processor (HERP) Filter</a></li>
+            <li><a class="" href="../filters/ip-user.html">IP User Filter</a></li>
+            <li><a class="" href="../filters/iri-validator.html">IRI Validator Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2.html">Keystone v2 Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-authorization.html">Keystone v2 Authorization Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-basic-auth.html">Keystone v2 Basic Auth Filter</a></li>
+            <li><a class="" href="../filters/merge-header.html">Merge Header Filter</a></li>
+            <li><a class="" href="../filters/openstack-identity-v3.html">Openstack Identity v3 Filter</a></li>
+            <li><a class="" href="../filters/rackspace-auth-user.html">Rackspace Auth User Filter</a></li>
+            <li><a class="" href="../filters/rate-limiting.html">Rate Limiting Filter</a></li>
+            <li><a class="" href="../filters/regex-rbac.html">RegEx Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/saml-policy.html">SAML Policy Translation Filter</a></li>
+            <li><a class="" href="../filters/scripting.html">Scripting Filter</a></li>
+            <li><a class="" href="../filters/simple-rbac.html">Simple Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/slf4j-http-logging.html">SFL4J HTTP Logging Filter</a></li>
+            <li><a class="" href="../filters/tenant-culling.html">Tenant Culling Filter</a></li>
+            <li><a class="" href="../filters/translation.html">Translation Filter</a></li>
+            <li><a class="" href="../filters/uri-normalization.html">URI Normalization Filter</a></li>
+            <li><a class="" href="../filters/uri-stripper.html">URI Stripper Filter</a></li>
+            <li><a class="" href="../filters/uri-user.html">URI User Filter</a></li>
+            <li><a class="" href="../filters/url-extractor-to-header.html">URL Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a></li>
+            <li><a class="" href="../filters/versioning.html">Versioning Filter</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup4">
+        <span id="tgSpan4" class="fa fa-angle-right"></span>Services
+      </a>
+      <ul id="topicGroup4" class="collapse  list-unstyled">
+            <li><a class="" href="../services/index.html">Overview</a></li>
+            <li><a class="" href="../services/atom-feed-consumption.html">Atom Feed Consumption Service</a></li>
+            <li><a class="" href="../services/datastores.html">Datastores</a></li>
+            <li><a class="" href="../services/health-check.html">Health Check service</a></li>
+            <li><a class="" href="../services/http-connection-pool.html">HTTP Connection Pool service</a></li>
+            <li><a class="" href="../services/logging.html">Logging Service</a></li>
+            <li><a class="" href="../services/metrics.html">Metrics Service</a></li>
+            <li><a class="" href="../services/open-tracing.html">OpenTracing Service</a></li>
+            <li><a class="" href="../services/phone-home.html">Phone Home Service</a></li>
+            <li><a class="" href="../services/response-messaging.html">Response Messaging service</a></li>
+            <li><a class="" href="../services/uri-redaction.html">URI Redaction service</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup5">
+        <span id="tgSpan5" class="fa fa-angle-right"></span>Developer
+      </a>
+      <ul id="topicGroup5" class="collapse  list-unstyled">
+            <li><a class="" href="../developer/index.html">Overview</a></li>
+            <li><a class="" href="../developer/docker.html">Docker</a></li>
+      </ul>
+    </li>
+</ul>
+      </div>
+      <div class="col-xs-12 col-sm-9 col-md-9 main">
+        <div class="page-header">
+          <h2>Release Notes</h2>
+        </div>
+        <div class="sect1">
+<h2 id="8-8-4-0-2018-04-23"><a class="anchor" href="#8-8-4-0-2018-04-23"></a>8.8.4.0 (2018-04-23)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6674">REP-6674</a> - Minor internal update to increase logging performance.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6765">REP-6765</a> - Updated the <a href="../filters/keystone-v2.html">Keystone v2 filter</a> to forward users' domain ID.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6655">REP-6655</a> - Adding required configuration files to the examples directory.
+Also, example configurations will now be replaced on upgrade.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6795">REP-6795</a> - Added the new <a href="../services/uri-redaction.html">URI Redaction service</a> which allows for the removal of sensitive data from URI&#8217;s before external processing.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6862">REP-6862</a> - Updated dependencies:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Attribute Mapper: 2.2.0 → 2.2.1</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-2.2.1/RELEASE.md">Attribute Mapper v2.2.1 release notes</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="8-8-3-0-2018-03-30"><a class="anchor" href="#8-8-3-0-2018-03-30"></a>8.8.3.0 (2018-03-30)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6654">REP-6654</a> - Added OpenTracing support.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6674">REP-6674</a> - Switching usages of <code>LazyLogging</code> over to <code>StrictLogging</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="8-8-2-0-2018-03-23"><a class="anchor" href="#8-8-2-0-2018-03-23"></a>8.8.2.0 (2018-03-23)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6588">REP-6588</a> - Updated the <code>commitToResponse</code> method of the <code>HttpServletResponseWrapper</code> to avoid writing headers or the body when an error has been sent.
+This should fix an issue with certain servlet containers where an <code>IllegalStateException</code> is thrown when calling <code>commitToResponse</code> after both writing to the output stream and calling <code>sendError</code> on the wrapped response.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6628">REP-6628</a> - Updated dependencies:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>API Checker: 2.6.0 → 2.6.1</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rackerlabs/api-checker/blob/api-checker-2.6.1/RELEASE.md">API Checker v2.6.1 release notes</a></p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The case of the actual header does not matter, but the case of the <code>rax:roles</code> tenant must match the case of the <code>param</code> element&#8217;s <code>name</code> attribute in the <a href="../filters/api-validator.html">API Validator filter</a>'s WADL.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6550">REP-6550</a> - Update the <a href="../filters/valkyrie-authorization.html">Valkyrie Filter</a> to care about quality when selecting a tenant ID for talking to the Valkyrie service.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6604">REP-6604</a> - Update the <a href="../filters/valkyrie-authorization.html">Valkyrie Filter</a> to add roles to the <code>X-Map-Roles</code> header when role translation is configured.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6448">REP-6448</a> - Updated the Simple RBAC filter to support Multi-Tenant.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6710">REP-6710</a> - Removed the custom String Utilities in favor of the standard <a href="https://commons.apache.org/proper/commons-lang/">Apache Commons Lang</a> version already in use elsewhere.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="8-8-1-0-2018-02-15"><a class="anchor" href="#8-8-1-0-2018-02-15"></a>8.8.1.0 (2018-02-15)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6447">REP-6447</a> - Added multi-tenant support in the <a href="../filters/keystone-v2.html">Keystone v2</a> and <a href="../filters/keystone-v2-authorization.html">Keystone v2 Authorization</a> filters.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6578">REP-6578</a> - Updated <a href="../filters/tenant-culling.html">Tenant Culling</a> filter to utilize the tenant to roles map now being populated by the <a href="../filters/keystone-v2.html">Keystone v2</a> filter.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6470">REP-6470</a> - Updated dependencies:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>API Checker: 2.5.1 → 2.6.0</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rackerlabs/api-checker/blob/api-checker-2.6.0/RELEASE.md">API Checker v2.6.0 release notes</a></p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Multi-Tenant support is currently not supported when the mask rax roles feature is enabled.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="8-8-0-0-2018-02-05"><a class="anchor" href="#8-8-0-0-2018-02-05"></a>8.8.0.0 (2018-02-05)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5616">REP-5616</a>, <a href="https://repose.atlassian.net/browse/REP-6436">REP-6436</a>, <a href="https://repose.atlassian.net/browse/REP-6274">REP-6274</a> - Updated dependencies:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Jetty: 9.2.0.v20140526 → 9.4.8.v20171121</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/eclipse/jetty.project/blob/jetty-9.4.x/VERSION.txt" class="bare">https://github.com/eclipse/jetty.project/blob/jetty-9.4.x/VERSION.txt</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Gradle: 3.4 → 4.5</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/gradle/gradle/releases/tag/v4.5.0" class="bare">https://github.com/gradle/gradle/releases/tag/v4.5.0</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>JSONPath: 2.4.0 → 2.5.0</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/josephpconley/play-jsonpath/blob/master/README.md" class="bare">https://github.com/josephpconley/play-jsonpath/blob/master/README.md</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5401">REP-5401</a> - Added support for environment variable substitution in configuration files.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6390">REP-6390</a> - Internal changes to the <a href="../filters/keystone-v2.html">Keystone v2 Filter</a> in anticipation of splitting the authorization portion off into it&#8217;s own filter.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6400">REP-6400</a> - Added the new <a href="../filters/keystone-v2-authorization.html">Keystone v2 Authorization Filter</a> which captures the authorization functionality of the <a href="../filters/keystone-v2.html">Keystone v2 Filter</a>.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6382">REP-6382</a> - Lots of little versioned docs updates.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="8-7-3-0-2017-11-17"><a class="anchor" href="#8-7-3-0-2017-11-17"></a>8.7.3.0 (2017-11-17)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6159">REP-6159</a> - Added the new <a href="../filters/regex-rbac.html">RegEx Role Based Access Control (RBAC) Filter</a>.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6313">REP-6313</a> - Updated <a href="../filters/keystone-v2.html">Keystone v2 Filter</a> to automatically ignore configured roles.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6338">REP-6338</a> <a href="https://repose.atlassian.net/browse/REP-6325">REP-6325</a> <a href="https://repose.atlassian.net/browse/REP-6321">REP-6321</a> - Multiple  documentation improvements.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="8-7-2-0-2017-11-01"><a class="anchor" href="#8-7-2-0-2017-11-01"></a>8.7.2.0 (2017-11-01)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6294">REP-6294</a> - Updated dependencies:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Attribute Mapper: 2.1.1 → 2.2.0</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-2.2.0/RELEASE.md">Attribute Mapper v2.2.0 release notes</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="8-7-1-0-2017-10-25"><a class="anchor" href="#8-7-1-0-2017-10-25"></a>8.7.1.0 (2017-10-25)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6133">REP-6133</a> - Updated the published Docker images to turn off local logging by default to be more in line with the expectations of a <a href="https://12factor.net/logs">Twelve-Factor App</a>.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6135">REP-6135</a> - Updated the published Docker images to support running the container using an arbitrarily assigned user ID as is expected by the <a href="https://docs.openshift.com/container-platform/3.6/creating_images/guidelines.html#openshift-container-platform-specific-guidelines">OpenShift Container Platform</a>.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6179">REP-6179</a> - Converted more old Wiki Docs over to the new <a href="http://www.openrepose.org/versions/latest/">Versioned Docs</a>.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6186">REP-6186</a> - Updated the automated Release Verification to force the use of Java 8 since some GNU/Linux distributions are already providing Java 9 by default.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6252">REP-6252</a>, <a href="https://repose.atlassian.net/browse/REP-6211">REP-6211</a> - Updated dependencies:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Gradle LinkChecker Plugin: 0.2.0 → 0.3.0</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rackerlabs/gradle-linkchecker-plugin/blob/0.3.0/RELEASE.adoc">Gradle LinkChecker Plugin v0.3.0 release notes</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>API Checker: 2.4.1 → 2.5.1</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rackerlabs/api-checker/blob/api-checker-2.5.1/RELEASE.md">API Checker v2.5.1 release notes</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Attribute Mapper: 2.0.1 → 2.1.1</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-2.1.1/RELEASE.md">Attribute Mapper v2.1.1 release notes</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Saxon: 9.7.0-15 → 9.8.0-4</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="http://www.saxonica.com/products/latest.xml">Saxon 9.8.0.4 release notes</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="8-7-0-2-2017-10-04"><a class="anchor" href="#8-7-0-2-2017-10-04"></a>8.7.0.2 (2017-10-04)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6162">REP-6162</a> - Updated the Keystone v2 get IDP call to support the field name change from <code>approvedDomains</code> to <code>approvedDomainIds</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="8-7-0-1-2017-09-28"><a class="anchor" href="#8-7-0-1-2017-09-28"></a>8.7.0.1 (2017-09-28)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6115">REP-6115</a> - Updated dependencies:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Attribute Mapper: 2.0.0 → 2.0.1</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-2.0.1/RELEASE.md">Attribute Mapper v2.0.1 release notes</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="8-7-0-0-2017-09-26"><a class="anchor" href="#8-7-0-0-2017-09-26"></a>8.7.0.0 (2017-09-26)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5939">REP-5939</a> - Added support for, and began publishing, a CentOS-based Docker image.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5766">REP-5766</a> - Updated Dockerfile to run Repose as the <code>repose</code> user.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5767">REP-5767</a> - Updated Dockerfiles to simplify usage of <code>JAVA_OPTS</code>.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5985">REP-5985</a> - Updated the Jackson version from v2.4.0 to v2.8.9 to correct some library mismatch issues.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5315">REP-5315</a> - Updated Spring-managed bean names in JMX to be consistent with metric beans.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5885">REP-5885</a> - Fixed the bug where an <code>Error</code> during processing would result in a <code>200</code> response from Repose.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6050">REP-6050</a> - Update Contact Us page information across all the documentation.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5261">REP-5261</a> - Confirmed the Translation filter will allow 100,000 Entity Expansions and updated the documentation accordingly.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6098">REP-6098</a> - Updated the SAML Policy Translation filter to allow multiple locations for default values in an effort to support multiple Identity Providers (IDP&#8217;s).</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-6001">REP-6001</a> - Updated dependencies:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>API Checker: 2.3.0 → 2.4.1</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rackerlabs/api-checker/blob/api-checker-2.4.1/RELEASE.md">API Checker v2.4.1 release notes</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Attribute Mapper: 1.3.0 → 2.0.0</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/rackerlabs/attributeMapping/blob/attribute-mapper-2.0.0/RELEASE.md">Attribute Mapper v2.0.0 release notes</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5994">REP-5994</a> - Brought the <a href="../filters/tenant-culling.html">Tenant Culling Filter</a> into the main filter bundle.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5727">REP-5727</a> - Extracted trace ID logging to its own named logger.</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The <code>org.openrepose.powerfilter.PowerFilter.trace-id-logging</code> Logger in your Log4j2 configuration will determine the logging behavior for trace ID logging.
+If the <code>org.openrepose.powerfilter.PowerFilter.trace-id-logging</code> Logger has not been configured, it will inherit the <code>org.openrepose.powerfilter.PowerFilter</code> logger&#8217;s configuration.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="8-6-3-0-2017-08-15"><a class="anchor" href="#8-6-3-0-2017-08-15"></a>8.6.3.0 (2017-08-15)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5737">REP-5737</a> - Updated the following filters to correct a typo that would prevent proper configuration schema validation.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="../filters/ip-user.html">IP User Filter</a></p>
+</li>
+<li>
+<p><a href="../filters/keystone-v2-basic-auth.html">Keystone v2 Basic Auth Filter</a></p>
+</li>
+<li>
+<p><a href="../filters/openstack-identity-v3.html">Openstack Identity v3 Filter</a></p>
+</li>
+<li>
+<p><a href="../filters/rackspace-auth-user.html">Rackspace Auth User Filter</a></p>
+</li>
+<li>
+<p><a href="../filters/saml-policy.html">SAML Policy Translation Filter</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>As part of this correction, any configurations that were taking advantage of this lack of validation will cease to function.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5748">REP-5748</a> - Updated the <a href="../services/phone-home.html">Phone Home Service</a> to correct a bug that was preventing the message from actually reaching back.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5823">REP-5823</a> - Updated the <a href="../filters/keystone-v2.html">Keystone v2 Filter</a> to support multiple <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Java Regular Expressions</a> for URI tenant extraction.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5853">REP-5853</a> - Updated the <a href="../filters/saml-policy.html">SAML Policy Translation Filter</a> and <a href="../filters/attribute-mapping-policy-validation.html">Attribute Mapping Policy Validation Filter</a> to recover support for XML and JSON (which was removed in <a href="#8-6-2-0-2017-06-13">8.6.2.0 (2017-06-13)</a>).</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5617">REP-5617</a> - Updated the the internal HTTP Servlet Response Wrapper to log a WARNING when addHeader, addIntHeader, addDateHeader, or appendHeader is called after the response has been committed.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>This message is logged to a separate logger and can be disabled by adding the following to the <code>log4j2.xml</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;Logger</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper_addHeaderWarning</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">level</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">off</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
+</div>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5521">REP-5521</a> - Updated the API Checker library from v2.2.1 to v2.3.0.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>This brings the <code>X-Relevant-Roles</code> header population feature to the <a href="../filters/api-validator.html">API Validator filter</a> and <a href="../filters/simple-rbac.html">Simple RBAC filter</a>.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5940">REP-5940</a> - Updated the <code>attribute-mapper</code> library from v1.2.0 to v1.3.0.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-3502">REP-3502</a> - Confirmed the correct use of the default <code>ALL</code> HTTP Method in all of the configuration files.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="8-6-2-0-2017-06-13"><a class="anchor" href="#8-6-2-0-2017-06-13"></a>8.6.2.0 (2017-06-13)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5757">REP-5757</a> - Updated the <a href="../filters/saml-policy.html">SAML Policy Translation Filter</a> to utilize YAML policy files.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Updated the <code>attribute-mapper</code> library from v1.1.1 to v1.2.0 to bring in the YAML updates made in <a href="https://repose.atlassian.net/browse/REP-5632">REP-5632</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5592">REP-5592</a> - Updated the <a href="../filters/attribute-mapping-policy-validation.html">Attribute Mapping Policy Validation Filter</a> to only work for YAML bodies.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5694">REP-5694</a> - Updated the <a href="../filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a> versioned docs to point to the current Valkyrie service documentation.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="8-6-1-1-2017-06-08"><a class="anchor" href="#8-6-1-1-2017-06-08"></a>8.6.1.1 (2017-06-08)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5520">REP-5520</a> - Updated the <a href="../filters/keystone-v2.html">Keystone v2 Filter</a> to provide the token cache key, and to generally handle <code>401</code> - <em>Unauthroized</em> responses.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5347">REP-5347</a> - Updated the Attribute Mapping library from v1.0.2 to v1.1.1.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5595">REP-5595</a> - Updated the <a href="../filters/attribute-mapping-policy-validation.html">Attribute Mapping Policy Validation Filter</a> to utilize new Attribute Mapping library features for cleaner JSON validation.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="8-6-0-0-2017-06-02"><a class="anchor" href="#8-6-0-0-2017-06-02"></a>8.6.0.0 (2017-06-02)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5234">REP-5234</a> - Added the new <a href="../services/datastores.html#_remote_datastore">Remote Datastore service</a> which allows the Distributed Datastore service concept to work in dynamic containerized environments like OpenShift.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5343">REP-5343</a> - Updated the Keystone v2 Filter to support the new Apply RCN Roles feature of Rackspace Keystone v2 Identity.
+Converted the <a href="https://repose.atlassian.net/wiki/display/REPOSE/Keystone+v2+filter">old Keystone v2 Filter documentation</a> over to the <a href="../filters/keystone-v2.html">new versioned docs</a>.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5345">REP-5345</a> - The <a href="../filters/attribute-mapping-policy-validation.html">Attribute Mapping Policy Validation Filter</a> has been released!</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5523">REP-5523</a> - The <a href="../recipes/functional-test-framework.html">Repose Functional Test Framework</a> has been released!</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5221">REP-5221</a> - Updated the API Checker library from v2.1.1 to v2.2.1.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>This brings the bulk metadata feature to the <a href="../filters/api-validator.html">API Validator filter</a>.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="8-5-0-1-2017-04-14"><a class="anchor" href="#8-5-0-1-2017-04-14"></a>8.5.0.1 (2017-04-14)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-4024">REP-4024</a> - The <a href="../filters/header-normalization.html">Header Normalization Filter</a> updated to include removing headers on the Response.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-3901">REP-3901</a> - The Debian and RPM Repose Valve and WAR artifacts will now create the <code>repose</code> user and group even if the configuration files are already present.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5130">REP-5130</a> - <a href="../filters/rackspace-auth-user.html">Rackspace Auth User Filter</a> now gives a more specific and quieter log message when it runs into a non-xml or non-json content type.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-4754">REP-4754</a> - The <a href="../filters/rate-limiting.html">Rate Limiting Filter</a> now returns a 406 if a user requests limits with an unsupported media type in the <code>Accept</code> header.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-4725">REP-4725</a> - Repose will no longer add a <code>Server</code> header to responses from neither the main endpoint nor the Dist-Datastore endpoint.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5204">REP-5204</a> - The <a href="../services/metrics.html">Metrics Service</a> library has been updated from Yammer v2.2.0 to Dropwizard v3.2.0.
+The service interface has also been modified to provide a simpler, more flexible experience.</p>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>As part of the upgrade, some metric names reported by various components have been changed.
+Furthermore, all metrics reported to JMX via the <a href="../services/metrics.html">Metrics Service</a> now follow a new naming scheme.
+Due to a technical issue with the new version of the metric library, EHCache metrics are no longer being reported, but there is planned work to restore them.
+See <a href="../services/metrics.html">Metrics Service</a> for details on the metrics currently being reported.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5214">REP-5214</a> - The <code>Via</code> header configuration has been expanded in a backwards compatible way.
+However, there were some internal contract changes with the Via and Location header builders, but they should not affect any custom filters.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-4465">REP-4465</a> - Certain enums provided by Repose have been replaced by classes holding the same constant values.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="8-4-1-0-2017-02-24"><a class="anchor" href="#8-4-1-0-2017-02-24"></a>8.4.1.0 (2017-02-24)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5101">REP-5101</a> - <a href="../filters/saml-policy.html">SAML Policy Translation Filter</a> now allows un-encoded <code>application/xml</code> requests in addition to the previous <code>application/x-www-form-urlencoded</code> requests.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="8-4-0-2-2017-02-21"><a class="anchor" href="#8-4-0-2-2017-02-21"></a>8.4.0.2 (2017-02-21)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5100">REP-5100</a> - <a href="../filters/rate-limiting.html">Rate Limiting Filter</a> was mistakenly getting the full parameter map, and not just the query parameters.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-5071">REP-5071</a> - Repose is now using Attribute Mapping v1.0.2.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="8-4-0-1-2017-02-04"><a class="anchor" href="#8-4-0-1-2017-02-04"></a>8.4.0.1 (2017-02-04)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-4795">REP-4795</a> <a href="https://repose.atlassian.net/browse/REP-4831">REP-4831</a> - the <a href="../filters/saml-policy.html">SAML Policy Translation Filter</a> has been released!</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-4653">REP-4653</a> - The <a href="../filters/rackspace-auth-user.html">Rackspace Auth User Filter</a> updated to read request body of Forgot Password request to get the username and the <a href="../filters/herp.html">Highly Efficient Record Processor (HERP) Filter</a> was updated to get <code>X-User-Name</code> from response headers.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-4928">REP-4928</a> - The <a href="../filters/keystone-v2.html">Keystone v2 Filter</a> will now return a 401 if self-validating tokens are being used and the Identity service responds with a 401.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-4841">REP-4841</a> - A more unique ID will be used for User Access Events (UAE) in support of Cloud Auditing Data Federation (CADF).</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-4867">REP-4867</a> - The <a href="../filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a> now supports multiple Character Encoding schemes.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-4954">REP-4954</a> - Added support for Form Encoded requests (<code>Content-Type: application/x-www-form-urlencoded</code>).</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-4880">REP-4880</a> - Internal utility classes JCharSequence and MessageDigester were removed.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-4892">REP-4892</a> - Versioned searching of these docs has been fixed.</p>
+</li>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-4999">REP-4999</a> - Leading and trailing whitespace in directory values in the container.cfg.xml file are now ignored.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="8-3-0-1-2016-12-13"><a class="anchor" href="#8-3-0-1-2016-12-13"></a>8.3.0.1 (2016-12-13)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/browse/REP-4764">REP-4764</a> - <code>sendError</code> in the response wrapper will now call <code>sendError</code> on the underlying response when appropriate.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="prior-releases"><a class="anchor" href="#prior-releases"></a>Prior Releases</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://repose.atlassian.net/wiki/display/REPOSE/Repose+Release+Notes">Legacy Release Notes</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+      </div>
+    </div>
+  </div>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="/_javascripts/bootstrap-offcanvas.js" type="text/javascript"></script>
+  <script src="/_javascripts/page-loader.js" type="text/javascript"></script>
+  <script src="/_javascripts/include-html.js" type="text/javascript"></script>
+  <script>includeHTML();</script>
+  <script type="text/javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+      $("[id^='topicGroup']").on('show.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicGroup']").on('hide.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicSubGroup']").on('show.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+      $("[id^='topicSubGroup']").on('hide.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+    });
+    /*]]>*/
+  </script>
+</body>
+</html>

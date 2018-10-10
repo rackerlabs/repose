@@ -1,0 +1,16 @@
+.result-wrapper a {
+    color: #1a0dab;
+    display: block;
+    font-size: 1.3em;
+}
+
+.result-wrapper span {
+    color: green;
+    display: block;
+    word-wrap: break-word;
+}
+
+.result-wrapper p {
+    margin: 0;
+    color: grey;
+}
