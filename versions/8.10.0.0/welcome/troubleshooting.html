@@ -304,7 +304,7 @@ java.net.SocketException: Connection reset
 <div class="paragraph">
 <p>The configuration of the logging system has a substantial impact on the quality of logs.
 Certain configurations may even prevent useful log messages from being written.
-Please see <a href="services/logging.html">Logging Service</a> for more details.</p>
+Please see <a href="../services/logging.html">Logging Service</a> for more details.</p>
 </div>
 </td>
 </tr>
@@ -318,8 +318,8 @@ Please see <a href="services/logging.html">Logging Service</a> for more details.
 </td>
 <td class="content">
 <div class="paragraph">
-<p>Log messages that are written before the <a href="services/logging.html">Logging Service</a> has initialized (e.g., Valve logs, core service startup logs) may not appear in the expected, configured log file.
-Since the <a href="services/logging.html">Logging Service</a> performs logging configuration, logging that occurs before it has initialized will rely on the Log4j2 default configuration which writes everything to standard streams (i.e., <code>stdout</code>, <code>stderr</code>).</p>
+<p>Log messages that are written before the <a href="../services/logging.html">Logging Service</a> has initialized (e.g., Valve logs, core service startup logs) may not appear in the expected, configured log file.
+Since the <a href="../services/logging.html">Logging Service</a> performs logging configuration, logging that occurs before it has initialized will rely on the Log4j2 default configuration which writes everything to standard streams (i.e., <code>stdout</code>, <code>stderr</code>).</p>
 </div>
 </td>
 </tr>

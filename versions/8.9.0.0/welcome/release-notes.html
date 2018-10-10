@@ -254,14 +254,14 @@
 <p><a href="https://repose.atlassian.net/browse/REP-6674">REP-6674</a> - Minor internal update to increase logging performance.</p>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-6765">REP-6765</a> - Updated the <a href="filters/keystone-v2.html">Keystone v2 filter</a> to forward users' domain ID.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-6765">REP-6765</a> - Updated the <a href="../filters/keystone-v2.html">Keystone v2 filter</a> to forward users' domain ID.</p>
 </li>
 <li>
 <p><a href="https://repose.atlassian.net/browse/REP-6655">REP-6655</a> - Adding required configuration files to the examples directory.
 Also, example configurations will now be replaced on upgrade.</p>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-6795">REP-6795</a> - Added the new <a href="services/uri-redaction.html">URI Redaction service</a> which allows for the removal of sensitive data from URI&#8217;s before external processing.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-6795">REP-6795</a> - Added the new <a href="../services/uri-redaction.html">URI Redaction service</a> which allows for the removal of sensitive data from URI&#8217;s before external processing.</p>
 </li>
 <li>
 <p><a href="https://repose.atlassian.net/browse/REP-6862">REP-6862</a> - Updated dependencies:</p>
@@ -326,7 +326,7 @@ This should fix an issue with certain servlet containers where an <code>IllegalS
 </td>
 <td class="content">
 <div class="paragraph">
-<p>The case of the actual header does not matter, but the case of the <code>rax:roles</code> tenant must match the case of the <code>param</code> element&#8217;s <code>name</code> attribute in the <a href="filters/api-validator.html">API Validator filter</a>'s WADL.</p>
+<p>The case of the actual header does not matter, but the case of the <code>rax:roles</code> tenant must match the case of the <code>param</code> element&#8217;s <code>name</code> attribute in the <a href="../filters/api-validator.html">API Validator filter</a>'s WADL.</p>
 </div>
 </td>
 </tr>
@@ -340,10 +340,10 @@ This should fix an issue with certain servlet containers where an <code>IllegalS
 </div>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-6550">REP-6550</a> - Update the <a href="filters/valkyrie-authorization.html">Valkyrie Filter</a> to care about quality when selecting a tenant ID for talking to the Valkyrie service.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-6550">REP-6550</a> - Update the <a href="../filters/valkyrie-authorization.html">Valkyrie Filter</a> to care about quality when selecting a tenant ID for talking to the Valkyrie service.</p>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-6604">REP-6604</a> - Update the <a href="filters/valkyrie-authorization.html">Valkyrie Filter</a> to add roles to the <code>X-Map-Roles</code> header when role translation is configured.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-6604">REP-6604</a> - Update the <a href="../filters/valkyrie-authorization.html">Valkyrie Filter</a> to add roles to the <code>X-Map-Roles</code> header when role translation is configured.</p>
 </li>
 <li>
 <p><a href="https://repose.atlassian.net/browse/REP-6448">REP-6448</a> - Updated the Simple RBAC filter to support Multi-Tenant.</p>
@@ -361,10 +361,10 @@ This should fix an issue with certain servlet containers where an <code>IllegalS
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-6447">REP-6447</a> - Added multi-tenant support in the <a href="filters/keystone-v2.html">Keystone v2</a> and <a href="filters/keystone-v2-authorization.html">Keystone v2 Authorization</a> filters.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-6447">REP-6447</a> - Added multi-tenant support in the <a href="../filters/keystone-v2.html">Keystone v2</a> and <a href="../filters/keystone-v2-authorization.html">Keystone v2 Authorization</a> filters.</p>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-6578">REP-6578</a> - Updated <a href="filters/tenant-culling.html">Tenant Culling</a> filter to utilize the tenant to roles map now being populated by the <a href="filters/keystone-v2.html">Keystone v2</a> filter.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-6578">REP-6578</a> - Updated <a href="../filters/tenant-culling.html">Tenant Culling</a> filter to utilize the tenant to roles map now being populated by the <a href="../filters/keystone-v2.html">Keystone v2</a> filter.</p>
 </li>
 <li>
 <p><a href="https://repose.atlassian.net/browse/REP-6470">REP-6470</a> - Updated dependencies:</p>
@@ -447,10 +447,10 @@ This should fix an issue with certain servlet containers where an <code>IllegalS
 <p><a href="https://repose.atlassian.net/browse/REP-5401">REP-5401</a> - Added support for environment variable substitution in configuration files.</p>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-6390">REP-6390</a> - Internal changes to the <a href="filters/keystone-v2.html">Keystone v2 Filter</a> in anticipation of splitting the authorization portion off into it&#8217;s own filter.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-6390">REP-6390</a> - Internal changes to the <a href="../filters/keystone-v2.html">Keystone v2 Filter</a> in anticipation of splitting the authorization portion off into it&#8217;s own filter.</p>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-6400">REP-6400</a> - Added the new <a href="filters/keystone-v2-authorization.html">Keystone v2 Authorization Filter</a> which captures the authorization functionality of the <a href="filters/keystone-v2.html">Keystone v2 Filter</a>.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-6400">REP-6400</a> - Added the new <a href="../filters/keystone-v2-authorization.html">Keystone v2 Authorization Filter</a> which captures the authorization functionality of the <a href="../filters/keystone-v2.html">Keystone v2 Filter</a>.</p>
 </li>
 <li>
 <p><a href="https://repose.atlassian.net/browse/REP-6382">REP-6382</a> - Lots of little versioned docs updates.</p>
@@ -465,10 +465,10 @@ This should fix an issue with certain servlet containers where an <code>IllegalS
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-6159">REP-6159</a> - Added the new <a href="filters/regex-rbac.html">RegEx Role Based Access Control (RBAC) Filter</a>.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-6159">REP-6159</a> - Added the new <a href="../filters/regex-rbac.html">RegEx Role Based Access Control (RBAC) Filter</a>.</p>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-6313">REP-6313</a> - Updated <a href="filters/keystone-v2.html">Keystone v2 Filter</a> to automatically ignore configured roles.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-6313">REP-6313</a> - Updated <a href="../filters/keystone-v2.html">Keystone v2 Filter</a> to automatically ignore configured roles.</p>
 </li>
 <li>
 <p><a href="https://repose.atlassian.net/browse/REP-6338">REP-6338</a> <a href="https://repose.atlassian.net/browse/REP-6325">REP-6325</a> <a href="https://repose.atlassian.net/browse/REP-6321">REP-6321</a> - Multiple  documentation improvements.</p>
@@ -669,7 +669,7 @@ This should fix an issue with certain servlet containers where an <code>IllegalS
 </div>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-5994">REP-5994</a> - Brought the <a href="filters/tenant-culling.html">Tenant Culling Filter</a> into the main filter bundle.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-5994">REP-5994</a> - Brought the <a href="../filters/tenant-culling.html">Tenant Culling Filter</a> into the main filter bundle.</p>
 </li>
 <li>
 <p><a href="https://repose.atlassian.net/browse/REP-5727">REP-5727</a> - Extracted trace ID logging to its own named logger.</p>
@@ -703,19 +703,19 @@ If the <code>org.openrepose.powerfilter.PowerFilter.trace-id-logging</code> Logg
 <div class="ulist">
 <ul>
 <li>
-<p><a href="filters/ip-user.html">IP User Filter</a></p>
+<p><a href="../filters/ip-user.html">IP User Filter</a></p>
 </li>
 <li>
-<p><a href="filters/keystone-v2-basic-auth.html">Keystone v2 Basic Auth Filter</a></p>
+<p><a href="../filters/keystone-v2-basic-auth.html">Keystone v2 Basic Auth Filter</a></p>
 </li>
 <li>
-<p><a href="filters/openstack-identity-v3.html">Openstack Identity v3 Filter</a></p>
+<p><a href="../filters/openstack-identity-v3.html">Openstack Identity v3 Filter</a></p>
 </li>
 <li>
-<p><a href="filters/rackspace-auth-user.html">Rackspace Auth User Filter</a></p>
+<p><a href="../filters/rackspace-auth-user.html">Rackspace Auth User Filter</a></p>
 </li>
 <li>
-<p><a href="filters/saml-policy.html">SAML Policy Translation Filter</a></p>
+<p><a href="../filters/saml-policy.html">SAML Policy Translation Filter</a></p>
 </li>
 </ul>
 </div>
@@ -739,13 +739,13 @@ If the <code>org.openrepose.powerfilter.PowerFilter.trace-id-logging</code> Logg
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-5748">REP-5748</a> - Updated the <a href="services/phone-home.html">Phone Home Service</a> to correct a bug that was preventing the message from actually reaching back.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-5748">REP-5748</a> - Updated the <a href="../services/phone-home.html">Phone Home Service</a> to correct a bug that was preventing the message from actually reaching back.</p>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-5823">REP-5823</a> - Updated the <a href="filters/keystone-v2.html">Keystone v2 Filter</a> to support multiple <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Java Regular Expressions</a> for URI tenant extraction.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-5823">REP-5823</a> - Updated the <a href="../filters/keystone-v2.html">Keystone v2 Filter</a> to support multiple <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Java Regular Expressions</a> for URI tenant extraction.</p>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-5853">REP-5853</a> - Updated the <a href="filters/saml-policy.html">SAML Policy Translation Filter</a> and <a href="filters/attribute-mapping-policy-validation.html">Attribute Mapping Policy Validation Filter</a> to recover support for XML and JSON (which was removed in <a href="#8-6-2-0-2017-06-13">8.6.2.0 (2017-06-13)</a>).</p>
+<p><a href="https://repose.atlassian.net/browse/REP-5853">REP-5853</a> - Updated the <a href="../filters/saml-policy.html">SAML Policy Translation Filter</a> and <a href="../filters/attribute-mapping-policy-validation.html">Attribute Mapping Policy Validation Filter</a> to recover support for XML and JSON (which was removed in <a href="#8-6-2-0-2017-06-13">8.6.2.0 (2017-06-13)</a>).</p>
 </li>
 <li>
 <p><a href="https://repose.atlassian.net/browse/REP-5617">REP-5617</a> - Updated the the internal HTTP Servlet Response Wrapper to log a WARNING when addHeader, addIntHeader, addDateHeader, or appendHeader is called after the response has been committed.</p>
@@ -778,7 +778,7 @@ If the <code>org.openrepose.powerfilter.PowerFilter.trace-id-logging</code> Logg
 <div class="ulist">
 <ul>
 <li>
-<p>This brings the <code>X-Relevant-Roles</code> header population feature to the <a href="filters/api-validator.html">API Validator filter</a> and <a href="filters/simple-rbac.html">Simple RBAC filter</a>.</p>
+<p>This brings the <code>X-Relevant-Roles</code> header population feature to the <a href="../filters/api-validator.html">API Validator filter</a> and <a href="../filters/simple-rbac.html">Simple RBAC filter</a>.</p>
 </li>
 </ul>
 </div>
@@ -799,7 +799,7 @@ If the <code>org.openrepose.powerfilter.PowerFilter.trace-id-logging</code> Logg
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-5757">REP-5757</a> - Updated the <a href="filters/saml-policy.html">SAML Policy Translation Filter</a> to utilize YAML policy files.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-5757">REP-5757</a> - Updated the <a href="../filters/saml-policy.html">SAML Policy Translation Filter</a> to utilize YAML policy files.</p>
 <div class="ulist">
 <ul>
 <li>
@@ -809,10 +809,10 @@ If the <code>org.openrepose.powerfilter.PowerFilter.trace-id-logging</code> Logg
 </div>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-5592">REP-5592</a> - Updated the <a href="filters/attribute-mapping-policy-validation.html">Attribute Mapping Policy Validation Filter</a> to only work for YAML bodies.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-5592">REP-5592</a> - Updated the <a href="../filters/attribute-mapping-policy-validation.html">Attribute Mapping Policy Validation Filter</a> to only work for YAML bodies.</p>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-5694">REP-5694</a> - Updated the <a href="filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a> versioned docs to point to the current Valkyrie service documentation.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-5694">REP-5694</a> - Updated the <a href="../filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a> versioned docs to point to the current Valkyrie service documentation.</p>
 </li>
 </ul>
 </div>
@@ -824,13 +824,13 @@ If the <code>org.openrepose.powerfilter.PowerFilter.trace-id-logging</code> Logg
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-5520">REP-5520</a> - Updated the <a href="filters/keystone-v2.html">Keystone v2 Filter</a> to provide the token cache key, and to generally handle <code>401</code> - <em>Unauthroized</em> responses.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-5520">REP-5520</a> - Updated the <a href="../filters/keystone-v2.html">Keystone v2 Filter</a> to provide the token cache key, and to generally handle <code>401</code> - <em>Unauthroized</em> responses.</p>
 </li>
 <li>
 <p><a href="https://repose.atlassian.net/browse/REP-5347">REP-5347</a> - Updated the Attribute Mapping library from v1.0.2 to v1.1.1.</p>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-5595">REP-5595</a> - Updated the <a href="filters/attribute-mapping-policy-validation.html">Attribute Mapping Policy Validation Filter</a> to utilize new Attribute Mapping library features for cleaner JSON validation.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-5595">REP-5595</a> - Updated the <a href="../filters/attribute-mapping-policy-validation.html">Attribute Mapping Policy Validation Filter</a> to utilize new Attribute Mapping library features for cleaner JSON validation.</p>
 </li>
 </ul>
 </div>
@@ -842,24 +842,24 @@ If the <code>org.openrepose.powerfilter.PowerFilter.trace-id-logging</code> Logg
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-5234">REP-5234</a> - Added the new <a href="services/datastores.html#_remote_datastore">Remote Datastore service</a> which allows the Distributed Datastore service concept to work in dynamic containerized environments like OpenShift.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-5234">REP-5234</a> - Added the new <a href="../services/datastores.html#_remote_datastore">Remote Datastore service</a> which allows the Distributed Datastore service concept to work in dynamic containerized environments like OpenShift.</p>
 </li>
 <li>
 <p><a href="https://repose.atlassian.net/browse/REP-5343">REP-5343</a> - Updated the Keystone v2 Filter to support the new Apply RCN Roles feature of Rackspace Keystone v2 Identity.
-Converted the <a href="https://repose.atlassian.net/wiki/display/REPOSE/Keystone+v2+filter">old Keystone v2 Filter documentation</a> over to the <a href="filters/keystone-v2.html">new versioned docs</a>.</p>
+Converted the <a href="https://repose.atlassian.net/wiki/display/REPOSE/Keystone+v2+filter">old Keystone v2 Filter documentation</a> over to the <a href="../filters/keystone-v2.html">new versioned docs</a>.</p>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-5345">REP-5345</a> - The <a href="filters/attribute-mapping-policy-validation.html">Attribute Mapping Policy Validation Filter</a> has been released!</p>
+<p><a href="https://repose.atlassian.net/browse/REP-5345">REP-5345</a> - The <a href="../filters/attribute-mapping-policy-validation.html">Attribute Mapping Policy Validation Filter</a> has been released!</p>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-5523">REP-5523</a> - The <a href="recipes/functional-test-framework.html">Repose Functional Test Framework</a> has been released!</p>
+<p><a href="https://repose.atlassian.net/browse/REP-5523">REP-5523</a> - The <a href="../recipes/functional-test-framework.html">Repose Functional Test Framework</a> has been released!</p>
 </li>
 <li>
 <p><a href="https://repose.atlassian.net/browse/REP-5221">REP-5221</a> - Updated the API Checker library from v2.1.1 to v2.2.1.</p>
 <div class="ulist">
 <ul>
 <li>
-<p>This brings the bulk metadata feature to the <a href="filters/api-validator.html">API Validator filter</a>.</p>
+<p>This brings the bulk metadata feature to the <a href="../filters/api-validator.html">API Validator filter</a>.</p>
 </li>
 </ul>
 </div>
@@ -874,22 +874,22 @@ Converted the <a href="https://repose.atlassian.net/wiki/display/REPOSE/Keystone
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-4024">REP-4024</a> - The <a href="filters/header-normalization.html">Header Normalization Filter</a> updated to include removing headers on the Response.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-4024">REP-4024</a> - The <a href="../filters/header-normalization.html">Header Normalization Filter</a> updated to include removing headers on the Response.</p>
 </li>
 <li>
 <p><a href="https://repose.atlassian.net/browse/REP-3901">REP-3901</a> - The Debian and RPM Repose Valve and WAR artifacts will now create the <code>repose</code> user and group even if the configuration files are already present.</p>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-5130">REP-5130</a> - <a href="filters/rackspace-auth-user.html">Rackspace Auth User Filter</a> now gives a more specific and quieter log message when it runs into a non-xml or non-json content type.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-5130">REP-5130</a> - <a href="../filters/rackspace-auth-user.html">Rackspace Auth User Filter</a> now gives a more specific and quieter log message when it runs into a non-xml or non-json content type.</p>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-4754">REP-4754</a> - The <a href="filters/rate-limiting.html">Rate Limiting Filter</a> now returns a 406 if a user requests limits with an unsupported media type in the <code>Accept</code> header.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-4754">REP-4754</a> - The <a href="../filters/rate-limiting.html">Rate Limiting Filter</a> now returns a 406 if a user requests limits with an unsupported media type in the <code>Accept</code> header.</p>
 </li>
 <li>
 <p><a href="https://repose.atlassian.net/browse/REP-4725">REP-4725</a> - Repose will no longer add a <code>Server</code> header to responses from neither the main endpoint nor the Dist-Datastore endpoint.</p>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-5204">REP-5204</a> - The <a href="services/metrics.html">Metrics Service</a> library has been updated from Yammer v2.2.0 to Dropwizard v3.2.0.
+<p><a href="https://repose.atlassian.net/browse/REP-5204">REP-5204</a> - The <a href="../services/metrics.html">Metrics Service</a> library has been updated from Yammer v2.2.0 to Dropwizard v3.2.0.
 The service interface has also been modified to provide a simpler, more flexible experience.</p>
 <div class="admonitionblock important">
 <table>
@@ -900,9 +900,9 @@ The service interface has also been modified to provide a simpler, more flexible
 <td class="content">
 <div class="paragraph">
 <p>As part of the upgrade, some metric names reported by various components have been changed.
-Furthermore, all metrics reported to JMX via the <a href="services/metrics.html">Metrics Service</a> now follow a new naming scheme.
+Furthermore, all metrics reported to JMX via the <a href="../services/metrics.html">Metrics Service</a> now follow a new naming scheme.
 Due to a technical issue with the new version of the metric library, EHCache metrics are no longer being reported, but there is planned work to restore them.
-See <a href="services/metrics.html">Metrics Service</a> for details on the metrics currently being reported.</p>
+See <a href="../services/metrics.html">Metrics Service</a> for details on the metrics currently being reported.</p>
 </div>
 </td>
 </tr>
@@ -926,7 +926,7 @@ However, there were some internal contract changes with the Via and Location hea
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-5101">REP-5101</a> - <a href="filters/saml-policy.html">SAML Policy Translation Filter</a> now allows un-encoded <code>application/xml</code> requests in addition to the previous <code>application/x-www-form-urlencoded</code> requests.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-5101">REP-5101</a> - <a href="../filters/saml-policy.html">SAML Policy Translation Filter</a> now allows un-encoded <code>application/xml</code> requests in addition to the previous <code>application/x-www-form-urlencoded</code> requests.</p>
 </li>
 </ul>
 </div>
@@ -938,7 +938,7 @@ However, there were some internal contract changes with the Via and Location hea
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-5100">REP-5100</a> - <a href="filters/rate-limiting.html">Rate Limiting Filter</a> was mistakenly getting the full parameter map, and not just the query parameters.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-5100">REP-5100</a> - <a href="../filters/rate-limiting.html">Rate Limiting Filter</a> was mistakenly getting the full parameter map, and not just the query parameters.</p>
 </li>
 <li>
 <p><a href="https://repose.atlassian.net/browse/REP-5071">REP-5071</a> - Repose is now using Attribute Mapping v1.0.2.</p>
@@ -953,19 +953,19 @@ However, there were some internal contract changes with the Via and Location hea
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-4795">REP-4795</a> <a href="https://repose.atlassian.net/browse/REP-4831">REP-4831</a> - the <a href="filters/saml-policy.html">SAML Policy Translation Filter</a> has been released!</p>
+<p><a href="https://repose.atlassian.net/browse/REP-4795">REP-4795</a> <a href="https://repose.atlassian.net/browse/REP-4831">REP-4831</a> - the <a href="../filters/saml-policy.html">SAML Policy Translation Filter</a> has been released!</p>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-4653">REP-4653</a> - The <a href="filters/rackspace-auth-user.html">Rackspace Auth User Filter</a> updated to read request body of Forgot Password request to get the username and the <a href="filters/herp.html">Highly Efficient Record Processor (HERP) Filter</a> was updated to get <code>X-User-Name</code> from response headers.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-4653">REP-4653</a> - The <a href="../filters/rackspace-auth-user.html">Rackspace Auth User Filter</a> updated to read request body of Forgot Password request to get the username and the <a href="../filters/herp.html">Highly Efficient Record Processor (HERP) Filter</a> was updated to get <code>X-User-Name</code> from response headers.</p>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-4928">REP-4928</a> - The <a href="filters/keystone-v2.html">Keystone v2 Filter</a> will now return a 401 if self-validating tokens are being used and the Identity service responds with a 401.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-4928">REP-4928</a> - The <a href="../filters/keystone-v2.html">Keystone v2 Filter</a> will now return a 401 if self-validating tokens are being used and the Identity service responds with a 401.</p>
 </li>
 <li>
 <p><a href="https://repose.atlassian.net/browse/REP-4841">REP-4841</a> - A more unique ID will be used for User Access Events (UAE) in support of Cloud Auditing Data Federation (CADF).</p>
 </li>
 <li>
-<p><a href="https://repose.atlassian.net/browse/REP-4867">REP-4867</a> - The <a href="filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a> now supports multiple Character Encoding schemes.</p>
+<p><a href="https://repose.atlassian.net/browse/REP-4867">REP-4867</a> - The <a href="../filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a> now supports multiple Character Encoding schemes.</p>
 </li>
 <li>
 <p><a href="https://repose.atlassian.net/browse/REP-4954">REP-4954</a> - Added support for Form Encoded requests (<code>Content-Type: application/x-www-form-urlencoded</code>).</p>
