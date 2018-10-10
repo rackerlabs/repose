@@ -213,7 +213,7 @@ It&#8217;ll attempt to locate a policy to use for the translation based on the a
 <p><strong>Default Configuration:</strong> saml-policy.cfg.xml</p>
 </li>
 <li>
-<p><strong>Released:</strong> v8.?.?.0</p>
+<p><strong>Released:</strong> v8.4.0.1</p>
 </li>
 <li>
 <p><strong>Bundle:</strong> repose-extensions-filter-bundle</p>
@@ -364,6 +364,10 @@ In other words, if an unexpected problem occurs.</p></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
 <ul>
 <li>
+<p>If Identity returns a 413 or 429 response code, indicating that this filter&#8217;s request was rate limited.
+The response from this filter will contain a <strong>Retry-After</strong> header.</p>
+</li>
+<li>
 <p>If Identity returns a 5xx response.</p>
 </li>
 <li>
@@ -371,11 +375,6 @@ In other words, if an unexpected problem occurs.</p></td>
 </li>
 </ul>
 </div></div></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>502</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If Identity returns a 413 or 429 response code, indicating that this filter&#8217;s request was rate limited.
-The response from this filter will contain a <strong>Retry-After</strong> header.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>504</code></p></td>
