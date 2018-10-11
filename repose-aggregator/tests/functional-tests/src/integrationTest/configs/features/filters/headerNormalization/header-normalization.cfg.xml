@@ -8,12 +8,14 @@
         <request>
             <whitelist id="creds">
                 <header id="X-First-Filter"/>
+                <header id="X-Shared"/>
                 <header id="x-auth-token"/>
             </whitelist>
         </request>
         <response>
             <whitelist id="creds">
                 <header id="X-First-Filter"/>
+                <header id="X-Shared"/>
                 <header id="x-auth-token"/>
             </whitelist>
         </response>
@@ -24,12 +26,14 @@
         <request>
             <whitelist id="creds">
                 <header id="X-SeCond-Filter"/>
+                <header id="X-Shared"/>
                 <header id="x-auth-token"/>
             </whitelist>
         </request>
         <response>
             <whitelist id="creds">
                 <header id="X-SeCond-Filter"/>
+                <header id="X-Shared"/>
                 <header id="x-auth-token"/>
             </whitelist>
         </response>

@@ -10,6 +10,7 @@
         <target uri-regex=".*/servers/(.*)" http-methods="GET">
             <whitelist id="creds">
                 <header id="X-First-Filter"/>
+                <header id="X-Shared"/>
                 <header id="x-auth-token"/>
             </whitelist>
         </target>
@@ -18,6 +19,7 @@
         <target uri-regex=".*/servers/(.*)">
             <whitelist id="creds">
                 <header id="X-SeCond-Filter"/>
+                <header id="X-Shared"/>
                 <header id="x-auth-token"/>
             </whitelist>
         </target>
