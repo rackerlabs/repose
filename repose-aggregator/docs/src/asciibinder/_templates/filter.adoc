@@ -1,0 +1,57 @@
+= Some Filter
+
+include::./_includes/in-progress.adoc[]
+
+This filter does something really exciting.
+
+
+== General filter information
+* *Name:* some
+* *Default Configuration:* some.cfg.xml
+* *Released:* v9001.0.0.0
+* *Bundle:* repose-filter-bundle
+* link:../schemas/some.xsd[Schema]
+
+== Prerequisites & Postconditions
+=== Required Request Headers
+Banana.
+
+=== Required Preceding Filters
+Banana.
+
+=== Request Headers Created
+Banana.
+
+=== Request Body Changes
+Banana.
+
+=== Recommended Follow-On (Succeeding) Filters
+Banana.
+
+=== Response Body Changes
+Banana.
+
+=== Response Headers Created
+Banana.
+
+=== Response Status Codes
+Banana.
+
+== Examples
+=== Do Something
+This configuration will do soemthing super great.
+
+[source,xml]
+.some.cfg.xml
+----
+<some xmlns="http://docs.openrepose.org/repose/some/v1.0">
+    <foo> <!--1-->
+        <bar/> <!--2-->
+    </foo>
+</some>
+----
+<1> Specifies foo.
+<2> Specifies bar.
+
+== Additional Information
+There's always money in the banana stand.

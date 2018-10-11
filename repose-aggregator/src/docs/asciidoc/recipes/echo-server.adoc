@@ -1,3 +1,0 @@
-= Echo Server
-
-include::../_includes/in-progress.adoc[]

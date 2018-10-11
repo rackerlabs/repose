@@ -1,3 +1,0 @@
-= Basic Authentication
-
-include::../_includes/in-progress.adoc[]

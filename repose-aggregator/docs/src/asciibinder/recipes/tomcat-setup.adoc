@@ -1,0 +1,154 @@
+= Tomcat Setup
+
+include::./_includes/in-progress.adoc[]
+
+This page describes how to run the *Repose* WAR in a Tomcat container.
+
+Make sure to <<war-installation.adoc#,install the Repose WAR>> first!
+
+== Tomcat Installation
+
+=== APT Based Linux Distributions
+----
+# update package lists from the server
+sudo apt-get update
+
+# install Tomcat
+sudo apt-get install -y tomcat7
+----
+
+=== Yum Based Linux Distributions
+----
+# update package lists from the server
+sudo yum update -y
+
+# install Tomcat
+sudo yum install -y tomcat
+----
+
+== WAR Deployment
+The easiest way to deploy the WAR to Tomcat is to copy it to Tomcat's deployment directory.
+
+=== APT Based Linux Distribution
+----
+sudo cp /usr/share/repose/ROOT.war /var/lib/tomcat7/webapps
+sudo chown tomcat7: /var/lib/tomcat7/webapps/ROOT.war
+sudo chown -R tomcat7: /etc/repose /var/log/repose /var/repose
+----
+
+=== Yum Based Linux Distributions
+----
+sudo cp /usr/share/repose/ROOT.war /usr/share/tomcat/webapps
+sudo chown tomcat: /usr/share/tomcat/webapps/ROOT.war
+sudo chown -R tomcat: /etc/repose /var/log/repose /var/repose
+----
+
+== Configuration
+
+=== Tomcat
+
+==== Context
+*Repose* needs two parameters set in order to start with an optional third parameter to set the location of the config directory.
+
+./etc/tomcat7/context.xml (debian), /etc/tomcat/context.xml (RHEL)
+[source,xml]
+----
+<Context>
+    <WatchedResource>WEB-INF/web.xml</WatchedResource>
+
+    <!-- OPTIONAL: set the location of the config directory -->
+    <Parameter name="powerapi-config-directory" value="/etc/repose" override="false"/>
+
+    <!-- REQUIRED: these must match the values in system-model.cfg.xml -->
+    <Parameter name="repose-cluster-id" value="repose" override="false"/>
+    <Parameter name="repose-node-id" value="repose_node1" override="false"/>
+</Context>
+----
+
+Alternatively, the web.xml file within the war itself can be modified to include the following:
+
+[source,xml]
+----
+<context-param>
+    <param-name>repose-config-directory</param-name>
+    <param-value>/etc/repose/</param-value>
+</context-param>
+<context-param>
+    <param-name>repose-cluster-id</param-name>
+    <param-value>cluster</param-value>
+</context-param>
+<context-param>
+    <param-name>repose-node-id</param-name>
+    <param-value>node</param-value>
+</context-param>
+----
+
+==== Connector
+You may want to increase the size of the maximum allowed HTTP header size and number of allowed headers.
+See http://tomcat.apache.org/tomcat-7.0-doc/config/http.html[Tomcat's HTTP Connector documentation] for more details.
+
+./etc/tomcat7/server.xml (debian), /etc/tomcat/server.xml (RHEL) – PARTIAL FILE
+[source,xml]
+----
+<Connector port="8080"
+           protocol="HTTP/1.1"
+           connectionTimeout="20000"
+           redirectPort="8443"
+           maxHttpHeaderSize="32768"
+           maxHeaderCount="2000" />
+----
+
+=== Repose
+
+==== System Model
+*Repose* can use internal dispatch (within the Tomcat container) to access your deployed WARs.
+
+For example, if you had sample.war deployed, you could set the configured root-path to `/sample` and then access it as if it was on the root path (e.g., curl localhost:8080 would point to localhost:8080/sample/).
+
+[source,xml]
+.system-model.cfg.xml (partial)
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+  <repose-cluster id="repose">
+    ...
+    <endpoint id="internal"
+              root-path="/sample"
+              default="true"/>
+    ...
+  </repose-cluster>
+</system-model>
+----
+
+== Running
+
+=== APT Based Linux Distributions
+----
+# stop Tomcat
+sudo service tomcat7 stop
+
+# remove default site
+sudo rm -r /var/lib/tomcat7/webapps/ROOT /usr/share/tomcat7-root/*
+
+# start Tomcat
+sudo service tomcat7 start
+----
+
+=== Yum Based Linux Distributions
+----
+# start Tomcat
+sudo service tomcat start
+----
+
+== Testing
+You can use curl or https://github.com/jkbrzt/httpie[HTTPie] to send a request to Tomcat.
+
+=== Curl
+----
+curl localhost:8080/
+----
+
+=== HTTPie
+----
+http localhost:8080/
+----
