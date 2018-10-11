@@ -51,9 +51,7 @@
         </response>
     </target>
 
-    <!-- this blacklist filter only applies if the request does not match one of the previous targets -->
-    <!-- since uri-regex and http-methods are not specified in target the blacklist applies to all http requests
-         that don't match the previous two targets -->
+    <!-- since uri-regex and http-methods are not specified in target the blacklist applies to all http requests -->
     <target>
         <request>
             <blacklist id="rate-limit-headers">

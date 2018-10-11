@@ -61,15 +61,15 @@ class HeaderNormalizationTest extends ReposeValveTest {
         then:
         mc.handlings.size() == 0
         mc.orphanedHandlings.size() == 1
-        mc.orphanedHandlings[0].request.headers.getFirstValue("x-auth-token") == '358484212:99493'
-        mc.orphanedHandlings[0].request.headers.getFirstValue("x-first-filter") == 'firstValue'
+        mc.orphanedHandlings[0].request.headers.findAll("x-auth-token") == []
+        mc.orphanedHandlings[0].request.headers.findAll("x-first-filter") == []
         mc.orphanedHandlings[0].request.headers.findAll("x-second-filter") == []
         mc.orphanedHandlings[0].request.headers.findAll("x-third-filter") == []
         mc.orphanedHandlings[0].request.headers.findAll("x-last-filter") == []
         mc.orphanedHandlings[0].request.headers.getFirstValue("via").contains("1.1 localhost:${properties.reposePort} (Repose/")
         mc.receivedResponse.code == '200'
-        mc.receivedResponse.headers.getFirstValue("x-auth-token") == '358484212:99493'
-        mc.receivedResponse.headers.getFirstValue("x-first-filter") == 'firstValue'
+        mc.receivedResponse.headers.findAll("x-auth-token") == []
+        mc.receivedResponse.headers.findAll("x-first-filter") == []
         mc.receivedResponse.headers.findAll("x-second-filter") == []
         mc.receivedResponse.headers.findAll("x-third-filter") == []
         mc.receivedResponse.headers.findAll("x-last-filter") == []
@@ -88,15 +88,15 @@ class HeaderNormalizationTest extends ReposeValveTest {
         then:
         mc.handlings.size() == 0
         mc.orphanedHandlings.size() == 1
-        mc.orphanedHandlings[0].request.headers.getFirstValue("x-auth-token") == '358484212:99493'
-        mc.orphanedHandlings[0].request.headers.getFirstValue("x-second-filter") == 'secondValue'
+        mc.orphanedHandlings[0].request.headers.findAll("x-auth-token") == []
+        mc.orphanedHandlings[0].request.headers.findAll("x-second-filter") == []
         mc.orphanedHandlings[0].request.headers.findAll("x-first-filter") == []
         mc.orphanedHandlings[0].request.headers.findAll("x-third-filter") == []
         mc.orphanedHandlings[0].request.headers.findAll("x-last-filter") == []
         mc.orphanedHandlings[0].request.headers.getFirstValue("via").contains("1.1 localhost:${properties.reposePort} (Repose/")
         mc.receivedResponse.code == '200'
-        mc.receivedResponse.headers.getFirstValue("x-auth-token") == '358484212:99493'
-        mc.receivedResponse.headers.getFirstValue("x-second-filter") == 'secondValue'
+        mc.receivedResponse.headers.findAll("x-auth-token") == []
+        mc.receivedResponse.headers.findAll("x-second-filter") == []
         mc.receivedResponse.headers.findAll("x-first-filter") == []
         mc.receivedResponse.headers.findAll("x-third-filter") == []
         mc.receivedResponse.headers.findAll("x-last-filter") == []
@@ -115,14 +115,14 @@ class HeaderNormalizationTest extends ReposeValveTest {
         then:
         mc.handlings.size() == 0
         mc.orphanedHandlings.size() == 1
-        mc.orphanedHandlings[0].request.headers.getFirstValue("x-auth-token") == '358484212:99493'
+        mc.orphanedHandlings[0].request.headers.findAll("x-auth-token") == []
         mc.orphanedHandlings[0].request.headers.getFirstValue("x-third-filter") == 'thirdValue'
         mc.orphanedHandlings[0].request.headers.findAll("x-second-filter") == []
         mc.orphanedHandlings[0].request.headers.findAll("x-first-filter") == []
         mc.orphanedHandlings[0].request.headers.findAll("x-last-filter") == []
         mc.orphanedHandlings[0].request.headers.getFirstValue("via").contains("1.1 localhost:${properties.reposePort} (Repose/")
         mc.receivedResponse.code == '200'
-        mc.receivedResponse.headers.getFirstValue("x-auth-token") == '358484212:99493'
+        mc.receivedResponse.headers.findAll("x-auth-token") == []
         mc.receivedResponse.headers.getFirstValue("x-third-filter") == 'thirdValue'
         mc.receivedResponse.headers.findAll("x-second-filter") == []
         mc.receivedResponse.headers.findAll("x-first-filter") == []
