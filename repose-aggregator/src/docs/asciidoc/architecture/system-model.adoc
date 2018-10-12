@@ -127,7 +127,7 @@ If set to localhost, any physical node will match and run the *Repose* node.
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
   <repose-cluster id="repose_cluster1"> <!--1-->
     <nodes>
-      <node id="repose_node", hostname="localhost", http-port="8080"/> <!--2-->
+      <node id="repose_node" hostname="localhost" http-port="8080"/> <!--2-->
     </nodes>
 
     <filters> <!--3-->
@@ -181,7 +181,7 @@ Streaming a request body to the origin service is accomplished by using the `chu
                   chunked-encoding="auto"> <!--1-->
 
     <nodes>
-      <node id="repose_node", hostname="localhost", http-port="8080"/>
+      <node id="repose_node" hostname="localhost" http-port="8080"/>
     </nodes>
 
     <filters/>
