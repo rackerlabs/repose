@@ -1,9 +1,13 @@
 dependencies {
     compile "org.scala-lang:scala-library"
     compile "xerces:xerces-xsd11"
-    compile "org.mockito:mockito-all"
     compile "org.hamcrest:hamcrest-all"
     compile "org.scalatest:scalatest_$scalaMajDotMin"
+    compile "org.apache.httpcomponents:httpclient"
+    compile "org.apache.httpcomponents:httpcore"
+    compile("org.mockito:mockito-core") {
+        exclude group: "org.hamcrest"
+    }
 
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"

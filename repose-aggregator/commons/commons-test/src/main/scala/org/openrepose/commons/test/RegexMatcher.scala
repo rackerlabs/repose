@@ -21,7 +21,7 @@ package org.openrepose.commons.test
 
 import java.util.regex.Pattern
 
-import org.hamcrest.{Description, TypeSafeMatcher}
+import org.hamcrest.{Description, Factory, TypeSafeMatcher}
 
 /**
   * Created by adrian on 2/21/17.
@@ -33,7 +33,9 @@ class RegexMatcher(pattern: Pattern) extends TypeSafeMatcher[String] {
 }
 
 object RegexMatcher {
+  @Factory
   def matchesPattern(pattern: Pattern): RegexMatcher = new RegexMatcher(pattern)
 
+  @Factory
   def matchesPattern(pattern: String): RegexMatcher = matchesPattern(pattern.r.pattern)
 }
