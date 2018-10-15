@@ -26,7 +26,9 @@ dependencies {
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.hamcrest:hamcrest-all"
-    testCompile "org.mockito:mockito-all"
+    testCompile("org.mockito:mockito-all") {
+        exclude group: "org.hamcrest"
+    }
     testCompile "org.springframework:spring-test"
     testCompile "org.slf4j:jcl-over-slf4j"
 }
