@@ -19,6 +19,7 @@
  */
 package org.openrepose.filters.valkyrieauthorization
 
+import java.net.URI
 import java.nio.charset.StandardCharsets.{ISO_8859_1, US_ASCII, UTF_16, UTF_8}
 import java.util
 import java.util.Date
@@ -34,12 +35,15 @@ import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet, HttpUriRe
 import org.apache.http.message.{BasicHeader, BasicHttpResponse}
 import org.apache.http.protocol.HttpContext
 import org.apache.http.{Header, HttpEntity, HttpVersion}
+import org.hamcrest.{Matchers => HC}
 import org.junit.runner.RunWith
 import org.mockito.AdditionalMatchers._
 import org.mockito.Matchers._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.mockito.{ArgumentCaptor, Matchers, Mockito}
+import org.openrepose.commons.test.HttpContextMatchers.hasAttribute
+import org.openrepose.commons.test.HttpUriRequestMatchers.{hasHeader, hasMethod, hasUri}
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.CommonHttpHeader.AUTH_TOKEN
 import org.openrepose.commons.utils.http.OpenStackServiceHeader.{CONTACT_ID, ROLES, TENANT_ID, TENANT_ROLES_MAP}
@@ -61,7 +65,6 @@ import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, Mo
 import scala.Function.tupled
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
-import scala.util.Try
 
 @RunWith(classOf[JUnitRunner])
 class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach with MockitoSugar
@@ -114,21 +117,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       (RequestProcessor("PUT", Map(TENANT_ID -> "someOtherTenant;q=0.5,hybrid:someTenant", DeviceId -> "98765", CONTACT_ID -> "123456")), ValkyrieResponse(SC_OK, createValkyrieResponse(accountPermissions(AccountAdmin, "butts_permission"), devicePermissions("123456", "admin_product")))) //account Admin role
     ).foreach { case (request, valkyrie) =>
       it(s"should allow requests for $request with Valkyrie response of $valkyrie") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + request.headers.getOrElse(CONTACT_ID, "ThisIsMissingAContact")) &&
-                  req.getURI.toString.equals(s"http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/${request.headers.getOrElse(CONTACT_ID, "ThisIsMissingAContact")}/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(valkyrie.payload)
-                  .build()
-                makeResponse(valkyrie.code, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create(s"http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/${request.headers.getOrElse(CONTACT_ID, "ThisIsMissingAContact")}/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + request.headers.getOrElse(CONTACT_ID, "ThisIsMissingAContact"))
+          ))
+        )).thenReturn(makeResponse(
+          valkyrie.code,
+          EntityBuilder.create()
+            .setText(valkyrie.payload)
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         filter.configurationUpdated(createGenericValkyrieConfiguration(null))
@@ -159,21 +164,24 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
         val deviceId = "123456"
         val contactId = deviceId
         val headers = Map(TENANT_ID -> s"hybrid:$tenantId", DeviceId -> deviceId, CONTACT_ID -> contactId)
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + tenantId + headers(CONTACT_ID)) &&
-                  req.getURI.toString.equals(s"http://foo.com:8080/account/$tenantId/permissions/contacts/any/by_contact/${headers(CONTACT_ID)}/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions(permissionOrdering.map(deviceId -> _))))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create(s"http://foo.com:8080/account/$tenantId/permissions/contacts/any/by_contact/${headers(CONTACT_ID)}/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + tenantId + headers(CONTACT_ID))
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions(permissionOrdering.map(deviceId -> _))))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         filter.configurationUpdated(createGenericValkyrieConfiguration(null))
@@ -204,21 +212,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       (RequestProcessor("PUT", Map(TENANT_ID -> "hybrid:someTenant", CONTACT_ID -> "123456"), "foo.com", 8080, "/bar"), ValkyrieResponse(SC_OK, createValkyrieResponse(devicePermissions("123456", "admin_product")))) //Admin role
     ).foreach { case (request, valkyrie) =>
       it(s"should allow requests for $request with Valkyrie response of $valkyrie without device id when on either accepted list") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + request.headers.getOrElse(CONTACT_ID, "ThisIsMissingAContact")) &&
-                  req.getURI.toString.equals(s"http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/${request.headers.getOrElse(CONTACT_ID, "ThisIsMissingAContact")}/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(valkyrie.payload)
-                  .build()
-                makeResponse(valkyrie.code, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create(s"http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/${request.headers.getOrElse(CONTACT_ID, "ThisIsMissingAContact")}/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + request.headers.getOrElse(CONTACT_ID, "ThisIsMissingAContact"))
+          ))
+        )).thenReturn(makeResponse(
+          valkyrie.code,
+          EntityBuilder.create()
+            .setText(valkyrie.payload)
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         filter.configurationUpdated(createGenericValkyrieConfiguration(null, httpMethods = List.empty[HttpMethod]))
@@ -256,21 +266,24 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       List(null, new DelegatingType).foreach { delegation =>
         val delegating = Option(delegation).isDefined
         it(s"should be ${result.code} where delegation is $delegating for $request with Valkyrie response of $valkyrie") {
-          Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-            .thenAnswer(makeAnswer((req, context) => {
-              val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-              req.getMethod match {
-                case HttpGet.METHOD_NAME
-                  if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + request.headers.getOrElse(CONTACT_ID, "ThisIsMissingAContact")) &&
-                    req.getURI.toString.equals(s"http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/${request.headers.getOrElse(CONTACT_ID, "ThisIsMissingAContact")}/effective") &&
-                    reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                    reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                  val responseBody = EntityBuilder.create()
-                    .setText(valkyrie.payload)
-                    .build()
-                  makeResponse(valkyrie.code, responseBody)
-              }
-            }))
+
+          Mockito.when(httpClient.execute(
+            argThat(HC.allOf[HttpUriRequest](
+              hasMethod(HttpGet.METHOD_NAME),
+              hasUri(URI.create(s"http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/${request.headers.getOrElse(CONTACT_ID, "ThisIsMissingAContact")}/effective")),
+              hasHeader("X-Auth-User", HC.equalTo("someUser")),
+              hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+            )),
+            argThat(hasAttribute(
+              CachingHttpClientContext.CACHE_KEY,
+              HC.equalTo(CachePrefix + "any" + "someTenant" + request.headers.getOrElse(CONTACT_ID, "ThisIsMissingAContact"))
+            ))
+          )).thenReturn(makeResponse(
+            valkyrie.code,
+            EntityBuilder.create()
+              .setText(valkyrie.payload)
+              .build()
+          ))
 
           val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
           filter.configurationUpdated(createGenericValkyrieConfiguration(delegation))
@@ -302,16 +315,8 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     List(null, new DelegatingType).foreach { delegation =>
       val delegating = Option(delegation).isDefined
       it(s"should return a 502 and delegation is $delegating with appropriate message when unable to communicate with Valkyrie") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(new Answer[CloseableHttpResponse] {
-            override def answer(invocation: InvocationOnMock): CloseableHttpResponse = {
-              val request = invocation.getArguments()(0).asInstanceOf[HttpUriRequest]
-              request.getMethod match {
-                case HttpGet.METHOD_NAME => throw new Exception("Valkyrie is missing")
-                case _ => null
-              }
-            }
-          })
+        Mockito.when(httpClient.execute(argThat(hasMethod(HttpGet.METHOD_NAME)),any[HttpContext]))
+          .thenThrow(new RuntimeException("Valkyrie is missing"))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         filter.configurationUpdated(createGenericValkyrieConfiguration(delegation))
@@ -367,21 +372,24 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
     it("should be able to cache the valkyrie permissions so we dont have to make repeated calls") {
       val request = RequestProcessor("GET", Map(TENANT_ID -> "hybrid:someTenant", DeviceId -> "1234561", CONTACT_ID -> "123456"))
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((req, context) => {
-          val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-          req.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + request.headers.getOrElse(CONTACT_ID, "ThisIsMissingAContact")) &&
-                req.getURI.toString.equals(s"http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/${request.headers.getOrElse(CONTACT_ID, "ThisIsMissingAContact")}/effective") &&
-                reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-              val responseBody = EntityBuilder.create()
-                .setText(createValkyrieResponse(devicePermissions("123456", "view_product")))
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
-        }))
+
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create(s"http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/${request.headers.getOrElse(CONTACT_ID, "ThisIsMissingAContact")}/effective")),
+          hasHeader("X-Auth-User", HC.equalTo("someUser")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(CachePrefix + "any" + "someTenant" + request.headers.getOrElse(CONTACT_ID, "ThisIsMissingAContact"))
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(createValkyrieResponse(devicePermissions("123456", "view_product")))
+          .build()
+      ))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
       Mockito.when(mockDatastore.get(s"${CachePrefix}anysomeTenant123456")).thenAnswer(new Answer[Serializable] {
@@ -443,21 +451,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       } ") {
         val request = RequestProcessor("PUT", Map(TENANT_ID -> "application:someTenant", DeviceId -> "123456", CONTACT_ID -> "123456"))
 
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + request.headers.getOrElse(CONTACT_ID, "123456")) &&
-                  req.getURI.toString.equals(s"http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/${request.headers.getOrElse(CONTACT_ID, "123456")}/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions("123456", "view_product")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create(s"http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/${request.headers.getOrElse(CONTACT_ID, "123456")}/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + request.headers.getOrElse(CONTACT_ID, "123456"))
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions("123456", "view_product")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         val configuration: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(delegation)
@@ -500,30 +510,40 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
         (false, deviceId, deviceId, SC_OK) // device Id in permissions from both calls
       ).foreach { case (enableBypassAccountAdmin, deviceIdInEffective, deviceIdInInventory, responseCode) =>
         it(s"should return $responseCode when enable_bypass_account_admin is $enableBypassAccountAdmin, effective call perm has device id $deviceIdInEffective, inventory call perm has device id $deviceIdInInventory, and request device id is $deviceId") {
-          Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-            .thenAnswer(makeAnswer((req, context) => {
-              val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-              req.getMethod match {
-                case HttpGet.METHOD_NAME
-                  if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                    req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                    reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                    reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                  val responseBody = EntityBuilder.create()
-                    .setText(createValkyrieResponse(accountPermissions(AccountAdmin, "butts_permission"), devicePermissions(deviceIdInEffective, "admin_product")))
-                    .build()
-                  makeResponse(SC_OK, responseBody)
-                case HttpGet.METHOD_NAME
-                  if context.getCacheKey.equals(CachePrefix + AccountAdmin + "someTenant" + "123456") &&
-                    req.getURI.toString.equals("http://foo.com:8080/account/someTenant/inventory") &&
-                    reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                    reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                  val responseBody = EntityBuilder.create()
-                    .setText(accountInventory(deviceIdInInventory, "10001"))
-                    .build()
-                  makeResponse(SC_OK, responseBody)
-              }
-            }))
+          Mockito.when(httpClient.execute(
+            argThat(HC.allOf[HttpUriRequest](
+              hasMethod(HttpGet.METHOD_NAME),
+              hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+              hasHeader("X-Auth-User", HC.equalTo("someUser")),
+              hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+            )),
+            argThat(hasAttribute(
+              CachingHttpClientContext.CACHE_KEY,
+              HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+            ))
+          )).thenReturn(makeResponse(
+            SC_OK,
+            EntityBuilder.create()
+              .setText(createValkyrieResponse(accountPermissions(AccountAdmin, "butts_permission"), devicePermissions(deviceIdInEffective, "admin_product")))
+              .build()
+          ))
+          Mockito.when(httpClient.execute(
+            argThat(HC.allOf[HttpUriRequest](
+              hasMethod(HttpGet.METHOD_NAME),
+              hasUri(URI.create("http://foo.com:8080/account/someTenant/inventory")),
+              hasHeader("X-Auth-User", HC.equalTo("someUser")),
+              hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+            )),
+            argThat(hasAttribute(
+              CachingHttpClientContext.CACHE_KEY,
+              HC.equalTo(CachePrefix + AccountAdmin + "someTenant" + "123456")
+            ))
+          )).thenReturn(makeResponse(
+            SC_OK,
+            EntityBuilder.create()
+              .setText(accountInventory(deviceIdInInventory, "10001"))
+              .build()
+          ))
 
           val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
           filter.configurationUpdated(createGenericValkyrieConfiguration(null, enableBypassAccountAdmin))
@@ -547,30 +567,40 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     }
 
     it("should return a failure if the inventory call fails") {
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((req, context) => {
-          val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-          req.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-              val responseBody = EntityBuilder.create()
-                .setText(createValkyrieResponse(accountPermissions(AccountAdmin, "butts_permission"), devicePermissions("12345", "admin_product")))
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(CachePrefix + AccountAdmin + "someTenant" + "123456") &&
-                req.getURI.toString.equals("http://foo.com:8080/account/someTenant/inventory") &&
-                reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-              val responseBody = EntityBuilder.create()
-                .setText("")
-                .build()
-              makeResponse(SC_INTERNAL_SERVER_ERROR, responseBody)
-          }
-        }))
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+          hasHeader("X-Auth-User", HC.equalTo("someUser")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(createValkyrieResponse(accountPermissions(AccountAdmin, "butts_permission"), devicePermissions("12345", "admin_product")))
+          .build()
+      ))
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create("http://foo.com:8080/account/someTenant/inventory")),
+          hasHeader("X-Auth-User", HC.equalTo("someUser")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(CachePrefix + AccountAdmin + "someTenant" + "123456")
+        ))
+      )).thenReturn(makeResponse(
+        SC_INTERNAL_SERVER_ERROR,
+        EntityBuilder.create()
+          .setText("")
+          .build()
+      ))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
       filter.configurationUpdated(createGenericValkyrieConfiguration(null, false))
@@ -594,22 +624,25 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     it("should send a request guid to valkyrie if present in incoming request") {
       val request = RequestProcessor("GET", Map(TENANT_ID -> "hybrid:someTenant", DeviceId -> "123456",
         CONTACT_ID -> "123456", CommonHttpHeader.TRACE_GUID -> "test-guid"))
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((req, context) => {
-          val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-          req.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"${CachePrefix}anysomeTenant123456") &&
-                req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                reqHeaders.contains(CommonHttpHeader.AUTH_TOKEN -> "somePassword") &&
-                reqHeaders.contains(CommonHttpHeader.TRACE_GUID -> "test-guid") =>
-              val responseBody = EntityBuilder.create()
-                .setText(createValkyrieResponse(devicePermissions("123456", "view_product")))
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
-        }))
+
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+          hasHeader("X-Auth-User", HC.equalTo("someUser")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("somePassword")),
+          hasHeader(CommonHttpHeader.TRACE_GUID, HC.equalTo("test-guid"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"${CachePrefix}anysomeTenant123456")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(createValkyrieResponse(devicePermissions("123456", "view_product")))
+          .build()
+      ))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
       filter.configurationUpdated(createGenericValkyrieConfiguration(null))
@@ -671,21 +704,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
         setup()
         val devices = devicePermissions(deviceId, devicePermission)
         mockServletRequest.addHeader(DeviceId, deviceId)
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + transformedTenant + contactId) &&
-                  req.getURI.toString.equals(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + transformedTenant + contactId)
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
+            .build()
+        ))
         val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
         filter.doWork(mockServletRequest, mockServletResponse, filterChain)
@@ -704,21 +739,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
         setup()
         val devices = devicePermissions(deviceId, devicePermission)
         mockServletRequest.addHeader(DeviceId, deviceId)
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + transformedTenant + contactId) &&
-                  req.getURI.toString.equals(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + transformedTenant + contactId)
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
+            .build()
+        ))
 
         filter.doWork(mockServletRequest, mockServletResponse, filterChain)
 
@@ -738,21 +775,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       mockServletRequest.addHeader(DeviceId, deviceId)
       mockServletResponse = new MockHttpServletResponse
       val devices = devicePermissions(deviceId, "admin_product")
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((req, context) => {
-          val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-          req.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(CachePrefix + "any" + transformedTenant + contactId) &&
-                req.getURI.toString.equals(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective") &&
-                reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-              val responseBody = EntityBuilder.create()
-                .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
-        }))
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective")),
+          hasHeader("X-Auth-User", HC.equalTo("someUser")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(CachePrefix + "any" + transformedTenant + contactId)
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
+          .build()
+      ))
 
       filter.doWork(mockServletRequest, mockServletResponse, filterChain)
 
@@ -793,21 +832,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
     it("should translate permissions to roles") {
       setupWithHeaders()
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((req, context) => {
-          val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-          req.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(CachePrefix + "any" + transformedTenant + contactId) &&
-                req.getURI.toString.equals(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective") &&
-                reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-              val responseBody = EntityBuilder.create()
-                .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
-        }))
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective")),
+          hasHeader("X-Auth-User", HC.equalTo("someUser")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(CachePrefix + "any" + transformedTenant + contactId)
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
+          .build()
+      ))
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doWork(mockServletRequest, mockServletResponse, filterChain)
@@ -821,21 +862,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     it("should 401 when tenant id isn't present") {
       setup()
       mockServletRequest.addHeader(CONTACT_ID, contactId)
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((req, context) => {
-          val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-          req.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(CachePrefix + "any" + transformedTenant + contactId) &&
-                req.getURI.toString.equals(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective") &&
-                reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-              val responseBody = EntityBuilder.create()
-                .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
-        }))
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective")),
+          hasHeader("X-Auth-User", HC.equalTo("someUser")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(CachePrefix + "any" + transformedTenant + contactId)
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
+          .build()
+      ))
 
       filter.doWork(mockServletRequest, mockServletResponse, filterChain)
 
@@ -845,21 +888,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     it("should 401 when contact id isn't present") {
       setup()
       mockServletRequest.addHeader(TENANT_ID, tenantId)
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((req, context) => {
-          val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-          req.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(CachePrefix + "any" + transformedTenant + contactId) &&
-                req.getURI.toString.equals(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective") &&
-                reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-              val responseBody = EntityBuilder.create()
-                .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
-        }))
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective")),
+          hasHeader("X-Auth-User", HC.equalTo("someUser")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(CachePrefix + "any" + transformedTenant + contactId)
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
+          .build()
+      ))
 
       filter.doWork(mockServletRequest, mockServletResponse, filterChain)
 
@@ -870,21 +915,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       setup()
       mockServletRequest.addHeader(TENANT_ID, "987654")
       mockServletRequest.addHeader(CONTACT_ID, contactId)
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((req, context) => {
-          val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-          req.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(CachePrefix + "any" + transformedTenant + contactId) &&
-                req.getURI.toString.equals(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective") &&
-                reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-              val responseBody = EntityBuilder.create()
-                .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
-        }))
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective")),
+          hasHeader("X-Auth-User", HC.equalTo("someUser")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(CachePrefix + "any" + transformedTenant + contactId)
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission"), devices))
+          .build()
+      ))
 
       filter.doWork(mockServletRequest, mockServletResponse, filterChain)
 
@@ -893,21 +940,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
     it("should 502 when valkyrie 404s") {
       setupWithHeaders()
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((req, context) => {
-          val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-          req.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(CachePrefix + "any" + transformedTenant + contactId) &&
-                req.getURI.toString.equals(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective") &&
-                reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-              val responseBody = EntityBuilder.create()
-                .setText("Not found")
-                .build()
-              makeResponse(SC_NOT_FOUND, responseBody)
-          }
-        }))
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective")),
+          hasHeader("X-Auth-User", HC.equalTo("someUser")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(CachePrefix + "any" + transformedTenant + contactId)
+        ))
+      )).thenReturn(makeResponse(
+        SC_NOT_FOUND,
+        EntityBuilder.create()
+          .setText("Not found")
+          .build()
+      ))
 
       filter.doWork(mockServletRequest, mockServletResponse, filterChain)
 
@@ -916,21 +965,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
     it("should 502 when valkyrie 500s") {
       setupWithHeaders()
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((req, context) => {
-          val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-          req.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(CachePrefix + "any" + transformedTenant + contactId) &&
-                req.getURI.toString.equals(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective") &&
-                reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-              val responseBody = EntityBuilder.create()
-                .setText("Internal Server Error")
-                .build()
-              makeResponse(SC_INTERNAL_SERVER_ERROR, responseBody)
-          }
-        }))
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective")),
+          hasHeader("X-Auth-User", HC.equalTo("someUser")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(CachePrefix + "any" + transformedTenant + contactId)
+        ))
+      )).thenReturn(makeResponse(
+        SC_INTERNAL_SERVER_ERROR,
+        EntityBuilder.create()
+          .setText("Internal Server Error")
+          .build()
+      ))
 
       filter.doWork(mockServletRequest, mockServletResponse, filterChain)
 
@@ -939,21 +990,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
     it("should 502 when valkyrie gives an unexpected response") {
       setupWithHeaders()
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((req, context) => {
-          val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-          req.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(CachePrefix + "any" + transformedTenant + contactId) &&
-                req.getURI.toString.equals(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective") &&
-                reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-              val responseBody = EntityBuilder.create()
-                .setText("""{"banana":"phone"}""")
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
-        }))
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective")),
+          hasHeader("X-Auth-User", HC.equalTo("someUser")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(CachePrefix + "any" + transformedTenant + contactId)
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText("""{"banana":"phone"}""")
+          .build()
+      ))
 
       filter.doWork(mockServletRequest, mockServletResponse, filterChain)
 
@@ -962,18 +1015,13 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
     it("should 502 when we have an exception while talking to valkyrie") {
       setupWithHeaders()
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(new Answer[CloseableHttpResponse] {
-          override def answer(invocation: InvocationOnMock): CloseableHttpResponse = {
-            val request = invocation.getArguments()(0).asInstanceOf[HttpUriRequest]
-            request.getMethod match {
-              case HttpGet.METHOD_NAME
-                if request.getURI.toString.equals(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective") =>
-                throw new Exception("test exception")
-              case _ => null
-            }
-          }
-        })
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective"))
+        )),
+        any[HttpContext]
+      )).thenThrow(new RuntimeException("test exception"))
 
       filter.doWork(mockServletRequest, mockServletResponse, filterChain)
 
@@ -1053,21 +1101,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
     it("should translate permissions to roles") {
       setupWithHeaders()
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((req, context) => {
-          val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-          req.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(CachePrefix + "any" + transformedTenant + contactId) &&
-                req.getURI.toString.equals(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective") &&
-                reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-              val responseBody = EntityBuilder.create()
-                .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission")))
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
-        }))
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective")),
+          hasHeader("X-Auth-User", HC.equalTo("someUser")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(CachePrefix + "any" + transformedTenant + contactId)
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission")))
+          .build()
+      ))
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doWork(mockServletRequest, mockServletResponse, filterChain)
@@ -1081,21 +1131,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     it("should 401 when tenant id isn't present") {
       setup()
       mockServletRequest.addHeader(CONTACT_ID, contactId)
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((req, context) => {
-          val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-          req.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(CachePrefix + "any" + transformedTenant + contactId) &&
-                req.getURI.toString.equals(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective") &&
-                reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-              val responseBody = EntityBuilder.create()
-                .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission")))
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
-        }))
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective")),
+          hasHeader("X-Auth-User", HC.equalTo("someUser")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(CachePrefix + "any" + transformedTenant + contactId)
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission")))
+          .build()
+      ))
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doWork(mockServletRequest, mockServletResponse, filterChain)
@@ -1108,21 +1160,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     it("should 401 when contact id isn't present") {
       setup()
       mockServletRequest.addHeader(TENANT_ID, tenantId)
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((req, context) => {
-          val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-          req.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(CachePrefix + "any" + transformedTenant + contactId) &&
-                req.getURI.toString.equals(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective") &&
-                reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-              val responseBody = EntityBuilder.create()
-                .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission")))
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
-        }))
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective")),
+          hasHeader("X-Auth-User", HC.equalTo("someUser")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(CachePrefix + "any" + transformedTenant + contactId)
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission")))
+          .build()
+      ))
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doWork(mockServletRequest, mockServletResponse, filterChain)
@@ -1136,21 +1190,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       setup()
       mockServletRequest.addHeader(TENANT_ID, "987654")
       mockServletRequest.addHeader(CONTACT_ID, contactId)
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((req, context) => {
-          val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-          req.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(CachePrefix + "any" + transformedTenant + contactId) &&
-                req.getURI.toString.equals(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective") &&
-                reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-              val responseBody = EntityBuilder.create()
-                .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission")))
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
-        }))
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective")),
+          hasHeader("X-Auth-User", HC.equalTo("someUser")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(CachePrefix + "any" + transformedTenant + contactId)
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(createValkyrieResponse(accountPermissions("some_permission", "a_different_permission")))
+          .build()
+      ))
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doWork(mockServletRequest, mockServletResponse, filterChain)
@@ -1162,21 +1218,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
     it("should 502 when valkyrie 404s") {
       setupWithHeaders()
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((req, context) => {
-          val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-          req.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(CachePrefix + "any" + transformedTenant + contactId) &&
-                req.getURI.toString.equals(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective") &&
-                reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-              val responseBody = EntityBuilder.create()
-                .setText("Not found")
-                .build()
-              makeResponse(SC_NOT_FOUND, responseBody)
-          }
-        }))
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective")),
+          hasHeader("X-Auth-User", HC.equalTo("someUser")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(CachePrefix + "any" + transformedTenant + contactId)
+        ))
+      )).thenReturn(makeResponse(
+        SC_NOT_FOUND,
+        EntityBuilder.create()
+          .setText("Not found")
+          .build()
+      ))
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doWork(mockServletRequest, mockServletResponse, filterChain)
@@ -1188,21 +1246,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
     it("should 502 when valkyrie 500s") {
       setupWithHeaders()
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((req, context) => {
-          val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-          req.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(CachePrefix + "any" + transformedTenant + contactId) &&
-                req.getURI.toString.equals(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective") &&
-                reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-              val responseBody = EntityBuilder.create()
-                .setText("Internal Server Error")
-                .build()
-              makeResponse(SC_INTERNAL_SERVER_ERROR, responseBody)
-          }
-        }))
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective")),
+          hasHeader("X-Auth-User", HC.equalTo("someUser")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(CachePrefix + "any" + transformedTenant + contactId)
+        ))
+      )).thenReturn(makeResponse(
+        SC_INTERNAL_SERVER_ERROR,
+        EntityBuilder.create()
+          .setText("Internal Server Error")
+          .build()
+      ))
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doWork(mockServletRequest, mockServletResponse, filterChain)
@@ -1214,21 +1274,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
     it("should 502 when valkyrie gives an unexpected response") {
       setupWithHeaders()
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((req, context) => {
-          val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-          req.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(CachePrefix + "any" + transformedTenant + contactId) &&
-                req.getURI.toString.equals(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective") &&
-                reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-              val responseBody = EntityBuilder.create()
-                .setText("""{"banana":"phone"}""")
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
-        }))
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective")),
+          hasHeader("X-Auth-User", HC.equalTo("someUser")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(CachePrefix + "any" + transformedTenant + contactId)
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText("""{"banana":"phone"}""")
+          .build()
+      ))
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doWork(mockServletRequest, mockServletResponse, filterChain)
@@ -1240,18 +1302,13 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
     it("should 502 when we have an exception while talking to valkyrie") {
       setupWithHeaders()
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(new Answer[CloseableHttpResponse] {
-          override def answer(invocation: InvocationOnMock): CloseableHttpResponse = {
-            val request = invocation.getArguments()(0).asInstanceOf[HttpUriRequest]
-            request.getMethod match {
-              case HttpGet.METHOD_NAME
-                if request.getURI.toString.equals(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective") =>
-                throw new Exception("test exception")
-              case _ => null
-            }
-          }
-        })
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create(s"http://foo.com:8080/account/$transformedTenant/permissions/contacts/any/by_contact/$contactId/effective"))
+        )),
+        any[HttpContext]
+      )).thenThrow(new RuntimeException("test exception"))
       val captor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
 
       filter.doWork(mockServletRequest, mockServletResponse, filterChain)
@@ -1290,21 +1347,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
         charset.map(_.name).foreach(response.setCharacterEncoding)
 
       it(s"should remove some of the values [charset: $charsetLabel]") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         filter.configurationUpdated(createGenericValkyrieConfiguration(null))
@@ -1333,21 +1392,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
 
       it(s"should remove all values [charset: $charsetLabel]") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         filter.configurationUpdated(createGenericValkyrieConfiguration(null))
@@ -1376,21 +1437,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
 
       it(s"should remove no values [charset: $charsetLabel]") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         filter.configurationUpdated(createGenericValkyrieConfiguration(null))
@@ -1419,21 +1482,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
 
       it(s"should remove null values [charset: $charsetLabel]") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         filter.configurationUpdated(setNullDeviceIdAction(createGenericValkyrieConfiguration(null), REMOVE))
@@ -1462,21 +1527,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
 
       it(s"should not remove null values [charset: $charsetLabel]") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         filter.configurationUpdated(setNullDeviceIdAction(createGenericValkyrieConfiguration(null), KEEP))
@@ -1505,21 +1572,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
 
       it(s"should fail on null values [charset: $charsetLabel]") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         filter.configurationUpdated(setNullDeviceIdAction(createGenericValkyrieConfiguration(null), FAIL))
@@ -1545,21 +1614,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
 
       it(s"should remove mismatched values [charset: $charsetLabel]") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         filter.configurationUpdated(setNullDeviceIdAction(createGenericValkyrieConfiguration(null), REMOVE))
@@ -1588,21 +1659,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
 
       it(s"should not remove mismatched values [charset: $charsetLabel]") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         filter.configurationUpdated(setNullDeviceIdAction(createGenericValkyrieConfiguration(null), KEEP))
@@ -1631,21 +1704,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
 
       it(s"should fail on mismatched values [charset: $charsetLabel]") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         filter.configurationUpdated(setNullDeviceIdAction(createGenericValkyrieConfiguration(null), FAIL))
@@ -1671,21 +1746,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
 
       it(s"should remove no values for account admins with Bypass Account Admin enabled [charset: $charsetLabel]") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(accountPermissions(AccountAdmin, "butts_permission")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(accountPermissions(AccountAdmin, "butts_permission")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         filter.configurationUpdated(createGenericValkyrieConfiguration(null))
@@ -1714,30 +1791,40 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
 
       it(s"should remove values for account admins with Bypass Account Admin disabled [charset: $charsetLabel]") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(accountPermissions(AccountAdmin, "butts_permission")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + AccountAdmin + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/inventory") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(accountInventory("98765", "98766"))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(accountPermissions(AccountAdmin, "butts_permission")))
+            .build()
+        ))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/inventory")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + AccountAdmin + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(accountInventory("98765", "98766"))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         filter.configurationUpdated(createGenericValkyrieConfiguration(null, enableBypassAccountAdmin = false))
@@ -1766,21 +1853,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
 
       it(s"should remove no values for non-matching resources [charset: $charsetLabel]") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         filter.configurationUpdated(createGenericValkyrieConfiguration(null))
@@ -1809,21 +1898,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
 
       it(s"should throw a 500 when the regex is un-parseable [charset: $charsetLabel]") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         val configuration: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(null)
@@ -1852,21 +1943,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
 
       it(s"should throw a 500 when the capture group is to large [charset: $charsetLabel]") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         val configuration: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(null)
@@ -1894,21 +1987,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
 
       it(s"should throw a 500 when the path for the collection is bad [charset: $charsetLabel]") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         val configuration: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(null)
@@ -1936,21 +2031,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
 
       it(s"should throw a 500 when the path for the device id is bad [charset: $charsetLabel]") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         val configuration: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(null)
@@ -1978,21 +2075,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
 
       it(s"should throw a 500 when the path for the count is bad [charset: $charsetLabel]") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         val configuration: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(null)
@@ -2020,21 +2119,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
 
       it(s"should throw a 500 when the response contains bad json [charset: $charsetLabel]") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         val configuration: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(null)
@@ -2067,21 +2168,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       List.range(SC_MULTIPLE_CHOICES, 600)
     ).foreach { case (status) =>
       it(s"should not touch the response body if the status is $status") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         filter.configurationUpdated(setNullDeviceIdAction(createGenericValkyrieConfiguration(null), REMOVE))
@@ -2122,21 +2225,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       ("TRACE", List(GET, DELETE, POST, PUT, PATCH, HEAD, OPTIONS, CONNECT))
     ).foreach { case (method, configured) =>
       it(s"should not touch the response body if the $method is not in the configuration") {
-        Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((req, context) => {
-            val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-            req.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                  req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                  reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                  reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
-          }))
+        Mockito.when(httpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+            hasHeader("X-Auth-User", HC.equalTo("someUser")),
+            hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+          ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(createValkyrieResponse(devicePermissions("98765", "view_product")))
+            .build()
+        ))
 
         val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
         val valkyrieAuthorizationConfig: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(httpMethods = configured)
@@ -2167,19 +2272,22 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
   describe("when there are no credentials for the valkyrie server") {
     it("should try to apply the original requests x-auth-token") {
-      Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((req, context) => {
-          req.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                req.getFirstHeader(AUTH_TOKEN).getValue.equals("someToken") =>
-              val responseBody = EntityBuilder.create()
-                .setText(createValkyrieResponse(devicePermissions("123456", "view_product")))
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
-        }))
+      Mockito.when(httpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+          hasHeader(AUTH_TOKEN, HC.equalTo("someToken"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(createValkyrieResponse(devicePermissions("123456", "view_product")))
+          .build()
+      ))
 
       val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
       val configuration: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(null)
@@ -2227,21 +2335,24 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
          ValkyrieExpectations(SC_SERVICE_UNAVAILABLE, SC_SERVICE_UNAVAILABLE, Map(RETRY_AFTER -> retryTime.toString), Map(RETRY_AFTER -> retryTime.toString)))
       .foreach { valkyrie =>
         it(s"should return ${valkyrie.filterStatusCode} when valkyire gives a ${valkyrie.valkyrieStatusCode} when admin creds are present") {
-          Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-            .thenAnswer(makeAnswer((req, context) => {
-              val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-              req.getMethod match {
-                case HttpGet.METHOD_NAME
-                  if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                    req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                    reqHeaders.contains("X-Auth-User" -> "someUser") &&
-                    reqHeaders.contains(AUTH_TOKEN -> "somePassword") =>
-                  val responseBody = EntityBuilder.create()
-                    .setText(createValkyrieResponse(devicePermissions("123456", "view_product")))
-                    .build()
-                  makeResponse(valkyrie.valkyrieStatusCode, responseBody, valkyrie.valkyrieHeaders.mapValues(Seq.apply(_)))
-              }
-            }))
+          Mockito.when(httpClient.execute(
+            argThat(HC.allOf[HttpUriRequest](
+              hasMethod(HttpGet.METHOD_NAME),
+              hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+              hasHeader("X-Auth-User", HC.equalTo("someUser")),
+              hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+            )),
+            argThat(hasAttribute(
+              CachingHttpClientContext.CACHE_KEY,
+              HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+            ))
+          )).thenReturn(makeResponse(
+            valkyrie.valkyrieStatusCode,
+            EntityBuilder.create()
+              .setText(createValkyrieResponse(devicePermissions("123456", "view_product")))
+              .build(),
+            valkyrie.valkyrieHeaders.mapValues(Seq.apply(_))
+          ))
 
           val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
           filter.configurationUpdated(createGenericValkyrieConfiguration(null))
@@ -2273,20 +2384,23 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       ValkyrieExpectations(SC_SERVICE_UNAVAILABLE, SC_SERVICE_UNAVAILABLE, Map(RETRY_AFTER -> retryTime.toString), Map(RETRY_AFTER -> retryTime.toString)))
       .foreach { valkyrie =>
         it(s"should return ${valkyrie.filterStatusCode} when valkyire gives a ${valkyrie.valkyrieStatusCode} when admin creds aren't present") {
-          Mockito.when(httpClient.execute(any[HttpUriRequest], any[HttpContext]))
-            .thenAnswer(makeAnswer((req, context) => {
-              val reqHeaders = req.getAllHeaders.map(header => header.getName -> header.getValue)
-              req.getMethod match {
-                case HttpGet.METHOD_NAME
-                  if context.getCacheKey.equals(CachePrefix + "any" + "someTenant" + "123456") &&
-                    req.getURI.toString.equals("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective") &&
-                    reqHeaders.contains(AUTH_TOKEN -> "someToken") =>
-                  val responseBody = EntityBuilder.create()
-                    .setText(createValkyrieResponse(devicePermissions("123456", "view_product")))
-                    .build()
-                  makeResponse(valkyrie.valkyrieStatusCode, responseBody, valkyrie.valkyrieHeaders.mapValues(Seq.apply(_)))
-              }
-            }))
+          Mockito.when(httpClient.execute(
+            argThat(HC.allOf[HttpUriRequest](
+              hasMethod(HttpGet.METHOD_NAME),
+              hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+              hasHeader(AUTH_TOKEN, HC.equalTo("someToken"))
+            )),
+            argThat(hasAttribute(
+              CachingHttpClientContext.CACHE_KEY,
+              HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+            ))
+          )).thenReturn(makeResponse(
+            valkyrie.valkyrieStatusCode,
+            EntityBuilder.create()
+              .setText(createValkyrieResponse(devicePermissions("123456", "view_product")))
+              .build(),
+            valkyrie.valkyrieHeaders.mapValues(Seq.apply(_))
+          ))
 
           val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
           val configuration: ValkyrieAuthorizationConfig = createGenericValkyrieConfiguration(null)
@@ -2519,16 +2633,6 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
   def replaceUriValueWith(jsonString: String, replacement: String): String = {
     jsonString.replaceAll( s""""uri"\\s*:\\s*.+,""", s""""uri": $replacement,""")
-  }
-
-  def makeAnswer(f: (HttpUriRequest, CachingHttpClientContext) => CloseableHttpResponse): Answer[CloseableHttpResponse] = {
-    new Answer[CloseableHttpResponse] {
-      override def answer(invocation: InvocationOnMock): CloseableHttpResponse = {
-        val request = invocation.getArguments()(0).asInstanceOf[HttpUriRequest]
-        val context = CachingHttpClientContext.adapt(invocation.getArguments()(1).asInstanceOf[HttpContext])
-        Try(f(request, context)).toOption.orNull
-      }
-    }
   }
 
   def makeResponse(statusCode: Int, entity: HttpEntity = null, headers: Map[String, Seq[String]] = Map.empty): CloseableHttpResponse = {

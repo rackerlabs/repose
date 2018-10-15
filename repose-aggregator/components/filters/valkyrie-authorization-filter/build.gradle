@@ -22,9 +22,12 @@ dependencies {
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
-    testCompile "org.mockito:mockito-all"
+    testCompile("org.mockito:mockito-all") {
+        exclude group: "org.hamcrest"
+    }
     testCompile "org.springframework:spring-test"
     testCompile "org.slf4j:jcl-over-slf4j"
+    testCompile "org.hamcrest:hamcrest-all"
 }
 
 jacocoTestCoverageVerification {
