@@ -51,8 +51,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
   override def doWork(servletRequest: HttpServletRequest, servletResponse: HttpServletResponse, filterChain: FilterChain): Unit = {
     val wrappedRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
 
-    configRequest find { target =>
-      // find the first "target" config element that matches this request (if any)
+    configRequest filter { target =>
       target.url =~ wrappedRequest.getRequestURI &&
         (target.methods.contains(wrappedRequest.getMethod) || target.methods.contains(AllHttpMethods))
     } foreach { target =>
@@ -85,8 +84,7 @@ class HeaderNormalizationFilter @Inject()(configurationService: ConfigurationSer
       responseHeaders.get
     }
 
-    configResponse find { target =>
-      // find the first "target" config element that matches this request (if any)
+    configResponse filter { target =>
       target.url =~ wrappedRequest.getRequestURI &&
         (target.methods.contains(wrappedRequest.getMethod) || target.methods.contains(AllHttpMethods))
     } foreach { target =>

@@ -285,6 +285,26 @@ class HeaderNormalizationFilterTest extends FunSpec with BeforeAndAfterEach with
         }
       }
 
+      it(s"will match all applicable targets for configured URLs on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
+        val preHeaders = Seq(("legit-header", "such-value"), ("bad-header", "meh"), ("terrible-header", "foo"))
+        target match {
+          case RequestTarget => addRequestHeaders(preHeaders)
+          case ResponseTarget => addResponseHeadersOnDoFilter(preHeaders)
+        }
+        servletRequest.setRequestURI("/ham")
+        val config = createConfig(newStyle, List(ConfigTarget(target, BlackList, List("bad-header"), Some("/.*"), None),
+                                                 ConfigTarget(target, BlackList, List("terrible-header"), Some("/ham"), None)))
+        filter.configurationUpdated(config)
+
+        filter.doFilter(servletRequest, servletResponse, filterChain)
+
+        val postHeaders = Seq(("legit-header", "such-value"), ("bad-header", null), ("terrible-header", null))
+        target match {
+          case RequestTarget => requestHeadersShouldBe(postHeaders)
+          case ResponseTarget => responseHeadersShouldBe(postHeaders)
+        }
+      }
+
       it(s"will use the target matching a single configured method on the ${requestResponseTypeWithStyleToString(target, newStyle)}") {
         val preHeaders = Seq(("legit-header", "such-value"), ("bad-header", "meh"))
         target match {
