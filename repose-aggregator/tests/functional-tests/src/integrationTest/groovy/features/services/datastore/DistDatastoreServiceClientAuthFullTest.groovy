@@ -71,17 +71,12 @@ class DistDatastoreServiceClientAuthFullTest extends Specification {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        def tomcatJar = properties.getTomcatJar()
-        def rootWar = properties.getReposeRootWar()
+        def reposeJar = properties.getReposeJar()
 
-        repose1 = new ReposeContainerLauncher(config, tomcatJar, "repose1", "node1", rootWar, reposePort1)
+        repose1 = new ReposeValveLauncher(config, reposeJar, reposeEndpoint1, configDirectory,  reposePort1)
         repose1.enableDebug()
-        repose1.start()
+        repose1.start([clusterId: "repose1", nodeId: "node1"])
         reposeLogSearch.awaitByString("repose1:node1 -- Repose ready", 1, 60, TimeUnit.SECONDS)
-
-        repose2 = new ReposeContainerLauncher(config, tomcatJar, "repose1", "node2", rootWar, reposePort2)
-        repose2.enableDebug()
-        repose2.start()
         reposeLogSearch.awaitByString("repose1:node2 -- Repose ready", 1, 60, TimeUnit.SECONDS)
     }
 

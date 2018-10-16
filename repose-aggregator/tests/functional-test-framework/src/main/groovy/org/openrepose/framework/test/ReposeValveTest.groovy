@@ -59,27 +59,9 @@ abstract class ReposeValveTest extends Specification {
         String className = this.getClass().canonicalName
         properties = new TestProperties(className.replace('.', '/'))
 
-        switch (properties.getReposeContainer().toLowerCase()) {
-            case "valve":
-                configureReposeValve()
-                repose.configurationProvider.cleanConfigDirectory()
-                break
-            case "tomcat":
-                throw new UnsupportedOperationException("Please implement me")
-            case "multinode":
-                String glassfishJar = properties.glassfishJar
-                configureReposeGlassfish(glassfishJar)
-                break
-            default:
-                throw new UnsupportedOperationException("Unknown container: " + reposeContainer)
-        }
+        configureReposeValve()
+        repose.configurationProvider.cleanConfigDirectory()
     }
-
-    def configureReposeGlassfish(String glassfishJar) {
-        repose = new ReposeContainerLauncher(glassfishJar)
-        repose.enableDebug()
-    }
-
 
     def configureReposeValve() {
 

@@ -53,8 +53,6 @@ task('publishToPackageRepo', group: 'publishing', description: 'Publishes the de
                     ':repose-aggregator:artifacts:repose-lint:buildRpm',
                     ':repose-aggregator:artifacts:valve:buildDeb',
                     ':repose-aggregator:artifacts:valve:buildRpm',
-                    ':repose-aggregator:artifacts:web-application:buildDeb',
-                    ':repose-aggregator:artifacts:web-application:buildRpm',
                     ':buildAll',
         ]) {
     doLast {
@@ -72,8 +70,6 @@ task('publishToPackageRepo', group: 'publishing', description: 'Publishes the de
                 put from: tasks.getByPath(':repose-aggregator:artifacts:repose-lint:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
                 put from: tasks.getByPath(':repose-aggregator:artifacts:valve:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
                 put from: tasks.getByPath(':repose-aggregator:artifacts:valve:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:web-application:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:web-application:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
             }
         }
     }
