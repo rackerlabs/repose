@@ -35,6 +35,7 @@ import org.apache.http.message.{BasicHeader, BasicHttpResponse}
 import org.apache.http.protocol.HttpContext
 import org.apache.http.{Header, HttpEntity, HttpVersion}
 import org.hamcrest.Matchers.{both, greaterThanOrEqualTo, lessThanOrEqualTo}
+import org.hamcrest.{Matchers => HC}
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.mockito.AdditionalMatchers._
@@ -43,6 +44,8 @@ import org.mockito.Matchers.{eq => mockitoEq, _}
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
+import org.openrepose.commons.test.HttpContextMatchers._
+import org.openrepose.commons.test.HttpUriRequestMatchers._
 import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.string.Base64Helper
 import org.openrepose.core.services.config.ConfigurationService
@@ -63,7 +66,7 @@ import play.api.libs.json.Json
 
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
-import scala.util.{Success, Try}
+import scala.util.Success
 
 @RunWith(classOf[JUnitRunner])
 class KeystoneV2FilterTest extends FunSpec
@@ -179,21 +182,20 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-        request.getMethod match {
-            case HttpPost.METHOD_NAME =>
-              val responseBody = EntityBuilder.create()
-                .setText(adminAuthenticationTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-        }
-      ))
+      when(mockHttpClient.execute(argThat(hasMethod(HttpPost.METHOD_NAME)), any[HttpContext]))
+        .thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(adminAuthenticationTokenResponse())
+            .build()
+        ))
+      when(mockHttpClient.execute(argThat(hasMethod(HttpGet.METHOD_NAME)), any[HttpContext]))
+        .thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(validateTokenResponse())
+            .build()
+        ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -244,23 +246,28 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpPost.METHOD_NAME =>
-              val responseBody = EntityBuilder.create()
-                .setText(adminAuthenticationTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(argThat(hasMethod(HttpPost.METHOD_NAME)), any[HttpContext]))
+        .thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(adminAuthenticationTokenResponse())
+            .build()
         ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -280,23 +287,28 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpPost.METHOD_NAME =>
-              val responseBody = EntityBuilder.create()
-                .setText(adminAuthenticationTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse(expires = dateTime))
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(argThat(hasMethod(HttpPost.METHOD_NAME)), any[HttpContext]))
+        .thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(adminAuthenticationTokenResponse())
+            .build()
         ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -340,20 +352,23 @@ with HttpDelegationManager {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, "notValidToken")
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpPost.METHOD_NAME =>
-              val responseBody = EntityBuilder.create()
-                .setText(adminAuthenticationTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"${TOKEN_KEY_PREFIX}notValidToken") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              makeResponse(SC_NOT_FOUND)
-          }
+      when(mockHttpClient.execute(argThat(hasMethod(HttpPost.METHOD_NAME)), any[HttpContext]))
+        .thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(adminAuthenticationTokenResponse())
+            .build()
         ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"${TOKEN_KEY_PREFIX}notValidToken")
+        ))
+      )).thenReturn(makeResponse(SC_NOT_FOUND))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -386,35 +401,45 @@ with HttpDelegationManager {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      var postCounter = 0
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpPost.METHOD_NAME if postCounter == 0 =>
-              postCounter += 1
-              val responseBody = EntityBuilder.create()
-                .setText(adminAuthenticationTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpPost.METHOD_NAME =>
-              postCounter += 1
-              val responseBody = EntityBuilder.create()
-                .setText(adminAuthenticationTokenResponse(token = "morty"))
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              makeResponse(SC_UNAUTHORIZED)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("morty") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(argThat(hasMethod(HttpPost.METHOD_NAME)), any[HttpContext]))
+        .thenReturn(
+          makeResponse(
+            SC_OK,
+            EntityBuilder.create()
+              .setText(adminAuthenticationTokenResponse())
+              .build()
+          ),
+          makeResponse(
+            SC_OK,
+            EntityBuilder.create()
+              .setText(adminAuthenticationTokenResponse(token = "morty"))
+              .build()
+          ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(SC_UNAUTHORIZED))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("morty"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -429,20 +454,23 @@ with HttpDelegationManager {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpPost.METHOD_NAME =>
-              val responseBody = EntityBuilder.create()
-                .setText(adminAuthenticationTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              makeResponse(SC_UNAUTHORIZED)
-          }
+      when(mockHttpClient.execute(argThat(hasMethod(HttpPost.METHOD_NAME)), any[HttpContext]))
+        .thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(adminAuthenticationTokenResponse())
+            .build()
         ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
+        ))
+      )).thenReturn(makeResponse(SC_UNAUTHORIZED))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -459,20 +487,23 @@ with HttpDelegationManager {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpPost.METHOD_NAME =>
-              val responseBody = EntityBuilder.create()
-                .setText(adminAuthenticationTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              makeResponse(SC_FORBIDDEN)
-          }
+      when(mockHttpClient.execute(argThat(hasMethod(HttpPost.METHOD_NAME)), any[HttpContext]))
+        .thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(adminAuthenticationTokenResponse())
+            .build()
         ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
+        ))
+      )).thenReturn(makeResponse(SC_FORBIDDEN))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -489,13 +520,8 @@ with HttpDelegationManager {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, _) =>
-          request.getMethod match {
-            case HttpPost.METHOD_NAME =>
-              throw new IOException("Unable to reach identity!")
-          }
-        ))
+      when(mockHttpClient.execute(argThat(hasMethod(HttpGet.METHOD_NAME)), any[HttpContext]))
+        .thenThrow(new IOException("Unable to reach identity!"))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -512,20 +538,23 @@ with HttpDelegationManager {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpPost.METHOD_NAME =>
-              val responseBody = EntityBuilder.create()
-                .setText(adminAuthenticationTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              throw new IOException("Unable to talk to identity!")
-          }
+      when(mockHttpClient.execute(argThat(hasMethod(HttpPost.METHOD_NAME)), any[HttpContext]))
+        .thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(adminAuthenticationTokenResponse())
+            .build()
         ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
+        ))
+      )).thenThrow(new IOException("Unable to talk to identity!"))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -543,16 +572,13 @@ with HttpDelegationManager {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, _) =>
-          request.getMethod match {
-            case HttpPost.METHOD_NAME =>
-              val responseBody = EntityBuilder.create()
-                .setText("Rate limited by identity!")
-                .build()
-              val headers = Array[Header](RETRY_AFTER -> retryValue)
-              makeResponse(SC_REQUEST_ENTITY_TOO_LARGE, responseBody, headers)
-          }
+      when(mockHttpClient.execute(argThat(hasMethod(HttpPost.METHOD_NAME)), any[HttpContext]))
+        .thenReturn(makeResponse(
+          SC_REQUEST_ENTITY_TOO_LARGE,
+          EntityBuilder.create()
+            .setText("Rate limited by identity!")
+            .build(),
+          Array[Header](RETRY_AFTER -> retryValue)
         ))
 
       val response = new MockHttpServletResponse
@@ -572,16 +598,13 @@ with HttpDelegationManager {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, _) =>
-          request.getMethod match {
-            case HttpPost.METHOD_NAME =>
-              val responseBody = EntityBuilder.create()
-                .setText("Rate limited by identity!")
-                .build()
-              val headers = Array[Header](RETRY_AFTER -> retryValue)
-              makeResponse(SC_TOO_MANY_REQUESTS, responseBody, headers)
-          }
+      when(mockHttpClient.execute(argThat(hasMethod(HttpPost.METHOD_NAME)), any[HttpContext]))
+        .thenReturn(makeResponse(
+          SC_TOO_MANY_REQUESTS,
+          EntityBuilder.create()
+            .setText("Rate limited by identity!")
+            .build(),
+          Array[Header](RETRY_AFTER -> retryValue)
         ))
 
       val response = new MockHttpServletResponse
@@ -601,18 +624,21 @@ with HttpDelegationManager {
 
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponseAuthenticatedBy())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponseAuthenticatedBy())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse()
       val filterChain = new MockFilterChain()
@@ -628,18 +654,21 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponseAuthenticatedBy(authenticatedBy = authMethods))
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponseAuthenticatedBy(authenticatedBy = authMethods))
+          .build()
+      ))
 
       val response = new MockHttpServletResponse()
       val filterChain = new MockFilterChain()
@@ -655,18 +684,21 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponseAuthenticatedBy(authenticatedBy = authMethods))
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponseAuthenticatedBy(authenticatedBy = authMethods))
+          .build()
+      ))
 
       val response = new MockHttpServletResponse()
       val filterChain = new MockFilterChain()
@@ -693,23 +725,28 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpPost.METHOD_NAME =>
-              val responseBody = EntityBuilder.create()
-                .setText(adminAuthenticationTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(argThat(hasMethod(HttpPost.METHOD_NAME)), any[HttpContext]))
+        .thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(adminAuthenticationTokenResponse())
+            .build()
         ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse())
+          .build()
+      ))
 
       filter.doFilter(request, response, filterChain)
 
@@ -752,25 +789,36 @@ with HttpDelegationManager {
 
       //Pretend like the admin token is cached all the time
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(endpointsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse())
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(endpointsResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -803,25 +851,36 @@ with HttpDelegationManager {
 
       //Pretend like the admin token is cached all the time
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(endpointsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse())
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(endpointsResponse())
+          .build()
+      ))
 
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
@@ -844,18 +903,21 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(), Nil: _*)
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(endpointsResponse())
-                .build()
-              makeResponse(SC_NON_AUTHORITATIVE_INFORMATION, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_NON_AUTHORITATIVE_INFORMATION,
+        EntityBuilder.create()
+          .setText(endpointsResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -877,15 +939,16 @@ with HttpDelegationManager {
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
         .thenReturn(createValidToken(), Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              makeResponse(SC_FORBIDDEN)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(SC_FORBIDDEN))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -908,24 +971,25 @@ with HttpDelegationManager {
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
         .thenReturn(createValidToken(), Nil: _*)
 
-      var getCounter = 0
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              getCounter += 1
-              if (getCounter == 1) {
-                val responseBody = EntityBuilder.create()
-                  .setText(endpointsResponse())
-                  .build()
-                makeResponse(SC_UNAUTHORIZED, responseBody)
-              } else {
-                makeResponse(SC_UNAUTHORIZED)
-              }
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(
+        makeResponse(
+          SC_UNAUTHORIZED,
+          EntityBuilder.create()
+            .setText(endpointsResponse())
+            .build()),
+        makeResponse(
+          SC_UNAUTHORIZED
+        )
+      )
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -944,15 +1008,16 @@ with HttpDelegationManager {
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
         .thenReturn(createValidToken(), Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-                throw new IOException("Unable to reach identity!")
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenThrow(new IOException("Unable to reach identity!"))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -976,15 +1041,16 @@ with HttpDelegationManager {
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
         .thenReturn(createValidToken(), Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-                makeResponse(SC_NOT_IMPLEMENTED)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(SC_NOT_IMPLEMENTED))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1006,18 +1072,21 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
         .thenReturn(createValidToken(), Nil: _*)
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(oneEndpointResponse())
-                  .build()
-                makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(oneEndpointResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1037,25 +1106,36 @@ with HttpDelegationManager {
       //Pretend like the admin token is cached all the time
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateRackerTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(oneEndpointResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateRackerTokenResponse())
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(oneEndpointResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1080,15 +1160,16 @@ with HttpDelegationManager {
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
         .thenReturn(createValidToken(), Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              makeResponse(SC_NOT_FOUND)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(SC_NOT_FOUND))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1110,18 +1191,21 @@ with HttpDelegationManager {
         //Pretend like the admin token is cached all the time
         when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-        when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((request, context) =>
-            request.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                  request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(validateTokenResponse())
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
+        when(mockHttpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
           ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(validateTokenResponse())
+            .build()
+        ))
 
         val endpointsList = Vector(Endpoint(Some("DERP"), Some("Compute"), Some("compute"), "https://compute.north.public.com/v1"))
         when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", endpointsList), Nil: _*)
@@ -1143,18 +1227,21 @@ with HttpDelegationManager {
         //Pretend like the admin token is cached all the time
         when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-        when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((request, context) =>
-            request.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                  request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(validateTokenResponse())
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
+        when(mockHttpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
           ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(validateTokenResponse())
+            .build()
+        ))
 
         val endpointsList = Vector(Endpoint(Some("Global"), Some("Compute"), Some("compute"), "https://compute.north.public.com/v1"))
         when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", endpointsList), Nil: _*)
@@ -1175,18 +1262,21 @@ with HttpDelegationManager {
         //Pretend like the admin token is cached all the time
         when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-        when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((request, context) =>
-            request.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                  request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-                val responseBody = EntityBuilder.create()
-                  .setText(validateRackerTokenResponse())
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
+        when(mockHttpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
           ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(validateRackerTokenResponse())
+            .build()
+        ))
 
         val endpointsList = Vector(Endpoint(Some("DERP"), Some("LOLNOPE"), Some("compute"), "https://compute.north.public.com/v1"))
         when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", endpointsList), Nil: _*)
@@ -1207,18 +1297,22 @@ with HttpDelegationManager {
 
         when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-        when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((request, context) =>
-            request.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                  request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-                val responseBody = EntityBuilder.create()
-                  .setText("Rate limited by identity!")
-                  .build()
-                makeResponse(SC_REQUEST_ENTITY_TOO_LARGE, responseBody, Array[Header](RETRY_AFTER -> retryValue))
-            }
+        when(mockHttpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
           ))
+        )).thenReturn(makeResponse(
+          SC_REQUEST_ENTITY_TOO_LARGE,
+          EntityBuilder.create()
+            .setText("Rate limited by identity!")
+            .build(),
+          Array[Header](RETRY_AFTER -> retryValue)
+        ))
 
         when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", Vector.empty), Nil: _*)
 
@@ -1241,18 +1335,22 @@ with HttpDelegationManager {
 
         when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-        when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((request, context) =>
-            request.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                  request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-                val responseBody = EntityBuilder.create()
-                  .setText("Rate limited by identity!")
-                  .build()
-                makeResponse(SC_TOO_MANY_REQUESTS, responseBody, Array[Header](RETRY_AFTER -> retryValue))
-            }
+        when(mockHttpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
           ))
+        )).thenReturn(makeResponse(
+          SC_TOO_MANY_REQUESTS,
+          EntityBuilder.create()
+            .setText("Rate limited by identity!")
+            .build(),
+          Array[Header](RETRY_AFTER -> retryValue)
+        ))
 
         when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", Vector.empty), Nil: _*)
 
@@ -1295,18 +1393,21 @@ with HttpDelegationManager {
       //Pretend like the admin token is cached all the time
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse())
+          .build()
+      ))
 
       val groupsList = Vector("DERP")
       when(mockDatastore.get(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")).thenReturn(groupsList, Nil: _*)
@@ -1331,15 +1432,16 @@ with HttpDelegationManager {
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
         .thenReturn(createValidToken(userId = VALID_USER_ID), Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              throw new IOException("Unable to reach identity!")
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
         ))
+      )).thenThrow(new IOException("Unable to reach identity!"))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1360,15 +1462,16 @@ with HttpDelegationManager {
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
         .thenReturn(createValidToken(userId = VALID_USER_ID), Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              makeResponse(SC_UNAUTHORIZED)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
         ))
+      )).thenReturn(makeResponse(SC_UNAUTHORIZED))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1389,15 +1492,16 @@ with HttpDelegationManager {
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
         .thenReturn(createValidToken(userId = VALID_USER_ID), Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              makeResponse(SC_FORBIDDEN)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
         ))
+      )).thenReturn(makeResponse(SC_FORBIDDEN))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1417,18 +1521,21 @@ with HttpDelegationManager {
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
         .thenReturn(createValidToken(userId = VALID_USER_ID), Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText("Rate limited by identity!")
-                .build()
-              makeResponse(SC_REQUEST_ENTITY_TOO_LARGE, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
         ))
+      )).thenReturn(makeResponse(
+        SC_REQUEST_ENTITY_TOO_LARGE,
+        EntityBuilder.create()
+          .setText("Rate limited by identity!")
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1448,18 +1555,21 @@ with HttpDelegationManager {
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
         .thenReturn(createValidToken(userId = VALID_USER_ID), Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText("Rate limited by identity!")
-                .build()
-              makeResponse(SC_TOO_MANY_REQUESTS, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
         ))
+      )).thenReturn(makeResponse(
+        SC_TOO_MANY_REQUESTS,
+        EntityBuilder.create()
+          .setText("Rate limited by identity!")
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1480,15 +1590,16 @@ with HttpDelegationManager {
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
         .thenReturn(createValidToken(userId = VALID_USER_ID), Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              makeResponse(SC_NOT_IMPLEMENTED)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
         ))
+      )).thenReturn(makeResponse(SC_NOT_IMPLEMENTED))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1509,15 +1620,16 @@ with HttpDelegationManager {
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"))
         .thenReturn(createValidToken(userId = VALID_USER_ID, roles = Seq(Role("Racker"))), Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              makeResponse(SC_NOT_FOUND)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
         ))
+      )).thenReturn(makeResponse(SC_NOT_FOUND))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1557,15 +1669,16 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"${TOKEN_KEY_PREFIX}INVALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              makeResponse(SC_NOT_FOUND)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"${TOKEN_KEY_PREFIX}INVALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(SC_NOT_FOUND))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1612,18 +1725,21 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText("butts")
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText("butts")
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1642,17 +1758,18 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("invalid", null)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("invalid") =>
-              makeResponse(SC_UNAUTHORIZED)
-            case HttpPost.METHOD_NAME =>
-              makeResponse(SC_NOT_FOUND)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("invalid"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(SC_UNAUTHORIZED))
+      when(mockHttpClient.execute(argThat(hasMethod(HttpPost.METHOD_NAME)), any[HttpContext]))
+        .thenReturn(makeResponse(SC_NOT_FOUND))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1686,15 +1803,16 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"${TOKEN_KEY_PREFIX}INVALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              makeResponse(SC_NOT_FOUND)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"${TOKEN_KEY_PREFIX}INVALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(SC_NOT_FOUND))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1719,15 +1837,16 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, "notValidToken")
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"${TOKEN_KEY_PREFIX}notValidToken") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              makeResponse(SC_NOT_FOUND)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"${TOKEN_KEY_PREFIX}notValidToken")
         ))
+      )).thenReturn(makeResponse(SC_NOT_FOUND))
 
       filter.doFilter(request, response, filterChain)
 
@@ -1809,37 +1928,58 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpPost.METHOD_NAME =>
-              val responseBody = EntityBuilder.create()
-                .setText(adminAuthenticationTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse(userId = userId))
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(endpointsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$userId") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(groupsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(argThat(hasMethod(HttpPost.METHOD_NAME)), any[HttpContext]))
+        .thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(adminAuthenticationTokenResponse())
+            .build()
         ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse(userId = userId))
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(endpointsResponse())
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$userId")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(groupsResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1864,37 +2004,58 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpPost.METHOD_NAME =>
-              val responseBody = EntityBuilder.create()
-                .setText(adminAuthenticationTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse(userId = userId))
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(endpointsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$userId") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(groupsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(argThat(hasMethod(HttpPost.METHOD_NAME)), any[HttpContext]))
+        .thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(adminAuthenticationTokenResponse())
+            .build()
         ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse(userId = userId))
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(endpointsResponse())
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$userId")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(groupsResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -1931,37 +2092,58 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpPost.METHOD_NAME =>
-              val responseBody = EntityBuilder.create()
-                .setText(adminAuthenticationTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse(userId = userId))
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(endpointsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$userId") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(groupsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(argThat(hasMethod(HttpPost.METHOD_NAME)), any[HttpContext]))
+        .thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(adminAuthenticationTokenResponse())
+            .build()
         ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse(userId = userId))
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(endpointsResponse())
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$userId")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(groupsResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2108,18 +2290,21 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponseTenantedRoles())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponseTenantedRoles())
+          .build()
+      ))
 
       val filter = new KeystoneV2Filter(mockConfigurationService, mockHttpClientService, mock[AtomFeedService], mockDatastoreService)
 
@@ -2161,18 +2346,21 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponseTenantedRoles())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponseTenantedRoles())
+          .build()
+      ))
 
       val filter = new KeystoneV2Filter(mockConfigurationService, mockHttpClientService, mock[AtomFeedService], mockDatastoreService)
 
@@ -2493,25 +2681,36 @@ with HttpDelegationManager {
       //Pretend like the admin token is cached all the time
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(groupsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse())
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(groupsResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2529,25 +2728,36 @@ with HttpDelegationManager {
       //Pretend like the admin token is cached all the time
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(groupsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse())
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(groupsResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2591,25 +2801,36 @@ with HttpDelegationManager {
       //Pretend like the admin token is cached all the time
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(groupsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse())
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(groupsResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2625,25 +2846,36 @@ with HttpDelegationManager {
       //Pretend like the admin token is cached all the time
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateImpersonatedTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(groupsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateImpersonatedTokenResponse())
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(groupsResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2662,25 +2894,36 @@ with HttpDelegationManager {
       //Pretend like the admin token is cached all the time
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(groupsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse())
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(groupsResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2696,25 +2939,36 @@ with HttpDelegationManager {
       //Pretend like the admin token is cached all the time
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(groupsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse())
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(groupsResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2730,25 +2984,36 @@ with HttpDelegationManager {
       //Pretend like the admin token is cached all the time
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse(expires = dateTime))
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(groupsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse(expires = dateTime))
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(groupsResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2766,25 +3031,36 @@ with HttpDelegationManager {
       //Pretend like the admin token is cached all the time
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(groupsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse())
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(groupsResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2800,25 +3076,36 @@ with HttpDelegationManager {
       //Pretend like the admin token is cached all the time
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse(expires = dateTime))
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse(expires = dateTime))
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2837,25 +3124,36 @@ with HttpDelegationManager {
       //Pretend like the admin token is cached all the time
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(groupsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse())
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2893,25 +3191,36 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(groupsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse())
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2937,18 +3246,21 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponseTenantedRoles())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponseTenantedRoles())
+          .build()
+      ))
 
       val filter = new KeystoneV2Filter(mockConfigurationService, mockHttpClientService, mock[AtomFeedService], mockDatastoreService)
 
@@ -2993,18 +3305,21 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponseTenantedRoles())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponseTenantedRoles())
+          .build()
+      ))
 
       val filter = new KeystoneV2Filter(mockConfigurationService, mockHttpClientService, mock[AtomFeedService], mockDatastoreService)
 
@@ -3049,18 +3364,21 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponseTenantedRoles())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponseTenantedRoles())
+          .build()
+      ))
 
       val filter = new KeystoneV2Filter(mockConfigurationService, mockHttpClientService, mock[AtomFeedService], mockDatastoreService)
 
@@ -3107,18 +3425,21 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponseTenantedRoles())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponseTenantedRoles())
+          .build()
+      ))
 
       val filter = new KeystoneV2Filter(mockConfigurationService, mockHttpClientService, mock[AtomFeedService], mockDatastoreService)
 
@@ -3165,18 +3486,21 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponseTenantedRoles())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponseTenantedRoles())
+          .build()
+      ))
 
       val filter = new KeystoneV2Filter(mockConfigurationService, mockHttpClientService, mock[AtomFeedService], mockDatastoreService)
 
@@ -3231,18 +3555,21 @@ with HttpDelegationManager {
         request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
         request.setRequestURI(s"/server$uri/345/foo")
 
-        when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-          .thenAnswer(makeAnswer((request, context) =>
-            request.getMethod match {
-              case HttpGet.METHOD_NAME
-                if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                  request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains(VALID_TOKEN) =>
-                val responseBody = EntityBuilder.create()
-                  .setText(validateTokenResponseTenantedRoles())
-                  .build()
-                makeResponse(SC_OK, responseBody)
-            }
+        when(mockHttpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo(VALID_TOKEN))
+          )),
+          argThat(hasAttribute(
+            CachingHttpClientContext.CACHE_KEY,
+            HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
           ))
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(validateTokenResponseTenantedRoles())
+            .build()
+        ))
 
         val response = new MockHttpServletResponse
         val filterChain = new MockFilterChain()
@@ -3260,18 +3587,21 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
       request.setRequestURI("/serverBad/345/foo")
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains(VALID_TOKEN) =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponseTenantedRoles())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo(VALID_TOKEN))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponseTenantedRoles())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -3309,25 +3639,36 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(endpointsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(groupsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(endpointsResponse())
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(groupsResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -3355,25 +3696,36 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn(null, "glibglob")
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(endpointsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$GROUPS_KEY_PREFIX$VALID_USER_ID") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              val responseBody = EntityBuilder.create()
-                .setText(groupsResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(endpointsResponse())
+          .build()
+      ))
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$GROUPS_KEY_PREFIX$VALID_USER_ID")
+        ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(groupsResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -3411,18 +3763,21 @@ with HttpDelegationManager {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains(VALID_TOKEN) =>
-              val responseBody = EntityBuilder.create()
-                .setText(validateTokenResponse())
-                .build()
-              makeResponse(SC_OK, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo(VALID_TOKEN))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_OK,
+        EntityBuilder.create()
+          .setText(validateTokenResponse())
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -3436,18 +3791,21 @@ with HttpDelegationManager {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains(VALID_TOKEN) =>
-              val responseBody = EntityBuilder.create()
-                .setText("Unauthorized from Identity!")
-                .build()
-              makeResponse(SC_UNAUTHORIZED, responseBody)
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo(VALID_TOKEN))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_UNAUTHORIZED,
+        EntityBuilder.create()
+          .setText("Unauthorized from Identity!")
+          .build()
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -3466,18 +3824,22 @@ with HttpDelegationManager {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains(VALID_TOKEN) =>
-              val responseBody = EntityBuilder.create()
-                .setText("Rate limited by identity!")
-                .build()
-              makeResponse(SC_REQUEST_ENTITY_TOO_LARGE, responseBody, Array[Header](RETRY_AFTER -> retryValue))
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo(VALID_TOKEN))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_REQUEST_ENTITY_TOO_LARGE,
+        EntityBuilder.create()
+          .setText("Rate limited by identity!")
+          .build(),
+        Array[Header](RETRY_AFTER -> retryValue)
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -3496,18 +3858,22 @@ with HttpDelegationManager {
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains(VALID_TOKEN) =>
-              val responseBody = EntityBuilder.create()
-                .setText("Rate limited by identity!")
-                .build()
-              makeResponse(SC_TOO_MANY_REQUESTS, responseBody, Array[Header](RETRY_AFTER -> retryValue))
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo(VALID_TOKEN))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(makeResponse(
+        SC_TOO_MANY_REQUESTS,
+        EntityBuilder.create()
+          .setText("Rate limited by identity!")
+          .build(),
+        Array[Header](RETRY_AFTER -> retryValue)
+      ))
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -3548,25 +3914,24 @@ with HttpDelegationManager {
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
-      var getCounter = 0
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$TOKEN_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              getCounter += 1
-              getCounter match {
-                case 1 =>
-                  makeResponse(SC_UNAUTHORIZED)
-                case _ =>
-                  val responseBody = EntityBuilder.create()
-                    .setText(validateTokenResponse())
-                    .build()
-                  makeResponse(SC_OK, responseBody)
-              }
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(
+        makeResponse(SC_UNAUTHORIZED),
+        makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(validateTokenResponse())
+            .build()
+        )
+      )
       when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", Vector.empty[Endpoint]), Nil: _*)
       when(mockDatastore.get(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")).thenReturn(Vector("group"), Nil: _*)
 
@@ -3590,25 +3955,24 @@ with HttpDelegationManager {
 
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(), Nil: _*)
-      var getCounter = 0
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              getCounter += 1
-              getCounter match {
-                case 1 =>
-                  makeResponse(SC_UNAUTHORIZED)
-                case _ =>
-                  val responseBody = EntityBuilder.create()
-                    .setText(oneEndpointResponse())
-                    .build()
-                  makeResponse(SC_OK, responseBody)
-              }
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")
         ))
+      )).thenReturn(
+        makeResponse(SC_UNAUTHORIZED),
+        makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(oneEndpointResponse())
+            .build()
+        )
+      )
       when(mockDatastore.get(s"$GROUPS_KEY_PREFIX$VALID_TOKEN")).thenReturn(Vector("group"), Nil: _*)
 
       filter.doFilter(request, response, filterChain)
@@ -3632,25 +3996,24 @@ with HttpDelegationManager {
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(userId = "userId"), Nil: _*)
       when(mockDatastore.get(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN")).thenReturn(EndpointsData("", Vector.empty[Endpoint]), Nil: _*)
-      var getCounter = 0
-      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-        .thenAnswer(makeAnswer((request, context) =>
-          request.getMethod match {
-            case HttpGet.METHOD_NAME
-              if context.getCacheKey.equals(s"${GROUPS_KEY_PREFIX}userId") &&
-                request.getHeaders(CommonHttpHeader.AUTH_TOKEN).map(_.getValue).contains("glibglob") =>
-              getCounter += 1
-              getCounter match {
-                case 1 =>
-                  makeResponse(SC_UNAUTHORIZED)
-                case _ =>
-                  val responseBody = EntityBuilder.create()
-                    .setText(groupsResponse())
-                    .build()
-                  makeResponse(SC_OK, responseBody)
-              }
-          }
+      when(mockHttpClient.execute(
+        argThat(HC.allOf[HttpUriRequest](
+          hasMethod(HttpGet.METHOD_NAME),
+          hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.equalTo("glibglob"))
+        )),
+        argThat(hasAttribute(
+          CachingHttpClientContext.CACHE_KEY,
+          HC.equalTo(s"${GROUPS_KEY_PREFIX}userId")
         ))
+      )).thenReturn(
+        makeResponse(SC_UNAUTHORIZED),
+        makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(groupsResponse())
+            .build()
+        )
+      )
 
       filter.doFilter(request, response, filterChain)
 
@@ -3662,16 +4025,6 @@ with HttpDelegationManager {
 
       contextCaptor.getAllValues.asScala(0).getUseCache shouldBe true
       contextCaptor.getAllValues.asScala(1).getUseCache shouldBe false
-    }
-  }
-
-  def makeAnswer(f: (HttpUriRequest, CachingHttpClientContext) => CloseableHttpResponse): Answer[CloseableHttpResponse] = {
-    new Answer[CloseableHttpResponse] {
-      override def answer(invocation: InvocationOnMock): CloseableHttpResponse = {
-        val request = invocation.getArguments()(0).asInstanceOf[HttpUriRequest]
-        val context = CachingHttpClientContext.adapt(invocation.getArguments()(1).asInstanceOf[HttpContext])
-        Try(f(request, context)).toOption.orNull
-      }
     }
   }
 

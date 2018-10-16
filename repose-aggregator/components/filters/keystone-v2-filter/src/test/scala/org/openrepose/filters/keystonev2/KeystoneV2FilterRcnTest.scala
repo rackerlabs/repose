@@ -20,6 +20,7 @@
 package org.openrepose.filters.keystonev2
 
 import java.io.{ByteArrayInputStream, InputStream}
+import java.net.URI
 
 import com.rackspace.httpdelegation.HttpDelegationManager
 import javax.servlet.FilterConfig
@@ -30,12 +31,12 @@ import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet, HttpUriRe
 import org.apache.http.message.BasicHttpResponse
 import org.apache.http.protocol.HttpContext
 import org.apache.http.{HttpEntity, HttpVersion}
+import org.hamcrest.{Matchers => HC}
 import org.junit.runner.RunWith
 import org.mockito.AdditionalMatchers._
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.mockito.invocation.InvocationOnMock
-import org.mockito.stubbing.Answer
+import org.openrepose.commons.test.HttpUriRequestMatchers.{hasHeader, hasMethod, hasUri}
 import org.openrepose.commons.utils.http._
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
@@ -108,39 +109,42 @@ class KeystoneV2FilterRcnTest extends FunSpec
         response.setStatus(responseStatus)
         val filterChain = new MockFilterChain()
 
-        when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
-            .thenAnswer(new Answer[CloseableHttpResponse] {
-              override def answer(invocation: InvocationOnMock): CloseableHttpResponse = {
-                val request = invocation.getArguments()(0).asInstanceOf[HttpUriRequest]
-                val requestUri = request.getURI.toString
-                val authTokenHeaders = request.getHeaders(CommonHttpHeader.AUTH_TOKEN)
-
-                if (request.getMethod != HttpGet.METHOD_NAME) return null
-                if (!authTokenHeaders.map(_.getValue).contains(VALID_TOKEN)) return null
-
-                val tokenUri = s"$identityServiceUri$TOKEN_ENDPOINT/$VALID_TOKEN${appendRcnParameter(applyRcnRoles)}"
-                val endpointsUri = s"$identityServiceUri${ENDPOINTS_ENDPOINT(VALID_TOKEN)}${appendRcnParameter(applyRcnRoles)}"
-                val groupsUri = s"$identityServiceUri${GROUPS_ENDPOINT(VALID_USER_ID)}"
-                if (requestUri.equals(tokenUri)) {
-                  val responseBody = EntityBuilder.create()
-                    .setText(validateTokenResponse(userId = VALID_USER_ID))
-                    .build()
-                  makeResponse(SC_OK, responseBody)
-                } else if (requestUri.equals(endpointsUri)) {
-                  val responseBody = EntityBuilder.create()
-                    .setText(endpointsResponse())
-                    .build()
-                  makeResponse(SC_OK, responseBody)
-                } else if (requestUri.equals(groupsUri)) {
-                  val responseBody = EntityBuilder.create()
-                    .setText(groupsResponse())
-                    .build()
-                  makeResponse(SC_OK, responseBody)
-                } else {
-                  null
-                }
-              }
-            })
+        when(mockHttpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create(s"$identityServiceUri$TOKEN_ENDPOINT/$VALID_TOKEN${appendRcnParameter(applyRcnRoles)}")),
+            hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.containsString(VALID_TOKEN)))),
+          any[HttpContext]
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(validateTokenResponse(userId = VALID_USER_ID))
+            .build()
+        ))
+        when(mockHttpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create(s"$identityServiceUri${ENDPOINTS_ENDPOINT(VALID_TOKEN)}${appendRcnParameter(applyRcnRoles)}")),
+            hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.containsString(VALID_TOKEN)))),
+          any[HttpContext]
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(endpointsResponse())
+            .build()
+        ))
+        when(mockHttpClient.execute(
+          argThat(HC.allOf[HttpUriRequest](
+            hasMethod(HttpGet.METHOD_NAME),
+            hasUri(URI.create(s"$identityServiceUri${GROUPS_ENDPOINT(VALID_USER_ID)}")),
+            hasHeader(CommonHttpHeader.AUTH_TOKEN, HC.containsString(VALID_TOKEN)))),
+          any[HttpContext]
+        )).thenReturn(makeResponse(
+          SC_OK,
+          EntityBuilder.create()
+            .setText(groupsResponse())
+            .build()
+        ))
 
         filter.doFilter(request, response, filterChain)
 
