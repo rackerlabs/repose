@@ -100,7 +100,7 @@ class HeaderNormalizationOldStyleTest extends ReposeValveTest {
         mc.orphanedHandlings[0].request.headers.findAll("x-second-filter") == []
         mc.orphanedHandlings[0].request.headers.findAll("x-third-filter") == []
         mc.orphanedHandlings[0].request.headers.findAll("x-last-filter") == []
-        mc.orphanedHandlings[0].request.headers.getFirstValue("x-shared") == 'shared'
+        mc.orphanedHandlings[0].request.headers.findAll("x-shared") == []
         mc.orphanedHandlings[0].request.headers.getFirstValue("via").contains("1.1 localhost:${properties.reposePort} (Repose/")
         mc.receivedResponse.code == '200'
 
