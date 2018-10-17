@@ -1,3 +1,0 @@
-= Delegation
-
-include::../_includes/in-progress.adoc[]

@@ -1,0 +1,3 @@
+= Performance Best Practices
+
+include::./_includes/in-progress.adoc[]

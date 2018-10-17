@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<saml-policy xmlns="http://docs.openrepose.org/repose/samlpolicy/v1.0">
-    <keystone-credentials uri="keystone.somewhere.com"
-                          username="aUsername"
-                          password="somePassword"
-                          connection-pool-id="default"/>
-    <policy-cache ttl="300" atom-feed-id="identity-policy"/>
-</saml-policy>

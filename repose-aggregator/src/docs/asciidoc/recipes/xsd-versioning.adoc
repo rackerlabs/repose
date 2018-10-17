@@ -1,3 +1,0 @@
-= XSD Versioning Guidelines
-
-include::../_includes/in-progress.adoc[]

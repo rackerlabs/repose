@@ -1,3 +1,0 @@
-= API Access Event Recording with Flume
-
-include::../_includes/in-progress.adoc[]

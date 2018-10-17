@@ -1,3 +1,0 @@
-= User Access Events
-
-include::../_includes/in-progress.adoc[]

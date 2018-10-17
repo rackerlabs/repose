@@ -1,0 +1,224 @@
+# This configuration file dictates the organization of the topic groups and
+# topics on the main page of the doc site for this branch. Each record
+# consists of the following:
+#
+# ---                                  <= Record delimiter
+# Name: Origin of the Species          <= Display name of topic group
+# Dir:  origin_of_the_species          <= Directory name of topic group
+# Topics:
+#   - Name: The Majestic Marmoset      <= Topic name
+#     File: the_majestic_marmoset      <= Topic file under group dir +/- .adoc
+#   - Name: The Curious Crocodile      <= Topic 2 name
+#     File: the_curious_crocodile      <= Topic 2 file
+#   - Name: The Numerous Nematodes     <= Sub-topic group name
+#     Dir: the_numerous_nematodes      <= Sub-topic group dir
+#     Topics:
+#   - Name: The Wily Worm          <= Sub-topic name
+#         File: the_wily_worm          <= Sub-topic file under <group dir>/<subtopic dir>
+#   - Name: The Acrobatic Ascarid  <= Sub-topic 2 name
+#         File: the_acrobatic_ascarid  <= Sub-topic 2 file under <group dir>/<subtopic dir>
+#
+# The ordering of the records in this document determines the ordering of the
+# topic groups and topics on the main page.
+---
+Name: Welcome to Repose
+Dir: welcome
+Topics:
+  - Name: Welcome
+    File: index.adoc
+  - Name: Troubleshooting
+    File: troubleshooting.adoc
+  - Name: Release Notes
+    File: release-notes.adoc
+  - Name: Style Guide
+    File: style-guide.adoc
+  - Name: FAQ
+    File: faq.adoc
+---
+Name: Architecture
+Dir: architecture
+Topics:
+  - Name: Overview
+    File: index.adoc
+  - Name: Configuration
+    File: configuration.adoc
+  - Name: Container
+    File: container.adoc
+  - Name: Packages
+    File: packages.adoc
+  - Name: System Model
+    File: system-model.adoc
+---
+Name: Recipes
+Dir: recipes
+Topics:
+  - Name: Overview
+    File: index.adoc
+  - Name: Quick Start
+    File: quick-start.adoc
+  - Name: Getting Started
+    File: getting-started.adoc
+  - Name: Custom Filter for Repose
+    File: custom-filter-for-repose.adoc
+  - Name: Docker
+    File: docker.adoc
+  - Name: Performance Best Practices
+    File: performance-best-practices.adoc
+  - Name: Role Based Access Control
+    File: role-based-access-control.adoc
+  - Name: Running Valve
+    File: running-valve.adoc
+  - Name: Valve Installation
+    File: valve-installation.adoc
+  - Name: WAR Installation
+    File: war-installation.adoc
+  - Name: Echo Server
+    File: echo-server.adoc
+  - Name: Rate Limiting
+    File: rate-limiting.adoc
+  - Name: Multi Tenant Authorization
+    File: multi-tenant.adoc
+  - Name: User Access Events
+    File: user-access-events.adoc
+  - Name: Basic Authentication
+    File: basic-authentication.adoc
+  - Name: Delegation
+    File: delegation.adoc
+  - Name: Preventing XML bomb attacks
+    File: preventing-xml-bomb.adoc
+  - Name: API Access Event Recording with Flume
+    File: api-event-flume.adoc
+  - Name: XSD Versioning Guidelines
+    File: xsd-versioning.adoc
+  - Name: SSL/TLS Client Authentication
+    File: client-authentication.adoc
+  - Name: Functional Test Framework
+    File: functional-test-framework.adoc
+  - Name: Glassfish Setup
+    File: glassfish-setup.adoc
+  - Name: Tomcat Setup
+    File: tomcat-setup.adoc
+  - Name: HTTP Container Attributes
+    File: http-container-attributes.adoc
+---
+Name: Filters
+Dir: filters
+Topics:
+  - Name: Overview
+    File: index.adoc
+  - Name: Add Header Filter
+    File: add-header.adoc
+  - Name: API Validator Filter
+    File: api-validator.adoc
+  - Name: Attribute Mapping Policy Validation filter
+    File: attribute-mapping-policy-validation.adoc
+  - Name: Body Extractor to Header Filter
+    File: body-extractor-to-header.adoc
+  - Name: Body Patcher Filter
+    File: body-patcher.adoc
+  - Name: Compression Filter
+    File: compression.adoc
+  - Name: Content Type Stripper Filter
+    File: content-type-stripper.adoc
+  - Name: CORS Filter
+    File: cors.adoc
+  - Name: Delegation Response Processor (DeRP) Filter
+    File: derp.adoc
+  - Name: Destination Router Filter
+    File: destination-router.adoc
+  - Name: Echo Filter
+    File: echo.adoc
+  - Name: Exception Filter
+    File: exception.adoc
+  - Name: Forwarded Protocol Filter
+    File: forwarded-proto.adoc
+  - Name: Header Normalization filter
+    File: header-normalization.adoc
+  - Name: Header Translation Filter
+    File: header-translation.adoc
+  - Name: Header User Filter
+    File: header-user.adoc
+  - Name: Highly Efficient Record Processor (HERP) Filter
+    File: herp.adoc
+  - Name: IP User Filter
+    File: ip-user.adoc
+  - Name: IRI Validator Filter
+    File: iri-validator.adoc
+  - Name: Keystone v2 Filter
+    File: keystone-v2.adoc
+  - Name: Keystone v2 Authorization Filter
+    File: keystone-v2-authorization.adoc
+  - Name: Keystone v2 Basic Auth Filter
+    File: keystone-v2-basic-auth.adoc
+  - Name: Merge Header Filter
+    File: merge-header.adoc
+  - Name: Openstack Identity v3 Filter
+    File: openstack-identity-v3.adoc
+  - Name: Rackspace Auth User Filter
+    File: rackspace-auth-user.adoc
+  - Name: Rate Limiting Filter
+    File: rate-limiting.adoc
+  - Name: RegEx Role Based Access Control (RBAC) Filter
+    File: regex-rbac.adoc
+  - Name: SAML Policy Translation Filter
+    File: saml-policy.adoc
+  - Name: Scripting Filter
+    File: scripting.adoc
+  - Name: Simple Role Based Access Control (RBAC) Filter
+    File: simple-rbac.adoc
+  - Name: SFL4J HTTP Logging Filter
+    File: slf4j-http-logging.adoc
+  - Name: Split Header Filter
+    File: split-header.adoc
+  - Name: Tenant Culling Filter
+    File: tenant-culling.adoc
+  - Name: Translation Filter
+    File: translation.adoc
+  - Name: URI Normalization Filter
+    File: uri-normalization.adoc
+  - Name: URI Stripper Filter
+    File: uri-stripper.adoc
+  - Name: URI User Filter
+    File: uri-user.adoc
+  - Name: URL Extractor to Header Filter
+    File: url-extractor-to-header.adoc
+  - Name: Valkyrie Authorization Filter
+    File: valkyrie-authorization.adoc
+  - Name: Versioning Filter
+    File: versioning.adoc
+---
+Name: Services
+Dir: services
+Topics:
+  - Name: Overview
+    File: index.adoc
+  - Name: Atom Feed Consumption Service
+    File: atom-feed-consumption.adoc
+  - Name: Datastores
+    File: datastores.adoc
+  - Name: Health Check Service
+    File: health-check.adoc
+  - Name: HTTP Client Service
+    File: http-client.adoc
+  - Name: Logging Service
+    File: logging.adoc
+  - Name: Metrics Service
+    File: metrics.adoc
+  - Name: OpenTracing Service
+    File: open-tracing.adoc
+  - Name: Phone Home Service
+    File: phone-home.adoc
+  - Name: Response Messaging service
+    File: response-messaging.adoc
+  - Name: URI Redaction service
+    File: uri-redaction.adoc
+---
+Name: Developer
+Dir: developer
+Topics:
+  - Name: Overview
+    File: index.adoc
+  - Name: Docker
+    File: docker.adoc
+  - Name: Performance
+    File: performance.adoc

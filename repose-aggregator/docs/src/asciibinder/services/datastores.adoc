@@ -1,0 +1,278 @@
+= Datastores
+
+*Repose* uses one of the following datastore implementations to store various types of data:
+
+* Local datastore (name: local/default)
+* Distributed datastore (name: distributed/hash-ring)
+* Remote datastore (name: distributed/remote)
+
+The local datastore is enabled by default.
+The others are enabled by including the appropriate service into your <<../architecture/system-model.adoc#,System Model>> configuration.
+
+== Local Datastore
+If no other datastores are configured, then *Repose* will use the local datastore.
+The local datastore will store data using the cache on each node.
+Data will not be shared among the nodes, so each *Repose* node will have its own copy of the data.
+For example, if using rate limiting with the local datastore, then each node will track its own limit information and limit updates will not be shared with other nodes.
+
+== Distributed Datastore
+A *Repose* cluster may, at times, need to share information between cluster nodes.
+The Distributed Datastore component allows *Repose* to host a simple hash-ring object store that shares consistency between all of the participating cluster nodes.
+This, in turn, allows other hosted components as well as external programs to use the *Repose* cluster as a whole to store information.
+Instead of cache operations communicating through the *Repose* Service port (which is the port a *Repose* instance services requests to pass to the Origin Service), the Distributed Datastore Service will communicate through configured port(s) within the distributed datastore configuration.
+If the Distributed Datastore Service is unable to communicate with the service on other nodes, it will fall back on the local datastore temporarily.
+Once other nodes become reachable, the Distributed Datastore Service will return to being distributed.
+
+=== Configuration
+* *Default Configuration:* dist-datastore.cfg.xml
+* *Released:* v2.7.0
+* link:../schemas/dist-datastore.xsd[Schema]
+
+The Distributed Datastore service can be enabled in a *Repose* deployment by adding it to the services list of the <<../architecture/system-model.adoc#,System Model>> like this:
+[source,xml]
+.system-model.cfg.xml (partial)
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+  <repose-cluster id="repose">
+    ...
+    <services>
+      <service name="dist-datastore"/>
+    </services>
+    ...
+  </repose-cluster>
+</system-model>
+----
+
+Adding the Distributed Datastore Service to a *Repose* deployment requires that listening ports be configured within the `dist-datastore.cfg.xml` file.
+The `<port>` element is the port configuration for the Distributed Datastore.
+When you configure *Repose* to start with the Distributed Datastore, the running *Repose* instance will try to find the `<port>` configuration that matches it's own `cluster` and `node`.
+If only the `cluster` attribute is defined, the running *Repose* instance will assume that is the port in which to open a listener for the Distributed Datastore.
+
+The following is a basic sample configuration.
+[source,xml]
+.dist-datastore.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'>
+    <allowed-hosts allow-all="true"/>
+    <port-config>
+        <port port="9999" cluster="repose"/>
+    </port-config>
+</distributed-datastore>
+----
+
+==== Full Configuration
+[source,xml]
+.dist-datastore.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'
+                       connection-pool-id="default" <!--1-->
+                       keystore-filename="keystore.jks" <!--2-->
+                       keystore-password="password" <!--3-->
+                       key-password="secret" <!--4-->
+                       truststore-filename="truststore.jks" <!--5-->
+                       truststore-password="trusting"> <!--6-->
+    <allowed-hosts allow-all="false"> <!--7--> <!--8-->
+        <allow host="127.0.0.1"/> <!--9-->
+    </allowed-hosts>
+    <port-config>
+        <port port="9999" cluster="repose"/> <!--10-->
+        <port port="7777" cluster="repose" node="node2"/> <!--11-->
+    </port-config>
+</distributed-datastore>
+----
+<1> HTTP Connection pool (ID) to use when communicating with other members of the distributed datastore.
+<2> IF this attribute is configured,
+    THEN it is assumed that it points to the Java keystore containing the client certificate to present for client authentication (e.g keystore.jks)
+    AND the `keystore-password` and `key-password` attributes are no longer optional. +
+    *NOTE:* +
+    _IF_ the `keystore-filename` is defined, +
+    _THEN_ HTTPS will be used; +
+    _ELSE_ HTTP will be used.
+<3> The password for the client authentication keystore.
+<4> The password for the particular client authentication key in the keystore.
+<5> The truststore used for validating the server this pool is connecting to.
+    This is typically set to the same path as the client authentication keystore.
+<6> The password for the client authentication truststore. +
+    *NOTE:* This attribute is only used if the `truststore-filename` attribute is present.
+<7> Defines a list of hosts who has access to the distributed datastore API calls.
+    This does not add the host to the participating data storage nodes.
+<8> Setting the optional `allow-all` to `true` will turn off host ACL checking. +
+    Default: `false`
+<9> Defines a host who has access to the distributed datastore API.
+<10> Defines the `port` on which all datastores in this `cluster` will listen.
+<11> Overrides the default `port`, defined for this `cluster` 's datastores to listen, only for this particular `node`.
+
+=== Security
+The distributed datastore provides the option to encrypt communication between nodes using HTTP over SSL/TLS.
+As mentioned above, this is achieved by configuring a keystore in the `dist-datastore.cfg.xml` file.
+This feature can additionally provide client authentication during the SSL handshake.
+By both validating the client credentials and encrypting communication with the client, data in the datastore is made more secure.
+
+Assuming all *Repose* nodes are configured identically, the most straight-forward way to make use of this security would be to use a single unique keystore as both the keystore and the truststore.
+This can be achieved by not explicitly configuring a separate truststore.
+Since each datastore node will have a copy of the keystore, each node will trust every other node.
+
+Client authentication in SSL/TLS can act as as alternate form of client validation, performing a task similar to that of an access control list.
+As such, the usage of client authentication may replace the need to configure the allowed-hosts section of the `dist-datastore.cfg.xml` file.
+
+The distributed datastore will use a connection pool from the <<http-client.adoc#,HTTP Client Service>> to communicate across nodes.
+If a connection pool is not configured, the default will be used.
+In nearly all cases, the connection pool being used should not be the default, but rather, a connection pool should be configured to use <<../recipes/client-authentication.adoc#, SSL/TLS Client Authentication>> configured in the distributed datastore.
+That is, the distributed datastore may be thought of as a server, and clients in the connection pool as clients.
+Both the client and server need to be aware of how to communicate, and so they both must be configured with the appropriate secrets.
+
+For managing keystores and truststores, the aptly named keytool can be used.
+
+For more details, see:
+
+* http://www.eclipse.org/jetty/documentation/current/configuring-ssl.html#loading-keys-and-certificates[Loading Keys and Certificates]
+* https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html[Keytool Documentation]
+* https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeystoreImplementation[Keystore Specification]
+
+=== Distribution
+The distributed datastore shares key-space with all of the enabled cluster nodes.
+Key-space is determined by the maximum value of the distributed datastore's hashing algorithm.
+Currently the only supported hashing algorithm is MD5.
+
+=== Key-space Addressing
+Addressing a key is done by first normalizing all of the participating cluster nodes.
+This is done by an ascending sort.
+After the participating nodes have had their order normalized, the key-space is sliced up by dividing the maximum possible number of addresses by the total number of participating nodes.
+The given key is then reduced to its numeric representation and a cluster node is looked up by performing a modulus such that (`<key-value> % <number-of-cluster-members>`).
+
+=== Key-space Encoding
+By default, the internal *Repose* client implementation for the distributed datastore will obscure key-space by storing only the MD5 hash value of a given key and not the key's actual value.
+This is important to note since external gets against the distributed datastore must be aware of this functionality.
+The MD5 hash is represented as a 128bit UUID.
+
+Example Key Addressing
+
+* String Key: `object-key`
+* MD5 Hash: `cd26615a30a3cdce02e3a834fed5711a`
+* UUID: `cecda330-5a61-26cd-1a71-d5fe34a8e302`
+
+If an external application makes a request for data stored by *Repose* components, it must first hash the key using MD5 before sending the request such that...
+
+`GET /powerapi/dist-datastore/objects/object-key`
+
+becomes
+
+`GET /powerapi/dist-datastore/objects/cecda330-5a61-26cd-1a71-d5fe34a8e302`
+
+Obscuring key-space is not a function of the distributed datastore service.
+This functionality is only present in the internally consumed java cache client.
+If an external application puts an object into the distributed datastore, the object will be stored under the value of the key given.
+
+=== Remote Management
+The repose distributed datastore component is a service that hosts a simple RESTful API that can be contacted to perform remote object store operations.
+These operations are defined below.
+
+`GET /powerapi/dist-datastore/objects/<object-key> HTTP/1.1`
+
+Gets a stored object from the datastore by its key.
+
+`PUT /powerapi/dist-datastore/objects/<object-key> HTTP/1.1`
+
+Puts an object into the datastore by its key.
+
+`DELETE /powerapi/dist-datastore/objects/<object-key> HTTP/1.1`
+
+Deletes an object from the datastore by its key.
+
+`PATCH /powerapi/dist-datastore/objects/<object-key> HTTP/1.1`
+
+Patches an object in the datastore by its key.
+If the object does not exist, then a new one created.
+Return the modified/new object.
+The object must be Patchable.
+
+=== Remote Fail-Over
+In the event that a node with in a datastore cluster falls off line or is unable to respond to requests, it is removed from the node's cluster membership for a period of time.
+During this time, the online node will then re-address its key-space in order to continue operation.
+After certain periods of rest, the node may attempt to introduce the damaged cluster member into its cluster membership.
+A damaged cluster member must go through several validation passes where the member is introduced back into the addressing algorithm before it can be considered online.
+In order to keep healthy nodes from attempting to route requests to the damaged node, a participating node may tell it's destination that the destination may not route the request and must handle the value locally.
+
+=== Performance
+The *Repose* node will open sockets each time it has to communicate with other *Repose* nodes to share information.
+During times of load this can affect performance and data integrity as when one node cannot communicate with another it will mark that node damaged and store/create information locally.
+One way this can happen is if the user running repose hits their open file limit.
+Luckily this can be mitigated by increasing the open file limit for the user running *Repose*.
+
+=== JMX Reporting
+Currently *Repose* instances do not report Distributed Datastore information to JMX.
+This is something that has been done in the past, but an upgrade to the metrics library used has made this capability incompatible with the current codebase.
+
+== Remote Datastore
+=== Configuration
+* *Default Configuration:* remote-datastore.cfg.xml
+* *Released:* v8.5.1.0
+* link:../schemas/remote-datastore.xsd[Schema]
+
+At times, *Repose* instances may need to share information between nodes that are unaware of each other.
+An example of this is a dynamic containerized environment like OpenShift or other 12-Factor environment.
+
+The Remote Datastore Service allows dynamic isolated *Repose* instances to use a single static *Repose* instance's object store.
+The Remote Datastore Service communicates to the configured host through the configured port.
+If the Remote Datastore Service is unable to communicate with the configured object store, it will fall back on the local datastore temporarily.
+The Remote Datastore Service will return to using the configured object store as soon as it becomes reachable again.
+
+The static *Repose* instance is simply configured as a single node cluster with the distributed datastore service enabled.
+The distributed datastore is typically configured with <<../recipes/client-authentication.adoc#, SSL/TLS Client Authentication>> so that all clients must properly authenticate before a session is established.
+Then all of the dynamic clients are configured with a remote datastore and the <<http-client.adoc#,HTTP Client Service>> configured to provide the proper authentication.
+
+The Remote Datastore service can be enabled in the dynamic clients by adding it to the services list of the <<../architecture/system-model.adoc#,System Model>> like this:
+[source,xml]
+.system-model.cfg.xml (partial)
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+  <repose-cluster id="repose">
+    ...
+    <services>
+      <service name="remote-datastore"/>
+    </services>
+    ...
+  </repose-cluster>
+</system-model>
+----
+
+The following is a basic sample configuration.
+[source,xml]
+.remote-datastore.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<remote-datastore>
+    <cluster id="repose"
+             host="remote.example.com"
+             port="8080"/>
+</remote-datastore>
+----
+
+==== Full Configuration
+[source,xml]
+.remote-datastore.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<remote-datastore>
+    <cluster id="repose" <!--1-->
+             host="remote.example.com" <!--2-->
+             port="8080" <!--3-->
+             useHTTPS="true" <!--4-->
+             connection-pool-id="remote-datastore"/> <!--5-->
+</remote-datastore>
+----
+<1> Defines the id of the cluster this configuration is for.
+<2> Defines the host providing the remote datastore.
+<3> Defines the port on which the remote datastore is listening (1-65535).
+<4> Defines if the remote datastore is expecting a secure connection request. +
+    Default: `true`
+<5> Http Connection Pool ID to use when connecting to the Remote Datastore.
+
+[NOTE]
+====
+Refer to the <<http-client.adoc#,HTTP Client Service>> and <<../recipes/client-authentication.adoc#, SSL/TLS Client Authentication>> documentation for properly securing the connection pool used to connect to the Remote Datastore.
+====

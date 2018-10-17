@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ip-user xmlns='http://docs.openrepose.org/repose/ip-user/v1.0'>
-    <group name="ip-standard">
-        <cidr-ip>0.0.0.0/0</cidr-ip>
-    </group>
-</ip-user>

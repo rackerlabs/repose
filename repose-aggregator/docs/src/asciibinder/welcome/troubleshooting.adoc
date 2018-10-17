@@ -1,0 +1,349 @@
+= Troubleshooting
+
+include::_includes/in-progress.adoc[]
+
+This page summarizes the different methods which can be used to get more information on the state of *Repose* and how it interacts with the clients, origin service, and third party services.
+Most of these methods can be used in a production deployment.
+
+== Logging
+
+*Repose* logs contain a great deal of information about the state of *Repose*, and as such, is usually a good place to start when troubleshooting!
+Most errors that occur in Repose will have an associated error message in the Repose logs.
+Often, these error messages are accompanied by a stacktrace detailing exactly what happened.
+
+ifdef::basebackend-html[]
+++++
+<details>
+    <summary>Sample Error Log Message</summary>
+    <p>
+++++
+endif::[]
+----
+2018-03-14 14:05:05,167 24956 [qtp53446647-45] ERROR org.openrepose.powerfilter.PowerFilterRouterImpl - Error communicating with http://localhost:50819//
+java.net.SocketException: Connection reset
+        at java.net.SocketInputStream.read(SocketInputStream.java:210) ~[?:1.8.0_161]
+        at java.net.SocketInputStream.read(SocketInputStream.java:141) ~[?:1.8.0_161]
+        at org.apache.http.impl.io.AbstractSessionInputBuffer.fillBuffer(AbstractSessionInputBuffer.java:160) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.io.SocketInputBuffer.fillBuffer(SocketInputBuffer.java:84) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.io.AbstractSessionInputBuffer.readLine(AbstractSessionInputBuffer.java:273) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.conn.DefaultHttpResponseParser.parseHead(DefaultHttpResponseParser.java:140) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.conn.DefaultHttpResponseParser.parseHead(DefaultHttpResponseParser.java:57) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.io.AbstractMessageParser.parse(AbstractMessageParser.java:261) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.AbstractHttpClientConnection.receiveResponseHeader(AbstractHttpClientConnection.java:283) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.conn.DefaultClientConnection.receiveResponseHeader(DefaultClientConnection.java:251) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.conn.ManagedClientConnectionImpl.receiveResponseHeader(ManagedClientConnectionImpl.java:197) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.protocol.HttpRequestExecutor.doReceiveResponse(HttpRequestExecutor.java:272) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.protocol.HttpRequestExecutor.execute(HttpRequestExecutor.java:124) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.client.DefaultRequestDirector.tryExecute(DefaultRequestDirector.java:685) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:487) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.client.AbstractHttpClient.doExecute(AbstractHttpClient.java:882) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.client.CloseableHttpClient.execute(CloseableHttpClient.java:82) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.client.CloseableHttpClient.execute(CloseableHttpClient.java:107) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.apache.http.impl.client.CloseableHttpClient.execute(CloseableHttpClient.java:55) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.nodeservice.httpcomponent.RequestProxyServiceImpl.executeProxyRequest(RequestProxyServiceImpl.java:166) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.nodeservice.httpcomponent.RequestProxyServiceImpl.proxyRequest(RequestProxyServiceImpl.java:152) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.nodeservice.httpcomponent.RequestProxyServiceImpl.proxyRequest(RequestProxyServiceImpl.java:135) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.core.proxy.HttpRequestDispatcher.forward(HttpRequestDispatcher.java:54) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.powerfilter.PowerFilterRouterImpl.route(PowerFilterRouterImpl.java:155) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.powerfilter.PowerFilterChain.doRouting(PowerFilterChain.java:274) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.powerfilter.PowerFilterChain.doFilter(PowerFilterChain.java:329) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.filters.ipuser.IpUserFilter.doFilter(IpUserFilter.scala:87) ~[?:?]
+        at org.openrepose.powerfilter.PowerFilterChain.doReposeFilter(PowerFilterChain.java:209) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.powerfilter.PowerFilterChain.doFilter(PowerFilterChain.java:324) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.powerfilter.PowerFilterChain.startFilterChain(PowerFilterChain.java:113) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.openrepose.powerfilter.PowerFilter.doFilter(PowerFilter.java:419) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:344) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:261) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.servlet.ServletHandler$CachedChain.doFilter(ServletHandler.java:1637) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.servlet.ServletHandler.doHandle(ServletHandler.java:533) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.handler.ScopedHandler.nextHandle(ScopedHandler.java:188) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.handler.ContextHandler.doHandle(ContextHandler.java:1253) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.handler.ScopedHandler.nextScope(ScopedHandler.java:168) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:473) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.handler.ScopedHandler.nextScope(ScopedHandler.java:166) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.handler.ContextHandler.doScope(ContextHandler.java:1155) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:141) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:132) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.Server.handle(Server.java:530) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.HttpChannel.handle(HttpChannel.java:347) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.server.HttpConnection.onFillable(HttpConnection.java:256) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.io.AbstractConnection$ReadCallback.succeeded(AbstractConnection.java:279) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.io.FillInterest.fillable(FillInterest.java:102) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.io.ChannelEndPoint$2.run(ChannelEndPoint.java:124) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.util.thread.strategy.EatWhatYouKill.doProduce(EatWhatYouKill.java:247) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.util.thread.strategy.EatWhatYouKill.produce(EatWhatYouKill.java:140) ~[repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:708) [repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at org.eclipse.jetty.util.thread.QueuedThreadPool$2.run(QueuedThreadPool.java:626) [repose-valve.jar:8.8.1.0-SNAPSHOT]
+        at java.lang.Thread.run(Thread.java:748) [?:1.8.0_161]
+----
+ifdef::basebackend-html[]
+++++
+    </p>
+</details>
+++++
+endif::[]
+
+[NOTE]
+====
+The configuration of the logging system has a substantial impact on the quality of logs.
+Certain configurations may even prevent useful log messages from being written.
+Please see <<../services/logging.adoc#,Logging Service>> for more details.
+====
+
+[WARNING]
+====
+Log messages that are written before the <<../services/logging.adoc#,Logging Service>> has initialized (e.g., Valve logs, core service startup logs) may not appear in the expected, configured log file.
+Since the <<../services/logging.adoc#,Logging Service>> performs logging configuration, logging that occurs before it has initialized will rely on the Log4j2 default configuration which writes everything to standard streams (i.e., `stdout`, `stderr`).
+====
+
+== Intrafilter Logging
+[WARNING]
+====
+This should be used in a controlled environment (i.e., not production) and should not be used for more than a few minutes at a time due to the amount of logging that occurs.
+====
+
+Intrafilter Logging allows you to see the modified output of each filter as the request goes through the filter chain which makes debugging configurations easier.
+This setting adds a UUID header to the request and another to the response.
+
+When the logger is set to TRACE, you will see the following information:
+
+* Time stamp
+* UUID
+* Headers
+* Content (logged at the lowest level)
+* Status code
+* Request path
+
+[NOTE]
+====
+The TRACE setting is the most verbose logging setting.
+====
+
+=== Enabling
+
+To enable intrafilter logging, the corresponding named log4j2 logger should be set to the `TRACE` level.
+This can be achieved by adding a line like the following to the `log4j2.xml` file in your *Repose* configuration directory.
+
+[source,xml]
+----
+<Logger name="intrafilter-logging" level="trace"/>
+----
+
+Additionally, the `X-Trace-Request` header must be present on the HTTP request.
+Only requests with the `X-Trace-Request` header are eligible to have intrafilter logging enabled for them.
+This constraint provides per-request intrafilter logging, which is helpful in limiting the scope and magnitude of data in the logs making it easier for the logs to be analyzed.
+
+=== Sample Output
+This is an example of the log line that you will see for the request and for the response.
+These lines are formatted for convenience.
+The log line will be a single line without carriage returns.
+
+.Request
+[source,json]
+----
+{"preamble":"Intrafilter Request Log"
+ "timestamp":"2014-05-21T15:29:34.244-05:00"
+ "currentFilter":"client-auth"
+ "httpMethod":"GET","requestURI":"/"
+ "requestBody":""
+ "headers":{
+   "Intrafilter-Request-UUID":"db7e62b4-4923-2881-811d-49816ea77b63"
+   "Host":"localhost:10000"
+   "User-Agent":"Apache-HttpClient/4.2.5 (java 1.5)",
+   "Connection":"keep-alive"}}
+----
+
+.Response
+[source,json]
+----
+{"preamble":"intrafilter Response Log"
+ "timestamp":"2014-05-21T17:44:38.161-05:00"
+ "currentFilter":"ip-identity"
+ "httpResponseCode":"200"
+ "responseBody":""
+ "headers":{
+   "Date":"Wed 21 May 2014 22:44:38 GMT"
+   "Intrafilter-Response-UUID":"95c37a94-6174-54de-8743-540b230bf8b7"
+   "Deproxy-Request-ID":"0d1a822e-68c8-4d67-866b-8aec45e9dfe0"
+   "Content-Length":"0"}}
+----
+
+== Time Spent in Each Filter
+*Repose* can report on which filters handled the client request and how long each filter took.
+This allows you to verify that all expected filters handled the request.
+
+=== Enabling
+To enable this, add the following header to the client request:
+`x-trace-request: true`
+
+Technically, the value of the `x-trace-request` header does not matter at this time, but by convention, we pass a value of `true`.
+
+When that header is present on the request, *Repose* will add state to the logging context for the request that enables per-request tracing logging based on the Log4j configuration.
+The `filter-timing` logger is used to log the time each filter takes to process.
+Each filter will have its own log message.
+
+To configure Log4j to filter log messages based on the the content of the logging context, the https://logging.apache.org/log4j/2.0/manual/filters.html#CompositeFilter[CompositeFilter], https://logging.apache.org/log4j/2.0/manual/filters.html#ThreadContextMapFilter[ContextMapFilter], and https://logging.apache.org/log4j/2.0/manual/filters.html#ThresholdFilter[ThresholdFilter] can be used:
+
+[source,xml]
+.log4j2.xml
+----
+...
+<Logger name="filter-timing" level="trace"> <!--1-->
+    <Filters> <!--2-->
+        <ContextMapFilter onMatch="ACCEPT" onMismatch="NEUTRAL"> <!--3-->
+            <KeyValuePair key="x-trace-request" value="true"/> <!--4-->
+        </ContextMapFilter>
+        <ThresholdFilter level="WARN" onMatch="NEUTRAL" onMismatch="DENY"/> <!--5-->
+    </Filters>
+</Logger>
+...
+----
+<1> Declares the log level of the `filter-timing` logger to be `trace`.
+    The level should be set to `trace` since we will rely on the `ContextMapFilter` instead of log level to filter out log messages.
+<2> Defines a `CompositeFilter` which will allow the usage of more than one filter for this logger.
+<3> Defines a `ContextMapFilter` which will look at the state of the logging context and determine whether or not to log a message.
+<4> Defines the state that the `ContextMapFilter` is looking for in the logging context map.
+    *Repose* will set this state if the `x-trace-request` header is present on the request.
+    The value will always be set to `true`, even if the value of the `x-trace-request` header differs.
+<5> Defines a `ThresholdFilter` which will come into play if the `x-trace-request` header is not present.
+    This filter will reject a log message if it is provided at a level less specific than `WARN`.
+    This filter effectively acts as the log level for this logger.
+    By placing it after the `ContextMapFilter`, we delay filtering based on the log level until after we have processed the logging context.
+
+The `x-trace-request` header can be easily added to a test request using curl and the -H [header] flag.
+For example:
+----
+curl -v -H "x-trace-request: true" http://localhost:8080/
+----
+
+[NOTE]
+====
+The reported time is inclusive of the processing time of all succeeding filters in the filter chain and the origin service.
+====
+
+=== Sample Output
+The following example contains three headers which *Repose* added to the response.
+These headers indicate that the the client-auth, http-logging, and default-router all handled the request, taking 0, 6, and 0 ms respectively.
+
+----
+x-client-auth-time: 0ms
+x-http-logging-time: 6ms
+x-default-router-time: 0ms
+----
+
+== Log All Requests/Responses to the Origin Service and Third Party APIs
+You can view all of the data being sent and received to the origin service and other third party APIs (e.g., Identity) by turning on Apache HttpClient logging.
+
+=== Enabling
+In `log4j2.xml`, update the `org.apache` logger to the `debug` level.
+For example:
+
+[source,xml]
+----
+<Logger name="org.apache" level="debug"/>
+----
+
+=== Sample Output
+ifdef::basebackend-html[]
+++++
+<details>
+    <summary>Click Here to Expand...</summary>
+    <p>
+++++
+endif::[]
+----
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,527 655550 [qtp1589228348-31] INFO org.openrepose.powerfilter.PowerFilter.trace-id-logging - Tracing header: {"requestId":"f863f80f-914d-4c01-a579-648673206a96","origin":null}
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,533 655556 [qtp1589228348-31] DEBUG org.apache.http.impl.conn.PoolingClientConnectionManager - Connection request: [route: {}->http://localhost:8000][total kept alive: 0; route allocated: 0 of 200; total allocated: 0 of 400]
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,534 655557 [qtp1589228348-31] DEBUG org.apache.http.impl.conn.PoolingClientConnectionManager - Connection leased: [id: 2][route: {}->http://localhost:8000][total kept alive: 0; route allocated: 1 of 200; total allocated: 1 of 400]
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,534 655557 [qtp1589228348-31] DEBUG org.apache.http.impl.conn.DefaultClientConnectionOperator - Connecting to localhost:8000
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,535 655558 [qtp1589228348-31] DEBUG org.apache.http.client.protocol.RequestAddCookies - CookieSpec selected: ignoreCookies
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,535 655558 [qtp1589228348-31] DEBUG org.apache.http.client.protocol.RequestAuthCache - Auth cache not set in the context
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,535 655558 [qtp1589228348-31] DEBUG org.apache.http.client.protocol.RequestTargetAuthentication - Target auth state: UNCHALLENGED
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,536 655559 [qtp1589228348-31] DEBUG org.apache.http.client.protocol.RequestProxyAuthentication - Proxy auth state: UNCHALLENGED
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,536 655559 [qtp1589228348-31] DEBUG org.apache.http.impl.client.DefaultHttpClient - Attempt 1 to execute request
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,536 655559 [qtp1589228348-31] DEBUG org.apache.http.impl.conn.DefaultClientConnection - Sending request: POST /post HTTP/1.1
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,536 655559 [qtp1589228348-31] DEBUG org.apache.http.wire - >> "POST /post HTTP/1.1[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,537 655560 [qtp1589228348-31] DEBUG org.apache.http.wire - >> "via: 1.1 localhost:8080 (Repose/7.2.2.0)[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,537 655560 [qtp1589228348-31] DEBUG org.apache.http.wire - >> "x-forwarded-for: 0:0:0:0:0:0:0:1[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,537 655560 [qtp1589228348-31] DEBUG org.apache.http.wire - >> "Host: localhost:8000[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,537 655560 [qtp1589228348-31] DEBUG org.apache.http.wire - >> "x-pp-user: repose_user[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,538 655561 [qtp1589228348-31] DEBUG org.apache.http.wire - >> "x-trans-id: eyJyZXF1ZXN0SWQiOiJmODYzZjgwZi05MTRkLTRjMDEtYTU3OS02NDg2NzMyMDZhOTYiLCJvcmlnaW4iOm51bGx9[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,538 655561 [qtp1589228348-31] DEBUG org.apache.http.wire - >> "Accept-Encoding: gzip[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,538 655561 [qtp1589228348-31] DEBUG org.apache.http.wire - >> "Accept-Encoding: deflate[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,538 655561 [qtp1589228348-31] DEBUG org.apache.http.wire - >> "User-Agent: HTTPie/0.9.2[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,538 655561 [qtp1589228348-31] DEBUG org.apache.http.wire - >> "Accept: application/json[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,539 655562 [qtp1589228348-31] DEBUG org.apache.http.wire - >> "Content-Type: application/json[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,539 655562 [qtp1589228348-31] DEBUG org.apache.http.wire - >> "Content-Length: 17[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,539 655562 [qtp1589228348-31] DEBUG org.apache.http.wire - >> "Connection: Keep-Alive[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,539 655562 [qtp1589228348-31] DEBUG org.apache.http.wire - >> "[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,540 655563 [qtp1589228348-31] DEBUG org.apache.http.headers - >> POST /post HTTP/1.1
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,540 655563 [qtp1589228348-31] DEBUG org.apache.http.headers - >> via: 1.1 localhost:8080 (Repose/7.2.2.0)
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,540 655563 [qtp1589228348-31] DEBUG org.apache.http.headers - >> x-forwarded-for: 0:0:0:0:0:0:0:1
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,540 655563 [qtp1589228348-31] DEBUG org.apache.http.headers - >> Host: localhost:8000
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,540 655563 [qtp1589228348-31] DEBUG org.apache.http.headers - >> x-pp-user: repose_user
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,540 655563 [qtp1589228348-31] DEBUG org.apache.http.headers - >> x-trans-id: eyJyZXF1ZXN0SWQiOiJmODYzZjgwZi05MTRkLTRjMDEtYTU3OS02NDg2NzMyMDZhOTYiLCJvcmlnaW4iOm51bGx9
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,540 655563 [qtp1589228348-31] DEBUG org.apache.http.headers - >> Accept-Encoding: gzip
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,541 655564 [qtp1589228348-31] DEBUG org.apache.http.headers - >> Accept-Encoding: deflate
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,541 655564 [qtp1589228348-31] DEBUG org.apache.http.headers - >> User-Agent: HTTPie/0.9.2
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,541 655564 [qtp1589228348-31] DEBUG org.apache.http.headers - >> Accept: application/json
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,541 655564 [qtp1589228348-31] DEBUG org.apache.http.headers - >> Content-Type: application/json
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,541 655564 [qtp1589228348-31] DEBUG org.apache.http.headers - >> Content-Length: 17
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,541 655564 [qtp1589228348-31] DEBUG org.apache.http.headers - >> Connection: Keep-Alive
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,542 655565 [qtp1589228348-31] DEBUG org.apache.http.wire - >> "{"server": "bob"}"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,543 655566 [qtp1589228348-31] DEBUG org.apache.http.wire - << "HTTP/1.1 200 OK[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,544 655567 [qtp1589228348-31] DEBUG org.apache.http.wire - << "Server: gunicorn/19.4.1[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,544 655567 [qtp1589228348-31] DEBUG org.apache.http.wire - << "Date: Fri, 04 Dec 2015 17:10:57 GMT[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,544 655567 [qtp1589228348-31] DEBUG org.apache.http.wire - << "Connection: close[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,544 655567 [qtp1589228348-31] DEBUG org.apache.http.wire - << "Content-Type: application/json[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,544 655567 [qtp1589228348-31] DEBUG org.apache.http.wire - << "Content-Length: 652[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,545 655568 [qtp1589228348-31] DEBUG org.apache.http.wire - << "Access-Control-Allow-Origin: *[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,545 655568 [qtp1589228348-31] DEBUG org.apache.http.wire - << "Access-Control-Allow-Credentials: true[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,545 655568 [qtp1589228348-31] DEBUG org.apache.http.wire - << "[\r][\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,545 655568 [qtp1589228348-31] DEBUG org.apache.http.impl.conn.DefaultClientConnection - Receiving response: HTTP/1.1 200 OK
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,545 655568 [qtp1589228348-31] DEBUG org.apache.http.headers - << HTTP/1.1 200 OK
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,545 655568 [qtp1589228348-31] DEBUG org.apache.http.headers - << Server: gunicorn/19.4.1
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,546 655569 [qtp1589228348-31] DEBUG org.apache.http.headers - << Date: Fri, 04 Dec 2015 17:10:57 GMT
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,546 655569 [qtp1589228348-31] DEBUG org.apache.http.headers - << Connection: close
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,546 655569 [qtp1589228348-31] DEBUG org.apache.http.headers - << Content-Type: application/json
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,546 655569 [qtp1589228348-31] DEBUG org.apache.http.headers - << Content-Length: 652
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,546 655569 [qtp1589228348-31] DEBUG org.apache.http.headers - << Access-Control-Allow-Origin: *
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,546 655569 [qtp1589228348-31] DEBUG org.apache.http.headers - << Access-Control-Allow-Credentials: true
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,547 655570 [qtp1589228348-31] DEBUG org.apache.http.wire - << "{[\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,547 655570 [qtp1589228348-31] DEBUG org.apache.http.wire - << " "args": {}, [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,548 655571 [qtp1589228348-31] DEBUG org.apache.http.wire - << " "data": "{\"server\": \"bob\"}", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,548 655571 [qtp1589228348-31] DEBUG org.apache.http.wire - << " "files": {}, [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,548 655571 [qtp1589228348-31] DEBUG org.apache.http.wire - << " "form": {}, [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,548 655571 [qtp1589228348-31] DEBUG org.apache.http.wire - << " "headers": {[\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,548 655571 [qtp1589228348-31] DEBUG org.apache.http.wire - << " "Accept": "application/json", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,548 655571 [qtp1589228348-31] DEBUG org.apache.http.wire - << " "Accept-Encoding": "gzip,deflate", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,549 655572 [qtp1589228348-31] DEBUG org.apache.http.wire - << " "Connection": "Keep-Alive", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,549 655572 [qtp1589228348-31] DEBUG org.apache.http.wire - << " "Content-Length": "17", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,549 655572 [qtp1589228348-31] DEBUG org.apache.http.wire - << " "Content-Type": "application/json", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,549 655572 [qtp1589228348-31] DEBUG org.apache.http.wire - << " "Host": "localhost:8000", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,549 655572 [qtp1589228348-31] DEBUG org.apache.http.wire - << " "User-Agent": "HTTPie/0.9.2", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,549 655572 [qtp1589228348-31] DEBUG org.apache.http.wire - << " "Via": "1.1 localhost:8080 (Repose/7.2.2.0)", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,550 655573 [qtp1589228348-31] DEBUG org.apache.http.wire - << " "X-Pp-User": "repose_user", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,550 655573 [qtp1589228348-31] DEBUG org.apache.http.wire - << " "X-Trans-Id": "eyJyZXF1ZXN0SWQiOiJmODYzZjgwZi05MTRkLTRjMDEtYTU3OS02NDg2NzMyMDZhOTYiLCJvcmlnaW4iOm51bGx9"[\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,550 655573 [qtp1589228348-31] DEBUG org.apache.http.wire - << " }, [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,550 655573 [qtp1589228348-31] DEBUG org.apache.http.wire - << " "json": {[\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,551 655574 [qtp1589228348-31] DEBUG org.apache.http.wire - << " "server": "bob"[\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,551 655574 [qtp1589228348-31] DEBUG org.apache.http.wire - << " }, [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,551 655574 [qtp1589228348-31] DEBUG org.apache.http.wire - << " "origin": "0:0:0:0:0:0:0:1", [\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,551 655574 [qtp1589228348-31] DEBUG org.apache.http.wire - << " "url": "http://localhost:8000/post"[\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,551 655574 [qtp1589228348-31] DEBUG org.apache.http.wire - << "}[\n]"
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,552 655575 [qtp1589228348-31] DEBUG org.apache.http.impl.conn.DefaultClientConnection - Connection 0.0.0.0:60510<->127.0.0.1:8000 closed
+Trans-Id:f863f80f-914d-4c01-a579-648673206a96 - 2015-12-04 11:10:57,552 655575 [qtp1589228348-31] DEBUG org.apache.http.impl.conn.PoolingClientConnectionManager - Connection released: [id: 2][route: {}->http://localhost:8000][total kept alive: 0; route allocated: 0 of 200; total allocated: 0 of 400]
+----
+ifdef::basebackend-html[]
+++++
+    </p>
+</details>
+++++
+endif::[]
+
+== Access Repose Internal Metrics and Instrumentation
+*Repose* instruments its internal operations, such as the types of response codes returned from *Repose* or the origin service and the number of active requests.
+This information is published through JMX and can be accessed through any JMX client.
+JConsole is a popular choice to access information published through JMX as it is shipped with the JDK.
+
+*IN PROGRESS*

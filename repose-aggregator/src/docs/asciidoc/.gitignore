@@ -1,6 +1,0 @@
-# Ignore the Asciidoctor cache directory.
-**/.asciidoctor
-
-# Ignore the auto-generated files used by the IDE.
-/recipes/valve-diagram.png
-/recipes/war-diagram.png
