@@ -97,7 +97,6 @@ class KeystoneRequestHandler(identityServiceUri: String, httpClient: HttpClient,
         response.getStatusLine.getStatusCode match {
           case statusCode if statusCode >= 200 && statusCode < 300 =>
             val responseContent = EntityUtils.toString(response.getEntity)
-            // todo: test character encoding resolution
             val json = Json.parse(responseContent)
             Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
               case Success(s) => s
@@ -116,7 +115,6 @@ class KeystoneRequestHandler(identityServiceUri: String, httpClient: HttpClient,
 
   final def validateToken(validatingToken: String, validatableToken: String, applyRcnRoles: Boolean, ignoredRoles: Set[String], checkCache: Boolean = true): Try[ValidToken] = {
     def extractUserInformation(keystoneResponse: String): Try[ValidToken] = {
-      // TODO: Handle character encoding set in the content-type header rather than relying on the default system encoding
       try {
         val json = Json.parse(keystoneResponse)
         //Have to convert it to a vector, because List isn't serializeable in 2.10
@@ -181,7 +179,6 @@ class KeystoneRequestHandler(identityServiceUri: String, httpClient: HttpClient,
 
   final def getEndpointsForToken(authenticatingToken: String, forToken: String, applyRcnRoles: Boolean, checkCache: Boolean = true): Try[EndpointsData] = {
     def extractEndpointInfo(keystoneResponse: String): Try[EndpointsData] = {
-      // TODO: Handle character encoding set in the content-type header rather than relying on the default system encoding
       val json = Json.parse(keystoneResponse)
 
       //Have to convert it to a vector, because List isn't serializeable in 2.10
@@ -214,7 +211,6 @@ class KeystoneRequestHandler(identityServiceUri: String, httpClient: HttpClient,
   final def getGroups(authenticatingToken: String, forToken: String, checkCache: Boolean = true): Try[Vector[String]] = {
     def extractGroupInfo(keystoneResponse: String): Try[Vector[String]] = {
       Try {
-        // TODO: Handle character encoding set in the content-type header rather than relying on the default system encoding
         val json = Json.parse(keystoneResponse)
 
         (json \ "RAX-KSGRP:groups" \\ "id").map(_.as[String]).toVector

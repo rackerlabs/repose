@@ -3907,7 +3907,7 @@ with HttpDelegationManager {
     filter.configurationUpdated(configuration)
     filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
-    it("does not use the akka cache on retry for token validation") {
+    it("does not use the retry cache for token validation") {
       val filterChain = new MockFilterChain()
       val response = new MockHttpServletResponse
       val request = new MockHttpServletRequest()
@@ -3947,7 +3947,7 @@ with HttpDelegationManager {
       contextCaptor.getAllValues.asScala(1).getUseCache shouldBe false
     }
 
-    it("does not use the akka cache on retry for endpoint retrieval") {
+    it("does not use the retry cache for endpoint retrieval") {
       val filterChain = new MockFilterChain()
       val response = new MockHttpServletResponse
       val request = new MockHttpServletRequest()
@@ -3987,7 +3987,7 @@ with HttpDelegationManager {
       contextCaptor.getAllValues.asScala(1).getUseCache shouldBe false
     }
 
-    it("does not use the akka cache on retry for groups retrieval") {
+    it("does not use the retry cache for groups retrieval") {
       val filterChain = new MockFilterChain()
       val response = new MockHttpServletResponse
       val request = new MockHttpServletRequest()
