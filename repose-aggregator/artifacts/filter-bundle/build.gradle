@@ -109,7 +109,7 @@ ospackage {
         fileMode 0444
     }
 
-    requires("repose-$project.version")
+    requires("repose", "$project.version")
 
     replaces('repose-filters')
 }
