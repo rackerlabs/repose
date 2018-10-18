@@ -19,14 +19,11 @@
  */
 package org.openrepose.core.services.httpclient
 
-import java.util.concurrent.{Executors, ScheduledFuture}
-
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.annotation.PreDestroy
 import javax.inject.Named
 import org.apache.http.impl.client.CloseableHttpClient
-
-import scala.concurrent.duration._
+import org.springframework.scheduling.annotation.Scheduled
 
 /**
   * Handles decommissioning of HTTP clients. Decommissioning is a process
@@ -41,18 +38,14 @@ import scala.concurrent.duration._
 @Named
 class HttpClientDecommissioner extends HttpClientUserManager with StrictLogging {
 
-  logger.debug("Scheduling HttpClientDecommissioner")
-  private val decomDelay: Duration = 5.seconds
-  private val decomSchedule: ScheduledFuture[_] = Executors.newSingleThreadScheduledExecutor()
-    .scheduleWithFixedDelay(new HttpClientDecommissioningTask(), decomDelay.length, decomDelay.length, decomDelay.unit)
+  logger.debug("Starting HttpClientDecommissioner")
 
   private var clientUsers: Map[String, Set[String]] = Map.empty
   private var clientsToDecom: Map[String, CloseableHttpClient] = Map.empty
 
   @PreDestroy
   def destroy(): Unit = {
-    logger.debug("Cancelling scheduled HttpClientDecommissioner")
-    decomSchedule.cancel(false)
+    logger.debug("Stopping HttpClientDecommissioner")
   }
 
   override def registerUser(clientInstanceId: String, userId: String): Unit = synchronized {
@@ -75,23 +68,21 @@ class HttpClientDecommissioner extends HttpClientUserManager with StrictLogging 
     clientsToDecom += (clientInstanceId -> client)
   }
 
-  private class HttpClientDecommissioningTask extends Runnable {
-    override def run(): Unit = HttpClientDecommissioner.this.synchronized {
-      logger.debug("Decommissioning HTTP clients")
+  @Scheduled(fixedDelay = 5000)
+  def run(): Unit = synchronized {
+    logger.debug("Decommissioning HTTP clients")
 
-      clientsToDecom = clientsToDecom.filter { case (clientInstanceId, client) =>
-        clientUsers.get(clientInstanceId) match {
-          case Some(users) if users.nonEmpty =>
-            logger.warn("Failed to decommission HTTP client {} as it is still in use", clientInstanceId)
-            true
-          case _ =>
-            // Closing the client will also shutdown the connection manager, releasing connections
-            client.close()
-            logger.info("Successfully decommissioned HTTP client {}", clientInstanceId)
-            false
-        }
+    clientsToDecom = clientsToDecom.filter { case (clientInstanceId, client) =>
+      clientUsers.get(clientInstanceId) match {
+        case Some(users) if users.nonEmpty =>
+          logger.warn("Failed to decommission HTTP client {} as it is still in use", clientInstanceId)
+          true
+        case _ =>
+          // Closing the client will also shutdown the connection manager, releasing connections
+          client.close()
+          logger.info("Successfully decommissioned HTTP client {}", clientInstanceId)
+          false
       }
     }
   }
-
 }

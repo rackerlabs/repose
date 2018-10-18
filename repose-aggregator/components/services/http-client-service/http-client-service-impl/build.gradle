@@ -7,6 +7,7 @@ dependencies {
     compile "org.slf4j:slf4j-api"
     compile "org.slf4j:jcl-over-slf4j"
     compile "org.springframework:spring-beans"
+    compile "org.springframework:spring-context"
     compile "io.opentracing:opentracing-api"
     compile "io.opentracing:opentracing-noop"
     compile "com.google.guava:guava"

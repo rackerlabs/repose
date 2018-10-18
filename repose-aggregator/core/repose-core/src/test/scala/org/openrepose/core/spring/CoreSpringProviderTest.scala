@@ -28,6 +28,7 @@ import org.scalatest.{FunSpec, Matchers}
 import org.springframework.context.ApplicationContext
 import com.anycompany.spring.test.foo.TestFooBean
 import com.anycompany.spring.test.TestBean
+import org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor
 
 @RunWith(classOf[JUnitRunner])
 class CoreSpringProviderTest extends FunSpec with Matchers with TestFilterBundlerHelper {
@@ -64,7 +65,13 @@ class CoreSpringProviderTest extends FunSpec with Matchers with TestFilterBundle
 
       testBean shouldNot be(null)
       testFooBean shouldNot be(null)
+    }
+    it("has a registered post processor for the scheduled annotation") {
+      val coreContext = coreSpringProvider.getCoreContext
 
+      val scheduledPostProcessors = coreContext.getBeansOfType(classOf[ScheduledAnnotationBeanPostProcessor])
+
+      scheduledPostProcessors should have size 1
     }
     it("has a meaningful name for the core Context") {
       coreSpringProvider.getCoreContext.getDisplayName shouldBe "ReposeCoreContext"

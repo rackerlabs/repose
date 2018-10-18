@@ -21,7 +21,7 @@ package org.openrepose.core.services.httpclient
 
 import org.apache.http.impl.client.CloseableHttpClient
 import org.junit.runner.RunWith
-import org.mockito.Mockito.{never, timeout, verify}
+import org.mockito.Mockito.{never, verify}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec}
@@ -52,7 +52,9 @@ class HttpClientDecommissionerTest extends FunSpec with BeforeAndAfterEach with 
     it("should decommission a client that was never in use") {
       httpClientDecommissioner.decommissionClient(clientInstanceId, closeableHttpClient)
 
-      verify(closeableHttpClient, timeout(6000)).close()
+      httpClientDecommissioner.run()
+
+      verify(closeableHttpClient).close()
     }
 
     it("should not decommission a client that is in use") {
@@ -61,7 +63,7 @@ class HttpClientDecommissionerTest extends FunSpec with BeforeAndAfterEach with 
       httpClientDecommissioner.registerUser(clientInstanceId, userId)
       httpClientDecommissioner.decommissionClient(clientInstanceId, closeableHttpClient)
 
-      Thread.sleep(6000)
+      httpClientDecommissioner.run()
 
       verify(closeableHttpClient, never).close()
     }
@@ -71,12 +73,11 @@ class HttpClientDecommissionerTest extends FunSpec with BeforeAndAfterEach with 
 
       httpClientDecommissioner.registerUser(clientInstanceId, userId)
       httpClientDecommissioner.decommissionClient(clientInstanceId, closeableHttpClient)
-
-      Thread.sleep(6000)
-
       httpClientDecommissioner.deregisterUser(clientInstanceId, userId)
 
-      verify(closeableHttpClient, timeout(6000)).close()
+      httpClientDecommissioner.run()
+
+      verify(closeableHttpClient).close()
     }
   }
 }
