@@ -42,6 +42,4 @@ public class ReposeCluster
     private DestinationList destinations;
     @XmlAttribute(name = "rewrite-host-header")
     private boolean rewriteHostHeader = true;
-    @XmlAttribute(name = "chunked-encoding")
-    private ChunkedEncoding chunkedEncoding = ChunkedEncoding.TRUE;
 }

@@ -50,9 +50,7 @@ import org.openrepose.core.services.httpclient.CachingHttpClientContext;
 import org.openrepose.core.services.httpclient.HttpClientService;
 import org.openrepose.core.services.httpclient.HttpClientServiceClient;
 import org.openrepose.core.spring.ReposeSpringProperties;
-import org.openrepose.core.systemmodel.config.ChunkedEncoding;
-import org.openrepose.core.systemmodel.config.ReposeCluster;
-import org.openrepose.core.systemmodel.config.SystemModel;
+import org.openrepose.core.systemmodel.config.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -73,6 +71,7 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 @Named
 @Lazy
@@ -278,8 +277,17 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             Optional<ReposeCluster> localCluster = systemModelInterrogator.getLocalCluster(config);
 
             if (localCluster.isPresent()) {
+                // Determine whether or not to use chunked encoding based on the configuration for the default
+                // destination. This is a stop-gap until this logic is reworked as part of the WAR deployment routing
+                // work.
+                DestinationList destinationList = localCluster.get().getDestinations();
+                Stream.concat(destinationList.getEndpoint().stream(), destinationList.getTarget().stream())
+                    .filter(Destination::isDefault)
+                    .findFirst()
+                    .map(Destination::getChunkedEncoding)
+                    .ifPresent(it -> chunkedEncoding = it);
+
                 rewriteHostHeader = localCluster.get().isRewriteHostHeader();
-                chunkedEncoding = localCluster.get().getChunkedEncoding();
                 isInitialized = true;
 
                 healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);

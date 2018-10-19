@@ -30,6 +30,8 @@ import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy
 import org.openrepose.core.services.healthcheck.Severity
 import org.openrepose.core.services.httpclient.HttpClientService
+import org.openrepose.core.systemmodel.config.DestinationEndpoint
+import org.openrepose.core.systemmodel.config.DestinationList
 import org.openrepose.core.systemmodel.config.Node
 import org.openrepose.core.systemmodel.config.NodeList
 import org.openrepose.core.systemmodel.config.ReposeCluster
@@ -92,6 +94,8 @@ class RequestProxyServiceHealthCheckTest extends Specification {
         config.reposeCluster.first().nodes.node = new LinkedList<Node>()
         config.reposeCluster.first().nodes.node.add(new Node())
         config.reposeCluster.first().nodes.node.first().id = "node"
+        config.reposeCluster.first().destinations = new DestinationList()
+        config.reposeCluster.first().destinations.endpoint.add(new DestinationEndpoint())
 
 
         when:
@@ -123,6 +127,8 @@ class RequestProxyServiceHealthCheckTest extends Specification {
         config.reposeCluster.first().nodes.node = new LinkedList<Node>()
         config.reposeCluster.first().nodes.node.add(new Node())
         config.reposeCluster.first().nodes.node.first().id = "nope"
+        config.reposeCluster.first().destinations = new DestinationList()
+        config.reposeCluster.first().destinations.endpoint.add(new DestinationEndpoint())
 
 
         when:

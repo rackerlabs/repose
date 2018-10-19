@@ -39,6 +39,8 @@ public class Destination
     private String protocol;
     @XmlAttribute(name = "root-path")
     private String rootPath = "";
+    @XmlAttribute(name = "chunked-encoding")
+    private ChunkedEncoding chunkedEncoding = ChunkedEncoding.TRUE;
     @XmlAttribute(name = "default")
     private boolean isDefault;
 }
