@@ -221,7 +221,7 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
         endpoint.setId("endpoint")
         endpoint.setDefault(true)
         destinationList.getEndpoint.add(endpoint)
-        node.setId("node")
+        node.setId("randomnode")
         node.setHostname("localhost")
         nodeList.getNode.add(node)
         cluster.setId("randomcluster")
