@@ -22,6 +22,7 @@ package org.openrepose.core.services.httpclient
 import java.io.IOException
 import java.nio.file.Paths
 import java.security.GeneralSecurityException
+import java.util.concurrent.TimeUnit
 
 import com.codahale.metrics.httpclient._
 import com.typesafe.scalalogging.slf4j.StrictLogging
@@ -33,6 +34,7 @@ import org.apache.http.config.{ConnectionConfig, MessageConstraints, RegistryBui
 import org.apache.http.conn.socket.{ConnectionSocketFactory, PlainConnectionSocketFactory}
 import org.apache.http.conn.ssl.{NoopHostnameVerifier, SSLConnectionSocketFactory, TrustAllStrategy}
 import org.apache.http.impl.client.{CloseableHttpClient, HttpClientBuilder, HttpClients}
+import org.apache.http.impl.conn.SystemDefaultDnsResolver
 import org.apache.http.message.BasicHeader
 import org.apache.http.ssl.{SSLContextBuilder, SSLContexts}
 import org.openrepose.commons.utils.opentracing.httpclient.{ReposeTracingRequestInterceptor, ReposeTracingResponseInterceptor}
@@ -120,7 +122,13 @@ class HttpClientProvider @Inject()(@Value(ReposeSpringProperties.CORE.CONFIG_ROO
 
     val connectionManager = new InstrumentedHttpClientConnectionManager(
       metricsService.getRegistry,
-      connectionSocketFactoryRegistry)
+      connectionSocketFactoryRegistry,
+      null,
+      null,
+      SystemDefaultDnsResolver.INSTANCE,
+      -1,
+      TimeUnit.MILLISECONDS,
+      clientConfig.getId)
     connectionManager.setDefaultMaxPerRoute(clientConfig.getHttpConnManagerMaxPerRoute)
     connectionManager.setMaxTotal(clientConfig.getHttpConnManagerMaxTotal)
     connectionManager.setDefaultSocketConfig(socketConfig)
