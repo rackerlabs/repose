@@ -21,19 +21,13 @@
 {
   dir_prefix: "use-cases/identitytransferencoding",
   repose: {
+    system_model: {
+      origin_chunked: "false"
+    },
     config: {
       container: {
         read_limit: 2097152
       }
-    },
-    config_files: {
-      templates: [
-        "container.cfg.xml",
-        "system-model.cfg.xml"
-      ],
-      files: [
-        "log4j2.xml"
-      ]
     }
   },
   gatling: {
