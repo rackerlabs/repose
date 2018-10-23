@@ -7,7 +7,7 @@
     -->
     <pool id="default"
           default="true"
-          chunked-encoding="true"
+          cache.ttl="500"
           http.conn-manager.max-total="10"
           http.conn-manager.max-per-route="2"
           http.socket.timeout="30000"
@@ -20,7 +20,7 @@
 
     <pool id="identity-pool"
           default="false"
-          chunked-encoding="true"
+          cache.ttl="500"
           http.conn-manager.max-total="10"
           http.conn-manager.max-per-route="2"
           http.socket.timeout="30000"
