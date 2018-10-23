@@ -23,8 +23,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
@@ -58,6 +57,15 @@ class HttpComponentRequestProcessor {
         "expect",
         "transfer-encoding").collect(Collectors.toSet());
 
+    // todo: By specification, only the TRACE method MUST NOT have a body. For other methods, body semantics
+    // todo: are not defined. Consider allowing bodies for non-TRACE methods.
+    // todo: https://tools.ietf.org/html/rfc7231#section-4.3.8
+    private static final Set<String> NO_ENTITY_METHODS = Stream.of(
+        HttpGet.METHOD_NAME,
+        HttpHead.METHOD_NAME,
+        HttpOptions.METHOD_NAME,
+        HttpTrace.METHOD_NAME).collect(Collectors.toSet());
+
     private static boolean excludeHeader(String header) {
         return EXCLUDE_HEADERS.contains(header.toLowerCase());
     }
@@ -87,10 +95,12 @@ class HttpComponentRequestProcessor {
      * @throws IOException
      */
     public HttpUriRequest process() throws URISyntaxException, IOException {
-        final HttpUriRequest clientRequest = RequestBuilder.create(servletRequest.getMethod())
-            .setUri(getUri())
-            .setEntity(getEntity())
-            .build();
+        final RequestBuilder requestBuilder = RequestBuilder.create(servletRequest.getMethod())
+            .setUri(getUri());
+        if (!NO_ENTITY_METHODS.contains(servletRequest.getMethod())) {
+            requestBuilder.setEntity(getEntity());
+        }
+        final HttpUriRequest clientRequest = requestBuilder.build();
         setHeaders(clientRequest);
         return clientRequest;
     }

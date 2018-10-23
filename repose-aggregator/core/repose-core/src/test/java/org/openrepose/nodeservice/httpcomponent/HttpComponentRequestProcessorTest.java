@@ -21,9 +21,7 @@ package org.openrepose.nodeservice.httpcomponent;
 
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.*;
 import org.apache.http.util.EntityUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -115,6 +113,42 @@ public class HttpComponentRequestProcessorTest {
         HttpUriRequest clientRequest = processor.process();
 
         assertThat(clientRequest.getFirstHeader("Host").getValue(), equalTo("www.openrepose.org:8080"));
+    }
+
+    @Test(expected = ClassCastException.class)
+    public void shouldNotSetRequestBodyOnGet() throws IOException, URISyntaxException {
+        String servletRequestContent = "Hello world!";
+        request.setMethod(HttpGet.METHOD_NAME);
+        request.setContent(servletRequestContent.getBytes(StandardCharsets.ISO_8859_1));
+
+        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) processor.process();
+    }
+
+    @Test(expected = ClassCastException.class)
+    public void shouldNotSetRequestBodyOnHead() throws IOException, URISyntaxException {
+        String servletRequestContent = "Hello world!";
+        request.setMethod(HttpHead.METHOD_NAME);
+        request.setContent(servletRequestContent.getBytes(StandardCharsets.ISO_8859_1));
+
+        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) processor.process();
+    }
+
+    @Test(expected = ClassCastException.class)
+    public void shouldNotSetRequestBodyOnOptions() throws IOException, URISyntaxException {
+        String servletRequestContent = "Hello world!";
+        request.setMethod(HttpOptions.METHOD_NAME);
+        request.setContent(servletRequestContent.getBytes(StandardCharsets.ISO_8859_1));
+
+        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) processor.process();
+    }
+
+    @Test(expected = ClassCastException.class)
+    public void shouldNotSetRequestBodyOnTrace() throws IOException, URISyntaxException {
+        String servletRequestContent = "Hello world!";
+        request.setMethod(HttpTrace.METHOD_NAME);
+        request.setContent(servletRequestContent.getBytes(StandardCharsets.ISO_8859_1));
+
+        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) processor.process();
     }
 
     @Test
