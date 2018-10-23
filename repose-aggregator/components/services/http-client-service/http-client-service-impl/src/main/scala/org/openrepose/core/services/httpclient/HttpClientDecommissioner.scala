@@ -70,7 +70,7 @@ class HttpClientDecommissioner extends HttpClientUserManager with StrictLogging 
 
   @Scheduled(fixedDelay = 5000)
   def run(): Unit = synchronized {
-    logger.debug("Decommissioning HTTP clients")
+    logger.trace("Checking for HTTP clients to decommission")
 
     clientsToDecom = clientsToDecom.filter { case (clientInstanceId, client) =>
       clientUsers.get(clientInstanceId) match {
