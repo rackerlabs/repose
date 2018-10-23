@@ -86,6 +86,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private final String nodeId;
     private final HttpClientService httpClientService;
     private final HealthCheckServiceProxy healthCheckServiceProxy;
+
     private boolean rewriteHostHeader = false;
     private ChunkedEncoding chunkedEncoding = ChunkedEncoding.TRUE;
 
@@ -133,18 +134,22 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         HttpClientServiceClient httpClient = httpClientService.getDefaultClient();
 
         try {
+            // todo: this is a funky chain of manipulation, even after some simplification
+            // todo: the gist is, the root path is added to the servlet request URI earlier
+            // todo: the targetHost contains the full target URL (including the root path and servlet URI)
+            // todo: so we chop the targetHost down to just the protocol, host, and port
+            // todo: and then append the servlet URI (which contains the root path and servlet request URI) in the processor
+            // todo: this will be simplified in the routing refactor
             final HttpHost proxiedHost = getProxiedHost(targetHost);
-            final String target = proxiedHost.toURI() + request.getRequestURI();
-            final HttpComponentRequestProcessor processor = new HttpComponentRequestProcessor(request, new URI(proxiedHost.toURI()), rewriteHostHeader, chunkedEncoding);
-            final HttpUriRequest method = RequestBuilder.create(request.getMethod())
-                .setUri(processor.getUri(target))
-                .build();
+            final HttpComponentRequestProcessor requestProcessor = new HttpComponentRequestProcessor(
+                request,
+                URI.create(proxiedHost.toURI()),
+                rewriteHostHeader,
+                chunkedEncoding);
 
-            if (method != null) {
-                HttpUriRequest processedMethod = processor.process(method);
+            HttpUriRequest clientRequest = requestProcessor.process();
 
-                return executeProxyRequest(httpClient, processedMethod, response);
-            }
+            return executeProxyRequest(httpClient, clientRequest, response);
         } catch (URISyntaxException | HttpException ex) {
             LOG.error("Error processing request", ex);
         }
