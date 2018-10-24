@@ -16,6 +16,7 @@
         <Logger name="org.apache" level="warn"/>
         <Logger name="org.eclipse.jetty" level="off"/>
         <Logger name="org.openrepose" level="debug"/>
+        <Logger name="org.openrepose.powerfilter" level="trace"/>
         <Logger name="org.springframework" level="warn"/>
         <Logger name="intrafilter-logging" level="info"/>
         <Logger name="filter-timing" level="trace"/>
