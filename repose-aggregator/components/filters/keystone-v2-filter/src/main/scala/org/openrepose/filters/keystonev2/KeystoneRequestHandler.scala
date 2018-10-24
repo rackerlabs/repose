@@ -19,7 +19,6 @@
  */
 package org.openrepose.filters.keystonev2
 
-import java.io.InputStream
 import java.util.{Calendar, GregorianCalendar}
 
 import com.fasterxml.jackson.core.JsonProcessingException
@@ -41,7 +40,6 @@ import play.api.libs.json.Reads._
 import play.api.libs.json._
 
 import scala.Function.tupled
-import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
 /**

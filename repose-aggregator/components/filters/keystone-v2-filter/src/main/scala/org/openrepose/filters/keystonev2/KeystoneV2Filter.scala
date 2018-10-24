@@ -403,7 +403,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         } else {
           Reject(SC_SERVICE_UNAVAILABLE, Some(e.getMessage), Map(HttpHeaders.RETRY_AFTER -> e.retryAfter))
         }
-      case Failure(e: InterruptedIOException) =>
+      case Failure(e) if e.getCause.isInstanceOf[InterruptedIOException] =>
         Reject(SC_GATEWAY_TIMEOUT, Some(s"Call timed out: ${e.getMessage}"))
       case Failure(_: AdminTokenUnauthorizedException) if isSelfValidating =>
         Reject(SC_UNAUTHORIZED, Some("Token unauthorized"))
