@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.keystonev2basicauth.akkatimeout
+package features.filters.keystonev2basicauth.timeout
 
 import org.apache.commons.codec.binary.Base64
 import org.junit.experimental.categories.Category
@@ -33,12 +33,12 @@ import javax.ws.rs.core.HttpHeaders
 
 /**
  * Created by jennyvo on 11/9/15.
- *  using default pool with socket and http time out
+ *  when identity set pool id not match any pool in config, it's using default pool whatever set as default
  * Update on 01/21/16
  *  - Replace client-auth-n with keystone-v2 filter
  */
 @Category(Slow.class)
-class BasicAuthAkkatimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
+class BasicAuthTimeoutUsingPoolNotExistTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityV2Service fakeIdentityService
@@ -51,7 +51,7 @@ class BasicAuthAkkatimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params);
         repose.configurationProvider.applyConfigs("features/filters/keystonev2basicauth", params);
-        repose.configurationProvider.applyConfigs("features/filters/keystonev2basicauth/akkatimeout/nopool", params);
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2basicauth/akkatimeout/diffpool", params);
 
         repose.start()
 
@@ -71,12 +71,12 @@ class BasicAuthAkkatimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
     }
 
-    def "akka timeout test, auth response time out is less than socket connection time out"() {
+    def "timeout test, auth response time out is less than socket connection time out"() {
         given: "the HTTP Basic authentication header containing the User Name and API Key"
         def headers = [
                 (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
         ]
-        "Delay 19 sec"
+        "Delay 29 sec"
         fakeIdentityService.with {
             sleeptime = 29000
         }
@@ -91,14 +91,14 @@ class BasicAuthAkkatimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue("X-Auth-Token").equals(fakeIdentityService.client_token)
     }
 
-    def "akka timeout test, auth response time out is greater than socket connection time out"() {
+    def "timeout test, auth response time out is greater than socket connection time out"() {
         given: "the HTTP Basic authentication header containing the User Name and API Key"
         def headers = [
                 (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
         ]
         "Delay 19 sec"
         fakeIdentityService.with {
-            sleeptime = 32000
+            sleeptime = 42000
         }
 
         when: "the request does have an HTTP Basic authentication header with UserName/ApiKey"
@@ -108,7 +108,8 @@ class BasicAuthAkkatimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
         mc.receivedResponse.code == "500"//HttpServletResponse.SC_GATEWAY_TIMEOUT
         mc.handlings.size() == 0
         sleep(1000)
-        reposeLogSearch.searchByString("Error acquiring value from akka .* or the cache. Reason: Futures timed out after .31000 milliseconds.").size() > 0
+        // should get this error or something else but not something with [41000 milliseconds]
+        reposeLogSearch.searchByString("I/O error: Read timed out").size() > 0
         reposeLogSearch.searchByString("NullPointerException").size() == 0
     }
 }

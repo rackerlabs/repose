@@ -221,6 +221,7 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
           .build()
         val requestBuilder = RequestBuilder.post(identityServiceUri + TOKEN_ENDPOINT)
           .setEntity(requestBody)
+          .addHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_XML.getMimeType)
         requestTracingHeader.foreach(tupled(requestBuilder.addHeader))
         val request = requestBuilder.build()
 

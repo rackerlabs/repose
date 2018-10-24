@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.keystonev2basicauth.akkatimeout
+package features.filters.keystonev2basicauth.timeout
 
 import org.apache.commons.codec.binary.Base64
 import org.junit.experimental.categories.Category
@@ -38,7 +38,7 @@ import javax.ws.rs.core.HttpHeaders
  *  - Replace client-auth-n with keystone-v2 filter
  */
 @Category(Slow.class)
-class BasicAuthAkkatimeoutUsingConnPoolTest extends ReposeValveTest {
+class BasicAuthTimeoutUsingConnPoolTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityV2Service fakeIdentityService
@@ -71,7 +71,7 @@ class BasicAuthAkkatimeoutUsingConnPoolTest extends ReposeValveTest {
         reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
     }
 
-    def "akka timeout test, auth response time out is less than socket connection time out"() {
+    def "timeout test, auth response time out is less than socket connection time out"() {
         given: "the HTTP Basic authentication header containing the User Name and API Key"
         def headers = [
                 (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
@@ -95,7 +95,7 @@ class BasicAuthAkkatimeoutUsingConnPoolTest extends ReposeValveTest {
         !mc.handlings[0].request.headers.contains("auth-proxy")
     }
 
-    def "akka timeout test, auth response time out is greater than socket connection time out"() {
+    def "timeout test, auth response time out is greater than socket connection time out"() {
         given: "the HTTP Basic authentication header containing the User Name and API Key"
         def headers = [
                 (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
@@ -112,7 +112,7 @@ class BasicAuthAkkatimeoutUsingConnPoolTest extends ReposeValveTest {
         mc.receivedResponse.code == "500"//HttpServletResponse.SC_GATEWAY_TIMEOUT
         mc.handlings.size() == 0
         sleep(1000)
-        reposeLogSearch.searchByString("Error acquiring value from akka .* or the cache. Reason: Futures timed out after .21000 milliseconds.").size() > 0
+        reposeLogSearch.searchByString("I/O error: Read timed out").size() > 0
         reposeLogSearch.searchByString("NullPointerException").size() == 0
     }
 }
