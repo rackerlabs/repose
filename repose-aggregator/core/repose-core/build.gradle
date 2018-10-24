@@ -64,6 +64,7 @@ dependencies {
     testCompile "org.spockframework:spock-core"
     testCompile "org.jetbrains:annotations"
     testCompile "io.opentracing:opentracing-mock"
+    testCompile project(":repose-aggregator:commons:commons-test")
 
     testEar project(path: ":repose-aggregator:tests:test-bundles:core-test-filter-bundle", configuration: "archives")
     testEar project(path: ":repose-aggregator:tests:test-bundles:busted-application-name-ear", configuration: "archives")
