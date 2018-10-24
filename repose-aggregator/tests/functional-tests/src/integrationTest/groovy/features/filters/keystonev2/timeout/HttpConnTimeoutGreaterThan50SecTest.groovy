@@ -49,8 +49,8 @@ class HttpConnTimeoutGreaterThan50SecTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/keystonev2/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystonev2/akkatimeout", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystonev2/akkatimeout/httpConnTimeout60sec", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/timeout", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/timeout/httpConnTimeout60sec", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')

@@ -52,8 +52,8 @@ class TimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie", params);
-        repose.configurationProvider.applyConfigs("features/filters/valkyrie/akkatimeout", params);
-        repose.configurationProvider.applyConfigs("features/filters/valkyrie/akkatimeout/nopool", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/timeout", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/timeout/nopool", params);
 
         repose.start()
 

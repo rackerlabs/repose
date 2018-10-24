@@ -43,8 +43,8 @@ class NoMatchingPoolTimeoutTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/akkatimeout", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/akkatimeout/diffpool", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/timeout", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/timeout/diffpool", params)
         repose.start()
         waitUntilReadyToServiceRequests('401')
 

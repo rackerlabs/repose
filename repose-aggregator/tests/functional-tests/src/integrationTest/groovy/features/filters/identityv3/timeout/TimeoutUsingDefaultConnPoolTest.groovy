@@ -43,8 +43,8 @@ class TimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/akkatimeout", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/akkatimeout/nopool", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/timeout", params)
+        repose.configurationProvider.applyConfigs("features/filters/identityv3/timeout/nopool", params)
         repose.start()
         waitUntilReadyToServiceRequests('401')
 

@@ -47,7 +47,7 @@ class DiffPoolIdTimeoutUsingDefaultTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/keystonev2/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystonev2/akkatimeout/diffpool", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/timeout/diffpool", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')

@@ -51,7 +51,7 @@ class BasicAuthTimeoutUsingConnPoolTest extends ReposeValveTest {
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params);
         repose.configurationProvider.applyConfigs("features/filters/keystonev2basicauth", params);
-        repose.configurationProvider.applyConfigs("features/filters/keystonev2basicauth/akkatimeout", params);
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2basicauth/timeout", params);
 
         repose.start()
 
