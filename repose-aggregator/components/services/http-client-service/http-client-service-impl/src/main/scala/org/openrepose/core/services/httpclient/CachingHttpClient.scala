@@ -27,11 +27,14 @@ import io.opentracing.Scope
 import io.opentracing.noop.NoopScopeManager.NoopScope
 import io.opentracing.util.GlobalTracer
 import org.apache.http._
+import org.apache.http.client.entity.EntityBuilder
 import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.conn.ClientConnectionManager
+import org.apache.http.entity.ContentType
 import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.params.HttpParams
 import org.apache.http.protocol.HttpContext
+import org.apache.http.util.EntityUtils
 import org.slf4j.MDC
 
 import scala.collection.JavaConverters._
@@ -90,15 +93,16 @@ class CachingHttpClient(httpClient: CloseableHttpClient, cacheDuration: Duration
       case Some(key) if forceRefresh =>
         // Do not check the cache, but do refresh the cache value
         logger.debug("Populating cache for request with key {} to {}", key, target)
-        futureResponseCache.put(key, executeFuture)
-        executeFuture
+        val repeatableFutureResponse = executeFuture.map(makeRepeatable)
+        futureResponseCache.put(key, repeatableFutureResponse)
+        repeatableFutureResponse
       case Some(key) if useCache =>
         // Check the cache and return the cached value if present, otherwise populate the value
         logger.debug("Checking cache for request with key {} to {}", key, target)
         futureResponseCache.get(key, new Callable[Future[CloseableHttpResponse]] {
           override def call(): Future[CloseableHttpResponse] = {
             logger.debug("Cache miss, populating cache for request with key {} to {}", key, target)
-            executeFuture
+            executeFuture.map(makeRepeatable)
           }
         })
       case None if useCache || forceRefresh =>
@@ -130,5 +134,21 @@ class CachingHttpClient(httpClient: CloseableHttpClient, cacheDuration: Duration
 
   override def getConnectionManager: ClientConnectionManager = {
     httpClient.getConnectionManager
+  }
+
+  /**
+    * Make the HTTP response repeatable so that it can be safely cached and returned multiple times.
+    * This method may mutate the provided HTTP response.
+    */
+  private def makeRepeatable(response: CloseableHttpResponse): CloseableHttpResponse = {
+    Option(response.getEntity).foreach { responseEntity =>
+      if (!responseEntity.isRepeatable) {
+        response.setEntity(EntityBuilder.create()
+          .setBinary(EntityUtils.toByteArray(responseEntity))
+          .setContentType(ContentType.get(responseEntity))
+          .build())
+      }
+    }
+    response
   }
 }

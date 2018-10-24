@@ -19,23 +19,27 @@
  */
 package org.openrepose.core.services.httpclient
 
-import java.io.IOException
+import java.io.{ByteArrayInputStream, IOException}
 
 import io.opentracing.Span
 import io.opentracing.mock.MockTracer
 import io.opentracing.noop.NoopSpan
 import io.opentracing.util.GlobalTracer
+import org.apache.http._
 import org.apache.http.client.ResponseHandler
+import org.apache.http.client.entity.EntityBuilder
 import org.apache.http.client.methods.{CloseableHttpResponse, HttpUriRequest, RequestBuilder}
 import org.apache.http.impl.client.CloseableHttpClient
+import org.apache.http.message.BasicHttpResponse
 import org.apache.http.protocol.HttpContext
-import org.apache.http.{HttpHost, HttpRequest, HttpResponse}
+import org.apache.http.util.EntityUtils
 import org.junit.runner.RunWith
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.core.services.httpclient
+import org.openrepose.core.services.httpclient.CachingHttpClientTest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
@@ -60,7 +64,11 @@ class CachingHttpClientTest extends FunSpec with BeforeAndAfterEach with Mockito
     MDC.clear()
     tracer.reset()
     httpClient = mock[CloseableHttpClient]
-    cachingHttpClient = new httpclient.CachingHttpClient(httpClient, 1.day)
+
+    when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext]))
+      .thenReturn(getBasicResponse)
+
+    cachingHttpClient = new CachingHttpClient(httpClient, 1.day)
   }
 
   override def afterEach(): Unit = {
@@ -155,6 +163,51 @@ class CachingHttpClientTest extends FunSpec with BeforeAndAfterEach with Mockito
         cachingHttpClient.execute(request, context)
 
         verify(httpClient).execute(
+          any[HttpHost],
+          any[HttpRequest],
+          any[HttpContext]
+        )
+      }
+    }
+
+    Map(
+      "told to force refresh the cache" ->
+        (Random.nextString(10), true),
+      "told not to force refresh the cache" ->
+        (Random.nextString(10), false)
+    ).foreach { case (description, (cacheKey, forceRefresh)) =>
+      it(s"should return a repeatable cached response when $description") {
+        val request = RequestBuilder.get("localhost").build()
+        val context = CachingHttpClientContext.create()
+
+        context.setCacheKey(cacheKey)
+        context.setUseCache(true)
+        context.setForceRefreshCache(forceRefresh)
+
+        val responseContent = "test content".getBytes
+        val responseEntity = EntityBuilder.create()
+          .setStream(new ByteArrayInputStream(responseContent))
+          .build()
+        val response = getBasicResponse
+        response.setEntity(responseEntity)
+        when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext]))
+          .thenReturn(response)
+
+        val freshResponse = cachingHttpClient.execute(request, context)
+        val cachedResponse = cachingHttpClient.execute(request, context)
+
+        responseEntity.isRepeatable shouldBe false
+        freshResponse.getEntity.isRepeatable shouldBe true
+        freshResponse.getEntity.getContentEncoding shouldEqual responseEntity.getContentEncoding
+        freshResponse.getEntity.getContentType.getValue shouldEqual responseEntity.getContentType.getValue
+        freshResponse.getEntity.getContentLength shouldEqual responseContent.length
+        EntityUtils.toByteArray(freshResponse.getEntity) shouldEqual responseContent
+        cachedResponse.getEntity.isRepeatable shouldBe true
+        cachedResponse.getEntity.getContentEncoding shouldEqual responseEntity.getContentEncoding
+        cachedResponse.getEntity.getContentType.getValue shouldEqual responseEntity.getContentType.getValue
+        cachedResponse.getEntity.getContentLength shouldEqual responseContent.length
+        EntityUtils.toByteArray(cachedResponse.getEntity) shouldEqual responseContent
+        verify(httpClient, times(if (forceRefresh) 2 else 1)).execute(
           any[HttpHost],
           any[HttpRequest],
           any[HttpContext]
@@ -326,6 +379,14 @@ class CachingHttpClientTest extends FunSpec with BeforeAndAfterEach with Mockito
 
       realValue shouldEqual localValue
       MDC.get(remoteKey) shouldBe null
+    }
+  }
+}
+
+object CachingHttpClientTest {
+  def getBasicResponse: CloseableHttpResponse = {
+    new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, null) with CloseableHttpResponse {
+      override def close(): Unit = {}
     }
   }
 }
