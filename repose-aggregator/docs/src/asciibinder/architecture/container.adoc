@@ -360,19 +360,8 @@ These settings are NOT intended for a production environment.
 
 When running in insecure mode, *Repose* will accept all certificates from external services with which it communicates (e.g., authentication service, origin service).
 
-=== Valve
-When running the Valve deployment, *Repose* may be placed in insecure mode by passing in the `-k` option as follows:
 [source,bash]
-.Insecure Mode - Valve
+.Insecure Mode
 ----
 java -jar /usr/share/repose/repose-valve.jar -c /etc/repose -k
-----
-
-=== ROOT.war
-When running the ROOT.war deployment, *Repose* may be placed in insecure mode by passing in the following system property:
-
-[source,bash]
-.Insecure Mode - ROOT.war
-----
--Dinsecure=true
 ----

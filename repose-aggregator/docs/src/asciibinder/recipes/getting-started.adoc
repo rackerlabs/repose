@@ -25,20 +25,6 @@ This deployment method, illustrated in the following graphic, is called <<valve-
 +------+          +------+    +--------------+
 ....
 
-*Repose* can also run within a servlet container such as GlassFish or Tomcat using the <<war-installation.adoc#,WAR>> deployment.
-
-[ditaa, war-diagram, png]
-....
-                  +=-----------------------------+
-                  |      Servlet Container       |
-+------+          | +------+    +--------------+ |
-|      +----------->|      +=-->|              | |
-|Client|          | |Repose|    |Origin Service| |
-|      |<-----------+      |<--=+              | |
-+------+          | +------+    +--------------+ |
-                  +------------------------------+
-....
-
 You can decide which configuration works best for you, and you can tweak many of your configurations without having to restart *Repose* – it will pick up configuration changes on the fly, making it easy to configure and test.
 
 *Repose* can be configured to use a distributed data store service where cached information is exchanged across multiple nodes.
@@ -79,7 +65,6 @@ Certain deployment methods will handle environment setup automatically.
 === Installation
 The recommended and most common way to run *Repose* is as a standalone application using the Valve installation.
 This installation allows *Repose* to be executed either as a Linux service (e.g., systemd) or directly from the installed JAR.
-An alternative would be to run *Repose* inside an existing servlet container (e.g., Tomcat, GlassFish) using the WAR installation.
 
 The most recent addition to the *Repose* family is a containerized release of the Valve installation.
 This is great if you are looking to eventually run *Repose* with a container service or are just trying it out for the first time.
@@ -92,19 +77,6 @@ See: <<Deployment>>
 This is the most common setup and is detailed on the <<valve-installation.adoc#,Valve Installation>> page.
 
 After installing it this way, consult the <<running-valve.adoc#,Running Valve>> page for details on starting and stopping *Repose*.
-
-==== Servlet Container WAR
-Instructions for installing the WAR are on the <<war-installation.adoc#,WAR Installation>> page.
-
-===== Tomcat Setup
-After installing the WAR, there is additional setup to get everything working with Tomcat.
-See <<tomcat-setup.adoc#,Tomcat Setup>> for more details.
-
-===== GlassFish Setup
-See <<glassfish-setup.adoc#,GlassFish Setup>> for more details.
-
-===== Container Attributes known to affect Repose
-See <<http-container-attributes.adoc#,HTTP container attributes>>
 
 ==== Docker Container
 See <<quick-start.adoc#,Quick Start>> for more details.
