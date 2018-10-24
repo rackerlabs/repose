@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.keystonev2.akkatimeout
+package features.filters.keystonev2.timeout
 
 import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
@@ -31,10 +31,10 @@ import javax.servlet.http.HttpServletResponse
 
 /**
  * Created by jennyvo on 11/9/15.
- *  Verify wrong pool id in the keystone config it will use default pool
+ *  Verify no pool id in the keystone config will take default connection pool
  */
-@Category(Slow)
-class DiffPoolIdAkkaTimeoutUsingDefaultTest extends ReposeValveTest {
+@Category(Slow.class)
+class NoPoolIdTimeoutUsingDefaultTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
@@ -47,7 +47,7 @@ class DiffPoolIdAkkaTimeoutUsingDefaultTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/keystonev2/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystonev2/akkatimeout/diffpool", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/akkatimeout/nopool", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
@@ -62,14 +62,14 @@ class DiffPoolIdAkkaTimeoutUsingDefaultTest extends ReposeValveTest {
         fakeIdentityV2Service.resetHandlers()
     }
 
-    def "akka timeout test, auth response time out is less than socket connection time out, but greater than the system default of 20 seconds"() {
+    def "timeout test, auth response time out is less than socket connection time out, but greater than the system default of 20 seconds"() {
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_tenantid = 613
             service_admin_role = "not-admin"
-            client_userid = 1234
-            sleeptime = 29000
+            admin_userid = "123"
+            sleeptime = 19000
         }
 
         when: "User passes a request through repose"
@@ -87,7 +87,7 @@ class DiffPoolIdAkkaTimeoutUsingDefaultTest extends ReposeValveTest {
         mc.handlings.size() == 1
     }
 
-    def "akka timeout test, auth response time out greater than socket connection time out"() {
+    def "timeout test, auth response time out greater than socket connection time out"() {
         reposeLogSearch.cleanLog()
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
@@ -95,7 +95,7 @@ class DiffPoolIdAkkaTimeoutUsingDefaultTest extends ReposeValveTest {
             client_tenantid = 613
             service_admin_role = "not-admin"
             client_userid = 1234
-            sleeptime = 35000
+            sleeptime = 250000
         }
 
         when: "User passes a request through repose"
@@ -112,7 +112,7 @@ class DiffPoolIdAkkaTimeoutUsingDefaultTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == HttpServletResponse.SC_GATEWAY_TIMEOUT
         mc.handlings.size() == 0
         sleep(1000)
-        reposeLogSearch.searchByString("Error acquiring value from akka .* or the cache. Reason: Futures timed out after .31000 milliseconds.").size() > 0
+        reposeLogSearch.searchByString("Failure communicating with Identity during validate token request").size() > 0
         reposeLogSearch.searchByString("NullPointerException").size() == 0
     }
 }

@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.keystonev2.akkatimeout
+package features.filters.keystonev2.timeout
 
 import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
@@ -30,13 +30,11 @@ import org.rackspace.deproxy.MessageChain
 import javax.servlet.http.HttpServletResponse
 
 /**
- * Created by jennyvo on 1/5/15.
- *  Previously akkatimeout was hard code to 50 second now set the same as http connection
- *  timeout. Test is checking If the HttpClient connection timeout is greater than 50 seconds,
- *  then it is not triggered prematurely at 50 seconds.
+ * Created by jennyvo on 11/9/15.
+ *  Verify wrong pool id in the keystone config it will use default pool
  */
 @Category(Slow)
-class HttpConnTimeoutGreaterThan50SecTest extends ReposeValveTest {
+class DiffPoolIdTimeoutUsingDefaultTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
@@ -49,8 +47,7 @@ class HttpConnTimeoutGreaterThan50SecTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/keystonev2/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystonev2/akkatimeout", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystonev2/akkatimeout/httpConnTimeout60sec", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/akkatimeout/diffpool", params)
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
@@ -65,14 +62,14 @@ class HttpConnTimeoutGreaterThan50SecTest extends ReposeValveTest {
         fakeIdentityV2Service.resetHandlers()
     }
 
-    def "akka timeout test, auth response time out is less than socket connection time out, but greater than the original default of 50 seconds"() {
+    def "timeout test, auth response time out is less than socket connection time out, but greater than the system default of 20 seconds"() {
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_tenantid = 613
             service_admin_role = "not-admin"
-            admin_userid = "12345"
-            sleeptime = 55000
+            client_userid = 1234
+            sleeptime = 29000
         }
 
         when: "User passes a request through repose"
@@ -90,7 +87,7 @@ class HttpConnTimeoutGreaterThan50SecTest extends ReposeValveTest {
         mc.handlings.size() == 1
     }
 
-    def "akka timeout test, auth response time out greater than socket connection time out"() {
+    def "timeout test, auth response time out greater than socket connection time out"() {
         reposeLogSearch.cleanLog()
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
@@ -98,7 +95,7 @@ class HttpConnTimeoutGreaterThan50SecTest extends ReposeValveTest {
             client_tenantid = 613
             service_admin_role = "not-admin"
             client_userid = 1234
-            sleeptime = 62000
+            sleeptime = 35000
         }
 
         when: "User passes a request through repose"
@@ -115,7 +112,7 @@ class HttpConnTimeoutGreaterThan50SecTest extends ReposeValveTest {
         mc.receivedResponse.code as Integer == HttpServletResponse.SC_GATEWAY_TIMEOUT
         mc.handlings.size() == 0
         sleep(1000)
-        reposeLogSearch.searchByString("Error acquiring value from akka .GET. or the cache. Reason: Futures timed out after .61000 milliseconds.").size() > 0
+        reposeLogSearch.searchByString("Failure communicating with Identity during validate token request").size() > 0
         reposeLogSearch.searchByString("NullPointerException").size() == 0
     }
 }

@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.identityv3.akkatimeout
+package features.filters.identityv3.timeout
 
 import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
@@ -29,10 +29,9 @@ import org.rackspace.deproxy.MessageChain
 
 /**
  * Created by jennyvo on 11/9/15.
- *  When no matching pool id in keystone-v3 filter it will use default in xsd (30 sec)
  */
 @Category(Slow.class)
-class NoMatchingPoolAkkatimeoutTest extends ReposeValveTest {
+class TimeoutUsingConnPoolTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static MockIdentityV3Service fakeIdentityV3Service
@@ -44,7 +43,6 @@ class NoMatchingPoolAkkatimeoutTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3", params)
         repose.configurationProvider.applyConfigs("features/filters/identityv3/akkatimeout", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/akkatimeout/diffpool", params)
         repose.start()
         waitUntilReadyToServiceRequests('401')
 
@@ -59,7 +57,7 @@ class NoMatchingPoolAkkatimeoutTest extends ReposeValveTest {
         fakeIdentityV3Service.resetHandlers()
     }
 
-    def "Identity V3 akka service client using connection pool"() {
+    def "Identity V3 HTTP client using connection pool"() {
         given:
         def reqDomain = fakeIdentityV3Service.client_domainid
         def reqUserId = fakeIdentityV3Service.client_userid
@@ -69,7 +67,7 @@ class NoMatchingPoolAkkatimeoutTest extends ReposeValveTest {
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_domainid = reqDomain
             client_userid = reqUserId
-            sleeptime = 28000
+            sleeptime = 39000
         }
 
         when: "User passes a request through repose"
@@ -87,7 +85,7 @@ class NoMatchingPoolAkkatimeoutTest extends ReposeValveTest {
         mc.handlings.size() == 1
     }
 
-    def "Identity V3 akka service client using connection pool time out"() {
+    def "Identity V3 HTTP client using connection pool time out"() {
         given:
         def reqDomain = fakeIdentityV3Service.client_domainid
         def reqUserId = fakeIdentityV3Service.client_userid
@@ -97,7 +95,7 @@ class NoMatchingPoolAkkatimeoutTest extends ReposeValveTest {
             tokenExpiresAt = DateTime.now().plusDays(1)
             client_domainid = reqDomain
             client_userid = reqUserId
-            sleeptime = 32000
+            sleeptime = 42000
         }
 
         when: "User passes a request through repose"
@@ -114,7 +112,7 @@ class NoMatchingPoolAkkatimeoutTest extends ReposeValveTest {
         mc.receivedResponse.code == "500"//HttpServletResponse.SC_GATEWAY_TIMEOUT
         mc.handlings.size() == 0
         sleep(1000)
-        reposeLogSearch.searchByString("Error acquiring value from akka .* or the cache. Reason: Futures timed out after .31000 milliseconds.").size() > 0
+        reposeLogSearch.searchByString("OpenStack Identity service could not be reached").size() > 0
         reposeLogSearch.searchByString("NullPointerException").size() == 0
     }
 }

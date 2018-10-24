@@ -17,102 +17,104 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.identityv3.akkatimeout
+package features.filters.keystonev2.timeout
 
 import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import scaffold.category.Slow
-import org.openrepose.framework.test.mocks.MockIdentityV3Service
+import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
+import javax.servlet.http.HttpServletResponse
+
 /**
- * Created by jennyvo on 11/9/15.
+ * Created by jennyvo on 1/5/15.
+ *  Akka timeout "matches" http connection pool timeout.
+ *  Test is checking if the HttpClient connection timeout is less than 50 seconds,
+ *  then the client is notified then and not delayed until 50 seconds.
  */
-@Category(Slow.class)
-class AkkatimeoutUsingConnPoolTest extends ReposeValveTest {
+@Category(Slow)
+class TimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
+
     def static originEndpoint
     def static identityEndpoint
-    def static MockIdentityV3Service fakeIdentityV3Service
+
+    def static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
+
         deproxy = new Deproxy()
-        reposeLogSearch.cleanLog()
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3", params)
-        repose.configurationProvider.applyConfigs("features/filters/identityv3/akkatimeout", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/akkatimeout", params)
         repose.start()
-        waitUntilReadyToServiceRequests('401')
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityV3Service = new MockIdentityV3Service(properties.identityPort, properties.targetPort)
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityV3Service.handler)
+                'identity service', null, fakeIdentityV2Service.handler)
+
+
     }
 
     def setup() {
-        fakeIdentityV3Service.resetParameters()
-        fakeIdentityV3Service.resetHandlers()
+        fakeIdentityV2Service.resetHandlers()
     }
 
-    def "Identity V3 akka service client using connection pool"() {
-        given:
-        def reqDomain = fakeIdentityV3Service.client_domainid
-        def reqUserId = fakeIdentityV3Service.client_userid
-
-        fakeIdentityV3Service.with {
+    def "timeout test, auth response time out is less than socket connection time out, but greater than the system default of 20 seconds"() {
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_domainid = reqDomain
-            client_userid = reqUserId
-            sleeptime = 39000
+            client_tenantid = 613
+            service_admin_role = "not-admin"
+            client_userid = 1234
+            sleeptime = 29000
         }
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/$reqDomain/",
+                url: "$reposeEndpoint/servers/613/",
                 method: 'GET',
                 headers: [
-                        'content-type'   : 'application/json',
-                        'X-Subject-Token': fakeIdentityV3Service.client_token,
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityV2Service.client_token
                 ]
         )
 
-        then: "Request should pass through"
+        then: "Request should be passed from repose"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
     }
 
-    def "Identity V3 akka service client using connection pool time out"() {
-        given:
-        def reqDomain = fakeIdentityV3Service.client_domainid
-        def reqUserId = fakeIdentityV3Service.client_userid
-
-        fakeIdentityV3Service.with {
+    def "timeout test, auth response time out greater than socket connection time out"() {
+        reposeLogSearch.cleanLog()
+        fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             tokenExpiresAt = DateTime.now().plusDays(1)
-            client_domainid = reqDomain
-            client_userid = reqUserId
-            sleeptime = 42000
+            client_tenantid = 613
+            service_admin_role = "not-admin"
+            client_userid = 1234
+            sleeptime = 35000
         }
 
         when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/$reqDomain/",
+                url: "$reposeEndpoint/servers/613/",
                 method: 'GET',
                 headers: [
-                        'content-type'   : 'application/json',
-                        'X-Subject-Token': fakeIdentityV3Service.client_token,
+                        'content-type': 'application/json',
+                        'X-Auth-Token': fakeIdentityV2Service.client_token
                 ]
         )
 
         then: "Request should not be passed from repose"
-        mc.receivedResponse.code == "500"//HttpServletResponse.SC_GATEWAY_TIMEOUT
+        mc.receivedResponse.code as Integer == HttpServletResponse.SC_GATEWAY_TIMEOUT
         mc.handlings.size() == 0
         sleep(1000)
-        reposeLogSearch.searchByString("Error acquiring value from akka .* or the cache. Reason: Futures timed out after .41000 milliseconds.").size() > 0
+        reposeLogSearch.searchByString("Failure communicating with Identity during validate token request").size() > 0
         reposeLogSearch.searchByString("NullPointerException").size() == 0
     }
 }

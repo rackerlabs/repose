@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.valkyrie.akkatimeout
+package features.filters.valkyrie.timeout
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
@@ -29,12 +29,13 @@ import org.rackspace.deproxy.MessageChain
 
 /**
  * Created by jennyvo on 11/10/15.
- *  when no connection pool id in config valkyrie using default connection pool time out
+ *  when connection pool id in config valkyrie not matched connection pool config
+ *      timeout using default in xsd (30 sec)
  * update on 02/04/15
  *  using using keystonev2 filter
  */
 @Category(Slow.class)
-class AkkatimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
+class NoMatchingPoolTimeoutTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
     def static valkyrieEndpoint
@@ -53,7 +54,7 @@ class AkkatimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie", params);
         repose.configurationProvider.applyConfigs("features/filters/valkyrie/akkatimeout", params);
-        repose.configurationProvider.applyConfigs("features/filters/valkyrie/akkatimeout/nopool", params);
+        repose.configurationProvider.applyConfigs("features/filters/valkyrie/akkatimeout/diffpool", params);
 
         repose.start()
 
@@ -73,7 +74,7 @@ class AkkatimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
         fakeValkyrie.resetParameters()
     }
 
-    def "Akka service client using connection pool test - before time out is reached"() {
+    def "HTTP client using connection pool test - before time out is reached"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
 
         fakeIdentityService.with {
@@ -101,7 +102,7 @@ class AkkatimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
         mc.handlings.size() == 1
     }
 
-    def "Akka service client using connection pool test - connection time out is reached"() {
+    def "HTTP client using connection pool test - connection time out is reached"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
 
         fakeIdentityService.with {
@@ -128,7 +129,7 @@ class AkkatimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
         mc.receivedResponse.code == "502"//HttpServletResponse.SC_GATEWAY_TIMEOUT
         mc.handlings.size() == 0
         sleep(1000)
-        reposeLogSearch.searchByString("Error acquiring value from akka .* or the cache. Reason: Futures timed out after .31000 milliseconds.").size() > 0
+        reposeLogSearch.searchByString("Unable to communicate with Valkyrie: Read timed out").size() > 0
         reposeLogSearch.searchByString("NullPointerException").size() == 0
     }
 
