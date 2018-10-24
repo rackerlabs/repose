@@ -23,6 +23,7 @@ import java.io.IOException
 import java.net.{URI, URL}
 import java.util.Optional
 
+import com.codahale.metrics.MetricRegistry
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
 import org.apache.http.client.methods.HttpUriRequest
@@ -30,15 +31,14 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
-import org.mockito.Matchers.{any, anyString, eq => isEq}
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Matchers.{any, anyString, contains, eq => isEq}
+import org.mockito.Mockito.{never, verify, when, spy, times}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonRequestAttributes
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException
 import org.openrepose.commons.utils.servlet.http.RouteDestination
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
-import org.openrepose.core.services.reporting.ReportingService
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.systemmodel.config._
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService
@@ -58,7 +58,6 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
   var mockContainerConfigurationService: ContainerConfigurationService = _
   var mockHttpClient: HttpClientServiceClient = _
   var mockHttpClientService: HttpClientService = _
-  var mockReportingService: ReportingService = _
   var mockMetricsService: Optional[MetricsService] = _
   var reposeRoutingServlet: ReposeRoutingServlet = _
   var listAppender: ListAppender = _
@@ -71,9 +70,9 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     mockContainerConfigurationService = mock[ContainerConfigurationService]
     mockHttpClient = mock[HttpClientServiceClient]
     mockHttpClientService = mock[HttpClientService]
-    mockReportingService = mock[ReportingService]
     mockMetricsService = Optional.empty()
 
+    when(mockMetricsService.getRegistry).thenReturn(metricRegistry)
     when(mockContainerConfigurationService.getRequestVia).thenReturn(Optional.empty[String]())
     when(mockHttpClientService.getDefaultClient).thenReturn(mockHttpClient)
 
@@ -84,7 +83,6 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
       mockConfigurationService,
       mockContainerConfigurationService,
       mockHttpClientService,
-      mockReportingService,
       mockMetricsService)
 
     val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]

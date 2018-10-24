@@ -39,7 +39,6 @@ import org.openrepose.commons.utils.servlet.http.{HttpServletRequestUtil, HttpSe
 import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
-import org.openrepose.core.services.reporting.ReportingService
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.services.routing.robin.Clusters
 import org.openrepose.core.spring.ReposeSpringProperties
@@ -60,7 +59,6 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
                                      configurationService: ConfigurationService,
                                      containerConfigurationService: ContainerConfigurationService,
                                      httpClientService: HttpClientService,
-                                     reportingService: ReportingService,
                                      optMetricsService: Optional[MetricsService]
                                     ) extends HttpServlet with UpdateListener[SystemModel] with StrictLogging {
 
@@ -306,23 +304,24 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
     sb.toString
   }
 
-  def markResponseCodeHelper(metricsService: MetricsService, responseCode: Int, component: String): Unit = {
-    if (100 < responseCode && responseCode < 600) {
-      metricsService
-        .getRegistry
-        .meter(MetricRegistry.name("org.openrepose.core.ResponseCode", component, "%dXX".format(responseCode / 100)))
-        .mark()
+  def markResponseCodeHelper(metricRegistry: MetricRegistry, responseCode: Int, lengthInMillis: Long, endpoint: String): Unit = {
+    if (100 <= responseCode && responseCode < 600) {
+      Seq(endpoint, AllEndpoints).foreach { location =>
+        val statusCodeClass = "%dXX".format(responseCode / 100)
+        metricRegistry.meter(
+          MetricRegistry.name("org.openrepose.core.ResponseCode.FromOrigin", location, statusCodeClass)
+        ).mark()
+        metricRegistry.histogram(
+          MetricRegistry.name("org.openrepose.core.ResponseTime.FromOrigin", location, statusCodeClass)
+        ).update(lengthInMillis)
+        if (responseCode == SC_REQUEST_TIMEOUT) {
+          metricRegistry.meter(
+            MetricRegistry.name("org.openrepose.core.RequestTimeout.TimeoutToOrigin", location)
+          ).mark()
+        }
+      }
     } else {
-      logger.error(s"$component Encountered invalid response code: $responseCode")
-    }
-  }
-
-  def markRequestTimeoutHelper(metricsService: MetricsService, responseCode: Int, endpoint: String): Unit = {
-    if (responseCode == SC_REQUEST_TIMEOUT) {
-      metricsService
-        .getRegistry
-        .meter(MetricRegistry.name("org.openrepose.core.RequestTimeout.TimeoutToOrigin", endpoint))
-        .mark()
+      logger.error(s"$endpoint Encountered invalid response code: $responseCode")
     }
   }
 
