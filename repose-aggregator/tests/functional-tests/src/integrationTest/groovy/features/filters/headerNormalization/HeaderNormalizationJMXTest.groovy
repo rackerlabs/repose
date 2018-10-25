@@ -97,35 +97,35 @@ class HeaderNormalizationJMXTest extends ReposeValveTest {
 
         then:
         repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormResourcePost) == 1
-        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormAll) == 4
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormAll) == 5
 
         when:
         deproxy.makeRequest(url: "$reposeEndpoint/resource/1243/", method: "PUT")
 
         then:
         repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormResourcePut) == 1
-        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormAll) == 5
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormAll) == 7
 
         when:
         deproxy.makeRequest(url: "$reposeEndpoint/servers/1243/", method: "GET")
 
         then:
         repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormServersGet) == 1
-        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormAll) == 6
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormAll) == 9
 
         when:
         deproxy.makeRequest(url: "$reposeEndpoint/servers/1243/", method: "POST")
 
         then:
         repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormServersPost) == 1
-        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormAll) == 7
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormAll) == 11
 
         when:
         deproxy.makeRequest(url: "$reposeEndpoint/servers/1243/", method: "PUT")
 
         then:
         repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormServersPut) == 1
-        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormAll) == 8
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormAll) == 13
 
         where:
         reqres << ["request", "response"]
@@ -155,19 +155,19 @@ class HeaderNormalizationJMXTest extends ReposeValveTest {
         deproxy.makeRequest(url: "$reposeEndpoint/secondary/path/asdf")
 
         then:
-        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormRootGet) == 2
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormRootGet) == 3
         repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormSecondaryPathGet) == 1
         repose.jmx.getMBeanCountAttribute(headerNormTertiaryPathGet) == 0
-        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormAll) == 3
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormAll) == 4
 
         when: "client makes a request that matches filters one and three's uri-regex attributes"
         deproxy.makeRequest(url: "$reposeEndpoint/tertiary/path/asdf")
 
         then:
-        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormRootGet) == 2
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormRootGet) == 5
         repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormSecondaryPathGet) == 1
         repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormTertiaryPathGet) == 2
-        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormAll) == 5
+        repose.jmx.getMBeanCountAttributeWithWaitForNonZero(headerNormAll) == 8
 
         and: "the other attributes containing a double value are populated with a non-negative value"
         METER_DOUBLE_ATTR_NAMES.each { attr ->

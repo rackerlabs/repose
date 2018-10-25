@@ -143,6 +143,11 @@ This configuration is a more complex example.
     Valid `http-methods` are: GET, DELETE, POST, PUT, HEAD, OPTIONS, CONNECT, TRACE, and ALL
 <10> Since neither the `uri-regex` nor `http-methods` are specified, this target applies to all requests and responses that don't match one of the previous targets.
 
+[NOTE]
+====
+Every target that matches will get evaluated.
+====
+
 == Additional Information
 
 === Metrics
