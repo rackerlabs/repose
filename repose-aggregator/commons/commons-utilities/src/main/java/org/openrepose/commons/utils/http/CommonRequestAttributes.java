@@ -21,6 +21,7 @@ package org.openrepose.commons.utils.http;
 
 public class CommonRequestAttributes {
     public static final String DESTINATIONS = "org.openrepose.destinations";
+    public static final String QUERY_PARAMS = "http://openrepose.org/queryParams";
 
     private CommonRequestAttributes() {
         // Prevent construction of this utility class.

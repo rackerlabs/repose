@@ -24,16 +24,17 @@ import java.net.{URL, URLDecoder}
 import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
 import java.util.Date
+
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-
 import com.github.jknack.handlebars.{Handlebars, Helper, Options, Template}
 import com.rackspace.httpdelegation._
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.http.HttpHeaders
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader}
+import org.openrepose.commons.utils.http.CommonRequestAttributes.QUERY_PARAMS
+import org.openrepose.commons.utils.http.{CommonHttpHeader, CommonRequestAttributes, OpenStackServiceHeader}
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.commons.utils.servlet.http.{HeaderInteractor, HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.FilterConfigHelper
@@ -106,7 +107,7 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
     def translateParameters(): Map[String, Array[String]] = {
       def decode(s: String) = URLDecoder.decode(s, StandardCharsets.UTF_8.name)
 
-      Option(httpServletRequest.getAttribute("http://openrepose.org/queryParams")) match {
+      Option(httpServletRequest.getAttribute(QUERY_PARAMS)) match {
         case Some(parameters) =>
           val parametersMap = parameters.asInstanceOf[java.util.Map[String, Array[String]]].asScala
           parametersMap.map({ case (key, values) => decode(key) -> values.map(value => decode(value)) }).toMap

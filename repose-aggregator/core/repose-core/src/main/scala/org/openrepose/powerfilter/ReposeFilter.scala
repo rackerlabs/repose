@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.apache.commons.lang3.StringUtils
 import org.openrepose.commons.utils.http.CommonHttpHeader.{REQUEST_ID, TRACE_GUID, VIA}
+import org.openrepose.commons.utils.http.CommonRequestAttributes.QUERY_PARAMS
 import org.openrepose.commons.utils.http.PowerApiHeader.TRACE_REQUEST
 import org.openrepose.commons.utils.io.BufferedServletInputStream
 import org.openrepose.commons.utils.io.stream.LimitedReadInputStream
@@ -101,7 +102,9 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
 
         // Wrapping the request to reset the inputStream/Reader flag
         val wrappedRequest = new HttpServletRequestWrapper(request.asInstanceOf[HttpServletRequest], bufferedInputStream)
-        wrappedRequest.setAttribute("http://openrepose.org/queryParams", paramaterMap)
+
+        // Added so HERP has the Query Params available for logging.
+        wrappedRequest.setAttribute(QUERY_PARAMS, paramaterMap)
 
         // Add the start time to be used by the ResponseTimeHandler/HttpLogFormatter.
         wrappedRequest.setAttribute(START_TIME_ATTRIBUTE, startTime)
