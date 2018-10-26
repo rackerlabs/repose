@@ -131,7 +131,6 @@ class ReposeFilterTest extends FunSpec
     response = new MockHttpServletResponse
     filterChain = mock[FilterChain]
     loggerContext = LogManager.getContext(false).asInstanceOf[LoggerContext]
-    //val listAppenderX = loggerContext.getRootLogger.addAppender()
     listAppender = loggerContext.getConfiguration.getAppender(ListAppenderName).asInstanceOf[ListAppender]
     listAppender.clear()
   }
