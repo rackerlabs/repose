@@ -144,7 +144,7 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
       request.getValue.getRequest shouldBe mockRequest
     }
 
-    it("should skip the whole chain if the bypass url is hit") {
+    it("should skip the whole chain if the bypass uri is hit") {
       val filterChain = new ReposeFilterChain(
         List(
           FilterContext(mock[Filter], "bar", (request: HttpServletRequest) => false, mockAbstractApplicationContext, filterConfig),
@@ -161,7 +161,7 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
       request.getValue.getRequest shouldBe mockRequest
     }
 
-    it("should go into the the chain when the bypass url isn't hit") {
+    it("should go into the the chain when the bypass uri isn't hit") {
       val filterChain = new ReposeFilterChain(
         List(
           FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true, mockAbstractApplicationContext, filterConfig),

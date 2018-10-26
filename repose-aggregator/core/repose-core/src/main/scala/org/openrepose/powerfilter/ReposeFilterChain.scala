@@ -40,7 +40,7 @@ import org.slf4j.{Logger, LoggerFactory, MDC}
 
 class ReposeFilterChain(val filterChain: List[FilterContext],
                         originalChain: FilterChain,
-                        optBypassUrlRegex: Option[String],
+                        optBypassUriRegex: Option[String],
                         optMetricRegistry: Option[MetricRegistry],
                         tracer: Tracer)
   extends FilterChain
@@ -49,7 +49,7 @@ class ReposeFilterChain(val filterChain: List[FilterContext],
   override def doFilter(inboundRequest: ServletRequest, inboundResponse: ServletResponse): Unit = {
     val request = new HttpServletRequestWrapper(inboundRequest.asInstanceOf[HttpServletRequest])
     val response = inboundResponse.asInstanceOf[HttpServletResponse]
-    if (optBypassUrlRegex.exists(_.r.pattern.matcher(request.getRequestURI).matches())) {
+    if (optBypassUriRegex.exists(_.r.pattern.matcher(request.getRequestURI).matches())) {
       logger.debug("Bypass url hit")
       runNext(List.empty, request, response)
     } else {
