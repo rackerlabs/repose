@@ -124,7 +124,7 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
         MDC.put(TracingKey.TRACING_KEY, traceGUID)
 
         try {
-          TryWith(filterContextList)(filterContextListToo => {
+          TryWith(filterContextList)(_ => {
             // Ensure the request URI is a valid URI
             // This object is only being created to ensure its validity.
             // So it is safe to suppress warning squid:S1848
@@ -143,7 +143,7 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
               wrappedResponse.addHeader(TRACE_GUID, tracingHeader)
             }
             new ReposeFilterChain(
-              filterContextListToo.filterContexts,
+              filterContextList.filterContexts,
               chain,
               None,
               optMetricRegistry,
