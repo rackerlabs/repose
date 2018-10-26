@@ -2409,6 +2409,33 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
       an[IllegalStateException] should be thrownBy wrappedResponse.sendError(418, "TEAPOT")
     }
 
+    modePermutationsMutable.foreach {
+      case (headerMode, bodyMode) =>
+        it(s"should not throw an exception if the wrapped response has already been committed when using the force option with headerMode $headerMode and bodyMode $bodyMode (one argument)") {
+          val wrappedResponse = new HttpServletResponseWrapper(originalResponse, headerMode, bodyMode)
+
+          wrappedResponse.sendError(418)
+
+          wrappedResponse.isCommitted shouldBe true
+
+          wrappedResponse.sendError(814, true)
+
+          wrappedResponse.getStatus shouldEqual 814
+        }
+
+        it(s"should not throw an exception if the wrapped response has already been committed when using the force option with headerMode $headerMode and bodyMode $bodyMode (two arguments)") {
+          val wrappedResponse = new HttpServletResponseWrapper(originalResponse, headerMode, bodyMode)
+
+          wrappedResponse.sendError(418, "TEAPOT")
+
+          wrappedResponse.isCommitted shouldBe true
+
+          wrappedResponse.sendError(814, "TOPEAT", true)
+
+          wrappedResponse.getStatus shouldEqual 814
+        }
+    }
+
     it("should set the status code and reason") {
       val wrappedResponse = new HttpServletResponseWrapper(originalResponse, ResponseMode.PASSTHROUGH, ResponseMode.READONLY)
 
