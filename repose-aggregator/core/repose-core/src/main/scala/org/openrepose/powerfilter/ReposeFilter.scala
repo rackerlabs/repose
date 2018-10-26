@@ -172,7 +172,7 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
           optMetricRegistry.foreach { (mr: MetricRegistry) =>
             markResponseCodeHelper(
               mr,
-              wrappedResponse.asInstanceOf[HttpServletResponse].getStatus,
+              wrappedResponse.getStatus,
               System.currentTimeMillis - startTime,
               logger.underlying)
           }
