@@ -115,7 +115,7 @@ class ReposeFilterTest extends FunSpec
     mockAbstractApplicationContext = mock[AbstractApplicationContext]
     filterConfig = new FilterConfig
     filterContexts = List(FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true, mockAbstractApplicationContext, filterConfig))
-    filterContextList = new FilterContextList(mock[FilterContextRegistrar], filterContexts)
+    filterContextList = new FilterContextList(mock[FilterContextRegistrar], filterContexts, None)
     when(reposeFilterLoader.getFilterContextList).thenReturn(Option(filterContextList))
     filter = new ReposeFilter(
       nodeId,
@@ -173,7 +173,7 @@ class ReposeFilterTest extends FunSpec
     }
 
     it("should start a span even with an empty filter list") {
-      filterContextList = new FilterContextList(mock[FilterContextRegistrar], List.empty[FilterContext])
+      filterContextList = new FilterContextList(mock[FilterContextRegistrar], List.empty[FilterContext], None)
 
       filter.doFilter(request, response, filterChain)
 
@@ -187,7 +187,7 @@ class ReposeFilterTest extends FunSpec
     }
 
     it("should close the span even with an empty filter list") {
-      filterContextList = new FilterContextList(mock[FilterContextRegistrar], List.empty[FilterContext])
+      filterContextList = new FilterContextList(mock[FilterContextRegistrar], List.empty[FilterContext], None)
 
       filter.doFilter(request, response, filterChain)
 

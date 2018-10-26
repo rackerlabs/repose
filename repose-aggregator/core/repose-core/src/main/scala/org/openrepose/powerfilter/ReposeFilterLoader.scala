@@ -157,7 +157,7 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
             // Set the new FilterContextRegistrar and
             // set the Close flag on the old one.
             currentFilterContextRegistrar.getAndSet(
-              Option(new FilterContextRegistrar(newFilterChain))
+              Option(new FilterContextRegistrar(newFilterChain, Option(localCluster.getFilters.getBypassUriRegex)))
             ).foreach(_.close())
 
             if (logger.underlying.isDebugEnabled) {
@@ -271,11 +271,11 @@ object ReposeFilterLoader {
 
   case class FilterContext(filter: Filter, filterName: String, shouldRun: HttpServletRequestWrapper => Boolean, appContext: AbstractApplicationContext, filterConfig: FilterConfig)
 
-  class FilterContextList(val registrar: FilterContextRegistrar, val filterContexts: List[FilterContext]) extends AutoCloseable {
+  class FilterContextList(val registrar: FilterContextRegistrar, val filterContexts: List[FilterContext], val bypassUriRegex: Option[String]) extends AutoCloseable {
     override def close(): Unit = registrar.release(this)
   }
 
-  class FilterContextRegistrar(val filterContexts: List[FilterContext]) extends AutoCloseable {
+  class FilterContextRegistrar(val filterContexts: List[FilterContext], val bypassUriRegex: Option[String]) extends AutoCloseable {
     val pool = new util.ArrayList[SoftReference[FilterContextList]]()
     var doClose = false
 
@@ -283,7 +283,7 @@ object ReposeFilterLoader {
       // There is no need to check the doClose since this Registrar would already
       // have been replaced by the atomic getAndSet() before the close() is called.
       pool.synchronized {
-        val filterContextList = new FilterContextList(this, filterContexts)
+        val filterContextList = new FilterContextList(this, filterContexts, bypassUriRegex)
         pool.add(new SoftReference[FilterContextList](filterContextList))
         filterContextList
       }

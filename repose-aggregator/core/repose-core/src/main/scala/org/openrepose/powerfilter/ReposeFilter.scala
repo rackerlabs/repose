@@ -145,7 +145,7 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
             new ReposeFilterChain(
               filterContextList.filterContexts,
               chain,
-              None,
+              filterContextList.bypassUriRegex,
               optMetricRegistry,
               tracer
             ).doFilter(wrappedRequest, wrappedResponse)
