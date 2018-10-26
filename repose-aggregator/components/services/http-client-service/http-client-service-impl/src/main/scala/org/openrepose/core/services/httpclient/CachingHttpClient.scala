@@ -141,14 +141,14 @@ class CachingHttpClient(httpClient: CloseableHttpClient, cacheDuration: Duration
     * This method may mutate the provided HTTP response.
     */
   private def makeRepeatable(response: CloseableHttpResponse): CloseableHttpResponse = {
-    Option(response.getEntity).foreach { responseEntity =>
-      if (!responseEntity.isRepeatable) {
+    Option(response.getEntity)
+      .filterNot(_.isRepeatable)
+      .foreach { responseEntity =>
         response.setEntity(EntityBuilder.create()
           .setBinary(EntityUtils.toByteArray(responseEntity))
           .setContentType(ContentType.get(responseEntity))
           .build())
       }
-    }
     response
   }
 }
