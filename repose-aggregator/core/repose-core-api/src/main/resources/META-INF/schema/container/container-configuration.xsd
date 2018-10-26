@@ -95,18 +95,6 @@
             </xs:annotation>
         </xs:attribute>
 
-        <!-- TODO for v9.0.0.0: The DeploymentConfigurationBase element's via attribute should be removed. -->
-        <xs:attribute name="via" type="xs:string" use="optional">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        Deprecated: This attribute is deprecated and will be removed in future major release.
-                        An identifying string that will be returned in the Via header.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
         <xs:attribute name="content-body-read-limit" type="papic:longGTZero" use="optional">
             <xs:annotation>
                 <xs:documentation>
@@ -160,11 +148,6 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-                <xs:assert vc:minVersion="1.1"
-                           xpathDefaultNamespace="##targetNamespace"
-                           test="count((@via, via-header)) le 1"
-                           xerces:message="Cannot define both a deprecated via attribute and the new via-header element"
-                           saxon:message="Cannot define both a deprecated via attribute and the new via-header element"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -210,11 +193,6 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-                <xs:assert vc:minVersion="1.1"
-                           xpathDefaultNamespace="##targetNamespace"
-                           test="count((@via, via-header)) le 1"
-                           xerces:message="Cannot define both a deprecated via attribute and the new via-header element"
-                           saxon:message="Cannot define both a deprecated via attribute and the new via-header element"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

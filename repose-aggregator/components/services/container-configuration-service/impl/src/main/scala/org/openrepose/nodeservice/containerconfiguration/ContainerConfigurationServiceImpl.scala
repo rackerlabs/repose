@@ -68,8 +68,6 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
     Optional ofNullable {
       Option(patchedDeploymentConfiguration.getViaHeader)
         .map(_.getRequestPrefix)
-        // TODO for v9.0.0.0: Remove the .orElse().
-        .orElse(Option(patchedDeploymentConfiguration.getVia))
         .orNull
     }
   }
@@ -79,8 +77,6 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
     Optional ofNullable {
       Option(patchedDeploymentConfiguration.getViaHeader)
         .map(_.getResponsePrefix)
-        // TODO for v9.0.0.0: Remove the .orElse().
-        .orElse(Option(patchedDeploymentConfiguration.getVia))
         .orNull
     }
   }
