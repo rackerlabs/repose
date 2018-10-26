@@ -154,13 +154,13 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
               logger.trace("{} -- Successfully processed request", nodeId)
             case Failure(use: URISyntaxException) =>
               logger.debug(s"$nodeId -- Invalid URI requested: ${wrappedRequest.getRequestURI}", use)
-              wrappedResponse.sendError(SC_BAD_REQUEST, "Error processing request")
+              wrappedResponse.sendError(SC_BAD_REQUEST, "Error processing request", true)
             case Failure(e: Exception) =>
               logger.error(s"$nodeId -- Issue encountered while processing filter chain.", e)
-              wrappedResponse.sendError(SC_BAD_GATEWAY, "Error processing request")
+              wrappedResponse.sendError(SC_BAD_GATEWAY, "Error processing request", true)
             case Failure(t: Throwable) =>
               logger.error(s"$nodeId -- Error encountered while processing filter chain.", t)
-              wrappedResponse.sendError(SC_BAD_GATEWAY, "Error processing request")
+              wrappedResponse.sendError(SC_BAD_GATEWAY, "Error processing request", true)
               throw t
           }
         } finally {
