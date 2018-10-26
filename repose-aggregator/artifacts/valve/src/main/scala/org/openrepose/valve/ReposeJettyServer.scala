@@ -183,11 +183,15 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
     //Don't use our bean directly, but use the Delegating Filter Bean from spring, so that sanity happens
     // See: http://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html
     //Create a spring delegating proxy for a repose filter bean
-    // THe name must match the Named bean name (powerFilter)
+    // The name must match the Named bean name (powerFilter)
     val delegatingProxy = new DelegatingFilterProxy("powerFilter")
     filterHolder.setFilter(delegatingProxy)
     filterHolder.setDisplayName("SpringDelegatingFilter")
 
+    // todo: when switching to the new ReposeFilterChain, replace the previous line with the following line
+    // todo: to wire in the new ReposeFilter.
+    //filterHolder.setFilter(appContext.getBean("reposeFilter")
+    //filterHolder.setDisplayName("ReposeFilter")
 
     //All the dispatch types...
     val dispatchTypes = util.EnumSet.allOf(classOf[DispatcherType]) //Using what was in the old repose
