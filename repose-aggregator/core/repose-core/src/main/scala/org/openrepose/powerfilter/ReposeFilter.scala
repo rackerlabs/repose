@@ -23,6 +23,7 @@ import java.net.{URI, URISyntaxException}
 import java.util.{Optional, UUID}
 
 import com.codahale.metrics.MetricRegistry
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.opentracing.Tracer
 import io.opentracing.tag.Tags
 import javax.inject.{Inject, Named}
@@ -48,9 +49,8 @@ import org.openrepose.core.systemmodel.config.{Filter => _}
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService
 import org.openrepose.nodeservice.response.ResponseHeaderService
 import org.openrepose.powerfilter.ReposeFilter._
-import org.slf4j.{LoggerFactory, MDC}
+import org.slf4j.{Logger, LoggerFactory, MDC}
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.web.filter.DelegatingFilterProxy
 
 import scala.util.{Failure, Success}
 
@@ -64,20 +64,20 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
                              uriRedactionService: UriRedactionService,
                              responseHeaderService: ResponseHeaderService
                             )
-  extends DelegatingFilterProxy {
+  extends Filter with StrictLogging {
 
   private val optMetricRegistry: Option[MetricRegistry] = Option(optMetricsService.orElse(null)).map(_.getRegistry)
 
-  override def initFilterBean(): Unit = {
-    ThisLogger.info("{} -- Initializing ReposeFilter", nodeId)
-    reposeFilterLoader.setServletContext(getServletContext)
-    ThisLogger.trace("{} -- initialized.", nodeId)
+  override def init(filterConfig: FilterConfig): Unit = {
+    logger.info("{} -- Initializing ReposeFilter", nodeId)
+    reposeFilterLoader.setServletContext(filterConfig.getServletContext)
+    logger.trace("{} -- initialized.", nodeId)
   }
 
   override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
     reposeFilterLoader.getFilterContextList match {
       case Some(filterContextList) =>
-        ThisLogger.trace("ReposeFilter processing request...")
+        logger.trace("ReposeFilter processing request...")
         val startTime = System.currentTimeMillis
         if (Option(request.asInstanceOf[HttpServletRequest].getHeader(TRACE_REQUEST)).isDefined) {
           MDC.put(TRACE_REQUEST, "true")
@@ -109,7 +109,7 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
         // Add the start time to be used by the ResponseTimeHandler/HttpLogFormatter.
         wrappedRequest.setAttribute(START_TIME_ATTRIBUTE, startTime)
 
-        val scope = startSpan(wrappedRequest, tracer, ThisLogger, Tags.SPAN_KIND_CLIENT, reposeVersion, uriRedactionService)
+        val scope = startSpan(wrappedRequest, tracer, logger.underlying, Tags.SPAN_KIND_CLIENT, reposeVersion, uriRedactionService)
 
         // Conditionally remove the tracing header so it will be overwritten
         val tracingHeaderConfig = reposeFilterLoader.getTracingHeaderConfig
@@ -151,15 +151,15 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
             ).doFilter(wrappedRequest, wrappedResponse)
           }) match {
             case Success(_) =>
-              ThisLogger.trace("{} -- Successfully processed request", nodeId)
+              logger.trace("{} -- Successfully processed request", nodeId)
             case Failure(use: URISyntaxException) =>
-              ThisLogger.debug(s"$nodeId -- Invalid URI requested: ${wrappedRequest.getRequestURI}", use)
+              logger.debug(s"$nodeId -- Invalid URI requested: ${wrappedRequest.getRequestURI}", use)
               wrappedResponse.sendError(SC_BAD_REQUEST, "Error processing request")
             case Failure(e: Exception) =>
-              ThisLogger.error(s"$nodeId -- Issue encountered while processing filter chain.", e)
+              logger.error(s"$nodeId -- Issue encountered while processing filter chain.", e)
               wrappedResponse.sendError(SC_BAD_GATEWAY, "Error processing request")
             case Failure(t: Throwable) =>
-              ThisLogger.error(s"$nodeId -- Error encountered while processing filter chain.", t)
+              logger.error(s"$nodeId -- Error encountered while processing filter chain.", t)
               wrappedResponse.sendError(SC_BAD_GATEWAY, "Error processing request")
               throw t
           }
@@ -173,32 +173,30 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
             markResponseCodeHelper(
               mr,
               wrappedResponse.asInstanceOf[HttpServletResponse].getStatus,
-              System.currentTimeMillis - startTime)
+              System.currentTimeMillis - startTime,
+              logger.underlying)
           }
         }
         // Clear out the logger context now that we are done with this request
         MDC.clear()
-        ThisLogger.trace("ReposeFilter returning response...")
+        logger.trace("ReposeFilter returning response...")
       case None =>
-        ThisLogger.error("ReposeFilter has not yet initialized...")
+        logger.error("ReposeFilter has not yet initialized...")
         response.asInstanceOf[HttpServletResponse].sendError(SC_INTERNAL_SERVER_ERROR, "ReposeFilter not initialized")
     }
   }
 
   override def destroy(): Unit = {
-    ThisLogger.trace("{} -- destroying ...", nodeId)
-    ThisLogger.info("{} -- Destroyed ReposeFilter", nodeId)
+    logger.trace("{} -- destroying ...", nodeId)
+    logger.info("{} -- Destroyed ReposeFilter", nodeId)
   }
 
 }
 
 object ReposeFilter {
-  // NOTE: This is to workaround the Spring DelegatingFilterProxy ancestry which provides an Apache Log named logger.
-  // NOTE: This provided logger in turn conflicts with Scala's StrictLogging provided logger.
-  final val ThisLogger = LoggerFactory.getLogger(classOf[ReposeFilter].getName)
   private final val TraceIdLogger = LoggerFactory.getLogger(s"${classOf[ReposeFilter].getName}.trace-id-logging")
 
-  def markResponseCodeHelper(metricRegistry: MetricRegistry, responseCode: Int, lengthInMillis: Long): Unit = {
+  def markResponseCodeHelper(metricRegistry: MetricRegistry, responseCode: Int, lengthInMillis: Long, logger: Logger): Unit = {
     if (100 <= responseCode && responseCode < 600) {
       val statusCodeClass = "%dXX".format(responseCode / 100)
       metricRegistry.meter(
@@ -208,7 +206,7 @@ object ReposeFilter {
         MetricRegistry.name("org.openrepose.core.ResponseTime.ToClient", "Repose", statusCodeClass)
       ).update(lengthInMillis)
     } else {
-      ThisLogger.error(s"Repose: Encountered invalid response code: $responseCode")
+      logger.error(s"Repose: Encountered invalid response code: $responseCode")
     }
   }
 }
