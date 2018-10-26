@@ -132,25 +132,26 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
     * Triggered each time the event service triggers an app deploy and when the system model is updated.
     */
   private def configurationCheck(): Unit = {
-    val optSystemModel = currentSystemModel.get
-    val optServletContext = currentServletContext.get
-    if (optSystemModel.nonEmpty && optServletContext.nonEmpty && artifactManager.allArtifactsLoaded) {
-      configurationLock.synchronized {
-        val interrogator = new SystemModelInterrogator(nodeId)
-        val currentSystemModel = optSystemModel.get
-        val currentServletContext = optServletContext.get
+    (currentSystemModel.get, currentServletContext.get, artifactManager.allArtifactsLoaded) match {
+      case (Some(systemModel), Some(servletContext), true) =>
+        updateConfiguration(systemModel, servletContext)
+      case _ =>
+        logger.trace("{} -- Not ready to update yet.", nodeId)
+    }
+  }
 
-        val localNode = interrogator.getLocalNode(currentSystemModel)
-        val localCluster = interrogator.getLocalCluster(currentSystemModel)
-        val defaultDestination = interrogator.getDefaultDestination(currentSystemModel)
+  private def updateConfiguration(systemModel: SystemModel, servletContext: ServletContext): Unit = {
+    configurationLock.synchronized {
+      val interrogator = new SystemModelInterrogator(nodeId)
 
-        if (localNode.isPresent && localCluster.isPresent && defaultDestination.isPresent) {
+      Option(interrogator.getLocalCluster(systemModel).orElse(null)) match {
+        case Some(localCluster) =>
           healthCheckServiceProxy.resolveIssue(SystemModelConfigHealthReport)
           try {
             // Only if we've been configured with some filters should we get a new list
             // Sometimes we won't have any filters
-            val newFilterChain = Option(localCluster.get.getFilters) match {
-              case Some(listOfFilters: FilterList) => buildFilterContexts(currentServletContext, listOfFilters.getFilter.asScala.toList)
+            val newFilterChain = Option(localCluster.getFilters) match {
+              case Some(listOfFilters: FilterList) => buildFilterContexts(servletContext, listOfFilters.getFilter.asScala.toList)
               case _ => List.empty[FilterContext]
             }
 
@@ -175,12 +176,11 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
               //Update the JMX bean with our status
               configurationInformation.updateNodeStatus(nodeId, false)
           }
-        } else {
+        case _ =>
           logger.error("{} -- Unhealthy system-model config (cannot identify local node, or no default destination) - please check your system-model.cfg.xml", nodeId)
           healthCheckServiceProxy.reportIssue(SystemModelConfigHealthReport,
             "Unable to identify the local host in the system model, or no default destination - please check your system-model.cfg.xml",
             Severity.BROKEN)
-        }
       }
     }
   }

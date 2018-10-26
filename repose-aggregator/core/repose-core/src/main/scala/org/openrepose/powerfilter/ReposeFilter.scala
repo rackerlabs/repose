@@ -83,12 +83,12 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
           MDC.put(TRACE_REQUEST, "true")
         }
 
-        val contentBodyReadLimit = containerConfigurationService.getContentBodyReadLimit
         val requestBodyInputStream =
-          if (contentBodyReadLimit.isPresent) {
-            new LimitedReadInputStream(contentBodyReadLimit.get, request.getInputStream)
-          } else {
-            request.getInputStream
+          Option(containerConfigurationService
+            .getContentBodyReadLimit
+            .orElse(null)) match {
+            case Some(readLimit) => new LimitedReadInputStream(readLimit, request.getInputStream)
+            case _ => request.getInputStream
           }
 
         val wrappedResponse = new HttpServletResponseWrapper(response.asInstanceOf[HttpServletResponse], MUTABLE, MUTABLE)
