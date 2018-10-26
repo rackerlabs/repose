@@ -61,30 +61,15 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
                                    applicationContext: ApplicationContext,
                                    configurationInformation: ConfigurationInformation,
                                    classLoaderManagerService: ClassLoaderManagerService)
-  extends StrictLogging {
+  extends UpdateListener[SystemModel]
+    with StrictLogging {
 
   private val healthCheckServiceProxy = healthCheckService.register
   private val currentSystemModel = new AtomicReference[Option[SystemModel]](None)
   private val currentFilterContextRegistrar = new AtomicReference[Option[FilterContextRegistrar]](None)
   private var currentServletContext = new AtomicReference[Option[ServletContext]](None)
   private val configurationLock = new Object
-
-  private val systemModelConfigurationListener = new UpdateListener[SystemModel] {
-    private var initialized: Boolean = false
-
-    override def configurationUpdated(configurationObject: SystemModel): Unit = {
-      logger.debug("{} New system model configuration provided", nodeId)
-      val previousSystemModel = currentSystemModel.getAndSet(Option(configurationObject))
-      if (previousSystemModel.isEmpty) {
-        logger.debug("{} -- issuing POWER_FILTER_CONFIGURED event from a configuration update", nodeId)
-        eventService.newEvent(POWER_FILTER_CONFIGURED, System.currentTimeMillis)
-      }
-      configurationCheck()
-      initialized = true
-    }
-
-    override def isInitialized: Boolean = initialized
-  }
+  private var initialized: Boolean = false
 
   private val applicationDeploymentListener = new EventListener[ApplicationDeploymentEvent, util.List[String]] {
     override def onEvent(e: Event[ApplicationDeploymentEvent, util.List[String]]): Unit = {
@@ -106,7 +91,7 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
     logger.info("{} -- Initializing ReposeFilterContext", nodeId)
     eventService.listen(applicationDeploymentListener, APPLICATION_COLLECTION_MODIFIED)
     val xsdURL = getClass.getResource("/META-INF/schema/system-model/system-model.xsd")
-    configurationService.subscribeTo("system-model.cfg.xml", xsdURL, systemModelConfigurationListener, classOf[SystemModel])
+    configurationService.subscribeTo("system-model.cfg.xml", xsdURL, this, classOf[SystemModel])
     logger.trace("{} -- initialized.", nodeId)
   }
 
@@ -115,9 +100,22 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
     logger.trace("{} -- destroying ...", nodeId)
     healthCheckServiceProxy.deregister()
     eventService.squelch(applicationDeploymentListener, APPLICATION_COLLECTION_MODIFIED)
-    configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelConfigurationListener)
+    configurationService.unsubscribeFrom("system-model.cfg.xml", this)
     logger.info("{} -- Destroyed ReposeFilterContext", nodeId)
   }
+
+  override def configurationUpdated(configurationObject: SystemModel): Unit = {
+    logger.debug("{} New system model configuration provided", nodeId)
+    val previousSystemModel = currentSystemModel.getAndSet(Option(configurationObject))
+    if (previousSystemModel.isEmpty) {
+      logger.debug("{} -- issuing POWER_FILTER_CONFIGURED event from a configuration update", nodeId)
+      eventService.newEvent(POWER_FILTER_CONFIGURED, System.currentTimeMillis)
+    }
+    configurationCheck()
+    initialized = true
+  }
+
+  override def isInitialized: Boolean = initialized
 
   def setServletContext(newServletContext: ServletContext): Unit = {
     currentServletContext.set(Option(newServletContext))
