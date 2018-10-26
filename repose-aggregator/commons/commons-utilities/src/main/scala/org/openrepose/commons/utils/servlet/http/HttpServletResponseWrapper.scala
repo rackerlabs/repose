@@ -23,11 +23,11 @@ import java.io.{InputStream, OutputStreamWriter, PrintWriter, UnsupportedEncodin
 import java.nio.charset.{Charset, StandardCharsets}
 import java.util
 import java.util.Date
+
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.{ServletOutputStream, ServletResponse}
 import javax.ws.rs.core.HttpHeaders
-
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.http.client.utils.DateUtils
 import org.slf4j.LoggerFactory
 
@@ -148,8 +148,14 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse,
     *
     * @param i the status code to set
     */
-  override def sendError(i: Int): Unit = {
+  override def sendError(i: Int): Unit = sendError(i, false)
+
+  def sendError(i: Int, force: Boolean): Unit = {
     logger.trace("sendError called with status code: {}", Integer.valueOf(i))
+    if (force && isCommitted) {
+      logger.info("sendError called with force; uncommitting status {}", Integer.valueOf(getStatus))
+      uncommit()
+    }
     doSendError(i)(originalResponse.sendError(i))
   }
 
@@ -159,8 +165,14 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse,
     * @param s the message (a.k.a, reason phrase) that may be written in the status line and can be used
     *          by the error handler to template response bodies
     */
-  override def sendError(i: Int, s: String): Unit = {
+  override def sendError(i: Int, s: String): Unit = sendError(i, s, false)
+
+  def sendError(i: Int, s: String, force: Boolean): Unit = {
     logger.trace("sendError called with status code: {}, message: {}", Integer.valueOf(i), s)
+    if (force && isCommitted) {
+      logger.info("sendError called with force; uncommitting status {}", Integer.valueOf(getStatus))
+      uncommit()
+    }
     doSendError(i, s)(originalResponse.sendError(i, s))
   }
 
@@ -445,6 +457,7 @@ class HttpServletResponseWrapper(originalResponse: HttpServletResponse,
         throw new IllegalStateException("Cannot call getWriter after calling getOutputStream")
       case ResponseBodyType.Available =>
         responseBodyType = ResponseBodyType.PrintWriter
+
         /** TODO: Should we wrap this with our own writer? The data a user writes to a PrintWriter may be buffered.
           * Buffered content must be flushed from the PrintWriter to make it to the output stream, however,
           * flushing the PrintWriter poses two potential problems:
