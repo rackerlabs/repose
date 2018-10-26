@@ -62,6 +62,7 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
                                    configurationInformation: ConfigurationInformation,
                                    classLoaderManagerService: ClassLoaderManagerService)
   extends UpdateListener[SystemModel]
+    with EventListener[ApplicationDeploymentEvent, util.List[String]]
     with StrictLogging {
 
   private val healthCheckServiceProxy = healthCheckService.register
@@ -71,27 +72,12 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
   private val configurationLock = new Object
   private var initialized: Boolean = false
 
-  private val applicationDeploymentListener = new EventListener[ApplicationDeploymentEvent, util.List[String]] {
-    override def onEvent(e: Event[ApplicationDeploymentEvent, util.List[String]]): Unit = {
-      logger.info("{} -- Application collection has been modified. Application that changed: {}", nodeId, e.payload)
-      val duplicates = e.payload().asScala.groupBy(identity).collect { case (x, List(_, _, _*)) => x }
-      if (duplicates.isEmpty) {
-        healthCheckServiceProxy.resolveIssue(ApplicationDeploymentHealthReport)
-      } else {
-        val message = s"Please review your artifacts directory, multiple versions of the artifact${if (duplicates.size > 1) "s" else ""} exist! (${duplicates.mkString(",")})"
-        healthCheckServiceProxy.reportIssue(ApplicationDeploymentHealthReport, message, Severity.BROKEN)
-        logger.error(message)
-      }
-      configurationCheck()
-    }
-  }
-
   @PostConstruct
   def init(): Unit = {
     logger.info("{} -- Initializing ReposeFilterContext", nodeId)
-    eventService.listen(applicationDeploymentListener, APPLICATION_COLLECTION_MODIFIED)
     val xsdURL = getClass.getResource("/META-INF/schema/system-model/system-model.xsd")
     configurationService.subscribeTo("system-model.cfg.xml", xsdURL, this, classOf[SystemModel])
+    eventService.listen(this, APPLICATION_COLLECTION_MODIFIED)
     logger.trace("{} -- initialized.", nodeId)
   }
 
@@ -99,7 +85,7 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
   def destroy(): Unit = {
     logger.trace("{} -- destroying ...", nodeId)
     healthCheckServiceProxy.deregister()
-    eventService.squelch(applicationDeploymentListener, APPLICATION_COLLECTION_MODIFIED)
+    eventService.squelch(this, APPLICATION_COLLECTION_MODIFIED)
     configurationService.unsubscribeFrom("system-model.cfg.xml", this)
     logger.info("{} -- Destroyed ReposeFilterContext", nodeId)
   }
@@ -116,6 +102,21 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
   }
 
   override def isInitialized: Boolean = initialized
+
+  override def onEvent(e: Event[ApplicationDeploymentEvent, util.List[String]]): Unit = {
+    logger.info("{} -- Application collection has been modified. Application that changed: {}", nodeId, e.payload)
+    val duplicates = e.payload().asScala.groupBy(identity).collect { case (x, List(_, _, _*)) => x }
+    if (duplicates.isEmpty) {
+      healthCheckServiceProxy.resolveIssue(ApplicationDeploymentHealthReport)
+    } else {
+      val message = s"Please review your artifacts directory, multiple versions of the artifact${if (duplicates.size > 1) "s" else ""} exist! (${duplicates.mkString(",")})"
+      healthCheckServiceProxy.reportIssue(ApplicationDeploymentHealthReport, message, Severity.BROKEN)
+      logger.error(message)
+    }
+    if(artifactManager.allArtifactsLoaded) {
+      configurationCheck()
+    }
+  }
 
   def setServletContext(newServletContext: ServletContext): Unit = {
     currentServletContext.set(Option(newServletContext))
