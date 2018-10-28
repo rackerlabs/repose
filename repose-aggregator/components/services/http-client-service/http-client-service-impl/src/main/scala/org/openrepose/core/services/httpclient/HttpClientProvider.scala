@@ -99,8 +99,11 @@ class HttpClientProvider @Inject()(@Value(ReposeSpringProperties.CORE.CONFIG_ROO
           .build()
       }
 
+    // Content compression is disabled for backwards compatibility.
+    // Enabling it means that an Accept-Encoding header is always sent on the request (allowing for compression).
     val requestConfig = getRequestConfigBuilder
       .setConnectTimeout(clientConfig.getHttpConnectionTimeout)
+      .setContentCompressionEnabled(false)
       .build()
 
     val headers = Option(clientConfig.getHeaders)
