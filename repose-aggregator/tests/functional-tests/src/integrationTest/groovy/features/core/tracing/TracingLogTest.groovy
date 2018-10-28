@@ -58,7 +58,7 @@ class TracingLogTest extends ReposeValveTest {
         fakeIdentityService.resetHandlers()
     }
 
-    def "Making a call through the akka service client should include the GUID generated in the request"() {
+    def "Making a call through the HTTP client should include the GUID generated in the request"() {
 
         given:
         fakeIdentityService.with {
@@ -93,13 +93,13 @@ class TracingLogTest extends ReposeValveTest {
         lines2.size() == 1
         lines3.size() == 1
 
-        //Ensure that GUID is used in a log message for the actor threads
+        //Ensure that GUID is used in a log message for the HTTP request
         String GUID = (lines1.first() =~ "([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})")[0][1]
-        def actorLines = reposeLogSearch.searchByString("Trans-Id:$GUID -.*AuthTokenFutureActor request!")
+        def actorLines = reposeLogSearch.searchByString("Trans-Id:$GUID -.*org.apache.http.wire.*Host.*${fakeIdentityService.port}")
         actorLines.size() == 3
     }
 
-    def "Making a request through the akka service client tracing header should same as log"() {
+    def "Making a request through the HTTP client tracing header should same as log"() {
 
         given:
         fakeIdentityService.with {
@@ -127,6 +127,6 @@ class TracingLogTest extends ReposeValveTest {
         mc.receivedResponse.code == "200"
 
         // should be able to find the same tracing header from log
-        reposeLogSearch.searchByString("Trans-Id:$requestid -.*AuthTokenFutureActor request!").size() > 0
+        reposeLogSearch.searchByString("Trans-Id:$requestid -.*org.apache.http.wire").size() > 0
     }
 }
