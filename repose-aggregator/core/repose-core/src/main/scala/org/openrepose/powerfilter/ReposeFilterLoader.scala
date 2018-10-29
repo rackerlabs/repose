@@ -19,7 +19,6 @@
  */
 package org.openrepose.powerfilter
 
-import java.lang.ref.SoftReference
 import java.util
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicReference
@@ -113,7 +112,7 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
       healthCheckServiceProxy.reportIssue(ApplicationDeploymentHealthReport, message, Severity.BROKEN)
       logger.error(message)
     }
-    if(artifactManager.allArtifactsLoaded) {
+    if (artifactManager.allArtifactsLoaded) {
       configurationCheck()
     }
   }
@@ -191,8 +190,7 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
     filtersToCreate.map { filterToCreate =>
       if (classLoaderManagerService.hasFilter(filterToCreate.getName)) {
         loadFilterContext(filterToCreate, classLoaderManagerService.getLoadedApplications, servletContext)
-      }
-      else {
+      } else {
         val message = s"Unable to satisfy requested filter chain - none of the loaded artifacts supply a filter named ${filterToCreate.getName}"
         logger.error(message)
         throw new FilterInitializationException(message)
@@ -277,7 +275,7 @@ object ReposeFilterLoader {
   }
 
   class FilterContextRegistrar(val filterContexts: List[FilterContext], val bypassUriRegex: Option[String]) extends AutoCloseable {
-    val pool = new util.ArrayList[SoftReference[FilterContextList]]()
+    val pool = new util.ArrayList[FilterContextList]()
     var doClose = false
 
     def bind(): FilterContextList = {
@@ -285,7 +283,7 @@ object ReposeFilterLoader {
       // have been replaced by the atomic getAndSet() before the close() is called.
       pool.synchronized {
         val filterContextList = new FilterContextList(this, filterContexts, bypassUriRegex)
-        pool.add(new SoftReference[FilterContextList](filterContextList))
+        pool.add(filterContextList)
         filterContextList
       }
     }
