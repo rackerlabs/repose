@@ -19,8 +19,6 @@
  */
 package org.openrepose.core.services.httpclient
 
-import java.util.UUID
-
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
@@ -67,7 +65,7 @@ class HttpClientServiceImpl @Inject()(configurationService: ConfigurationService
     logger.debug("Destroying HttpClientService")
 
     configurationService.unsubscribeFrom(DefaultConfig, ConfigurationListener)
-    httpClients.mapValues(_.getClient).foreach(tupled(httpClientDecommissioner.decommissionClient))
+    httpClients.values.foreach(httpClientDecommissioner.decommissionClient)
 
     logger.debug("Destroyed HttpClientService")
   }
@@ -116,7 +114,7 @@ class HttpClientServiceImpl @Inject()(configurationService: ConfigurationService
 
       // Decommissioning must occur after available clients are updated to avoid concurrency issues
       // where a client being decommissioned is returned to a user of this service.
-      oldHttpClients.mapValues(_.getClient).foreach(tupled(httpClientDecommissioner.decommissionClient))
+      oldHttpClients.values.foreach(httpClientDecommissioner.decommissionClient)
 
       initialized = true
       healthCheckServiceProxy.resolveIssue(HealthCheckConfigurationIssue)

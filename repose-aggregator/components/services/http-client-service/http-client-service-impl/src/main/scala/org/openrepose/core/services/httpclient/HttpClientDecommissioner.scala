@@ -41,7 +41,7 @@ class HttpClientDecommissioner extends HttpClientUserManager with StrictLogging 
   logger.debug("Starting HttpClientDecommissioner")
 
   private var clientUsers: Map[String, Set[String]] = Map.empty
-  private var clientsToDecom: Map[String, CloseableHttpClient] = Map.empty
+  private var clientsToDecom: Seq[InternalHttpClient] = Seq.empty
 
   @PreDestroy
   def destroy(): Unit = {
@@ -63,24 +63,24 @@ class HttpClientDecommissioner extends HttpClientUserManager with StrictLogging 
     }
   }
 
-  def decommissionClient(clientInstanceId: String, client: CloseableHttpClient): Unit = synchronized {
-    logger.debug("Scheduling client {} to be decommissioned", clientInstanceId)
-    clientsToDecom += (clientInstanceId -> client)
+  def decommissionClient(client: InternalHttpClient): Unit = synchronized {
+    logger.debug("Scheduling client {} to be decommissioned", client.getInstanceId)
+    clientsToDecom :+= client
   }
 
   @Scheduled(fixedDelay = 5000)
   def run(): Unit = synchronized {
     logger.trace("Checking for HTTP clients to decommission")
 
-    clientsToDecom = clientsToDecom.filter { case (clientInstanceId, client) =>
-      clientUsers.get(clientInstanceId) match {
+    clientsToDecom = clientsToDecom.filter { client =>
+      clientUsers.get(client.getInstanceId) match {
         case Some(users) if users.nonEmpty =>
-          logger.warn("Failed to decommission HTTP client {} as it is still in use", clientInstanceId)
+          logger.warn("Failed to decommission HTTP client {} as it is still in use", client.getInstanceId)
           true
         case _ =>
           // Closing the client will also shutdown the connection manager, releasing connections
-          client.close()
-          logger.info("Successfully decommissioned HTTP client {}", clientInstanceId)
+          client.getClient.close()
+          logger.info("Successfully decommissioned HTTP client {}", client.getInstanceId)
           false
       }
     }

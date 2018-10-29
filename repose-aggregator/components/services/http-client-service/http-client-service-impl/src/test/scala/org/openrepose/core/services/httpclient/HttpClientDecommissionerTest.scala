@@ -32,12 +32,14 @@ class HttpClientDecommissionerTest extends FunSpec with BeforeAndAfterEach with 
   val clientInstanceId = "client-id"
 
   var closeableHttpClient: CloseableHttpClient = _
+  var internalHttpClient: InternalHttpClient = _
   var httpClientDecommissioner: HttpClientDecommissioner = _
 
   override protected def beforeEach(): Unit = {
     super.beforeEach()
 
     closeableHttpClient = mock[CloseableHttpClient]
+    internalHttpClient = new InternalHttpClient(clientInstanceId, closeableHttpClient)
 
     httpClientDecommissioner = new HttpClientDecommissioner()
   }
@@ -50,7 +52,7 @@ class HttpClientDecommissionerTest extends FunSpec with BeforeAndAfterEach with 
 
   describe("decommissioning") {
     it("should decommission a client that was never in use") {
-      httpClientDecommissioner.decommissionClient(clientInstanceId, closeableHttpClient)
+      httpClientDecommissioner.decommissionClient(internalHttpClient)
 
       httpClientDecommissioner.run()
 
@@ -61,7 +63,7 @@ class HttpClientDecommissionerTest extends FunSpec with BeforeAndAfterEach with 
       val userId = "user-id"
 
       httpClientDecommissioner.registerUser(clientInstanceId, userId)
-      httpClientDecommissioner.decommissionClient(clientInstanceId, closeableHttpClient)
+      httpClientDecommissioner.decommissionClient(internalHttpClient)
 
       httpClientDecommissioner.run()
 
@@ -72,7 +74,7 @@ class HttpClientDecommissionerTest extends FunSpec with BeforeAndAfterEach with 
       val userId = "user-id"
 
       httpClientDecommissioner.registerUser(clientInstanceId, userId)
-      httpClientDecommissioner.decommissionClient(clientInstanceId, closeableHttpClient)
+      httpClientDecommissioner.decommissionClient(internalHttpClient)
       httpClientDecommissioner.deregisterUser(clientInstanceId, userId)
 
       httpClientDecommissioner.run()
