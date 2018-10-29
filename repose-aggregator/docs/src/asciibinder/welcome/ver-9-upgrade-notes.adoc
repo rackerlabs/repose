@@ -7,6 +7,9 @@
 == Rackspace Auth User, SAML Policy Translation, and Attribute Mapping Policy Validation Filters
 . Consult with identity for where these filters now live.
 
+== Header Normalization Filter
+. All matching targets will now be processed, previously only the first target that matched would be evaluated.
+
 == For Integrators
 
 === Core

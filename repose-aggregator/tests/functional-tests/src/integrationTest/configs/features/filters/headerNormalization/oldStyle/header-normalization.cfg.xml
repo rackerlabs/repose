@@ -10,6 +10,7 @@
         <target uri-regex=".*/servers/(.*)" http-methods="GET">
             <whitelist id="creds">
                 <header id="X-First-Filter"/>
+                <header id="X-Shared"/>
                 <header id="x-auth-token"/>
             </whitelist>
         </target>
@@ -18,6 +19,7 @@
         <target uri-regex=".*/servers/(.*)">
             <whitelist id="creds">
                 <header id="X-SeCond-Filter"/>
+                <header id="X-Shared"/>
                 <header id="x-auth-token"/>
             </whitelist>
         </target>
@@ -30,9 +32,7 @@
             </whitelist>
         </target>
 
-        <!-- this blacklist filter only applies if the request does not match one of the previous targets -->
-        <!-- since uri-regex and http-methods are not specified in target the blacklist applies to all http requests
-             that don't match the previous two targets -->
+        <!-- since uri-regex and http-methods are not specified in target the blacklist applies to all http requests -->
         <target>
             <blacklist id="rate-limit-headers">
                 <header id="X-Last-Filter"/>
