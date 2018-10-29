@@ -1,5 +1,10 @@
 = Upgrade to Version 9 from Version 8 Notes
 
+== Container Configuration
+. The `via` attribute was removed from the <<../architecture/container.adoc#, container configuration>>.
+  It has been replaced with the `via-header` element.
+  To replicate the previous behavior set the value that was previously in the `via` attribute in the `request-prefix` and `response-prefix` attributes of the new element.
+
 == HTTP Client/Connection Pool Service
 . If setting the `chunked-encoding` attribute, change `0` to `false` and `1` to `true`.
 
