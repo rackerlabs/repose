@@ -24,6 +24,7 @@ import io.opentracing.Scope;
 import io.opentracing.Tracer;
 import io.opentracing.tag.Tags;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.methods.*;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.io.BufferedServletInputStream;
@@ -78,6 +79,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.openrepose.commons.utils.http.CommonHttpHeader.*;
 import static org.openrepose.commons.utils.opentracing.ScopeHelper.closeSpan;
@@ -99,6 +102,15 @@ public class PowerFilter extends DelegatingFilterProxy {
     public static final String APPLICATION_DEPLOYMENT_HEALTH_REPORT = "ApplicationDeploymentError";
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
     private static final Logger TRACE_ID_LOG = LoggerFactory.getLogger(LOG.getName() + ".trace-id-logging");
+    private static final List<String> SUPPORTED_HTTP_METHODS = Stream.of(
+        HttpGet.METHOD_NAME,
+        HttpPut.METHOD_NAME,
+        HttpPost.METHOD_NAME,
+        HttpDelete.METHOD_NAME,
+        HttpHead.METHOD_NAME,
+        HttpOptions.METHOD_NAME,
+        HttpPatch.METHOD_NAME,
+        HttpTrace.METHOD_NAME).collect(Collectors.toList());
     private final Object configurationLock = new Object();
     private final EventListener<ApplicationDeploymentEvent, List<String>> applicationDeploymentListener;
     private final UpdateListener<SystemModel> systemModelConfigurationListener;
@@ -413,6 +425,11 @@ public class PowerFilter extends DelegatingFilterProxy {
         MDC.put(TracingKey.TRACING_KEY, traceGUID);
 
         try {
+            // Ensures that the method name is supported
+            // todo: HTTP request methods are case-sensitive, so this check should not upper case the request method
+            if (!SUPPORTED_HTTP_METHODS.contains(wrappedRequest.getMethod().toUpperCase())) {
+                throw new InvalidMethodException(wrappedRequest.getMethod() + " method not supported");
+            }
             // Ensure the request URI is a valid URI
             // This object is only being created to ensure its validity.
             // So it is safe to suppress warning squid:S1848
@@ -437,6 +454,9 @@ public class PowerFilter extends DelegatingFilterProxy {
 
                 requestFilterChain.startFilterChain(wrappedRequest, wrappedResponse);
             }
+        } catch (InvalidMethodException ime) {
+            LOG.debug("{}:{} -- Invalid HTTP method requested: {}", clusterId, nodeId, wrappedRequest.getMethod(), ime);
+            wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
         } catch (URISyntaxException use) {
             LOG.debug("{}:{} -- Invalid URI requested: {}", clusterId, nodeId, wrappedRequest.getRequestURI(), use);
             wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request");
