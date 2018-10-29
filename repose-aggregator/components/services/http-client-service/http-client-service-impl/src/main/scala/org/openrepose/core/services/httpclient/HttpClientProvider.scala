@@ -22,8 +22,10 @@ package org.openrepose.core.services.httpclient
 import java.io.IOException
 import java.nio.file.Paths
 import java.security.GeneralSecurityException
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
+import com.codahale.metrics.MetricRegistry
 import com.codahale.metrics.httpclient._
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.opentracing.Tracer
@@ -59,8 +61,10 @@ class HttpClientProvider @Inject()(@Value(ReposeSpringProperties.CORE.CONFIG_ROO
                                    metricsService: MetricsService)
   extends StrictLogging {
 
-  def createClient(clientConfig: PoolConfig): CloseableHttpClient = {
-    logger.info("HTTP client {} is being created", clientConfig.getId)
+  def createClient(clientConfig: PoolConfig): InternalHttpClient = {
+    logger.debug("HTTP client {} is being created", clientConfig.getId)
+
+    val instanceId = UUID.randomUUID.toString
 
     val socketConfig = getSocketConfigBuilder
       .setSoTimeout(clientConfig.getHttpSocketTimeout)
@@ -131,7 +135,7 @@ class HttpClientProvider @Inject()(@Value(ReposeSpringProperties.CORE.CONFIG_ROO
       SystemDefaultDnsResolver.INSTANCE,
       -1,
       TimeUnit.MILLISECONDS,
-      clientConfig.getId)
+      MetricRegistry.name(clientConfig.getId, instanceId))
     connectionManager.setDefaultMaxPerRoute(clientConfig.getHttpConnManagerMaxPerRoute)
     connectionManager.setMaxTotal(clientConfig.getHttpConnManagerMaxTotal)
     connectionManager.setDefaultSocketConfig(socketConfig)
@@ -152,8 +156,14 @@ class HttpClientProvider @Inject()(@Value(ReposeSpringProperties.CORE.CONFIG_ROO
       .setDefaultRequestConfig(requestConfig)
     headers.foreach(clientBuilder.setDefaultHeaders)
 
-    // Add caching to the raw client and return
-    getCachingHttpClient(clientBuilder.build(), clientConfig.getCacheTtl.milliseconds)
+    // Add caching to the raw client
+    val cachingClient = getCachingHttpClient(clientBuilder.build(), clientConfig.getCacheTtl.milliseconds)
+
+    // Add an instance ID to the raw client
+    val internalClient = getInternalHttpClient(instanceId, cachingClient)
+
+    logger.info("HTTP client {} has been created with instance ID {}", clientConfig.getId, instanceId)
+    internalClient
   }
 
   private def generateSslContext(keystoreFilename: String,
@@ -221,5 +231,9 @@ class HttpClientProvider @Inject()(@Value(ReposeSpringProperties.CORE.CONFIG_ROO
 
   def getCachingHttpClient(closeableHttpClient: CloseableHttpClient, cacheDuration: Duration): CachingHttpClient = {
     new CachingHttpClient(closeableHttpClient, cacheDuration)
+  }
+
+  def getInternalHttpClient(instanceId: String, client: CloseableHttpClient): InternalHttpClient = {
+    new InternalHttpClient(instanceId, client)
   }
 }

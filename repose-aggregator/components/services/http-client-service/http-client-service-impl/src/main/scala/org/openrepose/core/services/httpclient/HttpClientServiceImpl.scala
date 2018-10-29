@@ -107,12 +107,11 @@ class HttpClientServiceImpl @Inject()(configurationService: ConfigurationService
       val oldHttpClients = httpClients
 
       httpClients = configurationObject.getPool.asScala.map { clientConfig =>
-        val clientInstanceId = UUID.randomUUID.toString
         val newClient = httpClientProvider.createClient(clientConfig)
         if (clientConfig.isDefault) {
           defaultHttpClientId = clientConfig.getId
         }
-        clientConfig.getId -> new InternalHttpClient(clientInstanceId, newClient)
+        clientConfig.getId -> newClient
       }.toMap
 
       // Decommissioning must occur after available clients are updated to avoid concurrency issues

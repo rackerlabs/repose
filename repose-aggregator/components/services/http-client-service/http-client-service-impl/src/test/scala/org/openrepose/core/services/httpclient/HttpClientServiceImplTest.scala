@@ -110,8 +110,8 @@ class HttpClientServiceImplTest extends FunSpec with BeforeAndAfterEach with Moc
 
       val defaultClient = mock[CloseableHttpClient]
       val otherClient = mock[CloseableHttpClient]
-      when(httpClientProvider.createClient(defaultPoolConfig)).thenReturn(defaultClient)
-      when(httpClientProvider.createClient(otherPoolConfig)).thenReturn(otherClient)
+      when(httpClientProvider.createClient(defaultPoolConfig)).thenReturn(new InternalHttpClient("", defaultClient))
+      when(httpClientProvider.createClient(otherPoolConfig)).thenReturn(new InternalHttpClient("", otherClient))
 
       val configurationListener = configurationListenerCaptor.getValue
       configurationListener.configurationUpdated(poolsConfig)
@@ -145,8 +145,8 @@ class HttpClientServiceImplTest extends FunSpec with BeforeAndAfterEach with Moc
 
       val defaultClient = mock[CloseableHttpClient]
       val otherClient = mock[CloseableHttpClient]
-      when(httpClientProvider.createClient(defaultPoolConfig)).thenReturn(defaultClient)
-      when(httpClientProvider.createClient(otherPoolConfig)).thenReturn(otherClient)
+      when(httpClientProvider.createClient(defaultPoolConfig)).thenReturn(new InternalHttpClient("", defaultClient))
+      when(httpClientProvider.createClient(otherPoolConfig)).thenReturn(new InternalHttpClient("", otherClient))
 
       val configurationListener = configurationListenerCaptor.getValue
       configurationListener.configurationUpdated(poolsConfig)
@@ -178,8 +178,8 @@ class HttpClientServiceImplTest extends FunSpec with BeforeAndAfterEach with Moc
 
       val defaultClient = mock[CloseableHttpClient]
       val otherClient = mock[CloseableHttpClient]
-      when(httpClientProvider.createClient(defaultPoolConfig)).thenReturn(defaultClient)
-      when(httpClientProvider.createClient(otherPoolConfig)).thenReturn(otherClient)
+      when(httpClientProvider.createClient(defaultPoolConfig)).thenReturn(new InternalHttpClient("", defaultClient))
+      when(httpClientProvider.createClient(otherPoolConfig)).thenReturn(new InternalHttpClient("", otherClient))
 
       val configurationListener = configurationListenerCaptor.getValue
       configurationListener.configurationUpdated(poolsConfig)
@@ -211,8 +211,8 @@ class HttpClientServiceImplTest extends FunSpec with BeforeAndAfterEach with Moc
 
       val defaultClient = mock[CloseableHttpClient]
       val otherClient = mock[CloseableHttpClient]
-      when(httpClientProvider.createClient(defaultPoolConfig)).thenReturn(defaultClient)
-      when(httpClientProvider.createClient(otherPoolConfig)).thenReturn(otherClient)
+      when(httpClientProvider.createClient(defaultPoolConfig)).thenReturn(new InternalHttpClient("", defaultClient))
+      when(httpClientProvider.createClient(otherPoolConfig)).thenReturn(new InternalHttpClient("", otherClient))
 
       val configurationListener = configurationListenerCaptor.getValue
       configurationListener.configurationUpdated(poolsConfig)
@@ -250,8 +250,8 @@ class HttpClientServiceImplTest extends FunSpec with BeforeAndAfterEach with Moc
 
       val defaultClient = mock[CloseableHttpClient]
       val otherClient = mock[CloseableHttpClient]
-      when(httpClientProvider.createClient(defaultPoolConfig)).thenReturn(defaultClient)
-      when(httpClientProvider.createClient(otherPoolConfig)).thenReturn(otherClient)
+      when(httpClientProvider.createClient(defaultPoolConfig)).thenReturn(new InternalHttpClient("", defaultClient))
+      when(httpClientProvider.createClient(otherPoolConfig)).thenReturn(new InternalHttpClient("", otherClient))
 
       val configurationListener = configurationListenerCaptor.getValue
       configurationListener.configurationUpdated(poolsConfig)
@@ -283,8 +283,8 @@ class HttpClientServiceImplTest extends FunSpec with BeforeAndAfterEach with Moc
 
       val defaultClient = mock[CloseableHttpClient]
       val otherClient = mock[CloseableHttpClient]
-      when(httpClientProvider.createClient(defaultPoolConfig)).thenReturn(defaultClient)
-      when(httpClientProvider.createClient(otherPoolConfig)).thenReturn(otherClient)
+      when(httpClientProvider.createClient(defaultPoolConfig)).thenReturn(new InternalHttpClient("", defaultClient))
+      when(httpClientProvider.createClient(otherPoolConfig)).thenReturn(new InternalHttpClient("", otherClient))
 
       val configurationListener = configurationListenerCaptor.getValue
       configurationListener.configurationUpdated(poolsConfig)
@@ -316,8 +316,8 @@ class HttpClientServiceImplTest extends FunSpec with BeforeAndAfterEach with Moc
 
       val defaultClient = mock[CloseableHttpClient]
       val otherClient = mock[CloseableHttpClient]
-      when(httpClientProvider.createClient(defaultPoolConfig)).thenReturn(defaultClient)
-      when(httpClientProvider.createClient(otherPoolConfig)).thenReturn(otherClient)
+      when(httpClientProvider.createClient(defaultPoolConfig)).thenReturn(new InternalHttpClient("", defaultClient))
+      when(httpClientProvider.createClient(otherPoolConfig)).thenReturn(new InternalHttpClient("", otherClient))
 
       val configurationListener = configurationListenerCaptor.getValue
       configurationListener.configurationUpdated(poolsConfig)

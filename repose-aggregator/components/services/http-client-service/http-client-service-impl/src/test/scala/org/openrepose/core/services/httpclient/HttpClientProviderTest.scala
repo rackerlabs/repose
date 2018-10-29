@@ -168,8 +168,18 @@ class HttpClientProviderTest extends FunSpec with BeforeAndAfterEach with Mockit
 
       val newClient = httpClientProvider.createClient(clientConfig)
 
-      newClient shouldBe a[CachingHttpClient]
+      newClient.getClient shouldBe a[CachingHttpClient]
       verify(httpClientProvider).getCachingHttpClient(any[CloseableHttpClient], isEq(cacheTtl.milliseconds))
+    }
+
+    it("should return an HttpClient with a unique ID") {
+      val clientConfig = minimalPoolConfig()
+
+      val newClient = httpClientProvider.createClient(clientConfig)
+
+      newClient shouldBe an[InternalHttpClient]
+      newClient.getInstanceId shouldNot be(null)
+      verify(httpClientProvider).getInternalHttpClient(any[String], any[CloseableHttpClient])
     }
 
     it("should trust all SSL connections when no keystore is provided") {
