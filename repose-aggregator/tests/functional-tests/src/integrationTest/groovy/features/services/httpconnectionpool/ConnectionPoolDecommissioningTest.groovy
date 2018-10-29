@@ -50,7 +50,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests()
 
         then: "HTTPClientService has logged that the conn pool is created"
-        def logLines = reposeLogSearch.searchByString("HTTP connection pool default-1 with instance id .* has been created") //default-1 comes from connection pool config
+        def logLines = reposeLogSearch.searchByString("HTTP client default-1 has been created with instance ID .*") //default-1 comes from connection pool config
         logLines.size() == 1
 
         cleanup:
@@ -68,15 +68,15 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
 
         when: "Repose is up and the HTTPClientService has been reconfigured"
         waitUntilReadyToServiceRequests()
-        def createdLog = reposeLogSearch.searchByString("HTTP connection pool default-1 with instance id .* has been created") //default-1 comes from connection pool config
+        def createdLog = reposeLogSearch.searchByString("HTTP client default-1 has been created with instance ID .*") //default-1 comes from connection pool config
 
         and: "The HttpClientService is reconfigured"
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/decommissioned/onepool_reconfig", params, /*sleepTime*/ 25)
 
         then: "The HttpClientService should log the first pool as destroyed"
         println createdLog
-        def uuid = createdLog.get(0).tokenize(" ").reverse().get(3) //reverse done to account for different log formatting
-        def logLines = reposeLogSearch.searchByString("HTTP connection pool " + uuid + " has been destroyed.")
+        def uuid = createdLog.get(0).tokenize(" ").reverse().get(0) //reverse done to account for different log formatting
+        def logLines = reposeLogSearch.searchByString("Successfully decommissioned HTTP client " + uuid)
         logLines.size() == 1
 
         cleanup:
@@ -108,7 +108,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         messageChain.receivedResponse.code == "200"
 
         and:
-        def logLines = reposeLogSearch.searchByString("Failed to shutdown connection pool client")
+        def logLines = reposeLogSearch.searchByString("Failed to decommission HTTP client .* as it is still in use")
         logLines.size() > 0
 
         cleanup:
