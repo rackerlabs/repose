@@ -10,7 +10,14 @@ For example, *Repose* can only service HTTP requests.
 To understand the architecture of *Repose*, it is vital that one understands the servlet specification.
 Currently, *Repose* complies with version 3.0 of the specification.
 
-== Filter Chain
+== Repose Filter
+The `ReposeFilter` class implements the `Filter` API and is the only filter in the base containers `FilterChain`.
+It uses the `ReposeFilterLoader` class to load the `FilterContext` 's that are passed to the `ReposeFilterChain`.
+
+Before calling into the Repose Filter Chain, it enhances the request from the client with a unique Transaction ID, if one is not already present, and starts a span with the <<../services/open-tracing.adoc#,OpenTracing Service>>.
+When the Repose Filter Chain completes, the OpenTracing span is closed, the Via header is updated on the response, and the <<../services/metrics.adoc#,Metrics Service>> is updated.
+
+== Repose Filter Chain
 
 The `ReposeFilterChain` class implements the `FilterChain` API, and is responsible for the coordination between filters.
 That coordination includes things like dynamic determination of whether or not a filter should process a request or response, debug logging, and metrics gathering.
