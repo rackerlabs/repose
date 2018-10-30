@@ -66,14 +66,14 @@ class HttpComponentRequestProcessor {
         HttpOptions.METHOD_NAME,
         HttpTrace.METHOD_NAME).collect(Collectors.toSet());
 
-    private static boolean excludeHeader(String header) {
-        return EXCLUDE_HEADERS.contains(header.toLowerCase());
-    }
-
     private final HttpServletRequest servletRequest;
     private final URI target;
     private final boolean rewriteHostHeader;
     private final ChunkedEncoding chunkedEncoding;
+
+    private static boolean excludeHeader(String header) {
+        return EXCLUDE_HEADERS.contains(header.toLowerCase());
+    }
 
     HttpComponentRequestProcessor(HttpServletRequest servletRequest,
                                   URI target,
