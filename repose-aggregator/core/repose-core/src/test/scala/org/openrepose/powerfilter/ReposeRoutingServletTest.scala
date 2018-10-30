@@ -31,8 +31,8 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
-import org.mockito.Matchers.{any, anyString, contains, eq => isEq}
-import org.mockito.Mockito.{never, verify, when, spy, times}
+import org.mockito.Matchers.{any, anyLong, anyString, contains, eq => isEq}
+import org.mockito.Mockito._
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonRequestAttributes
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException
@@ -58,6 +58,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
   var mockContainerConfigurationService: ContainerConfigurationService = _
   var mockHttpClient: HttpClientServiceClient = _
   var mockHttpClientService: HttpClientService = _
+  var metricRegistry: MetricRegistry = _
   var mockMetricsService: Optional[MetricsService] = _
   var reposeRoutingServlet: ReposeRoutingServlet = _
   var listAppender: ListAppender = _
@@ -70,6 +71,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     mockContainerConfigurationService = mock[ContainerConfigurationService]
     mockHttpClient = mock[HttpClientServiceClient]
     mockHttpClientService = mock[HttpClientService]
+    metricRegistry = spy(new MetricRegistry)
     mockMetricsService = Optional.empty()
 
     when(mockMetricsService.getRegistry).thenReturn(metricRegistry)
@@ -176,7 +178,13 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
           response.getStatus == responseCode
 
           verify(mockHttpClient).execute(any[HttpUriRequest])
-          verify(mockReportingService).incrementRequestCount(anyString())
+          if (responseCode == SC_REQUEST_ENTITY_TOO_LARGE || responseCode == SC_SERVICE_UNAVAILABLE) {
+            verify(metricRegistry, never()).meter(anyString())
+            verify(metricRegistry, never()).timer(anyString())
+          } else {
+            verify(metricRegistry, times(2)).meter(contains("ResponseCode"))
+            verify(metricRegistry, times(2)).timer(contains("ResponseTime"))
+          }
         }
       }
     }

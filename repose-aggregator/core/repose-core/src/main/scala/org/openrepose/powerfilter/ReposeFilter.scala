@@ -20,6 +20,7 @@
 package org.openrepose.powerfilter
 
 import java.net.{URI, URISyntaxException}
+import java.util.concurrent.TimeUnit
 import java.util.{Optional, UUID}
 
 import com.codahale.metrics.MetricRegistry
@@ -200,11 +201,11 @@ object ReposeFilter {
     if (100 <= responseCode && responseCode < 600) {
       val statusCodeClass = "%dXX".format(responseCode / 100)
       metricRegistry.meter(
-        MetricRegistry.name("org.openrepose.core.ResponseCode.ToClient", "Repose", statusCodeClass)
+        MetricRegistry.name("org.openrepose.core.ResponseCode", "Repose", statusCodeClass)
       ).mark()
-      metricRegistry.histogram(
-        MetricRegistry.name("org.openrepose.core.ResponseTime.ToClient", "Repose", statusCodeClass)
-      ).update(lengthInMillis)
+      metricRegistry.timer(
+        MetricRegistry.name("org.openrepose.core.ResponseTime", "Repose", statusCodeClass)
+      ).update(lengthInMillis, TimeUnit.MILLISECONDS)
     } else {
       logger.error(s"Repose: Encountered invalid response code: $responseCode")
     }

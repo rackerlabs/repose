@@ -22,6 +22,7 @@ package org.openrepose.powerfilter
 import java.io.IOException
 import java.net.{MalformedURLException, URL}
 import java.util.Optional
+import java.util.concurrent.TimeUnit
 
 import com.codahale.metrics.MetricRegistry
 import com.typesafe.scalalogging.slf4j.StrictLogging
@@ -309,11 +310,11 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
       Seq(endpoint, AllEndpoints).foreach { location =>
         val statusCodeClass = "%dXX".format(responseCode / 100)
         metricRegistry.meter(
-          MetricRegistry.name("org.openrepose.core.ResponseCode.FromOrigin", location, statusCodeClass)
+          MetricRegistry.name("org.openrepose.core.ResponseCode", location, statusCodeClass)
         ).mark()
-        metricRegistry.histogram(
-          MetricRegistry.name("org.openrepose.core.ResponseTime.FromOrigin", location, statusCodeClass)
-        ).update(lengthInMillis)
+        metricRegistry.timer(
+          MetricRegistry.name("org.openrepose.core.ResponseTime", location, statusCodeClass)
+        ).update(lengthInMillis, TimeUnit.MILLISECONDS)
         if (responseCode == SC_REQUEST_TIMEOUT) {
           metricRegistry.meter(
             MetricRegistry.name("org.openrepose.core.RequestTimeout.TimeoutToOrigin", location)

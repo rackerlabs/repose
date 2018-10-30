@@ -23,7 +23,6 @@ import java.util.concurrent.TimeUnit
 
 import com.codahale.metrics.{MetricRegistry, Timer}
 import io.opentracing.mock.MockTracer
-import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{Filter, FilterChain}
 import org.apache.logging.log4j.core.LoggerContext
@@ -38,13 +37,13 @@ import org.openrepose.commons.utils.http.PowerApiHeader.TRACE_REQUEST
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.systemmodel.config.{Filter => FilterConfig}
 import org.openrepose.powerfilter.ReposeFilterLoader.FilterContext
+import org.scalatest.LoneElement._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
-import org.scalatest.LoneElement._
 import org.slf4j.MDC
 import org.springframework.context.support.AbstractApplicationContext
-import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse, MockFilterConfig}
+import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.collection.JavaConverters._
 

@@ -33,8 +33,7 @@ import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.Assert.assertTrue
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
-import org.mockito.Matchers.{any, anyBoolean, anyString}
+import org.mockito.Matchers.{any, anyBoolean, anyString, contains}
 import org.mockito.Mockito._
 import org.openrepose.commons.test.MockitoAnswers
 import org.openrepose.commons.utils.http.CommonHttpHeader.TRACE_GUID
@@ -293,11 +292,8 @@ class ReposeFilterTest extends FunSpec
   it("should update metrics with OK (200)") {
     filter.doFilter(request, response, filterChain)
 
-    val metricCaptor = ArgumentCaptor.forClass(classOf[String])
-    verify(metricRegistry).meter(metricCaptor.capture())
-    metricCaptor.getValue should endWith("2XX")
-    verify(metricRegistry).histogram(metricCaptor.capture())
-    metricCaptor.getValue should endWith("2XX")
+    verify(metricRegistry).meter(contains("2XX"))
+    verify(metricRegistry).timer(contains("2XX"))
   }
 
   it("should update metrics with Bad Request (400)") {
@@ -305,11 +301,8 @@ class ReposeFilterTest extends FunSpec
 
     filter.doFilter(request, response, filterChain)
 
-    val metricCaptor = ArgumentCaptor.forClass(classOf[String])
-    verify(metricRegistry).meter(metricCaptor.capture())
-    metricCaptor.getValue should endWith("4XX")
-    verify(metricRegistry).histogram(metricCaptor.capture())
-    metricCaptor.getValue should endWith("4XX")
+    verify(metricRegistry).meter(contains("4XX"))
+    verify(metricRegistry).timer(contains("4XX"))
   }
 
   it("should log when status code is invalid and not update the metrics") {
@@ -322,7 +315,7 @@ class ReposeFilterTest extends FunSpec
     val messageList = listAppender.getEvents.asScala.map(_.getMessage.getFormattedMessage)
     messageList.filter(_.contains("Encountered invalid response code:")) should have length 1
     response.getStatus shouldBe 600
-    verify(metricRegistry, never).meter(anyString())
-    verify(metricRegistry, never).histogram(anyString())
+    verify(metricRegistry, never).meter(contains("org.openrepose.core.ResponseCode.Repose"))
+    verify(metricRegistry, never).timer(contains("org.openrepose.core.ResponseTime.Repose"))
   }
 }
