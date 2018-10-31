@@ -21,7 +21,6 @@ package org.openrepose.powerfilter
 
 import java.util
 import java.util.UUID
-import java.util.concurrent.atomic.AtomicReference
 
 import com.oracle.javaee6.FilterType
 import com.typesafe.scalalogging.slf4j.StrictLogging
@@ -65,9 +64,9 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
     with StrictLogging {
 
   private val healthCheckServiceProxy = healthCheckService.register
-  private val currentSystemModel = new AtomicReference[Option[SystemModel]](None)
-  private val currentFilterContextRegistrar = new AtomicReference[Option[FilterContextRegistrar]](None)
-  private var currentServletContext = new AtomicReference[Option[ServletContext]](None)
+  private var currentSystemModel: Option[SystemModel] = None
+  private var currentFilterContextRegistrar: Option[FilterContextRegistrar] = None
+  private var currentServletContext: Option[ServletContext] = None
   private val configurationLock = new Object
   private var initialized: Boolean = false
 
@@ -91,8 +90,11 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
 
   override def configurationUpdated(configurationObject: SystemModel): Unit = {
     logger.debug("{} New system model configuration provided", nodeId)
-    val previousSystemModel = currentSystemModel.getAndSet(Option(configurationObject))
-    if (previousSystemModel.isEmpty) {
+    currentSystemModel.synchronized {
+      val previousSystemModel = currentSystemModel
+      currentSystemModel = Option(configurationObject)
+      previousSystemModel
+    }.foreach { _ =>
       logger.debug("{} -- issuing POWER_FILTER_CONFIGURED event from a configuration update", nodeId)
       eventService.newEvent(POWER_FILTER_CONFIGURED, System.currentTimeMillis)
     }
@@ -118,21 +120,21 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
   }
 
   def setServletContext(newServletContext: ServletContext): Unit = {
-    currentServletContext.set(Option(newServletContext))
+    currentServletContext = Option(newServletContext)
     configurationCheck()
   }
 
   def getFilterContextList: Option[FilterContextList] = {
-    currentFilterContextRegistrar.get.map(_.bind())
+    currentFilterContextRegistrar.map(_.bind())
   }
 
-  def getTracingHeaderConfig: Option[TracingHeaderConfig] = currentSystemModel.get.map(_.getTracingHeader)
+  def getTracingHeaderConfig: Option[TracingHeaderConfig] = currentSystemModel.map(_.getTracingHeader)
 
   /**
     * Triggered each time the event service triggers an app deploy and when the system model is updated.
     */
   private def configurationCheck(): Unit = {
-    (currentSystemModel.get, currentServletContext.get, artifactManager.allArtifactsLoaded) match {
+    (currentSystemModel, currentServletContext, artifactManager.allArtifactsLoaded) match {
       case (Some(systemModel), Some(servletContext), true) =>
         updateConfiguration(systemModel, servletContext)
       case _ =>
@@ -157,9 +159,11 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
 
             // Set the new FilterContextRegistrar and
             // set the Close flag on the old one.
-            currentFilterContextRegistrar.getAndSet(
-              Option(new FilterContextRegistrar(newFilterChain, Option(localCluster.getFilters.getBypassUriRegex)))
-            ).foreach(_.close())
+            currentFilterContextRegistrar.synchronized {
+              val previousFilterContextRegistrar = currentFilterContextRegistrar
+              currentFilterContextRegistrar = Option(new FilterContextRegistrar(newFilterChain, Option(localCluster.getFilters.getBypassUriRegex)))
+              previousFilterContextRegistrar
+            }.foreach(_.close())
 
             if (logger.underlying.isDebugEnabled) {
               val filterChainInfo = newFilterChain.map(ctx => ctx.filter.getClass.getName).mkString(",")
