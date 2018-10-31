@@ -528,12 +528,12 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="protocol" use="optional">
+        <xs:attribute name="protocol" use="optional" default="https">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
                         Defines the endpoint's protocol. Current protocols permitted are http and https.
-                        If the protocol is not specified then internal dispatch is assumed.
+                        Defaults to https.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
@@ -598,11 +598,13 @@
                     </xs:annotation>
                 </xs:attribute>
 
+                <!-- todo: add port restriction 0 ~ 65000 -->
                 <xs:attribute name="port" type="xs:int" use="optional" default="0">
                     <xs:annotation>
                         <xs:documentation>
-                            <html:p>Defines the endpoint's port. Optional. If not specified (or 0), internal dispatch is
-                                assumed.
+                            <html:p>Defines the endpoint's port. Optional. If not specified (or 0), the
+                                default port associated with the protocol will be used.
+                                Otherwise, the specified port will be used.
                             </html:p>
                         </xs:documentation>
                     </xs:annotation>

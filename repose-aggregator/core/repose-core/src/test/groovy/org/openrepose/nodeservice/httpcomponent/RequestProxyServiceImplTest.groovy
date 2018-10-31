@@ -32,8 +32,6 @@ import org.apache.logging.log4j.ThreadContext
 import org.mockito.ArgumentCaptor
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.commons.utils.logging.TracingKey
-import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.httpclient.HttpClientService
 import org.openrepose.core.services.httpclient.HttpClientServiceClient
 import org.openrepose.core.systemmodel.config.SystemModel
@@ -54,12 +52,7 @@ class RequestProxyServiceImplTest extends Specification {
         httpClientService = mock(HttpClientService)
         when(httpClientService.getDefaultClient()).thenReturn(httpClient)
         when(httpClientService.getClient(anyString())).thenReturn(httpClient)
-        requestProxyService = new RequestProxyServiceImpl(
-                mock(ConfigurationService),
-                mock(HealthCheckService),
-                httpClientService,
-                "cluster",
-                "node")
+        requestProxyService = new RequestProxyServiceImpl(httpClientService)
     }
 
     def "Send a patch request with expected body and headers and return expected response"() {

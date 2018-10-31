@@ -20,25 +20,30 @@
 package org.openrepose.powerfilter
 
 import java.io.IOException
-import java.net.URL
+import java.net.{URI, URL}
 import java.util.Optional
 
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
+import org.apache.http.client.methods.HttpUriRequest
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, anyString, eq => isEq}
-import org.mockito.Mockito.{never, verify, when}
+import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.commons.utils.http.CommonRequestAttributes
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException
+import org.openrepose.commons.utils.servlet.http.RouteDestination
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
 import org.openrepose.core.services.reporting.ReportingService
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.systemmodel.config._
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService
 import org.openrepose.powerfilter.ReposeRoutingServletTest._
+import org.scalatest.TryValues._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
@@ -51,6 +56,8 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
   var mockServletConfig: ServletConfig = _
   var mockConfigurationService: ConfigurationService = _
   var mockContainerConfigurationService: ContainerConfigurationService = _
+  var mockHttpClient: HttpClientServiceClient = _
+  var mockHttpClientService: HttpClientService = _
   var mockReportingService: ReportingService = _
   var mockMetricsService: Optional[MetricsService] = _
   var reposeRoutingServlet: ReposeRoutingServlet = _
@@ -62,10 +69,13 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     mockServletConfig = new MockServletConfig()
     mockConfigurationService = mock[ConfigurationService]
     mockContainerConfigurationService = mock[ContainerConfigurationService]
+    mockHttpClient = mock[HttpClientServiceClient]
+    mockHttpClientService = mock[HttpClientService]
     mockReportingService = mock[ReportingService]
     mockMetricsService = Optional.empty()
 
     when(mockContainerConfigurationService.getRequestVia).thenReturn(Optional.empty[String]())
+    when(mockHttpClientService.getDefaultClient).thenReturn(mockHttpClient)
 
     reposeRoutingServlet = new ReposeRoutingServlet(
       DefaultVersion,
@@ -73,6 +83,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
       DefaultNodeId,
       mockConfigurationService,
       mockContainerConfigurationService,
+      mockHttpClientService,
       mockReportingService,
       mockMetricsService)
 
@@ -123,9 +134,6 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
   describe("service") {
     Seq(
       // @formatter:off
-      (null,  SC_OK,                       null),
-      (null,  SC_OK,                       new IOException()),
-      (null,  SC_OK,                       new IOException().initCause(new ReadLimitReachedException("too much"))),
       ("one", SC_OK,                       null),
       ("one", SC_SERVICE_UNAVAILABLE,      new IOException()),
       ("one", SC_REQUEST_ENTITY_TOO_LARGE, new IOException().initCause(new ReadLimitReachedException("too much"))),
@@ -156,16 +164,11 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
           destinationEndpointTwo.setProtocol("http")
           destinationEndpointList.foreach(_.add(destinationEndpointTwo))
           val servletContext = mock[ServletContext]
-          val targetServletContext = mock[ServletContext]
-          val requestDispatcher = mock[RequestDispatcher]
 
-          when(servletContext.getContext(anyString())).thenReturn(targetServletContext)
-          when(targetServletContext.getRequestDispatcher(anyString())).thenReturn(requestDispatcher)
-          when(targetServletContext.getContextPath).thenReturn("")
           mockServletConfig = new MockServletConfig(servletContext)
 
-          if (dispatchError != null) {
-            when(requestDispatcher.forward(any(classOf[ServletRequest]), any(classOf[ServletResponse]))).thenThrow(dispatchError)
+          Option(dispatchError).foreach { error =>
+            when(mockHttpClient.execute(any[HttpUriRequest])).thenThrow(error)
           }
 
           reposeRoutingServlet.init(mockServletConfig)
@@ -174,13 +177,8 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
 
           response.getStatus == responseCode
 
-          if (defaultDestinationId == null) {
-            verify(requestDispatcher, never()).forward(any(classOf[ServletRequest]), any(classOf[ServletResponse]))
-            verify(mockReportingService, never()).incrementRequestCount(anyString())
-          } else {
-            verify(requestDispatcher).forward(any(classOf[ServletRequest]), any(classOf[ServletResponse]))
-            verify(mockReportingService).incrementRequestCount(anyString())
-          }
+          verify(mockHttpClient).execute(any[HttpUriRequest])
+          verify(mockReportingService).incrementRequestCount(anyString())
         }
       }
     }
@@ -196,6 +194,218 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
       reposeRoutingServlet.service(req, resp)
 
       resp.getStatus shouldBe SC_NOT_ACCEPTABLE
+    }
+  }
+
+  describe("getRoute") {
+    it("should return a Failure if the destinations attribute object is not of a supported type") {
+      val request = new MockHttpServletRequest()
+      val systemModel = minimalConfiguration()
+      request.setAttribute(CommonRequestAttributes.DESTINATIONS, Set(
+        new RouteDestination("destinationOne", "", 1.0),
+        new RouteDestination("destinationTwo", "", 0.5)
+      ))
+
+      reposeRoutingServlet.configurationUpdated(systemModel)
+
+      val route = reposeRoutingServlet.getRoute(request)
+
+      route.isFailure shouldBe true
+    }
+
+    it("should return a route to the default destination if no other routes are available") {
+      val request = new MockHttpServletRequest()
+      val systemModel = minimalConfiguration()
+      val destinationOne = { val destination = new DestinationEndpoint(); destination.setId("destinationOne"); destination }
+      val destinationTwo = { val destination = new DestinationEndpoint(); destination.setId("destinationTwo"); destination }
+      systemModel.getReposeCluster.head.getDestinations.getEndpoint.addAll(Seq(
+        destinationOne,
+        destinationTwo
+      ))
+
+      reposeRoutingServlet.configurationUpdated(systemModel)
+
+      val route = reposeRoutingServlet.getRoute(request)
+
+      route.success.value.getDestinationId shouldEqual DefaultDestId
+    }
+
+    it("should return the highest quality route available (Java)") {
+      import scala.collection.JavaConverters._
+
+      val request = new MockHttpServletRequest()
+      val systemModel = minimalConfiguration()
+      val destinationOne = { val destination = new DestinationEndpoint(); destination.setId("destinationOne"); destination }
+      val destinationTwo = { val destination = new DestinationEndpoint(); destination.setId("destinationTwo"); destination }
+      systemModel.getReposeCluster.head.getDestinations.getEndpoint.addAll(Seq(
+        destinationOne,
+        destinationTwo
+      ))
+      request.setAttribute(CommonRequestAttributes.DESTINATIONS, List(
+        new RouteDestination(destinationOne.getId, "", 1.0),
+        new RouteDestination(destinationTwo.getId, "", 0.5)
+      ).asJava)
+
+      reposeRoutingServlet.configurationUpdated(systemModel)
+
+      val route = reposeRoutingServlet.getRoute(request)
+
+      route.success.value.getDestinationId shouldEqual destinationOne.getId
+    }
+
+    it("should return the highest quality route available (Scala)") {
+      val request = new MockHttpServletRequest()
+      val systemModel = minimalConfiguration()
+      val destinationOne = { val destination = new DestinationEndpoint(); destination.setId("destinationOne"); destination }
+      val destinationTwo = { val destination = new DestinationEndpoint(); destination.setId("destinationTwo"); destination }
+      systemModel.getReposeCluster.head.getDestinations.getEndpoint.addAll(Seq(
+        destinationOne,
+        destinationTwo
+      ))
+      request.setAttribute(CommonRequestAttributes.DESTINATIONS, Seq(
+        new RouteDestination(destinationOne.getId, "", 1.0),
+        new RouteDestination(destinationTwo.getId, "", 0.5)
+      ))
+
+      reposeRoutingServlet.configurationUpdated(systemModel)
+
+      val route = reposeRoutingServlet.getRoute(request)
+
+      route.success.value.getDestinationId shouldEqual destinationOne.getId
+    }
+  }
+
+  describe("getDestination") {
+    it("should return a Failure if no potential destination corresponds to the route") {
+      val destinationOne = { val destination = new DestinationEndpoint(); destination.setId("destinationOne"); destination }
+      val destinationTwo = { val destination = new DestinationEndpoint(); destination.setId("destinationTwo"); destination }
+      val route = new RouteDestination("not-a-destination", "/", 0.0)
+      val systemModel = minimalConfiguration()
+      systemModel.getReposeCluster.head.getDestinations.getEndpoint.addAll(Seq(
+        destinationOne,
+        destinationTwo
+      ))
+
+      reposeRoutingServlet.configurationUpdated(systemModel)
+
+      val destination = reposeRoutingServlet.getDestination(route)
+
+      destination.isFailure shouldBe true
+    }
+
+    it("should return the destination corresponding to the route") {
+      val destinationOne = { val destination = new DestinationEndpoint(); destination.setId("destinationOne"); destination }
+      val destinationTwo = { val destination = new DestinationEndpoint(); destination.setId("destinationTwo"); destination }
+      val route = new RouteDestination(destinationOne.getId, "/", 0.0)
+      val systemModel = minimalConfiguration()
+      systemModel.getReposeCluster.head.getDestinations.getEndpoint.addAll(Seq(
+        destinationOne,
+        destinationTwo
+      ))
+
+      reposeRoutingServlet.configurationUpdated(systemModel)
+
+      val destination = reposeRoutingServlet.getDestination(route)
+
+      destination.success.value shouldBe destinationOne
+    }
+  }
+
+  describe("getTarget") {
+    it("should return a Failure when the destination is invalid") {
+      val route = new RouteDestination("id", "/some/resource", 0.0)
+      val destination = new DestinationEndpoint()
+      destination.setChunkedEncoding(ChunkedEncoding.AUTO)
+      destination.setProtocol("ht tp")
+      destination.setHostname("example.com")
+      destination.setPort(8080)
+      destination.setRootPath("/root")
+
+      val tryTarget = reposeRoutingServlet.getTarget(route, destination)
+
+      tryTarget.isFailure shouldBe true
+    }
+
+    it("should encode an invalid route and return a URL locating the correct resource") {
+      val route = new RouteDestination("id", "/some/re source", 0.0)
+      val destination = new DestinationEndpoint()
+      destination.setChunkedEncoding(ChunkedEncoding.AUTO)
+      destination.setProtocol("http")
+      destination.setHostname("example.com")
+      destination.setPort(8080)
+      destination.setRootPath("/root")
+
+      val tryTarget = reposeRoutingServlet.getTarget(route, destination)
+
+      val target = tryTarget.success.value
+      target.chunkedEncoding shouldBe destination.getChunkedEncoding
+      target.url.getProtocol shouldEqual destination.getProtocol
+      target.url.getHost shouldEqual destination.getHostname
+      target.url.getPort shouldEqual destination.getPort
+      target.url.getPath shouldEqual (destination.getRootPath + route.getUri.replace(" ", "%20"))
+    }
+
+    it("should return a URL locating the correct resource") {
+      val route = new RouteDestination("id", "/some/resource", 0.0)
+      val destination = new DestinationEndpoint()
+      destination.setChunkedEncoding(ChunkedEncoding.AUTO)
+      destination.setProtocol("http")
+      destination.setHostname("example.com")
+      destination.setPort(8080)
+      destination.setRootPath("/root")
+
+      val tryTarget = reposeRoutingServlet.getTarget(route, destination)
+
+      val target = tryTarget.success.value
+      target.chunkedEncoding shouldBe destination.getChunkedEncoding
+      target.url.getProtocol shouldEqual destination.getProtocol
+      target.url.getHost shouldEqual destination.getHostname
+      target.url.getPort shouldEqual destination.getPort
+      target.url.getPath shouldEqual (destination.getRootPath + route.getUri)
+    }
+
+    it("should return a URL locating the correct resource when the destination does not have a set port") {
+      val route = new RouteDestination("id", "/some/resource", 0.0)
+      val destination = new DestinationEndpoint()
+      destination.setChunkedEncoding(ChunkedEncoding.AUTO)
+      destination.setProtocol("http")
+      destination.setHostname("example.com")
+      destination.setRootPath("/root")
+
+      val tryTarget = reposeRoutingServlet.getTarget(route, destination)
+
+      val target = tryTarget.success.value
+      target.chunkedEncoding shouldBe destination.getChunkedEncoding
+      target.url.getProtocol shouldEqual destination.getProtocol
+      target.url.getHost shouldEqual destination.getHostname
+      target.url.getPort shouldEqual -1
+      target.url.getPath shouldEqual (destination.getRootPath + route.getUri)
+    }
+  }
+
+  describe("preProxyMetrics") {
+    it("should increment the request count") {
+      val destination = new DestinationEndpoint()
+      destination.setId("testId")
+
+      reposeRoutingServlet.preProxyMetrics(destination)
+
+      verify(mockReportingService).incrementRequestCount(destination.getId)
+    }
+  }
+
+  describe("postProxyMetrics") {
+    it("should record the service response") {
+      val timeElapsed = 1234L
+      val response = new MockHttpServletResponse()
+      val destination = new DestinationEndpoint()
+      val targetUrl = URI.create("http://example.com/some/path").toURL
+      response.setStatus(201)
+      destination.setId("testId")
+
+      reposeRoutingServlet.postProxyMetrics(timeElapsed, response, destination, targetUrl)
+
+      verify(mockReportingService).recordServiceResponse(destination.getId, response.getStatus, timeElapsed)
     }
   }
 
