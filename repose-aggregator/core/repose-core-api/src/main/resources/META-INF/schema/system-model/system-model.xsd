@@ -598,8 +598,7 @@
                     </xs:annotation>
                 </xs:attribute>
 
-                <!-- todo: add port restriction 0 ~ 65000 -->
-                <xs:attribute name="port" type="xs:int" use="optional" default="0">
+                <xs:attribute name="port" use="optional" default="0">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>Defines the endpoint's port. Optional. If not specified (or 0), the
@@ -608,6 +607,12 @@
                             </html:p>
                         </xs:documentation>
                     </xs:annotation>
+                    <xs:simpleType>
+                        <xs:restriction base="xs:int">
+                            <xs:minInclusive value="0"/>
+                            <xs:maxInclusive value="65535"/>
+                        </xs:restriction>
+                    </xs:simpleType>
                 </xs:attribute>
             </xs:extension>
         </xs:complexContent>
