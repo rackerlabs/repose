@@ -177,9 +177,7 @@ Streaming a request body to the origin service is accomplished by using the `chu
 .partial http-connection-pool.cfg
 ----
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-  <repose-cluster id="repose_cluster1"
-                  chunked-encoding="auto"> <!--1-->
-
+  <repose-cluster id="repose_cluster1">
     <nodes>
       <node id="repose_node" hostname="localhost" http-port="8080"/>
     </nodes>
@@ -187,7 +185,8 @@ Streaming a request body to the origin service is accomplished by using the `chu
     <filters/>
 
     <destinations>
-      <endpoint id="origin_service" protocol="http" port="80" default="true"/>
+      <endpoint id="origin_service" default="true" protocol="http" port="80"
+                chunked-encoding="auto"/> <!--1-->
     </destinations>
   </repose-cluster>
 </system-model>
