@@ -19,27 +19,31 @@
  */
 package org.openrepose.core.services.phonehome
 
-import java.io.ByteArrayInputStream
-import javax.ws.rs.core.MediaType
-
 import io.opentracing.Tracer.SpanBuilder
 import io.opentracing.{Scope, Span, Tracer}
+import org.apache.http.HttpVersion
+import org.apache.http.client.methods.{CloseableHttpResponse, HttpEntityEnclosingRequestBase, HttpPost, HttpUriRequest}
+import org.apache.http.entity.ContentType
+import org.apache.http.message.BasicHttpResponse
+import org.apache.http.protocol.HttpContext
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
-import org.hamcrest.{Matcher, Matchers => HMatchers}
 import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{eq => mockitoEq, _}
 import org.mockito.Mockito.{never, verify, verifyZeroInteractions, when}
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
+import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
+import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
 import org.openrepose.core.systemmodel.config._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import play.api.libs.json.{JsNull, Json}
+
+import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
 class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
@@ -55,8 +59,8 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
   var mockScope: Scope = mock[Scope]
   var mockSpan: Span = mock[Span]
   var mockConfigurationService: ConfigurationService = mock[ConfigurationService]
-  var mockAkkaServiceClient: AkkaServiceClient = mock[AkkaServiceClient]
-  var mockAkkaServiceClientFactory: AkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+  var mockHttpClientService: HttpClientService = mock[HttpClientService]
+  var mockHttpClient: HttpClientServiceClient = mock[HttpClientServiceClient]
 
   override def beforeEach(): Unit = {
     mockTracer = mock[Tracer]
@@ -64,8 +68,8 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
     mockScope = mock[Scope]
     mockSpan = mock[Span]
     mockConfigurationService = mock[ConfigurationService]
-    mockAkkaServiceClient = mock[AkkaServiceClient]
-    mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+    mockHttpClientService = mock[HttpClientService]
+    mockHttpClient = mock[HttpClientServiceClient]
 
     when(mockTracer.buildSpan(anyString())).thenReturn(mockSpanBuilder)
     when(mockSpanBuilder.withTag(anyString(), anyString())).thenReturn(mockSpanBuilder)
@@ -73,7 +77,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
     when(mockSpanBuilder.startActive(anyBoolean())).thenReturn(mockScope)
     when(mockScope.span()).thenReturn(mockSpan)
 
-    when(mockAkkaServiceClientFactory.newAkkaServiceClient()).thenReturn(mockAkkaServiceClient)
+    when(mockHttpClientService.getDefaultClient).thenReturn(mockHttpClient)
   }
 
   describe("init") {
@@ -82,7 +86,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
         "1.0.0",
         mockTracer,
         mockConfigurationService,
-        mockAkkaServiceClientFactory)
+        mockHttpClientService)
 
       phoneHomeService.init()
 
@@ -95,11 +99,11 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
         "1.0.0",
         mockTracer,
         mockConfigurationService,
-        mockAkkaServiceClientFactory)
+        mockHttpClientService)
 
       phoneHomeService.init()
 
-      verify(mockAkkaServiceClientFactory).newAkkaServiceClient()
+      verify(mockHttpClientService).getDefaultClient()
     }
   }
 
@@ -111,28 +115,32 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
       systemModel.getPhoneHome.setOriginServiceId("foo-service")
 
       when(
-        mockAkkaServiceClient.post(anyString(),
-          anyString(),
-          anyMapOf(classOf[String], classOf[String]),
-          anyString(),
-          any())
-      ).thenReturn(new ServiceClientResponse(200, new ByteArrayInputStream("".getBytes)))
+        mockHttpClient.execute(
+          any[HttpUriRequest],
+          any[HttpContext])
+      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      })
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
         mockTracer,
         mockConfigurationService,
-        mockAkkaServiceClientFactory)
+        mockHttpClientService)
 
       phoneHomeService.init()
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
-      verify(mockAkkaServiceClient).post(
-        anyString(),
-        mockitoEq(CollectionUri),
-        anyMapOf(classOf[String], classOf[String]),
-        anyString(),
-        mockitoEq(MediaType.APPLICATION_JSON_TYPE))
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpEntityEnclosingRequestBase])
+      verify(mockHttpClient).execute(
+        requestCaptor.capture(),
+        any[HttpContext]
+      )
+
+      val request = requestCaptor.getValue
+      request.getMethod shouldEqual HttpPost.METHOD_NAME
+      request.getURI.toString shouldEqual CollectionUri
+      request.getEntity.getContentType.getValue shouldEqual ContentType.APPLICATION_JSON.toString
     }
 
     it("should not call sendUpdate if the service is not enabled") {
@@ -142,28 +150,26 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
       systemModel.getPhoneHome.setOriginServiceId("foo-service")
 
       when(
-        mockAkkaServiceClient.post(anyString(),
-          anyString(),
-          anyMapOf(classOf[String], classOf[String]),
-          anyString(),
-          any())
-      ).thenReturn(new ServiceClientResponse(200, new ByteArrayInputStream("".getBytes)))
+        mockHttpClient.execute(
+          any[HttpUriRequest],
+          any[HttpContext])
+      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      })
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
         mockTracer,
         mockConfigurationService,
-        mockAkkaServiceClientFactory)
+        mockHttpClientService)
 
       phoneHomeService.init()
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
-      verify(mockAkkaServiceClient, never()).post(
-        anyString(),
-        mockitoEq(CollectionUri),
-        anyMapOf(classOf[String], classOf[String]),
-        anyString(),
-        mockitoEq(MediaType.APPLICATION_JSON_TYPE))
+      verify(mockHttpClient, never()).execute(
+        any[HttpUriRequest],
+        any[HttpContext]
+      )
     }
 
     it("should log the message if the phone-home element is not present") {
@@ -174,7 +180,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
         "1.0.0",
         mockTracer,
         mockConfigurationService,
-        mockAkkaServiceClientFactory)
+        mockHttpClientService)
 
       phoneHomeService.init()
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
@@ -184,7 +190,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
       val updateMsg = msgLogEvents.get(0).getMessage.getFormattedMessage
       val lastFilterMsg = filterLogEvents.get(filterLogEvents.size() - 1).getMessage.getFormattedMessage
 
-      verifyZeroInteractions(mockAkkaServiceClient)
+      verifyZeroInteractions(mockHttpClient)
       msgLogEvents.size() should be > 0
       filterLogEvents.size() should be > 0
       updateMsg should include("1.0.0")
@@ -200,7 +206,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
         "1.0.0",
         mockTracer,
         mockConfigurationService,
-        mockAkkaServiceClientFactory)
+        mockHttpClientService)
 
       phoneHomeService.init()
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
@@ -210,7 +216,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
       val updateMsg = msgLogEvents.get(0).getMessage.getFormattedMessage
       val lastFilterMsg = filterLogEvents.get(filterLogEvents.size() - 1).getMessage.getFormattedMessage
 
-      verifyZeroInteractions(mockAkkaServiceClient)
+      verifyZeroInteractions(mockHttpClient)
       msgLogEvents.size() should be > 0
       filterLogEvents.size() should be > 0
       updateMsg should include("foo-service")
@@ -223,18 +229,18 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
       systemModel.getPhoneHome.setOriginServiceId("foo-service")
 
       when(
-        mockAkkaServiceClient.post(anyString(),
-          anyString(),
-          anyMapOf(classOf[String], classOf[String]),
-          anyString(),
-          any())
-      ).thenReturn(new ServiceClientResponse(400, new ByteArrayInputStream("".getBytes)))
+        mockHttpClient.execute(
+          any[HttpUriRequest],
+          any[HttpContext])
+      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 400, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      })
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
         mockTracer,
         mockConfigurationService,
-        mockAkkaServiceClientFactory)
+        mockHttpClientService)
 
       phoneHomeService.init()
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
@@ -244,12 +250,14 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
       val updateMsg = msgLogEvents.get(0).getMessage.getFormattedMessage
       val lastFilterMsg = filterLogEvents.get(filterLogEvents.size() - 1).getMessage.getFormattedMessage
 
-      verify(mockAkkaServiceClient).post(
-        anyString(),
-        anyString(),
-        anyMapOf(classOf[String], classOf[String]),
-        anyString(),
-        any[MediaType]())
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpEntityEnclosingRequestBase])
+      verify(mockHttpClient).execute(
+        requestCaptor.capture(),
+        any[HttpContext]
+      )
+
+      val request = requestCaptor.getValue
+      request.getMethod shouldEqual HttpPost.METHOD_NAME
       msgLogEvents.size() should be > 0
       filterLogEvents.size() should be > 0
       updateMsg should include("foo-service")
@@ -266,28 +274,32 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
       systemModel.getPhoneHome.setOriginServiceId("foo-service")
 
       when(
-        mockAkkaServiceClient.post(anyString(),
-          anyString(),
-          anyMapOf(classOf[String], classOf[String]),
-          anyString(),
-          any())
-      ).thenReturn(new ServiceClientResponse(200, new ByteArrayInputStream("".getBytes)))
+        mockHttpClient.execute(
+          any[HttpUriRequest],
+          any[HttpContext])
+      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      })
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
         mockTracer,
         mockConfigurationService,
-        mockAkkaServiceClientFactory)
+        mockHttpClientService)
 
       phoneHomeService.init()
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
-      verify(mockAkkaServiceClient).post(
-        anyString(),
-        mockitoEq(CollectionUri),
-        argThat(HMatchers.hasKey(CommonHttpHeader.TRACE_GUID).asInstanceOf[Matcher[java.util.Map[String, String]]]),
-        anyString(),
-        any[MediaType]())
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpEntityEnclosingRequestBase])
+      verify(mockHttpClient).execute(
+        requestCaptor.capture(),
+        any[HttpContext]
+      )
+
+      val request = requestCaptor.getValue
+      request.getMethod shouldEqual HttpPost.METHOD_NAME
+      request.getURI.toString shouldEqual CollectionUri
+      request.getHeaders(CommonHttpHeader.TRACE_GUID) should not be empty
     }
 
     it("should not send a tracing header to the data collection point if configured not to") {
@@ -300,28 +312,32 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
       systemModel.getPhoneHome.setOriginServiceId("foo-service")
 
       when(
-        mockAkkaServiceClient.post(anyString(),
-          anyString(),
-          anyMapOf(classOf[String], classOf[String]),
-          anyString(),
-          any())
-      ).thenReturn(new ServiceClientResponse(200, new ByteArrayInputStream("".getBytes)))
+        mockHttpClient.execute(
+          any[HttpUriRequest],
+          any[HttpContext])
+      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      })
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
         mockTracer,
         mockConfigurationService,
-        mockAkkaServiceClientFactory)
+        mockHttpClientService)
 
       phoneHomeService.init()
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
-      verify(mockAkkaServiceClient).post(
-        anyString(),
-        mockitoEq(CollectionUri),
-        argThat(HMatchers.not(HMatchers.hasKey(CommonHttpHeader.TRACE_GUID)).asInstanceOf[Matcher[java.util.Map[String, String]]]),
-        anyString(),
-        any[MediaType]())
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpEntityEnclosingRequestBase])
+      verify(mockHttpClient).execute(
+        requestCaptor.capture(),
+        any[HttpContext]
+      )
+
+      val request = requestCaptor.getValue
+      request.getMethod shouldEqual HttpPost.METHOD_NAME
+      request.getURI.toString shouldEqual CollectionUri
+      request.getHeaders(CommonHttpHeader.TRACE_GUID) shouldBe empty
     }
 
     it("should send a JSON message to the data collection point") {
@@ -356,18 +372,18 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
       systemModel.setPhoneHome(phoneHomeConfig)
 
       when(
-        mockAkkaServiceClient.post(anyString(),
-          anyString(),
-          anyMapOf(classOf[String], classOf[String]),
-          anyString(),
-          any())
-      ).thenReturn(new ServiceClientResponse(200, new ByteArrayInputStream("".getBytes)))
+        mockHttpClient.execute(
+          any[HttpUriRequest],
+          any[HttpContext])
+      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      })
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
         mockTracer,
         mockConfigurationService,
-        mockAkkaServiceClientFactory)
+        mockHttpClientService)
 
       val expectedMessage = Json.stringify(Json.obj(
         "serviceId" -> "foo-service",
@@ -396,12 +412,17 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
       phoneHomeService.init()
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
-      verify(mockAkkaServiceClient).post(
-        anyString(),
-        mockitoEq(CollectionUri),
-        anyMapOf(classOf[String], classOf[String]),
-        org.mockito.Matchers.matches(expectedBuilder.toString()),
-        mockitoEq(MediaType.APPLICATION_JSON_TYPE))
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpEntityEnclosingRequestBase])
+      verify(mockHttpClient).execute(
+        requestCaptor.capture(),
+        any[HttpContext]
+      )
+
+      val request = requestCaptor.getValue
+      request.getMethod shouldEqual HttpPost.METHOD_NAME
+      request.getURI.toString shouldEqual CollectionUri
+      request.getEntity.getContentType.getValue shouldEqual ContentType.APPLICATION_JSON.toString
+      Source.fromInputStream(request.getEntity.getContent).getLines.mkString("\n") should fullyMatch regex expectedBuilder.toString()
     }
 
     it("should start a new span when configuration is updated") {
@@ -410,18 +431,18 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
       systemModel.getPhoneHome.setOriginServiceId("foo-service")
 
       when(
-        mockAkkaServiceClient.post(anyString(),
-          anyString(),
-          anyMapOf(classOf[String], classOf[String]),
-          anyString(),
-          any())
-      ).thenReturn(new ServiceClientResponse(200, new ByteArrayInputStream("".getBytes)))
+        mockHttpClient.execute(
+          any[HttpUriRequest],
+          any[HttpContext])
+      ).thenReturn(new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      })
 
       val phoneHomeService = new PhoneHomeService(
         "1.0.0",
         mockTracer,
         mockConfigurationService,
-        mockAkkaServiceClientFactory)
+        mockHttpClientService)
 
       phoneHomeService.init()
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)

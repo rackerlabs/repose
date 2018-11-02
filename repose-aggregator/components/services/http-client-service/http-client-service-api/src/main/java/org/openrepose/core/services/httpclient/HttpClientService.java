@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,63 +19,25 @@
  */
 package org.openrepose.core.services.httpclient;
 
-import java.util.Set;
-
 /**
- * HttpClientService - service that manages the lifecycle and configuration of HttpClients
+ * Manages the configuration and lifecycle of {@link org.apache.http.client.HttpClient HttpClients}.
  */
 public interface HttpClientService {
 
     /**
      * See {@link #getClient(String)}.
      *
-     * @return the default configured HttpClient
+     * @return the default configured {@link org.apache.http.client.HttpClient}
      */
-    HttpClientContainer getDefaultClient();
+    HttpClientServiceClient getDefaultClient();
 
     /**
-     * Given an identifier, will return a corresponding HttpClient.
+     * Given an identifier, will return the corresponding {@link org.apache.http.client.HttpClient}.
      * <p/>
      * Implementations should return the default client if an unmapped clientId or null is passed.
-     * <p/>
-     * Users of the HttpClientService should retrieve a client for one-time use, and then release the client
-     * using the releaseClient() method. Following this will ensure there are no connection leaks, and also
-     * ensures that the user of the HttpClientService always uses the most up-to-date configured
-     * HTTPClient. Users of the HttpClientService are strongly recommended to **NOT** reuse an HttpClient
-     * retrieved from this method for multiple calls, as there's the possibility that the underlying
-     * connection manager may become stale and connections may be timed out after some period of staleness.
      *
-     * @param clientId Returns an HttpClient instance that corresponds to the default id, or the default client
-     *                 if null is passed for the identifier.
-     * @return a HttpClient which corresponds to the clientId parameter
+     * @param clientId an identifier for an {@link org.apache.http.client.HttpClient}
+     * @return the {@link org.apache.http.client.HttpClient} identified by the clientId parameter
      */
-    HttpClientContainer getClient(String clientId);
-
-    /**
-     * Used to release a client when the client is no longer in use.  Users of the HttpClientService users should
-     * release a client immediately after retrieving it in case the client has been decommissioned.
-     *
-     * @param httpClientContainer Response received by the user from the getClient() call
-     */
-    void releaseClient(HttpClientContainer httpClientContainer);
-
-    /**
-     * Returns true if the given clientId is available to be retrieved via getClient()
-     *
-     * @param clientId
-     * @return
-     */
-    boolean isAvailable(String clientId);
-
-    /**
-     * Returns a set of available client identifiers
-     *
-     * @return
-     */
-    Set<String> getAvailableClients();
-
-    /**
-     * Shutdown all open connections
-     */
-    void shutdown();
+    HttpClientServiceClient getClient(String clientId);
 }

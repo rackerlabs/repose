@@ -15,10 +15,10 @@ dependencies {
     compileOnly "javax.inject:javax.inject"
 
     testCompile "junit:junit"
-    testCompile "org.hamcrest:hamcrest-all"
+    testCompile "org.hamcrest:hamcrest-library"
     testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
-    testCompile "org.mockito:mockito-all"
+    testCompile "org.mockito:mockito-core"
     testCompile "org.spockframework:spock-core"
     testCompile "org.springframework:spring-test"
     testCompile "org.slf4j:jcl-over-slf4j"

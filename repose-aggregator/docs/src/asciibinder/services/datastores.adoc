@@ -118,7 +118,7 @@ Since each datastore node will have a copy of the keystore, each node will trust
 Client authentication in SSL/TLS can act as as alternate form of client validation, performing a task similar to that of an access control list.
 As such, the usage of client authentication may replace the need to configure the allowed-hosts section of the `dist-datastore.cfg.xml` file.
 
-The distributed datastore will use the <<http-connection-pool.adoc#,HTTP Connection Pool service>> to communicate across nodes.
+The distributed datastore will use a connection pool from the <<http-client.adoc#,HTTP Client Service>> to communicate across nodes.
 If a connection pool is not configured, the default will be used.
 In nearly all cases, the connection pool being used should not be the default, but rather, a connection pool should be configured to use <<../recipes/client-authentication.adoc#, SSL/TLS Client Authentication>> configured in the distributed datastore.
 That is, the distributed datastore may be thought of as a server, and clients in the connection pool as clients.
@@ -222,7 +222,7 @@ The Remote Datastore Service will return to using the configured object store as
 
 The static *Repose* instance is simply configured as a single node cluster with the distributed datastore service enabled.
 The distributed datastore is typically configured with <<../recipes/client-authentication.adoc#, SSL/TLS Client Authentication>> so that all clients must properly authenticate before a session is established.
-Then all of the dynamic clients are configured with a remote datastore and the <<http-connection-pool.adoc#,HTTP Connection Pool service>> configured to provide the proper authentication.
+Then all of the dynamic clients are configured with a remote datastore and the <<http-client.adoc#,HTTP Client Service>> configured to provide the proper authentication.
 
 The Remote Datastore service can be enabled in the dynamic clients by adding it to the services list of the <<../architecture/system-model.adoc#,System Model>> like this:
 [source,xml]
@@ -274,5 +274,5 @@ The following is a basic sample configuration.
 
 [NOTE]
 ====
-Refer to the <<http-connection-pool.adoc#,HTTP Connection Pool service>> and <<../recipes/client-authentication.adoc#, SSL/TLS Client Authentication>> documentation for properly securing the pool used to connect to the Remote Datastore.
+Refer to the <<http-client.adoc#,HTTP Client Service>> and <<../recipes/client-authentication.adoc#, SSL/TLS Client Authentication>> documentation for properly securing the connection pool used to connect to the Remote Datastore.
 ====

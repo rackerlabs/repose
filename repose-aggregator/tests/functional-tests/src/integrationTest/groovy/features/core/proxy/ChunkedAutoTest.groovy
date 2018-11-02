@@ -34,7 +34,7 @@ class ChunkedAutoTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/proxy", params)
-        repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/chunkedauto", params)
+        repose.configurationProvider.applyConfigs("features/core/proxy/chunkedauto", params)
         repose.start()
     }
 

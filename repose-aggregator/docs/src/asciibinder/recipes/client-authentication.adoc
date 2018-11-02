@@ -71,7 +71,7 @@ If you are using the *WAR* deployment and not *Valve*, you will have to consult 
 
 == *Repose* to Origin Service
 
-To turn on authenticated communication to your origin service, you'll need to tweak the default pool in your <<../services/http-connection-pool.adoc#,HTTP Connection Pool service>> config.
+To turn on authenticated communication to your origin service, you'll need to tweak the default pool in your <<../services/http-client.adoc#,HTTP Client Service>> config.
 There is nothing stopping you from similarly tweaking any of your other pools if you have a need to use client authentication in other outbound communication.
 
 [source, xml]
@@ -95,4 +95,4 @@ There is nothing stopping you from similarly tweaking any of your other pools if
 ** The https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html[keytool] page may offer some assistance, as well as going into depth on the many options available for the commands used above.
 ** The *Jetty* http://www.eclipse.org/jetty/documentation/current/configuring-ssl.html[documentation] offers some assistance in using *OpenSSL* when alternative formats are needed as well.
 * For more information on what options are available when setting up *Valve* look <<../architecture/container.adoc#,here>>.
-* For more information about the http client connection pool look <<../services/http-connection-pool.adoc#,here>>.
+* For more information about the http client connection pool look <<../services/http-client.adoc#,here>>.

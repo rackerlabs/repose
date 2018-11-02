@@ -1,7 +1,7 @@
 dependencies {
     compile project(":repose-aggregator:core:repose-core-api")
-    compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-api")
     compile project(":repose-aggregator:components:services:atom-feed-service:atom-feed-service-api")
+    compile project(':repose-aggregator:components:services:http-client-service:http-client-service-api')
     compile project(":repose-aggregator:commons:commons-utilities")
     compile "org.slf4j:slf4j-api"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
@@ -14,6 +14,7 @@ dependencies {
     compile "org.springframework:spring-context"
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
     compile "org.apache.httpcomponents:httpclient"
+    compile "org.apache.httpcomponents:httpcore"
     compile "io.opentracing:opentracing-api"
 
     compileOnly "javax.servlet:javax.servlet-api"
@@ -24,7 +25,7 @@ dependencies {
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
-    testCompile "org.mockito:mockito-all"
+    testCompile "org.mockito:mockito-core"
     testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
     testCompile "org.apache.logging.log4j:log4j-core"
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', classifier: 'tests'

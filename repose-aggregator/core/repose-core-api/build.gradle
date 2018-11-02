@@ -13,8 +13,8 @@ dependencies {
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
-    testCompile "org.hamcrest:hamcrest-all"
-    testCompile "org.mockito:mockito-all"
+    testCompile "org.hamcrest:hamcrest-library"
+    testCompile "org.mockito:mockito-core"
     testCompile "org.springframework:spring-test"
 }
 

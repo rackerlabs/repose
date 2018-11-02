@@ -20,8 +20,8 @@ dependencies {
     testCompile "xerces:xerces-xsd11"
     testCompile "org.springframework:spring-test"
     testCompile "org.slf4j:jcl-over-slf4j"
-    testCompile "org.hamcrest:hamcrest-all"
-    testCompile "org.mockito:mockito-all"
+    testCompile "org.hamcrest:hamcrest-library"
+    testCompile "org.mockito:mockito-core"
 }
 
 jaxb {

@@ -8,7 +8,7 @@ dependencies {
 
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
-    testCompile "org.mockito:mockito-all"
+    testCompile "org.mockito:mockito-core"
     testCompile "org.springframework:spring-test"
     testCompile "commons-io:commons-io"
     testCompile "org.slf4j:jcl-over-slf4j"

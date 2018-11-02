@@ -30,7 +30,7 @@ import org.mockito.Mockito._
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.types.PatchableSet
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
+import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.config.AtomFeedType
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService}
@@ -47,17 +47,17 @@ with MockitoSugar
 with BeforeAndAfterEach {
 
   private val mockConfigurationService = mock[ConfigurationService]
-  private val mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
-  private val mockAkkaServiceClient = mock[AkkaServiceClient]
-  when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
+  private val mockHttpClient = mock[HttpClientServiceClient]
+  private val mockHttpClientService = mock[HttpClientService]
+  when(mockHttpClientService.getClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockHttpClient)
   private val mockDatastoreService = mock[DatastoreService]
   private val mockDatastore = mock[Datastore]
   Mockito.when(mockDatastoreService.getDefaultDatastore).thenReturn(mockDatastore)
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     reset(mockDatastore)
     reset(mockConfigurationService)
-    reset(mockAkkaServiceClient)
+    reset(mockHttpClient)
   }
 
   describe("The Atom feed (un)registration") {
@@ -90,7 +90,7 @@ with BeforeAndAfterEach {
 
     it("register the feeds") {
       val mockAtomFeedService = getMockAtomFeedService
-      val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mockAtomFeedService, mockDatastoreService)
+      val filter = new KeystoneV2Filter(mockConfigurationService, mockHttpClientService, mockAtomFeedService, mockDatastoreService)
       val feedsList = List(atomFeedType1, atomFeedType2, atomFeedType3, atomFeedType4, atomFeedType5)
 
       filter.CacheInvalidationFeedListener.registerFeeds(feedsList)
@@ -105,7 +105,7 @@ with BeforeAndAfterEach {
 
     it("register new feeds while leaving old feeds") {
       val mockAtomFeedService = getMockAtomFeedService
-      val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mockAtomFeedService, mockDatastoreService)
+      val filter = new KeystoneV2Filter(mockConfigurationService, mockHttpClientService, mockAtomFeedService, mockDatastoreService)
       val oldList = List(atomFeedType1, atomFeedType2, atomFeedType3)
       val newList = List(atomFeedType4, atomFeedType5)
 
@@ -127,7 +127,7 @@ with BeforeAndAfterEach {
 
     it("unregister unwanted feeds and register new feeds") {
       val mockAtomFeedService = getMockAtomFeedService
-      val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mockAtomFeedService, mockDatastoreService)
+      val filter = new KeystoneV2Filter(mockConfigurationService, mockHttpClientService, mockAtomFeedService, mockDatastoreService)
       val oldList = List(atomFeedType1, atomFeedType2, atomFeedType3)
       val newList = List(atomFeedType3, atomFeedType4, atomFeedType5)
 
@@ -167,7 +167,7 @@ with BeforeAndAfterEach {
     val userId = "TestUser123"
     val tokenOne = UUID.randomUUID().toString
     val tokenTwo = UUID.randomUUID().toString
-    val filter = new KeystoneV2Filter(mockConfigurationService, mockAkkaServiceClientFactory, mock[AtomFeedService], mockDatastoreService)
+    val filter = new KeystoneV2Filter(mockConfigurationService, mockHttpClientService, mock[AtomFeedService], mockDatastoreService)
 
     val config = new MockFilterConfig
     filter.init(config)

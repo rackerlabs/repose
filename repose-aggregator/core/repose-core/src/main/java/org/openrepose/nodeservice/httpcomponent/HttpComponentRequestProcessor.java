@@ -19,166 +19,168 @@
  */
 package org.openrepose.nodeservice.httpcomponent;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpMessage;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
-import org.apache.commons.lang3.StringUtils;
-import org.openrepose.commons.utils.io.BufferedServletInputStream;
-import org.openrepose.commons.utils.io.RawInputStreamReader;
-import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
-import org.openrepose.core.proxy.common.AbstractRequestProcessor;
+import org.openrepose.core.systemmodel.config.ChunkedEncoding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.apache.http.HttpHeaders.TRANSFER_ENCODING;
+import static org.apache.http.protocol.HTTP.CHUNK_CODING;
 
 /**
- * Process a request to copy over header values, query string parameters, and
- * request body as necessary.
+ * Translates a servlet request to an HTTP client request by copying over header values, query string parameters, and
+ * request body (if present).
  */
-class HttpComponentRequestProcessor extends AbstractRequestProcessor {
+class HttpComponentRequestProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpComponentRequestProcessor.class);
+    private static final Set<String> EXCLUDE_HEADERS = Stream.of(
+        "connection",
+        "content-length",
+        "expect",
+        "transfer-encoding").collect(Collectors.toSet());
 
+    // todo: By specification, only the TRACE method MUST NOT have a body. For other methods, body semantics
+    // todo: are not defined. Consider allowing bodies for non-TRACE methods.
+    // todo: https://tools.ietf.org/html/rfc7231#section-4.3.8
+    private static final Set<String> NO_ENTITY_METHODS = Stream.of(
+        HttpGet.METHOD_NAME,
+        HttpHead.METHOD_NAME,
+        HttpOptions.METHOD_NAME,
+        HttpTrace.METHOD_NAME).collect(Collectors.toSet());
+
+    private final HttpServletRequest servletRequest;
+    private final URI target;
     private final boolean rewriteHostHeader;
-    private final URI targetHost;
+    private final ChunkedEncoding chunkedEncoding;
 
-    private HttpServletRequest sourceRequest;
-    private String chunkedEncoding;
+    private static boolean excludeHeader(String header) {
+        return EXCLUDE_HEADERS.contains(header.toLowerCase());
+    }
 
-    public HttpComponentRequestProcessor(HttpServletRequest request, URI host, boolean rewriteHostHeader,
-                                         String chunkedEncoding) {
-        this.sourceRequest = request;
-        this.targetHost = host;
+    HttpComponentRequestProcessor(HttpServletRequest servletRequest,
+                                  URI target,
+                                  boolean rewriteHostHeader,
+                                  ChunkedEncoding chunkedEncoding) {
+        this.servletRequest = servletRequest;
+        this.target = target;
         this.rewriteHostHeader = rewriteHostHeader;
         this.chunkedEncoding = chunkedEncoding;
     }
 
-    private void setQueryString(URIBuilder builder) throws URISyntaxException {
-        String queryString = sourceRequest.getQueryString();
+    /**
+     * Performs the translation between request representations.
+     * <p>
+     * Note that calling this method may cause the servlet request body to be read and consumed.
+     *
+     * @return a request to be used with an HTTP client
+     * @throws URISyntaxException
+     * @throws IOException
+     */
+    public HttpUriRequest process() throws URISyntaxException, IOException {
+        final RequestBuilder requestBuilder = RequestBuilder.create(servletRequest.getMethod())
+            .setUri(getUri());
+        if (!NO_ENTITY_METHODS.contains(servletRequest.getMethod())) {
+            requestBuilder.setEntity(getEntity());
+        }
+        final HttpUriRequest clientRequest = requestBuilder.build();
+        setHeaders(clientRequest);
+        return clientRequest;
+    }
+
+    private URI getUri() throws URISyntaxException {
+        URIBuilder builder = new URIBuilder(target.toString() + servletRequest.getRequestURI());
+        String queryString = servletRequest.getQueryString();
         if (StringUtils.isNotBlank(queryString)) {
             builder.setQuery(queryString);
             if (builder.getQueryParams().isEmpty()) {
                 builder.removeQuery();
             }
         }
-    }
-
-    public URI getUri(String target) throws URISyntaxException {
-        URIBuilder builder = new URIBuilder(target);
-        setQueryString(builder);
         return builder.build();
     }
 
     /**
      * Scan header values and manipulate as necessary. Host header, if provided, may need to be updated.
-     *
-     * @param headerName
-     * @param headerValue
-     * @return
      */
     private String processHeaderValue(String headerName, String headerValue) {
         String result = headerValue;
 
+        // todo: is this necessary, or redundant with setting the URI?
         // In case the proxy host is running multiple virtual servers,
         // rewrite the Host header to ensure that we get content from
         // the correct virtual server
         if (rewriteHostHeader && headerName.equalsIgnoreCase(HttpHeaders.HOST)) {
-            result = targetHost.getHost() + ":" + targetHost.getPort();
+            if (target.getPort() == -1) {
+                result = target.getHost();
+            } else {
+                result = target.getHost() + ":" + target.getPort();
+            }
         }
 
         return result;
     }
 
     /**
-     * Copy header values from source request to the http method.
-     *
-     * @param method
+     * Copy header values from the servlet request to the http message.
      */
-    private void setHeaders(HttpRequestBase method) {
-        final Enumeration<String> headerNames = sourceRequest.getHeaderNames();
+    private void setHeaders(HttpMessage message) {
+        final Enumeration<String> headerNames = servletRequest.getHeaderNames();
 
         while (headerNames.hasMoreElements()) {
             final String headerName = headerNames.nextElement();
 
-            if (excludeHeader(headerName)) {
-                continue;
-            }
+            if (!excludeHeader(headerName)) {
+                final Enumeration<String> headerValues = servletRequest.getHeaders(headerName);
 
-            final Enumeration<String> headerValues = sourceRequest.getHeaders(headerName);
-
-            while (headerValues.hasMoreElements()) {
-                String headerValue = headerValues.nextElement();
-                method.addHeader(headerName, processHeaderValue(headerName, headerValue));
+                while (headerValues.hasMoreElements()) {
+                    String headerValue = headerValues.nextElement();
+                    message.addHeader(headerName, processHeaderValue(headerName, headerValue));
+                }
             }
         }
     }
 
-    /**
-     * Process a base http request. Base http methods will not contain a message body.
-     *
-     * @param method
-     * @return
+    /*
+     * todo: Replace new-ing entities with Apache's EntityBuilder if/when it supports not setting the
+     * todo: content-type on an entity.
+     * todo: Content-Type is not a required HTTP header, and we do not want to add it if the original request
+     * todo: did not contain it.
+     * todo: Instead, we rely on setting the Content-Type header to convey the Content-Type.
      */
-    public HttpRequestBase process(HttpRequestBase method) {
-        setHeaders(method);
-        return method;
-    }
-
-    /**
-     * Process an entity enclosing http method. These methods can handle a request body.
-     *
-     * @param method
-     * @return
-     * @throws IOException
-     */
-    // todo: remove the need for a synchronized method -- this is the only method that needs to be synchronized for now
-    //       since it modifies the sourceRequest
-    public synchronized HttpRequestBase process(HttpEntityEnclosingRequestBase method) throws IOException {
-        final int contentLength = getEntityLength();
-        setHeaders(method);
-        method.setEntity(new InputStreamEntity(sourceRequest.getInputStream(), contentLength));
-        return method;
-    }
-
-    private int getEntityLength() throws IOException {
-        // Default to -1, which will be treated as an unknown entity length leading to the usage of chunked encoding.
-        int entityLength = -1;
-        switch (chunkedEncoding.toLowerCase()) {
-            case "true":
+    private HttpEntity getEntity() throws IOException {
+        HttpEntity httpEntity = new InputStreamEntity(servletRequest.getInputStream(), -1);
+        switch (chunkedEncoding) {
+            case TRUE:
                 break;
-            case "auto":
-                if (StringUtils.equalsIgnoreCase(sourceRequest.getHeader("transfer-encoding"), "chunked")) {
+            case AUTO:
+                if (StringUtils.equalsIgnoreCase(servletRequest.getHeader(TRANSFER_ENCODING), CHUNK_CODING)) {
                     break;
                 }
-            case "false":
-                entityLength = getSizeOfRequestBody();
+            case FALSE:
+                httpEntity = new ByteArrayEntity(IOUtils.toByteArray(servletRequest.getInputStream()));
                 break;
             default:
                 LOG.warn("Invalid chunked encoding value -- using chunked encoding");
                 break;
         }
-        return entityLength;
-    }
-
-    private int getSizeOfRequestBody() throws IOException {
-        // todo: optimize so subsequent calls to this method do not need to read/copy the entity
-        final ByteArrayOutputStream sourceEntity = new ByteArrayOutputStream();
-        RawInputStreamReader.instance().copyTo(sourceRequest.getInputStream(), sourceEntity);
-
-        final ServletInputStream readableEntity = new BufferedServletInputStream(new ByteArrayInputStream(sourceEntity.toByteArray()));
-        sourceRequest = new HttpServletRequestWrapper(sourceRequest, readableEntity);
-
-        return sourceEntity.size();
+        return httpEntity;
     }
 }

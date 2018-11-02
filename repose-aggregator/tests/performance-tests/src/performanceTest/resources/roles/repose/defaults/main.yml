@@ -37,6 +37,7 @@
         http_port: 7070,
         origin_hostname: "localhost",
         origin_port: 8080,
+        origin_chunked: "true",
         filters: [],
         services: []
       },

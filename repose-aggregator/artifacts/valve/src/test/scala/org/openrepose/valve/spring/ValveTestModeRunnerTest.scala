@@ -30,7 +30,6 @@ import org.openrepose.core.spring.CoreSpringProvider
 import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.nodeservice.test.FakeContainerConfigurationService
 import org.openrepose.valve.jmx.ValvePortMXBean
-import org.scalatest.concurrent.Eventually
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 import org.slf4j.LoggerFactory
@@ -39,7 +38,7 @@ import scala.concurrent.{Await, Future}
 
 
 @RunWith(classOf[JUnitRunner])
-class ValveTestModeRunnerTest extends FunSpec with Matchers with StrictLogging with Eventually {
+class ValveTestModeRunnerTest extends FunSpec with Matchers with StrictLogging {
   val log = LoggerFactory.getLogger(this.getClass)
 
   val fakeConfigService = new FakeConfigService()

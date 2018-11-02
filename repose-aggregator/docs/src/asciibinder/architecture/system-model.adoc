@@ -127,7 +127,7 @@ If set to localhost, any physical node will match and run the *Repose* node.
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
   <repose-cluster id="repose_cluster1"> <!--1-->
     <nodes>
-      <node id="repose_node", hostname="localhost", http-port="8080"/> <!--2-->
+      <node id="repose_node" hostname="localhost" http-port="8080"/> <!--2-->
     </nodes>
 
     <filters> <!--3-->
@@ -148,7 +148,7 @@ If set to localhost, any physical node will match and run the *Repose* node.
     <services/> <!--12-->
 
     <destinations>
-      <endpoint id="origin_service", protocol="http", port="80", default="true"/> <!--13-->
+      <endpoint id="origin_service" protocol="http" port="80" default="true"/> <!--13-->
     </destinations>
   </repose-cluster>
 </system-model>
@@ -169,6 +169,43 @@ If set to localhost, any physical node will match and run the *Repose* node.
 <12> Defines a set of services to run.
      In this case, no services are being used.
 <13> Defines the required one default endpoint.
+
+==== Streaming Request Body to the Origin Service
+Streaming a request body to the origin service is accomplished by using the `chunked` transfer encoding.
+
+[source,xml]
+.partial http-connection-pool.cfg
+----
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+  <repose-cluster id="repose_cluster1">
+    <nodes>
+      <node id="repose_node" hostname="localhost" http-port="8080"/>
+    </nodes>
+
+    <filters/>
+
+    <destinations>
+      <endpoint id="origin_service" default="true" protocol="http" port="80"
+                chunked-encoding="auto"/> <!--1-->
+    </destinations>
+  </repose-cluster>
+</system-model>
+----
+<1> Determines whether or not the request body should be `chunked` when forwarded to the origin service.
+    If set to `true`, the request body will always be transferred `chunked` encoded.
+    If set to `false`, the request body will never be transferred `chunked` encoded.
+    If set to `auto`, the request body will only be transferred `chunked` encoded if the original request to *Repose* was transferred `chunked` encoded. +
+    Default: `true`
+
+If the origin service does not support the `chunked` transfer-encoding (e.g., WSGI), it can be turned off easily.
+Simply set the `chunked-encoding` attribute to `false`.
+
+[WARNING]
+====
+Setting the `chunked-encoding` attribute to `false` may cause *Repose* to read and temporarily buffer the request body content.
+This will cause some performance degradation as request body is no longer always streamed through.
+It is recommended that users leave this value as `true` unless their service does not support chunked encoding.
+====
 
 === Nova-API Localhost Deployment
 *IN PROGRESS*

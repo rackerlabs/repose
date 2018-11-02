@@ -29,6 +29,7 @@ import javax.servlet.ServletContext;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+// todo: this whole class can be deleted if we drop the WAR deployment (and thus, internal dispatching)
 /**
  * Wraps the Servlet context providing a way to get to a custom HTTPRequestDispatcher so we can dispatch to a proxy service
  */

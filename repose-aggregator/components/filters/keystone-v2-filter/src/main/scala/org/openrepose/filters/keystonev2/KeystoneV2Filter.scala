@@ -19,13 +19,15 @@
  */
 package org.openrepose.filters.keystonev2
 
-import java.util.concurrent.{TimeUnit, TimeoutException}
+import java.io.InterruptedIOException
+import java.util.concurrent.TimeUnit
+
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.HttpHeaders
-
+import org.apache.http.client.HttpClient
 import org.apache.http.client.utils.DateUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http._
@@ -36,7 +38,7 @@ import org.openrepose.commons.utils.string.Base64Helper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.types.{PatchableSet, SetPatch}
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientException, AkkaServiceClientFactory}
+import org.openrepose.core.services.httpclient.HttpClientService
 import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.{KeystoneV2Result, Reject}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
@@ -53,7 +55,7 @@ import scala.xml.XML
 
 @Named
 class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
-                                 akkaServiceClientFactory: AkkaServiceClientFactory,
+                                 httpClientService: HttpClientService,
                                  atomFeedService: AtomFeedService,
                                  datastoreService: DatastoreService)
   extends AbstractKeystoneV2Filter[KeystoneV2AuthenticationConfig](configurationService) {
@@ -68,7 +70,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   private val datastore: Datastore = datastoreService.getDefaultDatastore
 
   var ignoredRoles: Set[String] = _
-  var akkaServiceClient: AkkaServiceClient = _
+  var httpClient: HttpClient = _
 
   private var sendTraceHeader = true
   private var isSelfValidating: Boolean = _
@@ -83,7 +85,6 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
   }
 
   override def doDestroy(): Unit = {
-    Option(akkaServiceClient).foreach(_.destroy())
     configurationService.unsubscribeFrom(SystemModelConfig, SystemModelConfigListener)
     CacheInvalidationFeedListener.unRegisterFeeds()
   }
@@ -106,7 +107,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       * DECLARE COMMON VALUES
       */
     lazy val traceId = Option(request.getHeader(CommonHttpHeader.TRACE_GUID)).filter(_ => sendTraceHeader)
-    lazy val requestHandler = new KeystoneRequestHandler(configuration.getIdentityService.getUri, akkaServiceClient, traceId)
+    lazy val requestHandler = new KeystoneRequestHandler(configuration.getIdentityService.getUri, httpClient, traceId)
 
     /**
       * DEFINING FUNCTIONS IN SCOPE
@@ -402,7 +403,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         } else {
           Reject(SC_SERVICE_UNAVAILABLE, Some(e.getMessage), Map(HttpHeaders.RETRY_AFTER -> e.retryAfter))
         }
-      case Failure(e) if e.getCause.isInstanceOf[AkkaServiceClientException] && e.getCause.getCause.isInstanceOf[TimeoutException] =>
+      case Failure(e) if e.getCause.isInstanceOf[InterruptedIOException] =>
         Reject(SC_GATEWAY_TIMEOUT, Some(s"Call timed out: ${e.getMessage}"))
       case Failure(_: AdminTokenUnauthorizedException) if isSelfValidating =>
         Reject(SC_UNAUTHORIZED, Some("Token unauthorized"))
@@ -512,9 +513,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       Option(config.getCache).getOrElse(new CacheType).getAtomFeed.asScala.toList
     )
 
-    val akkaServiceClientOld = Option(akkaServiceClient)
-    akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(config.getIdentityService.getConnectionPoolId)
-    akkaServiceClientOld.foreach(_.destroy())
+    httpClient = httpClientService.getClient(config.getIdentityService.getConnectionPoolId)
 
     ignoredRoles = config.getIgnoredRoles.split(' ').to[Set]
 

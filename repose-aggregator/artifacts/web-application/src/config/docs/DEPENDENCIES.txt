@@ -30,6 +30,11 @@ com.typesafe.play                                   play-json_2.11            2.
 com.typesafe.scala-logging                          scala-logging-slf4j_2.11  2.1.2            Apache License Version 2.0  https://github.com/typesafehub/scala-logging
 io.dropwizard.metrics                               metrics-core              3.2.0            Apache License Version 2.0  https://github.com/dropwizard/metrics/blob/v3.2.0/LICENSE
 io.dropwizard.metrics                               metrics-graphite          3.2.0            Apache License Version 2.0  https://github.com/dropwizard/metrics/blob/v3.2.0/LICENSE
+io.dropwizard.metrics                               metrics-httpclient        3.2.0            Apache License Version 2.0  https://github.com/dropwizard/metrics/blob/v3.2.0/LICENSE
+io.jaegertracing                                    jaeger-core               0.27.0           Apache License Version 2.0  https://github.com/jaegertracing/jaeger-client-java
+io.opentracing                                      opentracing-api           0.31.0           Apache License Version 2.0  https://github.com/opentracing/opentracing-java
+io.opentracing                                      opentracing-noop          0.31.0           Apache License Version 2.0  https://github.com/opentracing/opentracing-java
+io.opentracing                                      opentracing-util          0.31.0           Apache License Version 2.0  https://github.com/opentracing/opentracing-java
 javax.inject                                        javax.inject              1                Apache License Version 2.0  https://jcp.org/en/jsr/detail?id=330
 javax.ws.rs                                         javax.ws.rs-api           2.0.1            CDDL v1.1                   https://jax-rs-spec.java.net/
 joda-time                                           joda-time                 2.9.2            Apache License Version 2.0  http://joda-time.sourceforge.net/license.html

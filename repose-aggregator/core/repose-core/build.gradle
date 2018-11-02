@@ -5,7 +5,6 @@ configurations {
 dependencies {
     compile project(":repose-aggregator:commons:commons-configuration")
     compile project(":repose-aggregator:commons:commons-utilities")
-    compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-impl")
     compile project(":repose-aggregator:components:services:atom-feed-service:atom-feed-service-impl")
     compile project(":repose-aggregator:components:services:container-configuration-service:api")
     compile project(":repose-aggregator:components:services:container-configuration-service:impl")
@@ -56,10 +55,10 @@ dependencies {
     compileOnly "javax.servlet:javax.servlet-api"
 
     testCompile "junit:junit"
-    testCompile "org.hamcrest:hamcrest-all"
+    testCompile "org.hamcrest:hamcrest-library"
     testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
-    testCompile "org.mockito:mockito-all"
+    testCompile "org.mockito:mockito-core"
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', classifier: 'tests'
     testCompile "org.springframework:spring-test"
     testCompile "org.spockframework:spock-core"

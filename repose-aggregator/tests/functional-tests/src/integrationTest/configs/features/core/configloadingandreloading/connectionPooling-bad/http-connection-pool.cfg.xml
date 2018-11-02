@@ -7,7 +7,7 @@
     -->
     <pool id="default"
           default="true"
-          chunked-encoding="true"
+          cache.ttl="500"
           http.conn-manager.max-total="200"
           http.conn-manager.max-per-route="20"
           http.socket.timeout="30000"
@@ -15,7 +15,6 @@
           http.connection.timeout="30000"
           http.connection.max-line-length="8192"
           http.connection.max-header-count="100"
-          http.connection.max-status-line-garbage="100"
           http.tcp.nodelay="true"
           keepalive.timeout="0"/>
 

@@ -19,20 +19,21 @@
  */
 package org.openrepose.nodeservice.atomfeed.impl.auth
 
-import java.io.ByteArrayInputStream
 import java.net.URI
-import javax.servlet.http.HttpServletResponse._
-import javax.ws.rs.core.MediaType
 
-import org.apache.http.Header
-import org.apache.http.message.BasicHeader
+import javax.servlet.http.HttpServletResponse._
+import org.apache.http.HttpVersion
+import org.apache.http.client.entity.EntityBuilder
+import org.apache.http.client.methods.{CloseableHttpResponse, HttpPost, HttpUriRequest}
+import org.apache.http.message.BasicHttpResponse
+import org.apache.http.protocol.HttpContext
 import org.junit.runner.RunWith
 import org.mockito.AdditionalMatchers._
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers._
 import org.mockito.Mockito._
-import org.openrepose.commons.utils.http.{CommonHttpHeader, ServiceClientResponse}
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
+import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
 import org.openrepose.docs.repose.atom_feed_service.v1.{AtomFeedConfigType, OpenStackIdentityV2AuthenticationType}
 import org.openrepose.nodeservice.atomfeed.{AuthenticationRequestException, FeedReadRequest}
 import org.scalatest.junit.JUnitRunner
@@ -45,29 +46,29 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
   val feedReadRequest = new FeedReadRequest(new URI("http://example.com"))
 
-  var mockAkkaServiceClient: AkkaServiceClient = _
-  var alsoAkkaServiceClient: AkkaServiceClient = _
-  var mockAkkaServiceClientFactory: AkkaServiceClientFactory = _
+  var mockHttpClientService: HttpClientService = _
+  var mockHttpClient: HttpClientServiceClient = _
+  var alsoMockHttpClient: HttpClientServiceClient = _
   var osiarf: OpenStackIdentityV2AuthenticatedRequestFactory = _
 
   override def beforeEach() = {
     feedReadRequest.setURI(new URI("http://example.com"))
     feedReadRequest.getHeaders.clear()
 
-    mockAkkaServiceClient = mock[AkkaServiceClient]
-    mockAkkaServiceClientFactory = mock[AkkaServiceClientFactory]
+    mockHttpClientService = mock[HttpClientService]
+    mockHttpClient = mock[HttpClientServiceClient]
   }
 
   describe("authenticateRequest") {
     def finishSetup(): Unit = {
-      when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
+      when(mockHttpClientService.getClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockHttpClient)
 
       val afct = new AtomFeedConfigType
       val osiat = new OpenStackIdentityV2AuthenticationType
       osiat.setUsername("usr")
       osiat.setPassword("pwd")
 
-      osiarf = new OpenStackIdentityV2AuthenticatedRequestFactory(afct, osiat, mockAkkaServiceClientFactory)
+      osiarf = new OpenStackIdentityV2AuthenticatedRequestFactory(afct, osiat, mockHttpClientService)
     }
 
     it("should add a tracing header to the request to Identity") {
@@ -77,17 +78,24 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
         osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
       }
 
-      val headersCaptor = ArgumentCaptor.forClass(classOf[java.util.Map[String, String]])
-      verify(mockAkkaServiceClient).post(anyString(), anyString(), headersCaptor.capture(), anyString(), any[MediaType]())
-      headersCaptor.getValue.containsKey(CommonHttpHeader.TRACE_GUID) shouldBe true
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpUriRequest])
+      verify(mockHttpClient).execute(requestCaptor.capture(), any[HttpContext])
+      requestCaptor.getValue.getMethod shouldEqual HttpPost.METHOD_NAME
+      requestCaptor.getValue.containsHeader(CommonHttpHeader.TRACE_GUID) shouldBe true
     }
 
     it("should handle a non-JSON response") {
-      when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType]()))
-        .thenReturn(new ServiceClientResponse(
-          SC_OK,
-          Array[Header](new BasicHeader("ContentTypes", "text/plain")),
-          new ByteArrayInputStream("access.token.id=test-token".getBytes)))
+      val responseEntity = EntityBuilder.create()
+        .setBinary("access.token.id=test-token".getBytes)
+        .build()
+      val response = new BasicHttpResponse(HttpVersion.HTTP_1_1, SC_OK, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      }
+      response.addHeader("ContentTypes", "text/plain")
+      response.setEntity(responseEntity)
+
+      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
+        .thenReturn(response)
       finishSetup()
 
       val thrown = intercept[AuthenticationRequestException] {
@@ -97,11 +105,17 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
     }
 
     it("should handle a 4xx response") {
-      when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType]()))
-        .thenReturn(new ServiceClientResponse(
-          SC_FORBIDDEN,
-          Array[Header](new BasicHeader("ContentTypes", "text/plain")),
-          new ByteArrayInputStream("BODY".getBytes)))
+      val responseEntity = EntityBuilder.create()
+        .setBinary("BODY".getBytes)
+        .build()
+      val response = new BasicHttpResponse(HttpVersion.HTTP_1_1, SC_FORBIDDEN, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      }
+      response.addHeader("ContentTypes", "text/plain")
+      response.setEntity(responseEntity)
+
+      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
+        .thenReturn(response)
       finishSetup()
 
       val thrown = intercept[AuthenticationRequestException] {
@@ -111,11 +125,17 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
     }
 
     it("should send a valid payload and receive a valid token for the user provided") {
-      when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType]()))
-        .thenReturn(new ServiceClientResponse(
-          SC_OK,
-          Array[Header](new BasicHeader("ContentTypes", "application/json")),
-          new ByteArrayInputStream("""{"access":{"token":{"id":"test-token"}}}""".getBytes)))
+      val responseEntity = EntityBuilder.create()
+        .setBinary("""{"access":{"token":{"id":"test-token"}}}""".getBytes)
+        .build()
+      val response = new BasicHttpResponse(HttpVersion.HTTP_1_1, SC_OK, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      }
+      response.addHeader("ContentTypes", "application/json")
+      response.setEntity(responseEntity)
+
+      when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
+        .thenReturn(response)
       finishSetup()
 
       osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
@@ -124,29 +144,35 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
     }
 
     it("should cache a token until invalidated") {
-      def resetAkkaServiceClient = {
-        when(mockAkkaServiceClient.post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType]()))
-          .thenReturn(new ServiceClientResponse(
-            SC_OK,
-            Array[Header](new BasicHeader("ContentTypes", "application/json")),
-            new ByteArrayInputStream("""{"access":{"token":{"id":"test-token"}}}""".getBytes)))
-        when(mockAkkaServiceClientFactory.newAkkaServiceClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockAkkaServiceClient)
+      def resetHttpClient = {
+        val responseEntity = EntityBuilder.create()
+          .setBinary("""{"access":{"token":{"id":"test-token"}}}""".getBytes)
+          .build()
+        val response = new BasicHttpResponse(HttpVersion.HTTP_1_1, SC_OK, null) with CloseableHttpResponse {
+          override def close(): Unit = {}
+        }
+        response.addHeader("ContentTypes", "application/json")
+        response.setEntity(responseEntity)
+
+        when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext]))
+          .thenReturn(response)
+        when(mockHttpClientService.getClient(or(anyString(), isNull.asInstanceOf[String]))).thenReturn(mockHttpClient)
       }
       finishSetup()
-      resetAkkaServiceClient
+      resetHttpClient
 
       osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
       feedReadRequest.getHeaders.get(CommonHttpHeader.AUTH_TOKEN) should contain only "test-token"
-      verify(mockAkkaServiceClient, times(1)).post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType]())
-      resetAkkaServiceClient
+      verify(mockHttpClient, times(1)).execute(any[HttpUriRequest], any[HttpContext])
+      resetHttpClient
 
       feedReadRequest.setURI(new URI("http://example.com"))
       feedReadRequest.getHeaders.clear()
 
       osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
       feedReadRequest.getHeaders.get(CommonHttpHeader.AUTH_TOKEN) should contain only "test-token"
-      verify(mockAkkaServiceClient, times(1)).post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType]())
-      resetAkkaServiceClient
+      verify(mockHttpClient, times(1)).execute(any[HttpUriRequest], any[HttpContext])
+      resetHttpClient
 
       osiarf.onInvalidCredentials()
 
@@ -155,17 +181,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactoryTest
 
       osiarf.authenticateRequest(feedReadRequest, AuthenticationRequestContextImpl("", ""))
       feedReadRequest.getHeaders.get(CommonHttpHeader.AUTH_TOKEN) should contain only "test-token"
-      verify(mockAkkaServiceClient, times(2)).post(anyString(), anyString(), anyMapOf[String, String](classOf[String], classOf[String]), anyString(), any[MediaType]())
-    }
-
-    it("should destroy the akka service client when destroying the AuthenticatedRequestFactory") {
-      finishSetup()
-
-      // when: the filter is destroyed
-      osiarf.destroy()
-
-      // then: the akka service client is destroyed, too
-      verify(mockAkkaServiceClient).destroy()
+      verify(mockHttpClient, times(2)).execute(any[HttpUriRequest], any[HttpContext])
     }
   }
 }

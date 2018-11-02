@@ -34,7 +34,6 @@ class InvalidURITest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/common", params)
-        repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/chunkedfalse", params)
         repose.configurationProvider.applyConfigs("features/core/proxy/invaliduri", params)
         repose.start()
         waitUntilReadyToServiceRequests()

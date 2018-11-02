@@ -42,7 +42,7 @@ class ChunkedTranslationTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/translation/common", params)
         repose.configurationProvider.applyConfigs("features/filters/translation/request", params)
-        repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/chunkedfalse", params)
+        repose.configurationProvider.applyConfigs("features/filters/translation/chunkedfalse", params)
         repose.start()
     }
 

@@ -2,5 +2,5 @@ dependencies {
     compileOnly "javax.servlet:javax.servlet-api"
 
     testCompile "junit:junit"
-    testCompile "org.mockito:mockito-all"
+    testCompile "org.mockito:mockito-core"
 }

@@ -18,8 +18,8 @@ dependencies {
 
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"
-    testCompile "org.hamcrest:hamcrest-all"
-    testCompile "org.mockito:mockito-all"
+    testCompile "org.hamcrest:hamcrest-library"
+    testCompile "org.mockito:mockito-core"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.springframework:spring-test"
     testCompile "org.slf4j:jcl-over-slf4j"

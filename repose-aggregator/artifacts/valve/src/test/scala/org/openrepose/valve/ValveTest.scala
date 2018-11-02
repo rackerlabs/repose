@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentSkipListSet
 import com.typesafe.config.ConfigFactory
 import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpGet
-import org.apache.http.impl.client.DefaultHttpClient
+import org.apache.http.impl.client.HttpClients
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterAll, FunSpec, Matchers}
@@ -149,7 +149,7 @@ class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
 
         //Verify that the thing is listening on the configured port!
         //TODO: something on 8080
-        val httpClient = new DefaultHttpClient()
+        val httpClient = HttpClients.createDefault()
 
         val get = new HttpGet("http://localhost:8080")
 

@@ -196,10 +196,10 @@ Topics:
     File: atom-feed-consumption.adoc
   - Name: Datastores
     File: datastores.adoc
-  - Name: Health Check service
+  - Name: Health Check Service
     File: health-check.adoc
-  - Name: HTTP Connection Pool service
-    File: http-connection-pool.adoc
+  - Name: HTTP Client Service
+    File: http-client.adoc
   - Name: Logging Service
     File: logging.adoc
   - Name: Metrics Service

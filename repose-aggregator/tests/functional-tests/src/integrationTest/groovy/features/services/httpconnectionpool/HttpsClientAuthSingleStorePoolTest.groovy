@@ -21,6 +21,7 @@ package features.services.httpconnectionpool
 
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
+import org.apache.http.impl.client.HttpClients
 import org.eclipse.jetty.http.HttpVersion
 import org.eclipse.jetty.server.*
 import org.eclipse.jetty.server.handler.AbstractHandler
@@ -136,7 +137,7 @@ class HttpsClientAuthSingleStorePoolTest extends ReposeValveTest {
         }
         def request = new HttpGet("http://localhost:$properties.reposePort")
         request.addHeader('X-Auth-Token', fakeIdentityV2Service.client_token)
-        def client = new DefaultHttpClient()
+        def client = HttpClients.createDefault()
 
         when:
         def response = client.execute(request)

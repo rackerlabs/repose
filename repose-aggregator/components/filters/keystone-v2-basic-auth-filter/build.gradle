@@ -1,13 +1,15 @@
 dependencies {
     compile project(":repose-aggregator:core:repose-core-api")
     compile project(":repose-aggregator:commons:commons-utilities")
-    compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-api")
     compile project(":repose-aggregator:components:services:datastore-service:datastore-service-api")
+    compile project(':repose-aggregator:components:services:http-client-service:http-client-service-api')
     compile "org.openrepose:http-delegation"
     compile "org.scala-lang:scala-library"
     compile "org.scala-lang.modules:scala-xml_2.11"
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "org.springframework:spring-web"
+    compile "org.apache.httpcomponents:httpclient"
+    compile "org.apache.httpcomponents:httpcore"
 
     compileOnly "javax.servlet:javax.servlet-api"
     compileOnly "javax.inject:javax.inject"
@@ -16,7 +18,7 @@ dependencies {
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
-    testCompile "org.mockito:mockito-all"
+    testCompile "org.mockito:mockito-core"
     testCompile "org.springframework:spring-test"
     testCompile "org.apache.logging.log4j:log4j-core"
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', classifier: 'tests'

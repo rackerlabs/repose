@@ -37,6 +37,7 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource;
 import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
 import org.springframework.jmx.support.MBeanServerFactoryBean;
+import org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor;
 
 import java.util.Properties;
 
@@ -148,6 +149,9 @@ public class CoreSpringProvider {
                     LOG.trace("COREContext - Property names for {}: {}", eps.getName(), eps.getPropertyNames());
                 }
             }
+
+            // Enabled Spring scheduling
+            coreContext.register(ScheduledAnnotationBeanPostProcessor.class);
 
             coreContext.scan(coreScanPackage);
 

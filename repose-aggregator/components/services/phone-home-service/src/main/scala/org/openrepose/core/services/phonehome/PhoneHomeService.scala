@@ -21,18 +21,21 @@ package org.openrepose.core.services.phonehome
 
 import java.text.SimpleDateFormat
 import java.util.{Date, TimeZone, UUID}
-import javax.annotation.PostConstruct
-import javax.inject.{Inject, Named}
-import javax.ws.rs.core.MediaType
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.opentracing.tag.Tags
 import io.opentracing.{Scope, Tracer}
+import javax.annotation.PostConstruct
+import javax.inject.{Inject, Named}
+import org.apache.http.client.entity.EntityBuilder
+import org.apache.http.client.methods.RequestBuilder
+import org.apache.http.entity.ContentType
+import org.apache.http.util.EntityUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.opentracing.ReposeTags
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
+import org.openrepose.core.services.httpclient.{CachingHttpClientContext, HttpClientService, HttpClientServiceClient}
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.core.systemmodel.config.{FilterList, PhoneHomeServiceConfig, ServicesList, SystemModel}
 import org.slf4j.LoggerFactory
@@ -40,6 +43,7 @@ import org.springframework.beans.factory.annotation.Value
 import play.api.libs.json.Json.JsValueWrapper
 import play.api.libs.json.{JsNull, JsValue, Json, Writes}
 
+import scala.Function.tupled
 import scala.collection.JavaConverters._
 
 /**
@@ -59,18 +63,18 @@ import scala.collection.JavaConverters._
 class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSION) reposeVer: String,
                                  tracer: Tracer,
                                  configurationService: ConfigurationService,
-                                 akkaServiceClientFactory: AkkaServiceClientFactory)
+                                 httpClientService: HttpClientService)
   extends StrictLogging {
 
   import PhoneHomeService._
 
   private var systemModel: SystemModel = _
-  private var akkaServiceClient: AkkaServiceClient = _
+  private var httpClient: HttpClientServiceClient = _
 
   @PostConstruct
   def init(): Unit = {
     logger.debug("Registering system model listener")
-    akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient()
+    httpClient = httpClientService.getDefaultClient
     configurationService.subscribeTo(
       "system-model.cfg.xml",
       SystemModelConfigurationListener,
@@ -172,21 +176,31 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
           Map.empty[String, String].asJava
         }
 
-        val akkaResponse = akkaServiceClient.post(
-          "phone-home-update",
-          collectionUri,
-          updateHeaders,
-          message,
-          MediaType.APPLICATION_JSON_TYPE
-        )
+        val requestBody = EntityBuilder.create()
+          .setText(message)
+          .setContentType(ContentType.APPLICATION_JSON)
+          .build()
+        val requestBuilder = RequestBuilder.post(collectionUri)
+          .setEntity(requestBody)
+        updateHeaders.asScala.foreach(tupled(requestBuilder.addHeader))
+        val request = requestBuilder.build()
 
-        // Handle error status codes
-        if (akkaResponse.getStatus < 200 || akkaResponse.getStatus > 299) {
-          logger.error(buildLogMessage(
-            s"""Update to the collection service failed with status code ${akkaResponse.getStatus}""",
-            message,
-            collectionUri
-          ))
+        val cachingContext = CachingHttpClientContext.create()
+          .setCacheKey("phone-home-update")
+
+        val response = httpClient.execute(request, cachingContext)
+
+        try {
+          // Handle error status codes
+          if (response.getStatusLine.getStatusCode < 200 || response.getStatusLine.getStatusCode > 299) {
+            logger.error(buildLogMessage(
+              s"""Update to the collection service failed with status code ${response.getStatusLine.getStatusCode}""",
+              message,
+              collectionUri
+            ))
+          }
+        } finally {
+          EntityUtils.consumeQuietly(response.getEntity)
         }
       } catch {
         case e: Exception =>

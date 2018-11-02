@@ -28,7 +28,7 @@ dependencies {
 
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
-    testCompile "org.mockito:mockito-all"
+    testCompile "org.mockito:mockito-core"
     testCompile "org.apache.httpcomponents:httpclient"
 }
 

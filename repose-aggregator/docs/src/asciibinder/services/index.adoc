@@ -11,8 +11,9 @@ Enables the local *Repose* node or an entire cluster to store various types of d
 == <<health-check.adoc#,Health Check service>>
 *IN PROGRESS*
 
-== <<http-connection-pool.adoc#,HTTP Connection Pool service>>
-The HTTP Connection Pool service is used for all outbound communication, and allows you to specify a number of things about those connections.
+== <<http-client.adoc#,HTTP Client Service>>
+The HTTP client service manages the HTTP clients used for all outbound communication.
+Outbound connection properties can be configured with this service.
 
 == <<logging.adoc#,Logging Service>>
 Enables user configuration of the logging library used by *Repose*.

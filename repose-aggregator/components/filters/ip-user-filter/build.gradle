@@ -10,7 +10,7 @@ dependencies {
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
-    testCompile "org.mockito:mockito-all"
+    testCompile "org.mockito:mockito-core"
     testCompile project(":repose-aggregator:commons:commons-configuration")
     testCompile "xerces:xerces-xsd11"
     testCompile "org.springframework:spring-test"

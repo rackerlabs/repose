@@ -20,10 +20,10 @@
 package org.openrepose.filters.openstackidentityv3
 
 import java.net.URL
+
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.servlet.filter.FilterAction
@@ -32,8 +32,7 @@ import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.datastore.types.PatchableSet
-import org.openrepose.core.services.httpclient.HttpClientService
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
+import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config
 import org.openrepose.filters.openstackidentityv3.utilities.Cache._
 import org.openrepose.filters.openstackidentityv3.utilities.OpenStackIdentityV3API
@@ -46,8 +45,7 @@ import scala.xml.XML
 class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationService,
                                           datastoreService: DatastoreService,
                                           atomFeedService: AtomFeedService,
-                                          httpClientService: HttpClientService,
-                                          akkaServiceClientFactory: AkkaServiceClientFactory)
+                                          httpClientService: HttpClientService)
   extends Filter with UpdateListener[OpenstackIdentityV3Config] with StrictLogging {
 
   private final val DEFAULT_CONFIG = "openstack-identity-v3.cfg.xml"
@@ -56,7 +54,7 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
 
   private var initialized = false
   private var configFilename: String = _
-  private var akkaServiceClient: AkkaServiceClient = _
+  private var httpClient: HttpClientServiceClient = _
   private var openStackIdentityV3Handler: OpenStackIdentityV3Handler = _
 
   override def init(filterConfig: FilterConfig) {
@@ -98,7 +96,6 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
   override def destroy() {
     configurationService.unsubscribeFrom(configFilename, this)
     CacheInvalidationFeedListener.unregisterFeeds()
-    Option(akkaServiceClient).foreach(_.destroy())
   }
 
   def configurationUpdated(config: OpenstackIdentityV3Config) {
@@ -107,11 +104,9 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
       Option(config.getCache).map(_.getAtomFeed.map(_.getId).toSet).getOrElse(Set.empty)
     )
 
-    val akkaServiceClientOld = Option(akkaServiceClient)
-    akkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(config.getConnectionPoolId)
-    akkaServiceClientOld.foreach(_.destroy())
+    httpClient = httpClientService.getClient(config.getConnectionPoolId)
 
-    val identityAPI = new OpenStackIdentityV3API(config, datastore, akkaServiceClient)
+    val identityAPI = new OpenStackIdentityV3API(config, datastore, httpClient)
     openStackIdentityV3Handler = new OpenStackIdentityV3Handler(config, identityAPI)
     initialized = true
   }

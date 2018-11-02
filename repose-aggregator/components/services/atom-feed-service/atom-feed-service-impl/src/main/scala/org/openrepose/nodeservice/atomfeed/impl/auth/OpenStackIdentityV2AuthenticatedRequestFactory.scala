@@ -20,26 +20,29 @@
 package org.openrepose.nodeservice.atomfeed.impl.auth
 
 import java.util
-import javax.annotation.PreDestroy
+
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.inject.Inject
 import javax.servlet.http.HttpServletResponse._
 import javax.ws.rs.core.{HttpHeaders, MediaType}
-
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import org.apache.http.client.HttpClient
+import org.apache.http.client.entity.EntityBuilder
+import org.apache.http.client.methods.RequestBuilder
+import org.apache.http.entity.ContentType
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
-import org.openrepose.core.services.serviceclient.akka.{AkkaServiceClient, AkkaServiceClientFactory}
+import org.openrepose.core.services.httpclient.{CachingHttpClientContext, HttpClientService}
 import org.openrepose.docs.repose.atom_feed_service.v1.{AtomFeedConfigType, OpenStackIdentityV2AuthenticationType}
 import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext, AuthenticationRequestException, FeedReadRequest}
 import play.api.libs.json.Json
 
-import scala.collection.JavaConverters._
+import scala.Function.tupled
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
 object OpenStackIdentityV2AuthenticatedRequestFactory {
   private final val TOKENS_ENDPOINT = "/v2.0/tokens"
-  private final val AKKA_HASH_KEY = OpenStackIdentityV2AuthenticatedRequestFactory.getClass.getName
+  private final val CACHE_KEY = OpenStackIdentityV2AuthenticatedRequestFactory.getClass.getName
 }
 
 /**
@@ -47,7 +50,7 @@ object OpenStackIdentityV2AuthenticatedRequestFactory {
   */
 class OpenStackIdentityV2AuthenticatedRequestFactory @Inject()(feedConfig: AtomFeedConfigType,
                                                                authConfig: OpenStackIdentityV2AuthenticationType,
-                                                               akkaServiceClientFactory: AkkaServiceClientFactory)
+                                                               httpClientService: HttpClientService)
   extends AuthenticatedRequestFactory with StrictLogging {
 
   import OpenStackIdentityV2AuthenticatedRequestFactory._
@@ -57,7 +60,7 @@ class OpenStackIdentityV2AuthenticatedRequestFactory @Inject()(feedConfig: AtomF
   private val password = authConfig.getPassword
 
   private var cachedToken: Option[String] = None
-  private var akkaServiceClient: AkkaServiceClient = akkaServiceClientFactory.newAkkaServiceClient(feedConfig.getConnectionPoolId)
+  private var httpClient: HttpClient = httpClientService.getClient(feedConfig.getConnectionPoolId)
 
   override def authenticateRequest(feedReadRequest: FeedReadRequest, context: AuthenticationRequestContext): FeedReadRequest = {
     lazy val tracingHeader = TracingHeaderHelper.createTracingHeader(context.getRequestId, "1.1 Repose (Repose/" + context.getReposeVersion + ")", username)
@@ -80,24 +83,33 @@ class OpenStackIdentityV2AuthenticatedRequestFactory @Inject()(feedConfig: AtomF
   private def getToken(tracingHeader: String): Try[String] = {
     logger.debug("Attempting to get token from Identity")
 
-    val akkaResponse = Try(akkaServiceClient.post(
-      AKKA_HASH_KEY,
-      s"$serviceUri$TOKENS_ENDPOINT",
-      Map(HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON,
-        CommonHttpHeader.TRACE_GUID -> tracingHeader).asJava,
-      Json.stringify(Json.obj(
-        "auth" -> Json.obj(
-          "passwordCredentials" -> Json.obj(
-            "username" -> username,
-            "password" -> password)))),
-      MediaType.APPLICATION_JSON_TYPE
-    ))
+    val requestHeaders = Map(
+      HttpHeaders.ACCEPT -> MediaType.APPLICATION_JSON,
+      CommonHttpHeader.TRACE_GUID -> tracingHeader)
+    val requestBody = Json.stringify(Json.obj(
+      "auth" -> Json.obj(
+        "passwordCredentials" -> Json.obj(
+          "username" -> username,
+          "password" -> password))))
+    val requestEntity = EntityBuilder.create()
+      .setText(requestBody)
+      .setContentType(ContentType.APPLICATION_JSON)
+      .build()
+    val requestBuilder = RequestBuilder.post(s"$serviceUri$TOKENS_ENDPOINT")
+      .setEntity(requestEntity)
+    requestHeaders.foreach(tupled(requestBuilder.addHeader))
+    val request = requestBuilder.build()
 
-    akkaResponse match {
-      case Success(serviceClientResponse) if Option(serviceClientResponse).isDefined =>
-        serviceClientResponse.getStatus match {
+    val cacheContext = CachingHttpClientContext.create()
+      .setCacheKey(CACHE_KEY)
+
+    val tryResponse = Try(httpClient.execute(request, cacheContext))
+
+    tryResponse match {
+      case Success(response) if Option(response).isDefined =>
+        response.getStatusLine.getStatusCode match {
           case statusCode@(SC_OK | SC_NON_AUTHORITATIVE_INFORMATION) =>
-            val jsonResponse = Source.fromInputStream(serviceClientResponse.getData).getLines().mkString("")
+            val jsonResponse = Source.fromInputStream(response.getEntity.getContent).getLines().mkString("")
             Try(Json.parse(jsonResponse)) match {
               case Success(json) =>
                 Try(Success((json \ "access" \ "token" \ "id").as[String])) match {
@@ -127,9 +139,4 @@ class OpenStackIdentityV2AuthenticatedRequestFactory @Inject()(feedConfig: AtomF
   }
 
   override def onInvalidCredentials(): Unit = cachedToken = None
-
-  @PreDestroy
-  def destroy(): Unit = {
-    Option(akkaServiceClient).foreach(_.destroy())
-  }
 }

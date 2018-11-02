@@ -26,7 +26,7 @@ package org.openrepose.powerfilter;
  * Time: 9:55 AM
  */
 public class InvalidMethodException extends Exception {
-    public InvalidMethodException(String message, Throwable exception) {
-        super(message, exception);
+    public InvalidMethodException(String message) {
+        super(message);
     }
 }

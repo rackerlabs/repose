@@ -24,6 +24,7 @@ import io.opentracing.Scope;
 import io.opentracing.Tracer;
 import io.opentracing.tag.Tags;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.methods.*;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.io.BufferedServletInputStream;
@@ -54,7 +55,6 @@ import org.openrepose.core.services.uriredaction.UriRedactionService;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.core.systemmodel.config.*;
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService;
-import org.openrepose.nodeservice.httpcomponent.HttpComponentFactory;
 import org.openrepose.nodeservice.response.ResponseHeaderService;
 import org.openrepose.powerfilter.filtercontext.FilterContext;
 import org.openrepose.powerfilter.filtercontext.FilterContextFactory;
@@ -79,6 +79,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.openrepose.commons.utils.http.CommonHttpHeader.*;
 import static org.openrepose.commons.utils.opentracing.ScopeHelper.closeSpan;
@@ -100,6 +102,15 @@ public class PowerFilter extends DelegatingFilterProxy {
     public static final String APPLICATION_DEPLOYMENT_HEALTH_REPORT = "ApplicationDeploymentError";
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
     private static final Logger TRACE_ID_LOG = LoggerFactory.getLogger(LOG.getName() + ".trace-id-logging");
+    private static final List<String> SUPPORTED_HTTP_METHODS = Stream.of(
+        HttpGet.METHOD_NAME,
+        HttpPut.METHOD_NAME,
+        HttpPost.METHOD_NAME,
+        HttpDelete.METHOD_NAME,
+        HttpHead.METHOD_NAME,
+        HttpOptions.METHOD_NAME,
+        HttpPatch.METHOD_NAME,
+        HttpTrace.METHOD_NAME).collect(Collectors.toList());
     private final Object configurationLock = new Object();
     private final EventListener<ApplicationDeploymentEvent, List<String>> applicationDeploymentListener;
     private final UpdateListener<SystemModel> systemModelConfigurationListener;
@@ -414,11 +425,10 @@ public class PowerFilter extends DelegatingFilterProxy {
         MDC.put(TracingKey.TRACING_KEY, traceGUID);
 
         try {
-            try {
-                // ensures that the method name exists
-                HttpComponentFactory.valueOf(wrappedRequest.getMethod().toUpperCase());
-            } catch (IllegalArgumentException iae) {
-                throw new InvalidMethodException("Request contained an unknown method.", iae);
+            // Ensures that the method name is supported
+            // todo: HTTP request methods are case-sensitive, so this check should not upper case the request method
+            if (!SUPPORTED_HTTP_METHODS.contains(wrappedRequest.getMethod().toUpperCase())) {
+                throw new InvalidMethodException(wrappedRequest.getMethod() + " method not supported");
             }
             // Ensure the request URI is a valid URI
             // This object is only being created to ensure its validity.

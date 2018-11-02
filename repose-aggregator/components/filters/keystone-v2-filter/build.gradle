@@ -4,7 +4,7 @@ dependencies {
 
     compile project(":repose-aggregator:core:repose-core-api")
     compile project(":repose-aggregator:commons:commons-utilities")
-    compile project(":repose-aggregator:components:services:akka-http-client-service:akka-http-client-service-api")
+    compile project(":repose-aggregator:components:services:http-client-service:http-client-service-api")
     compile project(":repose-aggregator:components:services:datastore-service:datastore-service-api")
     compile project(":repose-aggregator:components:services:atom-feed-service:atom-feed-service-api")
     compile "org.scala-lang:scala-library"
@@ -14,6 +14,7 @@ dependencies {
     compile "joda-time:joda-time"
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
     compile "org.apache.httpcomponents:httpclient"
+    compile "org.apache.httpcomponents:httpcore"
     compile "com.fasterxml.jackson.core:jackson-core"
 
     compileOnly "javax.servlet:javax.servlet-api"
@@ -22,9 +23,9 @@ dependencies {
 
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"
-    testCompile "org.hamcrest:hamcrest-all"
+    testCompile "org.hamcrest:hamcrest-library"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
-    testCompile "org.mockito:mockito-all"
+    testCompile("org.mockito:mockito-core")
     testCompile "org.springframework:spring-test"
     testCompile project(":repose-aggregator:commons:commons-configuration")
     testCompile "org.apache.logging.log4j:log4j-core"

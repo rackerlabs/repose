@@ -1,6 +1,0 @@
-dependencies {
-    compile project(":repose-aggregator:commons:commons-utilities")
-
-    compileOnly "org.glassfish:javax.servlet"
-    compileOnly "javax.ws.rs:javax.ws.rs-api"
-}

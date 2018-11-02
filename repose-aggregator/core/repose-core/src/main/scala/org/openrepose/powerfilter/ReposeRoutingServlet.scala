@@ -151,7 +151,10 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
       .headOption match {
       case Some(routeDest) =>
         localNode match {
-          case Some(node) => doDestination(servletRequest, servletResponse, routeDest, node)
+          case Some(node) =>
+            // todo: this can be deleted if we drop the WAR deployment (and thus, internal dispatching)
+            // todo: instead, a client from the http-client-service can be used directly
+            doDestination(servletRequest, servletResponse, routeDest, node)
           case _ =>
             logger.error("Invalid local node definition")
             servletResponse.setStatus(SC_SERVICE_UNAVAILABLE)

@@ -92,7 +92,7 @@ class TracingLogWValkyrieTest extends ReposeValveTest {
         then: "check response"
         mc.receivedResponse.code == responseCode
         //**This for tracing header through log REP-1828
-        reposeLogSearch.searchByString("GUID:$requestid -.*AuthTokenFutureActor request!").size() > 0
+        reposeLogSearch.searchByString("GUID:$requestid -.*org.apache.http.wire").size() > 0
         //**This for tracing header on failed response REP-2147
         mc.receivedResponse.headers.contains("x-trans-id")
         //**This part for tracing header test REP-1704**

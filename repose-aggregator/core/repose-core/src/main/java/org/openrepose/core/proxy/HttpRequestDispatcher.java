@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 
+// todo: this whole class can be deleted if we drop the WAR deployment (and thus, internal dispatching)
 /**
  * @author fran
  */
