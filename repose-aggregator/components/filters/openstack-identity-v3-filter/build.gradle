@@ -22,6 +22,7 @@ dependencies {
     compileOnly "javax.inject:javax.inject"
     compileOnly "javax.ws.rs:javax.ws.rs-api"
 
+    testCompile project(":repose-aggregator:core:repose-core")
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"

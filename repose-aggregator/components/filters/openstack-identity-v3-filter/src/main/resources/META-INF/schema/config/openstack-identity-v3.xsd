@@ -337,12 +337,30 @@
         </xs:annotation>
 
         <xs:all>
-            <xs:element name="token" type="ZeroOrPositiveInteger" default="600" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="group" type="ZeroOrPositiveInteger" default="600" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="token" type="ZeroOrPositiveInteger" default="600" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Deprecated: This element is deprecated. Use token attribute instead.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="group" type="ZeroOrPositiveInteger" default="600" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Deprecated: This element is deprecated. Use group attribute instead.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <!-- todo: xs:element name="user" type="ZeroOrPositiveInteger" default="600" minOccurs="0" maxOccurs="1"/-->
         </xs:all>
 
-        <xs:attribute name="variance" type="ZeroOrPositiveInteger" default="0" use="optional">
+        <xs:attribute name="token" type="ZeroOrPositiveInteger" default="600"/>
+        <xs:attribute name="group" type="ZeroOrPositiveInteger" default="600"/>
+        <xs:attribute name="variance" type="ZeroOrPositiveInteger" default="0">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -355,6 +373,16 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="count((@token, token)) le 1"
+                   xerces:message="Cannot define both a deprecated token element and the new token attribute"
+                   saxon:message="Cannot define both a deprecated token element and the new token attribute"/>
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="count((@group, group)) le 1"
+                   xerces:message="Cannot define both a deprecated group element and the new group attribute"
+                   saxon:message="Cannot define both a deprecated group element and the new group attribute"/>
     </xs:complexType>
 
     <xs:complexType name="AtomFeedType">

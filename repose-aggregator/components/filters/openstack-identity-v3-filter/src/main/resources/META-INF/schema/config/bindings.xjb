@@ -8,9 +8,9 @@
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
-  
+
        http://www.apache.org/licenses/LICENSE-2.0
-  
+
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,7 @@
 
 
 <bindings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:xs="http://www.w3.org/2001/XMLSchema"
           version="2.0"
           xmlns="http://java.sun.com/xml/ns/jaxb"
           xsi:schemaLocation="http://java.sun.com/xml/ns/jaxb http://java.sun.com/xml/ns/jaxb/bindingschema_2_0.xsd"
@@ -29,4 +30,12 @@
     <schemaBindings>
         <package name="org.openrepose.filters.openstackidentityv3.config"/>
     </schemaBindings>
+    <bindings schemaLocation="openstack-identity-v3.xsd"
+              node="/xs:schema/xs:complexType[@name='CacheTimeoutsType']/xs:all/xs:element[@name='token']">
+        <property name="tokenElement"/>
+    </bindings>
+    <bindings schemaLocation="openstack-identity-v3.xsd"
+              node="/xs:schema/xs:complexType[@name='CacheTimeoutsType']/xs:all/xs:element[@name='group']">
+        <property name="groupElement"/>
+    </bindings>
 </bindings>
