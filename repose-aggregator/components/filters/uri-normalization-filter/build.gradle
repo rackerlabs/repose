@@ -17,7 +17,7 @@ dependencies {
     compileOnly "javax.inject:javax.inject"
 
     testCompile "junit:junit"
-    testCompile "org.mockito:mockito-all"
+    testCompile "org.mockito:mockito-core"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.springframework:spring-test"
 }

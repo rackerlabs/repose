@@ -23,9 +23,9 @@ dependencies {
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
-    testCompile "org.mockito:mockito-all"
+    testCompile "org.mockito:mockito-core"
     testCompile "org.codehaus.groovy:groovy-all"
-    testCompile "org.hamcrest:hamcrest-all"
+    testCompile "org.hamcrest:hamcrest-library"
     testCompile "org.springframework:spring-test"
     testCompile "io.opentracing:opentracing-mock"
     testCompile "org.apache.logging.log4j:log4j-core"

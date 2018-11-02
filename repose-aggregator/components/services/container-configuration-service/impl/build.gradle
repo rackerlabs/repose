@@ -10,5 +10,5 @@ dependencies {
 
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "junit:junit"
-    testCompile "org.mockito:mockito-all"
+    testCompile "org.mockito:mockito-core"
 }

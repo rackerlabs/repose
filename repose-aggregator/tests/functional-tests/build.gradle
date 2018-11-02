@@ -8,7 +8,7 @@ configurations {
 
 dependencies {
     integrationTestCompile "junit:junit"
-    integrationTestCompile "org.hamcrest:hamcrest-all"
+    integrationTestCompile "org.hamcrest:hamcrest-library"
     integrationTestCompile "org.codehaus.groovy:groovy-all"
     integrationTestCompile "org.spockframework:spock-core"
     integrationTestCompile "org.rackspace:deproxy"
