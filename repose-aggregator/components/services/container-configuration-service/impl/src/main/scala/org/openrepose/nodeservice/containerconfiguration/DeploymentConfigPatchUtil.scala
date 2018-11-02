@@ -44,8 +44,6 @@ object DeploymentConfigPatchUtil {
 
     Option(patch.getHttpPort).foreach(baseClone.setHttpPort)
     Option(patch.getHttpsPort).foreach(baseClone.setHttpsPort)
-    // TODO: Remove this Via configuration in v9.0.0.0
-    Option(patch.getVia).foreach(baseClone.setVia)
     Option(patch.getContentBodyReadLimit).foreach(baseClone.setContentBodyReadLimit)
     // Option(patch.getJmxResetTime).foreach(baseClone.setJmxResetTime)
     Option(patch.getIdleTimeout).foreach(baseClone.setIdleTimeout)

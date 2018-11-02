@@ -51,7 +51,6 @@ Some values (e.g., the `deployment-directory`) cannot be overridden due to inter
 Currently the only items that are patchable are some of the `deployment-config` element's attributes.
 Specifically only the following:
 
-* `via` (Deprecated scheduled for removal in v9.0.0.0)
 * `via-header`
 * `content-body-read-limit`
 * `idleTimeout`

@@ -35,7 +35,9 @@ class DeploymentConfigPatchUtilTest extends FunSpec with Matchers {
     baseConfig.setJmxResetTime(1000)
     baseConfig.setSoLingerTime(1000)
     baseConfig.setContentBodyReadLimit(1000L)
-    baseConfig.setVia("via")
+    val viaHeader = new ViaHeader()
+    viaHeader.setRequestPrefix("via")
+    baseConfig.setViaHeader(viaHeader)
 
     val patchConfig = new DeploymentConfigurationPatch()
     patchConfig.setHttpPort(8080)
@@ -46,7 +48,9 @@ class DeploymentConfigPatchUtilTest extends FunSpec with Matchers {
     // patchConfig.setJmxResetTime(3000)
     patchConfig.setSoLingerTime(4000)
     patchConfig.setContentBodyReadLimit(5000L)
-    patchConfig.setVia("patched-via")
+    val viaHeaderPatch = new ViaHeaderPatch()
+    viaHeaderPatch.setRequestPrefix("patched-via")
+    patchConfig.setViaHeader(viaHeaderPatch)
 
     it("should return a new instance of the configuration, not mutate the given instance") {
       val patchedConfig = DeploymentConfigPatchUtil.patch(baseConfig, patchConfig)
@@ -65,7 +69,7 @@ class DeploymentConfigPatchUtilTest extends FunSpec with Matchers {
       // patchedConfig.getJmxResetTime shouldEqual 3000
       patchedConfig.getSoLingerTime shouldEqual 4000
       patchedConfig.getContentBodyReadLimit shouldEqual 5000L
-      patchedConfig.getVia shouldEqual "patched-via"
+      patchedConfig.getViaHeader.getRequestPrefix shouldEqual "patched-via"
     }
   }
 
