@@ -8,9 +8,9 @@
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
-  
+
        http://www.apache.org/licenses/LICENSE-2.0
-  
+
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -83,34 +83,6 @@
                         If set to false, a single X-Project-Id is sent.
                         If set to true, all project IDs returned by the Identity service are added as multiple
                         X-Project-Id headers.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <!-- TODO: Remove these cache attributes in Repose 9 -->
-        <xs:attribute name="token-cache-timeout" type="ZeroOrPositiveInteger" use="optional" default="0">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>Time in milliseconds to cache auth token.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="groups-cache-timeout" type="ZeroOrPositiveInteger" use="optional" default="600000">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>Time in milliseconds to cache auth groups.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="cache-offset" type="ZeroOrPositiveInteger" use="optional" default="0">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>Cache timeout offset (in milliseconds) for token and group cache. A random value
-                        between -cache-offset and +cache-offset will be applied to the existing
-                        token and group timeout values.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
