@@ -522,7 +522,7 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-                    Allows you to configure Secure Protocols to be used by VALVE, not WAR deployments
+                    Allows you to configure Secure Protocols to be used by Repose.
                     This is a list of protocols that can be used, must be listed by the JVM's "getSupportedProtocols"
                     method, which will be logged, if Valve fails to initialize.
                     http://docs.oracle.com/javase/8/docs/api/javax/net/ssl/SSLEngine.html?is-external=true#setEnabledProtocols%28java.lang.String[]%29
@@ -539,8 +539,8 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-                    Allows you to configure cipher suites and TLS renegotiation that will be used by VALVE
-                    (not war file) for SSL and TLS.
+                    Allows you to configure cipher suites and TLS renegotiation that will be used by Repose
+                    for SSL and TLS.
 
                     Each cipher can be an exact cipher name, or a regular expression.
 

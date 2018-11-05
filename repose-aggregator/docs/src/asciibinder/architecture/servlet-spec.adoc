@@ -23,11 +23,9 @@ It is responsible for routing the HTTP request from *Repose* to the origin servi
 
 This servlet uses the configuration information stored in the <<system-model.adoc#,System Model>> to determine what destinations are available.
 Routing to an app on the same host but in another container or environment is easily configured in a generic way.
-Dispatching to another app internal to the same servlet container is also possible when using the WAR deployment option.
 There is also a way to route to another *Repose* cluster defined in the <<system-model.adoc#,System Model>> using a basic built in Round Robin algorithm.
 
-Even though Internal Dispatch and Cluster Routing are possible, the complexity and inflexibility make their use viable in only the most specific situations.
-The Internal Dispatch will gain only a couple milliseconds on a given call vs routing to another container on the localhost.
+Even though Cluster Routing is possible, the complexity and inflexibility make its use viable in only the most specific situations.
 The Round Robin routing does not do any health checks and will route to unhealthy nodes.
 These are great options to have available for testing and early prototyping, but are not recommended for production.
 

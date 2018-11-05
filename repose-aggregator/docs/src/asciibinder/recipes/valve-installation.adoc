@@ -24,7 +24,7 @@ sudo sh -c 'echo "deb http://repo.openrepose.org/debian stable main" > /etc/apt/
 sudo apt-get update
 
 # install Repose
-sudo apt-get install -y repose-valve repose-filter-bundle repose-extensions-filter-bundle
+sudo apt-get install -y repose repose-filter-bundle repose-extensions-filter-bundle
 ----
 
 == Yum Based Linux Distributions
@@ -43,7 +43,7 @@ sudo yum install -y daemonize
 sudo wget -O /etc/yum.repos.d/openrepose.repo http://repo.openrepose.org/el/openrepose.repo
 
 # install Repose
-sudo yum install -y repose-valve repose-filter-bundle repose-extensions-filter-bundle
+sudo yum install -y repose repose-filter-bundle repose-extensions-filter-bundle
 ----
 
 == Other Operating Systems (e.g., Windows, MacOS)

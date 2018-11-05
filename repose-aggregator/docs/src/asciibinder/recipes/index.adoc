@@ -27,9 +27,6 @@ Details the ways which *Repose Valve* can be run.
 == <<valve-installation.adoc#,Valve Installation>>
 Covers the typical *Repose* setup -- a Valve installation (i.e., standalone application) running as a Linux service.
 
-== <<war-installation.adoc#,WAR Installation>>
-Covers setting up *Repose* inside of a user-provided servlet container.
-
 == <<echo-server.adoc#,Echo Server>>
 *IN PROGRESS*
 If you're evaluating *Repose* and want a simple origin service to test against, you can install a local instance of httpbin that will echo back your requests.
