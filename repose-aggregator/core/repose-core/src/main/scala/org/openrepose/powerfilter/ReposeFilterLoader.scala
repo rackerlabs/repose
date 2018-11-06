@@ -189,7 +189,7 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
   private def buildFilterContexts(servletContext: ServletContext, filtersToCreate: List[FilterConfig]): List[FilterContext] = {
     filtersToCreate.map { filterToCreate =>
       if (classLoaderManagerService.hasFilter(filterToCreate.getName)) {
-        loadFilterContext(filterToCreate, classLoaderManagerService.getLoadedApplications, servletContext)
+        loadFilterContext(classLoaderManagerService.getLoadedApplications, filterToCreate, servletContext)
       } else {
         val message = s"Unable to satisfy requested filter chain - none of the loaded artifacts supply a filter named ${filterToCreate.getName}"
         logger.error(message)
@@ -201,30 +201,31 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
   /**
     * Load a FilterContext for a filter
     *
-    * @param filter             the Jaxb filter configuration information from the system-model
     * @param loadedApplications The list of EarClassLoaders
+    * @param filterConfig       The Jaxb filter configuration information from the system-model
+    * @param servletContext     The Servlet Context to build the new Filter Config Wrapper with
     * @return a FilterContext containing an instance of the filter and metatadata
     * @throws org.openrepose.powerfilter.FilterInitializationException
     */
   @throws[FilterInitializationException]
-  private def loadFilterContext(filter: FilterConfig, loadedApplications: util.Collection[EarClassLoaderContext], servletContext: ServletContext): FilterContext = {
-    // TODO: Clean this up \/\/\/\/
-    var filterType: FilterType = null
-    var filterClassLoader: ClassLoader = null
-    val classLoaderContextIterator = loadedApplications.iterator
-    while (classLoaderContextIterator.hasNext && filterType == null) {
-      val classLoaderContext = classLoaderContextIterator.next
-      filterType = classLoaderContext.getEarDescriptor.getRegisteredFilters.get(filter.getName)
-      if (filterType != null) filterClassLoader = classLoaderContext.getClassLoader
+  private def loadFilterContext(loadedApplications: util.Collection[EarClassLoaderContext], filterConfig: FilterConfig, servletContext: ServletContext): FilterContext = {
+    loadedApplications.asScala.toStream.map { classLoaderContext =>
+      (classLoaderContext.getEarDescriptor.getRegisteredFilters.get(filterConfig.getName), classLoaderContext.getClassLoader)
+    }.find { case (filterType, _) => filterType != null } match {
+      case Some((filterType, filterClassLoader)) =>
+        // We got a Filter Type and a classloader, so do actual work
+        getFilterContext(filterConfig, servletContext, filterType, filterClassLoader)
+      case None =>
+        throw new FilterInitializationException(s"Requested filter, ${filterConfig.getName} can not be found.")
     }
-    // TODO: Clean this up /\/\/\/\
+  }
 
-    // FilterType and filterClassloader are guaranteed to not be null, by a different check in the previous method
+  @throws[FilterInitializationException]
+  private def getFilterContext(filterConfig: FilterConfig, servletContext: ServletContext, filterType: FilterType, filterClassLoader: ClassLoader): FilterContext = {
     val filterClassName = filterType.getFilterClass.getValue
-    //We got a filter info and a classloader, we can do actual work
     try {
       logger.info("Getting child application context for {} using classloader {}", filterClassName, filterClassLoader.toString)
-      val filterContext = CoreSpringProvider.getContextForFilter(applicationContext, filterClassLoader, filterClassName, getUniqueContextName(filter))
+      val filterContext = CoreSpringProvider.getContextForFilter(applicationContext, filterClassLoader, filterClassName, getUniqueContextName(filterConfig))
       //Get the specific class to load from the application context
       val filterClass: Class[_] = filterClassLoader.loadClass(filterClassName)
       val newFilterInstance: Filter = try {
@@ -238,9 +239,9 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
           filterContext.getBeanFactory.registerSingleton(rtnFilterInstance.getClass.getName, rtnFilterInstance)
           rtnFilterInstance
       }
-      newFilterInstance.init(new FilterConfigWrapper(servletContext, filterType, filter.getConfiguration))
+      newFilterInstance.init(new FilterConfigWrapper(servletContext, filterType, filterConfig.getConfiguration))
       logger.info("Filter Instance: {} successfully created", newFilterInstance)
-      FilterContext(newFilterInstance, filter, filter.getFilterCriterion.evaluate, filterContext)
+      FilterContext(newFilterInstance, filterConfig, filterConfig.getFilterCriterion.evaluate, filterContext)
     } catch {
       case e: ClassNotFoundException =>
         throw new FilterInitializationException(s"Requested filter, $filterClassName does not exist in any loaded artifacts", e)
