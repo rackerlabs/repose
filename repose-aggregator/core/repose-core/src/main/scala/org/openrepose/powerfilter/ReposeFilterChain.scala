@@ -66,13 +66,14 @@ class ReposeFilterChain(val filterChain: List[FilterContext],
           .apply(originalChain.doFilter(_, _))
           .apply(request, response)
       case head :: tail if head.shouldRun(request) =>
-        logger.debug("Entering filter: {}", head.filterName)
-        (doIntrafilterLogging(head.filterName)(_))
-          .compose(doMetrics(head.filterName))
+        val filterName = head.filterConfig.getName
+        logger.debug("Entering filter: {}", filterName)
+        (doIntrafilterLogging(filterName)(_))
+          .compose(doMetrics(filterName))
           .apply(head.filter.doFilter(_, _, new ReposeFilterChain(tail, originalChain, None, optMetricRegistry, tracer)))
           .apply(request, response)
       case head :: tail =>
-        logger.debug("Skipping filter: {}", head.filterName)
+        logger.debug("Skipping filter: {}", head.filterConfig.getName)
         runNext(tail, request, response)
     }
   }

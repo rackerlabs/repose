@@ -190,7 +190,7 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
 
     // todo: when switching to the new ReposeFilterChain, replace the previous line with the following line
     // todo: to wire in the new ReposeFilter.
-    //filterHolder.setFilter(appContext.getBean("reposeFilter")
+    //filterHolder.setFilter(appContext.getBean("reposeFilter"))
     //filterHolder.setDisplayName("ReposeFilter")
 
     //All the dispatch types...

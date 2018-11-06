@@ -34,7 +34,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.http.HttpHeaders
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonRequestAttributes.QUERY_PARAMS
-import org.openrepose.commons.utils.http.{CommonHttpHeader, CommonRequestAttributes, OpenStackServiceHeader}
+import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader}
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.commons.utils.servlet.http.{HeaderInteractor, HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
 import org.openrepose.core.filter.FilterConfigHelper

@@ -61,7 +61,6 @@ class ReposeFilterTest extends FunSpec
   with BeforeAndAfterEach
   with MockitoAnswers {
 
-  val ListAppenderName = "List0"
   var nodeId: String = _
   var reposeVersion: String = _
   var metricRegistry: MetricRegistry = _
@@ -113,7 +112,8 @@ class ReposeFilterTest extends FunSpec
     mockFilter = mock[Filter]
     mockAbstractApplicationContext = mock[AbstractApplicationContext]
     filterConfig = new FilterConfig
-    filterContexts = List(FilterContext(mockFilter, "foo", (request: HttpServletRequest) => true, mockAbstractApplicationContext, filterConfig))
+    filterConfig.setName("foo")
+    filterContexts = List(FilterContext(mockFilter, filterConfig, (request: HttpServletRequest) => true, mockAbstractApplicationContext))
     filterContextList = new FilterContextList(mock[FilterContextRegistrar], filterContexts, None)
     when(reposeFilterLoader.getFilterContextList).thenReturn(Option(filterContextList))
     filter = new ReposeFilter(
@@ -130,7 +130,7 @@ class ReposeFilterTest extends FunSpec
     response = new MockHttpServletResponse
     filterChain = mock[FilterChain]
     loggerContext = LogManager.getContext(false).asInstanceOf[LoggerContext]
-    listAppender = loggerContext.getConfiguration.getAppender(ListAppenderName).asInstanceOf[ListAppender]
+    listAppender = loggerContext.getConfiguration.getAppender("List0").asInstanceOf[ListAppender]
     listAppender.clear()
   }
 

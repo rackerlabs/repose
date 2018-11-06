@@ -49,6 +49,7 @@ import org.springframework.context.ApplicationContext
 import org.springframework.context.support.AbstractApplicationContext
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable.ListBuffer
 
 @Named("reposeFilterLoader")
 class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String,
@@ -72,7 +73,7 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
 
   @PostConstruct
   def init(): Unit = {
-    logger.info("{} -- Initializing ReposeFilterContext", nodeId)
+    logger.info("{} -- Initializing ReposeFilterLoader", nodeId)
     val xsdURL = getClass.getResource("/META-INF/schema/system-model/system-model.xsd")
     configurationService.subscribeTo("system-model.cfg.xml", xsdURL, this, classOf[SystemModel])
     eventService.listen(this, APPLICATION_COLLECTION_MODIFIED)
@@ -85,16 +86,13 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
     healthCheckServiceProxy.deregister()
     eventService.squelch(this, APPLICATION_COLLECTION_MODIFIED)
     configurationService.unsubscribeFrom("system-model.cfg.xml", this)
-    logger.info("{} -- Destroyed ReposeFilterContext", nodeId)
+    logger.info("{} -- Destroyed ReposeFilterLoader", nodeId)
   }
 
   override def configurationUpdated(configurationObject: SystemModel): Unit = {
     logger.debug("{} New system model configuration provided", nodeId)
-    currentSystemModel.synchronized {
-      val previousSystemModel = currentSystemModel
-      currentSystemModel = Option(configurationObject)
-      previousSystemModel
-    }.foreach { _ =>
+    currentSystemModel = Option(configurationObject)
+    currentSystemModel.foreach { _ =>
       logger.debug("{} -- issuing POWER_FILTER_CONFIGURED event from a configuration update", nodeId)
       eventService.newEvent(POWER_FILTER_CONFIGURED, System.currentTimeMillis)
     }
@@ -165,10 +163,8 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
               previousFilterContextRegistrar
             }.foreach(_.close())
 
-            if (logger.underlying.isDebugEnabled) {
-              val filterChainInfo = newFilterChain.map(ctx => ctx.filter.getClass.getName).mkString(",")
-              logger.debug("{} -- Repose filter chain: {}", nodeId, filterChainInfo)
-            }
+            val filterChainInfo = newFilterChain.map(ctx => ctx.filter.getClass.getName).mkString(",")
+            logger.debug("{} -- Repose filter chain: {}", nodeId, filterChainInfo)
 
             //Only log this repose ready if we're able to properly fire up a new filter chain
             logger.info("{} -- Repose ready", nodeId)
@@ -216,9 +212,7 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
     var filterType: FilterType = null
     var filterClassLoader: ClassLoader = null
     val classLoaderContextIterator = loadedApplications.iterator
-    while ( {
-      classLoaderContextIterator.hasNext && filterType == null
-    }) {
+    while (classLoaderContextIterator.hasNext && filterType == null) {
       val classLoaderContext = classLoaderContextIterator.next
       filterType = classLoaderContext.getEarDescriptor.getRegisteredFilters.get(filter.getName)
       if (filterType != null) filterClassLoader = classLoaderContext.getClassLoader
@@ -246,7 +240,7 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
       }
       newFilterInstance.init(new FilterConfigWrapper(servletContext, filterType, filter.getConfiguration))
       logger.info("Filter Instance: {} successfully created", newFilterInstance)
-      FilterContext(newFilterInstance, filter.getName, filter.getFilterCriterion.evaluate, filterContext, filter)
+      FilterContext(newFilterInstance, filter, filter.getFilterCriterion.evaluate, filterContext)
     } catch {
       case e: ClassNotFoundException =>
         throw new FilterInitializationException(s"Requested filter, $filterClassName does not exist in any loaded artifacts", e)
@@ -272,29 +266,29 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
 
 object ReposeFilterLoader {
 
-  case class FilterContext(filter: Filter, filterName: String, shouldRun: HttpServletRequestWrapper => Boolean, appContext: AbstractApplicationContext, filterConfig: FilterConfig)
+  case class FilterContext(filter: Filter, filterConfig: FilterConfig, shouldRun: HttpServletRequestWrapper => Boolean, appContext: AbstractApplicationContext)
 
-  class FilterContextList(val registrar: FilterContextRegistrar, val filterContexts: List[FilterContext], val bypassUriRegex: Option[String]) extends AutoCloseable {
+  case class FilterContextList(registrar: FilterContextRegistrar, filterContexts: List[FilterContext], bypassUriRegex: Option[String]) extends AutoCloseable {
     override def close(): Unit = registrar.release(this)
   }
 
   class FilterContextRegistrar(val filterContexts: List[FilterContext], val bypassUriRegex: Option[String]) extends AutoCloseable {
-    val pool = new util.ArrayList[FilterContextList]()
+    val inUse = ListBuffer.empty[FilterContextList]
     var doClose = false
 
     def bind(): FilterContextList = {
       // There is no need to check the doClose since this Registrar would already
       // have been replaced by the atomic getAndSet() before the close() is called.
-      pool.synchronized {
+      inUse.synchronized {
         val filterContextList = new FilterContextList(this, filterContexts, bypassUriRegex)
-        pool.add(filterContextList)
+        inUse += filterContextList
         filterContextList
       }
     }
 
     def release(filterContextList: FilterContextList): Unit = {
-      pool.synchronized {
-        pool.remove(filterContextList)
+      inUse.synchronized {
+        inUse -= filterContextList
       }
       checkShutdown()
     }
@@ -305,8 +299,8 @@ object ReposeFilterLoader {
     }
 
     private def checkShutdown(): Unit = {
-      pool.synchronized {
-        if (doClose && pool.isEmpty) {
+      inUse.synchronized {
+        if (doClose && inUse.isEmpty) {
           filterContexts.foreach { filterContext =>
             Option(filterContext.filter).foreach(_.destroy())
             Option(filterContext.appContext).foreach(_.close())

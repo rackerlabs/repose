@@ -53,7 +53,6 @@ import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
 class ReposeFilterLoaderTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
-  val ListAppenderName = "List0"
   var configurationService: ConfigurationService = _
   var eventService: EventService = _
   var healthCheckService: HealthCheckService = _
@@ -88,7 +87,7 @@ class ReposeFilterLoaderTest extends FunSpec with Matchers with MockitoSugar wit
       classLoaderManagerService)
 
     loggerContext = LogManager.getContext(false).asInstanceOf[LoggerContext]
-    listAppender = loggerContext.getConfiguration.getAppender(ListAppenderName).asInstanceOf[ListAppender]
+    listAppender = loggerContext.getConfiguration.getAppender("List0").asInstanceOf[ListAppender]
     listAppender.clear()
   }
 
@@ -190,17 +189,16 @@ class ReposeFilterLoaderTest extends FunSpec with Matchers with MockitoSugar wit
 
   describe("Inner Classes") {
     // These are all initialized for no reason other than to make the compiler happy
-    var mockAbstractApplicationContext = mock[AbstractApplicationContext]
     var filterConfig = new FilterConfig
     var fooFilter = mock[Filter]
-    var fooFilterContext = FilterContext(fooFilter, "foo", (request: HttpServletRequest) => true, mockAbstractApplicationContext, filterConfig)
+    var fooFilterContext = FilterContext(fooFilter, filterConfig, (request: HttpServletRequest) => true, null)
     var filterContextRegistrar = new FilterContextRegistrar(List(fooFilterContext), None)
 
     def beforeEachInnerClass(): Unit = {
-      mockAbstractApplicationContext = mock[AbstractApplicationContext]
       filterConfig = new FilterConfig
+      filterConfig.setName("foo")
       fooFilter = mock[Filter]
-      fooFilterContext = FilterContext(fooFilter, "foo", (request: HttpServletRequest) => true, mockAbstractApplicationContext, filterConfig)
+      fooFilterContext = FilterContext(fooFilter, filterConfig, (request: HttpServletRequest) => true, null)
       filterContextRegistrar = new FilterContextRegistrar(List(fooFilterContext), None)
     }
 
@@ -221,7 +219,7 @@ class ReposeFilterLoaderTest extends FunSpec with Matchers with MockitoSugar wit
         it("should return a Filter Context List with the filters") {
           beforeEachInnerClass()
           val filterContextList = filterContextRegistrar.bind()
-          val filterContextNames = filterContextList.filterContexts.map(_.filterName)
+          val filterContextNames = filterContextList.filterContexts.map(_.filterConfig.getName)
           filterContextNames should contain("foo")
         }
       }

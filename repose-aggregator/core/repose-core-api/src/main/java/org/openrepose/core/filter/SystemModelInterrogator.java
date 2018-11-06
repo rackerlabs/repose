@@ -35,6 +35,7 @@ public class SystemModelInterrogator {
     private final String nodeId;
 
     // @TODO: There will be only one cluster after REP-7314
+    // @TODO: This should probably just be deleted as part of REP-7314
     @Deprecated
     public SystemModelInterrogator(String clusterId, String nodeId) {
         this.nodeId = nodeId;

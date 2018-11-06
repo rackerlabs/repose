@@ -2430,7 +2430,7 @@ class HttpServletResponseWrapperTest extends FunSpec with BeforeAndAfterEach wit
 
           wrappedResponse.isCommitted shouldBe true
 
-          wrappedResponse.sendError(814, "TOPEAT", true)
+          wrappedResponse.sendError(814, "TOPAET", true)
 
           wrappedResponse.getStatus shouldEqual 814
         }
