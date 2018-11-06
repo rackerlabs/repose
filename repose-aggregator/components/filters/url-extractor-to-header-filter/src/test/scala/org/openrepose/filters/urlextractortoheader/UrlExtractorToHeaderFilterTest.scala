@@ -22,7 +22,6 @@ package org.openrepose.filters.urlextractortoheader
 
 import javax.servlet.http.HttpServletRequestWrapper
 import javax.servlet.{FilterChain, ServletResponse}
-
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers._
@@ -33,6 +32,8 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 
+import scala.collection.JavaConverters._
+
 @RunWith(classOf[JUnitRunner])
 class UrlExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
 
@@ -40,7 +41,7 @@ class UrlExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfterEach wit
   var servletResponse: MockHttpServletResponse = _
   var filterChain: FilterChain = _
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     servletRequest = new MockHttpServletRequest
     servletResponse = new MockHttpServletResponse
     filterChain = mock[FilterChain]
@@ -117,6 +118,48 @@ class UrlExtractorToHeaderFilterTest extends FunSpec with BeforeAndAfterEach wit
       verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
       requestCaptor.getValue.getHeader("X-Device-Id") shouldBe "hybrid:45678"
       requestCaptor.getValue.getHeader("X-Server-Id") shouldBe null
+    }
+
+    it("should add a header with multiple values when the configured regex contains multiple capture groups") {
+      val config = new UrlExtractorToHeaderConfig
+      config.getExtraction.add(createConfigExtractor("X-Device-Id", ".*/(hybrid:\\d+)/entities/(.+)", None))
+      val filter = new UrlExtractorToHeaderFilter(null)
+      filter.configurationUpdated(config)
+      servletRequest.setRequestURI("/v1/hybrid:45678/entities/96")
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
+      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
+      requestCaptor.getValue.getHeaders("X-Device-Id").asScala.toStream should contain only("hybrid:45678", "96")
+    }
+
+    it("should add a header with a single value when the configured regex contains a single capture groups and any number of non-capturing groups") {
+      val config = new UrlExtractorToHeaderConfig
+      config.getExtraction.add(createConfigExtractor("X-Device-Id", ".*/(hybrid:\\d+)/entities/(?:.+)", None))
+      val filter = new UrlExtractorToHeaderFilter(null)
+      filter.configurationUpdated(config)
+      servletRequest.setRequestURI("/v1/hybrid:45678/entities/96")
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
+      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
+      requestCaptor.getValue.getHeaders("X-Device-Id").asScala.toStream should contain only "hybrid:45678"
+    }
+
+    it("should add a header with the regex value when the configured regex partially matched the URL") {
+      val config = new UrlExtractorToHeaderConfig
+      config.getExtraction.add(createConfigExtractor("X-Device-Id", ".*/(hybrid:\\d+)/", None))
+      val filter = new UrlExtractorToHeaderFilter(null)
+      filter.configurationUpdated(config)
+      servletRequest.setRequestURI("/v1/hybrid:45678/entities/96")
+
+      filter.doFilter(servletRequest, servletResponse, filterChain)
+
+      val requestCaptor = ArgumentCaptor.forClass(classOf[HttpServletRequestWrapper])
+      verify(filterChain).doFilter(requestCaptor.capture(), any(classOf[ServletResponse]))
+      requestCaptor.getValue.getHeaders("X-Device-Id").asScala.toStream should contain only "hybrid:45678"
     }
   }
 

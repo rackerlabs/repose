@@ -21,6 +21,7 @@
 * https://repose.atlassian.net/browse/REP-5147[REP-5147] - The <<../filters/header-normalization.adoc#, Header Normalization>> filter now evaluates all targets not just the first to match.
 * https://repose.atlassian.net/browse/REP-5326[REP-5326] - Removed the deprecated via attribute from the <<../architecture/container.adoc#, Container configuration>>.
 * https://repose.atlassian.net/browse/REP-7338[REP-7338] - The WAR deployment was removed as an option.
+* https://repose.atlassian.net/browse/REP-6603[REP-6603] - Added support for multiple capture groups to the <<../filters/url-extractor-to-header.adoc#, URL Extractor to Header Filter>>.
 
 == 8.10.0.0 (2018-08-27)
 * https://repose.atlassian.net/browse/REP-6969[REP-6969] - Added support for more expressive filter determination in the <<../architecture/system-model.adoc#,System Model>> using boolean operators.
