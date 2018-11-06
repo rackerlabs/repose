@@ -25,8 +25,8 @@ import java.util.{Optional, UUID}
 
 import com.codahale.metrics.MetricRegistry
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import io.opentracing.Tracer
 import io.opentracing.tag.Tags
+import io.opentracing.{Scope, Tracer}
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
@@ -124,66 +124,71 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
 
         MDC.put(TracingKey.TRACING_KEY, traceGUID)
 
-        try {
-          TryWith(filterContextList)(_ => {
-            // Ensure the request URI is a valid URI
-            // This object is only being created to ensure its validity.
-            // So it is safe to suppress warning squid:S1848
-            new URI(wrappedRequest.getRequestURI)
+        val doFilterChain = TryWith(filterContextList)(_ => {
+          // Ensure the request URI is a valid URI
+          // This object is only being created to ensure its validity.
+          // So it is safe to suppress warning squid:S1848
+          new URI(wrappedRequest.getRequestURI)
 
-            if (tracingHeaderConfig.exists(_.isEnabled)) {
-              if (StringUtils.isBlank(wrappedRequest.getHeader(TRACE_GUID))) {
-                wrappedRequest.addHeader(TRACE_GUID, TracingHeaderHelper.createTracingHeader(traceGUID, wrappedRequest.getHeader(VIA)))
-              }
-              if (tracingHeaderConfig.exists(_.isSecondaryPlainText)) {
-                TraceIdLogger.trace("Adding plain text trans id to request: {}", traceGUID)
-                wrappedRequest.replaceHeader(REQUEST_ID, traceGUID)
-              }
-              val tracingHeader = wrappedRequest.getHeader(TRACE_GUID)
-              TraceIdLogger.info("Tracing header: {}", TracingHeaderHelper.decode(tracingHeader))
-              wrappedResponse.addHeader(TRACE_GUID, tracingHeader)
+          if (tracingHeaderConfig.exists(_.isEnabled)) {
+            if (StringUtils.isBlank(wrappedRequest.getHeader(TRACE_GUID))) {
+              wrappedRequest.addHeader(TRACE_GUID, TracingHeaderHelper.createTracingHeader(traceGUID, wrappedRequest.getHeader(VIA)))
             }
-            new ReposeFilterChain(
-              filterContextList.filterContexts,
-              chain,
-              filterContextList.bypassUriRegex,
-              optMetricRegistry,
-              tracer
-            ).doFilter(wrappedRequest, wrappedResponse)
-          }) match {
-            case Success(_) =>
-              logger.trace("{} -- Successfully processed request", nodeId)
-            case Failure(use: URISyntaxException) =>
-              logger.debug(s"$nodeId -- Invalid URI requested: ${wrappedRequest.getRequestURI}", use)
-              wrappedResponse.sendError(SC_BAD_REQUEST, "Error processing request", true)
-            case Failure(e: Exception) =>
-              logger.error(s"$nodeId -- Issue encountered while processing filter chain.", e)
-              wrappedResponse.sendError(SC_BAD_GATEWAY, "Error processing request", true)
-            case Failure(t: Throwable) =>
-              logger.error(s"$nodeId -- Error encountered while processing filter chain.", t)
-              wrappedResponse.sendError(SC_BAD_GATEWAY, "Error processing request", true)
-              throw t
+            if (tracingHeaderConfig.exists(_.isSecondaryPlainText)) {
+              TraceIdLogger.trace("Adding plain text trans id to request: {}", traceGUID)
+              wrappedRequest.replaceHeader(REQUEST_ID, traceGUID)
+            }
+            val tracingHeader = wrappedRequest.getHeader(TRACE_GUID)
+            TraceIdLogger.info("Tracing header: {}", TracingHeaderHelper.decode(tracingHeader))
+            wrappedResponse.addHeader(TRACE_GUID, tracingHeader)
           }
-        } finally {
-          closeSpan(wrappedResponse, scope)
-          if (!wrappedResponse.isCommitted) {
-            responseHeaderService.setVia(wrappedRequest, wrappedResponse)
-          }
-          wrappedResponse.commitToResponse()
-          optMetricRegistry.foreach { (mr: MetricRegistry) =>
-            markResponseCodeHelper(
-              mr,
-              wrappedResponse.getStatus,
-              System.currentTimeMillis - startTime,
-              logger.underlying)
-          }
+
+          new ReposeFilterChain(
+            filterContextList.filterContexts,
+            chain,
+            filterContextList.bypassUriRegex,
+            optMetricRegistry,
+            tracer
+          ).doFilter(wrappedRequest, wrappedResponse)
+        })
+
+        doFilterChain match {
+          case Success(_) =>
+            logger.trace("{} -- Successfully processed request", nodeId)
+          case Failure(use: URISyntaxException) =>
+            logger.debug(s"$nodeId -- Invalid URI requested: ${wrappedRequest.getRequestURI}", use)
+            wrappedResponse.sendError(SC_BAD_REQUEST, "Error processing request", true)
+          case Failure(e: Exception) =>
+            logger.error(s"$nodeId -- Issue encountered while processing filter chain.", e)
+            wrappedResponse.sendError(SC_BAD_GATEWAY, "Error processing request", true)
+          case Failure(t: Throwable) =>
+            logger.error(s"$nodeId -- Error encountered while processing filter chain.", t)
+            wrappedResponse.sendError(SC_BAD_GATEWAY, "Error processing request", true)
+            setViaClearCommitAndClose(wrappedRequest, wrappedResponse, scope, startTime)
+            throw t
         }
-        // Clear out the logger context now that we are done with this request
-        MDC.clear()
+        setViaClearCommitAndClose(wrappedRequest, wrappedResponse, scope, startTime)
         logger.trace("ReposeFilter returning response...")
       case None =>
         logger.error("ReposeFilter has not yet initialized...")
         response.asInstanceOf[HttpServletResponse].sendError(SC_INTERNAL_SERVER_ERROR, "ReposeFilter not initialized")
+    }
+  }
+
+  private def setViaClearCommitAndClose(wrappedRequest: HttpServletRequestWrapper, wrappedResponse: HttpServletResponseWrapper, scope: Scope, startTime: Long): Unit = {
+    if (!wrappedResponse.isCommitted) {
+      responseHeaderService.setVia(wrappedRequest, wrappedResponse)
+    }
+    // Clear out the logger context now that we are done with this request
+    MDC.clear()
+    wrappedResponse.commitToResponse()
+    closeSpan(wrappedResponse, scope)
+    optMetricRegistry.foreach { mr =>
+      markResponseCodeHelper(
+        mr,
+        wrappedResponse.getStatus,
+        System.currentTimeMillis - startTime,
+        logger.underlying)
     }
   }
 
