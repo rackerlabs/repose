@@ -23,9 +23,8 @@ components. These components can be leveraged by service developers to perform
 common API processing tasks. By using Repose's components rather than creating their
 own, service developers can focus on the unique features of their services.  
 
-Repose can be run as a standalone application (either as a Linux service or using the
-JAR directly), or it can be deployed as a WAR file in a servlet container alongside
-your origin service. Repose can be run on the same server or on a different server, and
+Repose is run as a standalone application (either as a Linux service or using the
+JAR directly). Repose can be run on the same server or on a different server, and
 it can be run across multiple servers for horizontal scaling. At its core, Repose is a
 proxy that allows services to use Enterprise Integration Patterns (EIP).
 
@@ -35,9 +34,7 @@ For more information, check out our [Getting Started with Repose](https://repose
 ## Benefits ##
 
 * **Scalable**. Repose is incredibly scalable because it is designed to be stateless.
-* **Flexible**. Repose can be run as a [standalone Linux service (Valve)](https://repose.atlassian.net/wiki/display/REPOSE/Valve+Installation)
-  or deployed as a [WAR file](https://repose.atlassian.net/wiki/display/REPOSE/WAR+Installation) in any servlet
-  container.
+* **Flexible**. Repose is run as a [standalone Linux service (Valve)](https://repose.atlassian.net/wiki/display/REPOSE/Valve+Installation).
 * **Extensible**. New [components](https://repose.atlassian.net/wiki/display/REPOSE/Filters+and+services)
   are being added all of the time, and you can even build your own
   [custom component](https://github.com/rackerlabs/repose-hello-world).
@@ -82,30 +79,7 @@ Repose will search for configuration files in the user specified directory.
 
 Setting the Configuration Root Directory.
 
-* If using the Valve deployment, simply pass the configuration directory to the Java process using the "-c" option.
-* If using the WAR deployment, include the following in the $CONTAINER_HOME/conf/context.xml file:
-```
-    <Context docBase="ROOT.war">
-      <Parameter name="powerapi-config-directory" value="/etc/repose" override="false"/>
-      <Parameter name="repose-cluster-id" value="repose"/>
-      <Parameter name="repose-node-id" value="repose_node1"/>
-    </Context>
-```
-* As an alternative, the web.xml file within the war itself can be modified to include the following:
-```
-    <context-param>
-        <param-name>repose-config-directory</param-name>
-        <param-value>/etc/repose</param-value>
-    </context-param>
-    <context-param>
-        <param-name>repose-cluster-id</param-name>
-        <param-value>repose</param-value>
-    </context-param>
-    <context-param>
-        <param-name>repose-node-id</param-name>
-        <param-value>repose_node1</param-value>
-    </context-param>
-```
+* Simply pass the configuration directory to the Java process using the "-c" option.
 
 
 ## Licensing ##

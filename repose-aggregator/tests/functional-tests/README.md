@@ -80,11 +80,6 @@ launcher may be able to run one or more nodes within a single instance.
   a single instances simultaneously. The instance runs in a separate
   process, so debugging the internals of Repose while a test is running
   can be a little tricky.
-- `ReposeContainerLauncher` - starts a servlet container (such as Tomcat and
-  Glassfish), with Repose running as the ROOT.war servlet. This launcher
-  only runs a single node at a time; the cluster and node id's of the node
-  to run must be specified when creating the launcher. Runs in a separate
-  process.
 - `ReposeInProcessValveLauncher` - starts Repose using Valve, but within the
   same process and JVM as the test code. This make debugging a little
   easier.
@@ -144,10 +139,7 @@ The `ReposeValveTest` class serves as a base class for all of the spock tests.
 It has some properties for a ReposeLauncher and a Deproxy, and will
 automatically start and stop them at the beginning and end of the tests. It
 will create a TestProperties object for you, which automatically reserves
-ports for various things. It can theoretically start Repose in a Valve,
-Glassfish, or Tomcat configuration, although this is not completely fleshed
-out, and should eventually be removed. Moreover it makes the name of the class
-inaccurate.
+ports for various things. 
 
 # Mock Services #
 

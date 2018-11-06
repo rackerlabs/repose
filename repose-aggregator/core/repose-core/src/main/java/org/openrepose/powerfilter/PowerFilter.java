@@ -35,8 +35,6 @@ import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
 import org.openrepose.commons.utils.servlet.http.ResponseMode;
 import org.openrepose.core.filter.SystemModelInterrogator;
-import org.openrepose.core.proxy.ServletContextWrapper;
-import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.config.ConfigurationService;
 import org.openrepose.core.services.deploy.ApplicationDeploymentEvent;
 import org.openrepose.core.services.deploy.ArtifactManager;
@@ -132,7 +130,6 @@ public class PowerFilter extends DelegatingFilterProxy {
     private final ConfigurationService configurationService;
     private final Optional<MetricsService> metricsService;
     private final ConfigurationInformation configurationInformation;
-    private final RequestProxyService requestProxyService;
     private final ArtifactManager artifactManager;
     private ReportingService reportingService;
     private HealthCheckServiceProxy healthCheckServiceProxy;
@@ -157,7 +154,6 @@ public class PowerFilter extends DelegatingFilterProxy {
      * @param responseMessageService        the response message service
      * @param filterContextFactory          A factory that builds filter contexts
      * @param configurationInformation      allows JMX to see when this powerfilter is ready
-     * @param requestProxyService           Only needed by the servletconfigwrapper thingy, no other way to get it in there
      * @param artifactManager               Needed to poll artifact loading to prevent prematurely constructing a PowerFilterChain
      * @param metricsService                the metrics service,
      * @param uriRedactionService           the URI Redaction service
@@ -178,7 +174,6 @@ public class PowerFilter extends DelegatingFilterProxy {
         ResponseMessageService responseMessageService,
         FilterContextFactory filterContextFactory,
         ConfigurationInformation configurationInformation,
-        RequestProxyService requestProxyService,
         ArtifactManager artifactManager,
         Optional<MetricsService> metricsService,
         UriRedactionService uriRedactionService
@@ -191,7 +186,6 @@ public class PowerFilter extends DelegatingFilterProxy {
         this.metricsService = metricsService;
         this.tracer = tracer;
         this.configurationInformation = configurationInformation;
-        this.requestProxyService = requestProxyService;
         this.artifactManager = artifactManager;
         this.uriRedactionService = uriRedactionService;
 
@@ -304,18 +298,6 @@ public class PowerFilter extends DelegatingFilterProxy {
     @Override
     public void initFilterBean() {
         LOG.info("{}:{} -- Initializing PowerFilter bean", clusterId, nodeId);
-
-        /*
-         * http://docs.spring.io/spring-framework/docs/3.1.4.RELEASE/javadoc-api/org/springframework/web/filter/GenericFilterBean.html#setServletContext%28javax.servlet.ServletContext%29
-         * Configure the servlet Context wrapper insanity to get to the Request Dispatcher I think...
-         * NOTE: this thing alone provides the dispatcher for forwarding requests. It's really kind of gross.
-         * we should seriously consider doing it in a ProxyServlet or something. Far less complicated.
-         * getFilterConfig might be null sometimes, so just wrap it with existing servlet context
-         *
-         * TODO: this is broke if we set the container to create the FilterConfig, of course that doesn't give us a filterConfig either...
-         */
-        ServletContextWrapper wrappedServletContext = new ServletContextWrapper(getServletContext(), requestProxyService);
-        setServletContext(wrappedServletContext);
 
         eventService.listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
 

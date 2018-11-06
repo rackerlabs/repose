@@ -28,9 +28,6 @@ import java.util.Map;
 
 public interface RequestProxyService {
 
-    //TODO: this is the most terrible return value ever
-    int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response) throws IOException;
-
     ServiceClientResponse get(String uri, Map<String, String> headers, String connPoolId);
 
     ServiceClientResponse get(String baseUri, String extraUri, Map<String, String> headers, String connPoolId);

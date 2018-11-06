@@ -47,9 +47,9 @@ public class HttpComponentResponseProcessor {
         this.httpResponse = httpResponse;
     }
 
-    public void sendTranslatedRedirect(int statusCode) throws HttpException, IOException {
+    public void sendTranslatedRedirect() throws HttpException, IOException {
+        response.setStatus(responseCode);
         setResponseHeaders();
-        response.setStatus(statusCode);
         setResponseBody();
     }
 

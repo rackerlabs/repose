@@ -36,40 +36,9 @@ class VersionAddedManifestTest extends ReposeValveTest {
         when:
         // get jar and war
         def reposeJar = properties.reposeJar
-        def reposeWar = properties.reposeRootWar
 
         then:
-        verifyVersionFromWar(reposeWar, properties.reposeVersion)
         verifyVersion(reposeJar, properties.reposeVersion)
-    }
-
-    private boolean verifyVersionFromWar(String reposeWar, String version) {
-        def execcommand = "unzip -c ${reposeWar} META-INF/MANIFEST.MF"
-        def stream = """${execcommand}""".execute()
-        boolean verify = false
-        Manifest reposemf = new Manifest(stream.inputStream);
-        Attributes attributes = reposemf.getMainAttributes();
-        String versionNumber = ""
-        if (attributes != null) {
-            Iterator it = attributes.keySet().iterator();
-            while (it.hasNext()) {
-                Attributes.Name key = (Attributes.Name) it.next();
-                String keyword = key.toString();
-                if (keyword.equals("Implementation-Version") || keyword.equals("Specification-Version")) {
-                    versionNumber = (String) attributes.get(key);
-                    break;
-                }
-            }
-            if (version == versionNumber) {
-                verify = true
-            } else {
-                println "version doesn't match..."
-            }
-        } else {
-            println "Manifest attributes not found..."
-        }
-        stream.destroy()
-        return verify
     }
 
     private boolean verifyVersion(String reposeJar, String version) {
@@ -99,35 +68,5 @@ class VersionAddedManifestTest extends ReposeValveTest {
         }
         jarFile.close();
         return verify
-    }
-
-    // if need to check a list of attributes
-    private boolean verifyManifest(JarFile jarFile, Map listAttr) {
-        Manifest reposemf = jarFile.getManifest()
-        Attributes attributes = reposemf.getMainAttributes();
-        boolean check = false
-        if (attributes != null) {
-            listAttr.each { e ->
-                def checkName = e.key
-                Iterator it = attributes.keySet().iterator();
-                while (it.hasNext()) {
-                    Attributes.Name key = (Attributes.Name) it.next();
-                    String keyword = key.toString();
-                    if (keyword.equals(checkName)) {
-                        if (checkName == (String) attributes.get(key)) {
-                            check = true
-                        } else {
-                            check = false
-                        }
-                        break;
-                    }
-                }
-            }
-            return check;
-        } else {
-            println "Manifest attributes not found..."
-            return false
-        }
-        jarFile.close();
     }
 }

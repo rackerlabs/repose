@@ -19,171 +19,48 @@
  */
 package org.openrepose.nodeservice.httpcomponent;
 
-import com.google.common.base.Throwables;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.*;
-import org.apache.http.client.utils.URIUtils;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.util.EntityUtils;
-import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.utils.StringUriUtilities;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.io.RawInputStreamReader;
-import org.openrepose.commons.utils.io.stream.ReadLimitReachedException;
 import org.openrepose.commons.utils.logging.TracingHeaderHelper;
 import org.openrepose.commons.utils.logging.TracingKey;
-import org.openrepose.core.filter.SystemModelInterrogator;
-import org.openrepose.core.proxy.HttpException;
 import org.openrepose.core.services.RequestProxyService;
-import org.openrepose.core.services.config.ConfigurationService;
-import org.openrepose.core.services.healthcheck.HealthCheckService;
-import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
-import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.services.httpclient.CachingHttpClientContext;
 import org.openrepose.core.services.httpclient.HttpClientService;
 import org.openrepose.core.services.httpclient.HttpClientServiceClient;
-import org.openrepose.core.spring.ReposeSpringProperties;
-import org.openrepose.core.systemmodel.config.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 
 @Named
 @Lazy
 public class RequestProxyServiceImpl implements RequestProxyService {
 
-    public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
 
-    private final ConfigurationService configurationService;
-    private final SystemModelListener systemModelListener;
-    private final String clusterId;
-    private final String nodeId;
     private final HttpClientService httpClientService;
-    private final HealthCheckServiceProxy healthCheckServiceProxy;
-
-    private boolean rewriteHostHeader = false;
-    private ChunkedEncoding chunkedEncoding = ChunkedEncoding.TRUE;
 
     @Inject
-    public RequestProxyServiceImpl(ConfigurationService configurationService,
-                                   HealthCheckService healthCheckService,
-                                   HttpClientService httpClientService,
-                                   @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
-                                   @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId) {
-
-        this.configurationService = configurationService;
+    public RequestProxyServiceImpl(HttpClientService httpClientService) {
         this.httpClientService = httpClientService;
-        this.clusterId = clusterId;
-        this.nodeId = nodeId;
-
-        this.systemModelListener = new SystemModelListener();
-        healthCheckServiceProxy = healthCheckService.register();
-
-    }
-
-    @PostConstruct
-    public void init() {
-        configurationService.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
-    }
-
-    @PreDestroy
-    public void destroy() {
-        healthCheckServiceProxy.deregister();
-        configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
-    }
-
-    private HttpHost getProxiedHost(String targetHost) throws HttpException {
-        try {
-            return URIUtils.extractHost(new URI(targetHost));
-        } catch (URISyntaxException ex) {
-            LOG.error("Invalid target host url: " + targetHost, ex);
-        }
-
-        throw new HttpException("Invalid target host");
-    }
-
-    // todo: this method is only used by the dispatcher and can be deleted when the WAR deployment is dropped
-    @Override
-    public int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        HttpClientServiceClient httpClient = httpClientService.getDefaultClient();
-
-        try {
-            // todo: this is a funky chain of manipulation, even after some simplification
-            // todo: the gist is, the root path is added to the servlet request URI earlier
-            // todo: the targetHost contains the full target URL (including the root path and servlet URI)
-            // todo: so we chop the targetHost down to just the protocol, host, and port
-            // todo: and then append the servlet URI (which contains the root path and servlet request URI) in the processor
-            // todo: this will be simplified in the routing refactor
-            final HttpHost proxiedHost = getProxiedHost(targetHost);
-            final HttpComponentRequestProcessor requestProcessor = new HttpComponentRequestProcessor(
-                request,
-                URI.create(proxiedHost.toURI()),
-                rewriteHostHeader,
-                chunkedEncoding);
-
-            HttpUriRequest clientRequest = requestProcessor.process();
-
-            return executeProxyRequest(httpClient, clientRequest, response);
-        } catch (URISyntaxException | HttpException ex) {
-            LOG.error("Error processing request", ex);
-        }
-
-        //Something exploded; return a status code that doesn't exist
-        return -1;
-    }
-
-    private int executeProxyRequest(HttpClient httpClient, HttpUriRequest httpMethodProxyRequest, HttpServletResponse response) throws IOException, HttpException {
-        try {
-            HttpResponse httpResponse = httpClient.execute(httpMethodProxyRequest, CachingHttpClientContext.create().setUseCache(false));
-            int responseCode = httpResponse.getStatusLine().getStatusCode();
-            HttpComponentResponseProcessor responseProcessor = new HttpComponentResponseProcessor(httpResponse, response, responseCode);
-
-            if (responseCode >= HttpServletResponse.SC_MULTIPLE_CHOICES && responseCode < HttpServletResponse.SC_NOT_MODIFIED) {
-                responseProcessor.sendTranslatedRedirect(responseCode);
-            } else {
-                responseProcessor.process();
-            }
-
-            return responseCode;
-        } catch (ClientProtocolException ex) {
-            if (Throwables.getRootCause(ex) instanceof ReadLimitReachedException) {
-                LOG.error("Error reading request content", ex);
-                response.sendError(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Error reading request content");
-            } else {
-                //Sadly, because of how this is implemented, I can't make sure my problem is actually with
-                // the origin service. I can only "fail" here.
-                LOG.error("Error processing outgoing request", ex);
-                return -1;
-            }
-        }
-        return 1;
-
     }
 
     private void setHeaders(HttpRequestBase base, Map<String, String> headers) {
@@ -270,42 +147,5 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             patch.setEntity(new InputStreamEntity(new ByteArrayInputStream(body), body.length));
         }
         return execute(patch, connPoolId);
-    }
-
-    private class SystemModelListener implements UpdateListener<SystemModel> {
-
-        private boolean isInitialized = false;
-
-        @Override
-        public void configurationUpdated(SystemModel config) {
-            SystemModelInterrogator systemModelInterrogator = new SystemModelInterrogator(clusterId, nodeId);
-            Optional<ReposeCluster> localCluster = systemModelInterrogator.getLocalCluster(config);
-
-            if (localCluster.isPresent()) {
-                // Determine whether or not to use chunked encoding based on the configuration for the default
-                // destination. This is a stop-gap until this logic is reworked as part of the WAR deployment routing
-                // work.
-                DestinationList destinationList = localCluster.get().getDestinations();
-                Stream.concat(destinationList.getEndpoint().stream(), destinationList.getTarget().stream())
-                    .filter(Destination::isDefault)
-                    .findFirst()
-                    .map(Destination::getChunkedEncoding)
-                    .ifPresent(it -> chunkedEncoding = it);
-
-                rewriteHostHeader = localCluster.get().isRewriteHostHeader();
-                isInitialized = true;
-
-                healthCheckServiceProxy.resolveIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT);
-            } else {
-                LOG.error("Unable to identify the local host (cluster:{}, node:{}) in the system model - please check your system-model.cfg.xml", clusterId, nodeId);
-                healthCheckServiceProxy.reportIssue(SYSTEM_MODEL_CONFIG_HEALTH_REPORT, "Unable to identify the " +
-                        "local host in the system model - please check your system-model.cfg.xml", Severity.BROKEN);
-            }
-        }
-
-        @Override
-        public boolean isInitialized() {
-            return isInitialized;
-        }
     }
 }

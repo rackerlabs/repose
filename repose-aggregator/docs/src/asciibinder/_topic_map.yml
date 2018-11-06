@@ -70,8 +70,6 @@ Topics:
     File: running-valve.adoc
   - Name: Valve Installation
     File: valve-installation.adoc
-  - Name: WAR Installation
-    File: war-installation.adoc
   - Name: Echo Server
     File: echo-server.adoc
   - Name: Rate Limiting
@@ -94,12 +92,6 @@ Topics:
     File: client-authentication.adoc
   - Name: Functional Test Framework
     File: functional-test-framework.adoc
-  - Name: Glassfish Setup
-    File: glassfish-setup.adoc
-  - Name: Tomcat Setup
-    File: tomcat-setup.adoc
-  - Name: HTTP Container Attributes
-    File: http-container-attributes.adoc
 ---
 Name: Filters
 Dir: filters

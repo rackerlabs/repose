@@ -48,7 +48,7 @@ import static org.apache.http.protocol.HTTP.CHUNK_CODING;
  * Translates a servlet request to an HTTP client request by copying over header values, query string parameters, and
  * request body (if present).
  */
-class HttpComponentRequestProcessor {
+public class HttpComponentRequestProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpComponentRequestProcessor.class);
     private static final Set<String> EXCLUDE_HEADERS = Stream.of(
@@ -75,7 +75,7 @@ class HttpComponentRequestProcessor {
         return EXCLUDE_HEADERS.contains(header.toLowerCase());
     }
 
-    HttpComponentRequestProcessor(HttpServletRequest servletRequest,
+    public HttpComponentRequestProcessor(HttpServletRequest servletRequest,
                                   URI target,
                                   boolean rewriteHostHeader,
                                   ChunkedEncoding chunkedEncoding) {

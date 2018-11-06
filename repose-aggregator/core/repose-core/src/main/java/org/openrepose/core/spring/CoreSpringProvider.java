@@ -101,7 +101,7 @@ public class CoreSpringProvider {
     }
 
     /**
-     * Intended to be called once by Valve or the War file on startup to configure the core context.
+     * Intended to be called once by Valve on startup to configure the core context.
      * Create a core spring provider with the core properties available to all of the spring contexts.
      * The params to this constructor are the things that need to be in the core spring context for all anything to access
      *

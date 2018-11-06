@@ -86,7 +86,7 @@ publishing {
 }
 
 ospackage {
-    packageName = "repose-valve"
+    packageName = "repose"
     os = LINUX
     packageDescription 'Package for the Repose Valve Deployment'
     priority 'optional'
@@ -103,7 +103,7 @@ ospackage {
     into '/usr/share/repose'
 
     //the main directory
-    from('../src/config/DELETE-ME') {
+    from('src/config/DELETE-ME') {
         createDirectoryEntry true
         user 'root'
         permissionGroup 'root'
@@ -118,7 +118,7 @@ ospackage {
     }
 
     //the filter bundle directory
-    from('../src/config/DELETE-ME') {
+    from('src/config/DELETE-ME') {
         into '/usr/share/repose/filters'
         createDirectoryEntry true
         user 'repose'
@@ -127,7 +127,7 @@ ospackage {
     }
 
     //the artifact exploding directory
-    from('../src/config/DELETE-ME') {
+    from('src/config/DELETE-ME') {
         into '/var/repose'
         createDirectoryEntry true
         user 'repose'
@@ -136,7 +136,7 @@ ospackage {
     }
 
     //the log directory
-    from('../src/config/DELETE-ME') {
+    from('src/config/DELETE-ME') {
         into '/var/log/repose'
         createDirectoryEntry true
         user 'repose'
@@ -145,7 +145,7 @@ ospackage {
     }
 
     //the log rotate settings
-    from('../src/config/logrotate.d') {
+    from('src/config/logrotate.d') {
         into '/etc/logrotate.d'
         createDirectoryEntry false
         user 'repose'
@@ -154,7 +154,7 @@ ospackage {
     }
 
     //the configs directory
-    from('../src/config/DELETE-ME') {
+    from('src/config/DELETE-ME') {
         into '/etc/repose'
         createDirectoryEntry true
         user 'repose'
@@ -163,7 +163,7 @@ ospackage {
     }
 
     //the basic configs
-    from('../src/config/filters') { //not really filter config, but it's where the bundles are putting them for now, so i'm maintaining consistency
+    from('src/config/filters') { //not really filter config, but it's where the bundles are putting them for now, so i'm maintaining consistency
         into '/etc/repose'
         createDirectoryEntry true
         user 'repose'
@@ -180,7 +180,7 @@ ospackage {
     }
 
     //the configs
-    from('../src/config/filters') {
+    from('src/config/filters') {
         into '/etc/repose/examples'
         createDirectoryEntry true
         user 'repose'
@@ -196,7 +196,7 @@ ospackage {
     }
 
     //the systemd service
-    from('../src/config/systemd/repose-valve.service') {
+    from('src/config/systemd/repose-valve.service') {
         into '/lib/systemd/system'
         createDirectoryEntry false
         user 'root'
@@ -205,7 +205,7 @@ ospackage {
     }
 
     //the systemd wrapper script
-    from('../src/config/scripts/repose-valve-systemd') {
+    from('src/config/scripts/repose-valve-systemd') {
         rename('repose-valve-systemd', 'repose-valve')
         into '/usr/share/repose'
         createDirectoryEntry false
@@ -215,7 +215,7 @@ ospackage {
     }
 
     //the sysconfig
-    from('../src/config/sysconfig') {
+    from('src/config/sysconfig') {
         into '/etc/sysconfig'
         createDirectoryEntry false
         user 'root'
@@ -224,7 +224,7 @@ ospackage {
     }
 
     //clean up script
-    from('../src/config/scripts/clean-repose-deploy') {
+    from('src/config/scripts/clean-repose-deploy') {
         user 'root'
         permissionGroup 'root'
         fileMode 0755
@@ -239,16 +239,16 @@ ospackage {
         fileMode 0444
     }
 
-    provides("repose-$project.version")
     conflicts('repose-war')
     recommends('repose-filter-bundle')
     suggests('repose-extensions-bundle')
     suggests('logrotate')
+    replaces('repose-valve')
 }
 
 buildDeb {
     //the init.d
-    from('../src/config/scripts/repose-valve-deb') {
+    from('src/config/scripts/repose-valve-deb') {
         rename('repose-valve-deb', 'repose-valve')
         into '/etc/init.d'
         createDirectoryEntry false
@@ -258,7 +258,7 @@ buildDeb {
     }
 
     requires('java8-runtime-headless')
-    preInstall file('../src/config/scripts/preinst-deb')
+    preInstall file('src/config/scripts/preinst-deb')
     configurationFile '/etc/repose/container.cfg.xml'
     configurationFile '/etc/repose/system-model.cfg.xml'
     configurationFile '/etc/repose/response-messaging.cfg.xml'
@@ -270,7 +270,7 @@ buildRpm {
     release = 1
 
     //the init.d
-    from('../src/config/scripts/repose-valve-rpm') {
+    from('src/config/scripts/repose-valve-rpm') {
         rename('repose-valve-rpm', 'repose-valve')
         into '/etc/init.d'
         createDirectoryEntry false
@@ -280,6 +280,6 @@ buildRpm {
     }
 
     requires('java', '1.8.0', GREATER | EQUAL)
-    preInstall file('../src/config/scripts/preinst-rpm')
+    preInstall file('src/config/scripts/preinst-rpm')
     postInstall('/sbin/chkconfig --add repose-valve')
 }

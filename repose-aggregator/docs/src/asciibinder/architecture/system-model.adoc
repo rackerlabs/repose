@@ -210,9 +210,6 @@ It is recommended that users leave this value as `true` unless their service doe
 === Nova-API Localhost Deployment
 *IN PROGRESS*
 
-=== Root WAR (Local Servlet Application-Container Routing) Deployment
-*IN PROGRESS*
-
 === Complex Cluster Layout With Cluster Routing
 *IN PROGRESS*
 

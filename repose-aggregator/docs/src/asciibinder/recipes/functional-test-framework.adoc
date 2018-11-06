@@ -75,25 +75,22 @@ repose.config.templates=/default/config/templates # <3>
 # Required (If Used) Properties
 repose.jar=/default/valve/location # <4>
 repose.lint.jar=/default/lint/location # <5>
-repose.root.war=/default/root/war/location # <6>
-glassfish.jar=/default/glassfish/location # <7>
-tomcat.jar=/default/tomcat/location # <8>
-mocks.war=/default/mocks/war/location # <9>
+mocks.war=/default/mocks/war/location # <6>
 
 # Optional Properties
-repose.version=${version} # <10>
-repose.container=valve # <11>
-repose.config.directory=/configs # <12>
-repose.log.name=/logs/repose.log # <13>
-repose.lint.log.name=/logs/repose-lint.log # <14>
-repose.log.pattern=/logs/repose_%d{yyyy-MM-dd_HHmmss}.log # <15>
+repose.version=${version} # <7>
+repose.container=valve # <8>
+repose.config.directory=/configs # <9>
+repose.log.name=/logs/repose.log # <10>
+repose.lint.log.name=/logs/repose-lint.log # <11>
+repose.log.pattern=/logs/repose_%d{yyyy-MM-dd_HHmmss}.log # <12>
 
-target.hostname=localhost # <16>
+target.hostname=localhost # <13>
 
-port.finder.port.start=10000 # <17>
-port.finder.port.max=65535 # <18>
-port.finder.port.range=100 # <19>
-port.finder.property.name.worker.id=org.gradle.test.worker # <20>
+port.finder.port.start=10000 # <14>
+port.finder.port.max=65535 # <15>
+port.finder.port.range=100 # <16>
+port.finder.property.name.worker.id=org.gradle.test.worker # <17>
 ----
 <1> The absolute path of the root directory to run tests under.
 The user running the tests must have permission to read and write in this directory. +
@@ -103,22 +100,19 @@ Doing so enables the build tool to handle cleanup of any test resources.
 <3> The absolute path of the directory which contains the configuration file templates.
 <4> The absolute path to the *Repose* JAR file.
 <5> The absolute path of the *Repose Lint* JAR file.
-<6> The absolute path of the *Repose* `ROOT.WAR` file.
-<7> The absolute path of the Glassfish JAR file.
-<8> The absolute path of the Tomcat JAR file.
-<9> The absolute path of the WAR file containing mock services.
-<10> The version of *Repose*.
-<11> The servlet container to run *Repose* in.
+<6> The absolute path of the WAR file containing mock services.
+<7> The version of *Repose*.
+<8> The servlet container to run *Repose* in.
 A value of `valve` will run a standalone instance of *Repose* using an embedded container.
-<12> The path of the directory relative to the `test.root.directory` or `repose.home` directory which will contain *Repose* configuration files.
-<13> The *Repose* log file path relative to the `test.root.directory` or `repose.home` directory.
-<14> The *Repose Lint* log file path relative to the `test.root.directory` or `repose.home`.
-<15> The log filename path pattern relative to the `test.root.directory` or `repose.home` directory.
-<16> The target hostname (usually `localhost`).
-<17> The port number to start at when scanning for open ports.
-<18> The max port number which can be used when scanning for open ports.
-<19> The step size between workers when scanning for open ports.
-<20> The name of a System property the value of which will be used as the worker ID.
+<9> The path of the directory relative to the `test.root.directory` or `repose.home` directory which will contain *Repose* configuration files.
+<10> The *Repose* log file path relative to the `test.root.directory` or `repose.home` directory.
+<11> The *Repose Lint* log file path relative to the `test.root.directory` or `repose.home`.
+<12> The log filename path pattern relative to the `test.root.directory` or `repose.home` directory.
+<13> The target hostname (usually `localhost`).
+<14> The port number to start at when scanning for open ports.
+<15> The max port number which can be used when scanning for open ports.
+<16> The step size between workers when scanning for open ports.
+<17> The name of a System property the value of which will be used as the worker ID.
 
 The second requirement is that the *Repose* artifacts (e.g., JARs and EARs) must be placed in the directory specified by the `repose.home` property.
 If they are located elsewhere, the `ReposeValveTest` specification will not work.

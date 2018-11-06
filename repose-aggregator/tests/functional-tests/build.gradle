@@ -1,6 +1,3 @@
-evaluationDependsOn(':repose-aggregator:tests:test-containers:test-container-glassfish')
-evaluationDependsOn(':repose-aggregator:tests:test-containers:test-container-tomcat')
-
 configurations {
     integrationTestRunnable
     integrationTestBundle
@@ -28,10 +25,7 @@ dependencies {
 
     integrationTestRunnable project(path: ":repose-aggregator:artifacts:valve", configuration: "fatJar")
     integrationTestRunnable project(path: ":repose-aggregator:artifacts:repose-lint", configuration: "fatJar")
-    integrationTestRunnable project(path: ":repose-aggregator:artifacts:web-application", configuration: "archives")
     integrationTestRunnable project(path: ":repose-aggregator:tests:mocks-servlet", configuration: "archives")
-    integrationTestRunnable project(path: ":repose-aggregator:tests:test-containers:test-container-glassfish", configuration: "fatJar")
-    integrationTestRunnable project(path: ":repose-aggregator:tests:test-containers:test-container-tomcat", configuration: "fatJar")
 
     integrationTestBundle project(path: ":repose-aggregator:artifacts:filter-bundle", configuration: "archives")
     integrationTestBundle project(path: ":repose-aggregator:artifacts:extensions-filter-bundle", configuration: "archives")
@@ -43,25 +37,10 @@ dependencies {
     integrationTestBundle project(path: ":repose-aggregator:tests:test-bundles:classloader-bundle-five", configuration: "archives")
 }
 
-// Hack the Repose WAR to make a GlassFish-specific WAR with delegation enabled in the glassfish-web.xml descriptor
-task createGlassfishWar(type: Zip, dependsOn: ':repose-aggregator:artifacts:web-application:war') {
-    File reposeWarFile = tasks.getByPath(':repose-aggregator:artifacts:web-application:war').outputs.files.singleFile
-    inputs.files(reposeWarFile)
-
-    from(zipTree(reposeWarFile))
-    from('src/test/resources/WEB-INF/glassfish-web.xml') {
-        into('WEB-INF/')
-    }
-    archiveName = 'glassfish-' + reposeWarFile.name
-}
-
 task copyArtifacts() {
     dependsOn(":repose-aggregator:artifacts:valve:shadowJar",
               ":repose-aggregator:artifacts:repose-lint:shadowJar",
-              ":repose-aggregator:artifacts:web-application:war",
               ":repose-aggregator:tests:mocks-servlet:war",
-              ":repose-aggregator:tests:test-containers:test-container-glassfish:shadowJar",
-              ":repose-aggregator:tests:test-containers:test-container-tomcat:shadowJar",
               ":repose-aggregator:tests:mocks-servlet:war",
               ":repose-aggregator:artifacts:filter-bundle:ear",
               ":repose-aggregator:artifacts:extensions-filter-bundle:ear",
@@ -70,12 +49,10 @@ task copyArtifacts() {
               ":repose-aggregator:tests:test-bundles:classloader-bundle-two:ear",
               ":repose-aggregator:tests:test-bundles:classloader-bundle-three:ear",
               ":repose-aggregator:tests:test-bundles:classloader-bundle-four:ear",
-              ":repose-aggregator:tests:test-bundles:classloader-bundle-five:ear",
-              "createGlassfishWar")
+              ":repose-aggregator:tests:test-bundles:classloader-bundle-five:ear")
     ext.outputDir = "$buildDir/repose_home"
     inputs.files(configurations.integrationTestRunnable.files,
-                 configurations.integrationTestBundle.files,
-                 createGlassfishWar.outputs.files)
+                 configurations.integrationTestBundle.files)
     outputs.dir outputDir
 
     doLast {
@@ -83,7 +60,6 @@ task copyArtifacts() {
         file(outputDir).mkdirs()
         copy {
             from configurations.integrationTestRunnable.files
-            from createGlassfishWar.outputs.files
             into outputDir
         }
 
@@ -117,9 +93,6 @@ def container = "valve"
 def targetHostName = "localhost"
 def valveFileName = tasks.getByPath(":repose-aggregator:artifacts:valve:shadowJar").archiveName.split("/").last()
 def lintFileName = tasks.getByPath(":repose-aggregator:artifacts:repose-lint:shadowJar").archiveName.split("/").last()
-def warFileName = tasks.getByPath(":repose-aggregator:artifacts:web-application:war").archiveName.split("/").last()
-def glassfishFileName = tasks.getByPath(":repose-aggregator:tests:test-containers:test-container-glassfish:shadowJar").archiveName.split("/").last()
-def tomcatFileName = tasks.getByPath(":repose-aggregator:tests:test-containers:test-container-tomcat:shadowJar").archiveName.split("/").last()
 def mocksFileName = tasks.getByPath(":repose-aggregator:tests:mocks-servlet:war").archiveName.split("/").last()
 
 processIntegrationTestResources {
@@ -131,10 +104,6 @@ processIntegrationTestResources {
         reposeContainer: container,
         valveLocation: "${copyArtifacts.outputDir}/$valveFileName",
         lintLocation: "${copyArtifacts.outputDir}/$lintFileName",
-        warLocation: "${copyArtifacts.outputDir}/$warFileName",
-        glassfishWarLocation: "${copyArtifacts.outputDir}/${createGlassfishWar.archiveName}",
-        glassfishLocation: "${copyArtifacts.outputDir}/$glassfishFileName",
-        tomcatLocation: "${copyArtifacts.outputDir}/$tomcatFileName",
         mocksLocation: "${copyArtifacts.outputDir}/$mocksFileName",
         targetHostname: targetHostName
     )
@@ -165,8 +134,4 @@ integrationTest {
             showStandardStreams = true
         }
     }
-}
-
-license {
-    exclude '**/glassfish-web.xml'
 }

@@ -36,7 +36,7 @@ public class Destination
     @XmlAttribute(name = "id", required = true)
     private String id;
     @XmlAttribute(name = "protocol")
-    private String protocol;
+    private String protocol = "https";
     @XmlAttribute(name = "root-path")
     private String rootPath = "";
     @XmlAttribute(name = "chunked-encoding")
