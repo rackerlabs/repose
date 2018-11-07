@@ -44,37 +44,32 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
       /*
        * Before moving to version 9, the following updates should be made:
        *
-       * 1. Remove these attributes from openstack-identity-v3.xsd:
-       *    a. token-cache-timeout
-       *    b. groups-cache-timeout
-       *    c. cache-offset
-       *
-       * 2. Remove the functional tests for the above attributes:
+       * 1. Remove the functional tests for the above attributes:
        *    a. IdentityV3CacheOffSetOldTest
        *    b. IdentityV3NoCacheOffSetOldTest
        *
-       * 3. Remove these attributes from container-configuration.xsd:
+       * 2. Remove these attributes from container-configuration.xsd:
        *    a. http-port
        *    b. https-port
        *
-       * 4. Remove the flush output filter
+       * 3. Remove the flush output filter
        *
-       * 5. Extract common XML types (e.g., keystore configuration).
+       * 4. Extract common XML types (e.g., keystore configuration).
        *
-       * 6. Remove the Container Configuration's `cluster-config` element's deprecated `via` attribute.
+       * 5. Remove the Container Configuration's `cluster-config` element's deprecated `via` attribute.
        *    a. This needs done in the XSD.
        *    b. There will also be some tests that should be removed also.
        *
-       * 7. Allow the Container config to provide empty [in|ex]cluded-[protocols|ciphers].
+       * 6. Allow the Container config to provide empty [in|ex]cluded-[protocols|ciphers].
        *
-       * 8. Remove the uri-extraction-regex attribute from the Keystone filters' configuration.
+       * 7. Remove the uri-extraction-regex attribute from the Keystone filters' configuration.
        *
-       * 9. For Keystone Authorization, when the default tenant ID matches a request tenant, use the configured request tenant quality rather than using the higher of the request tenant and default tenant qualities.
+       * 8. For Keystone Authorization, when the default tenant ID matches a request tenant, use the configured request tenant quality rather than using the higher of the request tenant and default tenant qualities.
        *     Before doing so, verify that this behavior is not useful.
        *
-       * 10. Remove the population of X-Auth-Token-Key from Keystone v2 Filter.
+       * 9. Remove the population of X-Auth-Token-Key from Keystone v2 Filter.
        *
-       * 11. The following classes should all be obsoleted when the `ReposeRoutingServlet` is put to use:
+       * 10. The following classes should all be obsoleted when the `ReposeRoutingServlet` is put to use:
        *     a. PowerFilterRouter
        *     b. PowerFilterRouterImpl
        *     c. PowerFilterRouterFactory
@@ -119,6 +114,10 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        *    c. Remove the configuration deprecation warnings.
        *    d. Remove the versioned documentation deprecation warnings.
        *    e. Rename the keystone-v2 filter to keystone-v2-authentication.
+       *
+       * 3. Remove these elements from openstack-identity-v3.xsd:
+       *    a. token
+       *    b. group
        */
     }
   }
