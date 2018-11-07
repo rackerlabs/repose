@@ -25,8 +25,8 @@ import java.util.{Optional, UUID}
 
 import com.codahale.metrics.MetricRegistry
 import com.typesafe.scalalogging.slf4j.StrictLogging
+import io.opentracing.Tracer
 import io.opentracing.tag.Tags
-import io.opentracing.{Scope, Tracer}
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
@@ -52,8 +52,6 @@ import org.openrepose.nodeservice.response.ResponseHeaderService
 import org.openrepose.powerfilter.ReposeFilter._
 import org.slf4j.{Logger, LoggerFactory, MDC}
 import org.springframework.beans.factory.annotation.Value
-
-import scala.util.{Failure, Success}
 
 @Named("reposeFilter")
 class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String,
@@ -124,7 +122,7 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
 
         MDC.put(TracingKey.TRACING_KEY, traceGUID)
 
-        val doFilterChain = TryWith(filterContextList)(_ => {
+        val doFilterChain = TryWith(filterContextList) { _ =>
           // Ensure the request URI is a valid URI
           // This object is only being created to ensure its validity.
           // So it is safe to suppress warning squid:S1848
@@ -150,46 +148,50 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
             optMetricRegistry,
             tracer
           ).doFilter(wrappedRequest, wrappedResponse)
-        })
 
-        doFilterChain match {
-          case Success(_) =>
-            logger.trace("{} -- Successfully processed request", nodeId)
-          case Failure(use: URISyntaxException) =>
+          logger.trace("{} -- Successfully processed request", nodeId)
+        }
+
+        // Set the Via header
+        if (wrappedResponse.isCommitted) {
+          wrappedResponse.uncommit()
+        }
+        responseHeaderService.setVia(wrappedRequest, wrappedResponse)
+
+        // Handle Throwables that arose while processing
+        val recoveredFilterChain = doFilterChain.recover {
+          case use: URISyntaxException =>
             logger.debug(s"$nodeId -- Invalid URI requested: ${wrappedRequest.getRequestURI}", use)
-            wrappedResponse.sendError(SC_BAD_REQUEST, "Error processing request", true)
-          case Failure(e: Exception) =>
+            wrappedResponse.sendError(SC_BAD_REQUEST, "Error processing request")
+          case e: Exception =>
             logger.error(s"$nodeId -- Issue encountered while processing filter chain.", e)
-            wrappedResponse.sendError(SC_BAD_GATEWAY, "Error processing request", true)
-          case Failure(t: Throwable) =>
+            wrappedResponse.sendError(SC_BAD_GATEWAY, "Error processing request")
+          case t: Throwable =>
             logger.error(s"$nodeId -- Error encountered while processing filter chain.", t)
-            wrappedResponse.sendError(SC_BAD_GATEWAY, "Error processing request", true)
-            setViaClearCommitAndClose(wrappedRequest, wrappedResponse, scope, startTime)
+            wrappedResponse.sendError(SC_BAD_GATEWAY, "Error processing request")
             throw t
         }
-        setViaClearCommitAndClose(wrappedRequest, wrappedResponse, scope, startTime)
-        logger.trace("ReposeFilter returning response...")
+
+        // Commit the response and record metrics for the request and response
+        wrappedResponse.commitToResponse()
+        closeSpan(wrappedResponse, scope)
+        optMetricRegistry.foreach { mr =>
+          markResponseCodeHelper(
+            mr,
+            wrappedResponse.getStatus,
+            System.currentTimeMillis - startTime,
+            logger.underlying)
+        }
+
+        // Either log the final message
+        // Or rethrow any Throwables that arose while processing and were not handled
+        // Always clear out the logging context
+        recoveredFilterChain.foreach(_ => logger.trace("ReposeFilter returning response..."))
+        MDC.clear()
+        recoveredFilterChain.get
       case None =>
         logger.error("ReposeFilter has not yet initialized...")
         response.asInstanceOf[HttpServletResponse].sendError(SC_INTERNAL_SERVER_ERROR, "ReposeFilter not initialized")
-    }
-  }
-
-  private def setViaClearCommitAndClose(wrappedRequest: HttpServletRequestWrapper, wrappedResponse: HttpServletResponseWrapper, scope: Scope, startTime: Long): Unit = {
-    if (!wrappedResponse.isCommitted) {
-      wrappedResponse.uncommit()
-    }
-    responseHeaderService.setVia(wrappedRequest, wrappedResponse)
-    // Clear out the logger context now that we are done with this request
-    MDC.clear()
-    wrappedResponse.commitToResponse()
-    closeSpan(wrappedResponse, scope)
-    optMetricRegistry.foreach { mr =>
-      markResponseCodeHelper(
-        mr,
-        wrappedResponse.getStatus,
-        System.currentTimeMillis - startTime,
-        logger.underlying)
     }
   }
 
@@ -197,7 +199,6 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
     logger.trace("{} -- destroying ...", nodeId)
     logger.info("{} -- Destroyed ReposeFilter", nodeId)
   }
-
 }
 
 object ReposeFilter {
