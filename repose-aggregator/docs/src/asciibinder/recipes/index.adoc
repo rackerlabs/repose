@@ -62,11 +62,5 @@ SSL/TLS Client Authentication will allow you to limit traffic to those who prese
 == <<functional-test-framework.adoc#, Functional Test Framework>>
 Learn how to use the *Repose* functional test framework to create tests for features in *Repose* or its extension components.
 
-== <<glassfish-setup.adoc#, Glassfish Setup>>
-Describes how to run *Repose* in a Glassfish container.
-
-== <<tomcat-setup.adoc#, Tomcat Setup>>
-Describes how to run *Repose* in a Tomcat container.
-
-== <<http-container-attributes.adoc#, HTTP Container Attributes>>
-Describes limitations of supported containers and how to configure them accordingly.
+== <<header-splitting.adoc#, Header Splitting>>
+Details how to make version 9.0+ of *Repose* split headers like earlier versions did.
