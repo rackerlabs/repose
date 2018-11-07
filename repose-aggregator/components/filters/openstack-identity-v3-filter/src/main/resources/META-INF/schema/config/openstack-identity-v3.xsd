@@ -358,8 +358,8 @@
             <!-- todo: xs:element name="user" type="ZeroOrPositiveInteger" default="600" minOccurs="0" maxOccurs="1"/-->
         </xs:all>
 
-        <xs:attribute name="token" type="ZeroOrPositiveInteger" default="600"/>
-        <xs:attribute name="group" type="ZeroOrPositiveInteger" default="600"/>
+        <xs:attribute name="token" type="ZeroOrPositiveInteger"/>
+        <xs:attribute name="group" type="ZeroOrPositiveInteger"/>
         <xs:attribute name="variance" type="ZeroOrPositiveInteger" default="0">
             <xs:annotation>
                 <xs:documentation>
