@@ -1,0 +1,98 @@
+= *Repose* < 9.0 Header Splitting Behavior
+
+Prior to *Repose* version 9.0, some request and response headers were split at the boundaries of *Repose*.
+This recipe shows you how to configure *Repose* to split those headers, should you need to, in versions after the change.
+
+
+== Change the `system-model.cfg.xml`
+
+The first thing to do is update your system model yo include the `split-header` filter.
+
+[source, xml]
+.Partial system-model.cfg.xml
+----
+        <filters>
+            <filter name="split-header"/> <!--1-->
+            ....                          <!--2-->
+        </filters>
+----
+<1> The new filter to be added to the filter chain.
+<2> The rest of the existing filter chain.
+
+
+== Add the New Filter Config
+
+Add the new filter config to your config directory.
+
+[source, xml]
+.split-header.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+
+<split-header xmlns='http://docs.openrepose.org/repose/split-header/v1.0'>
+    <request>
+        <header>X-PP-Next-Route</header>
+        <header>X-PP-User</header>
+        <header>X-PP-Groups</header>
+        <header>X-Domain</header>
+        <header>x-catalog</header>
+        <header>X-Relevant-Roles</header>
+        <header>x-trace-request</header>
+        <header>X-Authorization</header>
+        <header>X-Identity-Status</header>
+        <header>X-Domain-Id</header>
+        <header>X-User-Name</header>
+        <header>X-User-Id</header>
+        <header>X-Tenant-Name</header>
+        <header>X-Tenant-Id</header>
+        <header>X-Map-Roles</header>
+        <header>X-Roles</header>
+        <header>X-Authenticated-By</header>
+        <header>X-Impersonator-Id</header>
+        <header>X-Impersonator-Name</header>
+        <header>X-Impersonator-Roles</header>
+        <header>X-Default-Region</header>
+        <header>x-token-expires</header>
+        <header>X-CONTACT-ID</header>
+        <header>X-TTL</header>
+    </request>
+    <response>
+        <header>X-PP-Next-Route</header>
+        <header>X-PP-User</header>
+        <header>X-PP-Groups</header>
+        <header>X-Domain</header>
+        <header>x-catalog</header>
+        <header>X-Relevant-Roles</header>
+        <header>x-trace-request</header>
+        <header>X-Authorization</header>
+        <header>X-Identity-Status</header>
+        <header>X-Domain-Id</header>
+        <header>X-User-Name</header>
+        <header>X-User-Id</header>
+        <header>X-Tenant-Name</header>
+        <header>X-Tenant-Id</header>
+        <header>X-Map-Roles</header>
+        <header>X-Roles</header>
+        <header>X-Authenticated-By</header>
+        <header>X-Impersonator-Id</header>
+        <header>X-Impersonator-Name</header>
+        <header>X-Impersonator-Roles</header>
+        <header>X-Default-Region</header>
+        <header>x-token-expires</header>
+        <header>X-CONTACT-ID</header>
+        <header>X-TTL</header>
+    </response>
+</split-header>
+----
+
+[NOTE]
+====
+This list is exhaustive, it's recommended that you cut it down to the headers that you care about being split.
+====
+
+If you  have custom filters that need the exact behavior as previously provided, you should use two instances of the `split-header` filter.
+One should be the request headers at the beginning of the chain, and one should be response headers at the end of the chain.
+
+== Additional Information
+
+You can find more information on the `split-header` filter <<../filters/split-header.adoc#, here>>.

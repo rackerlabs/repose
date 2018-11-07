@@ -92,6 +92,8 @@ Topics:
     File: client-authentication.adoc
   - Name: Functional Test Framework
     File: functional-test-framework.adoc
+  - Name: Header Splitting
+    File: header-splitting.adoc
 ---
 Name: Filters
 Dir: filters

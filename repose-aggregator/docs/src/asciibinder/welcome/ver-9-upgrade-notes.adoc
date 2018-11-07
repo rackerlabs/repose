@@ -1,5 +1,9 @@
 = Upgrade to Version 9 from Version 8 Notes
 
+== Core Behavior Changes
+. Headers will no longer be split unnecessarily at the boundaries of *Repose*.
+  If you were counting on this behavior for some reason see <<../recipes/header-splitting.adoc, Pre 9.0 Header Splitting>>.
+
 == Container Configuration
 . The `via` attribute was removed from the <<../architecture/container.adoc#, container configuration>>.
   It has been replaced with the `via-header` element.
