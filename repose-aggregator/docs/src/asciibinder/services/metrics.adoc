@@ -157,6 +157,12 @@ The following lists attempt to aggregate all of the metrics being reported to th
 
 | Repose Routing Servlet
 | Meter
+| `org.openrepose.core.RequestDestination.<destinationId>`
+| Counts the number of requests to `<destinationId>`.
+`<destinationId>` is the ID of the endpoint that the request was made to.
+
+| Repose Routing Servlet
+| Meter
 | `org.openrepose.core.ResponseCode.<endpoint>.<response-code>`
 | Counts the number of responses with a `<response-code>` status code returned by `<endpoint>`.
 `<response-code>` is the HTTP status code in the response from `<endpoint>`.

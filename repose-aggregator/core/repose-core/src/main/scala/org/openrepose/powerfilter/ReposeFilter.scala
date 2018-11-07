@@ -177,8 +177,9 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
 
   private def setViaClearCommitAndClose(wrappedRequest: HttpServletRequestWrapper, wrappedResponse: HttpServletResponseWrapper, scope: Scope, startTime: Long): Unit = {
     if (!wrappedResponse.isCommitted) {
-      responseHeaderService.setVia(wrappedRequest, wrappedResponse)
+      wrappedResponse.uncommit()
     }
+    responseHeaderService.setVia(wrappedRequest, wrappedResponse)
     // Clear out the logger context now that we are done with this request
     MDC.clear()
     wrappedResponse.commitToResponse()
