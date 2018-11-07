@@ -274,12 +274,12 @@ object ReposeFilterLoader {
   }
 
   class FilterContextRegistrar(val filterContexts: List[FilterContext], val bypassUriRegex: Option[String]) extends AutoCloseable {
-    val inUse = ListBuffer.empty[FilterContextList]
-    var doClose = false
+    private var inUse = Set.empty[FilterContextList]
+    private var doClose = false
 
     def bind(): FilterContextList = {
-      // There is no need to check the doClose since this Registrar would already
-      // have been replaced by the atomic getAndSet() before the close() is called.
+      // There is no need to check the doClose since this Registrar should have already been
+      // replaced by the synchronized atomic reference update before the close() is called.
       inUse.synchronized {
         val filterContextList = new FilterContextList(this, filterContexts, bypassUriRegex)
         inUse += filterContextList
