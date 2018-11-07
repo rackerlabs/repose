@@ -235,7 +235,11 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
   }
 
   def preProxyMetrics(destination: Destination): Unit = {
-    reportingService.incrementRequestCount(destination.getId)
+    metricsService.foreach { metSer =>
+      metSer.getRegistry.meter(
+        MetricRegistry.name("org.openrepose.core.RequestDestination", destination.getId)
+      ).mark()
+    }
   }
 
   def postProxyMetrics(timeElapsed: Long,
@@ -246,12 +250,8 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
     val endpoint = getEndpoint(destination, targetUrl)
     val servletResponseStatus = servletResponse.getStatus
     metricsService.foreach { metSer =>
-      markResponseCodeHelper(metSer, servletResponseStatus, endpoint)
-      markResponseCodeHelper(metSer, servletResponseStatus, AllEndpoints)
-      markRequestTimeoutHelper(metSer, servletResponseStatus, endpoint)
-      markRequestTimeoutHelper(metSer, servletResponseStatus, AllEndpoints)
+      markResponseCodeHelper(metSer.getRegistry, servletResponseStatus, timeElapsed, endpoint)
     }
-    reportingService.recordServiceResponse(destination.getId, servletResponseStatus, timeElapsed)
   }
 
   def proxyRequest(target: Target, servletRequest: HttpServletRequest, servletResponse: HttpServletResponse): Try[Unit] = Try {

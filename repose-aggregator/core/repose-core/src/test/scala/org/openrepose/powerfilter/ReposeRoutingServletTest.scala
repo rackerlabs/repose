@@ -59,7 +59,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
   var mockHttpClient: HttpClientServiceClient = _
   var mockHttpClientService: HttpClientService = _
   var metricRegistry: MetricRegistry = _
-  var mockMetricsService: Optional[MetricsService] = _
+  var mockMetricsService: MetricsService = _
   var reposeRoutingServlet: ReposeRoutingServlet = _
   var listAppender: ListAppender = _
 
@@ -72,7 +72,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     mockHttpClient = mock[HttpClientServiceClient]
     mockHttpClientService = mock[HttpClientService]
     metricRegistry = spy(new MetricRegistry)
-    mockMetricsService = Optional.empty()
+    mockMetricsService = mock[MetricsService]
 
     when(mockMetricsService.getRegistry).thenReturn(metricRegistry)
     when(mockContainerConfigurationService.getRequestVia).thenReturn(Optional.empty[String]())
@@ -85,7 +85,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
       mockConfigurationService,
       mockContainerConfigurationService,
       mockHttpClientService,
-      mockMetricsService)
+      Optional.of(mockMetricsService))
 
     val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
     listAppender = ctx.getConfiguration.getAppender("List0").asInstanceOf[ListAppender].clear
@@ -178,13 +178,8 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
           response.getStatus == responseCode
 
           verify(mockHttpClient).execute(any[HttpUriRequest])
-          if (responseCode == SC_REQUEST_ENTITY_TOO_LARGE || responseCode == SC_SERVICE_UNAVAILABLE) {
-            verify(metricRegistry, never()).meter(anyString())
-            verify(metricRegistry, never()).timer(anyString())
-          } else {
             verify(metricRegistry, times(2)).meter(contains("ResponseCode"))
             verify(metricRegistry, times(2)).timer(contains("ResponseTime"))
-          }
         }
       }
     }
@@ -391,12 +386,13 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
 
   describe("preProxyMetrics") {
     it("should increment the request count") {
+      val destId = "testId"
       val destination = new DestinationEndpoint()
-      destination.setId("testId")
+      destination.setId(destId)
 
       reposeRoutingServlet.preProxyMetrics(destination)
 
-      verify(mockReportingService).incrementRequestCount(destination.getId)
+      verify(metricRegistry).meter(contains(s"RequestDestination.$destId"))
     }
   }
 
@@ -411,7 +407,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
 
       reposeRoutingServlet.postProxyMetrics(timeElapsed, response, destination, targetUrl)
 
-      verify(mockReportingService).recordServiceResponse(destination.getId, response.getStatus, timeElapsed)
+      verify(metricRegistry, atLeastOnce()).meter(contains(".Response"))
     }
   }
 

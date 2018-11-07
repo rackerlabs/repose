@@ -19,4 +19,10 @@
  */
 package org.openrepose.powerfilter
 
-class InvalidMethodException(message: String, cause: Throwable = null) extends Exception(message, cause) {}
+class InvalidMethodException(message: String, cause: Throwable = null) extends Exception(message, cause) {
+  // @TODO: This constructor is OBE'd with REP-7231
+  // @TODO: It is needed for the OBE'd Java class PowerFilter
+  def this(message: String) {
+    this(message, null)
+  }
+}
