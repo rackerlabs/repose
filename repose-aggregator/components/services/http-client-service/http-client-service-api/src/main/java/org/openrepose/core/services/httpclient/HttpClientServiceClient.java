@@ -75,6 +75,8 @@ public class HttpClientServiceClient extends CloseableHttpClient {
 
     @Override
     protected CloseableHttpResponse doExecute(HttpHost target, HttpRequest request, HttpContext context) throws IOException, ClientProtocolException {
+        // todo: there exists the potential for a client to be decommissioned before executing a request
+        // todo: since decommissioning occurs on a separate thread and no mutual exclusion is guaranteed
         InternalHttpClient internalHttpClient = httpClientService.getInternalClient(clientId);
         String userId = UUID.randomUUID().toString();
         httpClientUserManager.registerUser(internalHttpClient.getInstanceId(), userId);
