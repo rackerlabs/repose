@@ -136,39 +136,64 @@ The following lists attempt to aggregate all of the metrics being reported to th
 |Metric Name
 |Description
 
-| Power Filter
+| Repose Filter
 | Meter
 | `org.openrepose.core.ResponseCode.Repose.<response-code>`
 | Counts the number of responses with a `<response-code>` status code returned to the client.
 `<response-code>` is the HTTP status code in the response before being sent to the client (i.e., after *Repose* processing has occurred).
 
-| Power Filter Chain
+| Repose Filter
+| Timer
+| `org.openrepose.core.ResponseTime.Repose.<response-code>`
+| Tracks the amount of time it takes for Repose including the origin service to complete its processing.
+`<response-code>` is the HTTP status code in the response before being sent to the client (i.e., after *Repose* processing has occurred).
+
+| Repose Filter Chain
 | Timer
 | `org.openrepose.core.FilterProcessingTime.Delay.<name>`
 | Tracks the amount of time it takes for a component named `<name>` to complete its processing.
 `<name>` is either the name of a filter or `route`.
 `route` indicates that the component being timed is the routing component, which includes forwarding a request to the origin service and waiting on a response.
 
-| Power Filter Router
+| Repose Routing Servlet
+| Meter
+| `org.openrepose.core.RequestDestination.<destinationId>`
+| Counts the number of requests to `<destinationId>`.
+`<destinationId>` is the ID of the endpoint that the request was made to.
+
+| Repose Routing Servlet
 | Meter
 | `org.openrepose.core.ResponseCode.<endpoint>.<response-code>`
 | Counts the number of responses with a `<response-code>` status code returned by `<endpoint>`.
 `<response-code>` is the HTTP status code in the response from `<endpoint>`.
 `<endpoint>` is the endpoint that the request was made to.
 
-| Power Filter Router
+| Repose Routing Servlet
+| Timer
+| `org.openrepose.core.ResponseTime.<endpoint>.<response-code>`
+| Tracks the amount of time it takes for the origin service to complete its processing.
+`<response-code>` is the HTTP status code in the response from `<endpoint>`.
+`<endpoint>` is the endpoint that the request was made to.
+
+| Repose Routing Servlet
 | Meter
 | `org.openrepose.core.ResponseCode.All Endpoints.<response-code>`
 | Counts the number of responses with a `<response-code>` status code returned by all endpoints.
 This meter is the sum of all `org.openrepose.core.ResponseCode.<endpoint>.<response-code>` meters.
 
-| Power Filter Router
+| Repose Routing Servlet
+| Timer
+| `org.openrepose.core.ResponseTime.All Endpoints.<response-code>`
+| Tracks the amount of time it takes for the origin service to complete its processing.
+This timer is the sum of all `org.openrepose.core.ResponseTime.<endpoint>.<response-code>` meters.
+
+| Repose Routing Servlet
 | Meter
 | `org.openrepose.core.RequestTimeout.TimeoutToOrigin.<endpoint>`
 | Counts the number of responses with a `408` status code returned by `<endpoint>`.
 `<endpoint>` is the endpoint that the request was made to.
 
-| Power Filter Router
+| Repose Routing Servlet
 | Meter
 | `org.openrepose.core.RequestTimeout.TimeoutToOrigin.All Endpoints`
 | Counts the number of responses with a `408` status code returned by all endpoints.

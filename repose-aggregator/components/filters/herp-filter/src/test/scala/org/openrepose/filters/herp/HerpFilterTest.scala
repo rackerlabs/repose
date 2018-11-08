@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,9 +20,9 @@
 package org.openrepose.filters.herp
 
 import java.util.{TimeZone, UUID}
+
 import javax.servlet.FilterChain
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
@@ -33,6 +33,7 @@ import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.commons.utils.http.CommonRequestAttributes.QUERY_PARAMS
 import org.openrepose.filters.herp.config.{FilterOut, HerpConfig, Match, Template}
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
@@ -321,7 +322,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
     }
     it("should extract and log the request parameters") {
       // given:
-      servletRequest.setAttribute("http://openrepose.org/queryParams", Map("foo" -> Array("bar", "baz")).asJava)
+      servletRequest.setAttribute(QUERY_PARAMS, Map("foo" -> Array("bar", "baz")).asJava)
 
       // when:
       herpFilter.configurationUpdated(herpConfig)
@@ -334,7 +335,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
     }
     it("should extract and log the decoded request parameters") {
       // given:
-      servletRequest.setAttribute("http://openrepose.org/queryParams", Map("foo%20bar" -> Array("baz%20test")).asJava)
+      servletRequest.setAttribute(QUERY_PARAMS, Map("foo%20bar" -> Array("baz%20test")).asJava)
 
       // when:
       herpFilter.configurationUpdated(herpConfig)
@@ -704,7 +705,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
         it("when there are fields with maps with String keys and String array values and the condition is a value.") {
           // given:
           val test = "---foo---"
-          servletRequest.setAttribute("http://openrepose.org/queryParams", Map(
+          servletRequest.setAttribute(QUERY_PARAMS, Map(
             "---bar---" -> Array("A", "B", "C"),
             "---buz---" -> Array("1", "2", test)).asJava
           )

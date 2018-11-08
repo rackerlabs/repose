@@ -90,6 +90,10 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        *     m. ResponseHeaderService
        *     n. ResponseHeaderServiceImpl
        *     o. Port
+       *     p. ReposeReport
+       *     q. ReposeReportMBean
+       *     r. ReportingService
+       *     s. ReportingServiceImpl
        */
     }
 

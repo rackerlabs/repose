@@ -81,6 +81,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.openrepose.commons.utils.http.CommonHttpHeader.*;
+import static org.openrepose.commons.utils.http.CommonRequestAttributes.QUERY_PARAMS;
 import static org.openrepose.commons.utils.opentracing.ScopeHelper.closeSpan;
 import static org.openrepose.commons.utils.opentracing.ScopeHelper.startSpan;
 
@@ -94,6 +95,8 @@ import static org.openrepose.commons.utils.opentracing.ScopeHelper.startSpan;
  * TODO: this also needs to check the properties to make sure they exist before we start up like the empty servlet used
  * to do.
  */
+// @TODO: This class is OBE'd with REP-7231
+@Deprecated
 @Named("powerFilter")
 public class PowerFilter extends DelegatingFilterProxy {
     public static final String SYSTEM_MODEL_CONFIG_HEALTH_REPORT = "SystemModelConfigError";
@@ -384,7 +387,7 @@ public class PowerFilter extends DelegatingFilterProxy {
         // Since getParameterMap may read the body, we must reset the InputStream so that we aren't stripping
         // the body when form parameters are sent.
         bufferedInputStream.mark(Integer.MAX_VALUE);
-        wrappedRequest.setAttribute("http://openrepose.org/queryParams", wrappedRequest.getParameterMap());
+        wrappedRequest.setAttribute(QUERY_PARAMS, wrappedRequest.getParameterMap());
         bufferedInputStream.reset();
 
         // Re-wrapping the request to reset the inputStream/Reader flag

@@ -54,6 +54,8 @@ import static java.net.HttpURLConnection.HTTP_CLIENT_TIMEOUT;
  * This class is kind of gross, but we need to rewrite the whole thing.
  * The factory has to pass in too many things.
  */
+// @TODO: This class is OBE'd with REP-7231
+@Deprecated
 public class PowerFilterRouterImpl implements PowerFilterRouter {
     public static final Logger LOG = LoggerFactory.getLogger(PowerFilterRouterImpl.class);
 

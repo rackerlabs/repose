@@ -32,8 +32,7 @@ Filter::
 An HTTP message interceptor that provides a specific piece of business functionality.
 A filter contains a *Repose* specific named reference.
 
-// <<filter-chain.adoc#,Filters (Filter Chain)>>::
-Filters (Filter Chain)::
+<<filter-chain.adoc#,Filters (Filter Chain)>>::
 A sequence of filters that will intercept and process the request and/ord response.
 The request will be processed in order starting from the topmost filter in the sequence down to the bottom.
 The response will be processed in order starting from the bottommost filter in the sequence up to the top.

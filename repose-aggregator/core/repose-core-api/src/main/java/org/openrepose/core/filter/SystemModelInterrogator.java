@@ -32,11 +32,16 @@ import java.util.*;
  * methods about getting information about the current node from the system model.
  */
 public class SystemModelInterrogator {
-    private final String clusterId;
     private final String nodeId;
 
+    // @TODO: There will be only one cluster after REP-7314
+    // @TODO: This should probably just be deleted as part of REP-7314
+    @Deprecated
     public SystemModelInterrogator(String clusterId, String nodeId) {
-        this.clusterId = clusterId;
+        this.nodeId = nodeId;
+    }
+
+    public SystemModelInterrogator(String nodeId) {
         this.nodeId = nodeId;
     }
 
@@ -48,7 +53,7 @@ public class SystemModelInterrogator {
      */
     public static Map<String, List<String>> allClusterNodes(SystemModel systemModel) {
         HashMap<String, List<String>> clusterNodes = new HashMap<>();
-
+        // @TODO: There will be only one cluster after REP-7314
         for (ReposeCluster cluster : systemModel.getReposeCluster()) {
             LinkedList<String> nodes = new LinkedList<>();
             clusterNodes.put(cluster.getId(), nodes);
@@ -65,8 +70,9 @@ public class SystemModelInterrogator {
      * Scoped by which cluster ID we're in, because there might be many
      */
     public Optional<ReposeCluster> getLocalCluster(SystemModel systemModel) {
+        // @TODO: There will be only one cluster after REP-7314
         for (ReposeCluster cluster : systemModel.getReposeCluster()) {
-            if (cluster.getId().equals(clusterId) && getLocalNode(cluster).isPresent()) {
+            if (getLocalNode(cluster).isPresent()) {
                 return Optional.of(cluster);
             }
         }
@@ -98,10 +104,9 @@ public class SystemModelInterrogator {
      */
     public Optional<Node> getLocalNode(SystemModel systemModel) {
         Optional<Node> localNode = Optional.empty();
+        // @TODO: There will be only one cluster after REP-7314
         for (Cluster reposeCluster : systemModel.getReposeCluster()) {
-            if (reposeCluster.getId().equals(clusterId)) {
-                localNode = getLocalNode(reposeCluster);
-            }
+            localNode = getLocalNode(reposeCluster);
         }
 
         return localNode;

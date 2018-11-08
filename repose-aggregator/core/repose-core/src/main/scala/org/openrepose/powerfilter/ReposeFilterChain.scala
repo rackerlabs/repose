@@ -27,37 +27,33 @@ import com.fasterxml.jackson.annotation.{JsonAutoDetect, PropertyAccessor}
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.opentracing.Tracer
-import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.servlet.{Filter, FilterChain, ServletRequest, ServletResponse}
+import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
 import org.openrepose.commons.utils.http.PowerApiHeader.TRACE_REQUEST
 import org.openrepose.commons.utils.io.{BufferedServletInputStream, RawInputStreamReader}
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{PASSTHROUGH, READONLY}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.powerfilter.ReposeFilterChain._
+import org.openrepose.powerfilter.ReposeFilterLoader.FilterContext
 import org.openrepose.powerfilter.intrafilterlogging.{RequestLog, ResponseLog}
 import org.slf4j.{Logger, LoggerFactory, MDC}
 
-class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: FilterChain, bypassUrlRegex: Option[String], metricsRegistry: MetricRegistry, tracer: Tracer)
+class ReposeFilterChain(val filterChain: List[FilterContext],
+                        originalChain: FilterChain,
+                        optBypassUriRegex: Option[String],
+                        optMetricRegistry: Option[MetricRegistry],
+                        tracer: Tracer)
   extends FilterChain
     with StrictLogging {
 
   override def doFilter(inboundRequest: ServletRequest, inboundResponse: ServletResponse): Unit = {
     val request = new HttpServletRequestWrapper(inboundRequest.asInstanceOf[HttpServletRequest])
     val response = inboundResponse.asInstanceOf[HttpServletResponse]
-    try {
-      if (bypassUrlRegex.exists(_.r.pattern.matcher(request.getRequestURI).matches())) {
-        logger.debug("Bypass url hit")
-        runNext(List.empty, request, response)
-      } else {
-        runNext(filterChain, request, response)
-      }
-    } catch {
-      case e: Exception =>
-        logger.error("Exception thrown while processing the chain.", e)
-        if (!response.isCommitted) {
-          response.sendError(SC_INTERNAL_SERVER_ERROR, "Exception while processing filter chain.")
-        }
+    if (optBypassUriRegex.exists(_.r.pattern.matcher(request.getRequestURI).matches())) {
+      logger.debug("Bypass url hit")
+      runNext(List.empty, request, response)
+    } else {
+      runNext(filterChain, request, response)
     }
   }
 
@@ -70,13 +66,14 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
           .apply(originalChain.doFilter(_, _))
           .apply(request, response)
       case head :: tail if head.shouldRun(request) =>
-        logger.debug("Entering filter: {}", head.filterName)
-        (doIntrafilterLogging(head.filterName)(_))
-          .compose(doMetrics(head.filterName))
-          .apply(head.filter.doFilter(_, _, new ReposeFilterChain(tail, originalChain, None, metricsRegistry, tracer)))
+        val filterName = head.filterConfig.getName
+        logger.debug("Entering filter: {}", filterName)
+        (doIntrafilterLogging(filterName)(_))
+          .compose(doMetrics(filterName))
+          .apply(head.filter.doFilter(_, _, new ReposeFilterChain(tail, originalChain, None, optMetricRegistry, tracer)))
           .apply(request, response)
       case head :: tail =>
-        logger.debug("Skipping filter: {}", head.filterName)
+        logger.debug("Skipping filter: {}", head.filterConfig.getName)
         runNext(tail, request, response)
     }
   }
@@ -120,18 +117,13 @@ class ReposeFilterChain(val filterChain: List[FilterContext], originalChain: Fil
     scope.close()
 
     val elapsedTime = System.currentTimeMillis() - startTime
-
-    metricsRegistry.timer(MetricRegistry.name(FilterProcessingMetric, filter))
-                   .update(elapsedTime, TimeUnit.MILLISECONDS)
+    optMetricRegistry.foreach(_.timer(MetricRegistry.name(FilterProcessingMetric, filter)).update(elapsedTime, TimeUnit.MILLISECONDS))
 
     FilterTimingLog.trace("Filter {} spent {}ms processing", filter, elapsedTime)
   }
 }
 
 object ReposeFilterChain {
-
-  case class FilterContext(filter: Filter, filterName: String, shouldRun: HttpServletRequestWrapper => Boolean)
-
   final val FilterTimingLog: Logger = LoggerFactory.getLogger("filter-timing")
   final val IntrafilterLog: Logger = LoggerFactory.getLogger("intrafilter-logging")
 

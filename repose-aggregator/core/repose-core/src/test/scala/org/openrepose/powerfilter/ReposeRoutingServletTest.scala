@@ -23,6 +23,7 @@ import java.io.IOException
 import java.net.{URI, URL}
 import java.util.Optional
 
+import com.codahale.metrics.MetricRegistry
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
 import org.apache.http.client.methods.HttpUriRequest
@@ -30,15 +31,14 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
-import org.mockito.Matchers.{any, anyString, eq => isEq}
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Matchers.{any, anyLong, anyString, contains, eq => isEq}
+import org.mockito.Mockito._
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonRequestAttributes
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException
 import org.openrepose.commons.utils.servlet.http.RouteDestination
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
-import org.openrepose.core.services.reporting.ReportingService
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.systemmodel.config._
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService
@@ -58,8 +58,8 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
   var mockContainerConfigurationService: ContainerConfigurationService = _
   var mockHttpClient: HttpClientServiceClient = _
   var mockHttpClientService: HttpClientService = _
-  var mockReportingService: ReportingService = _
-  var mockMetricsService: Optional[MetricsService] = _
+  var metricRegistry: MetricRegistry = _
+  var mockMetricsService: MetricsService = _
   var reposeRoutingServlet: ReposeRoutingServlet = _
   var listAppender: ListAppender = _
 
@@ -71,9 +71,10 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     mockContainerConfigurationService = mock[ContainerConfigurationService]
     mockHttpClient = mock[HttpClientServiceClient]
     mockHttpClientService = mock[HttpClientService]
-    mockReportingService = mock[ReportingService]
-    mockMetricsService = Optional.empty()
+    metricRegistry = spy(new MetricRegistry)
+    mockMetricsService = mock[MetricsService]
 
+    when(mockMetricsService.getRegistry).thenReturn(metricRegistry)
     when(mockContainerConfigurationService.getRequestVia).thenReturn(Optional.empty[String]())
     when(mockHttpClientService.getDefaultClient).thenReturn(mockHttpClient)
 
@@ -84,8 +85,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
       mockConfigurationService,
       mockContainerConfigurationService,
       mockHttpClientService,
-      mockReportingService,
-      mockMetricsService)
+      Optional.of(mockMetricsService))
 
     val ctx = LogManager.getContext(false).asInstanceOf[LoggerContext]
     listAppender = ctx.getConfiguration.getAppender("List0").asInstanceOf[ListAppender].clear
@@ -178,7 +178,8 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
           response.getStatus == responseCode
 
           verify(mockHttpClient).execute(any[HttpUriRequest])
-          verify(mockReportingService).incrementRequestCount(anyString())
+            verify(metricRegistry, times(2)).meter(contains("ResponseCode"))
+            verify(metricRegistry, times(2)).timer(contains("ResponseTime"))
         }
       }
     }
@@ -385,12 +386,13 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
 
   describe("preProxyMetrics") {
     it("should increment the request count") {
+      val destId = "testId"
       val destination = new DestinationEndpoint()
-      destination.setId("testId")
+      destination.setId(destId)
 
       reposeRoutingServlet.preProxyMetrics(destination)
 
-      verify(mockReportingService).incrementRequestCount(destination.getId)
+      verify(metricRegistry).meter(contains(s"RequestDestination.$destId"))
     }
   }
 
@@ -405,7 +407,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
 
       reposeRoutingServlet.postProxyMetrics(timeElapsed, response, destination, targetUrl)
 
-      verify(mockReportingService).recordServiceResponse(destination.getId, response.getStatus, timeElapsed)
+      verify(metricRegistry, atLeastOnce()).meter(contains(".Response"))
     }
   }
 

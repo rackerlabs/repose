@@ -21,6 +21,7 @@ package org.openrepose.core.filter
 
 import org.intellij.lang.annotations.Language
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.openrepose.core.Marshaller
 import org.openrepose.core.systemmodel.config.*
@@ -53,6 +54,8 @@ public class SystemModelInterrogatorTest {
         assertThat(cluster.getNodes().getNode().get(0).getHttpPort(), equalTo(8080))
     }
 
+    // @TODO: There will be only one cluster after REP-7314
+    @Ignore
     @Test
     public void "when passed a system model missing a matching cluster, getLocalServiceDomain(...) should return an absent Optional"() throws Exception {
         SystemModel sysModel = getValidSystemModel()

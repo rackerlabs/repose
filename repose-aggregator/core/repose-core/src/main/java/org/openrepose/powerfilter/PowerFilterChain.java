@@ -61,6 +61,8 @@ import static org.openrepose.commons.utils.servlet.http.ResponseMode.*;
  *         doFilter on the container's filter chain. 6. If one of the container's filters breaks out of the chain then our chain
  *         should unwind correctly
  */
+// @TODO: This class is OBE'd with REP-7231
+@Deprecated
 public class PowerFilterChain implements FilterChain {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilterChain.class);
