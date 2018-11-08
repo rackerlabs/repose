@@ -56,7 +56,7 @@
 
 - name: Create local systemd directory
   file:
-    path: /lib/systemd/system/repose-valve.service.d
+    path: /lib/systemd/system/repose.service.d
     state: directory
     mode: 0755
     owner: root
@@ -67,7 +67,7 @@
 - name: Copy the Repose systemd unit file
   template:
     src: systemd/local.conf.j2
-    dest: /lib/systemd/system/repose-valve.service.d/local.conf
+    dest: /lib/systemd/system/repose.service.d/local.conf
     mode: 0644
     owner: root
     group: root

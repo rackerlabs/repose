@@ -4,7 +4,7 @@
 #
 # chkconfig: 345 85 15     - start or stop process definition within the boot process
 # description: Script for starting Repose Valve as a daemon on system startup
-# processname: repose-valve
+# processname: repose
 
 # Source function library.
 . /etc/rc.d/init.d/functions
@@ -14,7 +14,7 @@ LOG_PATH=/var/log/repose
 JAVA=/usr/bin/java
 CONFIG_DIRECTORY=/etc/repose
 USER=repose
-NAME=repose-valve
+NAME=repose
 DAEMON_HOME=/usr/share/repose
 PID_FILE=/var/run/${NAME}.pid
 REPOSE_JAR=${DAEMON_HOME}/${NAME}.jar

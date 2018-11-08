@@ -313,12 +313,12 @@ class ReposeValveLauncher extends ReposeLauncher {
     @Override
     boolean areAnyUp() {
         println TestUtils.getJvmProcesses()
-        return TestUtils.getJvmProcesses().contains("repose-valve.jar")
+        return TestUtils.getJvmProcesses().contains("repose.jar")
     }
 
     private static void killIfUp() {
         String processes = TestUtils.getJvmProcesses()
-        def regex = /(\d*) repose-valve.jar .*spocktest .*/
+        def regex = /(\d*) repose.jar .*spocktest .*/
         def matcher = (processes =~ regex)
         if (matcher.size() > 0) {
 
@@ -326,7 +326,7 @@ class ReposeValveLauncher extends ReposeLauncher {
                 String pid = matcher[0][i]
 
                 if (pid != null && !pid.isEmpty()) {
-                    println("Killing running repose-valve process: " + pid)
+                    println("Killing running repose process: " + pid)
                     Runtime rt = Runtime.getRuntime();
                     if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1)
                         rt.exec("taskkill " + pid.toInteger());

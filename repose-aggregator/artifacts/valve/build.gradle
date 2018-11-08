@@ -47,7 +47,7 @@ jar {
 }
 
 shadowJar {
-    archiveName = 'repose-valve.jar'
+    archiveName = 'repose.jar'
     exclude 'META-INF/*.SF'
     exclude 'META-INF/*.DSA'
     exclude 'META-INF/*.RSA'
@@ -196,7 +196,7 @@ ospackage {
     }
 
     //the systemd service
-    from('src/config/systemd/repose-valve.service') {
+    from('src/config/systemd/repose.service') {
         into '/lib/systemd/system'
         createDirectoryEntry false
         user 'root'
@@ -205,8 +205,8 @@ ospackage {
     }
 
     //the systemd wrapper script
-    from('src/config/scripts/repose-valve-systemd') {
-        rename('repose-valve-systemd', 'repose-valve')
+    from('src/config/scripts/repose-systemd') {
+        rename('repose-systemd', 'repose')
         into '/usr/share/repose'
         createDirectoryEntry false
         user 'root'
@@ -233,7 +233,7 @@ ospackage {
 
     //the license info
     from(["$rootDir/LICENSE.txt", "$rootDir/CONTRIBUTORS.txt", 'src/config/docs/DEPENDENCIES.txt']) {
-        into '/usr/share/doc/repose-valve'
+        into '/usr/share/doc/repose'
         user 'root'
         permissionGroup 'root'
         fileMode 0444
@@ -248,8 +248,8 @@ ospackage {
 
 buildDeb {
     //the init.d
-    from('src/config/scripts/repose-valve-deb') {
-        rename('repose-valve-deb', 'repose-valve')
+    from('src/config/scripts/repose-deb') {
+        rename('repose-deb', 'repose')
         into '/etc/init.d'
         createDirectoryEntry false
         user 'root'
@@ -263,15 +263,15 @@ buildDeb {
     configurationFile '/etc/repose/system-model.cfg.xml'
     configurationFile '/etc/repose/response-messaging.cfg.xml'
     configurationFile '/etc/repose/log4j2.xml'
-    configurationFile '/etc/init.d/repose-valve'
+    configurationFile '/etc/init.d/repose'
 }
 
 buildRpm {
     release = 1
 
     //the init.d
-    from('src/config/scripts/repose-valve-rpm') {
-        rename('repose-valve-rpm', 'repose-valve')
+    from('src/config/scripts/repose-rpm') {
+        rename('repose-rpm', 'repose')
         into '/etc/init.d'
         createDirectoryEntry false
         user 'root'
@@ -281,5 +281,5 @@ buildRpm {
 
     requires('java', '1.8.0', GREATER | EQUAL)
     preInstall file('src/config/scripts/preinst-rpm')
-    postInstall('/sbin/chkconfig --add repose-valve')
+    postInstall('/sbin/chkconfig --add repose')
 }

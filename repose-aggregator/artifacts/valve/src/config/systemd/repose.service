@@ -2,7 +2,7 @@
 #
 # NOTE: This file is not intended to be edited.
 #       IF you need to override any property (e.g. Environment, User, Group),
-#       THEN create and/or edit: /etc/systemd/system/repose-valve.service.d/local.conf
+#       THEN create and/or edit: /etc/systemd/system/repose.service.d/local.conf
 #
 # NOTE: Refer to the following for more detailed information:
 #        - https://www.freedesktop.org/software/systemd/man/systemd.unit.html
@@ -16,12 +16,12 @@ After=network.target
 [Service]
 Environment="JAVA_CMD=/usr/bin/java"
 Environment="JAVA_OPTS="
-Environment="REPOSE_JAR=/usr/share/repose/repose-valve.jar"
+Environment="REPOSE_JAR=/usr/share/repose/repose.jar"
 Environment="REPOSE_CFG=/etc/repose"
 Environment="REPOSE_OPTS="
 User=repose
 Group=repose
-ExecStart=/usr/share/repose/repose-valve
+ExecStart=/usr/share/repose/repose
 # Java processes exit with status code 128+SIG
 # SIGHUP  =  1
 # SIGINT  =  2

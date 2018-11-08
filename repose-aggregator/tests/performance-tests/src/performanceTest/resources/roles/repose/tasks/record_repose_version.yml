@@ -20,12 +20,12 @@
 
 ---
 - name: Record the Repose version for Debian-based distributions
-  command: dpkg-query --showformat='${Version}' --show 'repose-valve'
+  command: dpkg-query --showformat='${Version}' --show 'repose'
   register: repose_version_query_debian
   when: ansible_os_family == "Debian"
 
 - name: Record the Repose version for RedHat-based distributions
-  command: rpm -q --queryformat '%{VERSION}' repose-valve
+  command: rpm -q --queryformat '%{VERSION}' repose
   register: repose_version_query_redhat
   when: ansible_os_family == "RedHat"
 

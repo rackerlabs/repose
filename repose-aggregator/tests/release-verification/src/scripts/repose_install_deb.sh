@@ -17,10 +17,10 @@ echo "Installing Repose ${name} package"
 echo "-------------------------------------------------------------------------------------------------------------------"
 
 if [ "X_${name}_X" = "X_local_X" ] ; then
-  dpkg -i /release-verification/repose-valve*_all.deb /release-verification/repose-filter-bundle*_all.deb /release-verification/repose-extensions-filter-bundle*_all.deb /release-verification/repose-experimental-filter-bundle*_all.deb
+  dpkg -i /release-verification/repose*_all.deb /release-verification/repose-filter-bundle*_all.deb /release-verification/repose-extensions-filter-bundle*_all.deb /release-verification/repose-experimental-filter-bundle*_all.deb
   apt-get install -y -f
 else
-  apt-get install -y repose-valve${version} repose-filter-bundle${version} repose-extensions-filter-bundle${version} repose-experimental-filter-bundle${version}
+  apt-get install -y repose${version} repose-filter-bundle${version} repose-extensions-filter-bundle${version} repose-experimental-filter-bundle${version}
 fi
-mkdir -p /etc/systemd/system/repose-valve.service.d && echo "[Service]\nEnvironment=\"JAVA_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,address=10037,server=y,suspend=n\"" > /etc/systemd/system/repose-valve.service.d/local.conf
+mkdir -p /etc/systemd/system/repose.service.d && echo "[Service]\nEnvironment=\"JAVA_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,address=10037,server=y,suspend=n\"" > /etc/systemd/system/repose-valve.service.d/local.conf
 sed -i '/JAVA_OPTS/c\JAVA_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,address=10037,server=y,suspend=n"' /etc/sysconfig/repose

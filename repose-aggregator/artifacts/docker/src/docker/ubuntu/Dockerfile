@@ -10,7 +10,7 @@ ARG REPOSE_VERSION
 # Install Repose (and Java) from the Debian package repository.
 RUN apt-get update -qq && apt-get install -qq -y wget openjdk-8-jre-headless
 RUN wget --quiet -O - http://repo.openrepose.org/debian/pubkey.gpg | apt-key add - && echo 'deb http://repo.openrepose.org/debian stable main' > /etc/apt/sources.list.d/openrepose.list
-RUN apt-get update -qq && apt-get install -y repose-valve=$REPOSE_VERSION repose-filter-bundle=$REPOSE_VERSION repose-extensions-filter-bundle=$REPOSE_VERSION repose-experimental-filter-bundle=$REPOSE_VERSION
+RUN apt-get update -qq && apt-get install -y repose=$REPOSE_VERSION repose-filter-bundle=$REPOSE_VERSION repose-extensions-filter-bundle=$REPOSE_VERSION repose-experimental-filter-bundle=$REPOSE_VERSION
 
 ENV APP_ROOT=/etc/repose
 ENV APP_VARS=/var/repose
@@ -41,4 +41,4 @@ EXPOSE 8080
 ENV JAVA_OPTS=
 
 # Start Repose.
-CMD java $JAVA_OPTS -jar /usr/share/repose/repose-valve.jar -c /etc/repose
+CMD java $JAVA_OPTS -jar /usr/share/repose/repose.jar -c /etc/repose

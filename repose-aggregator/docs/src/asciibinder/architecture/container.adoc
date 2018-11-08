@@ -345,7 +345,7 @@ We have added a command line option to *Repose Valve* to display the available a
 [source,bash]
 .Show SSL Params
 ----
-java -jar /usr/share/repose/repose-valve.jar --show-ssl-params
+java -jar /usr/share/repose/repose.jar --show-ssl-params
 ----
 
 This will dump a list of the default enabled SSL/TLS parameters for the JVM you're using.
@@ -363,5 +363,5 @@ When running in insecure mode, *Repose* will accept all certificates from extern
 [source,bash]
 .Insecure Mode
 ----
-java -jar /usr/share/repose/repose-valve.jar -c /etc/repose -k
+java -jar /usr/share/repose/repose.jar -c /etc/repose -k
 ----

@@ -142,9 +142,9 @@ def check_if_repose_is_listening(listen_port, steps):
 
 
 def started_repose_id():
-    output = commands.getoutput('ps aux | grep repose-valve').split('\n')
+    output = commands.getoutput('ps aux | grep repose').split('\n')
     for i in output:
-        if not 'grep repose-valve' in i:
+        if not 'grep repose' in i:
             return i.split()[1]
     return None
 
@@ -182,10 +182,10 @@ def build_with_git(module, git_repo, git_branch, build_tool, wait, wait_timeout,
     if build_tool == "maven":
         rc, out, err = module.run_command('mvn clean install -DskipTests -Pbuild-system-packages', cwd='/opt/repose', check_rc=False)
         for ext_file in glob.glob(r'/opt/repose/repose-aggregator/installation/'
-                              r'deb/repose-valve/target/'
-                              r'repose-valve-*SNAPSHOT.deb'):
+                              r'deb/repose/target/'
+                              r'repose-*SNAPSHOT.deb'):
             rc, out, err = module.run_command('dpkg -i %s' % ext_file, cwd='/opt/repose', check_rc=True)
-            steps.append('result from repose-valve: %s, %s, %s' % (rc, out, err))
+            steps.append('result from repose: %s, %s, %s' % (rc, out, err))
         for ext_file in glob.glob(r'/opt/repose/repose-aggregator/installation/'
                               r'deb/repose-filter-bundle/target/'
                               r'repose-filter-bundle-*SNAPSHOT.deb'):
@@ -200,9 +200,9 @@ def build_with_git(module, git_repo, git_branch, build_tool, wait, wait_timeout,
         rc, out, err = module.run_command('./gradlew buildDeb -Prelease', cwd='/opt/repose', check_rc=False)
         for ext_file in glob.glob(r'/opt/repose/repose-aggregator/artifacts/'
                                   r'valve/build/distributions/'
-                                  r'repose-valve*.deb'):
+                                  r'repose*.deb'):
             rc, out, err = module.run_command('dpkg -i %s' % ext_file, cwd='/opt/repose', check_rc=True)
-            steps.append('result from repose-valve: %s, %s, %s' % (rc, out, err))
+            steps.append('result from repose: %s, %s, %s' % (rc, out, err))
         for ext_file in glob.glob(r'/opt/repose/repose-aggregator/artifacts/'
                                   r'filter-bundle/build/distributions/'
                                   r'repose-filter-bundle*.deb'):
@@ -220,7 +220,7 @@ def build_with_git(module, git_repo, git_branch, build_tool, wait, wait_timeout,
             steps.append('result from repose-experimental-filter-bundle: %s, %s, %s' % (rc, out, err))
     steps.append('result from %s: %s, %s' % (build_tool, rc, err))
 
-    # start repose from repose-valve
+    # start repose from repose
     if check_if_started:
         steps.append('we also want to start it')
         start_repose(module, listen_port, wait, wait_timeout, steps)
@@ -243,7 +243,7 @@ def build_with_release(module, release, package, wait, wait_timeout,
 
     # 1. check which os it is (DEB or RPM)
     # 2. install repose
-    # 3. call repose-valve to start repose
+    # 3. call repose to start repose
     steps.append('in build with release method')
     steps.append('check if repose is listening (so that we do not have to do it again)')
     untouched = dict()
@@ -269,7 +269,7 @@ def build_with_release(module, release, package, wait, wait_timeout,
             (rc, out, err) = module.run_command('export DEBIAN_FRONTEND=noninteractive; apt-get update', check_rc=True, use_unsafe_shell=True)
             steps.append("Just ran update: %s, %s, %s" % (rc, out, err))
             (rc, out, err) = module.run_command('export DEBIAN_FRONTEND=noninteractive; apt-get install '
-                                                'repose-valve=%s '
+                                                'repose=%s '
                                                 'repose-filter-bundle=%s '
                                                 'repose-extensions-filter-bundle=%s '
                                                 'repose-experimental-filter-bundle=%s '
@@ -277,7 +277,7 @@ def build_with_release(module, release, package, wait, wait_timeout,
                                                 (release, release, release, release),
                                                 use_unsafe_shell=True, check_rc=True)
             steps.append("Just installed all repose: %s, %s, %s" % (rc, out, err))
-            # start repose from repose-valve
+            # start repose from repose
             if check_if_started:
                 steps.append('we also want to start it')
                 start_repose(module, listen_port, wait, wait_timeout, steps)
@@ -300,15 +300,15 @@ def build_with_release(module, release, package, wait, wait_timeout,
             module.run_command('sudo wget -O /etc/yum.repos.d/openrepose.repo http://repo.openrepose.org/el/openrepose.repo')
             module.run_command('sudo yum update')
             module.run_command('sudo yum install '
-                               'repose-valve=%s '
+                               'repose=%s '
                                'repose-filter-bundle=%s '
                                'repose-extensions-filter-bundle=%s '
                                'repose-experimental-filter-bundle=%s '
                                '-y --force-yes -q' %
                                (release, release, release, release),
                                use_unsafe_shell=True, check_rc=True)
-            # start repose from repose-valve
-            # start repose from repose-valve
+            # start repose from repose
+            # start repose from repose
             if check_if_started:
                 steps.append('we also want to start it')
                 start_repose(module, listen_port, wait, wait_timeout, steps)
@@ -336,9 +336,9 @@ def start_repose(module, listen_port, wait, wait_timeout, steps, service_command
     success = []
     error = []
     timeout = []
-    steps.append('trying to %s repose-valve' % service_command)
+    steps.append('trying to %s repose' % service_command)
     # TODO: Add support for systemD
-    module.run_command('service repose-valve %s' % service_command)
+    module.run_command('service repose %s' % service_command)
     changed = False
     if wait:
         steps.append('we are waiting for %s' % wait_timeout)
@@ -393,11 +393,11 @@ def validate_repose(module, changed, untouched, listen_port, steps):
 
     steps.append('check if repose is started')
     steps.append('OUTPUT OF LSOF -I: ')
-    steps.append(commands.getoutput('lsof -i | grep repose-valve'))
-    steps.append(len(commands.getoutput('lsof -i | grep repose-valve').split('\n')))
+    steps.append(commands.getoutput('lsof -i | grep repose'))
+    steps.append(len(commands.getoutput('lsof -i | grep repose').split('\n')))
     steps.append('OUTPUT OF PS AUX: ')
-    steps.append(commands.getoutput('ps aux | grep repose-valve'))
-    steps.append(len(commands.getoutput('ps aux | grep repose-valve').split('\n')))
+    steps.append(commands.getoutput('ps aux | grep repose'))
+    steps.append(len(commands.getoutput('ps aux | grep repose').split('\n')))
     if check_if_repose_is_listening(listen_port, steps):
         steps.append('repose is started on %s' % started_repose_id())
         success = dict(
