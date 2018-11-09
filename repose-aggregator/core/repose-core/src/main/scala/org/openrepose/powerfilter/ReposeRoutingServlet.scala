@@ -53,7 +53,7 @@ import org.springframework.beans.factory.annotation.Value
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-@Named
+@Named("reposeRoutingServlet")
 class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSION) reposeVersion: String,
                                      @Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
                                      @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String,

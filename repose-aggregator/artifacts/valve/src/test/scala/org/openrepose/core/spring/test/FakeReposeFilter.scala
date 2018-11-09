@@ -22,8 +22,8 @@ package org.openrepose.core.spring.test
 import javax.inject.Named
 import javax.servlet._
 
-@Named("powerFilter")
-class FakePowerFilter extends Filter {
+@Named("reposeFilter")
+class FakeReposeFilter extends Filter {
   override def init(filterConfig: FilterConfig): Unit = {
 
   }

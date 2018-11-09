@@ -265,8 +265,8 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
 
     val server2 = server.restart()
 
-    server2.appContext.isActive shouldBe false
-    //Cannot check to see if it's running, because it flips out
+    server2.appContext.isActive shouldBe true
+    server2.appContext.isRunning shouldBe true
     server2.server.isRunning shouldBe false
 
     server2.start()
