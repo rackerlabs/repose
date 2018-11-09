@@ -28,6 +28,12 @@
 .. If you have configured a URL regex with multiple capture groups but do not desire the values of some of those groups to be added to the header, use the non-capturing group construct (i.e., `(?:X)`).
    See https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#special[the special constructs portion of the Java Pattern documentation] for more information.
 
+== OpenStack Identity v3 Filter
+. Removed deprecated caching attributes:
+.. `token-cache-timeout` on the `openstack-identity-v3` element; `token` on the `timeouts` element should be used instead.
+.. `groups-cache-timeout` on the `openstack-identity-v3` element; `group` on the `timeouts` element should be used instead.
+.. `cache-offset` on the `openstack-identity-v3` element; `variance` on the `timeouts` element should be used instead.
+
 == For Integrators
 
 === Core

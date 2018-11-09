@@ -1,52 +1,450 @@
-= Openstack Identity v3 Filter
+= OpenStack Identity v3 Filter
 
-include::./_includes/in-progress.adoc[]
+The OpenStack Identity v3 Filter authenticates, authorizes, and enriches requests using data from an OpenStack Identity v3 service.
+
+Authentication is the process of validating that a request was made by a valid user.
+This is accomplished by checking that the subject token on the request can be confirmed by the identity service.
+
+Authorization is the process of validating that the user has permission to make a request.
+This is accomplished by checking two factors:
+
+. That a project ID in the path of the request matches a project ID that the user has some permission on.
+. That the user has access to a specified endpoint.
+
+Authorization is an optional feature.
+
+Enrichment is the process of adding additional information to the request.
+This information is gathered through authentication and authorization.
+It includes things like the user's name, ID, roles, groups, and service catalog.
 
 == General filter information
-* *Name:* ???
-* *Default Configuration:* ???.cfg.xml
-* *Released:* v?.?.?.?
+
+* *Name:* openstack-identity-v3
+* *Default Configuration:* openstack-identity-v3.cfg.xml
+* *Released:* v6.1.0.3
 * *Bundle:* repose-filter-bundle
 * link:../schemas/openstack-identity-v3.xsd[Schema]
 
 == Prerequisites & Postconditions
 === Required Request Headers
-???.
+
+* `X-Subject-Token` - A required header that identifies the user and is validated against the identity service.
+If an incoming request is missing this header, then a response status code of _Unauthorized_ (`401`) is returned.
 
 === Required Preceding Filters
-???.
+
+This filter has no required preceding filters, however the following filters may be useful:
+
+* <<header-translation.adoc#, Header Translation Filter>> - To convert the `X-Auth-Token` header to `X-Subject-Token` to maintain backwards compatibility with other filters.
+  If used, it should be placed before this filter.
+* <<header-normalization.adoc#, Header Normalization Filter>> - To remove headers that would be populated by this filter to prevent identity spoofing.
 
 === Request Headers Created
-???.
+
+The following headers are created using the authentication information returned from the identity service:
+
+* `X-Authorization` - Informs origin service that user has been authenticated. (e.g., "Proxy User")
+* `X-User-Name` - Identifies user name. (e.g., "jjenkins")
+* `X-User-ID` - Identifies user ID. (e.g., "12345")
+* `X-Roles` - Identifies roles. (e.g., "admin", "user")
+* `X-Domain-ID` - The domain ID for the user.
+* `X-Contact-ID` - The contact ID for the user.
+* `X-Default-Region` - The default region for the user.
+* `X-Project-ID` - The project ID(s) for the user.
+** The value of this header is governed by `send-all-project-ids` attribute and what is provided by the identity service.
+* `X-Project-Name` - The project Name for the user.
+* `X-Token-Expires` - The date and time when the token provided by the identity service expires.
+
+The following headers are added for use by the <<rate-limiting.adoc#, Rate Limiting filter>>:
+
+* `X-PP-User` - Identifies user name. (e.g., "jjenkins")
+* `X-PP-Groups` - Identifies groups. (e.g., "admin", "user")
+** Only if the `forward-groups` attribute is `true`.
+
+If the `forward-catalog` attribute is `true`, then the service catalog from the identity service is base 64 encoded and placed in the following header:
+
+* `X-Catalog` - The base 64 encoded service catalog for the user. (e.g., "amplbmtpbnMgc2VydmljZSBjYXRhbG9nDQo=")
+
+Some instance of the OpenStack Identity v3 service may support impersonation.
+When an impersonation token is validated, the identity service will return identifying information for the impersonator.
+This information allows impersonated calls to be tracked (e.g., via <<slf4j-http-logging.adoc#, SLF4J HTTP Logging filter>>).
+The origin service can also determine when a request is impersonated and who the impersonator is.
+The information is placed in the following headers:
+
+* `X-Impersonator-ID` - Identifies user ID of the impersonator. (e.g., "1024")
+* `X-Impersonator-Name` - Identifies user name of the impersonator. (e.g., "admin-user")
+
+Delegation is a way to continue processing a request despite the occurrence of an error.
+It is mainly intended for use by the <<herp.adoc#, Highly Efficient Record Processor (HERP) filter>> and <<derp.adoc#, Delegation Response Processor (DeRP) filter>> for internal delegation processing within *Repose*.
+However, it can be exposed to the origin service under certain configurations.
+If delegation is enabled via the inclusion of the `delegating` element in the configuration, the following headers may be added to the request:
+
+* `X-Delegated` - Identifies any errors that occurred.
+** Only if the `delegating` element is defined and an error occurs during processing.
+* `X-Identity-Status` - Indicates if identity has been confirmed. (e.g., "Confirmed", "Indeterminate")
+** Only if the `delegating` element is defined.
 
 === Request Body Changes
-???.
+
+This filter does not modify the request body.
 
 === Recommended Follow-On (Succeeding) Filters
-???.
+
+This filter has no required succeeding filters, however the following filters may be useful:
+
+* <<simple-rbac.adoc#, Simple RBAC filter>> - Provides role-based access control to the origin service API, making use of the `X-Roles` header by default.
+* <<api-validator.adoc#, API Validator filter>> - Provides role-based access control to the origin service API, making use of the `X-Roles` header.
+* <<rate-limiting.adoc#, Rate Limiting filter>> - Provides rate limiting, making use of the `X-PP-User` and `X-PP-Groups` headers.
 
 === Response Body Changes
-???.
+
+This filter does not modify the response body.
 
 === Response Headers Created
-???.
+
+* `Retry-After` - Included on all _Service Unavailable_ (`503`) responses to indicate when it is appropriate to retry the request again.
+* `WWW-Authenticate` - Included on all _Unauthorized_ (`401`) responses to challenge the authorization of a user agent.
+This includes `401`s from further down the filter chain as well as the origin service.
 
 === Response Status Codes
-???.
+[cols="a,a,a,a", options="header"]
+|===
+|When the OpenStack Identity v3 Service Returns
+|*Repose* Get Admin Token Call Returns
+|*Repose* Validate Token Call Returns
+|*Repose* Groups Call Returns
+
+| _Successful_ (`2xx`)
+| Request continues
+| Request continues
+| Request continues
+
+| `400`
+| `500`
+| `500`
+| `500`
+
+| `401`
+
+The admin credentials are invalid.
+| `500`
+| `500`
+| `500`
+
+| `403`
+
+The admin token is unauthorized.
+| `500`
+| `500`
+| `500`
+
+| `404`
+| `500`
+| `401`
+| `500`
+
+| `405`
+| `500`
+| `500`
+| `500`
+
+| `413`
+
+`429`
+
+The OpenStack Identity v3 service rate limited the request from *Repose*.
+| `503`
+| `503`
+| `503`
+
+| `500`
+
+`501`
+
+`502`
+
+`503`
+
+The OpenStack Identity v3 service failed to process the request.
+| `500`
+| `500`
+| `500`
+|===
 
 == Examples
-=== Shows how to ???
-This configuration will ???.
+=== Basic Authentication Configuration
+
+This configuration will authenticate a user and provide basic user information in headers.
 
 [source,xml]
-.???.cfg.xml
+.openstack-identity-v3.cfg.xml
 ----
-<??? xmlns="http://docs.openrepose.org/repose/???/v1.0">
-    <???> <!--1-->
-    </???>
-</???>
+<?xml version="1.0" encoding="UTF-8"?>
+<openstack-identity-v3 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0">
+    <openstack-identity-service username="myUsername" <!--1-->
+                                password="myPassword" <!--2-->
+                                domain-id="myDomainId" <!--3-->
+                                uri="http://identity.example.com"/> <!--4-->
+</openstack-identity-v3>
 ----
-<1> Specifies ???.
+<1> Admin username to access the OpenStack Identity v3 service.
+<2> Admin password to access the OpenStack Identity v3 service.
+<3> Domain ID to use when authenticating as an admin user with the OpenStack Identity v3 service.
+    A domain ID is required since authentication is performed by username rather than user ID. +
+<4> OpenStack Identity v3 service URI.
 
-== Additional Information
-*Remove this section if not needed.*
+=== Miscellaneous Attributes
+
+This configuration is an example using the `openstack-identity-v3` and `openstack-identity-service` elements' optional configuration attributes.
+
+[source,xml]
+.openstack-identity-v3.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<openstack-identity-v3 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"
+    connection-pool-id="myPool" <!--1-->
+    forward-groups="true" <!--2-->
+    forward-catalog="false"> <!--3-->
+
+    <openstack-identity-service username="myUsername"
+                                password="myPassword"
+                                domain-id="myDomainId"
+                                project-id="" <!--4-->
+                                uri="http://identity.example.com"/>
+</openstack-identity-v3>
+----
+<1> HTTP connection pool ID to use when talking to the OpenStack Identity v3 service. +
+    *NOTE:* If the `connection-pool-id` is not defined, then the default pool is used.
+<2> Set the user's groups in the `X-PP-Groups` header. +
+    Default: `true`
+<3> Set the user's service catalog, base64 encoded, in the `X-Catalog` header. +
+    Default: `false`
+<4> Project ID to use when authenticating as an admin user with the OpenStack Identity v3 service.
+    Providing a project ID will scope the access of the admin to a specific project. +
+    Optional.
+
+=== Enabling Delegation
+
+In some cases, you may want to delegate the decision to reject a request down the chain to either another filter or to the origin service.
+This filter allows a request to pass as either `confirmed` or `indeterminate` when configured to run in delegating mode.
+To place the filter in delegating mode, add the `delegating` element to the filter configuration with an optional `quality` attribute that determines the delegating priority.
+When in delegating mode, the filter sets the `X-Identity-Status` header with a value of `confirmed` when valid credentials have been authenticated by the OpenStack Identity  v3 service and to `indeterminate` when the credentials are not.
+The the `X-Identity-Status` header is in addition to the regular `X-Delegated` delegation header being created.
+
+[source,xml]
+.openstack-identity-v3.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<openstack-identity-v3 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0">
+    <delegating quality="0.7"/> <!--1--> <!--2-->
+    <openstack-identity-service username="myUsername"
+                                password="myPassword"
+                                domain-id="myDomainId"
+                                uri="http://identity.example.com"/>
+</openstack-identity-v3>
+----
+<1> If this element is present, then delegation is enabled.
+    Delegation will cause this filter to pass requests it would ordinarily reject along with a header detailing why it would have rejected the request.
+<2> Indicates the quality that will be added to any output headers.
+    When setting up a chain of delegating filters the highest quality number will be the one that is eventually output to the logging mechanisms. +
+    Default: `0.7`
+
+=== Configuring White-Listed URI's
+
+You can configure this filter to allow no-op processing of requests that do not require authentication.
+For example, a service might want all calls authenticated with the exception of the call for WADL retrieval.
+In this situation, you can configure the whitelist as shown in the example below.
+The whitelist contains a list of https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expressions] that *Repose* attempts to match against the full request URI.
+If the URI matches an expression in the white list, then the request is passed to the origin service.
+Otherwise, authentication is performed against the request.
+
+[source,xml]
+.openstack-identity-v3.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<openstack-identity-v3 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0">
+    <white-list>
+        <uri-pattern>/application\.wadl$</uri-pattern> <!--1-->
+    </white-list>
+    <openstack-identity-service username="myUsername"
+                                password="myPassword"
+                                domain-id="myDomainId"
+                                uri="http://identity.example.com"/>
+</openstack-identity-v3>
+----
+<1> The https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] to allow matching URI's to pass without requiring authentication.
+
+=== Configuring Cache Timeouts
+
+This filter caches authentication tokens and user groups.
+The length of time that tokens are cached is determined by the Time To Live (TTL) value that is returned from the OpenStack Identity v3 service during token validation.
+
+You can configure alternate maximum TTL for caching of authentication tokens and groups.
+If you specify the token element value in the configuration file, this value is used when caching tokens, unless the token TTL value provided by the OpenStack Identity v3 is less than the configured value.
+This method prevents *Repose* from caching stale tokens.
+If the token's TTL exceeds the maximum allowed TTL value (2^31 - 1), the maximum allowed TTL is used.
+
+[source,xml]
+.openstack-identity-v3.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<openstack-identity-v3 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0">
+    <cache>
+        <timeouts variance="10" <!--1-->
+                  token="600" <!--2-->
+                  group="600"/> <!--3-->
+    </cache>
+    <openstack-identity-service username="myUsername"
+                                password="myPassword"
+                                domain-id="myDomainId"
+                                uri="http://identity.example.com"/>
+</openstack-identity-v3>
+----
+<1> This value will be added or subtracted to the cache timeouts to help ensure that the cached items have some variability so they don't all expire at the exact same time. +
+    Default: `0`
+<2> The number of seconds which cached tokens will live in the datastore.
+    Default: `600`
+<3> The number of seconds which cached groups will live in the datastore.
+    Default: `600`
+
+[NOTE]
+====
+Each timeout value behaves in the following way:
+
+* If `0`, data is cached using the TTL in the token provided by the OpenStack Identity v3 service.
+* If greater than `0`, data is cached for the value provided, in seconds.
+====
+
+=== Configuring Cache Invalidation Using an Atom Feed
+You can configure this filter to use an Atom Feed for cache expiration.
+This configuration blocks malicious users from accessing the origin service by repeatedly checking the Cloud Feed from the authentication service.
+To set up this filter to use Cloud Feeds for cache expiration, you will need to enable the <<../services/atom-feed-consumption.adoc#, Atom Feed Consumption service>> in the <<../architecture/system-model.adoc#, System model>>, configure the <<../services/atom-feed-consumption.adoc#, Atom Feed Consumption service>>, and configure this filter with which feeds to listen to.
+
+[NOTE]
+====
+The Rackspace infrastructure uses Cloud Feeds (formerly Atom Hopper) to notify services of events.
+This is not default OpenStack behavior, and may require additional services for use.
+A list of Rackspace Cloud Feeds endpoints for Identity Events can be found at
+https://one.rackspace.com/display/auth/Identity+Endpoints#IdentityEndpoints-EndpointsConsumed[the internal Rackspace Wiki page linked here].
+====
+
+[source,xml]
+.openstack-identity-v3.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<openstack-identity-v3 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0">
+    <cache>
+        <atom-feed id="myAtomFeed"> <!--4-->
+    </cache>
+    <openstack-identity-service username="myUsername"
+                                password="myPassword"
+                                domain-id="myDomainId"
+                                uri="http://identity.example.com"/>
+</openstack-identity-v3>
+----
+<1> The unique ID of a feed defined in the <<../services/atom-feed-consumption.adoc#, Atom Feed Consumption service>> configuration.
+
+=== Project ID Authorization
+
+Project ID authorization is the capability of this filter to parse a tenant ID out of the request and validate it against the project ID(s) available in the response token from the OpenStack Identity v3 service.
+
+[source,xml]
+.openstack-identity-v3.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<openstack-identity-v3 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"
+    send-all-project-ids="false"> <!--1-->
+
+    <validate-project-id-in-uri strip-token-project-prefixes="/foo:/bar-" <!--2--> <!--3-->
+                                regex="/v\d/([^/]+)/resource"/> <!--4-->
+    <send-project-id-quality default-project-quality="0.9" <!--5--> <!--6-->
+                             uri-project-quality="0.7" <!--7-->
+                             roles-project-quality="0.5"/> <!--8-->
+    <openstack-identity-service username="myUsername"
+                                password="myPassword"
+                                domain-id="myDomainId"
+                                uri="http://identity.example.com"/>
+</openstack-identity-v3>
+----
+<1> Indicates if all the project IDs from the user and the roles the user has should be sent or not. +
+    If true, all project IDs associated with the user are sent.
+    If false, only the matching project IDs from the request are sent.
+    If no request project IDs match any user projects, then the default user project is sent.
+    If no default user project ID exists, then an indeterminate project ID from the set of role project IDs is sent.
+    If no role project IDs exist, then no project ID is sent.
+    Default: `false`
+<2> If this element is included, then project ID validation will be enforced based on the value extracted from the request.
+<3> A `/` delimited list of prefixes to attempt to strip from the project ID in the token response from the Keystone v2 Identity service.
+    The post-strip project ID is only used in the project validation check.
+<4> The https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] with at least one capture group.
+    The first capture group must be around the portion of the URI to extract the project ID from for validation.
+<5> If this element is included, then include quality parameters on all the project ID headers sent.
+<6> The default project ID has the highest quality by default. +
+    Default: `0.9`
+<7> Followed by the one that matches the project ID extracted from the request by default (if any). +
+    Default: `0.7`
+<8> Followed by the project IDs from the roles by default. +
+     Default: `0.5`
+
+[NOTE]
+====
+If the default project ID and a project ID extracted from the request are the same, then the highest quality between the two will be used.
+====
+
+[NOTE]
+====
+If the `validate-project-id-in-uri` element is not present, then this filter will not attempt to validate a project ID from the request.
+====
+
+=== Tenant ID Validation Bypass
+
+If project ID authorization is enabled, then a list of roles that are allowed to bypass this check can be configured.
+These configured roles will be compared to the roles returned in a token from the OpenStack Identity v3 service, and if there is a match, the project ID check will be skipped.
+
+[source,xml]
+.openstack-identity-v3.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<openstack-identity-v3 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0">
+    <validate-project-id-in-uri regex="/v\d/([^/]+)/resource"/>
+    <pre-authorized-roles> <!--1-->
+        <role>racker</role> <!--2-->
+    </pre-authorized-roles>
+    <openstack-identity-service username="myUsername"
+                                password="myPassword"
+                                domain-id="myDomainId"
+                                uri="http://identity.example.com"/>
+</openstack-identity-v3>
+----
+<1> Enable project ID validation Bypass.
+<2> Defines a role for which the project ID validation check is not required.
+
+=== Service Endpoint Authorization
+
+If endpoint authorization is enabled, then the user must have an endpoint in their catalog meeting the defined criteria.
+
+[source,xml]
+.openstack-identity-v3.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<openstack-identity-v3 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0">
+    <service-endpoint url="https://service.example.com" <!--1--> <!--2-->
+                      region="ORD" <!--2-->
+                      name="OpenStackCompute" <!--3-->
+                      interface="admin"/> <!--4-->
+    <openstack-identity-service username="myUsername"
+                                password="myPassword"
+                                domain-id="myDomainId"
+                                uri="http://identity.example.com"/>
+</openstack-identity-v3>
+----
+<1> If this element is included, then endpoint authorization is enabled and will be enforced based attributes of this element.
+<2> Public URL to match on the user's service catalog entry.
+<3> Region to match on the user's service catalog entry.
+<4> Name of the service to match in the user's service catalog entry.
+<5> Interface to match in the user's service catalog entry.
+
+[NOTE]
+====
+The `region`, `name`, and `interface` attributes are all optional and can be combined as needed to achieve the desired restrictions.
+====
