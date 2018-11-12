@@ -302,8 +302,8 @@ class ReposeValveLauncher extends ReposeLauncher {
         def String beanName = cfgBean.iterator().next().name.toString()
 
         //Doing the JMX invocation here, because it's kinda ugly
-        Object[] opParams = [clusterId, nodeId]
-        String[] opSignature = [String.class.getName(), String.class.getName()]
+        Object[] opParams = [nodeId]
+        String[] opSignature = [String.class.getName()]
 
         //Invoke the 'is repose ready' bit on it
         def nodeIsReady = jmx.server.invoke(new ObjectName(beanName), "isNodeReady", opParams, opSignature)
