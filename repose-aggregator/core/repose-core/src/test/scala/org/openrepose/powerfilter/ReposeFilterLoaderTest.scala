@@ -40,19 +40,18 @@ import org.openrepose.core.services.event.EventService
 import org.openrepose.core.services.event.impl.SimpleEvent
 import org.openrepose.core.services.healthcheck.{HealthCheckService, HealthCheckServiceProxy}
 import org.openrepose.core.services.jmx.ConfigurationInformation
-import org.openrepose.core.systemmodel.config.{SystemModel, Filter => FilterConfig}
+import org.openrepose.core.systemmodel.config.{SystemModel, TracingHeaderConfig, Filter => FilterConfig}
 import org.openrepose.powerfilter.ReposeFilterLoader.{FilterContext, FilterContextList, FilterContextRegistrar}
 import org.openrepose.powerfilter.ReposeFilterLoaderTest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers, OptionValues}
 import org.springframework.context.ApplicationContext
-import org.springframework.context.support.AbstractApplicationContext
 
 import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
-class ReposeFilterLoaderTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
+class ReposeFilterLoaderTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfterEach with OptionValues {
   var configurationService: ConfigurationService = _
   var eventService: EventService = _
   var healthCheckService: HealthCheckService = _
@@ -180,10 +179,18 @@ class ReposeFilterLoaderTest extends FunSpec with Matchers with MockitoSugar wit
       reposeFilterLoader.getTracingHeaderConfig shouldBe None
     }
 
-    it("should return Some value if a configuration has been read") {
+    it("should return None if a configuration has been read ") {
       reposeFilterLoader.configurationUpdated(systemModelString(SystemModelXml))
 
-      assertTrue("The Tracing Header configuration should be defined", reposeFilterLoader.getTracingHeaderConfig.isDefined)
+      reposeFilterLoader.getTracingHeaderConfig shouldBe None
+    }
+
+    it("should return Some value if a configuration has been read") {
+      val systemModel = systemModelString(SystemModelXml)
+      systemModel.setTracingHeader(new TracingHeaderConfig())
+      reposeFilterLoader.configurationUpdated(systemModel)
+
+      reposeFilterLoader.getTracingHeaderConfig.value should not be null
     }
   }
 
