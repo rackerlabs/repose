@@ -126,7 +126,7 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
     currentFilterContextRegistrar.map(_.bind())
   }
 
-  def getTracingHeaderConfig: Option[TracingHeaderConfig] = currentSystemModel.map(_.getTracingHeader)
+  def getTracingHeaderConfig: Option[TracingHeaderConfig] = currentSystemModel.map(_.getTracingHeader).flatMap(Option.apply)
 
   /**
     * Triggered each time the event service triggers an app deploy and when the system model is updated.
