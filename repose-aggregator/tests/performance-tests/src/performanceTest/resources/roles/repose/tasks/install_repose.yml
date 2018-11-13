@@ -85,7 +85,7 @@
 # Note: See: https://github.com/ansible/ansible-modules-core/issues/1178
 - name: Install Repose Valve from a local package
   apt:
-    deb: /tmp/repose/{{ repose_packages.files | map(attribute='path') | select('match','.*valve.*') | list | first | basename }}
+    deb: /tmp/repose/{{ repose_packages.files | map(attribute='path') | select('match','repose(_.*SNAPSHOT.*)?.deb') | list | first | basename }}
   when: repose_packages.matched|int != 0
 
 - name: Install Repose bundles from local packages
