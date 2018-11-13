@@ -159,7 +159,7 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
             // set the Close flag on the old one.
             currentFilterContextRegistrar.synchronized {
               val previousFilterContextRegistrar = currentFilterContextRegistrar
-              currentFilterContextRegistrar = Option(new FilterContextRegistrar(newFilterChain, Option(localCluster.getFilters.getBypassUriRegex)))
+              currentFilterContextRegistrar = Option(new FilterContextRegistrar(newFilterChain, Option(localCluster.getFilters).map(_.getBypassUriRegex).flatMap(Option.apply)))
               previousFilterContextRegistrar
             }.foreach(_.close())
 
