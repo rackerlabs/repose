@@ -75,15 +75,15 @@ class DistDatastoreServiceClientAuthFullTest extends Specification {
 
         repose1 = new ReposeValveLauncher(config, reposeJar, reposeEndpoint1, configDirectory,  reposePort1)
         repose1.enableDebug()
-        repose1.start([clusterId: "repose1", nodeId: "node1"])
-        reposeLogSearch.awaitByString("repose1:node1 -- Repose ready", 1, 60, TimeUnit.SECONDS)
-        reposeLogSearch.awaitByString("repose1:node2 -- Repose ready", 1, 60, TimeUnit.SECONDS)
+        repose1.start(clusterId: "repose1", nodeId: "node1")
+        reposeLogSearch.awaitByString("node1 -- Repose ready", 1, 60, TimeUnit.SECONDS)
+        reposeLogSearch.awaitByString("node2 -- Repose ready", 1, 60, TimeUnit.SECONDS)
     }
 
     def "Test repose container with multi-nodes"() {
         given:
         MessageChain mc
-        def user = UUID.randomUUID().toString();
+        def user = UUID.randomUUID().toString()
 
         // This tests rate limit share between 2 nodes which is accomplished using the dist datastore.
         when: "the request hit the first node using up all limit"
