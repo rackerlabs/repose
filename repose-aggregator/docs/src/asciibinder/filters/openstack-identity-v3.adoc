@@ -334,7 +334,7 @@ https://one.rackspace.com/display/auth/Identity+Endpoints#IdentityEndpoints-Endp
 <?xml version="1.0" encoding="UTF-8"?>
 <openstack-identity-v3 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0">
     <cache>
-        <atom-feed id="myAtomFeed"> <!--4-->
+        <atom-feed id="myAtomFeed"> <!--1-->
     </cache>
     <openstack-identity-service username="myUsername"
                                 password="myPassword"
@@ -429,9 +429,9 @@ If endpoint authorization is enabled, then the user must have an endpoint in the
 <?xml version="1.0" encoding="UTF-8"?>
 <openstack-identity-v3 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0">
     <service-endpoint url="https://service.example.com" <!--1--> <!--2-->
-                      region="ORD" <!--2-->
-                      name="OpenStackCompute" <!--3-->
-                      interface="admin"/> <!--4-->
+                      region="ORD" <!--3-->
+                      name="OpenStackCompute" <!--4-->
+                      interface="admin"/> <!--5-->
     <openstack-identity-service username="myUsername"
                                 password="myPassword"
                                 domain-id="myDomainId"
