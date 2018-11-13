@@ -22,6 +22,11 @@
 == Header Normalization Filter
 . All matching targets will now be processed, previously only the first target that matched would be evaluated.
 
+== URL Extractor to Header Filter
+. All capture groups in the URL regex will now add their captured values to the desired header.
+.. If you have configured a URL regex with multiple capture groups but do not desire the values of some of those groups to be added to the header, use the non-capturing group construct (i.e., `(?:X)`).
+   See https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#special[the special constructs portion of the Java Pattern documentation] for more information.
+
 == For Integrators
 
 === Core

@@ -50,18 +50,27 @@ This configuration will exercise all the options available in this filter.
 </url-extractor-to-header>
 ----
 <1> The name of the header to populate.
-<2> The regex to evaluate against the request url. +
-    The capture group is required and is the value that will be placed in the header. +
-+
-[NOTE]
-====
-Only the first capture group will be populated into the header.
-====
+<2> The regex to evaluate against the request URL. +
+    At least one capture group is required, though multiple capture groups are supported. +
+    Any captured values will be added to the header.
 <3> The default value that should be used if the regex misses, in this case it will add an empty value to the header.
 <4> This example lacks a default, so any regex misses will fo nothing.
 <5> The default here will add a value of `none` if the regex fails to capture something.
 
+[NOTE]
+====
+If a group is used to write a regular expression, but the value of that group should not be added to the header, a non-capturing group construct may be used.
+For more information, see https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#special[the special constructs portion of the Java Pattern documentation].
+====
 
 == Additional Information
-The regexes used in this filter are backed by a java implementation.
+The regexes used in this filter are backed by a Java implementation.
 You can learn more https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[here].
+
+[NOTE]
+====
+A regular expression is considered to be matching if it matches any substring of the request URL.
+A regular expression _does not_ have to match the entire request URL to be considered matching.
+If a regular expression should match the entire request URL, use boundary matchers (e.g., `^` and `$`).
+For example, the regular expression `^/foo/bar$` will only be considered matching if it matches the entire request URL.
+====

@@ -63,8 +63,11 @@ class UrlExtractorToHeaderFilter @Inject()(configurationService: ConfigurationSe
       val httpRequest = new HttpServletRequestWrapper(servletRequest.asInstanceOf[HttpServletRequest])
 
       extractions.foreach { extraction =>
-        (extraction.urlRegex.findFirstIn(httpRequest.getRequestURI), extraction.defaultValue) match {
-          case (Some(extraction.urlRegex(headerValue)), _) => httpRequest.addHeader(extraction.headerName, headerValue)
+        (extraction.urlRegex.findFirstMatchIn(httpRequest.getRequestURI), extraction.defaultValue) match {
+          case (Some(regexMatch), _) =>
+            (1 to regexMatch.groupCount)
+              .map(regexMatch.group)
+              .foreach(httpRequest.addHeader(extraction.headerName, _))
           case (None, Some(defaultValue)) => httpRequest.addHeader(extraction.headerName, defaultValue)
           case (None, None) => // don't add a header
         }
