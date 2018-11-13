@@ -19,20 +19,34 @@
  */
 package org.openrepose.filters.core.filterone
 
-import javax.servlet.http.{HttpServletRequest, HttpServletRequestWrapper}
+import java.util
 
+import javax.servlet.http.{HttpServletRequest, HttpServletRequestWrapper}
 import org.apache.commons.lang3.StringUtils
 import org.openrepose.others.SimplicityDivine
+
+import scala.collection.JavaConverters._
 
 class ClassLoaderServletRequestWrapper(request: HttpServletRequest) extends HttpServletRequestWrapper(request) {
   override def getHeader(headerString: String): String = {
     println("\n\n\n")
-    println(s"Requesting header ${headerString}")
+    println(s"Requesting header $headerString")
     println("\n\n\n")
     if (StringUtils.startsWith(headerString, "FOO") && (super.getHeader(headerString) != null)) {
-      return new SimplicityDivine().createBar
+      new SimplicityDivine().createBar
     } else {
-      return super.getHeader(headerString)
+      super.getHeader(headerString)
+    }
+  }
+
+  override def getHeaders(headerString: String): util.Enumeration[String] = {
+    println("\n\n\n")
+    println(s"Requesting headers $headerString")
+    println("\n\n\n")
+    if (StringUtils.startsWith(headerString, "FOO") && super.getHeaders(headerString).hasMoreElements) {
+      Seq(new SimplicityDivine().createBar).toIterator.asJavaEnumeration
+    } else {
+      super.getHeaders(headerString)
     }
   }
 }
