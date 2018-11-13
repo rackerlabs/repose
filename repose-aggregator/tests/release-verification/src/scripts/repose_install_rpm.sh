@@ -17,9 +17,9 @@ echo "Installing Repose ${name} package"
 echo "-------------------------------------------------------------------------------------------------------------------"
 
 if [ "X_${name}_X" = "X_local_X" ] ; then
-  yum --nogpgcheck localinstall -y /release-verification/repose-valve-*.noarch.rpm /release-verification/repose-filter-bundle-*.noarch.rpm /release-verification/repose-extensions-filter-bundle-*.noarch.rpm /release-verification/repose-experimental-filter-bundle-*.noarch.rpm
+  yum --nogpgcheck localinstall -y /release-verification/repose-*.noarch.rpm /release-verification/repose-filter-bundle-*.noarch.rpm /release-verification/repose-extensions-filter-bundle-*.noarch.rpm /release-verification/repose-experimental-filter-bundle-*.noarch.rpm
 else
-  yum install -y repose-valve${version} repose-filter-bundle${version} repose-extensions-filter-bundle${version} repose-experimental-filter-bundle${version}
+  yum install -y repose${version} repose-filter-bundle${version} repose-extensions-filter-bundle${version} repose-experimental-filter-bundle${version}
 fi
-mkdir -p /etc/systemd/system/repose-valve.service.d && echo "[Service]\nEnvironment=\"JAVA_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,address=10037,server=y,suspend=n\"" > /etc/systemd/system/repose-valve.service.d/local.conf
+mkdir -p /etc/systemd/system/repose.service.d && echo "[Service]\nEnvironment=\"JAVA_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,address=10037,server=y,suspend=n\"" > /etc/systemd/system/repose.service.d/local.conf
 sed -i '/JAVA_OPTS/c\JAVA_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,address=10037,server=y,suspend=n"' /etc/sysconfig/repose

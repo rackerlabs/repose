@@ -4,7 +4,7 @@ command -v "$JAVA_CMD" >/dev/null 2>&1
 if [ $? -gt 0 ]; then
     echo 'Repose requires the "JAVA_CMD" environment variable be set to the absolute path of a Java executable!'
     echo " - The current value ($JAVA_CMD) is invalid."
-    echo ' - This can be updated in the configuration file: /etc/systemd/system/repose-valve.service.d/local.conf'
+    echo ' - This can be updated in the configuration file: /etc/systemd/system/repose.service.d/local.conf'
     exit 1
 fi
 
@@ -19,7 +19,7 @@ fi
 if [ ! -d "$REPOSE_CFG" ]; then
     echo 'Repose requires the "REPOSE_CFG" environment variable be set to the absolute path of the configuration directory!'
     echo " - The directory, $REPOSE_CFG, does NOT exist."
-    echo ' - This can be updated in the configuration file: /etc/systemd/system/repose-valve.service.d/local.conf'
+    echo ' - This can be updated in the configuration file: /etc/systemd/system/repose.service.d/local.conf'
     exit 3
 fi
 

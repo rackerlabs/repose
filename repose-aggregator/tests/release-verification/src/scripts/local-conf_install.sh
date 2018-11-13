@@ -1,5 +1,5 @@
-mkdir -p /etc/systemd/system/repose-valve.service.d/
-cd /etc/systemd/system/repose-valve.service.d/
+mkdir -p /etc/systemd/system/repose.service.d/
+cd /etc/systemd/system/repose.service.d/
 cat > local.conf << EOF
 [Service]
 Environment="SAXON_HOME=/etc/saxon"

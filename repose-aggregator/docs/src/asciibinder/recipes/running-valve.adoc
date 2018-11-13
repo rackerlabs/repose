@@ -10,11 +10,11 @@ By default, *Repose* will log to both the `systemd` logging system via standard 
 This behavior can be modified by updating the log4j2.xml in the *Repose* configuration directory to only log to one or the other depending on the need.
 
 ----
-sudo systemctl start repose-valve.service # <1>
+sudo systemctl start repose.service # <1>
 
-sudo systemctl stop repose-valve.service # <2>
+sudo systemctl stop repose.service # <2>
 
-sudo systemctl enable repose-valve.service # <3>
+sudo systemctl enable repose.service # <3>
 ----
 <1> Starts *Repose*.
 <2> Stops *Repose*.
@@ -24,9 +24,9 @@ sudo systemctl enable repose-valve.service # <3>
 This is the old way of starting/stopping *Repose*.
 
 ----
-sudo service repose-valve start # <1>
+sudo service repose start # <1>
 
-sudo service repose-valve stop # <2>
+sudo service repose stop # <2>
 ----
 <1> Starts *Repose*.
 <2> Stops *Repose*.
@@ -35,9 +35,9 @@ sudo service repose-valve stop # <2>
 Alternatively, you could start/stop *Repose* using the init.d script directly.
 
 ----
-sudo /etc/init.d/repose-valve start # <1>
+sudo /etc/init.d/repose start # <1>
 
-sudo /etc/init.d/repose-valve stop # <2>
+sudo /etc/init.d/repose stop # <2>
 ----
 <1> Starts *Repose*.
 <2> Stops *Repose*.
@@ -46,7 +46,7 @@ sudo /etc/init.d/repose-valve stop # <2>
 As a Java application, *Repose* can also be run directly from a JAR file.
 
 ----
-java -jar /usr/share/repose/repose-valve.jar # <1>
+java -jar /usr/share/repose/repose.jar # <1>
 
 kill -2 $repose_pid # <2>
 ----

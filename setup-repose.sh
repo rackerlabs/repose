@@ -46,7 +46,7 @@ else
     ln -s $f "$1/usr/share/repose/filters/"
   done
 
-  for f in $DIR/repose-aggregator/core/valve/target/repose-valve.jar
+  for f in $DIR/repose-aggregator/core/valve/target/repose.jar
   do
     echo ln -s $f "$1/usr/share/repose/"
     ln -s $f "$1/usr/share/repose/"

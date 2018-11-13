@@ -52,7 +52,7 @@ class Valve {
         replaceAll("\\$jettyVersion", jettyVersion)
 
 
-    val parser = new scopt.OptionParser[ValveConfig]("java -jar repose-valve.jar") {
+    val parser = new scopt.OptionParser[ValveConfig]("java -jar repose.jar") {
       head(banner)
       opt[File]('c', "config-file") action { (x, c) =>
         c.copy(configDirectory = x)

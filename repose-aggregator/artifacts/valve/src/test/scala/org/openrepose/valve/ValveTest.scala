@@ -96,7 +96,7 @@ class ValveTest extends FunSpec with Matchers with TestUtils with BeforeAndAfter
   describe("Command line argument parsing short circuits") {
     it("prints out a usage message when given --help and exits 1") {
       postExecution(Array("--help"), (output, error, exitStatus) => {
-        output should include("Usage: java -jar repose-valve.jar [options]")
+        output should include("Usage: java -jar repose.jar [options]")
         exitStatus shouldBe 1
       })
     }

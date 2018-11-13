@@ -16,8 +16,8 @@ This section outlines where *Repose* files live in the filesystem after being ex
 |Location of all of the artifacts for *Repose* to use.
 
 |Valve JAR File
-|/usr/share/repose/repose-valve.jar
-|The repose-valve.jar that starts Valve.
+|/usr/share/repose/repose.jar
+|The repose.jar that starts Valve.
 
 |Log Files
 |/var/log/repose
@@ -33,11 +33,11 @@ This section outlines where *Repose* files live in the filesystem after being ex
  These files are for example purposes only, and are not used to determine the behavior of Repose.
 
 |Unit File
-|/lib/systemd/system/repose-valve.service
+|/lib/systemd/system/repose.service
 |SystemD service unit file.
 
 |Service Script
-|/etc/init.d/repose-valve
+|/etc/init.d/repose
 |*(Deprecated)* Script used by System V or Upstart's `service` command.
 
 |Deployment
