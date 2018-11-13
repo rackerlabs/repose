@@ -21,12 +21,10 @@ package features.core.powerfilter
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Smoke
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.MessageChain
+import scaffold.category.Smoke
 
 class ApiValidatorRunSmokeTest extends ReposeValveTest {
-
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -39,28 +37,20 @@ class ApiValidatorRunSmokeTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(properties.reposeEndpoint)
     }
 
-
-    def cleanup() {
-        if (repose) {
-            repose.stop()
-        }
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-    }
-
     @Category(Smoke)
     def "when request is sent check to make sure it goes through ip-user and API-Validator filters"() {
-
         when:
+        deproxy.makeRequest(
+            method: "get",
+            url: reposeEndpoint + "/resource",
+            headers: ['X-Roles': 'role-1', 'x-trace-request': 'true']
+        )
 
-        MessageChain mc1 = deproxy.makeRequest([url: reposeEndpoint + "/resource", method: "get", headers: ['X-Roles': 'role-1', 'x-trace-request': 'true']])
+        and:
+        List<String> filterTimingLogMessages = reposeLogSearch.searchByString("filter-timing")
 
         then:
-        mc1.receivedResponse.getHeaders().names.contains("X-api-validator-Time")
-        mc1.receivedResponse.getHeaders().names.contains("X-ip-user-Time")
-
+        filterTimingLogMessages.any { it.contains("api-validator") }
+        filterTimingLogMessages.any { it.contains("ip-user") }
     }
-
-
 }
