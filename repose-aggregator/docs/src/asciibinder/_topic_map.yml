@@ -104,8 +104,6 @@ Topics:
     File: add-header.adoc
   - Name: API Validator Filter
     File: api-validator.adoc
-  - Name: Attribute Mapping Policy Validation filter
-    File: attribute-mapping-policy-validation.adoc
   - Name: Body Extractor to Header Filter
     File: body-extractor-to-header.adoc
   - Name: Body Patcher Filter
@@ -148,14 +146,10 @@ Topics:
     File: merge-header.adoc
   - Name: Openstack Identity v3 Filter
     File: openstack-identity-v3.adoc
-  - Name: Rackspace Auth User Filter
-    File: rackspace-auth-user.adoc
   - Name: Rate Limiting Filter
     File: rate-limiting.adoc
   - Name: RegEx Role Based Access Control (RBAC) Filter
     File: regex-rbac.adoc
-  - Name: SAML Policy Translation Filter
-    File: saml-policy.adoc
   - Name: Scripting Filter
     File: scripting.adoc
   - Name: Simple Role Based Access Control (RBAC) Filter
