@@ -152,7 +152,7 @@ class HeaderNormalizationOldStyleTest extends ReposeValveTest {
         mc.receivedResponse.code == '200'
     }
 
-    def "Should split request headers according to rfc by default"() {
+    def "Should not split request headers according to rfc by default"() {
         given:
         def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
@@ -170,8 +170,8 @@ class HeaderNormalizationOldStyleTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].request.getHeaders().findAll("user-agent").size() == 1
         mc.handlings[0].request.headers['user-agent'] == userAgentValue
-        mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 3
-        mc.handlings[0].request.getHeaders().findAll("accept").size() == 2
+        mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 1
+        mc.handlings[0].request.getHeaders().findAll("accept").size() == 1
     }
 
     def "Should not split response headers according to rfc"() {
@@ -187,7 +187,7 @@ class HeaderNormalizationOldStyleTest extends ReposeValveTest {
         mc.receivedResponse.code == "201"
         mc.handlings.size() == 1
         mc.receivedResponse.headers.findAll("location").size() == 1
-        mc.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
+        mc.receivedResponse.headers['location'] == "$reposeEndpoint/blah?a=b,c,d"
         mc.receivedResponse.headers.findAll("via").size() == 1
     }
 
