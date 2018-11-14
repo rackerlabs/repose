@@ -28,8 +28,13 @@ Topics:
     File: index.adoc
   - Name: Troubleshooting
     File: troubleshooting.adoc
+  # Placeholder for the debugging page, which is not yet and may never be completed
+  # - Name: Debugging
+  #   File: debugging.adoc
   - Name: Release Notes
     File: release-notes.adoc
+  - Name: Version 9 Upgrade Notes
+    File: ver-9-upgrade-notes.adoc
   - Name: Style Guide
     File: style-guide.adoc
   - Name: FAQ
@@ -44,8 +49,12 @@ Topics:
     File: configuration.adoc
   - Name: Container
     File: container.adoc
+  - Name: Filter Chain
+    File: filter-chain.adoc
   - Name: Packages
     File: packages.adoc
+  - Name: Servlet Specification
+    File: servlet-spec.adoc
   - Name: System Model
     File: system-model.adoc
 ---
