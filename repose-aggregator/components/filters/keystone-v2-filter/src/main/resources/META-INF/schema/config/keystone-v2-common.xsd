@@ -21,9 +21,6 @@
 
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
-           xmlns:xerces="http://xerces.apache.org"
-           xmlns:saxon="http://saxon.sf.net/"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0"
            targetNamespace="http://docs.openrepose.org/repose/keystone-v2/v1.0"
@@ -121,20 +118,8 @@
     </xs:complexType>
 
     <xs:complexType name="ValidateTenantType">
-        <xs:sequence maxOccurs="unbounded">
-            <xs:element name="uri-extraction-regex" type="UriExtractionType" minOccurs="0">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>
-                            Regular expression with a single matching group to extract the Tenant ID from the URI for
-                            validation.
-                            Deprecated: This element is deprecated. Use the header-extraction-name attribute instead.
-                        </html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-
-            <xs:element name="header-extraction-name" type="HeaderExtractionType" minOccurs="0">
+        <xs:sequence>
+            <xs:element name="header-extraction-name" type="xs:string" maxOccurs="unbounded">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>
@@ -169,12 +154,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
-        <xs:assert vc:minVersion="1.1"
-                   xpathDefaultNamespace="##targetNamespace"
-                   test="count(header-extraction-name) + count(uri-extraction-regex) > 0"
-                   xerces:message="When validating tenants, at least one tenant extraction must be defined"
-                   saxon:message="When validating tenants, at least one tenant extraction must be defined"/>
     </xs:complexType>
 
     <xs:complexType name="RolesList">
@@ -220,24 +199,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-    </xs:complexType>
-
-    <xs:complexType name="ExtractionType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string"/>
-        </xs:simpleContent>
-    </xs:complexType>
-
-    <xs:complexType name="UriExtractionType">
-        <xs:simpleContent>
-            <xs:extension base="ExtractionType"/>
-        </xs:simpleContent>
-    </xs:complexType>
-
-    <xs:complexType name="HeaderExtractionType">
-        <xs:simpleContent>
-            <xs:extension base="ExtractionType"/>
-        </xs:simpleContent>
     </xs:complexType>
 
     <xs:simpleType name="QualityType">
