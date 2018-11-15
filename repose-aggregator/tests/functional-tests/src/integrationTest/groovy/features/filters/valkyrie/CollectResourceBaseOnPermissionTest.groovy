@@ -277,7 +277,7 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
 
         then: "check response"
         mc.handlings.size() == 1
-        mc.receivedResponse.code == "500"
+        mc.receivedResponse.code == "502"
 
         where:
         method | tenantID       | deviceID | deviceID2 | permission     | originResp | size
