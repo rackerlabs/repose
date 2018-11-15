@@ -268,13 +268,8 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
     }
 
     // Translate the HTTP client response to a servlet response
-    val responseCode = clientResponse.getStatusLine.getStatusCode
-    val responseProcessor = new HttpComponentResponseProcessor(clientResponse, servletResponse, responseCode)
-    if (responseCode >= HttpServletResponse.SC_MULTIPLE_CHOICES && responseCode < HttpServletResponse.SC_NOT_MODIFIED) {
-      responseProcessor.sendTranslatedRedirect()
-    } else {
-      responseProcessor.process()
-    }
+    val responseProcessor = new HttpComponentResponseProcessor(clientResponse, servletResponse)
+    responseProcessor.process()
   }
 
   def setVia(request: HttpServletRequestWrapper): Unit = {
