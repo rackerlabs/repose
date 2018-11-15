@@ -128,7 +128,7 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
           // So it is safe to suppress warning squid:S1848
           new URI(wrappedRequest.getRequestURI)
 
-          if (tracingHeaderConfig.exists(_.isEnabled)) {
+          if (tracingHeaderConfig.forall(_.isEnabled)) {
             if (StringUtils.isBlank(wrappedRequest.getHeader(TRACE_GUID))) {
               wrappedRequest.addHeader(TRACE_GUID, TracingHeaderHelper.createTracingHeader(traceGUID, wrappedRequest.getHeader(VIA)))
             }
