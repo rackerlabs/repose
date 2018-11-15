@@ -253,7 +253,7 @@ class CullingWMethodRestrictionTest extends ReposeValveTest {
         where:
         method    | tenantID       | deviceID | deviceID2 | permission     | responseCode | handlings
         "HEAD"    | randomTenant() | "520708" | "511123"  | "view_product" | "200"        | 1
-        "CONNECT" | randomTenant() | "520707" | "520706"  | "view_product" | "400"        | 0
+        "CONNECT" | randomTenant() | "520707" | "520706"  | "view_product" | "200"        | 1
     }
 
     def String randomTenant() {
