@@ -23,6 +23,7 @@
 * https://repose.atlassian.net/browse/REP-7338[REP-7338] - The WAR deployment was removed as an option.
 * https://repose.atlassian.net/browse/REP-6603[REP-6603] - Added support for multiple capture groups to the <<../filters/url-extractor-to-header.adoc#, URL Extractor to Header Filter>>.
 * https://repose.atlassian.net/browse/REP-4990[REP-4990] - Removed deprecated cache attributes from the <<../filters/openstack-identity-v3.adoc#, OpenStack Identity v3 Filter>>.
+* https://repose.atlassian.net/browse/REP-6663[REP-6663] - Added support for forwarding the response status line reason phrase from the origin service.
 
 == 8.10.0.0 (2018-08-27)
 * https://repose.atlassian.net/browse/REP-6969[REP-6969] - Added support for more expressive filter determination in the <<../architecture/system-model.adoc#,System Model>> using boolean operators.
