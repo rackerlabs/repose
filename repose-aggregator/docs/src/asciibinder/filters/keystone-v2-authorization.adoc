@@ -97,8 +97,6 @@ All tenants extracted from the request _must_ have at least one matching tenant 
             strip-token-tenant-prefixes="/foo:/bar-" <!--4-->
             enable-legacy-roles-mode="false"> <!--5-->
 
-            <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex> <!--6-->
-            <uri-extraction-regex>.*/clients/([-|\w]+)/?.*</uri-extraction-regex>
             <header-extraction-name>x-expected-tenant</header-extraction-name> <!--7-->
             <header-extraction-name>x-other-tenant</header-extraction-name>
         </validate-tenant>
@@ -119,24 +117,20 @@ All tenants extracted from the request _must_ have at least one matching tenant 
 <5> If in legacy roles mode, then all roles associated with a user token are forwarded.
     If NOT in legacy roles mode, then roles which aren't tied to the tenant provided in the request will NOT be forwarded UNLESS the user has a pre-authorized role. +
     Default: `false`
-<6> Declares that a tenant ID should be extracted from the request URI.
-    A https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] with at least one capture group.
-    The first capture group must be around the portion of the URI to extract the Tenant ID from for validation.
-<7> Declares that a tenant ID should be extracted from the `x-expected-tenant` header in the request.
-<8> If this element is included, then include Quality parameters on all the tenant ID headers sent.
-<9> The default tenant has the highest quality by default.
+<6> Declares that a tenant ID should be extracted from the `x-expected-tenant` header in the request.
+<7> If this element is included, then include Quality parameters on all the tenant ID headers sent.
+<8> The default tenant has the highest quality by default.
     Since this filter does not set the default tenant, this value is not currently used by the this filter. +
     Default: `0.9`
-<10> Followed by matching request tenants by default (if any). +
+<9> Followed by matching request tenants by default (if any). +
      Default: `0.7`
-<11> Followed by the tenants from the roles by default.
+<10> Followed by the tenants from the roles by default.
      Since this filter does not set the roles tenants, this value is not currently used by the this filter. +
      Default: `0.5`
 
- [WARNING]
+ [NOTE]
  ====
- The `uri-extraction-regex` attribute is considered deprecated.
- Consider using the <<url-extractor-to-header.adoc#, URL Extractor to Header Filter>> instead.
+ The header denoted by the `header-extraction-name` element can be populated using filters like the <<url-extractor-to-header.adoc#, URL Extractor to Header Filter>> and <<body-extractor-to-header.adoc#, Body Extractor to Header Filter>>.
  ====
 
 === Endpoint Validation

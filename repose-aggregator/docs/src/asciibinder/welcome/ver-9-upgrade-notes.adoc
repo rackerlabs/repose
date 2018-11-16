@@ -36,6 +36,34 @@
 .. `groups-cache-timeout` on the `openstack-identity-v3` element; `group` on the `timeouts` element should be used instead.
 .. `cache-offset` on the `openstack-identity-v3` element; `variance` on the `timeouts` element should be used instead.
 
+== Keystone v2 and Keystone v2 Authorization Filters
+. Support for extracting required tenant ID(s) from the URI was removed from the <<../filters/keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>> and <<../filters/keystone-v2.adoc#, Keystone v2 Filter>> configuration.
+  To continue validating tenant ID(s) from the URI, follow these steps:
+.. Add the <<../filters/url-extractor-to-header.adoc#, URL Extractor to Header Filter>> to your <<../architecture/filter-chain.adoc#, Filter Chain>> in the <<../architecture/system-model.adoc#, System Model>>.
+.. Configure the <<../filters/url-extractor-to-header.adoc#, URL Extractor to Header Filter>> to extract tenant ID(s) to a new header.
+... For example, if your <<../filters/keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>> or <<../filters/keystone-v2.adoc#, Keystone v2 Filter>> was configured with:
++
+[source,xml]
+----
+<uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
+----
++
+Then you would configure the <<../filters/url-extractor-to-header.adoc#, URL Extractor to Header Filter>> with:
++
+[source,xml]
+----
+<extraction url-regex=".*/servers/([-|\w]+)/?.*" header="X-Expected-Tenant"/>
+----
+.. Replace usage of the `uri-extraction-regex` element with the `header-extraction-name` element in your <<../filters/keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>> and <<../filters/keystone-v2.adoc#, Keystone v2 Filter>> configuration.
+... The value of the `header-extraction-name` element should match the value of the header name configured in the <<../filters/url-extractor-to-header.adoc#, URL Extractor to Header Filter>>.
+... Following the previous example, the configured header name would be `X-Expected-Tenant`.
+Therefore, the <<../filters/keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>> or <<../filters/keystone-v2.adoc#, Keystone v2 Filter>> configuration should contain:
++
+[source,xml]
+----
+<header-extraction-name>X-Expected-Tenant</header-extraction-name>
+----
+
 == For Integrators
 
 === Core
