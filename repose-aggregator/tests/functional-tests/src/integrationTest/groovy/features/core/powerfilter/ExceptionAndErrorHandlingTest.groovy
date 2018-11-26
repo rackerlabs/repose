@@ -40,15 +40,15 @@ class ExceptionAndErrorHandlingTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests()
     }
 
-    def "should return a 500 response if an exception is thrown by a filter during processing"() {
+    def "should return a 502 response if an exception is thrown by a filter during processing"() {
         when:
         MessageChain messageChain = deproxy.makeRequest(
             url: reposeEndpoint + "/exceptionanderror"
         )
 
         then:
-        // The PowerFilterChain catches the Exception and sets the response code to 500
-        messageChain.receivedResponse.code.toInteger() == SC_INTERNAL_SERVER_ERROR
+        // The PowerFilterChain catches the Exception and sets the response code to 502
+        messageChain.receivedResponse.code.toInteger() == SC_BAD_GATEWAY
     }
 
     def "should return a 502 response if an error is thrown by a filter during processing"() {
