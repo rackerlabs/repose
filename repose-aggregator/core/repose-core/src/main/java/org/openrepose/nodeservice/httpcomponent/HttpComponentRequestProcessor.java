@@ -93,7 +93,7 @@ public class HttpComponentRequestProcessor {
     }
 
     private static URI getUri(HttpServletRequest servletRequest, URI target) throws URISyntaxException {
-        URIBuilder builder = new URIBuilder(target.toString() + servletRequest.getRequestURI());
+        URIBuilder builder = new URIBuilder(target);
         String queryString = servletRequest.getQueryString();
         if (StringUtils.isNotBlank(queryString)) {
             builder.setQuery(queryString);

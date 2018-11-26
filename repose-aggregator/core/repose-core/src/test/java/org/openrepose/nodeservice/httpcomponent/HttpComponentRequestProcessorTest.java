@@ -66,7 +66,7 @@ public class HttpComponentRequestProcessorTest {
     }
 
     @Test
-    public void shouldSetUri() throws IOException, URISyntaxException {
+    public void shouldNotSetUri() throws IOException, URISyntaxException {
         String uri = "/foo/bar";
         request.setRequestURI(uri);
 
@@ -76,7 +76,7 @@ public class HttpComponentRequestProcessorTest {
             true,
             ChunkedEncoding.TRUE);
 
-        assertThat(clientRequest.getURI().getPath(), endsWith(request.getRequestURI()));
+        assertThat(clientRequest.getURI().getPath(), not(endsWith(request.getRequestURI())));
     }
 
     @Test
