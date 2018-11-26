@@ -253,7 +253,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       val sendTenantIdQuality = Option(configuration.getTenantHandling.getSendTenantIdQuality)
       val sendQuality = sendTenantIdQuality.isDefined
       val defaultTenantQuality = sendTenantIdQuality.map(_.getDefaultTenantQuality).getOrElse(0.0)
-      val matchedTenantQuality = sendTenantIdQuality.map(_.getUriTenantQuality).getOrElse(0.0)
+      val matchedTenantQuality = sendTenantIdQuality.map(_.getValidatedTenantQuality).getOrElse(0.0)
       val rolesTenantQuality = sendTenantIdQuality.map(_.getRolesTenantQuality).getOrElse(0.0)
 
       val preferredTenants =

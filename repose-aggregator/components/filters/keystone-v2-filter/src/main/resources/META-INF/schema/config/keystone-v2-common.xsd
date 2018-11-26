@@ -102,8 +102,7 @@
                 <xs:complexType>
                     <!-- TODO: Does the authorization filter need a default-tenant-quality and roles-tenant-quality? -->
                     <xs:attribute name="default-tenant-quality" type="QualityType" default="0.9" use="optional"/>
-                    <!-- TODO: Should this be renamed to matching-tenant-quality? Not backwards compatible. -->
-                    <xs:attribute name="uri-tenant-quality" type="QualityType" default="0.7" use="optional"/>
+                    <xs:attribute name="validated-tenant-quality" type="QualityType" default="0.7" use="optional"/>
                     <xs:attribute name="roles-tenant-quality" type="QualityType" default="0.5" use="optional"/>
                 </xs:complexType>
             </xs:element>

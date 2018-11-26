@@ -2177,7 +2177,7 @@ with HttpDelegationManager {
         |        <validate-tenant strip-token-tenant-prefixes="foo:/bar:">
         |            <header-extraction-name>$expectedTenantHeaderName</header-extraction-name>
         |        </validate-tenant>
-        |        <send-tenant-id-quality default-tenant-quality="0.9" uri-tenant-quality="0.7" roles-tenant-quality="0.5"/>
+        |        <send-tenant-id-quality default-tenant-quality="0.9" validated-tenant-quality="0.7" roles-tenant-quality="0.5"/>
         |    </tenant-handling>
         |    <pre-authorized-roles>
         |        <role>serviceAdmin</role>

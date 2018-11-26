@@ -138,7 +138,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
         .withTenantHandling(new TenantHandlingType()
           .withSendAllTenantIds(sendAllTenantIds)
           .withSendTenantIdQuality(new SendTenantIdQuality()
-            .withUriTenantQuality(matchedTenantQuality)
+            .withValidatedTenantQuality(matchedTenantQuality)
           )
         )
 
@@ -176,7 +176,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
         .withTenantHandling(new TenantHandlingType()
           .withSendAllTenantIds(sendAllTenantIds)
           .withSendTenantIdQuality(new SendTenantIdQuality()
-            .withUriTenantQuality(matchedTenantQuality)
+            .withValidatedTenantQuality(matchedTenantQuality)
           )
         )
 
@@ -214,7 +214,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
         .withTenantHandling(new TenantHandlingType()
           .withSendAllTenantIds(sendAllTenantIds)
           .withSendTenantIdQuality(new SendTenantIdQuality()
-            .withUriTenantQuality(matchedTenantQuality)
+            .withValidatedTenantQuality(matchedTenantQuality)
           )
         )
 
@@ -252,7 +252,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
         .withTenantHandling(new TenantHandlingType()
           .withSendAllTenantIds(sendAllTenantIds)
           .withSendTenantIdQuality(new SendTenantIdQuality()
-            .withUriTenantQuality(matchedTenantQuality)
+            .withValidatedTenantQuality(matchedTenantQuality)
           )
         )
 

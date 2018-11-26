@@ -37,6 +37,7 @@
 .. `cache-offset` on the `openstack-identity-v3` element; `variance` on the `timeouts` element should be used instead.
 
 == Keystone v2 and Keystone v2 Authorization Filters
+. The `uri-tenant-quality` attribute was removed; the `validated-tenant-quality` should be used in its place.
 . Support for extracting required tenant ID(s) from the URI was removed from the <<../filters/keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>> and <<../filters/keystone-v2.adoc#, Keystone v2 Filter>> configuration.
   To continue validating tenant ID(s) from the URI, follow these steps:
 .. Add the <<../filters/url-extractor-to-header.adoc#, URL Extractor to Header Filter>> to your <<../architecture/filter-chain.adoc#, Filter Chain>> in the <<../architecture/system-model.adoc#, System Model>>.

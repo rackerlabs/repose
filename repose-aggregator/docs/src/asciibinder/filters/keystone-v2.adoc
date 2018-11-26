@@ -364,7 +364,7 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
             <header-extraction-name>x-expected-tenant</header-extraction-name> <!--6-->
         </validate-tenant>
         <send-tenant-id-quality default-tenant-quality="0.9" <!--7--> <!--8-->
-                                uri-tenant-quality="0.7" <!--9-->
+                                validated-tenant-quality="0.7" <!--9-->
                                 roles-tenant-quality="0.5" <!--10-->
         >
     </tenant-handling>
@@ -389,10 +389,10 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
 <7> If this element is included, then include Quality parameters on all the tenant ID headers sent.
 <8> The default tenant has the highest quality by default. +
     Default: `0.9`
-<9> Followed by the one that matches the tenant extracted from the request by default (if any). +
+<9> Followed by validated request tenants by default (if any). +
     Default: `0.7`
 <10> Followed by the tenants from the roles by default. +
-    Default: `0.5`
+     Default: `0.5`
 
 [NOTE]
 ====

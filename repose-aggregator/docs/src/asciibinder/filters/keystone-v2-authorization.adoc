@@ -97,14 +97,14 @@ All tenants extracted from the request _must_ have at least one matching tenant 
             strip-token-tenant-prefixes="/foo:/bar-" <!--4-->
             enable-legacy-roles-mode="false"> <!--5-->
 
-            <header-extraction-name>x-expected-tenant</header-extraction-name> <!--7-->
+            <header-extraction-name>x-expected-tenant</header-extraction-name> <!--6-->
             <header-extraction-name>x-other-tenant</header-extraction-name>
         </validate-tenant>
 
-        <send-tenant-id-quality <!--8-->
-            default-tenant-quality="1.0" <!--9-->
-            uri-tenant-quality="0.7" <!--10-->
-            roles-tenant-quality="0.5"/> <!--11-->
+        <send-tenant-id-quality <!--7-->
+            default-tenant-quality="1.0" <!--8-->
+            validated-tenant-quality="0.7" <!--9-->
+            roles-tenant-quality="0.5"/> <!--10-->
     </tenant-handling>
 </keystone-v2-authorization>
 ----
@@ -122,8 +122,8 @@ All tenants extracted from the request _must_ have at least one matching tenant 
 <8> The default tenant has the highest quality by default.
     Since this filter does not set the default tenant, this value is not currently used by the this filter. +
     Default: `0.9`
-<9> Followed by matching request tenants by default (if any). +
-     Default: `0.7`
+<9> Followed by validated request tenants by default (if any). +
+    Default: `0.7`
 <10> Followed by the tenants from the roles by default.
      Since this filter does not set the roles tenants, this value is not currently used by the this filter. +
      Default: `0.5`

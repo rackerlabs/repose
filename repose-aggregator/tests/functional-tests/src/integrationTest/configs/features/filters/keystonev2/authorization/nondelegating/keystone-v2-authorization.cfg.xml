@@ -10,7 +10,7 @@
         </validate-tenant>
         <send-tenant-id-quality
             default-tenant-quality="0.8"
-            uri-tenant-quality="0.6"
+            validated-tenant-quality="0.6"
             roles-tenant-quality="0.4"
         />
     </tenant-handling>
