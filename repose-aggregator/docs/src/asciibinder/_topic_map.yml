@@ -28,8 +28,13 @@ Topics:
     File: index.adoc
   - Name: Troubleshooting
     File: troubleshooting.adoc
+  # Placeholder for the debugging page, which is not yet and may never be completed
+  # - Name: Debugging
+  #   File: debugging.adoc
   - Name: Release Notes
     File: release-notes.adoc
+  - Name: Version 9 Upgrade Notes
+    File: ver-9-upgrade-notes.adoc
   - Name: Style Guide
     File: style-guide.adoc
   - Name: FAQ
@@ -44,8 +49,12 @@ Topics:
     File: configuration.adoc
   - Name: Container
     File: container.adoc
+  - Name: Filter Chain
+    File: filter-chain.adoc
   - Name: Packages
     File: packages.adoc
+  - Name: Servlet Specification
+    File: servlet-spec.adoc
   - Name: System Model
     File: system-model.adoc
 ---
@@ -104,8 +113,6 @@ Topics:
     File: add-header.adoc
   - Name: API Validator Filter
     File: api-validator.adoc
-  - Name: Attribute Mapping Policy Validation filter
-    File: attribute-mapping-policy-validation.adoc
   - Name: Body Extractor to Header Filter
     File: body-extractor-to-header.adoc
   - Name: Body Patcher Filter
@@ -148,14 +155,10 @@ Topics:
     File: merge-header.adoc
   - Name: Openstack Identity v3 Filter
     File: openstack-identity-v3.adoc
-  - Name: Rackspace Auth User Filter
-    File: rackspace-auth-user.adoc
   - Name: Rate Limiting Filter
     File: rate-limiting.adoc
   - Name: RegEx Role Based Access Control (RBAC) Filter
     File: regex-rbac.adoc
-  - Name: SAML Policy Translation Filter
-    File: saml-policy.adoc
   - Name: Scripting Filter
     File: scripting.adoc
   - Name: Simple Role Based Access Control (RBAC) Filter
