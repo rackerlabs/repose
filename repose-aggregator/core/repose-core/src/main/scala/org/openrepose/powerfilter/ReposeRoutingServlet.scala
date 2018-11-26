@@ -19,7 +19,6 @@
  */
 package org.openrepose.powerfilter
 
-import java.io.IOException
 import java.net.{MalformedURLException, URL}
 import java.util.Optional
 import java.util.concurrent.TimeUnit
@@ -30,7 +29,6 @@ import javax.inject.{Inject, Named}
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 import org.apache.commons.lang3.exception.ExceptionUtils
-import org.apache.http.client.methods.RequestBuilder
 import org.apache.http.client.utils.URIBuilder
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.StringUriUtilities
@@ -136,33 +134,34 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
     } else {
       logger.trace("processing request...")
 
-      val servletRequest = new HttpServletRequestWrapper(req)
+      val wrappedReq = new HttpServletRequestWrapper(req)
 
-      getRoute(servletRequest).flatMap { route =>
+      getRoute(wrappedReq).flatMap { route =>
         getDestination(route).flatMap { destination =>
-          getTarget(route, destination).map { target =>
+          getTarget(route, destination).flatMap { target =>
             // Fix the Via and X-Forwarded-For headers on the request
-            setVia(servletRequest)
-            setXForwardedFor(servletRequest)
+            setVia(wrappedReq)
+            setXForwardedFor(wrappedReq)
 
             // Forward the request to the origin server (wrapping metrics around the action)
             preProxyMetrics(destination)
             val startTime = System.currentTimeMillis
-            proxyRequest(target, servletRequest, resp)
-            val stopTime = System.currentTimeMillis
-            postProxyMetrics(stopTime - startTime, resp, destination, target.url)
+            proxyRequest(target, wrappedReq, resp).map { _ =>
+              val stopTime = System.currentTimeMillis
+              postProxyMetrics(stopTime - startTime, resp, destination, target.url)
 
-            // Fix the Location header on the response
-            fixLocationHeader(
-              servletRequest,
-              resp,
-              route,
-              target.url.getPath,
-              destination.getRootPath)
+              // Fix the Location header on the response
+              fixLocationHeader(
+                wrappedReq,
+                resp,
+                route,
+                target.url.getPath,
+                destination.getRootPath)
+            }
           }
         }
       }.recover {
-        case e: IOException if ExceptionUtils.getRootCause(e).isInstanceOf[ReadLimitReachedException] =>
+        case e if ExceptionUtils.getRootCause(e).isInstanceOf[ReadLimitReachedException] =>
           logger.error(RequestContentErrorMessage, e)
           trySendError(resp, SC_REQUEST_ENTITY_TOO_LARGE, RequestContentErrorMessage)
         case e: OriginServiceCommunicationException =>

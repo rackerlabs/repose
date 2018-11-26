@@ -26,12 +26,14 @@ import java.util.Optional
 import com.codahale.metrics.MetricRegistry
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
-import org.apache.http.client.methods.HttpUriRequest
+import org.apache.http.HttpVersion
+import org.apache.http.client.methods.{CloseableHttpResponse, HttpUriRequest}
+import org.apache.http.message.BasicHttpResponse
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
-import org.mockito.Matchers.{any, anyLong, anyString, contains, eq => isEq}
+import org.mockito.Matchers.{any, contains, eq => isEq}
 import org.mockito.Mockito._
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonRequestAttributes
@@ -77,6 +79,11 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     when(mockMetricsService.getRegistry).thenReturn(metricRegistry)
     when(mockContainerConfigurationService.getRequestVia).thenReturn(Optional.empty[String]())
     when(mockHttpClientService.getDefaultClient).thenReturn(mockHttpClient)
+    when(mockHttpClient.execute(any[HttpUriRequest])).thenReturn(
+      new BasicHttpResponse(HttpVersion.HTTP_1_1, SC_OK, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      }
+    )
 
     reposeRoutingServlet = new ReposeRoutingServlet(
       DefaultVersion,
@@ -178,8 +185,10 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
           response.getStatus == responseCode
 
           verify(mockHttpClient).execute(any[HttpUriRequest])
+          if (Option(dispatchError).isEmpty) {
             verify(metricRegistry, times(2)).meter(contains("ResponseCode"))
             verify(metricRegistry, times(2)).timer(contains("ResponseTime"))
+          }
         }
       }
     }
