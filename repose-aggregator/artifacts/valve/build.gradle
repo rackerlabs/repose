@@ -36,10 +36,6 @@ processResources {
     expand(reposeVersion: version, jettyVersion: versionProperties.get('jettyVersion'))
 }
 
-processScoverageResources {
-    expand(reposeVersion: version, jettyVersion: versionProperties.get('jettyVersion'))
-}
-
 jar {
     manifest {
         attributes 'Main-Class': 'org.openrepose.valve.Main'

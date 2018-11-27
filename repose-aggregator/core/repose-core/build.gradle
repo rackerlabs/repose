@@ -99,21 +99,12 @@ task copyEars() {
 }
 
 test.dependsOn copyEars
-testScoverage.dependsOn copyEars
 
 processResources {
     expand(reposeVersion: version, reposeVersionName: reposeCodename)
 }
 
-processScoverageResources {
-    expand(reposeVersion: version, reposeVersionName: reposeCodename)
-}
-
 processTestResources {
-    expand(earDirectory: copyEars.outputDir, earVersion: version)
-}
-
-processTestScoverageResources {
     expand(earDirectory: copyEars.outputDir, earVersion: version)
 }
 
