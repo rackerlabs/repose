@@ -55,17 +55,18 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
   private val identityServiceUri = config.getOpenstackIdentityService.getUri
   private val timeouts = Option(config.getCache).flatMap(cache => Option(cache.getTimeouts))
   private val cacheOffset =
-    timeouts.flatMap(timeouts => Option(timeouts.getVariance)).getOrElse(0)
+    timeouts.map(_.getVariance).flatMap(Option.apply).getOrElse(0)
   // TODO: The Token and Group Cache TTL defaults (i.e. 600) will need moved to the XSD when the deprecated elements
   // TODO: are removed and the attributes can directly have defaults.
   private val tokenCacheTtl =
-  timeouts.flatMap(timeouts => Option(timeouts.getTokenElement).map(_.intValue()))
-    .getOrElse(timeouts.flatMap(timeouts => Option(timeouts.getToken).map(_.intValue()))
-      .getOrElse(600))
+  timeouts.flatMap(timeout => Option(timeout.getToken).orElse(Option(timeout.getTokenElement)))
+    .map(_.intValue)
+    .getOrElse(600)
+
   private val groupsCacheTtl =
-    timeouts.flatMap(timeouts => Option(timeouts.getGroupElement).map(_.intValue()))
-      .getOrElse(timeouts.flatMap(timeouts => Option(timeouts.getGroup).map(_.intValue()))
-        .getOrElse(600))
+    timeouts.flatMap(timeout => Option(timeout.getGroup).orElse(Option(timeout.getGroupElement)))
+      .map(_.intValue)
+      .getOrElse(600)
 
   def getAdminToken(tracingHeader: Option[String] = None, checkCache: Boolean = true): Try[String] = {
     def createAdminAuthRequest() = {

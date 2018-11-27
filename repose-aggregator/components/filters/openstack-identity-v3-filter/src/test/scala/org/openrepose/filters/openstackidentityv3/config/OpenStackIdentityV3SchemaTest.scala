@@ -133,7 +133,7 @@ class OpenStackIdentityV3SchemaTest extends ConfigurationTest {
         }
       }
 
-      cacheTimeouts.permutations.map(_.take(2)) foreach { timeouts =>
+      cacheTimeouts.permutations.foreach { timeouts =>
         val timeoutOne = timeouts.head
         val timeoutTwo = timeouts.tail.head
         it(s"should successfully validate with a cache timeout $timeoutOne attribute and a $timeoutTwo element") {
