@@ -75,7 +75,7 @@ dependencies {
 
 sourceSets.main.scala.srcDir "src/main/java"
 sourceSets.main.java.srcDirs = []
-sourceSets.test.compileClasspath.add(project.files([sourceSets.test.scala.outputDir]))
+sourceSets.test.compileClasspath = project.files([sourceSets.test.scala.outputDir]).from(sourceSets.test.compileClasspath)
 
 compileTestGroovy.dependsOn compileTestScala
 

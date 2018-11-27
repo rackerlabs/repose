@@ -1,4 +1,6 @@
 dependencies {
+    annotationProcessor 'org.projectlombok:lombok'
+
     compile "org.apache.httpcomponents:httpclient"
     compile "org.slf4j:jcl-over-slf4j"
 
