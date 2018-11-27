@@ -50,16 +50,15 @@ class MisbehavingOriginTest extends ReposeValveTest {
         running = false
     }
 
-    //TODO: I want this to return a 502, but I cannot, because repose internals can't deal with other exceptions
-    def "returns a 500 when the origin service doesn't respond with proper http"() {
+    def "returns a 502 when the origin service doesn't respond with proper http"() {
         given: "something is going to do bad things"
 
         when: "Request goes through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint)
 
-        then: "repose should return a 500 Internal Server Error"
+        then: "repose should return a 502 Internal Server Error"
         mc.receivedResponse != null
-        mc.receivedResponse.code == "500"
+        mc.receivedResponse.code == "502"
     }
 
     private static class NullLoop implements Runnable {

@@ -166,7 +166,7 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
           trySendError(resp, SC_REQUEST_ENTITY_TOO_LARGE, RequestContentErrorMessage)
         case e: OriginServiceCommunicationException =>
           logger.error(OriginServiceErrorMessage, e)
-          trySendError(resp, SC_SERVICE_UNAVAILABLE, OriginServiceErrorMessage)
+          trySendError(resp, SC_BAD_GATEWAY, OriginServiceErrorMessage)
         case e =>
           logger.error(FailedToRouteMessage, e)
           trySendError(resp, SC_INTERNAL_SERVER_ERROR, FailedToRouteMessage)

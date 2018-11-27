@@ -142,10 +142,10 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     Seq(
       // @formatter:off
       ("one", SC_OK,                       null),
-      ("one", SC_SERVICE_UNAVAILABLE,      new IOException()),
+      ("one", SC_BAD_GATEWAY,              new IOException()),
       ("one", SC_REQUEST_ENTITY_TOO_LARGE, new IOException().initCause(new ReadLimitReachedException("too much"))),
       ("two", SC_OK,                       null),
-      ("two", SC_SERVICE_UNAVAILABLE,      new IOException()),
+      ("two", SC_BAD_GATEWAY,              new IOException()),
       ("two", SC_REQUEST_ENTITY_TOO_LARGE, new IOException().initCause(new ReadLimitReachedException("too much")))
       // @formatter:on
     ).foreach { case (defaultDestinationId, responseCode, dispatchError) =>
