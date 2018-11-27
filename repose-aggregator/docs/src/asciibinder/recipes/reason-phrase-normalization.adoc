@@ -1,0 +1,45 @@
+= Reason Phrase Normalization
+
+This recipe explains how to configure *Repose* to replace the reason phrase on the status line of an HTTP response with the reason phrases recommended by https://www.w3.org/Protocols/rfc2616/rfc2616-sec6.html#sec6.1.1[RFC 2616].
+
+Prior to *Repose* version 9.0, the reason phrase on the status line of the response from the origin service was not copied to the response returned by *Repose*.
+Following this recipe will, in effect, replicate that behavior by normalizing the reason phrase.
+
+== Update the `system-model.cfg.xml`
+
+Update your <<../architecture/system-model.adoc#, System Model>> to include the <<../filters/scripting.adoc#, Scripting Filter>>.
+
+[source, xml]
+.Partial system-model.cfg.xml
+----
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+    ...
+
+    <filters>
+        ...                        <!--1-->
+        <filter name="scripting"/> <!--2-->
+    </filters>
+
+    ...
+</system-model>
+----
+<1> The existing filter chain.
+<2> The new filter scripting filter added to the filter chain.
+    This filter can be placed at the end of the filter chain to only normalize origin service reason phrases or at the beginning of the filter chain to normalize all reason phrases (including those set by *Repose*).
+
+== Add the `scripting.cfg.xml` Filter Configuration
+
+Add the <<../filters/scripting.adoc#, Scripting Filter>> configuration file to your configuration directory.
+
+[source, xml]
+.scripting.cfg.xml
+----
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="groovy">
+    filterChain.doFilter(request, response)
+    response.uncommit()
+    response.setStatus(response.getStatus)
+</scripting>
+----

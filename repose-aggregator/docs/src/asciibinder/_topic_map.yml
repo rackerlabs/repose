@@ -103,6 +103,8 @@ Topics:
     File: functional-test-framework.adoc
   - Name: Header Splitting
     File: header-splitting.adoc
+  - Name: Reason Phrase Normalization
+    File: reason-phrase-normalization.adoc
 ---
 Name: Filters
 Dir: filters

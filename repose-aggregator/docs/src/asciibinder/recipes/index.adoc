@@ -64,3 +64,6 @@ Learn how to use the *Repose* functional test framework to create tests for feat
 
 == <<header-splitting.adoc#, Header Splitting>>
 Details how to make version 9.0+ of *Repose* split headers like earlier versions did.
+
+== <<reason-phrase-normalization.adoc#, Reason Phrase Normalization>>
+Details how to normalize the reason phrase on the status line of an HTTP response.
