@@ -19,7 +19,6 @@
  */
 package features.core.headers
 
-
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -380,5 +379,123 @@ class HeaderPassthroughTest extends ReposeValveTest {
         where:
         headerName        | headerValue
         "X-Random-Header" | "Value1,Value2"
+    }
+
+    /*
+     *  HTTP/1.1 header field syntax is specified by: https://tools.ietf.org/html/rfc7230#section-3.2
+     *  HTTP/1.1 ABNF is collected at: https://tools.ietf.org/html/rfc7230#appendix-B
+     *  ABNF is specified by: https://tools.ietf.org/html/rfc5234
+     *
+     *  The most relevant ABNF is as follows:
+     *  header-field = field-name ":" OWS field-value OWS
+     *  field-name = token
+     *  token = 1*tchar
+     *  tchar = "!" / "#" / "$" / "%" / "&" / "'" / "*" / "+" / "-" / "." /
+     *          "^" / "_" / "`" / "|" / "~" / DIGIT / ALPHA
+     *  field-value = *( field-content / obs-fold )
+     *  field-content = field-vchar [ 1*( SP / HTAB ) field-vchar ]
+     *  field-vchar = VCHAR / obs-text
+     *  obs-fold = CRLF 1*( SP / HTAB )
+     *  obs-text = %x80-FF
+     *  ALPHA = %x41-5A / %x61-7A ; A-Z / a-z
+     *  DIGIT = %x30-39 ; 0-9
+     *  HTAB = %x09 ; horizontal tab
+     *  SP = %x20
+     *  VCHAR = %x21-7E ; visible (printing) characters
+     *
+     *  TODO: Unfortunately, Deproxy's Header representation stores values as a String, and thus does not allow non-printable bytes to be tested
+     *  TODO: Add tests for obs-fold
+     */
+    @Unroll("Requests - the following header value should be passed through unchanged: #headerValue")
+    def "Requests - header values containing characters allowed by HTTP/1.1 specification should be passed through unchanged"() {
+        given:
+        String testHeaderName = 'Test-Header'
+
+        when:
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint,
+            headers: [
+                (testHeaderName): headerValue
+            ]
+        )
+
+        then:
+        mc.receivedResponse.code.toInteger() == 200
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.getCountByName(testHeaderName) == 1
+        mc.handlings[0].request.headers.getFirstValue(testHeaderName) == headerValue
+
+        where:
+        headerValue << [
+            // Start of zero byte values
+            // The empty string, to account for a field-value with cardinality of 0
+            '',
+            // End of zero byte values
+
+            // Start of one byte values
+            // All VCHARs
+            *(0x21..0x7E).collect { (it as char) as String },
+            // TODO: All obs-text
+            // TODO: *(0x80..0xFF).collect { (it as char) as String },
+            // End of one byte values
+
+            // Start of multiple byte values
+            // field-vchar SP field-vchar
+            'a' + (0x20 as char) + 'a',
+            // field-vchar HTAB field-vchar
+            'a' + (0x09 as char) + 'a',
+            // 2field-content
+            'aa',
+            // End of multiple byte values
+        ]
+    }
+
+    @Unroll("Responses - the following header value should be passed through unchanged: #headerValue")
+    def "Responses - header values containing characters allowed by HTTP/1.1 specification should be passed through unchanged"() {
+        given:
+        String testHeaderName = 'Test-Header'
+
+        when:
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint,
+            defaultHandler: {
+                new Response(
+                    code: 200,
+                    headers: [
+                        (testHeaderName): headerValue
+                    ]
+                )
+            }
+        )
+
+        then:
+        mc.receivedResponse.code.toInteger() == 200
+        mc.handlings.size() == 1
+        mc.receivedResponse.headers.getCountByName(testHeaderName) == 1
+        mc.receivedResponse.headers.getFirstValue(testHeaderName) == headerValue
+
+        where:
+        headerValue << [
+            // Start of zero byte values
+            // The empty string, to account for a field-value with cardinality of 0
+            '',
+            // End of zero byte values
+
+            // Start of one byte values
+            // All VCHARs
+            *(0x21..0x7E).collect { (it as char) as String },
+            // TODO: All obs-text
+            // TODO: *(0x80..0xFF).collect { (it as char) as String },
+            // End of one byte values
+
+            // Start of multiple byte values
+            // field-vchar SP field-vchar
+            'a' + (0x20 as char) + 'a',
+            // field-vchar HTAB field-vchar
+            'a' + (0x09 as char) + 'a',
+            // 2field-content
+            'aa',
+            // End of multiple byte values
+        ]
     }
 }
