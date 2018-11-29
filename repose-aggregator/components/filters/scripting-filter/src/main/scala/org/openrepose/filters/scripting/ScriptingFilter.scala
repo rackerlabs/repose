@@ -19,20 +19,24 @@
  */
 package org.openrepose.filters.scripting
 
-import java.net.URL
+import java.io.File
+import java.net.{URL, URLClassLoader}
+
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.inject.{Inject, Named}
 import javax.script._
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import kotlin.script.experimental.jvm.util.JvmClasspathUtilKt.KOTLIN_SCRIPT_CLASSPATH_PROPERTY
 import org.openrepose.commons.config.manager.{UpdateFailedException, UpdateListener}
 import org.openrepose.commons.utils.servlet.http._
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.filters.scripting.ScriptingFilter._
 import org.openrepose.filters.scripting.config.ScriptingConfig
 import org.python.core.Options
 
+import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}
 
 @Named
@@ -41,6 +45,13 @@ class ScriptingFilter @Inject()(configurationService: ConfigurationService)
 
   // Necessary for Jython, doesn't work with JSR223 without, fails silently!
   Options.importSite = false
+
+  // Necessary for Kotlin to load classes during compilation, including the classes of our bindings
+  // Bindings must be cast to the appropriate type at runtime to be usable
+  System.setProperty(
+    KOTLIN_SCRIPT_CLASSPATH_PROPERTY,
+    classpathFromClassLoader(getClass.getClassLoader).map(_.getFile).distinct.mkString(File.pathSeparator)
+  )
 
   private final val DefaultConfig = "scripting.cfg.xml"
 
@@ -96,7 +107,7 @@ class ScriptingFilter @Inject()(configurationService: ConfigurationService)
   override def configurationUpdated(configurationObject: ScriptingConfig): Unit = {
     val scriptEngineManager = new ScriptEngineManager(getClass.getClassLoader)
 
-    scriptRunner = Option(scriptEngineManager.getEngineByName(configurationObject.getLanguage.value())) match {
+    scriptRunner = Option(scriptEngineManager.getEngineByName(configurationObject.getLanguage.value)) match {
       case Some(engine) =>
         ScriptRunner(configurationObject.getValue, engine)
       case None =>
@@ -136,4 +147,38 @@ class ScriptingFilter @Inject()(configurationService: ConfigurationService)
     }
   }
 
+}
+
+object ScriptingFilter {
+  // A helper method to construct a classpath which includes all paths accessible to a provided ClassLoader.
+  //
+  // This is a somewhat questionable approach since it flattens the classloading hierarchy, which may result
+  // in collisions that would not normally occur.
+  // To alleviate this concern in some small way, paths are ordered with paths from any ClassLoader always
+  // coming before paths from any ancestors of that ClassLoader.
+  //
+  // However, this is necessary to support the Kotlin ScriptEngine, which constructs a new ClassLoader from a given
+  // classpath.
+  // It does this since it is not provided a ClassLoader by the ScriptEngineManager, but still needs to load certain
+  // classes to perform compilation of scripts.
+  // To enable the classpath used for script compilation to be customized, the Kotlin ScriptEngineFactory will use
+  // the value of a named system property as the classpath if defined.
+  //
+  // An alternative approach would be to provide a ScriptEngineFactory for Kotlin that would determine the classpath
+  // based on a provided ClassLoader (i.e., duplicate that KotlinJsr223JvmLocalScriptEngineFactory class, but pass
+  // the ClassLoader for this class to the scriptCompilationClasspathFromContextOrStlib function call), but that
+  // requires bridging Scala and Kotlin code.
+  @tailrec
+  private def classpathFromClassLoader(classLoader: ClassLoader, urls: Seq[URL] = Seq.empty): Seq[URL] = {
+    Option(classLoader.getParent) match {
+      case None if classLoader.isInstanceOf[URLClassLoader] =>
+        urls ++ classLoader.asInstanceOf[URLClassLoader].getURLs
+      case None =>
+        urls
+      case Some(parentLoader) if classLoader.isInstanceOf[URLClassLoader] =>
+        classpathFromClassLoader(parentLoader, urls ++ classLoader.asInstanceOf[URLClassLoader].getURLs)
+      case Some(parentLoader) =>
+        classpathFromClassLoader(parentLoader, urls)
+    }
+  }
 }
