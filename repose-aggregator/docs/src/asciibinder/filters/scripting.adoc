@@ -39,10 +39,12 @@ Changes to the response code varies based on configuration.
 * Groovy
 * Javascript
 * Python
+* Kotlin
 
 [NOTE]
 ====
 All supported languages are currently compilable.
+However, Kotlin requires recompilation each time it runs a script, and so has substantially worse performance than the other languages.
 ====
 
 [TIP]
