@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="kotlin">
+    import javax.servlet.FilterChain
+    import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
+    import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper
+
+    val request = bindings["request"] as HttpServletRequestWrapper
+    val response = bindings["response"] as HttpServletResponseWrapper
+    val filterChain = bindings["filterChain"] as FilterChain
+
+    request.addHeader("language", "kotlin")
+    response.addHeader("ya", "hoo")
+    filterChain.doFilter(request, response)
+</scripting>

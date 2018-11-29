@@ -36,7 +36,7 @@ class ScriptingLanguageTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
     }
 
-    @Unroll ("Test with support language: #language")
+    @Unroll("Test with support language: #language")
     def "Test with all support languages scripting"() {
         given:
         def params = properties.defaultTemplateParams
@@ -67,6 +67,6 @@ class ScriptingLanguageTest extends ReposeValveTest {
 
         where:
         //language << ["scala"]
-        language << ["python", "ruby", "groovy", "javascript", "lua"]
+        language << ["python", "ruby", "groovy", "javascript", "lua", "kotlin"]
     }
 }
