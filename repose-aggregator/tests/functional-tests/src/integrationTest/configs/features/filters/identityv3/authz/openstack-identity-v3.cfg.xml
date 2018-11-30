@@ -8,8 +8,6 @@
                                 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"/>
     <service-endpoint url="http://localhost:${targetPort}"/>
     <cache>
-        <timeouts>
-            <token>1</token>
-        </timeouts>
+        <timeouts token="1"/>
     </cache>
 </openstack-identity-v3>

@@ -69,7 +69,7 @@ Authorizes requests based on data about the user making the request.
 Merges multiple header lines with the same name into a single header line with multiple comma-separated values.
 
 == <<openstack-identity-v3.adoc#,Openstack Identity v3 Filter>>
-*IN PROGRESS*
+Authenticates, authorizes, and enriches requests using data from an OpenStack Identity v3 service.
 
 == <<rate-limiting.adoc#,Rate Limiting Filter>>
 Limits the number of requests allowed through *Repose* to the origin service.

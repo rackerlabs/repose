@@ -13,8 +13,6 @@
         <role>service:admin-role2</role>
     </pre-authorized-roles>
     <cache>
-        <timeouts>
-            <token>1</token>
-        </timeouts>
+        <timeouts token="1"/>
     </cache>
 </openstack-identity-v3>

@@ -23,15 +23,15 @@ import java.io.{InputStream, Serializable}
 import java.util.concurrent.TimeUnit
 import java.util.{Calendar, GregorianCalendar}
 
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.servlet.http.HttpServletResponse._
 import javax.ws.rs.core.MediaType
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.http.client.entity.EntityBuilder
 import org.apache.http.client.methods.{CloseableHttpResponse, RequestBuilder}
 import org.apache.http.entity.ContentType
 import org.apache.http.util.EntityUtils
 import org.joda.time.DateTime
-import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate, ServiceClientResponse}
+import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate}
 import org.openrepose.core.services.datastore.Datastore
 import org.openrepose.core.services.datastore.types.SetPatch
 import org.openrepose.core.services.httpclient.{CachingHttpClientContext, HttpClientServiceClient}
@@ -42,7 +42,6 @@ import org.springframework.http.HttpHeaders
 import play.api.libs.json._
 
 import scala.Function.tupled
-import scala.collection.JavaConverters._
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
@@ -56,11 +55,18 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
   private val identityServiceUri = config.getOpenstackIdentityService.getUri
   private val timeouts = Option(config.getCache).flatMap(cache => Option(cache.getTimeouts))
   private val cacheOffset =
-    timeouts.flatMap(timeouts => Option(timeouts.getVariance)).getOrElse(config.getCacheOffset)
+    timeouts.map(_.getVariance).flatMap(Option.apply).getOrElse(0)
+  // TODO: The Token and Group Cache TTL defaults (i.e. 600) will need moved to the XSD when the deprecated elements
+  // TODO: are removed and the attributes can directly have defaults.
   private val tokenCacheTtl =
-    timeouts.flatMap(timeouts => Option(timeouts.getToken).map(_.intValue())).getOrElse(config.getTokenCacheTimeout)
+  timeouts.flatMap(timeout => Option(timeout.getToken).orElse(Option(timeout.getTokenElement)))
+    .map(_.intValue)
+    .getOrElse(600)
+
   private val groupsCacheTtl =
-    timeouts.flatMap(timeouts => Option(timeouts.getGroup).map(_.intValue())).getOrElse(config.getGroupsCacheTimeout)
+    timeouts.flatMap(timeout => Option(timeout.getGroup).orElse(Option(timeout.getGroupElement)))
+      .map(_.intValue)
+      .getOrElse(600)
 
   def getAdminToken(tracingHeader: Option[String] = None, checkCache: Boolean = true): Try[String] = {
     def createAdminAuthRequest() = {
@@ -89,10 +95,10 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
             "password" -> JsObject(Seq(
               "user" -> JsObject(
                 domain ++ Seq(
-                "name" -> JsString(username),
-                "password" -> JsString(password)
-              ))))
-            ))) ++
+                  "name" -> JsString(username),
+                  "password" -> JsString(password)
+                ))))
+          ))) ++
           scope
         )
       )))
