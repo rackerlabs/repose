@@ -23,6 +23,7 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Ignore
 import spock.lang.Unroll
 
 class HeaderPassthroughTest extends ReposeValveTest {
@@ -414,9 +415,7 @@ class HeaderPassthroughTest extends ReposeValveTest {
         when:
         MessageChain mc = deproxy.makeRequest(
             url: reposeEndpoint,
-            headers: [
-                (testHeaderName): headerValue
-            ]
+            headers: [(testHeaderName): headerValue]
         )
 
         then:
@@ -444,8 +443,10 @@ class HeaderPassthroughTest extends ReposeValveTest {
             'a' + (0x20 as char) + 'a',
             // field-vchar HTAB field-vchar
             'a' + (0x09 as char) + 'a',
-            // 2field-content
+            // 2field-vchar
             'aa',
+            // Alternatively, every combination of 2field-vchar could be tested, but this generates 8836 tests
+            // *(Collections.nCopies(2, (0x21..0x7E)).combinations().collect { bytes -> bytes.collect { it as char }.join('') }),
             // End of multiple byte values
         ]
     }
@@ -460,10 +461,9 @@ class HeaderPassthroughTest extends ReposeValveTest {
             url: reposeEndpoint,
             defaultHandler: {
                 new Response(
-                    code: 200,
-                    headers: [
-                        (testHeaderName): headerValue
-                    ]
+                    200,
+                    null,
+                    [(testHeaderName): headerValue]
                 )
             }
         )
@@ -493,9 +493,50 @@ class HeaderPassthroughTest extends ReposeValveTest {
             'a' + (0x20 as char) + 'a',
             // field-vchar HTAB field-vchar
             'a' + (0x09 as char) + 'a',
-            // 2field-content
+            // 2field-vchar
             'aa',
+            // Alternatively, every combination of 2field-vchar could be tested, but this generates 8836 tests
+            // *(Collections.nCopies(2, (0x21..0x7E)).combinations().collect { bytes -> bytes.collect { it as char }.join('') }),
             // End of multiple byte values
         ]
+    }
+
+    def "Requests - header values containing characters not allowed by HTTP/1.1 specification should be cause failure"() {
+        given:
+        String testHeaderName = 'Test-Header'
+
+        when:
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint,
+            headers: [(testHeaderName): (0xC0 as char) as String]
+        )
+
+        then:
+        mc.receivedResponse.code.toInteger() == 500
+        mc.handlings.isEmpty()
+    }
+
+    @Ignore("Jetty drops the invalid character causing Deproxy to fail when parsing the header")
+    def "Responses - header values containing characters not allowed by HTTP/1.1 specification should be sanitized"() {
+        given:
+        String testHeaderName = 'Test-Header'
+
+        when:
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint,
+            defaultHandler: {
+                new Response(
+                    200,
+                    null,
+                    [(testHeaderName): (0xC0 as char) as String]
+                )
+            }
+        )
+
+        then:
+        mc.receivedResponse.code.toInteger() == 200
+        mc.handlings.size() == 1
+        mc.receivedResponse.headers.getCountByName(testHeaderName) == 1
+        mc.receivedResponse.headers.getFirstValue(testHeaderName) == ''
     }
 }
