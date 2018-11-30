@@ -42,13 +42,11 @@ public class HttpComponentResponseProcessorTest {
 
     private HttpResponse clientResponse;
     private HttpServletResponse servletResponse;
-    private HttpComponentResponseProcessor processor;
 
     @Before
     public void setUp() {
         clientResponse = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, null);
         servletResponse = mock(HttpServletResponse.class);
-        processor = new HttpComponentResponseProcessor(clientResponse, servletResponse);
     }
 
     @Test
@@ -56,7 +54,7 @@ public class HttpComponentResponseProcessorTest {
         String reasonPhrase = "I'm definitely not a teapot";
         clientResponse.setStatusLine(new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, reasonPhrase));
 
-        processor.process();
+        HttpComponentResponseProcessor.process(clientResponse, servletResponse);
 
         verify(servletResponse).setStatus(HttpStatus.SC_OK, reasonPhrase);
     }
@@ -70,7 +68,7 @@ public class HttpComponentResponseProcessorTest {
         headers.add(new BasicHeader("Header3", "Value3;q=3"));
         headers.forEach(clientResponse::addHeader);
 
-        processor.process();
+        HttpComponentResponseProcessor.process(clientResponse, servletResponse);
 
         for (Header header : headers) {
             verify(servletResponse).addHeader(header.getName(), header.getValue());
@@ -85,7 +83,7 @@ public class HttpComponentResponseProcessorTest {
         headers.add(new BasicHeader("Server", "Should be excluded."));
         headers.forEach(clientResponse::addHeader);
 
-        processor.process();
+        HttpComponentResponseProcessor.process(clientResponse, servletResponse);
 
         for (Header header : headers) {
             verify(servletResponse, never()).addHeader(header.getName(), header.getValue());
@@ -101,7 +99,7 @@ public class HttpComponentResponseProcessorTest {
             .setText(content)
             .build());
 
-        processor.process();
+        HttpComponentResponseProcessor.process(clientResponse, servletResponse);
 
         verify(servletResponse).getOutputStream();
         verify(servletOut).write(content.getBytes());
@@ -115,7 +113,7 @@ public class HttpComponentResponseProcessorTest {
             .setText(content)
             .build());
 
-        processor.process();
+        HttpComponentResponseProcessor.process(clientResponse, servletResponse);
 
         verify(servletResponse).resetBuffer();
         verify(servletResponse).setContentLength(0);

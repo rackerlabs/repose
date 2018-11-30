@@ -256,8 +256,11 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
 
   def proxyRequest(target: Target, servletRequest: HttpServletRequest, servletResponse: HttpServletResponse): Try[Unit] = Try {
     // Translate the servlet request to an HTTP client request
-    val processor = new HttpComponentRequestProcessor(servletRequest, target.url.toURI, rewriteHostHeader, target.chunkedEncoding)
-    val processedClientRequest = processor.process()
+    val processedClientRequest = HttpComponentRequestProcessor.process(
+      servletRequest,
+      target.url.toURI,
+      rewriteHostHeader,
+      target.chunkedEncoding)
 
     // Execute the HTTP client request
     logger.debug("Forwarding the request to: {}", processedClientRequest.getURI)
@@ -268,8 +271,7 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
     }
 
     // Translate the HTTP client response to a servlet response
-    val responseProcessor = new HttpComponentResponseProcessor(clientResponse, servletResponse)
-    responseProcessor.process()
+    HttpComponentResponseProcessor.process(clientResponse, servletResponse)
   }
 
   def setVia(request: HttpServletRequestWrapper): Unit = {

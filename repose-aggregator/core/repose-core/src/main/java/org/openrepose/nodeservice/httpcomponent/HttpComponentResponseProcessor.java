@@ -32,8 +32,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static javax.ws.rs.core.HttpHeaders.CONTENT_LENGTH;
-
 public class HttpComponentResponseProcessor {
     private static final Set<String> HEADER_EXCLUSIONS =
         Stream.of(
@@ -42,33 +40,28 @@ public class HttpComponentResponseProcessor {
             "server"
         ).collect(Collectors.toSet());
 
-    private final HttpServletResponse servletResponse;
-    private final HttpResponse clientResponse;
-
-    public HttpComponentResponseProcessor(HttpResponse clientResponse, HttpServletResponse servletResponse) {
-        this.clientResponse = clientResponse;
-        this.servletResponse = servletResponse;
+    private HttpComponentResponseProcessor() {
     }
 
-    public void process() throws IOException {
-        setStatusLine();
-        setHeaders();
+    public static void process(HttpResponse clientResponse, HttpServletResponse servletResponse) throws IOException {
+        setStatusLine(clientResponse, servletResponse);
+        setHeaders(clientResponse, servletResponse);
 
         if (servletResponse.getStatus() == HttpServletResponse.SC_NOT_MODIFIED) {
             // https://tools.ietf.org/html/rfc7232#section-4.1
             servletResponse.resetBuffer();
             servletResponse.setContentLength(0);
         } else {
-            setBody();
+            setBody(clientResponse, servletResponse);
         }
     }
 
-    private void setStatusLine() {
+    private static void setStatusLine(HttpResponse clientResponse, HttpServletResponse servletResponse) {
         StatusLine statusLine = clientResponse.getStatusLine();
         servletResponse.setStatus(statusLine.getStatusCode(), statusLine.getReasonPhrase());
     }
 
-    private void setHeaders() {
+    private static void setHeaders(HttpResponse clientResponse, HttpServletResponse servletResponse) {
         for (Header header : clientResponse.getAllHeaders()) {
             String name = header.getName();
             if (!HEADER_EXCLUSIONS.contains(name.toLowerCase())) {
@@ -77,7 +70,7 @@ public class HttpComponentResponseProcessor {
         }
     }
 
-    private void setBody() throws IOException {
+    private static void setBody(HttpResponse clientResponse, HttpServletResponse servletResponse) throws IOException {
         HttpEntity entity = clientResponse.getEntity();
         if (entity != null) {
             byte[] entityContent = EntityUtils.toByteArray(entity);

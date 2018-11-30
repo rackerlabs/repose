@@ -66,23 +66,7 @@ public class HttpComponentRequestProcessor {
         HttpOptions.METHOD_NAME,
         HttpTrace.METHOD_NAME).collect(Collectors.toSet());
 
-    private final HttpServletRequest servletRequest;
-    private final URI target;
-    private final boolean rewriteHostHeader;
-    private final ChunkedEncoding chunkedEncoding;
-
-    private static boolean excludeHeader(String header) {
-        return EXCLUDE_HEADERS.contains(header.toLowerCase());
-    }
-
-    public HttpComponentRequestProcessor(HttpServletRequest servletRequest,
-                                  URI target,
-                                  boolean rewriteHostHeader,
-                                  ChunkedEncoding chunkedEncoding) {
-        this.servletRequest = servletRequest;
-        this.target = target;
-        this.rewriteHostHeader = rewriteHostHeader;
-        this.chunkedEncoding = chunkedEncoding;
+    private HttpComponentRequestProcessor() {
     }
 
     /**
@@ -94,18 +78,21 @@ public class HttpComponentRequestProcessor {
      * @throws URISyntaxException
      * @throws IOException
      */
-    public HttpUriRequest process() throws URISyntaxException, IOException {
+    public static HttpUriRequest process(HttpServletRequest servletRequest,
+                                         URI target,
+                                         boolean rewriteHostHeader,
+                                         ChunkedEncoding chunkedEncoding) throws URISyntaxException, IOException {
         final RequestBuilder requestBuilder = RequestBuilder.create(servletRequest.getMethod())
-            .setUri(getUri());
+            .setUri(getUri(servletRequest, target));
         if (!NO_ENTITY_METHODS.contains(servletRequest.getMethod())) {
-            requestBuilder.setEntity(getEntity());
+            requestBuilder.setEntity(getEntity(servletRequest, chunkedEncoding));
         }
         final HttpUriRequest clientRequest = requestBuilder.build();
-        setHeaders(clientRequest);
+        setHeaders(servletRequest, clientRequest, target, rewriteHostHeader);
         return clientRequest;
     }
 
-    private URI getUri() throws URISyntaxException {
+    private static URI getUri(HttpServletRequest servletRequest, URI target) throws URISyntaxException {
         URIBuilder builder = new URIBuilder(target.toString() + servletRequest.getRequestURI());
         String queryString = servletRequest.getQueryString();
         if (StringUtils.isNotBlank(queryString)) {
@@ -120,7 +107,10 @@ public class HttpComponentRequestProcessor {
     /**
      * Scan header values and manipulate as necessary. Host header, if provided, may need to be updated.
      */
-    private String processHeaderValue(String headerName, String headerValue) {
+    private static String processHeaderValue(String headerName,
+                                             String headerValue,
+                                             URI target,
+                                             boolean rewriteHostHeader) {
         String result = headerValue;
 
         // todo: is this necessary, or redundant with setting the URI?
@@ -138,10 +128,17 @@ public class HttpComponentRequestProcessor {
         return result;
     }
 
+    private static boolean excludeHeader(String header) {
+        return EXCLUDE_HEADERS.contains(header.toLowerCase());
+    }
+
     /**
      * Copy header values from the servlet request to the http message.
      */
-    private void setHeaders(HttpMessage message) {
+    private static void setHeaders(HttpServletRequest servletRequest,
+                                   HttpMessage message,
+                                   URI target,
+                                   boolean rewriteHostHeader) {
         final Enumeration<String> headerNames = servletRequest.getHeaderNames();
 
         while (headerNames.hasMoreElements()) {
@@ -152,7 +149,7 @@ public class HttpComponentRequestProcessor {
 
                 while (headerValues.hasMoreElements()) {
                     String headerValue = headerValues.nextElement();
-                    message.addHeader(headerName, processHeaderValue(headerName, headerValue));
+                    message.addHeader(headerName, processHeaderValue(headerName, headerValue, target, rewriteHostHeader));
                 }
             }
         }
@@ -165,7 +162,7 @@ public class HttpComponentRequestProcessor {
      * todo: did not contain it.
      * todo: Instead, we rely on setting the Content-Type header to convey the Content-Type.
      */
-    private HttpEntity getEntity() throws IOException {
+    private static HttpEntity getEntity(HttpServletRequest servletRequest, ChunkedEncoding chunkedEncoding) throws IOException {
         HttpEntity httpEntity = new InputStreamEntity(servletRequest.getInputStream(), -1);
         switch (chunkedEncoding) {
             case TRUE:

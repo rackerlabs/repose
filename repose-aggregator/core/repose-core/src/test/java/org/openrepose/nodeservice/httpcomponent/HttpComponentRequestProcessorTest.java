@@ -43,7 +43,6 @@ import static org.junit.Assert.assertThat;
 
 public class HttpComponentRequestProcessorTest {
     private MockHttpServletRequest request;
-    private HttpComponentRequestProcessor processor;
     private String[] values1 = {"value11, value12"};
     private String[] values2 = {"value21", "value22"};
 
@@ -53,13 +52,15 @@ public class HttpComponentRequestProcessorTest {
 
         Arrays.stream(values1).forEach(value -> request.addHeader("header1", value));
         Arrays.stream(values2).forEach(value -> request.addHeader("header2", value));
-
-        processor = new HttpComponentRequestProcessor(request, URI.create("http://www.openrepose.org:8080"), true, ChunkedEncoding.TRUE);
     }
 
     @Test
     public void shouldSetMethod() throws IOException, URISyntaxException {
-        HttpUriRequest clientRequest = processor.process();
+        HttpUriRequest clientRequest = HttpComponentRequestProcessor.process(
+            request,
+            URI.create("http://www.openrepose.org:8080"),
+            true,
+            ChunkedEncoding.TRUE);
 
         assertThat(clientRequest.getMethod(), equalTo(request.getMethod()));
     }
@@ -69,7 +70,11 @@ public class HttpComponentRequestProcessorTest {
         String uri = "/foo/bar";
         request.setRequestURI(uri);
 
-        HttpUriRequest clientRequest = processor.process();
+        HttpUriRequest clientRequest = HttpComponentRequestProcessor.process(
+            request,
+            URI.create("http://www.openrepose.org:8080"),
+            true,
+            ChunkedEncoding.TRUE);
 
         assertThat(clientRequest.getURI().getPath(), endsWith(request.getRequestURI()));
     }
@@ -79,14 +84,22 @@ public class HttpComponentRequestProcessorTest {
         String query = "param1%5B%5D=value1&param2=value21&param2=value22";
         request.setQueryString(query);
 
-        HttpUriRequest clientRequest = processor.process();
+        HttpUriRequest clientRequest = HttpComponentRequestProcessor.process(
+            request,
+            URI.create("http://www.openrepose.org:8080"),
+            true,
+            ChunkedEncoding.TRUE);
 
         assertThat(clientRequest.getURI().toString(), allOf(containsString("param1%5B%5D=value1"), containsString("param2=value21"), containsString("param2=value22")));
     }
 
     @Test
     public void shouldSetHeaders() throws IOException, URISyntaxException {
-        HttpUriRequest clientRequest = processor.process();
+        HttpUriRequest clientRequest = HttpComponentRequestProcessor.process(
+            request,
+            URI.create("http://www.openrepose.org:8080"),
+            true,
+            ChunkedEncoding.TRUE);
 
         List<String> header1Values = Arrays.stream(clientRequest.getHeaders("header1")).map(NameValuePair::getValue).collect(Collectors.toList());
         List<String> header2Values = Arrays.stream(clientRequest.getHeaders("header2")).map(NameValuePair::getValue).collect(Collectors.toList());
@@ -98,9 +111,12 @@ public class HttpComponentRequestProcessorTest {
     @Test
     public void shouldRewriteHostHeader() throws IOException, URISyntaxException {
         request.addHeader("Host", "example.com");
-        processor = new HttpComponentRequestProcessor(request, URI.create("http://www.openrepose.org"), true, ChunkedEncoding.TRUE);
 
-        HttpUriRequest clientRequest = processor.process();
+        HttpUriRequest clientRequest = HttpComponentRequestProcessor.process(
+            request,
+            URI.create("http://www.openrepose.org"),
+            true,
+            ChunkedEncoding.TRUE);
 
         assertThat(clientRequest.getFirstHeader("Host").getValue(), equalTo("www.openrepose.org"));
     }
@@ -108,9 +124,12 @@ public class HttpComponentRequestProcessorTest {
     @Test
     public void shouldRewriteHostHeaderWithPort() throws IOException, URISyntaxException {
         request.addHeader("Host", "example.com");
-        processor = new HttpComponentRequestProcessor(request, URI.create("http://www.openrepose.org:8080"), true, ChunkedEncoding.TRUE);
 
-        HttpUriRequest clientRequest = processor.process();
+        HttpUriRequest clientRequest = HttpComponentRequestProcessor.process(
+            request,
+            URI.create("http://www.openrepose.org:8080"),
+            true,
+            ChunkedEncoding.TRUE);
 
         assertThat(clientRequest.getFirstHeader("Host").getValue(), equalTo("www.openrepose.org:8080"));
     }
@@ -121,7 +140,11 @@ public class HttpComponentRequestProcessorTest {
         request.setMethod(HttpGet.METHOD_NAME);
         request.setContent(servletRequestContent.getBytes(StandardCharsets.ISO_8859_1));
 
-        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) processor.process();
+        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) HttpComponentRequestProcessor.process(
+            request,
+            URI.create("http://www.openrepose.org:8080"),
+            true,
+            ChunkedEncoding.TRUE);
     }
 
     @Test(expected = ClassCastException.class)
@@ -130,7 +153,11 @@ public class HttpComponentRequestProcessorTest {
         request.setMethod(HttpHead.METHOD_NAME);
         request.setContent(servletRequestContent.getBytes(StandardCharsets.ISO_8859_1));
 
-        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) processor.process();
+        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) HttpComponentRequestProcessor.process(
+            request,
+            URI.create("http://www.openrepose.org:8080"),
+            true,
+            ChunkedEncoding.TRUE);
     }
 
     @Test(expected = ClassCastException.class)
@@ -139,7 +166,11 @@ public class HttpComponentRequestProcessorTest {
         request.setMethod(HttpOptions.METHOD_NAME);
         request.setContent(servletRequestContent.getBytes(StandardCharsets.ISO_8859_1));
 
-        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) processor.process();
+        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) HttpComponentRequestProcessor.process(
+            request,
+            URI.create("http://www.openrepose.org:8080"),
+            true,
+            ChunkedEncoding.TRUE);
     }
 
     @Test(expected = ClassCastException.class)
@@ -148,7 +179,11 @@ public class HttpComponentRequestProcessorTest {
         request.setMethod(HttpTrace.METHOD_NAME);
         request.setContent(servletRequestContent.getBytes(StandardCharsets.ISO_8859_1));
 
-        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) processor.process();
+        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) HttpComponentRequestProcessor.process(
+            request,
+            URI.create("http://www.openrepose.org:8080"),
+            true,
+            ChunkedEncoding.TRUE);
     }
 
     @Test
@@ -157,7 +192,11 @@ public class HttpComponentRequestProcessorTest {
         request.setMethod(HttpPost.METHOD_NAME);
         request.setContent(servletRequestContent.getBytes(StandardCharsets.ISO_8859_1));
 
-        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) processor.process();
+        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) HttpComponentRequestProcessor.process(
+            request,
+            URI.create("http://www.openrepose.org:8080"),
+            true,
+            ChunkedEncoding.TRUE);
 
         String clientRequestContent = EntityUtils.toString(clientRequest.getEntity());
         assertThat(clientRequestContent, equalTo(servletRequestContent));
@@ -168,9 +207,12 @@ public class HttpComponentRequestProcessorTest {
         String servletRequestContent = "Hello world!";
         request.setMethod(HttpPost.METHOD_NAME);
         request.setContent(servletRequestContent.getBytes(StandardCharsets.ISO_8859_1));
-        processor = new HttpComponentRequestProcessor(request, URI.create("http://www.openrepose.org"), true, ChunkedEncoding.TRUE);
 
-        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) processor.process();
+        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) HttpComponentRequestProcessor.process(
+            request,
+            URI.create("http://www.openrepose.org"),
+            true,
+            ChunkedEncoding.TRUE);
 
         assertThat(clientRequest.getEntity().getContentLength(), lessThan(0L));
     }
@@ -180,9 +222,12 @@ public class HttpComponentRequestProcessorTest {
         String servletRequestContent = "Hello world!";
         request.setMethod(HttpPost.METHOD_NAME);
         request.setContent(servletRequestContent.getBytes(StandardCharsets.ISO_8859_1));
-        processor = new HttpComponentRequestProcessor(request, URI.create("http://www.openrepose.org"), true, ChunkedEncoding.FALSE);
 
-        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) processor.process();
+        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) HttpComponentRequestProcessor.process(
+            request,
+            URI.create("http://www.openrepose.org"),
+            true,
+            ChunkedEncoding.FALSE);
 
         assertThat(clientRequest.getEntity().getContentLength(), equalTo((long) servletRequestContent.length()));
     }
@@ -193,9 +238,12 @@ public class HttpComponentRequestProcessorTest {
         request.setMethod(HttpPost.METHOD_NAME);
         request.setContent(servletRequestContent.getBytes(StandardCharsets.ISO_8859_1));
         request.addHeader(TRANSFER_ENCODING, CHUNK_CODING);
-        processor = new HttpComponentRequestProcessor(request, URI.create("http://www.openrepose.org"), true, ChunkedEncoding.AUTO);
 
-        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) processor.process();
+        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) HttpComponentRequestProcessor.process(
+            request,
+            URI.create("http://www.openrepose.org"),
+            true,
+            ChunkedEncoding.AUTO);
 
         assertThat(clientRequest.getEntity().getContentLength(), lessThan(0L));
     }
@@ -205,9 +253,12 @@ public class HttpComponentRequestProcessorTest {
         String servletRequestContent = "Hello world!";
         request.setMethod(HttpPost.METHOD_NAME);
         request.setContent(servletRequestContent.getBytes(StandardCharsets.ISO_8859_1));
-        processor = new HttpComponentRequestProcessor(request, URI.create("http://www.openrepose.org"), true, ChunkedEncoding.FALSE);
 
-        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) processor.process();
+        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) HttpComponentRequestProcessor.process(
+            request,
+            URI.create("http://www.openrepose.org"),
+            true,
+            ChunkedEncoding.FALSE);
 
         assertThat(clientRequest.getEntity().getContentLength(), equalTo((long) servletRequestContent.length()));
     }
