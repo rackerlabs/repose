@@ -70,11 +70,10 @@ public class HttpComponentRequestProcessorTest {
         String targetPath = "/foo";
         String requestPath = "/bar/baz";
         request.setRequestURI(requestPath);
-        processor = new HttpComponentRequestProcessor(request, URI.create("http://www.openrepose.org:8080" + targetPath), true, ChunkedEncoding.TRUE);
 
         HttpUriRequest clientRequest = HttpComponentRequestProcessor.process(
             request,
-            URI.create("http://www.openrepose.org:8080"),
+            URI.create("http://www.openrepose.org:8080" + targetPath),
             true,
             ChunkedEncoding.TRUE);
 
