@@ -6,7 +6,7 @@ This recipe shows you how to configure *Repose* to split those headers, should y
 
 == Change the `system-model.cfg.xml`
 
-The first thing to do is update your system model yo include the `split-header` filter.
+The first thing to do is update your system model to include the `split-header` filter.
 
 [source, xml]
 .Partial system-model.cfg.xml
