@@ -20,7 +20,6 @@
 package org.openrepose.filters.keystonev2
 
 import javax.servlet.http.HttpServletResponse.{SC_FORBIDDEN, SC_INTERNAL_SERVER_ERROR, SC_UNAUTHORIZED}
-
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.http.OpenStackServiceHeader.{ROLES, TENANT_ID, TENANT_ROLES_MAP}
 import org.openrepose.commons.utils.http.PowerApiHeader.X_CATALOG
@@ -32,7 +31,7 @@ import org.openrepose.filters.keystonev2.KeystoneV2Authorization.{InvalidTenantE
 import org.openrepose.filters.keystonev2.KeystoneV2AuthorizationFilter.{InvalidEndpointsException, InvalidTenantToRolesMapException, MissingEndpointsException, MissingTenantToRolesMapException}
 import org.openrepose.filters.keystonev2.KeystoneV2Common.Endpoint
 import org.openrepose.filters.keystonev2.config.TenantHandlingType.SendTenantIdQuality
-import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, TenantHandlingType, UriExtractionType, ValidateTenantType}
+import org.openrepose.filters.keystonev2.config.{KeystoneV2Config, TenantHandlingType, ValidateTenantType}
 import org.scalatest.TryValues._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -139,7 +138,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
         .withTenantHandling(new TenantHandlingType()
           .withSendAllTenantIds(sendAllTenantIds)
           .withSendTenantIdQuality(new SendTenantIdQuality()
-            .withUriTenantQuality(matchedTenantQuality)
+            .withValidatedTenantQuality(matchedTenantQuality)
           )
         )
 
@@ -177,7 +176,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
         .withTenantHandling(new TenantHandlingType()
           .withSendAllTenantIds(sendAllTenantIds)
           .withSendTenantIdQuality(new SendTenantIdQuality()
-            .withUriTenantQuality(matchedTenantQuality)
+            .withValidatedTenantQuality(matchedTenantQuality)
           )
         )
 
@@ -215,7 +214,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
         .withTenantHandling(new TenantHandlingType()
           .withSendAllTenantIds(sendAllTenantIds)
           .withSendTenantIdQuality(new SendTenantIdQuality()
-            .withUriTenantQuality(matchedTenantQuality)
+            .withValidatedTenantQuality(matchedTenantQuality)
           )
         )
 
@@ -253,7 +252,7 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
         .withTenantHandling(new TenantHandlingType()
           .withSendAllTenantIds(sendAllTenantIds)
           .withSendTenantIdQuality(new SendTenantIdQuality()
-            .withUriTenantQuality(matchedTenantQuality)
+            .withValidatedTenantQuality(matchedTenantQuality)
           )
         )
 
@@ -447,15 +446,13 @@ class KeystoneV2AuthorizationFilterTest extends FunSpec with BeforeAndAfterEach 
       keystoneV2AuthorizationFilter.configuration = new KeystoneV2Config()
         .withTenantHandling(new TenantHandlingType()
           .withValidateTenant(new ValidateTenantType()
-            .withUriExtractionRegexAndHeaderExtractionName(new UriExtractionType()
-                .withValue("[^/]*/([^/]+)"))))
+              .withHeaderExtractionName(inputTenantHeaderName)))
 
       val tenantToRolesMap = Map(userTenantId -> Set.empty[String])
       val tenantToRolesJson = Json.stringify(Json.toJson(tenantToRolesMap))
       val encodedTenantToRolesJson = Base64Helper.base64EncodeUtf8(tenantToRolesJson)
       val request = new HttpServletRequestWrapper(new MockHttpServletRequest)
       request.addHeader(TENANT_ROLES_MAP, encodedTenantToRolesJson)
-      request.setRequestURI(s"/$userTenantId")
       request.addHeader(inputTenantHeaderName, userTenantId)
       miscTenantIds.foreach(request.addHeader(TENANT_ID, _))
 

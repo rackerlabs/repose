@@ -111,7 +111,7 @@ class KeystoneV2AuthorizationFilter @Inject()(configurationService: Configuratio
     logger.trace("Scoping the tenant ID request header")
 
     val sendAllTenantIds = configuration.getTenantHandling.isSendAllTenantIds
-    val matchedTenantQuality = Option(configuration.getTenantHandling.getSendTenantIdQuality).map(_.getUriTenantQuality)
+    val matchedTenantQuality = Option(configuration.getTenantHandling.getSendTenantIdQuality).map(_.getValidatedTenantQuality)
 
     (sendAllTenantIds, matchedTenantQuality) match {
       case (true, Some(quality)) =>

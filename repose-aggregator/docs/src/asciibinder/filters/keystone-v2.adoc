@@ -361,10 +361,10 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
         <validate-tenant strip-token-tenant-prefixes="/foo:/bar-" <!--3--> <!--4-->
                          enable-legacy-roles-mode="false" <!--5-->
         >
-            <uri-extraction-regex>${your-regex}</uri-extraction-regex> <!--6-->
+            <header-extraction-name>x-expected-tenant</header-extraction-name> <!--6-->
         </validate-tenant>
         <send-tenant-id-quality default-tenant-quality="0.9" <!--7--> <!--8-->
-                                uri-tenant-quality="0.7" <!--9-->
+                                validated-tenant-quality="0.7" <!--9-->
                                 roles-tenant-quality="0.5" <!--10-->
         >
     </tenant-handling>
@@ -385,39 +385,35 @@ Tenant ID Validation is the capability of this filter to parse a tenant ID out o
 <5> If in legacy roles mode, then all roles associated with a user token are forwarded.
     If NOT in legacy roles mode, then roles which aren't tied to the tenant provided in the request will NOT be forwarded UNLESS the user has a pre-authorized role. +
     Default: `false`
-<6> The https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expression] with at least one capture group.
-    The first capture group must be around the portion of the URI to extract the Tenant ID from for validation.
+<6> The name of the header carrying the tenant ID(s) required to access the requested resource.
 <7> If this element is included, then include Quality parameters on all the tenant ID headers sent.
 <8> The default tenant has the highest quality by default. +
     Default: `0.9`
-<9> Followed by the one that matches the tenant extracted from the request by default (if any). +
+<9> Followed by validated request tenants by default (if any). +
     Default: `0.7`
 <10> Followed by the tenants from the roles by default. +
-    Default: `0.5`
+     Default: `0.5`
 
-[WARNING]
+[NOTE]
 ====
-The `uri-extraction-regex` attribute is considered deprecated.
-Consider using the <<url-extractor-to-header.adoc#, URL Extractor to Header Filter>> instead.
+The header denoted by the `header-extraction-name` element can be populated using filters like the <<url-extractor-to-header.adoc#, URL Extractor to Header Filter>> and <<body-extractor-to-header.adoc#, Body Extractor to Header Filter>>.
 ====
 
 [NOTE]
 ====
-If the default tenant and a tenant extracted from the request are the same, then the highest quality between the two will be used.
+If the default tenant and a required tenant are the same, then the highest quality between the two will be used.
 ====
 
 [NOTE]
 ====
 If the `validate-tenant` element is not present, then this filter will not attempt to validate a Tenant ID from the request.
-
-The `uri-extraction-regex` will be used to populate the `X-Tenant-ID` header with the value extracted by the capturing group.
 ====
 
 [NOTE]
 ====
-There can be multiple `uri-extraction-regex` elements.
-This fascilitates complex Origin Service API's where the extraction point is not always in the same place.
-All values captured from the request will be validated.
+There can be multiple `header-extraction-name` elements.
+This enables validation of tenant IDs from varying sources.
+All tenant IDs extracted from request headers will be validated.
 ====
 
 === Tenant ID Validation Bypass
