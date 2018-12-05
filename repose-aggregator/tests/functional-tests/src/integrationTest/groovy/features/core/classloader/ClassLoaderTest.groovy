@@ -107,7 +107,7 @@ class ClassLoaderTest extends ReposeValveTest {
 
         then: "the request should bomb"
         mc.handlings.size() == 0
-        mc.receivedResponse.code == "502"
+        mc.receivedResponse.code == "500"
         reposeLogSearch.searchByString("IllegalArgumentException").size() > 0
     }
 
