@@ -404,7 +404,7 @@ class HeaderPassthroughTest extends ReposeValveTest {
      *  SP = %x20
      *  VCHAR = %x21-7E ; visible (printing) characters
      *
-     *  TODO: Unfortunately, Deproxy's Header representation stores values as a String, and thus does not allow non-printable bytes to be tested
+     *  TODO: Unfortunately, Deproxy's Header representation stores values as a String which prevents non-printable bytes to be tested at this time
      *  TODO: Add tests for obs-fold
      */
     @Unroll("Requests - the following header value should be passed through unchanged: #headerValue")
@@ -434,7 +434,7 @@ class HeaderPassthroughTest extends ReposeValveTest {
             // Start of one byte values
             // All VCHARs
             *(0x21..0x7E).collect { (it as char) as String },
-            // TODO: All obs-text
+            // All obs-text
             // TODO: *(0x80..0xFF).collect { (it as char) as String },
             // End of one byte values
 
@@ -484,7 +484,7 @@ class HeaderPassthroughTest extends ReposeValveTest {
             // Start of one byte values
             // All VCHARs
             *(0x21..0x7E).collect { (it as char) as String },
-            // TODO: All obs-text
+            // All obs-text
             // TODO: *(0x80..0xFF).collect { (it as char) as String },
             // End of one byte values
 

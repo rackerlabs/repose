@@ -85,6 +85,67 @@ class Keystonev2TenantAndRolesHandlingTest extends ReposeValveTest {
         mc.handlings[0].request.headers.findAll("x-roles").toString().contains("repose:test")
     }
 
+    @Unroll("#tenantId will be forwarded without modification as a tenant ID")
+    def "ISO-8559-1 characters in tenant IDs will be forwarded without modification"() {
+        given: "escaping to accommodate the JSON envelope"
+        String escapedTenantId = tenantId.replaceAll((0x09 as char) as String, '\\\\t')
+        if ([0x22, 0x5C].collect { (it as char) as String }.contains(tenantId)) {
+            escapedTenantId = '\\' + tenantId
+        }
+
+        and:
+        fakeIdentityV2Service.with {
+            client_token = UUID.randomUUID().toString()
+            client_tenantid = escapedTenantId
+        }
+
+        when:
+        MessageChain mc = deproxy.makeRequest(
+            method: 'GET',
+            url: reposeEndpoint + "/servers/test",
+            headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then:
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.findAll("x-tenant-id").contains(tenantId)
+
+        where:
+        tenantId << [
+            // All visible characters from ISO-8859-1
+            *(0x21..0x7E).collect { (it as char) as String },
+            // Space in the tenant ID
+            'a' + (0x20 as char) + 'a',
+            // Horizontal tab in the tenant ID
+            'a' + (0x09 as char) + 'a',
+        ]
+    }
+
+    @Unroll("#tenantId will be forwarded incorrectly as a tenant ID")
+    def "ISO-8559-1 characters in the range 0x80-0xFF in tenant IDs will be forwarded incorrectly"() {
+        given:
+        fakeIdentityV2Service.with {
+            client_token = UUID.randomUUID().toString()
+            client_tenantid = tenantId
+        }
+
+        when:
+        MessageChain mc = deproxy.makeRequest(
+            method: 'GET',
+            url: reposeEndpoint + "/servers/test",
+            headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then:
+        mc.receivedResponse.code == "200"
+        mc.handlings.size() == 1
+        !mc.handlings[0].request.headers.findAll("x-tenant-id").contains(tenantId)
+
+        where:
+        tenantId <<
+            // All non-ASCII (thus, opaque) octets
+            (0x80..0xFF).collect { (it as char) as String }
+    }
+
     def "Tenanted with role handling in legacy mode"() {
         given:
         repose.configurationProvider.applyConfigs("common", params)
