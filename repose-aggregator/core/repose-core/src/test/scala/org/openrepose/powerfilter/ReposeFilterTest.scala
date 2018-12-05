@@ -213,11 +213,14 @@ class ReposeFilterTest extends FunSpec
     it("should log and return Bad Gateway (502) when an exception is caught") {
       when(mockFilter.doFilter(any[HttpServletRequest], any[HttpServletResponse], any[FilterChain])).thenThrow(new RuntimeException("abc"))
 
-      filter.doFilter(request, response, filterChain)
+      val spyResponse = spy(response)
+      when(spyResponse.isCommitted).thenThrow(new RuntimeException("def")).thenReturn(false)
+
+      filter.doFilter(request, spyResponse, filterChain)
 
       val messageList = listAppender.getEvents.asScala.map(_.getMessage.getFormattedMessage)
       messageList.filter(_.contains("Issue encountered while processing filter chain.")) should have length 1
-      response.getStatus shouldBe SC_BAD_GATEWAY
+      spyResponse.getStatus shouldBe SC_BAD_GATEWAY
     }
 
     it("should return Bad Gateway (502) and rethrow the throwable") {
