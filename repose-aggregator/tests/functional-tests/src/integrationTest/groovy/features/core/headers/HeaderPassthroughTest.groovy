@@ -58,57 +58,55 @@ class HeaderPassthroughTest extends ReposeValveTest {
 
         then: "the request should make it to the origin service with the header appropriately split"
         mc.handlings.size() == 1
-        mc.handlings[0].request.headers.getCountByName(headerName) == expectedCount
-        if (expectedCount > 0) {
-            assert mc.handlings[0].request.headers.findAll(headerName).contains(headerValue)
-        }
+        mc.handlings[0].request.headers.getCountByName(headerName) == 1
+        mc.handlings[0].request.headers.findAll(headerName).contains(headerValue)
 
 
         where:
-        headerName         | headerValue                                                          | expectedCount
-        "Accept"           | "text/plain"                                                         | 1
-        "Accept"           | "text/plain, *"                                                      | 1
-        "Accept"           | "text/plain;q=0.2, application/xml;q=0.8"                            | 1
-        "Accept"           | "text/plain, application/xml, application/json"                      | 1
-        "Accept-Charset"   | "ISO-8859-1"                                                         | 1
-        "Accept-Charset"   | "ISO-8859-1, *"                                                      | 1
-        "Accept-Charset"   | "US_ASCII, *"                                                        | 1
-        "Accept-Charset"   | "UTF-8, US-ASCII, ISO-8859-1"                                        | 1
-        "Accept-Language"  | "*"                                                                  | 1
-        "Accept-Language"  | "en-US, *"                                                           | 1
-        "Accept-Language"  | "en-US, en-gb"                                                       | 1
-        "Accept-Language"  | "da, en-gb;q=0.8, en;q=0.7"                                          | 1
-        "Accept-Language"  | "en, en-US, en-cockney, i-cherokee, x-pig-latin"                     | 1
-        "Allow"            | ""                                                                   | 0
-        "Allow"            | "GET"                                                                | 1
-        "Allow"            | "GET, OPTIONS"                                                       | 1
-        "Allow"            | "GET, POST, PUT, DELETE"                                             | 1
-        "Cache-Control"    | "no-cache"                                                           | 1
-        "Cache-Control"    | "max-age = 3600, max-stale"                                          | 1
-        "Cache-Control"    | "max-age = 3600, max-stale = 2500, no-transform"                     | 1
-        "Content-Encoding" | "identity"                                                           | 1
-        "Content-Encoding" | "identity, identity"                                                 | 1
-        "Content-Encoding" | "identity, identity, identity"                                       | 1
-        "Content-Language" | "da"                                                                 | 1
-        "Content-Language" | "mi, en"                                                             | 1
-        "Content-Language" | "en, en-US, en-cockney, i-cherokee, x-pig-latin"                     | 1
-        "Pragma"           | "no-cache"                                                           | 1
-        "Pragma"           | "no-cache, x-pragma"                                                 | 1
-        "Pragma"           | "no-cache, x-pragma-1, x-pragma-2"                                   | 1
-        "Warning"          | "199 fred \"Misc. warning\""                                         | 1
-        "Warning"          | "199 fred \"Misc. warning\", 199 ethel \"Another warning\""          | 1
-        "WWW-Authenticate" | "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=="                                 | 1
-        "WWW-Authenticate" | "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==, Basic QWxhZGRpbjpwbGVhc2U/Cg==" | 1
-        "Accept-Encoding"  | "identity"                                                           | 1
-        "Accept-Encoding"  | "*"                                                                  | 1
-        "Accept-Encoding"  | "compress, gzip"                                                     | 1
-        "Accept-Encoding"  | "gzip;q=1.0, identity;q=0.5, *;q=0"                                  | 1
-        "Accept-Encoding"  | "gzip;q=0.9, identity;q=0.5, *;q=0.1"                                | 1
-        "Accept-Encoding"  | "gzip;q=0.9, *;q=0.1, identity;q=0.5"                                | 1
-        "Accept-Encoding"  | "identity;q=0.5, gzip;q=0.9, *;q=0.1"                                | 1
-        "Accept-Encoding"  | "gzip;q=0.9, identity;q=0.5"                                         | 1
-        "Accept-Encoding"  | "gzip;q=0.9, identity;q=0.5 *;q=0.6"                                 | 1
-        "Accept-Encoding"  | ""                                                                   | 0
+        headerName         | headerValue
+        "Accept"           | "text/plain"
+        "Accept"           | "text/plain, *"
+        "Accept"           | "text/plain;q=0.2, application/xml;q=0.8"
+        "Accept"           | "text/plain, application/xml, application/json"
+        "Accept-Charset"   | "ISO-8859-1"
+        "Accept-Charset"   | "ISO-8859-1, *"
+        "Accept-Charset"   | "US_ASCII, *"
+        "Accept-Charset"   | "UTF-8, US-ASCII, ISO-8859-1"
+        "Accept-Language"  | "*"
+        "Accept-Language"  | "en-US, *"
+        "Accept-Language"  | "en-US, en-gb"
+        "Accept-Language"  | "da, en-gb;q=0.8, en;q=0.7"
+        "Accept-Language"  | "en, en-US, en-cockney, i-cherokee, x-pig-latin"
+        "Allow"            | ""
+        "Allow"            | "GET"
+        "Allow"            | "GET, OPTIONS"
+        "Allow"            | "GET, POST, PUT, DELETE"
+        "Cache-Control"    | "no-cache"
+        "Cache-Control"    | "max-age = 3600, max-stale"
+        "Cache-Control"    | "max-age = 3600, max-stale = 2500, no-transform"
+        "Content-Encoding" | "identity"
+        "Content-Encoding" | "identity, identity"
+        "Content-Encoding" | "identity, identity, identity"
+        "Content-Language" | "da"
+        "Content-Language" | "mi, en"
+        "Content-Language" | "en, en-US, en-cockney, i-cherokee, x-pig-latin"
+        "Pragma"           | "no-cache"
+        "Pragma"           | "no-cache, x-pragma"
+        "Pragma"           | "no-cache, x-pragma-1, x-pragma-2"
+        "Warning"          | "199 fred \"Misc. warning\""
+        "Warning"          | "199 fred \"Misc. warning\", 199 ethel \"Another warning\""
+        "WWW-Authenticate" | "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=="
+        "WWW-Authenticate" | "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==, Basic QWxhZGRpbjpwbGVhc2U/Cg=="
+        "Accept-Encoding"  | "identity"
+        "Accept-Encoding"  | "*"
+        "Accept-Encoding"  | "compress, gzip"
+        "Accept-Encoding"  | "gzip;q=1.0, identity;q=0.5, *;q=0"
+        "Accept-Encoding"  | "gzip;q=0.9, identity;q=0.5, *;q=0.1"
+        "Accept-Encoding"  | "gzip;q=0.9, *;q=0.1, identity;q=0.5"
+        "Accept-Encoding"  | "identity;q=0.5, gzip;q=0.9, *;q=0.1"
+        "Accept-Encoding"  | "gzip;q=0.9, identity;q=0.5"
+        "Accept-Encoding"  | "gzip;q=0.9, identity;q=0.5 *;q=0.6"
+        "Accept-Encoding"  | ""
 
         // Connection, Expect, Proxy-Authenticate, TE, Trailer, Transfer-Encoding, Upgrade are all hop-by-hop headers, and thus wouldn't be forwarded by a proxy
 
