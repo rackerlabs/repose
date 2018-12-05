@@ -25,7 +25,7 @@ import com.codahale.metrics.MetricRegistry
 import io.opentracing.Tracer.SpanBuilder
 import io.opentracing.{Scope, Span, SpanContext, Tracer}
 import javax.servlet._
-import javax.servlet.http.HttpServletResponse.{SC_BAD_GATEWAY, SC_BAD_REQUEST, SC_INTERNAL_SERVER_ERROR, SC_OK}
+import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.apache.commons.lang3.StringUtils
 import org.apache.logging.log4j.LogManager
@@ -39,6 +39,7 @@ import org.openrepose.commons.test.MockitoAnswers
 import org.openrepose.commons.utils.http.CommonHttpHeader.TRACE_GUID
 import org.openrepose.commons.utils.http.PowerApiHeader.TRACE_REQUEST
 import org.openrepose.commons.utils.logging.TracingKey.TRACING_KEY
+import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.services.uriredaction.UriRedactionService
 import org.openrepose.core.systemmodel.config.{Filter => FilterConfig}
@@ -68,6 +69,7 @@ class ReposeFilterTest extends FunSpec
   var optMetricsService: Optional[MetricsService] = _
   var reposeFilterLoader: ReposeFilterLoader = _
   var containerConfigurationService: ContainerConfigurationService = _
+  var healthCheckService: HealthCheckService = _
   var tracer: Tracer = _
   var spanBuilder: SpanBuilder = _
   var scope: Scope = _
@@ -98,6 +100,8 @@ class ReposeFilterTest extends FunSpec
     when(reposeFilterLoader.getTracingHeaderConfig).thenReturn(None)
     containerConfigurationService = mock[ContainerConfigurationService]
     when(containerConfigurationService.getContentBodyReadLimit).thenReturn(Optional.ofNullable[java.lang.Long](null))
+    healthCheckService = mock[HealthCheckService]
+    when(healthCheckService.isHealthy).thenReturn(true)
     tracer = mock[Tracer]
     spanBuilder = mock[SpanBuilder]
     scope = mock[Scope]
@@ -122,6 +126,7 @@ class ReposeFilterTest extends FunSpec
       optMetricsService,
       reposeFilterLoader,
       containerConfigurationService,
+      healthCheckService,
       tracer,
       uriRedactionService,
       responseHeaderService
@@ -156,6 +161,15 @@ class ReposeFilterTest extends FunSpec
 
       response.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
       response.getErrorMessage shouldBe "ReposeFilter not initialized"
+    }
+
+    it("should return an Internal Server Error (503) if not healthy") {
+      when(healthCheckService.isHealthy).thenReturn(false)
+
+      filter.doFilter(request, response, filterChain)
+
+      response.getStatus shouldBe SC_SERVICE_UNAVAILABLE
+      response.getErrorMessage shouldBe "Currently unable to serve requests"
     }
 
     it("should call through to the filter in the FilterContextList") {

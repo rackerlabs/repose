@@ -43,6 +43,7 @@ import org.openrepose.commons.utils.opentracing.ScopeHelper.{closeSpan, startSpa
 import org.openrepose.commons.utils.scala.TryWith
 import org.openrepose.commons.utils.servlet.http.ResponseMode.MUTABLE
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
+import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.services.uriredaction.UriRedactionService
 import org.openrepose.core.spring.ReposeSpringProperties
@@ -59,6 +60,7 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
                              optMetricsService: Optional[MetricsService],
                              reposeFilterLoader: ReposeFilterLoader,
                              containerConfigurationService: ContainerConfigurationService,
+                             healthCheckService: HealthCheckService,
                              tracer: Tracer,
                              uriRedactionService: UriRedactionService,
                              responseHeaderService: ResponseHeaderService
@@ -74,6 +76,15 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
   }
 
   override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
+    if (!healthCheckService.isHealthy) {
+      logger.warn("Request cannot be serviced -- Repose is unhealthy")
+      response.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Currently unable to serve requests")
+    } else {
+      processRequest(request, response, chain)
+    }
+  }
+
+  def processRequest(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
     reposeFilterLoader.getFilterContextList match {
       case Some(filterContextList) =>
         logger.trace("ReposeFilter processing request...")
