@@ -134,6 +134,10 @@ public class RemoteDatastoreLauncherService {
                 } else if (!listed && isRunning) {
                     //any health check problems are resolved when we stop it
                     destroyRemoteDatastore();
+                } else if (!listed) {
+                    //Resolve the health check issue -- the user no longer wants to use this service, so
+                    //it does not matter that this service is not in a working state
+                    healthCheckServiceProxy.resolveIssue(REMOTE_DATASTORE_SERVICE_CONFIG_ISSUE);
                 }
             }
         }
