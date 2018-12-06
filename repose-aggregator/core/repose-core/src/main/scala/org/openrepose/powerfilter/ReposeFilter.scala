@@ -84,7 +84,12 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
     }
   }
 
-  def processRequest(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
+  override def destroy(): Unit = {
+    logger.trace("{} -- destroying ...", nodeId)
+    logger.info("{} -- Destroyed ReposeFilter", nodeId)
+  }
+
+  private def processRequest(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
     reposeFilterLoader.getFilterContextList match {
       case Some(filterContextList) =>
         logger.trace("ReposeFilter processing request...")
@@ -204,11 +209,6 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
         logger.error("ReposeFilter has not yet initialized...")
         response.asInstanceOf[HttpServletResponse].sendError(SC_INTERNAL_SERVER_ERROR, "ReposeFilter not initialized")
     }
-  }
-
-  override def destroy(): Unit = {
-    logger.trace("{} -- destroying ...", nodeId)
-    logger.info("{} -- Destroyed ReposeFilter", nodeId)
   }
 }
 
