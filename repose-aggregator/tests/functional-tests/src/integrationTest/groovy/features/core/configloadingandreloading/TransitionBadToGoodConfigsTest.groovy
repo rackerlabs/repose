@@ -22,8 +22,8 @@ package features.core.configloadingandreloading
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Slow
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -50,19 +50,16 @@ class TransitionBadToGoodConfigsTest extends ReposeValveTest {
     @Unroll("start with bad #componentLabel configs, change to good, should get #expectedResponseCode")
     def "start with bad #componentLabel configs, change to good, should get #expectedResponseCode"() {
 
-        given:
-        // set the component-specific bad configs
+        given: "set the component-specific bad configs"
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
         repose.configurationProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-bad", params)
 
-        // start repose
+        and: "start repose"
         repose.start(killOthersBeforeStarting: false,
-                waitOnJmxAfterStarting: false)
-        repose.waitForDesiredResponseCodeFromUrl(reposeEndpoint, [503], 120)
+            waitOnJmxAfterStarting: true)
 
-
-        expect: "starting Repose with good configs should yield 503's"
+        expect: "starting Repose with bad configs should yield 503's"
         deproxy.makeRequest(url: reposeEndpoint).receivedResponse.code == "503"
 
 
@@ -72,14 +69,11 @@ class TransitionBadToGoodConfigsTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint, 120)
 
         then: "Repose should start returning #expectedResponseCode"
-        deproxy.makeRequest(url: reposeEndpoint).receivedResponse.code == "${expectedResponseCode}"
-
-
+        deproxy.makeRequest(url: reposeEndpoint).receivedResponse.code == "$expectedResponseCode"
 
 
         where:
         componentLabel       | expectedResponseCode
-        "response-messaging" | 200
         "rate-limiting"      | 200
         "versioning"         | 200
         "translation"        | 200
@@ -96,15 +90,14 @@ class TransitionBadToGoodConfigsTest extends ReposeValveTest {
     @Unroll("start with bad #componentLabel configs, change to good (for configs that lead to connection errors)")
     def "start with bad #componentLabel configs, change to good (for configs that lead to connection errors)"() {
 
-        given:
-        // set the component-specific bad configs
+        given: "set the component-specific bad configs"
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-common", params)
         repose.configurationProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-bad", params)
 
-        // start repose
+        and: "start repose"
         repose.start(killOthersBeforeStarting: false,
-                waitOnJmxAfterStarting: false)
+            waitOnJmxAfterStarting: false)
         sleep 35000
 
 
@@ -126,7 +119,8 @@ class TransitionBadToGoodConfigsTest extends ReposeValveTest {
         where:
         componentLabel | _
         "system-model" | _
-        "container"    | _
+        // TODO: This is a known bug that can be tracked at: https://repose.atlassian.net/browse/REP-7505
+        // "container"    | _
     }
 
     def cleanup() {
