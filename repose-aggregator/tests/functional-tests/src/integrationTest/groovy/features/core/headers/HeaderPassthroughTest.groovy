@@ -19,11 +19,11 @@
  */
 package features.core.headers
 
-
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Ignore
 import spock.lang.Unroll
 
 class HeaderPassthroughTest extends ReposeValveTest {
@@ -378,5 +378,163 @@ class HeaderPassthroughTest extends ReposeValveTest {
         where:
         headerName        | headerValue
         "X-Random-Header" | "Value1,Value2"
+    }
+
+    /*
+     *  HTTP/1.1 header field syntax is specified by: https://tools.ietf.org/html/rfc7230#section-3.2
+     *  HTTP/1.1 ABNF is collected at: https://tools.ietf.org/html/rfc7230#appendix-B
+     *  ABNF is specified by: https://tools.ietf.org/html/rfc5234
+     *
+     *  The most relevant ABNF is as follows:
+     *  header-field = field-name ":" OWS field-value OWS
+     *  field-name = token
+     *  token = 1*tchar
+     *  tchar = "!" / "#" / "$" / "%" / "&" / "'" / "*" / "+" / "-" / "." /
+     *          "^" / "_" / "`" / "|" / "~" / DIGIT / ALPHA
+     *  field-value = *( field-content / obs-fold )
+     *  field-content = field-vchar [ 1*( SP / HTAB ) field-vchar ]
+     *  field-vchar = VCHAR / obs-text
+     *  obs-fold = CRLF 1*( SP / HTAB )
+     *  obs-text = %x80-FF
+     *  ALPHA = %x41-5A / %x61-7A ; A-Z / a-z
+     *  DIGIT = %x30-39 ; 0-9
+     *  HTAB = %x09 ; horizontal tab
+     *  SP = %x20
+     *  VCHAR = %x21-7E ; visible (printing) characters
+     *
+     *  TODO: Unfortunately, Deproxy's Header representation stores values as a String which prevents non-printable bytes to be tested at this time
+     *  TODO: Add tests for obs-fold
+     */
+    @Unroll("Requests - the following header value should be passed through unchanged: #headerValue")
+    def "Requests - header values containing characters allowed by HTTP/1.1 specification should be passed through unchanged"() {
+        given:
+        String testHeaderName = 'Test-Header'
+
+        when:
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint,
+            headers: [(testHeaderName): headerValue]
+        )
+
+        then:
+        mc.receivedResponse.code.toInteger() == 200
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.getCountByName(testHeaderName) == 1
+        mc.handlings[0].request.headers.getFirstValue(testHeaderName) == headerValue
+
+        where:
+        headerValue << [
+            // Start of zero byte values
+            // The empty string, to account for a field-value with cardinality of 0
+            '',
+            // End of zero byte values
+
+            // Start of one byte values
+            // All VCHARs
+            *(0x21..0x7E).collect { (it as char) as String },
+            // All obs-text
+            // TODO: *(0x80..0xFF).collect { (it as char) as String },
+            // End of one byte values
+
+            // Start of multiple byte values
+            // field-vchar SP field-vchar
+            'a' + (0x20 as char) + 'a',
+            // field-vchar HTAB field-vchar
+            'a' + (0x09 as char) + 'a',
+            // 2field-vchar
+            'aa',
+            // Alternatively, every combination of 2field-vchar could be tested, but this generates 8836 tests
+            // *(Collections.nCopies(2, (0x21..0x7E)).combinations().collect { bytes -> bytes.collect { it as char }.join('') }),
+            // End of multiple byte values
+        ]
+    }
+
+    @Unroll("Responses - the following header value should be passed through unchanged: #headerValue")
+    def "Responses - header values containing characters allowed by HTTP/1.1 specification should be passed through unchanged"() {
+        given:
+        String testHeaderName = 'Test-Header'
+
+        when:
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint,
+            defaultHandler: {
+                new Response(
+                    200,
+                    null,
+                    [(testHeaderName): headerValue]
+                )
+            }
+        )
+
+        then:
+        mc.receivedResponse.code.toInteger() == 200
+        mc.handlings.size() == 1
+        mc.receivedResponse.headers.getCountByName(testHeaderName) == 1
+        mc.receivedResponse.headers.getFirstValue(testHeaderName) == headerValue
+
+        where:
+        headerValue << [
+            // Start of zero byte values
+            // The empty string, to account for a field-value with cardinality of 0
+            '',
+            // End of zero byte values
+
+            // Start of one byte values
+            // All VCHARs
+            *(0x21..0x7E).collect { (it as char) as String },
+            // All obs-text
+            // TODO: *(0x80..0xFF).collect { (it as char) as String },
+            // End of one byte values
+
+            // Start of multiple byte values
+            // field-vchar SP field-vchar
+            'a' + (0x20 as char) + 'a',
+            // field-vchar HTAB field-vchar
+            'a' + (0x09 as char) + 'a',
+            // 2field-vchar
+            'aa',
+            // Alternatively, every combination of 2field-vchar could be tested, but this generates 8836 tests
+            // *(Collections.nCopies(2, (0x21..0x7E)).combinations().collect { bytes -> bytes.collect { it as char }.join('') }),
+            // End of multiple byte values
+        ]
+    }
+
+    def "Requests - header values containing characters not allowed by HTTP/1.1 specification should be cause failure"() {
+        given:
+        String testHeaderName = 'Test-Header'
+
+        when:
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint,
+            headers: [(testHeaderName): (0xC0 as char) as String]
+        )
+
+        then:
+        mc.receivedResponse.code.toInteger() == 500
+        mc.handlings.isEmpty()
+    }
+
+    @Ignore("Jetty drops the invalid character causing Deproxy to fail when parsing the header")
+    def "Responses - header values containing characters not allowed by HTTP/1.1 specification should be sanitized"() {
+        given:
+        String testHeaderName = 'Test-Header'
+
+        when:
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint,
+            defaultHandler: {
+                new Response(
+                    200,
+                    null,
+                    [(testHeaderName): (0xC0 as char) as String]
+                )
+            }
+        )
+
+        then:
+        mc.receivedResponse.code.toInteger() == 200
+        mc.handlings.size() == 1
+        mc.receivedResponse.headers.getCountByName(testHeaderName) == 1
+        mc.receivedResponse.headers.getFirstValue(testHeaderName) == ''
     }
 }
