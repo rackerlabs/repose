@@ -65,7 +65,8 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
     private final ConcurrentHashMap<String, EarClassLoaderContext> classLoaderContextMap = new ConcurrentHashMap<>();
     private ContainerConfigurationListener containerConfigurationListener;
     private DestroyableThreadWrapper watcherThread;
-    private boolean processingArtifacts = false;
+
+    private volatile boolean processingArtifacts = false;
 
     @Inject
     public ArtifactManager(EventService eventService,
