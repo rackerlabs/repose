@@ -244,7 +244,7 @@ class ApiValidatorTest extends ReposeValveTest {
 
         then:
         messageChain.receivedResponse.headers.findAll("location").size() == 1
-        messageChain.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
+        messageChain.receivedResponse.headers['location'] == "$reposeEndpoint/blah?a=b,c,d"
         messageChain.receivedResponse.headers.findAll("via").size() == 1
     }
 

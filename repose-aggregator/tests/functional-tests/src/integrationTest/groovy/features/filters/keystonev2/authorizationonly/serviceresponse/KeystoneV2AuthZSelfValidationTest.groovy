@@ -105,7 +105,7 @@ class KeystoneV2AuthZSelfValidationTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.receivedResponse.code == "201"
         mc.receivedResponse.headers.findAll("location").size() == 1
-        mc.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
+        mc.receivedResponse.headers['location'] == "$reposeEndpoint/blah?a=b,c,d"
         mc.receivedResponse.headers.findAll("via").size() == 1
     }
 
