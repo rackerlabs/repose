@@ -608,29 +608,6 @@ class RateLimitingTest extends ReposeValveTest {
         messageChain.receivedResponse.code as Integer == SC_REQUEST_ENTITY_TOO_LARGE
     }
 
-    def "Should split request headers according to rfc by default"() {
-        given:
-        def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
-                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
-        def reqHeaders =
-                [
-                        "user-agent" : userAgentValue,
-                        "x-pp-user"  : "usertest1, usertest2, usertest3",
-                        "accept"     : "application/xml;q=1 , application/json;q=0.5",
-                        "x-pp-groups": "unlimited"
-                ]
-
-        when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: reqHeaders)
-
-        then:
-        mc.handlings.size() == 1
-        mc.handlings[0].request.getHeaders().findAll("user-agent").size() == 1
-        mc.handlings[0].request.headers['user-agent'] == userAgentValue
-        mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 3
-        mc.handlings[0].request.getHeaders().findAll("accept").size() == 2
-    }
-
     def "Should not split response headers according to rfc"() {
         given: "Origin service returns headers "
         def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]

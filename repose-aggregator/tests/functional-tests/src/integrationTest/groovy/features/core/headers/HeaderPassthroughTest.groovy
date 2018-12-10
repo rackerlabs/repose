@@ -157,6 +157,7 @@ class HeaderPassthroughTest extends ReposeValveTest {
         where:
         headerName         | headerValue
         "User-Agent"       | "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:23.0) Gecko/20100101 Firefox/23.0"
+        "user-agent"       | "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
         "Accept-Ranges"    | "bytes, something"
         "Content-type"     | "text/plain, application/json"
         "If-Match"         | "entity-tag-1, entity-tag-2"
@@ -165,6 +166,7 @@ class HeaderPassthroughTest extends ReposeValveTest {
         "Vary"             | "header-1, header-2, header-3"
         "WWW-Authenticate" | "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=="
         "WWW-Authenticate" | "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==, Basic QWxhZGRpbjpwbGVhc2U/Cg=="
+        "x-pp-user"        | "usertest1, usertest2, usertest3"
     }
 
     @Unroll("Requests - headers not defined by RFC: #headerName with \"#headerValue\" should pass through without modification")
@@ -189,6 +191,9 @@ class HeaderPassthroughTest extends ReposeValveTest {
         "X-PP-Groups" | "group1"
         "X-PP-Groups" | "group1,group2"
         "X-PP-Groups" | "group1,group2,group3"
+        "X-PP-Roles"  | "group1"
+        "X-PP-Roles"  | "group1,group2"
+        "X-PP-Roles"  | "group1,group2,group3"
     }
 
     @Unroll("Requests - headers not defined by RFC: #headerName with \"#headerValue\" should pass through without modification")

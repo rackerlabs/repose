@@ -163,28 +163,6 @@ class TenantedNonDelegableTest extends ReposeValveTest {
         718           | 719            | "service:admin-role1" | "200"
     }
 
-    def "Should split request headers according to rfc by default"() {
-        given:
-        def reqHeaders = ["user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36",
-                          "x-pp-user" : "usertest1,usertest2, usertest3",
-                          "accept"    : "application/xml;q=1 , application/json;q=0.5"]
-        fakeIdentityV2Service.with {
-            client_token = UUID.randomUUID().toString()
-            tokenExpiresAt = DateTime.now().plusDays(1)
-            client_tenantid = 720
-            client_userid = 720
-        }
-
-        when: "User passes a request through repose"
-        def mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/720/", method: 'GET', headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token] + reqHeaders)
-
-        then:
-        mc.handlings.size() == 1
-        mc.handlings[0].request.headers.getCountByName("user-agent") == 1
-        mc.handlings[0].request.headers.getCountByName("x-pp-user") == 4
-        mc.handlings[0].request.headers.getCountByName("accept") == 2
-    }
-
     def "Should not split response headers according to rfc"() {
         given: "Origin service returns headers "
         def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]

@@ -206,30 +206,6 @@ class ApiValidatorTest extends ReposeValveTest {
         messageChain.receivedResponse.body.contains("Expecting an HTTP header x-required-header")
     }
 
-    def "Should split request headers according to rfc by default"() {
-        given:
-        def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
-                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
-        def reqHeaders =
-                [
-                        "user-agent": userAgentValue,
-                        "x-pp-user" : "usertest1, usertest2, usertest3",
-                        "accept"    : "application/xml;q=1 , application/json;q=0.5",
-                        "X-Roles"   : "group1"
-                ]
-
-        when: "When Requesting resource with x-roles"
-        def messageChain = deproxy.makeRequest(url: reposeEndpoint + baseGroupPath +
-                "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", method: "GET", headers: reqHeaders)
-        def handling = messageChain.getHandlings()[0]
-
-        then:
-        handling.request.getHeaders().findAll("user-agent").size() == 1
-        handling.request.headers['user-agent'] == userAgentValue
-        handling.request.getHeaders().findAll("x-pp-user").size() == 3
-        handling.request.getHeaders().findAll("accept").size() == 2
-    }
-
     def "Should not split response headers according to rfc"() {
         given: "Origin service returns headers "
         def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]
