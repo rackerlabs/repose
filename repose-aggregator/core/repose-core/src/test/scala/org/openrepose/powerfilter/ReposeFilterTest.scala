@@ -38,6 +38,7 @@ import org.mockito.Mockito._
 import org.openrepose.commons.test.MockitoAnswers
 import org.openrepose.commons.utils.http.CommonHttpHeader.TRACE_GUID
 import org.openrepose.commons.utils.http.PowerApiHeader.TRACE_REQUEST
+import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.commons.utils.logging.TracingKey.TRACING_KEY
 import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.reporting.metrics.MetricsService
@@ -287,7 +288,8 @@ class ReposeFilterTest extends FunSpec
         mdcValue = MDC.get(TRACING_KEY)
       }))
       val traceGUID = UUID.randomUUID.toString
-      request.addHeader(TRACE_GUID, traceGUID)
+      val traceHeader = TracingHeaderHelper.createTracingHeader(traceGUID, "origin")
+      request.addHeader(TRACE_GUID, traceHeader)
 
       filter.doFilter(request, response, filterChain)
 
@@ -296,8 +298,9 @@ class ReposeFilterTest extends FunSpec
 
     it("should verify all values put in the MDC are cleared") {
       val traceGUID = UUID.randomUUID.toString
+      val traceHeader = TracingHeaderHelper.createTracingHeader(traceGUID, "origin")
       request.addHeader(TRACE_REQUEST, true)
-      request.addHeader(TRACE_GUID, traceGUID)
+      request.addHeader(TRACE_GUID, traceHeader)
 
       filter.doFilter(request, response, filterChain)
 

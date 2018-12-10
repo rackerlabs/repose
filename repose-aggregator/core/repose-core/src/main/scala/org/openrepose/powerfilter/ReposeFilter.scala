@@ -132,7 +132,7 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
 
         //Grab the traceGUID from the request if there is one, else create one
         val traceGUID = Option(wrappedRequest.getHeader(TRACE_GUID)) match {
-          case Some(string) if StringUtils.isNotBlank(string) => string
+          case Some(string) if StringUtils.isNotBlank(string) => TracingHeaderHelper.getTraceGuid(string)
           case _ => UUID.randomUUID.toString
         }
 
@@ -146,7 +146,7 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
 
           if (tracingHeaderConfig.forall(_.isEnabled)) {
             if (StringUtils.isBlank(wrappedRequest.getHeader(TRACE_GUID))) {
-              wrappedRequest.addHeader(TRACE_GUID, TracingHeaderHelper.createTracingHeader(traceGUID, wrappedRequest.getHeader(VIA)))
+              wrappedRequest.replaceHeader(TRACE_GUID, TracingHeaderHelper.createTracingHeader(traceGUID, wrappedRequest.getHeader(VIA)))
             }
             if (tracingHeaderConfig.exists(_.isSecondaryPlainText)) {
               TraceIdLogger.trace("Adding plain text trans id to request: {}", traceGUID)
