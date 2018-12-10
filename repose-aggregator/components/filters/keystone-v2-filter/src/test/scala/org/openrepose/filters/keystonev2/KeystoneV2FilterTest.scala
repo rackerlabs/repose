@@ -99,13 +99,13 @@ with HttpDelegationManager {
   describe("Filter lifecycle") {
     val filter = new KeystoneV2Filter(mockConfigurationService, mockHttpClientService, mock[AtomFeedService], mockDatastoreService)
 
-    it("should throw 500 if filter is not initialized") {
+    it("should throw 503 if filter is not initialized") {
       val request = new MockHttpServletRequest
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain
       filter.isInitialized shouldBe false
       filter.doFilter(request, response, filterChain)
-      response.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
+      response.getStatus shouldBe SC_SERVICE_UNAVAILABLE
     }
 
     it("should subscribe a listener to the configuration service on init") {
