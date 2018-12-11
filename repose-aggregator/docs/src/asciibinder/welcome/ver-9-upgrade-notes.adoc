@@ -5,6 +5,8 @@
   If you were counting on this behavior for some reason see <<../recipes/header-splitting.adoc#, Pre 9.0 Header Splitting>>.
 . The response status line reason phrase from the origin service will now be forwarded from the origin service.
   If you were expecting *Repose* to normalize the reason phrase, see the <<../recipes/reason-phrase-normalization.adoc#, Reason Phrase Normalization recipe>>.
+. Requests can now contain headers with empty values.
+  For example, if *Repose* receives a request with the header line `My-Header: `, that header line will now be forwarded to the origin service.
 
 == Container Configuration
 . The `via` attribute was removed from the <<../architecture/container.adoc#, container configuration>>.
