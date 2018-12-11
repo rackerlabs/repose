@@ -20,6 +20,7 @@ dependencies {
     integrationTestCompile "org.eclipse.jetty:jetty-servlet"
     integrationTestCompile "org.apache.commons:commons-lang3"
     integrationTestCompile "org.springframework:spring-web"
+    integrationTestCompile "org.apache.logging.log4j:log4j-slf4j-impl"
     integrationTestCompile "org.slf4j:jcl-over-slf4j"
     integrationTestCompile "com.google.guava:guava"
 
