@@ -340,6 +340,10 @@ subprojects {
             destinationFile = file("$buildDir/jacoco/jacocoIntegrationTest.exec")
         }
         systemProperty 'jacocoArguments', jacoco.getAsJvmArg()
+
+        if (project.hasProperty('javaArguments')) {
+            systemProperty 'javaArguments', project.getProperty('javaArguments')
+        }
     }
 
     if(project.hasProperty('sonarBuild')) {
