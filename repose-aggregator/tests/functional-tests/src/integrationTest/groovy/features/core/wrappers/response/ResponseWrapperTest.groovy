@@ -23,6 +23,7 @@ import org.openrepose.commons.utils.servlet.http.ResponseMode
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import spock.lang.Ignore
 import spock.lang.Unroll
 
 import javax.ws.rs.core.HttpHeaders
@@ -202,6 +203,34 @@ class ResponseWrapperTest extends ReposeValveTest {
         reposeLogSearch.searchByString("Calls to .*addHeader.* after the response has been committed may be ignored -- the following header may not be modified: $REASON_HEADER_NAME: $REASON_MESSAGE").size() > 0
     }
 
+    def "the reason message is set on the response status line"() {
+        given: "the first filter will call sendError on the response wrapper"
+        def responseCode = 418
+        def firstFilterTestCase = TC_SEND_ERROR_WITH_MESSAGE
+
+        and: "the second filter will be set to throw an exception because Repose should never get to it"
+        def secondFilterTestCase = TC_THROW_EXCEPTION
+
+        and: "the headers are set to tell the Scripting filters what to do"
+        def headers = [
+            (FIRST_FILTER_TEST_HEADER_NAME) : firstFilterTestCase,
+            (SECOND_FILTER_TEST_HEADER_NAME): secondFilterTestCase,
+            (RESPONSE_CODE_HEADER_NAME)     : responseCode]
+
+        when: "any request is made"
+        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: headers)
+
+        then: "the origin service does not receive the request"
+        messageChain.handlings.isEmpty()
+
+        and: "the response code is correctly set"
+        messageChain.receivedResponse.code as Integer == responseCode
+
+        and: "the response received by the user should contain the message in the body"
+        messageChain.receivedResponse.message == REASON_MESSAGE
+    }
+
+    @Ignore('RMS is not currently supported')
     @Unroll
     def "the response body is set to '#expectedBody' by RMS when using the response wrapper's sendError(Int, String) method with value #responseCode"() {
         given: "the first filter will call sendError on the response wrapper"
@@ -240,6 +269,7 @@ class ResponseWrapperTest extends ReposeValveTest {
         411          | "Static Message"
     }
 
+    @Ignore('RMS is not currently supported')
     @Unroll
     def "the response body is set to '#expectedBody' by RMS when using the response wrapper's sendError(Int) method with value #responseCode"() {
         given: "the first filter will call sendError on the response wrapper using just a response code but no reason message"
@@ -332,10 +362,12 @@ class ResponseWrapperTest extends ReposeValveTest {
         and: "the response code is correctly set"
         messageChain.receivedResponse.code as Integer == responseCode
 
-        and: "the response received by the user should contain the message in the body with the correct content type"
-        messageChain.receivedResponse.body as String == REASON_MESSAGE
-        messageChain.receivedResponse.headers.contains(HttpHeaders.CONTENT_TYPE)
-        messageChain.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_TYPE) == MediaType.TEXT_PLAIN
+        and: "the response received by the user should contain the message in the status line with the correct content type"
+        messageChain.receivedResponse.message == REASON_MESSAGE
+        // todo: uncomment these checks when RMS is supported
+        // messageChain.receivedResponse.body as String == REASON_MESSAGE
+        // messageChain.receivedResponse.headers.contains(HttpHeaders.CONTENT_TYPE)
+        // messageChain.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_TYPE) == MediaType.TEXT_PLAIN
 
         where:
         [wrapperHeaderMode, wrapperBodyMode] <<
@@ -360,22 +392,29 @@ class ResponseWrapperTest extends ReposeValveTest {
         messageChain.receivedResponse.code as Integer == responseCode
 
         and: "the response received by the user should contain the message in the body with the correct content type"
-        messageChain.receivedResponse.body as String == REASON_MESSAGE
-        messageChain.receivedResponse.headers.contains(HttpHeaders.CONTENT_TYPE)
-        messageChain.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_TYPE) == MediaType.TEXT_PLAIN
+        if (bodyMessage) {
+            assert messageChain.receivedResponse.body as String == REASON_MESSAGE
+            assert messageChain.receivedResponse.headers.contains(HttpHeaders.CONTENT_TYPE)
+            assert messageChain.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_TYPE) == MediaType.TEXT_PLAIN
+        }
+
+        and: "the response received by the user should contain the message in the status line"
+        if (statusMessage) {
+            assert messageChain.receivedResponse.message == REASON_MESSAGE
+        }
 
         where:
-        firstFilterTestCase                  | secondFilterTestCase              | responseCode | testDescription
-        TC_SEND_ERROR_UNCOMMIT_SEND_ERROR    | TC_THROW_EXCEPTION                | 413          | "sendError, uncommit, sendError with another wrapper as the original wrapper"
-        TC_CALL_NEXT_FILTER                  | TC_SEND_ERROR_UNCOMMIT_SEND_ERROR | 413          | "sendError, uncommit, sendError with our wrapper as the original wrapper"
-        TC_SEND_ERROR_UNCOMMIT_SET_BODY      | TC_THROW_EXCEPTION                | 200          | "sendError, uncommit/resetError, set the body with another wrapper as the original wrapper"
-        TC_CALL_NEXT_FILTER                  | TC_SEND_ERROR_UNCOMMIT_SET_BODY   | 200          | "sendError, uncommit/resetError, set the body with our wrapper as the original wrapper"
-        TC_SET_BODY_SEND_ERROR               | TC_THROW_EXCEPTION                | 413          | "set the body then sendError with another wrapper as the original wrapper"
-        TC_CALL_NEXT_FILTER                  | TC_SET_BODY_SEND_ERROR            | 413          | "set the body then sendError with out wrapper as the original wrapper"
-        TC_SET_LARGE_BODY_SEND_ERROR         | TC_THROW_EXCEPTION                | 413          | "set a large body then sendError with another wrapper as the original wrapper"
-        TC_CALL_NEXT_FILTER                  | TC_SET_LARGE_BODY_SEND_ERROR      | 413          | "set a large body then sendError with out wrapper as the original wrapper"
-        TC_CALL_NEXT_FILTER_THEN_SEND_ERROR  | TC_SET_BODY                       | 413          | "call next filter, it sets the body, then the first filter calls sendError"
-        TC_OUTPUT_STREAM_SEND_ERROR          | TC_THROW_EXCEPTION                | 413          | "rewrap the response with a new output stream then sendError"
-        TC_OUTPUT_STREAM_SET_BODY_SEND_ERROR | TC_THROW_EXCEPTION                | 413          | "rewrap the response with a new output stream, set the body, then sendError"
+        firstFilterTestCase                  | secondFilterTestCase              | responseCode || bodyMessage | statusMessage | testDescription
+        TC_SEND_ERROR_UNCOMMIT_SEND_ERROR    | TC_THROW_EXCEPTION                | 413          || false       | true          | "sendError, uncommit, sendError with another wrapper as the original wrapper"
+        TC_CALL_NEXT_FILTER                  | TC_SEND_ERROR_UNCOMMIT_SEND_ERROR | 413          || false       | true          | "sendError, uncommit, sendError with our wrapper as the original wrapper"
+        TC_SEND_ERROR_UNCOMMIT_SET_BODY      | TC_THROW_EXCEPTION                | 200          || true        | false         | "sendError, uncommit/resetError, set the body with another wrapper as the original wrapper"
+        TC_CALL_NEXT_FILTER                  | TC_SEND_ERROR_UNCOMMIT_SET_BODY   | 200          || true        | false         | "sendError, uncommit/resetError, set the body with our wrapper as the original wrapper"
+        TC_SET_BODY_SEND_ERROR               | TC_THROW_EXCEPTION                | 413          || false       | true          | "set the body then sendError with another wrapper as the original wrapper"
+        TC_CALL_NEXT_FILTER                  | TC_SET_BODY_SEND_ERROR            | 413          || false       | true          | "set the body then sendError with out wrapper as the original wrapper"
+        TC_SET_LARGE_BODY_SEND_ERROR         | TC_THROW_EXCEPTION                | 413          || false       | true          | "set a large body then sendError with another wrapper as the original wrapper"
+        TC_CALL_NEXT_FILTER                  | TC_SET_LARGE_BODY_SEND_ERROR      | 413          || false       | true          | "set a large body then sendError with out wrapper as the original wrapper"
+        TC_CALL_NEXT_FILTER_THEN_SEND_ERROR  | TC_SET_BODY                       | 413          || false       | true          | "call next filter, it sets the body, then the first filter calls sendError"
+        TC_OUTPUT_STREAM_SEND_ERROR          | TC_THROW_EXCEPTION                | 413          || false       | true          | "rewrap the response with a new output stream then sendError"
+        TC_OUTPUT_STREAM_SET_BODY_SEND_ERROR | TC_THROW_EXCEPTION                | 413          || false       | true          | "rewrap the response with a new output stream, set the body, then sendError"
     }
 }
