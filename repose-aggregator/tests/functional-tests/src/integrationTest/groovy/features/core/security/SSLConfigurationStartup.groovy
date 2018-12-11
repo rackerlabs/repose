@@ -27,6 +27,7 @@ import org.apache.http.impl.client.HttpClients
 import org.apache.http.ssl.SSLContexts
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import spock.lang.Unroll
 
 import java.nio.file.Files
 
@@ -55,23 +56,59 @@ class SSLConfigurationStartup extends ReposeValveTest {
 
     static def params
 
-    def "Can execute a simple request via SSL"() {
-        //A simple request should go through
-        when:
+    @Unroll
+    def 'Can execute a simple request via SSL using TLSv1.2 and #cipher'() {
+        given:
         def sslContext = SSLContexts.custom().loadTrustMaterial(TrustSelfSignedStrategy.INSTANCE).build()
         def sf = new SSLConnectionSocketFactory(
-                sslContext,
-                null,
-                null,
-                NoopHostnameVerifier.INSTANCE
+            sslContext,
+            (String[]) ['TLSv1.2'],
+            (String[]) [cipher],
+            NoopHostnameVerifier.INSTANCE
         )
-
         def client = HttpClients.custom().setSSLSocketFactory(sf).build()
-
         def get = new HttpGet("https://localhost:$properties.reposePort")
+
+        when:
         def response = client.execute(get)
 
         then:
         response.getStatusLine().statusCode == 200
+
+        where:
+        cipher << [
+            'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA',
+            'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256',
+            'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256',
+            'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA',
+            'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384',
+            'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
+        ]
+    }
+
+    @Unroll
+    def "Can't execute a simple request via SSL using #protocol and #cipher"() {
+        given:
+        def sslContext = SSLContexts.custom().loadTrustMaterial(TrustSelfSignedStrategy.INSTANCE).build()
+        def sf = new SSLConnectionSocketFactory(
+            sslContext,
+            (String[]) [protocol],
+            (String[]) [cipher],
+            NoopHostnameVerifier.INSTANCE
+        )
+        def client = HttpClients.custom().setSSLSocketFactory(sf).build()
+        def get = new HttpGet("https://localhost:$properties.reposePort")
+
+        when:
+        client.execute(get)
+
+        then:
+        thrown IOException
+
+        where:
+        protocol     | cipher
+        'SSLv3'      | 'SSL_DHE_RSA_WITH_DES_CBC_SHA'
+        'TLSv1'      | 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA'
+        'TLSv1.1'    | 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA'
     }
 }
