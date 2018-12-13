@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse._
 import org.apache.http.HttpVersion
 import org.apache.http.client.methods.{CloseableHttpResponse, HttpUriRequest}
 import org.apache.http.message.BasicHttpResponse
+import org.apache.http.protocol.HttpContext
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
@@ -79,7 +80,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     when(mockMetricsService.getRegistry).thenReturn(metricRegistry)
     when(mockContainerConfigurationService.getRequestVia).thenReturn(Optional.empty[String]())
     when(mockHttpClientService.getDefaultClient).thenReturn(mockHttpClient)
-    when(mockHttpClient.execute(any[HttpUriRequest])).thenReturn(
+    when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext])).thenReturn(
       new BasicHttpResponse(HttpVersion.HTTP_1_1, SC_OK, null) with CloseableHttpResponse {
         override def close(): Unit = {}
       }
@@ -175,7 +176,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
           mockServletConfig = new MockServletConfig(servletContext)
 
           Option(dispatchError).foreach { error =>
-            when(mockHttpClient.execute(any[HttpUriRequest])).thenThrow(error)
+            when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext])).thenThrow(error)
           }
 
           reposeRoutingServlet.init(mockServletConfig)
@@ -184,7 +185,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
 
           response.getStatus == responseCode
 
-          verify(mockHttpClient).execute(any[HttpUriRequest])
+          verify(mockHttpClient).execute(any[HttpUriRequest], any[HttpContext])
           if (Option(dispatchError).isEmpty) {
             verify(metricRegistry, times(2)).meter(contains("ResponseCode"))
             verify(metricRegistry, times(2)).timer(contains("ResponseTime"))

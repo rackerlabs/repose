@@ -37,7 +37,7 @@ import org.openrepose.commons.utils.io.stream.ReadLimitReachedException
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestUtil, HttpServletRequestWrapper, RouteDestination}
 import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
+import org.openrepose.core.services.httpclient.{CachingHttpClientContext, HttpClientService, HttpClientServiceClient}
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.services.routing.robin.Clusters
 import org.openrepose.core.spring.ReposeSpringProperties
@@ -263,8 +263,10 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
 
     // Execute the HTTP client request
     logger.debug("Forwarding the request to: {}", processedClientRequest.getURI)
+    val cacheContext = CachingHttpClientContext.create()
+      .setUseCache(false)
     val clientResponse = try {
-      httpClient.execute(processedClientRequest)
+      httpClient.execute(processedClientRequest, cacheContext)
     } catch {
       case e: Throwable => throw OriginServiceCommunicationException(e)
     }
