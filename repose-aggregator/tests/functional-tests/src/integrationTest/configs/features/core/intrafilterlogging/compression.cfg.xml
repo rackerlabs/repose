@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <content-compression xmlns="http://docs.openrepose.org/repose/content-compression/v1.0">
-    <compression compression-threshold="0"/>
+    <!-- Compression threshold set reasonably high to avoid unnecessarily compressing the response body -->
+    <compression compression-threshold="4096"/>
 </content-compression>

@@ -117,7 +117,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
             assert logSearch.size() == size
             if (size > 0) {
                 def json = convertToJson(logSearch[0])
-                assertHeadersExists(['X-Auth-Token', 'Intrafilter-UUID'], json)
+                assertHeadersExists(['X-Auth-Token', 'X-Trans-ID'], json)
                 assertKeyValueMatch([
                     'currentFilter': filterName,
                     'httpMethod'   : 'GET',
@@ -126,13 +126,18 @@ class IntraFilterLoggingTest extends ReposeValveTest {
                 ], json)
             }
         }
+
+        // todo: fails because the x-trans-id header is not logged on responses
+        // todo: this seems to be caused by the response wrapper not exposing the headers of the wrapped response
+        // todo: since we set the x-trans-id header up front, it is not visible to the intrafilter logging mechanism. but it does make it back to the client
+        // todo: this was not failing prior due to the UUID header being added after returning from doFilter (just prior to logging)
         and: "log at every filter on the response"
         configuredFilters.each { filterName ->
             def logSearch = reposeLogSearch.searchByString("$logPreStringResponse$filterName$logPostStringAny")
             assert logSearch.size() == size
             if (size > 0) {
                 def json = convertToJson(logSearch[0])
-                assertHeadersExists(['Intrafilter-UUID'], json)
+                assertHeadersExists(['X-Trans-ID'], json)
                 assertKeyValueMatch([
                     'currentFilter'   : filterName,
                     'responseBody'    : '',
