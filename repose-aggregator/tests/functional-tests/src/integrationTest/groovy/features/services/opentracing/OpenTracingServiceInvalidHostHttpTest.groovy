@@ -88,5 +88,4 @@ class OpenTracingServiceInvalidHostHttpTest extends ReposeValveTest {
         "TRACE"  | _
         "HEAD"   | _
     }
-
 }
