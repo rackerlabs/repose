@@ -86,7 +86,7 @@ class ReposeTracingRequestInterceptor(tracer: Tracer, reposeVersion: String, uri
       tracer.inject(clientSpan.context, HTTP_HEADERS, new TextMap {
         override def iterator = throw new UnsupportedOperationException
 
-        override def put(key: String, value: String): Unit = httpRequest.addHeader(new BasicHeader(key, value))
+        override def put(key: String, value: String): Unit = httpRequest.setHeader(new BasicHeader(key, value))
       })
     } catch {
       case e: Exception =>

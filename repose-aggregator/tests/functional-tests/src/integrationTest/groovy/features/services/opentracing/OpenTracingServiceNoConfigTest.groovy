@@ -73,7 +73,6 @@ class OpenTracingServiceNoConfigTest extends ReposeValveTest {
         "HEAD"   | _
     }
 
-
     @Unroll("Should return 200 with #method with a trace id #trace_id")
     def "when OpenTracing config is not specified, and trace id passed in, new span is not created, and trace id is passed through"() {
 
@@ -87,12 +86,12 @@ class OpenTracingServiceNoConfigTest extends ReposeValveTest {
         messageChain.handlings.size() == 1
 
         and: "request should have tracer header equal to passed in header (we did not create another one in repose)"
-
         if (trace_id != null) {
             assert messageChain.handlings.get(0).request.headers.contains(TRACING_HEADER)
             assert messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER) == trace_id
         } else {
-            assert !messageChain.handlings.get(0).request.headers.contains(TRACING_HEADER)
+            assert messageChain.handlings.get(0).request.headers.contains(TRACING_HEADER)
+            assert messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER) == ''
         }
 
         and: "Repose should return with a 200"

@@ -121,7 +121,7 @@ class OpenTracingServiceKeystoneHttpTest extends ReposeValveTest {
     }
 
     @Unroll("Should return 200 with #method and #trace_id")
-    def "when OpenTracing config is enabled with keystone-v2, with invald parent span, trace information is passed in tracing header"() {
+    def "when OpenTracing config is enabled with keystone-v2, with invalid parent span, trace information is passed in tracing header"() {
         given:
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
@@ -152,7 +152,6 @@ class OpenTracingServiceKeystoneHttpTest extends ReposeValveTest {
             }
         }
 
-
         and: "OpenTracingService has logged that keystone span was sent to tracer"
         spanList.each {
             def logLines = reposeLogSearch.searchByString(
@@ -166,37 +165,16 @@ class OpenTracingServiceKeystoneHttpTest extends ReposeValveTest {
 
         }
 
-        and: "request to origin should have 2 tracer headers"
-        if (trace_id == null) {
-            assert messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 1
-        } else {
-            assert messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 2
-        }
-
-        and: "request to origin should have tracer header pass through as well as a new header added"
-        def newTraceId
-        if (trace_id == null) {
-            newTraceId = messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER)
-        } else {
-            def validateCount = 0
-            messageChain.handlings.get(0).request.headers.each {
-                if (it.name == TRACING_HEADER) {
-                    if (it.value == trace_id) {
-                        validateCount++
-                    } else {
-                        newTraceId = it.value
-                    }
-                }
-            }
-            assert validateCount == 1
-        }
-
+        and: "request to origin should have 1 tracer headers"
+        messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 1
 
         and: "Repose should return with a 200"
         messageChain.receivedResponse.code == "200"
 
         and: "trace id does not exist in the new trace in request to origin"
+        def newTraceId = messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER)
         assert newTraceId != trace_id
+
 
         where:
         method   | trace_id
@@ -216,7 +194,6 @@ class OpenTracingServiceKeystoneHttpTest extends ReposeValveTest {
         "TRACE"  | null
         "HEAD"   | null
     }
-
 
     @Unroll("Should return 200 with #method and #trace_id")
     def "when OpenTracing config is enabled with keystone-v2, with parent span, trace information is passed in tracing header"() {
@@ -250,7 +227,6 @@ class OpenTracingServiceKeystoneHttpTest extends ReposeValveTest {
             }
         }
 
-
         and: "OpenTracingService has logged that keystone span was sent to tracer"
         spanList.each {
             def logLines = reposeLogSearch.searchByString(
@@ -264,36 +240,14 @@ class OpenTracingServiceKeystoneHttpTest extends ReposeValveTest {
 
         }
 
-        and: "request to origin should have 2 tracer headers"
-        if (trace_id == null) {
-            assert messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 1
-        } else {
-            assert messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 2
-        }
-
-        and: "request to origin should have tracer header pass through as well as a new header added"
-        def newTraceId
-        if (trace_id == null) {
-            newTraceId = messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER)
-        } else {
-            def validateCount = 0
-            messageChain.handlings.get(0).request.headers.each {
-                if (it.name == TRACING_HEADER) {
-                    if (it.value == trace_id) {
-                        validateCount++
-                    } else {
-                        newTraceId = it.value
-                    }
-                }
-            }
-            assert validateCount == 1
-        }
-
+        and: "request to origin should have 1 tracer headers"
+        messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 1
 
         and: "Repose should return with a 200"
         messageChain.receivedResponse.code == "200"
 
         and: "trace id exists in the new trace"
+        def newTraceId = messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER)
         if (trace_id.contains(':')) {
             def traceId = trace_id.split(":").first()
             assert newTraceId.split("%3A").first() == traceId
@@ -321,6 +275,5 @@ class OpenTracingServiceKeystoneHttpTest extends ReposeValveTest {
         "PATCH"  | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
         "DELETE" | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
         "TRACE"  | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
-
     }
 }

@@ -87,7 +87,7 @@ class OpenTracingServiceConstOffUdpTest extends ReposeValveTest {
     }
 
     @Unroll("When const sample=off and invalid parent span, should return 200 with #method and #trace_id")
-    def "when OpenTracing config is enabled with const sample=off, with invald parent span, trace information is passed in tracing header"() {
+    def "when OpenTracing config is enabled with const sample=off, with invalid parent span, trace information is passed in tracing header"() {
 
         when: "Request is sent through repose"
         def messageChain = deproxy.makeRequest(
@@ -98,37 +98,16 @@ class OpenTracingServiceConstOffUdpTest extends ReposeValveTest {
         then: "The request should have reached the origin service"
         messageChain.handlings.size() == 1
 
-        and: "request should have 2 tracer headers"
-        if (trace_id == null) {
-            assert messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 1
-        } else {
-            assert messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 2
-        }
-
-        and: "request should have tracer header pass through as well as a new header added"
-        def newTraceId
-        if (trace_id == null) {
-            newTraceId = messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER)
-        } else {
-            def validateCount = 0
-            messageChain.handlings.get(0).request.headers.each {
-                if (it.name == TRACING_HEADER) {
-                    if (it.value == trace_id) {
-                        validateCount++
-                    } else {
-                        newTraceId = it.value
-                    }
-                }
-            }
-            assert validateCount == 1
-        }
-
+        and: "request should have 1 tracer headers"
+        messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 1
 
         and: "Repose should return with a 200"
         messageChain.receivedResponse.code == "200"
 
         and: "trace id does not exist in the new trace"
-        assert newTraceId != trace_id
+        def newTraceId = messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER)
+        newTraceId != trace_id
+
 
         where:
         method   | trace_id
@@ -149,7 +128,6 @@ class OpenTracingServiceConstOffUdpTest extends ReposeValveTest {
         "HEAD"   | null
     }
 
-
     @Unroll("When const sample=off and parent span, should return 200 with #method and #trace_id")
     def "when OpenTracing config is enabled with const sample=0, with parent span, trace information is passed in tracing header"() {
 
@@ -162,31 +140,11 @@ class OpenTracingServiceConstOffUdpTest extends ReposeValveTest {
         then: "The request should have reached the origin service"
         messageChain.handlings.size() == 1
 
-        and: "request should have 2 tracer headers"
-        messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 2
-
-
-        and: "request should have tracer header pass through as well as a new header added"
-        def newTraceId
-        def validateCount = 0
-        def validateUniqueList = []
-        messageChain.handlings.get(0).request.headers.each {
-            if (it.name == TRACING_HEADER) {
-                if (!validateUniqueList.contains(it.value)) {
-                    validateUniqueList << it.value
-                }
-                if (it.value == trace_id) {
-                    validateCount++
-                } else {
-                    newTraceId = it.value
-                }
-            }
-        }
-
-        validateUniqueList.size() == messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER)
-        validateCount == 1
+        and: "request should have 1 tracer headers"
+        messageChain.handlings.get(0).request.headers.getCountByName(TRACING_HEADER) == 1
 
         and: "trace id exists in the new trace"
+        def newTraceId = messageChain.handlings.get(0).request.headers.getFirstValue(TRACING_HEADER)
         if (trace_id.contains(':')) {
             def traceId = trace_id.split(":").first()
             assert newTraceId.split("%3A").first() == traceId
@@ -197,6 +155,7 @@ class OpenTracingServiceConstOffUdpTest extends ReposeValveTest {
 
         and: "Repose should return with a 200"
         messageChain.receivedResponse.code == "200"
+
 
         where:
         method   | trace_id
@@ -213,7 +172,6 @@ class OpenTracingServiceConstOffUdpTest extends ReposeValveTest {
         "PATCH"  | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
         "DELETE" | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
         "TRACE"  | '5f074a7cedaff647:6cfe3defc2e78be5:5f074a7cedaff647:1'
-
     }
 }
 
