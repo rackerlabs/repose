@@ -138,7 +138,7 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
 
         MDC.put(TracingKey.TRACING_KEY, traceGUID)
 
-        val doFilterChain = TryWith(filterContextList) { _ =>
+        try {
           // Ensure the request URI is a valid URI
           // This object is only being created to ensure its validity.
           // So it is safe to suppress warning squid:S1848
@@ -166,45 +166,40 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
           ).doFilter(wrappedRequest, wrappedResponse)
 
           logger.trace("{} -- Successfully processed request", nodeId)
-        }
-
-        // Set the Via header
-        if (wrappedResponse.isCommitted) {
-          wrappedResponse.uncommit()
-        }
-        responseHeaderService.setVia(wrappedRequest, wrappedResponse)
-
-        // Handle Throwables that arose while processing
-        val recoveredFilterChain = doFilterChain.recover {
+        } catch {
+          // Handle Throwables that arose while processing
           case use: URISyntaxException =>
             logger.debug(s"$nodeId -- Invalid URI requested: ${wrappedRequest.getRequestURI}", use)
-            wrappedResponse.sendError(SC_BAD_REQUEST, "Error processing request")
+            wrappedResponse.sendError(SC_BAD_REQUEST, "Error processing request", true)
           case e: Exception =>
             logger.error(s"$nodeId -- Issue encountered while processing filter chain.", e)
-            wrappedResponse.sendError(SC_BAD_GATEWAY, "Error processing request")
+            wrappedResponse.sendError(SC_BAD_GATEWAY, "Error processing request", true)
           case t: Throwable =>
             logger.error(s"$nodeId -- Error encountered while processing filter chain.", t)
-            wrappedResponse.sendError(SC_BAD_GATEWAY, "Error processing request")
+            wrappedResponse.sendError(SC_BAD_GATEWAY, "Error processing request", true)
             throw t
+        } finally {
+          // Set the Via header
+          if (wrappedResponse.isCommitted) {
+            wrappedResponse.uncommit()
+          }
+          responseHeaderService.setVia(wrappedRequest, wrappedResponse)
+
+          // Commit the response and record metrics for the request and response
+          wrappedResponse.commitToResponse()
+          closeSpan(wrappedResponse, scope)
+          optMetricRegistry.foreach { mr =>
+            markResponseCodeHelper(
+              mr,
+              wrappedResponse.getStatus,
+              System.currentTimeMillis - startTime,
+              logger.underlying)
+          }
+
+          logger.trace("ReposeFilter returning response...")
+          MDC.clear()
         }
 
-        // Commit the response and record metrics for the request and response
-        wrappedResponse.commitToResponse()
-        closeSpan(wrappedResponse, scope)
-        optMetricRegistry.foreach { mr =>
-          markResponseCodeHelper(
-            mr,
-            wrappedResponse.getStatus,
-            System.currentTimeMillis - startTime,
-            logger.underlying)
-        }
-
-        // Either log the final message
-        // Or rethrow any Throwables that arose while processing and were not handled
-        // Always clear out the logging context
-        recoveredFilterChain.foreach(_ => logger.trace("ReposeFilter returning response..."))
-        MDC.clear()
-        recoveredFilterChain.get
       case None =>
         logger.error("ReposeFilter has not yet initialized...")
         response.asInstanceOf[HttpServletResponse].sendError(SC_INTERNAL_SERVER_ERROR, "ReposeFilter not initialized")
