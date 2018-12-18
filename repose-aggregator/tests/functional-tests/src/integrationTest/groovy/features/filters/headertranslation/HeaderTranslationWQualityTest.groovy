@@ -61,7 +61,7 @@ class HeaderTranslationWQualityTest extends ReposeValveTest {
         reposehandling.request.headers.getFirstValue("x-pp-user") == "a"
     }
 
-    def "the original header is splittable by default, all new translated headers will be added with quality"() {
+    def "the original header is splittable but isn't configured to, all new translated header will be added with quality"() {
         when: "client passes a request through repose with headers to be translated"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "GET",
                 headers: ["x-pp-user"    : "test, repose",
@@ -72,8 +72,7 @@ class HeaderTranslationWQualityTest extends ReposeValveTest {
 
         then:
         reposehandling.request.getHeaders().contains("x-rax-username")
-        reposehandling.request.getHeaders().findAll("x-rax-username").contains("test;q=0.5")
-        reposehandling.request.getHeaders().findAll("x-rax-username").contains("repose;q=0.5")
+        reposehandling.request.getHeaders().findAll("x-rax-username").contains("test, repose;q=0.5")
         reposehandling.request.getHeaders().contains("x-roles")
         reposehandling.request.getHeaders().getFirstValue("x-roles") == "test"
     }
@@ -124,7 +123,7 @@ class HeaderTranslationWQualityTest extends ReposeValveTest {
         reposehandling.request.getHeaders().getFirstValue("x-roles") == "test"
     }
 
-    def "Verify splittable option with non split by default header, all new translated headers will be added with quality"() {
+    def "Verify splittable option, all new translated headers will be added with quality"() {
         when: "client passes a request through repose with headers to be translated"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: "GET",
                 headers: ["test-headers"    : "test, repose",
