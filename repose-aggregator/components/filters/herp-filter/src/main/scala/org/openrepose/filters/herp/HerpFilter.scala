@@ -33,7 +33,7 @@ import com.rackspace.httpdelegation._
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.http.HttpHeaders
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.http.CommonRequestAttributes.QUERY_PARAMS
+import org.openrepose.commons.utils.http.CommonRequestAttributes.{QUERY_PARAMS, REQUEST_URL}
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader}
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.commons.utils.servlet.http.{HeaderInteractor, HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
@@ -148,8 +148,8 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
       "userAgent" -> httpServletRequest.getHeader(HttpHeaders.USER_AGENT),
       "requestMethod" -> httpServletRequest.getMethod,
       "methodLabel" -> httpServletRequest.getHeader(X_METHOD_LABEL),
-      "requestURL" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.toString).orNull,
-      "targetHost" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map { requestUrl =>
+      "requestURL" -> Option(httpServletRequest.getAttribute(REQUEST_URL)).map(_.toString).orNull,
+      "targetHost" -> Option(httpServletRequest.getAttribute(REQUEST_URL)).map { requestUrl =>
         Try(new URL(requestUrl.toString).getHost).getOrElse(null)
       }.orNull,
       "requestQueryString" -> httpServletRequest.getQueryString,
