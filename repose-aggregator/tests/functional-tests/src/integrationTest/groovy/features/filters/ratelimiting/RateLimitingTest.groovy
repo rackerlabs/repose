@@ -233,7 +233,6 @@ class RateLimitingTest extends ReposeValveTest {
         expectedContentType | acceptHeaderValues
         // no/empty Accept header - defaults to JSON
         APPLICATION_JSON    | []
-        APPLICATION_JSON    | [""]
         // uses specified Accept header
         APPLICATION_JSON    | [APPLICATION_JSON]
         APPLICATION_XML     | [APPLICATION_XML]
@@ -387,6 +386,7 @@ class RateLimitingTest extends ReposeValveTest {
         where:
         acceptHeaderValues << [
                 // unsupported value
+                [""],
                 [TEXT_XML],
                 ["stone/hieroglyphs"],
                 // wildcards with zero quality
