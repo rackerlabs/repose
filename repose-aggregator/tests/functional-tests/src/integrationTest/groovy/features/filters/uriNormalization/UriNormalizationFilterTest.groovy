@@ -276,8 +276,8 @@ class UriNormalizationFilterTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].request.getHeaders().findAll("user-agent").size() == 1
         mc.handlings[0].request.headers['user-agent'] == userAgentValue
-        mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 3
-        mc.handlings[0].request.getHeaders().findAll("accept").size() == 2
+        mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 1
+        mc.handlings[0].request.getHeaders().findAll("accept").size() == 1
     }
 
     def "Should not split response headers according to rfc"() {
