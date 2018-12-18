@@ -92,7 +92,7 @@ class ValkyrieAuthorizationQualityTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].request.path == "/"
         List<String> tenantIdValues = mc.handlings[0].request.headers.findAll(TENANT_ID)
-        tenantIdValues.contains("hybrid:${mockValkyrie.tenant_id}$quality" as String)
+        tenantIdValues.any { it.contains("hybrid:${mockValkyrie.tenant_id}$quality" as String) }
         mc.receivedResponse.code as Integer == SC_OK
 
         where:
@@ -130,7 +130,7 @@ class ValkyrieAuthorizationQualityTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.handlings[0].request.path == "/"
         List<String> tenantIdValues = mc.handlings[0].request.headers.findAll(TENANT_ID)
-        tenantIdValues.contains("hybrid:${mockValkyrie.tenant_id}$quality" as String)
+        tenantIdValues.any { it.contains("hybrid:${mockValkyrie.tenant_id}$quality" as String) }
         mc.receivedResponse.code as Integer == SC_OK
 
         where:
