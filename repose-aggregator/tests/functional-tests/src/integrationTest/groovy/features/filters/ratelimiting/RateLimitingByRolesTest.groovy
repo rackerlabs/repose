@@ -157,7 +157,7 @@ class RateLimitingByRolesTest extends ReposeValveTest {
         (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("Secure Developers")
         (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("service:admin-role1")
         (mc.handlings[0].request.headers.findAll("x-pp-groups").toString()).contains("member")
-        mc.handlings[0].request.headers.findAll("something").size() == 5
+        (mc.handlings[0].request.headers.findAll("something").toString()).split(",").size() == 5
 
     }
 
