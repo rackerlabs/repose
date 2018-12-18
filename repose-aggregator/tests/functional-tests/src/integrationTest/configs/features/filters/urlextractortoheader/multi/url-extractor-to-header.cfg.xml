@@ -22,14 +22,14 @@
 
 <url-extractor-to-header xmlns="http://docs.openrepose.org/repose/url-extractor-to-header/v1.0">
     <!-- Grab the Device ID's from the path with multiple capture groups -->
-    <extraction header="X-Device-Id" url-regex="/v1/(multi:\d+)/entities/([^/]+)"/>
+    <extraction header="X-Device-Id" url-regex="/v1/multi:(\d+)/entities/([^/]+)"/>
 
     <!-- Grab the Device ID from the path with multiple capture groups where only one is not ignored -->
     <extraction header="X-Device-Id" url-regex="/v1/(?:ignored:\d+)/entities/([^/]+)"/>
 
     <!-- Grab the Device ID from the path with a capture group and partial URL definition -->
-    <extraction header="X-Device-Id" url-regex="/(partial:\d+)/"/>
+    <extraction header="X-Device-Id" url-regex="/partial:(\d+)/"/>
 
     <!-- Grab the Device ID from the path with a capture group and a URL definition with boundaries -->
-    <extraction header="X-Device-Id" url-regex="^/v1/(full:\d+)/entities/([^/]+)/?$"/>
+    <extraction header="X-Device-Id" url-regex="^/v1/full:(\d+)/entities/([^/]+)/?$"/>
 </url-extractor-to-header>
