@@ -49,20 +49,19 @@ class TranslationAllowLooseMatchTest extends ReposeValveTest {
 
     }
 
-    @Unroll("Req with content-type: #contenttype with resp from origin #response_from_origin and resp to client #response_to_client ")
-    def "Allow looser matches on Content-type configuration setting"() {
+    @Unroll
+    def "Allow looser matches with content-type: #contenttype with resp from origin #response_from_origin and resp to client #response_to_client"() {
         given:
-        def headers =
-                [
-                        "content-type": contenttype,
-                        "accept"      : "application/xml"
-                ]
+        def headers = [
+            "content-type": contenttype,
+            "accept"      : "application/xml"
+        ]
         def handler = { request -> return new Response(201, "Created", headers, xmlPayLoad) }
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/somepath?testparam=x&otherparam=y",
-                method: 'POST', headers: headers,
-                requestBody: xmlPayLoad, defaultHandler: handler)
+            method: 'POST', headers: headers,
+            requestBody: xmlPayLoad, defaultHandler: handler)
 
         then:
         mc.handlings.size() == 1
@@ -93,14 +92,13 @@ class TranslationAllowLooseMatchTest extends ReposeValveTest {
         "foo=bar;foo/x"                    | xmlPayLoad           | xmlPayLoad
     }
 
-    @Unroll("When req with content-type: #contenttype is retained")
-    def "Only matching Content-type configuration sending content-type retains"() {
+    @Unroll
+    def "Retain only matching content-type: #contenttype"() {
         given:
-        def reqHeaders =
-                [
-                        "accept"      : "application/xml;q=1 , application/json;q=0.5",
-                        "Content-Type": contenttype
-                ]
+        def reqHeaders = [
+            "accept"      : "application/xml;q=1 , application/json;q=0.5",
+            "Content-Type": contenttype
+        ]
 
         when: "User sends a request through repose"
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/", method: 'GET', headers: reqHeaders)
@@ -111,15 +109,16 @@ class TranslationAllowLooseMatchTest extends ReposeValveTest {
         mc.handlings[0].request.headers["Content-Type"] == contenttype
 
         where:
-        contenttype <<
-                ["application/xml+atom; type=event",
-                 "application/json; v=1",
-                 "text/plain; */*",
-                 "foo/x",
-                 "foo/x;",
-                 "foo/x;version=1",
-                 "foo/x;foo=bar,bar=foo,type=foo",
-                 "foo=bar;foo/x",
-                 "foo/x;foo=bar,text/plain;v=1.1"]
+        contenttype << [
+            "application/xml+atom; type=event",
+            "application/json; v=1",
+            "text/plain; */*",
+            "foo/x",
+            "foo/x;",
+            "foo/x;version=1",
+            "foo/x;foo=bar,bar=foo,type=foo",
+            "foo=bar;foo/x",
+            "foo/x;foo=bar,text/plain;v=1.1"
+        ]
     }
 }
