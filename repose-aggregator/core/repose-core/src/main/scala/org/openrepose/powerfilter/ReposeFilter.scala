@@ -33,14 +33,13 @@ import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.apache.commons.lang3.StringUtils
 import org.openrepose.commons.utils.http.CommonHttpHeader.{REQUEST_ID, TRACE_GUID, VIA}
-import org.openrepose.commons.utils.http.CommonRequestAttributes.QUERY_PARAMS
+import org.openrepose.commons.utils.http.CommonRequestAttributes.{QUERY_PARAMS, REQUEST_URL}
 import org.openrepose.commons.utils.http.PowerApiHeader.TRACE_REQUEST
 import org.openrepose.commons.utils.io.BufferedServletInputStream
 import org.openrepose.commons.utils.io.stream.LimitedReadInputStream
 import org.openrepose.commons.utils.logging.apache.format.stock.ResponseTimeHandler.START_TIME_ATTRIBUTE
 import org.openrepose.commons.utils.logging.{TracingHeaderHelper, TracingKey}
 import org.openrepose.commons.utils.opentracing.ScopeHelper.{closeSpan, startSpan}
-import org.openrepose.commons.utils.scala.TryWith
 import org.openrepose.commons.utils.servlet.http.ResponseMode.MUTABLE
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.core.services.healthcheck.HealthCheckService
@@ -118,7 +117,8 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
         // Wrapping the request to reset the inputStream/Reader flag
         val wrappedRequest = new HttpServletRequestWrapper(request.asInstanceOf[HttpServletRequest], bufferedInputStream)
 
-        // Added so HERP has the Query Params available for logging.
+        // Added so HERP has the Original Request URL and the Query Params available for logging.
+        wrappedRequest.setAttribute(REQUEST_URL, wrappedRequest.getRequestURL().toString)
         wrappedRequest.setAttribute(QUERY_PARAMS, paramaterMap)
 
         // Add the start time to be used by the ResponseTimeHandler/HttpLogFormatter.
