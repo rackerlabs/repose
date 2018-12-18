@@ -269,41 +269,51 @@ Links to industry-standard references are provided in the SSL References section
 
 *Repose* supports whitelisting and blacklisting specific protocols and ciphers by exposing portions of the Jetty configuration via the `container.cfg.xml` file.
 You can use this feature if a specific protocol or cipher has been compromised and you want to block its usage and harden your *Repose* instance.
-Any of Jetty's built-in defaults are cleared and then the configured inclusion and exclusion lists are applied if any are defined.
+All of Jetty's built-in default allowed protocols and ciphers are cleared and then the configured inclusion and exclusion lists are applied if an `ssl-configuration` is specified.
 
 [quote, Jetty, The Definitive Reference]
 ____
 When working with Includes / Excludes, it is important to know that Excludes will always win.
 ____
 
-In the following example, the container configuration includes the TLS v1.2 protocol and TLS ciphers and excludes then SSLv3 protocol and SSL ciphers.
+Protocols and ciphers are configured using the same process.
+We start with the list of all that are available on the host system.
+This list is culled to contain only those that match the `included` RegEx statements.
+Then the list is further culled to remove any that match the `excluded` RegEx statements.
+
+In the following example, the container configuration includes only the recommended TLS ciphers and protocols.
+This in turn automatically excludes all SSL protocols and ciphers as they do not meet the inclusion criteria.
 
 [source,xml]
 .container.cfg.xml - Protocols and ciphers
 ----
 <repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
     <deployment-config>
-       <deployment-directory auto-clean="false">/var/repose</deployment-directory>
-       <artifact-directory check-interval="60000">/usr/share/repose/filters</artifact-directory>
-       <logging-configuration href="file:///etc/repose/log4j2.xml"/>
-       <ssl-configuration>
-          <keystore-filename>keystore.jks</keystore-filename>
-          <keystore-password>password</keystore-password>
-          <key-password>password</key-password>
-          <included-ciphers>
-              <cipher>.*TLS.*</cipher>
-          </included-ciphers>
-          <excluded-ciphers>
-              <cipher>.*SSL.*</cipher>
-          </excluded-ciphers>
-          <excluded-protocols>
-               <protocol>SSLv3</protocol>
-          </excluded-protocols>
-          <included-protocols>
-              <protocol>TLSv1.2</protocol>
-          </included-protocols>
-          <tls-renegotiation-allowed>false</tls-renegotiation-allowed>
-      </ssl-configuration>
+        <deployment-directory auto-clean="false">/var/repose</deployment-directory>
+        <artifact-directory check-interval="60000">/usr/share/repose/filters</artifact-directory>
+        <logging-configuration href="file:///etc/repose/log4j2.xml"/>
+        <ssl-configuration>
+            <keystore-filename>keystore.jks</keystore-filename>
+            <keystore-password>password</keystore-password>
+            <key-password>password</key-password>
+            <!-- include only the recommended protocols and ciphers -->
+            <included-protocols>
+                <protocol>TLSv1.2</protocol>
+            </included-protocols>
+            <included-ciphers>
+                <!-- This allows only the following:
+                - TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+                - TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
+                - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+                - TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+                - TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
+                - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+                -->
+                <cipher>TLS_ECDHE_RSA_WITH_AES_(128|256)_(CBC|GCM)_SHA(256|384)?</cipher>
+                <!-- The opening ^ and closing $ are assumed and will cause failure if present. -->
+            </included-ciphers>
+            <tls-renegotiation-allowed>false</tls-renegotiation-allowed>
+        </ssl-configuration>
     </deployment-config>
 </repose-container>
 ----
