@@ -23,6 +23,7 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -32,6 +33,7 @@ import spock.lang.Unroll
  * 1. Origin service responds with 345, 345 is configured with overwrite="IF_EMPTY", REPOSE does NOT apply RMS body
  * 2. RMS is configured to respond with a different status code than what origin service responds with
  */
+@Ignore
 class ResponseMessagingTest extends ReposeValveTest {
 
     def setupSpec() {
