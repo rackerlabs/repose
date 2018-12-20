@@ -24,12 +24,14 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Ignore
 import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 6/15/15.
  * Test Herp Derp filter with response message config
  */
+@Ignore
 class HerpDerpRMSTest extends ReposeValveTest {
 
     def setupSpec() {

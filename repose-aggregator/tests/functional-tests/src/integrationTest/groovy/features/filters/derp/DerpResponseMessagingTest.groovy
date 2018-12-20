@@ -19,10 +19,12 @@
  */
 package features.filters.derp
 
+import org.junit.Ignore
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
+@Ignore
 class DerpResponseMessagingTest extends ReposeValveTest {
 
     def setupSpec() {
