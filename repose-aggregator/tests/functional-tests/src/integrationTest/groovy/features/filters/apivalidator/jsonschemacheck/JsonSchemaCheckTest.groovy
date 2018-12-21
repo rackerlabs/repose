@@ -119,7 +119,10 @@ class JsonSchemaCheckTest extends ReposeValveTest {
 
         then: "result should be 400"
         messageChain.receivedResponse.code as Integer == SC_BAD_REQUEST
-        messageChain.receivedResponse.body.toString().contains('Message Bad Content: object has missing required properties (["firstName"]')
+        // @TODO: Bring this back in when the RMS replacement is in use.
+        //messageChain.receivedResponse.body.toString().contains('Message Bad Content: object has missing required properties (["firstName"]')
+        // Until then, the info is in the Message.
+        messageChain.receivedResponse.message.contains('Bad Content: object has missing required properties (["firstName"]')
     }
 
     def "POST to /path/to/post by pass Json checking should get 200"() {
