@@ -383,11 +383,11 @@ class ApiValidatorTest extends ReposeValveTest {
         handling.request.headers['X-TEST'] == headerValue
 
         where:
-        reqHeaders            | headerValue   | present
-        []                    | 'Missing'     | 'missing'
-        ['X-TEST': '']        | 'Missing'     | 'empty'
-        ['X-TEST': ' ']       | 'Missing'     | 'space'
-        ['X-TEST': ':']       | ':'           | 'colon'
-        ['X-TEST': 'Present'] | 'Present'     | 'present'
+        reqHeaders            | headerValue | present
+        []                    | 'Missing'   | 'missing'
+        ['X-TEST': '']        | ''          | 'empty'
+        ['X-TEST': ' ']       | ''          | 'space'
+        ['X-TEST': ':']       | ':'         | 'colon'
+        ['X-TEST': 'Present'] | 'Present'   | 'present'
     }
 }
