@@ -287,14 +287,9 @@ class ApiValidatorTest extends ReposeValveTest {
         then:
         handling.request.getHeaders().findAll("user-agent").size() == 1
         handling.request.headers['user-agent'] == userAgentValue
-        handling.request.getHeaders().findAll(xppuser).size() == xppuservalue.split(',').size()
-        handling.request.getHeaders().findAll(accept).size() == acceptvalue.split(',').size()
-        handling.request.headers.contains(xppuser)
-        handling.request.headers.findAll(xppuser) == xppuservalue.split(',')
-        handling.request.headers.contains(accept)
-        handling.request.headers.findAll(accept) == acceptvalue.split(',')
-        handling.request.headers.contains(roles)
-        handling.request.headers.findAll(roles) == rolevalue.split(',')
+        handling.request.headers[xppuser] == xppuservalue
+        handling.request.headers[accept] == acceptvalue
+        handling.request.headers[roles] == rolevalue
 
         where:
         xppuser     | xppuservalue          | accept   | acceptvalue                        | roles     | rolevalue
