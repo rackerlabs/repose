@@ -113,7 +113,8 @@ class ApiValidatorSaxonEETest extends ReposeValveTest {
 
         then: "should return not found"
         messageChain.receivedResponse.code as Integer == SC_NOT_FOUND
-        messageChain.receivedResponse.body.contains("XML Not Authorized... Syntax highlighting is magical.")
+        // @TODO: Bring this back in when the RMS replacement is in use.
+        //messageChain.receivedResponse.body.contains("XML Not Authorized... Syntax highlighting is magical.")
 
         when: "When using invalid method with x-roles"
         messageChain = deproxy.makeRequest(url: reposeEndpoint + baseGroupPath +
@@ -121,7 +122,8 @@ class ApiValidatorSaxonEETest extends ReposeValveTest {
 
         then: "should return not found"
         messageChain.receivedResponse.code as Integer == SC_METHOD_NOT_ALLOWED
-        messageChain.receivedResponse.body.contains("XML Not Authorized... Syntax highlighting is magical.")
+        // @TODO: Bring this back in when the RMS replacement is in use.
+        //messageChain.receivedResponse.body.contains("XML Not Authorized... Syntax highlighting is magical.")
 
         when: "When using valid media type with x-roles"
         messageChain = deproxy.makeRequest(
@@ -178,6 +180,9 @@ class ApiValidatorSaxonEETest extends ReposeValveTest {
 
         then: "should return resource"
         messageChain.receivedResponse.code as Integer == SC_BAD_REQUEST
-        messageChain.receivedResponse.body.contains("Expecting an HTTP header x-required-header")
+        // @TODO: Bring this back in when the RMS replacement is in use.
+        //messageChain.receivedResponse.body.contains("Expecting an HTTP header x-required-header")
+        // Until then, the info is in the Message.
+        messageChain.receivedResponse.message.contains("Expecting an HTTP header x-required-header")
     }
 }
