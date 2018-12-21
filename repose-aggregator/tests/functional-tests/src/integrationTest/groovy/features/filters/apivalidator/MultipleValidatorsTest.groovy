@@ -23,6 +23,9 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
 
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
+import static javax.servlet.http.HttpServletResponse.SC_OK
+
 
 class MultipleValidatorsTest extends ReposeValveTest {
 
@@ -31,8 +34,8 @@ class MultipleValidatorsTest extends ReposeValveTest {
     def static badParamBadBody = "<a blah=\"something\"><testing>test</testing>Stuff</a>"
     def static contentTypeHeader = ["content-type": "application/xml"]
     def static goodFirstBadSecondElementBody = "<test:element " +
-            "xmlns:test=\"http://docs.openrepose.org/repose/common/api/v1.0\" blah=\"boblaw\">" +
-            "</test:element>"
+        "xmlns:test=\"http://docs.openrepose.org/repose/common/api/v1.0\" blah=\"boblaw\">" +
+        "</test:element>"
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -53,53 +56,62 @@ class MultipleValidatorsTest extends ReposeValveTest {
             repose.stop(throwExceptionOnKill: false)
     }
 
-    @Unroll("Roles of #headers with request body of #requestBody should pass through second validator")
-    def whenRequestFailsOnFirstValidatorButPassesSecond() {
-
+    @Unroll
+    def "Roles of #headers with request body of #requestBody should pass through second validator"() {
         when:
-        def messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "POST",
-                requestBody: requestBody, headers: headers + contentTypeHeader)
-        def sentRequest = messageChain.getHandlings()[0]
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint + "/resource",
+            method: "POST",
+            requestBody: requestBody,
+            headers: headers + contentTypeHeader
+        )
+        def sentRequest = messageChain.handlings[0]
 
         then: "Request should return a 200"
-        messageChain.getReceivedResponse().code == "200"
+        messageChain.receivedResponse.code as Integer == SC_OK
 
         and: "Origin service should receive request"
-        sentRequest.getRequest().body.toString().contains(sentBody)
+        sentRequest.request.body.contains(sentBody)
+
         where:
         requestBody    | headers                          | sentBody
         badParamBody   | ["x-roles": "check-param, pass"] | "blah=\"something\">"
         badElementBody | ["x-roles": "check-xsd, pass"]   | """<a>"""
         badElementBody | ["x-roles": "check-all,pass"]    | """<a>"""
-
     }
 
     def whenRequestPassesOnFirstValidatorButFailsSecond() {
         when:
-        def messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "POST",
-                requestBody: goodFirstBadSecondElementBody,
-                headers: ["x-roles": "check-all, check-param"] + contentTypeHeader)
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint + "/resource",
+            method: "POST",
+            requestBody: goodFirstBadSecondElementBody,
+            headers: ["x-roles": "check-all, check-param"] + contentTypeHeader
+        )
 
         then: "Request should be approved (will never reach 2nd validator)"
-        messageChain.getReceivedResponse().code == "200"
-        def sentRequest = messageChain.getHandlings()[0]
+        messageChain.receivedResponse.code as Integer == SC_OK
+        def sentRequest = messageChain.handlings[0]
 
         and: "Origin service should receive request"
-        sentRequest.getRequest().body.toString().
-                contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                        "<test:element xmlns:test=\"http://docs.openrepose.org/repose/common/api/v1.0\" blah=\"boblaw\"/>")
+        sentRequest.request.body.
+            contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                "<test:element xmlns:test=\"http://docs.openrepose.org/repose/common/api/v1.0\" blah=\"boblaw\"/>")
     }
 
-    @Unroll("Roles of #headers with request body of #requestBody should cause error #errorMessage")
-    def whenRequestFailsBothValidators() {
-
+    @Unroll
+    def "Roles of #headers with request body of #requestBody should cause error #errorMessage"() {
         when:
-        def messageChain = deproxy.makeRequest(url: reposeEndpoint + "/resource", method: "POST",
-                requestBody: requestBody, headers: headers + contentTypeHeader)
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint + "/resource",
+            method: "POST",
+            requestBody: requestBody,
+            headers: headers + contentTypeHeader
+        )
 
         then: "Request should be rejected"
-        messageChain.getReceivedResponse().code == "400"
-        messageChain.getHandlings().size() == 0
+        messageChain.receivedResponse.code as Integer == SC_BAD_REQUEST
+        messageChain.handlings.size() == 0
 
         and: "Message should return with reason"
         messageChain.getReceivedResponse().body.toString().contains(errorMessage)
