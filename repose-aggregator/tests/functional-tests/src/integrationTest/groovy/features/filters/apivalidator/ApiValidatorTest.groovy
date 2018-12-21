@@ -25,6 +25,8 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
+import static javax.servlet.http.HttpServletResponse.*
+
 /*
  * Api validator tests ported over from and JMeter
  */
@@ -35,10 +37,10 @@ class ApiValidatorTest extends ReposeValveTest {
     private final String baseDefaultPath = "/wadl/default"
 
     private final Map<String, String> defaultHeaders = [
-            "Accept"         : "application/xml",
-            "Host"           : "localhost",
-            "Accept-Encoding": "identity",
-            "User-Agent"     : "gdeproxy"
+        "Accept"         : "application/xml",
+        "Host"           : "localhost",
+        "Accept-Encoding": "identity",
+        "User-Agent"     : "gdeproxy"
     ]
 
     def setupSpec() {
@@ -52,32 +54,31 @@ class ApiValidatorTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    @Unroll("Happy path: when no role passed, should get default wadl - #request")
-    def "Happy path: when no role passed, should get default wadl"() {
+    @Unroll
+    def "Happy path: when no role passed, should get default wadl - #request"() {
         setup: "declare messageChain to be of type MessageChain"
         MessageChain messageChain
-        def customHandler = { return new Response(200, "OK", [], reqBody) }
+        def customHandler = { return new Response(SC_OK, "OK", [], reqBody) }
 
-        when:
-        "When Requesting " + method + " " + request
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
-                request, method: method, headers: defaultHeaders,
-                requestBody: reqBody, defaultHandler: customHandler,
-                addDefaultHeaders: false
+        when: "When Requesting method request"
+        messageChain = deproxy.makeRequest(
+            url: "$reposeEndpoint$baseDefaultPath$request",
+            method: method,
+            headers: defaultHeaders,
+            requestBody: reqBody,
+            defaultHandler: customHandler,
+            addDefaultHeaders: false
         )
 
-        then:
-        "result should be " + responseCode
-        messageChain.receivedResponse.code.equals(responseCode)
-
-//        messageChain.receivedResponse.body.contains("XML Not Authorized... Syntax highlighting is magical.")
+        then: "result should be responseCode"
+        messageChain.receivedResponse.code as Integer == responseCode
 
         where:
-        responseCode | request                                               | method | reqBody
-        "200"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"  | "GET"  | ""
-        "404"        | "/resource1x/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" | "GET"  | ""
-        "405"        | "/resource1/id"                                       | "POST" | ""
-        "415"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"  | "PUT"  | "some data"
+        responseCode              | request                                               | method | reqBody
+        SC_OK                     | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"  | "GET"  | ""
+        SC_NOT_FOUND              | "/resource1x/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" | "GET"  | ""
+        SC_METHOD_NOT_ALLOWED     | "/resource1/id"                                       | "POST" | ""
+        SC_UNSUPPORTED_MEDIA_TYPE | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"  | "PUT"  | "some data"
 
     }
 
@@ -87,35 +88,47 @@ class ApiValidatorTest extends ReposeValveTest {
         Map<String, String> headers = ["X-Roles": "group1", "Content-Type": "application/xml"]
 
         when: "When Requesting resource with x-roles"
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + baseGroupPath +
-                "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", method: "GET", headers: defaultHeaders + headers)
+        messageChain = deproxy.makeRequest(
+            url: "$reposeEndpoint$baseGroupPath/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            method: "GET",
+            headers: defaultHeaders + headers
+        )
 
         then: "should return resource"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
 
         when: "When Requesting invalid resource with x-roles"
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + baseGroupPath +
-                "/resource1x/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", method: "GET", headers: defaultHeaders + headers)
+        messageChain = deproxy.makeRequest(
+            url: "$reposeEndpoint$baseGroupPath/resource1x/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            method: "GET",
+            headers: defaultHeaders + headers
+        )
 
         then: "should return not found"
-        messageChain.receivedResponse.code.equals("404")
+        messageChain.receivedResponse.code as Integer == SC_NOT_FOUND
         messageChain.receivedResponse.body.contains("XML Not Authorized... Syntax highlighting is magical.")
 
         when: "When using invalid method with x-roles"
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + baseGroupPath +
-                "/resource1/id", method: "POST", headers: defaultHeaders + headers)
+        messageChain = deproxy.makeRequest(
+            url: "$reposeEndpoint$baseGroupPath/resource1/id",
+            method: "POST",
+            headers: defaultHeaders + headers
+        )
 
         then: "should return not found"
-        messageChain.receivedResponse.code.equals("405")
+        messageChain.receivedResponse.code as Integer == SC_METHOD_NOT_ALLOWED
         messageChain.receivedResponse.body.contains("XML Not Authorized... Syntax highlighting is magical.")
 
         when: "When using valid media type with x-roles"
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + baseGroupPath +
-                "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", method: "POST", headers: defaultHeaders + headers,
-                requestBody: "<c xmlns='http://test.openrespose/test/v1.1'><test>some data</test></c>")
+        messageChain = deproxy.makeRequest(
+            url: "$reposeEndpoint$baseGroupPath/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            method: "POST",
+            headers: defaultHeaders + headers,
+            requestBody: "<c xmlns='http://test.openrespose/test/v1.1'><test>some data</test></c>"
+        )
 
         then: "should return OK"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
         // Origin service handler does not return a body
         // messageChain.receivedResponse.body.contains("some data")
     }
@@ -126,22 +139,28 @@ class ApiValidatorTest extends ReposeValveTest {
         Map<String, String> headers = ["X-Roles": "default", "Content-Type": "application/xml"]
 
         when: "When Requesting with valid content"
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
-                "/resource2/unvalidated/echobody", method: "PUT", headers: defaultHeaders + headers,
-                requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></nodeList></c>")
+        messageChain = deproxy.makeRequest(
+            url: "$reposeEndpoint$baseDefaultPath/resource2/unvalidated/echobody",
+            method: "PUT",
+            headers: defaultHeaders + headers,
+            requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></nodeList></c>"
+        )
 
         then: "should return resource"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
         // Origin service handler does not return a body
         // messageChain.receivedResponse.body.contains("<node hostname=\"localhost\" http-port=\"8088\" id=\"proxy-n01\"/>")
 
         when: "When Requesting with invalid content and Ignore XSD enabled"
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
-                "/resource2/unvalidated/echobody", method: "PUT", headers: defaultHeaders + headers,
-                requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node2 id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></nodeList></c>")
+        messageChain = deproxy.makeRequest(
+            url: "$reposeEndpoint$baseDefaultPath/resource2/unvalidated/echobody",
+            method: "PUT",
+            headers: defaultHeaders + headers,
+            requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node2 id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></nodeList></c>"
+        )
 
         then: "should return resource"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
         // Origin service handler does not return a body
         // messageChain.receivedResponse.body.contains("<node2 hostname=\"localhost\" http-port=\"8088\" id=\"proxy-n01\"/>")
     }
@@ -152,31 +171,40 @@ class ApiValidatorTest extends ReposeValveTest {
         Map<String, String> headers = ["X-Roles": "default2", "Content-Type": "application/xml"]
 
         when: "When Requesting with valid content"
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
-                "/resource2/unvalidated/echobody", method: "PUT", headers: defaultHeaders + headers,
-                requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></nodeList></c>")
+        messageChain = deproxy.makeRequest(
+            url: "$reposeEndpoint$baseDefaultPath/resource2/unvalidated/echobody",
+            method: "PUT",
+            headers: defaultHeaders + headers,
+            requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></nodeList></c>"
+        )
 
         then: "should return resource"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
         // Origin service handler does not return a body
         // messageChain.receivedResponse.body.contains("<node hostname=\"localhost\" http-port=\"8088\" id=\"proxy-n01\"/>")
 
         when: "When Requesting with invalid content"
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
-                "/resource2/unvalidated/echobody", method: "PUT", headers: defaultHeaders + headers,
-                requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node2 id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></nodeList></c>")
+        messageChain = deproxy.makeRequest(
+            url: "$reposeEndpoint$baseDefaultPath/resource2/unvalidated/echobody",
+            method: "PUT",
+            headers: defaultHeaders + headers,
+            requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node2 id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></nodeList></c>"
+        )
 
         then: "should return resource"
-        messageChain.receivedResponse.code.equals("400")
+        messageChain.receivedResponse.code as Integer == SC_BAD_REQUEST
         messageChain.receivedResponse.body.contains("One of '{\"http://test.openrespose/test/v1.1\":node}' is expected")
 
         when: "When Requesting with non well-formed content"
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
-                "/resource2/unvalidated/echobody", method: "PUT", headers: defaultHeaders + headers,
-                requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></c>")
+        messageChain = deproxy.makeRequest(
+            url: "$reposeEndpoint$baseDefaultPath/resource2/unvalidated/echobody",
+            method: "PUT",
+            headers: defaultHeaders + headers,
+            requestBody: "<c xmlns=\"http://test.openrespose/test/v1.1\"><nodeList><node id=\"proxy-n01\" hostname=\"localhost\" http-port=\"8088\"  /></c>"
+        )
 
         then: "should return resource"
-        messageChain.receivedResponse.code.equals("400")
+        messageChain.receivedResponse.code as Integer == SC_BAD_REQUEST
         messageChain.receivedResponse.body.contains("The element type \"nodeList\" must be terminated by the matching end-tag")
     }
 
@@ -186,11 +214,14 @@ class ApiValidatorTest extends ReposeValveTest {
         Map<String, String> headers = ["x-required-header": "somevalue"]
 
         when: "When Requesting default resource with no roles and required header"
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
-                "/resource1/id/reqheader", method: "GET", headers: defaultHeaders + headers)
+        messageChain = deproxy.makeRequest(
+            url: "$reposeEndpoint$baseDefaultPath/resource1/id/reqheader",
+            method: "GET",
+            headers: defaultHeaders + headers
+        )
 
         then: "should return resource"
-        messageChain.receivedResponse.code.equals("200")
+        messageChain.receivedResponse.code as Integer == SC_OK
     }
 
     def "Unhappy path: When Passing to resource without required header"() {
@@ -198,25 +229,34 @@ class ApiValidatorTest extends ReposeValveTest {
         MessageChain messageChain
 
         when: "When Requesting default resource with no roles without required header"
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + baseDefaultPath +
-                "/resource1/id/reqheader", method: "GET", headers: defaultHeaders)
+        messageChain = deproxy.makeRequest(
+            url: "$reposeEndpoint$baseDefaultPath/resource1/id/reqheader",
+            method: "GET",
+            headers: defaultHeaders
+        )
 
         then: "should return resource"
-        messageChain.receivedResponse.code.equals("400")
+        messageChain.receivedResponse.code as Integer == SC_BAD_REQUEST
         messageChain.receivedResponse.body.contains("Expecting an HTTP header x-required-header")
     }
 
     def "Should not split response headers according to rfc"() {
         given: "Origin service returns headers "
-        def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]
+        def respHeaders = [
+            "location": "http://somehost.com/blah?a=b,c,d",
+            "via"     : "application/xml;q=0.3, application/json;q=1"
+        ]
         def xmlResp = { request -> return new Response(201, "Created", respHeaders, "") }
         Map<String, String> headers = ["X-Roles": "group1", "Content-Type": "application/xml"]
 
 
         when: "client passes a request through repose with headers"
-        def MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + baseGroupPath +
-                "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", method: "GET", headers: headers,
-                defaultHandler: xmlResp)
+        def messageChain = deproxy.makeRequest(
+            url: "$reposeEndpoint$baseGroupPath/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            method: "GET",
+            headers: headers,
+            defaultHandler: xmlResp
+        )
 
         then:
         messageChain.receivedResponse.headers.findAll("location").size() == 1
@@ -224,22 +264,24 @@ class ApiValidatorTest extends ReposeValveTest {
         messageChain.receivedResponse.headers.findAll("via").size() == 1
     }
 
-    @Unroll("With headers: #xppuser-#xppuservalue, #accept-#acceptvalue, #roles-#rolevalue")
-    def "Should not toLowerCase headers"() {
+    @Unroll
+    def "Should not toLowerCase headers given headers: #xppuser-#xppuservalue, #accept-#acceptvalue, #roles-#rolevalue"() {
         given:
         def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
-                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
-        def reqHeaders =
-                [
-                        "user-agent": userAgentValue,
-                ]
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
+        def reqHeaders = [
+            "user-agent": userAgentValue,
+        ]
         reqHeaders[xppuser.toString()] = xppuservalue.toString()
         reqHeaders[accept.toString()] = acceptvalue.toString()
         reqHeaders[roles.toString()] = rolevalue.toString()
 
         when: "When Requesting resource with x-roles"
-        def messageChain = deproxy.makeRequest(url: reposeEndpoint + baseGroupPath +
-                "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", method: "GET", headers: reqHeaders)
+        def messageChain = deproxy.makeRequest(
+            url: "$reposeEndpoint$baseGroupPath/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            method: "GET",
+            headers: reqHeaders
+        )
         def handling = messageChain.getHandlings()[0]
 
         then:
@@ -262,12 +304,11 @@ class ApiValidatorTest extends ReposeValveTest {
         "X-PP-USER" | "USERTEST"            | "accEPT" | "application/XML,text/plain"       | "X-ROLES" | "ROLE1,group1,ROLE30"
     }
 
-    @Unroll("Requests - headers: #headerName with \"#headerValue\" keep its case")
-    def "Requests - headers should keep its case in requests"() {
-
+    @Unroll
+    def "Requests - header #headerName with value \"#headerValue\" should keep its case"() {
         when: "make a request with the given header and value"
         def headers = [
-                'Content-Length': '0'
+            'Content-Length': '0'
         ]
         headers[headerName.toString()] = headerValue.toString()
 
@@ -291,16 +332,18 @@ class ApiValidatorTest extends ReposeValveTest {
         //"Content-Encoding" | "IDENTITY"
     }
 
-    @Unroll("Responses - headers: #headerName with \"#headerValue\" keep its case")
-    def "Responses - header keep its case in responses"() {
-
+    @Unroll
+    def "Responses - header #headerName with value \"#headerValue\" should keep its case"() {
         when: "make a request with the given header and value"
         def headers = [
-                'Content-Length': '0'
+            'Content-Length': '0'
         ]
         headers[headerName.toString()] = headerValue.toString()
 
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: { new Response(200, null, headers) })
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpoint,
+            defaultHandler: { new Response(SC_OK, null, headers) }
+        )
 
         then: "the response should keep headerName and headerValue case"
         mc.handlings.size() == 1
@@ -319,13 +362,13 @@ class ApiValidatorTest extends ReposeValveTest {
         //"Content-Type" | "application/XML"
     }
 
-    @Unroll("Request should end up with X-TEST header value of \"#headerValue\" when #present")
-    def "Should add the default header value if not present"() {
+    @Unroll
+    def "Request should end up with X-TEST header value of \"#headerValue\" when #present"() {
         when: "When Requesting resource with x-roles"
         def messageChain = deproxy.makeRequest(
-                url: reposeEndpoint + baseDefaultPath + "/resource1/id/defheader",
-                method: "GET",
-                headers: reqHeaders
+            url: "$reposeEndpoint$baseDefaultPath/resource1/id/defheader",
+            method: "GET",
+            headers: reqHeaders
         )
 
         then:
