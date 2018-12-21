@@ -82,14 +82,8 @@ class ApiValidatorSaxonFailTest extends ReposeValveTest {
 
         then: "result should be 403"
         messageChain.receivedResponse.code as Integer == SC_FORBIDDEN
-        messageChain.receivedResponse.headers["Content-Type"] == "application/xml"
-        println messageChain.receivedResponse.body
-        messageChain.receivedResponse.body ==
-            """<response
-              |    xmlns=http://docs.openstack.org/common/api/v1.1">
-              |  <message>XML Not Authorized... Syntax highlighting is magical.</message>
-              |</response>""".stripMargin()
-
+        // @TODO: Bring this back in when the RMS replacement is in use.
+        //messageChain.receivedResponse.body.contains("XML Not Authorized... Syntax highlighting is magical.")
     }
 
     def "GET on /path/to/test (JSON) should fail without header X-TEST"() {
@@ -125,10 +119,7 @@ class ApiValidatorSaxonFailTest extends ReposeValveTest {
 
         then: "result should be 403"
         messageChain.receivedResponse.code as Integer == SC_FORBIDDEN
-        messageChain.receivedResponse.headers["Content-Type"] == "application/json"
-        messageChain.receivedResponse.body ==
-            """{
-              |            "message": "JSON Not Authorized... The brackets are too confusing."
-              |            }""".stripMargin()
+        // @TODO: Bring this back in when the RMS replacement is in use.
+        //messageChain.receivedResponse.body.contains("JSON Not Authorized... The brackets are too confusing.")
     }
 }
