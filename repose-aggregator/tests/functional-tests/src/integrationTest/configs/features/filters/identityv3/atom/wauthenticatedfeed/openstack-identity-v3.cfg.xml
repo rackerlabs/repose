@@ -7,6 +7,7 @@
                                 uri="http://localhost:${identityPort}"
                                 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"/>
     <cache>
+        <timeouts group="6000" token="6000"/>
         <atom-feed id="authenticating-feed"/>
     </cache>
 </openstack-identity-v3>
