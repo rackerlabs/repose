@@ -21,8 +21,9 @@ package features.filters.apivalidator.jsonschemacheck
 
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
+
+import static javax.servlet.http.HttpServletResponse.*
 
 /**
  * Created by jennyvo on 10/2/15.
@@ -41,15 +42,13 @@ class JsonSchemaCheckTest extends ReposeValveTest {
     }
 
     def "PUT to /path/to/test Json checking should get 200"() {
-        setup: "declare messageChain to be of type MessageChain"
-        MessageChain messageChain
-
-        def Map<String, String> headers = [
-                "Accept"      : "application/json",
-                "Content-Type": "application/json",
-                "Host"        : "localhost",
-                "User-Agent"  : "gdeproxy",
-                "x-roles"     : "group1"
+        setup: "declare headers and body"
+        def headers = [
+            "Accept"      : "application/json",
+            "Content-Type": "application/json",
+            "Host"        : "localhost",
+            "User-Agent"  : "gdeproxy",
+            "x-roles"     : "group1"
         ]
 
         def reqBody = """{
@@ -59,28 +58,25 @@ class JsonSchemaCheckTest extends ReposeValveTest {
             }"""
 
         when:
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/path/to/test",
-                method: 'PUT', headers: headers,
-                requestBody: reqBody
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint + "/path/to/test",
+            method: 'PUT', headers: headers,
+            requestBody: reqBody
         )
 
-        then:
-        "result should be " + 200
-        messageChain.receivedResponse.code.equals("200")
+        then: "result should be 200"
+        messageChain.receivedResponse.code as Integer == SC_OK
     }
 
     def "PUT to /path/to/something invalid path Json checking should get 404"() {
         setup: "declare messageChain to be of type MessageChain"
-        MessageChain messageChain
-
-        def Map<String, String> headers = [
-                "Accept"      : "application/json",
-                "Content-Type": "application/json",
-                "Host"        : "localhost",
-                "User-Agent"  : "gdeproxy",
-                "x-roles"     : "group1"
+        def headers = [
+            "Accept"      : "application/json",
+            "Content-Type": "application/json",
+            "Host"        : "localhost",
+            "User-Agent"  : "gdeproxy",
+            "x-roles"     : "group1"
         ]
-
         def reqBody = """{
             "firstName" : "Test",
             "lastName" : "Repose",
@@ -88,26 +84,24 @@ class JsonSchemaCheckTest extends ReposeValveTest {
             }"""
 
         when:
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/path/to/something",
-                method: 'PUT', headers: headers,
-                requestBody: reqBody
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint + "/path/to/something",
+            method: 'PUT', headers: headers,
+            requestBody: reqBody
         )
 
-        then:
-        "result should be " + 404
-        messageChain.receivedResponse.code.equals("404")
+        then: "result should be 404"
+        messageChain.receivedResponse.code as Integer == SC_NOT_FOUND
     }
 
     def "PUT to /path/to/test Json checking Invalid Json should get 400"() {
         setup: "declare messageChain to be of type MessageChain"
-        MessageChain messageChain
-
-        def Map<String, String> headers = [
-                "Accept"      : "application/json",
-                "Content-Type": "application/json",
-                "Host"        : "localhost",
-                "User-Agent"  : "gdeproxy",
-                "x-roles"     : "group1"
+        def headers = [
+            "Accept"      : "application/json",
+            "Content-Type": "application/json",
+            "Host"        : "localhost",
+            "User-Agent"  : "gdeproxy",
+            "x-roles"     : "group1"
         ]
 
         def reqBody = """{
@@ -117,27 +111,25 @@ class JsonSchemaCheckTest extends ReposeValveTest {
             }"""
 
         when:
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/path/to/test",
-                method: 'PUT', headers: headers,
-                requestBody: reqBody
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint + "/path/to/test",
+            method: 'PUT', headers: headers,
+            requestBody: reqBody
         )
 
-        then:
-        "result should be " + 400
-        messageChain.receivedResponse.code.equals("400")
+        then: "result should be 400"
+        messageChain.receivedResponse.code as Integer == SC_BAD_REQUEST
         messageChain.receivedResponse.body.toString().contains('Message Bad Content: object has missing required properties (["firstName"]')
     }
 
     def "POST to /path/to/post by pass Json checking should get 200"() {
         setup: "declare messageChain to be of type MessageChain"
-        MessageChain messageChain
-
-        def Map<String, String> headers = [
-                "Accept"      : "application/json",
-                "Content-Type": "application/json",
-                "Host"        : "localhost",
-                "User-Agent"  : "gdeproxy",
-                "x-roles"     : "group1"
+        def headers = [
+            "Accept"      : "application/json",
+            "Content-Type": "application/json",
+            "Host"        : "localhost",
+            "User-Agent"  : "gdeproxy",
+            "x-roles"     : "group1"
         ]
 
         def reqBody = """{
@@ -146,27 +138,25 @@ class JsonSchemaCheckTest extends ReposeValveTest {
             }"""
 
         when:
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/path/to/post",
-                method: 'POST', headers: headers,
-                requestBody: reqBody
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint + "/path/to/post",
+            method: 'POST', headers: headers,
+            requestBody: reqBody
         )
 
-        then:
-        "result should be " + 200
-        messageChain.receivedResponse.code.equals("200")
+        then: "result should be 200"
+        messageChain.receivedResponse.code as Integer == SC_OK
     }
 
-    @Unroll("#method to #path not allow resp 405")
-    def "Method not allow to resources resp 405"() {
+    @Unroll
+    def "#method to #path not allow resp 405"() {
         setup: "declare messageChain to be of type MessageChain"
-        MessageChain messageChain
-
-        def Map<String, String> headers = [
-                "Accept"      : "application/json",
-                "Content-Type": "application/json",
-                "Host"        : "localhost",
-                "User-Agent"  : "gdeproxy",
-                "x-roles"     : "group1"
+        def headers = [
+            "Accept"      : "application/json",
+            "Content-Type": "application/json",
+            "Host"        : "localhost",
+            "User-Agent"  : "gdeproxy",
+            "x-roles"     : "group1"
         ]
 
         def reqBody = """{
@@ -176,14 +166,14 @@ class JsonSchemaCheckTest extends ReposeValveTest {
             }"""
 
         when:
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + path,
-                method: method, headers: headers,
-                requestBody: reqBody
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint + path,
+            method: method, headers: headers,
+            requestBody: reqBody
         )
 
-        then:
-        "result should be " + 405
-        messageChain.receivedResponse.code.equals("405")
+        then: "result should be 405"
+        messageChain.receivedResponse.code as Integer == SC_METHOD_NOT_ALLOWED
 
         where:
         method | path
