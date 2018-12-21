@@ -114,11 +114,14 @@ class MultipleValidatorsTest extends ReposeValveTest {
         messageChain.handlings.size() == 0
 
         and: "Message should return with reason"
-        messageChain.getReceivedResponse().body.toString().contains(errorMessage)
+        // @TODO: Bring this back in when the RMS replacement is in use.
+        //messageChain.receivedResponse.body.contains(errorMessage)
+        // Until then, the info is in the Message.
+        messageChain.receivedResponse.message.contains(errorMessage)
 
         where:
         requestBody     | headers                               | errorMessage
-        badParamBody    | ["x-roles": "check-xsd,check-param"]  | "<message>Bad Content: blah should not be here</message>"
-        badParamBadBody | ["x-roles": "check-param, check-all"] | "<message>Bad Content: Expecting the root element to be: test:element</message>"
+        badParamBody    | ["x-roles": "check-xsd,check-param"]  | "Bad Content: blah should not be here"
+        badParamBadBody | ["x-roles": "check-param, check-all"] | "Bad Content: Expecting the root element to be: test:element"
     }
 }
