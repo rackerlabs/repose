@@ -230,80 +230,6 @@ class ResponseWrapperTest extends ReposeValveTest {
         messageChain.receivedResponse.message == REASON_MESSAGE
     }
 
-    @Ignore('RMS is not currently supported')
-    @Unroll
-    def "the response body is set to '#expectedBody' by RMS when using the response wrapper's sendError(Int, String) method with value #responseCode"() {
-        given: "the first filter will call sendError on the response wrapper"
-        def firstFilterTestCase = TC_SEND_ERROR_WITH_MESSAGE
-
-        and: "the second filter will be set to throw an exception because Repose should never get to it"
-        def secondFilterTestCase = TC_THROW_EXCEPTION
-
-        and: "the headers are set to tell the Scripting filters what to do"
-        def headers = [
-                (FIRST_FILTER_TEST_HEADER_NAME) : firstFilterTestCase,
-                (SECOND_FILTER_TEST_HEADER_NAME): secondFilterTestCase,
-                (RESPONSE_CODE_HEADER_NAME)     : responseCode]
-
-        when: "any request is made"
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: headers)
-
-        then: "the origin service does not receive the request"
-        messageChain.handlings.isEmpty()
-
-        and: "the response code is correctly set"
-        messageChain.receivedResponse.code as Integer == responseCode
-
-        and: "the response received by the user should contain the message in the body"
-        messageChain.receivedResponse.body as String == expectedBody
-
-        and: "if we were expecting a body, the content-type should be set"
-        !expectedBody || messageChain.receivedResponse.headers.contains(HttpHeaders.CONTENT_TYPE)
-        !expectedBody || messageChain.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_TYPE) == MediaType.TEXT_PLAIN
-
-        where:
-        responseCode | expectedBody
-        418          | ""
-        413          | REASON_MESSAGE
-        412          | "Message: $REASON_MESSAGE"
-        411          | "Static Message"
-    }
-
-    @Ignore('RMS is not currently supported')
-    @Unroll
-    def "the response body is set to '#expectedBody' by RMS when using the response wrapper's sendError(Int) method with value #responseCode"() {
-        given: "the first filter will call sendError on the response wrapper using just a response code but no reason message"
-        def firstFilterTestCase = TC_SEND_ERROR_CODE_ONLY
-
-        and: "the second filter will be set to throw an exception because Repose should never get to it"
-        def secondFilterTestCase = TC_THROW_EXCEPTION
-
-        and: "the headers are set to tell the Scripting filters what to do"
-        def headers = [
-                (FIRST_FILTER_TEST_HEADER_NAME) : firstFilterTestCase,
-                (SECOND_FILTER_TEST_HEADER_NAME): secondFilterTestCase,
-                (RESPONSE_CODE_HEADER_NAME)     : responseCode]
-
-        when: "any request is made"
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: headers)
-
-        then: "the origin service does not receive the request"
-        messageChain.handlings.isEmpty()
-
-        and: "the response code is correctly set"
-        messageChain.receivedResponse.code as Integer == responseCode
-
-        and: "the response received by the user should contain the expected body"
-        messageChain.receivedResponse.body as String == expectedBody
-
-        where:
-        responseCode | expectedBody
-        418          | ""
-        413          | ""
-        412          | "Message:"
-        411          | "Static Message"
-    }
-
     def "the response body is empty when send error is called after the body is set and response messaging does not rewrite"() {
         given: "a response code not handled by response messages"
         def responseCode = 418
@@ -364,10 +290,6 @@ class ResponseWrapperTest extends ReposeValveTest {
 
         and: "the response received by the user should contain the message in the status line with the correct content type"
         messageChain.receivedResponse.message == REASON_MESSAGE
-        // todo: uncomment these checks when RMS is supported
-        // messageChain.receivedResponse.body as String == REASON_MESSAGE
-        // messageChain.receivedResponse.headers.contains(HttpHeaders.CONTENT_TYPE)
-        // messageChain.receivedResponse.headers.getFirstValue(HttpHeaders.CONTENT_TYPE) == MediaType.TEXT_PLAIN
 
         where:
         [wrapperHeaderMode, wrapperBodyMode] <<
