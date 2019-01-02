@@ -35,11 +35,8 @@ class ConnectionManagementTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
 
         def params = properties.getDefaultTemplateParams()
-        //todo: remove this once this test is in master. this problem has been addressed in the future
-        repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/powerfilter/requestsize", params)
-        repose.configurationProvider.applyConfigs("features/core/connectionmanagement", params)
         repose.start()
     }
 
@@ -62,36 +59,6 @@ class ConnectionManagementTest extends ReposeValveTest {
         "PUT"     | _
         "DELETE"  | _
         "PATCH"   | _
-    }
-
-    def "Should return response body configured in response-messaging.cfg.xml file"() {
-
-        given:
-        def handler401 = { request -> return new Response(401, "Unauthorized", [], "Original Message") }
-
-        when: "Request goes through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: handler401)
-
-        then: "Repose should change response to one configured in rms"
-        mc.handlings.size() == 1
-        mc.handlings[0].response.body == "Original Message"
-        mc.receivedResponse.body.equals("You are not authorized... Did you drop your ID?")
-
-    }
-
-    def "Should not change response body when nothing in rms config matches response code"() {
-
-        given:
-        def handler301 = { request -> return new Response(301, "Moved Permanently", [], "Original Message") }
-
-        when: "Request goes through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: handler301)
-
-        then: "Repose should not change response"
-        mc.handlings.size() == 1
-        mc.handlings[0].response.body == "Original Message"
-        mc.receivedResponse.body.equals("Original Message")
-
     }
 
     def "Should pass content-encoding header"() {
