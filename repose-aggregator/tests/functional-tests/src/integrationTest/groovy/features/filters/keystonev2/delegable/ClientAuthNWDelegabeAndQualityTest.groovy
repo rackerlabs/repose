@@ -65,21 +65,12 @@ class ClientAuthNWDelegabeAndQualityTest extends ReposeValveTest {
 
     @Unroll("tenant: #requestTenant, response: #responseTenant, and #delegatedMsg")
     def "when req without token, non tenanted and delegable mode with quality"() {
-        given:
-        fakeIdentityV2Service.with {
-            client_token = ""
-            tokenExpiresAt = (new DateTime()).plusDays(1);
-            client_tenantid = responseTenant
-            client_userid = requestTenant
-            service_admin_role = serviceAdminRole
-        }
-
         when:
         "User passes a request through repose with tenant in service admin role = $serviceAdminRole, request tenant: $requestTenant, response tenant: $responseTenant"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/servers/$requestTenant",
                 method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
+                headers: ['content-type': 'application/json'])
 
         then: "Request body sent from repose to the origin service should contain"
         mc.receivedResponse.code == "200"
