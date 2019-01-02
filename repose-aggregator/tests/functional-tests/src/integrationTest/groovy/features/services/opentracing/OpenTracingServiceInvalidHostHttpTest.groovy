@@ -69,7 +69,6 @@ class OpenTracingServiceInvalidHostHttpTest extends ReposeValveTest {
         and: "Repose should return with a 200"
         messageChain.receivedResponse.code == "200"
 
-
         and: "OpenTracingService has logged that span was sent to tracer"
         //TODO: right now this is a no-op.  We aren't told that the trace is lost.  Not good.  However, in future
         // releases, we should have a story to add support for dropwizard
