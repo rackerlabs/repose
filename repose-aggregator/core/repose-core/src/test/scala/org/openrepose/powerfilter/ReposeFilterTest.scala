@@ -28,6 +28,7 @@ import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.apache.commons.lang3.StringUtils
+import org.apache.http.client.methods.HttpGet
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
@@ -132,7 +133,7 @@ class ReposeFilterTest extends FunSpec
       uriRedactionService,
       responseHeaderService
     )
-    request = new MockHttpServletRequest
+    request = new MockHttpServletRequest(HttpGet.METHOD_NAME, "/")
     response = new MockHttpServletResponse
     filterChain = mock[FilterChain]
     loggerContext = LogManager.getContext(false).asInstanceOf[LoggerContext]
@@ -213,6 +214,18 @@ class ReposeFilterTest extends FunSpec
       val messageList = listAppender.getEvents.asScala.map(_.getMessage.getFormattedMessage)
       messageList.filter(_.contains("Successfully processed request")) should have length 1
       response.getStatus shouldBe SC_OK
+    }
+
+    Set("CONNECT", "NONSTANDARD").foreach { method =>
+      it(s"should return a 400 if the request method is not supported: $method") {
+        request.setMethod(method)
+
+        filter.doFilter(request, response, filterChain)
+
+        val messageList = listAppender.getEvents.asScala.map(_.getMessage.getFormattedMessage)
+        messageList.filter(_.contains("Invalid HTTP method requested:")) should have length 1
+        response.getStatus shouldBe SC_BAD_REQUEST
+      }
     }
 
     it("should log and return Bad Request (400) on a malformed URI") {

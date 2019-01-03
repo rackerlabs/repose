@@ -32,6 +32,7 @@ import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.apache.commons.lang3.StringUtils
+import org.apache.http.client.methods._
 import org.openrepose.commons.utils.http.CommonHttpHeader.{REQUEST_ID, TRACE_GUID, VIA}
 import org.openrepose.commons.utils.http.CommonRequestAttributes.{QUERY_PARAMS, REQUEST_URL}
 import org.openrepose.commons.utils.http.PowerApiHeader.TRACE_REQUEST
@@ -79,7 +80,7 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
       logger.warn("Request cannot be serviced -- Repose is unhealthy")
       response.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Currently unable to serve requests")
     } else {
-      processRequest(request, response, chain)
+      processRequest(request.asInstanceOf[HttpServletRequest], response.asInstanceOf[HttpServletResponse], chain)
     }
   }
 
@@ -88,12 +89,12 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
     logger.info("{} -- Destroyed ReposeFilter", nodeId)
   }
 
-  private def processRequest(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
+  private def processRequest(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain): Unit = {
     reposeFilterLoader.getFilterContextList match {
       case Some(filterContextList) =>
         logger.trace("ReposeFilter processing request...")
         val startTime = System.currentTimeMillis
-        if (Option(request.asInstanceOf[HttpServletRequest].getHeader(TRACE_REQUEST)).isDefined) {
+        if (Option(request.getHeader(TRACE_REQUEST)).isDefined) {
           MDC.put(TRACE_REQUEST, "true")
         }
 
@@ -105,17 +106,17 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
             case _ => request.getInputStream
           }
 
-        val wrappedResponse = new HttpServletResponseWrapper(response.asInstanceOf[HttpServletResponse], MUTABLE, MUTABLE)
+        val wrappedResponse = new HttpServletResponseWrapper(response, MUTABLE, MUTABLE)
         val bufferedInputStream = new BufferedServletInputStream(requestBodyInputStream)
 
         // Since getParameterMap may read the body, we must reset the InputStream so that we aren't stripping
         // the body when form parameters are sent.
         bufferedInputStream.mark(Integer.MAX_VALUE)
-        val paramaterMap = new HttpServletRequestWrapper(request.asInstanceOf[HttpServletRequest], bufferedInputStream).getParameterMap
+        val paramaterMap = new HttpServletRequestWrapper(request, bufferedInputStream).getParameterMap
         bufferedInputStream.reset()
 
         // Wrapping the request to reset the inputStream/Reader flag
-        val wrappedRequest = new HttpServletRequestWrapper(request.asInstanceOf[HttpServletRequest], bufferedInputStream)
+        val wrappedRequest = new HttpServletRequestWrapper(request, bufferedInputStream)
 
         // Added so HERP has the Original Request URL and the Query Params available for logging.
         wrappedRequest.setAttribute(REQUEST_URL, wrappedRequest.getRequestURL().toString)
@@ -139,6 +140,12 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
         MDC.put(TracingKey.TRACING_KEY, traceGUID)
 
         try {
+          // Ensure that the method name is supported
+          // todo: HTTP request methods are case-sensitive, so this check should not upper case the request method
+          if (!SupportedHttpMethods.contains(request.getMethod.toUpperCase)) {
+            throw new InvalidMethodException(wrappedRequest.getMethod + " method not supported")
+          }
+
           // Ensure the request URI is a valid URI
           // This object is only being created to ensure its validity.
           // So it is safe to suppress warning squid:S1848
@@ -168,6 +175,9 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
           logger.trace("{} -- Successfully processed request", nodeId)
         } catch {
           // Handle Throwables that arose while processing
+          case ime: InvalidMethodException =>
+            logger.debug(s"$nodeId -- Invalid HTTP method requested: ${wrappedRequest.getMethod}", ime)
+            wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request", true)
           case use: URISyntaxException =>
             logger.debug(s"$nodeId -- Invalid URI requested: ${wrappedRequest.getRequestURI}", use)
             wrappedResponse.sendError(SC_BAD_REQUEST, "Error processing request", true)
@@ -202,13 +212,22 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
 
       case None =>
         logger.error("ReposeFilter has not yet initialized...")
-        response.asInstanceOf[HttpServletResponse].sendError(SC_INTERNAL_SERVER_ERROR, "ReposeFilter not initialized")
+        response.sendError(SC_INTERNAL_SERVER_ERROR, "ReposeFilter not initialized")
     }
   }
 }
 
 object ReposeFilter {
   private final val TraceIdLogger = LoggerFactory.getLogger(s"${classOf[ReposeFilter].getName}.trace-id-logging")
+  private final val SupportedHttpMethods = Set(
+    HttpGet.METHOD_NAME,
+    HttpPut.METHOD_NAME,
+    HttpPost.METHOD_NAME,
+    HttpDelete.METHOD_NAME,
+    HttpHead.METHOD_NAME,
+    HttpOptions.METHOD_NAME,
+    HttpPatch.METHOD_NAME,
+    HttpTrace.METHOD_NAME)
 
   def markResponseCodeHelper(metricRegistry: MetricRegistry, responseCode: Int, lengthInMillis: Long, logger: Logger): Unit = {
     if (100 <= responseCode && responseCode < 600) {
