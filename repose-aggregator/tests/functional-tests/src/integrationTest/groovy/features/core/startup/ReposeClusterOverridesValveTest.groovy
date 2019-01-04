@@ -91,8 +91,8 @@ class ReposeClusterOverridesValveTest extends ReposeValveTest {
         reposeLogSearch.cleanLog()
 
         repose.start(killOthersBeforeStarting: false, waitOnJmxAfterStarting: false)
-        reposeLogSearch.awaitByString("repose1:node1 -- Repose ready", 1, 60, TimeUnit.SECONDS)
-        reposeLogSearch.awaitByString("repose2:node2 -- Repose ready", 1, 60, TimeUnit.SECONDS)
+        reposeLogSearch.awaitByString("node1 -- Repose ready", 1, 60, TimeUnit.SECONDS)
+        reposeLogSearch.awaitByString("node2 -- Repose ready", 1, 60, TimeUnit.SECONDS)
     }
 
     @Unroll("When using client side keystore #keystore and truststore #truststore to access port #port should succeed.")

@@ -107,6 +107,9 @@ public class SystemModelInterrogator {
         // @TODO: There will be only one cluster after REP-7314
         for (Cluster reposeCluster : systemModel.getReposeCluster()) {
             localNode = getLocalNode(reposeCluster);
+            if (localNode.isPresent()) {
+                break;
+            }
         }
 
         return localNode;
