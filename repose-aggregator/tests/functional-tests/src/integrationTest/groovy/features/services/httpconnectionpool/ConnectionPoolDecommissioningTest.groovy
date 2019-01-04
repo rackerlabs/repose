@@ -44,7 +44,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/decommissioned/onepool", params)
-        repose.start([waitOnJmxAfterStarting: false])
+        repose.start()
 
         when: "Repose is up and the HTTPClientService has been configured"
         waitUntilReadyToServiceRequests()
