@@ -22,6 +22,7 @@ package org.openrepose.framework.test
 import org.apache.http.client.ClientProtocolException
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
+import org.apache.http.client.methods.RequestBuilder
 import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.impl.client.HttpClients
 
@@ -68,8 +69,8 @@ abstract class ReposeLauncher {
         waitForCondition(clock, "${timeoutInSeconds}s", "${intervalInSeconds}s") {
             try {
                 print(".")
-                HttpClient client = HttpClients.createDefault()
-                isResponseAcceptable(client.execute(new HttpGet(url)).statusLine.statusCode)
+                HttpClient client = HttpClients.custom().disableRedirectHandling().build()
+                isResponseAcceptable(client.execute(RequestBuilder.get(url).build()).statusLine.statusCode)
             } catch (IOException ignored) {
             } catch (ClientProtocolException ignored) {
             }
