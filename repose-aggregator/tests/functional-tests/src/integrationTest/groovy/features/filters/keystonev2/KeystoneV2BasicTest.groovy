@@ -280,21 +280,7 @@ class KeystoneV2BasicTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue("X-Domain-Id") == fakeIdentityV2Service.domain_id
     }
 
-    def "Verify X-Domain-Id request header is NOT sent when domainId is NOT in payload from Identity"() {
-        given: "keystone v2v2 without domain ID"
-        fakeIdentityV2Service.domain_id = ""
-
-        when: "the user makes a request to Repose"
-        MessageChain mc = deproxy.makeRequest(
-            url: reposeEndpointServersTest,
-            headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
-
-        then: "the request should be enriched with the X-Domain-Id header"
-        mc.handlings.size() == 1
-        mc.handlings[0].request.headers.getCountByName("X-Domain-Id") == 0
-    }
-
-    def "Verify X-Domain-Id request header is NOT sent when domainId in payload from Identity is empty"() {
+    def "Verify X-Domain-Id request header is sent when domainId in payload from Identity is empty"() {
         given: "keystone v2v2 without domain ID"
         fakeIdentityV2Service.domain_id = ""
         fakeIdentityV2Service.domainIdJson = /"RAX-AUTH:domainId": "",/
@@ -305,6 +291,20 @@ class KeystoneV2BasicTest extends ReposeValveTest {
             headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         then: "the request should be enriched with the X-Domain-Id header"
+        mc.handlings.size() == 1
+        mc.handlings[0].request.headers.getFirstValue("X-Domain-Id") == fakeIdentityV2Service.domain_id
+    }
+
+    def "Verify X-Domain-Id request header is NOT sent when domainId is NOT in payload from Identity"() {
+        given: "keystone v2v2 without domain ID"
+        fakeIdentityV2Service.domain_id = ""
+
+        when: "the user makes a request to Repose"
+        MessageChain mc = deproxy.makeRequest(
+            url: reposeEndpointServersTest,
+            headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
+
+        then: "the request should not be enriched with the X-Domain-Id header"
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getCountByName("X-Domain-Id") == 0
     }
