@@ -77,7 +77,7 @@ class DefaultDestinationTest extends ReposeValveTest {
         waitForCondition(repose.clock, "30s", "2s") {
             new File(reposeLogSearch.logFileLocation).exists()
         }
-        waitForCondition(repose.clock, "20s", "2s") {
+        waitForCondition(repose.clock, "120s", "2s") {
             reposeLogSearch.searchByString(errorMessage).size() != 0
         }
 
