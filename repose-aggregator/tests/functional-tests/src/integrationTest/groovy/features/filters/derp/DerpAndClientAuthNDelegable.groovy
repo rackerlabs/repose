@@ -69,7 +69,7 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
     */
 
     @Unroll
-    def "Req without token and tenant \"#requestTenant\" should return BAD GATEWAY (502)"() {
+    def "Req without token and tenant \"#requestTenant\" should return UNAUTHORIZED (401)"() {
         given:
         fakeIdentityService.with {
             client_token = ""
@@ -87,18 +87,16 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
             headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
         then: "Origin Service should never be invoked and the Response from Repose to Client should be"
-        mc.receivedResponse.code as Integer == SC_BAD_GATEWAY
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
+        mc.receivedResponse.message.contains("X-Auth-Token header not found")
         mc.handlings.size() == 0
-
-        /* @TODO: IF the Response Message Service is replaced, THEN check the expected internal delegated message to derp from authn:
-            "status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.3"
-        */
 
         where:
         requestTenant | responseTenant | serviceAdminRole
         506           | 506            | "not-admin"
         ""            | 512            | "not-admin"
     }
+
 
     @Unroll
     def "Req with auth resp: #authRespCode using delegable mode with quality should return #responseCode"() {
@@ -121,11 +119,12 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
 
         then: "Origin Service should never be invoked and the Response from Repose to Client should be"
         mc.receivedResponse.code as Integer == responseCode
+        mc.receivedResponse.message.contains(message)
         mc.handlings.size() == 0
 
         where:
-        authRespCode    | responseCode
-        SC_NOT_FOUND    | SC_UNAUTHORIZED
-        SC_UNAUTHORIZED | SC_INTERNAL_SERVER_ERROR
+        authRespCode | responseCode             | message
+        404          | SC_UNAUTHORIZED          | "Resource not found for validate token request"
+        401          | SC_INTERNAL_SERVER_ERROR | "Admin token unauthorized to make validate token request"
     }
 }
