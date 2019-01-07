@@ -83,15 +83,16 @@ class DerpAndDelegableQuality extends ReposeValveTest {
 
         then: "Origin Service should never be invoked and the Response from Repose to Client should be"
         mc.receivedResponse.code as Integer == responseCode
+        mc.receivedResponse.message.contains(message)
         mc.handlings.size() == 0
 
         where:
-        method   | path           | roles                 | responseCode
-        "GET"    | "servers/"     | "raxRole"             | SC_FORBIDDEN
-        "GET"    | "servers/"     | "raxRole, a:observer" | SC_BAD_GATEWAY
-        "POST"   | "servers/1235" | "raxRole, a:observer" | SC_NOT_FOUND
-        "PUT"    | "servers/"     | "raxRole, a:admin"    | SC_METHOD_NOT_ALLOWED
-        "DELETE" | "servers/test" | "raxRole, a:observer" | SC_NOT_FOUND
-        "GET"    | "get/"         | "raxRole"             | SC_NOT_FOUND
+        method   | path           | roles                 | responseCode          | message
+        "GET"    | "servers/"     | "raxRole"             | SC_FORBIDDEN          | "forbidden"
+        "GET"    | "servers/"     | "raxRole, a:observer" | SC_UNAUTHORIZED       | "X-Auth-Token header not found"
+        "POST"   | "servers/1235" | "raxRole, a:observer" | SC_NOT_FOUND          | "Resource not found"
+        "PUT"    | "servers/"     | "raxRole, a:admin"    | SC_METHOD_NOT_ALLOWED | "Bad method"
+        "DELETE" | "servers/test" | "raxRole, a:observer" | SC_NOT_FOUND          | "Resource not found"
+        "GET"    | "get/"         | "raxRole"             | SC_NOT_FOUND          | "Resource not found"
     }
 }
