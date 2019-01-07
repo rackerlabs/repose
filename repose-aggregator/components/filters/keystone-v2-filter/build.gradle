@@ -13,6 +13,7 @@ dependencies {
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "joda-time:joda-time"
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
+    compile "org.apache.commons:commons-lang3"
     compile "org.apache.httpcomponents:httpclient"
     compile "org.apache.httpcomponents:httpcore"
     compile "com.fasterxml.jackson.core:jackson-core"

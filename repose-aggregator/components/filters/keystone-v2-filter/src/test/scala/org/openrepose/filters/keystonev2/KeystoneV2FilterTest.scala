@@ -396,6 +396,21 @@ with HttpDelegationManager {
       response.getHeader(WWW_AUTHENTICATE) shouldBe "Keystone uri=https://some.identity.com"
     }
 
+    it("rejects with 403 if an empty x-auth-token is present") {
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN, "")
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getRequest shouldBe null
+      filterChain.getResponse shouldBe null
+
+      response.getStatus shouldBe SC_UNAUTHORIZED
+      response.getHeader(WWW_AUTHENTICATE) shouldBe "Keystone uri=https://some.identity.com"
+    }
+
     it("retries authentication as the admin user if the admin token is not valid") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest()
