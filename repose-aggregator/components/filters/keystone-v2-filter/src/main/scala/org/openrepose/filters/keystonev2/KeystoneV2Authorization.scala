@@ -76,21 +76,11 @@ object KeystoneV2Authorization extends StrictLogging {
   // NOTE: Throwing an exception currently works because this method is always called in a [[Try]] stack.
   @throws[UnparsableTenantException]
   def getRequestTenants(config: ValidateTenantType, request: HttpServletRequestWrapper): Set[String] = {
-    config.getUriExtractionRegexAndHeaderExtractionName.asScala.toSet[ExtractionType] flatMap {
-      case headerExtraction: HeaderExtractionType =>
-        request.getSplittableHeaderScala(headerExtraction.getValue)
-      case uriExtraction: UriExtractionType =>
-        val uriRegex = uriExtraction.getValue.r
-        request.getRequestURI match {
-          case uriRegex(tenantId, _*) => List(tenantId)
-          case _ => List.empty
-        }
-      case _ =>
-        logger.error("An unexpected tenant extraction type was encountered")
-        List.empty
-    } match {
-      case extractedTenants if extractedTenants.nonEmpty => extractedTenants
-      case _ => throw UnparsableTenantException("Could not parse tenant from the URI and/or the configured header")
+    val requestTenants = config.getHeaderExtractionName.asScala.toSet.flatMap(request.getSplittableHeaderScala)
+    if (requestTenants.nonEmpty) {
+      requestTenants
+    } else {
+      throw UnparsableTenantException("Could not parse tenant from the configured header")
     }
   }
 
@@ -119,7 +109,7 @@ object KeystoneV2Authorization extends StrictLogging {
     }
 
     if (allTenantsMatch) Success(Unit)
-    else Failure(InvalidTenantException("A tenant from the URI and/or the configured header does not match any of the user's tenants"))
+    else Failure(InvalidTenantException("A tenant from the configured header does not match any of the user's tenants"))
   }
 
   def authorizeEndpoints(config: ServiceEndpointType, maybeEndpoints: => Try[EndpointsData]): Try[Unit.type] = {

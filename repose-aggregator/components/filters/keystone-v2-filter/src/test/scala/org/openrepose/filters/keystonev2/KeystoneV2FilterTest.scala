@@ -56,7 +56,7 @@ import org.openrepose.core.systemmodel.config.{SystemModel, TracingHeaderConfig}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.KeystoneV2Common._
 import org.openrepose.filters.keystonev2.KeystoneV2TestCommon.createValidToken
-import org.openrepose.filters.keystonev2.config.{HeaderExtractionType, KeystoneV2AuthenticationConfig, ServiceEndpointType}
+import org.openrepose.filters.keystonev2.config.{KeystoneV2AuthenticationConfig, ServiceEndpointType}
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -2177,8 +2177,10 @@ with HttpDelegationManager {
   }
 
   describe("Tenant handling is enabled") {
+    val expectedTenantHeaderName = "X-Expected-Tenant"
+
     def configuration = Marshaller.keystoneV2ConfigFromString(
-      """<?xml version="1.0" encoding="UTF-8"?>
+      s"""<?xml version="1.0" encoding="UTF-8"?>
         |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
         |    <identity-service
         |            username="username"
@@ -2188,9 +2190,9 @@ with HttpDelegationManager {
         |            />
         |    <tenant-handling send-all-tenant-ids="true">
         |        <validate-tenant strip-token-tenant-prefixes="foo:/bar:">
-        |            <uri-extraction-regex>/(\w+)/.*</uri-extraction-regex>
+        |            <header-extraction-name>$expectedTenantHeaderName</header-extraction-name>
         |        </validate-tenant>
-        |        <send-tenant-id-quality default-tenant-quality="0.9" uri-tenant-quality="0.7" roles-tenant-quality="0.5"/>
+        |        <send-tenant-id-quality default-tenant-quality="0.9" validated-tenant-quality="0.7" roles-tenant-quality="0.5"/>
         |    </tenant-handling>
         |    <pre-authorized-roles>
         |        <role>serviceAdmin</role>
@@ -2208,7 +2210,7 @@ with HttpDelegationManager {
     it("will not require a default tenant ID") {
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/tenant/test")
+      request.addHeader(expectedTenantHeaderName, "tenant")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(roles = Seq(Role("role1", Some("tenant"))), tenantIds = Seq("tenant")), Nil: _*)
@@ -2221,10 +2223,10 @@ with HttpDelegationManager {
       filterChain.getResponse shouldNot be(null)
     }
 
-    it("will extract the tenant from the URI and validate that the user has that tenant in their list") {
+    it("will extract the tenant from a header and validate that the user has that tenant in their list") {
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/tenant/test")
+      request.addHeader(expectedTenantHeaderName, "tenant")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("tenant")), Nil: _*)
@@ -2237,10 +2239,10 @@ with HttpDelegationManager {
       filterChain.getResponse shouldNot be(null)
     }
 
-    it("will extract the tenant from the URI and validate that the user has a prefixed tenant as the default") {
+    it("will extract the tenant from a header and validate that the user has a prefixed tenant as the default") {
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/tenant/test")
+      request.addHeader(expectedTenantHeaderName, "tenant")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("foo:tenant")), Nil: _*)
@@ -2253,10 +2255,10 @@ with HttpDelegationManager {
       filterChain.getResponse shouldNot be(null)
     }
 
-    it("will extract the tenant from the URI and validate that the user has a prefixed tenant in their roles") {
+    it("will extract the tenant from a header and validate that the user has a prefixed tenant in their roles") {
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/tenant/test")
+      request.addHeader(expectedTenantHeaderName, "tenant")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("oof"), roles = Seq(Role("role1", Some("foo:tenant")), Role("role2", Some("rab"))), tenantIds = Seq("foo:tenant", "rab")), Nil: _*)
@@ -2269,10 +2271,10 @@ with HttpDelegationManager {
       filterChain.getResponse shouldNot be(null)
     }
 
-    it("will extract the tenant from the URI and reject if the user does not have that tenant in their list") {
+    it("will extract the tenant from a header and reject if the user does not have that tenant in their list") {
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/tenant/test")
+      request.addHeader(expectedTenantHeaderName, "tenant")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("not-tenant")), Nil: _*)
@@ -2282,12 +2284,12 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       response.getStatus shouldBe SC_UNAUTHORIZED
-      response.getErrorMessage shouldBe "A tenant from the URI and/or the configured header does not match any of the user's tenants"
+      response.getErrorMessage shouldBe "A tenant from the configured header does not match any of the user's tenants"
     }
 
-    it("will extract the tenant from the URI and reject if the user only use the tenant on an ignored role") {
+    it("will extract the tenant from a header and reject if the user only use the tenant on an ignored role") {
       def configuration = Marshaller.keystoneV2ConfigFromString(
-        """<?xml version="1.0" encoding="UTF-8"?>
+        s"""<?xml version="1.0" encoding="UTF-8"?>
           |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
           |    <identity-service
           |            username="username"
@@ -2297,7 +2299,7 @@ with HttpDelegationManager {
           |            />
           |    <tenant-handling>
           |        <validate-tenant>
-          |            <uri-extraction-regex>/(.+)/.*</uri-extraction-regex>
+          |            <header-extraction-name>$expectedTenantHeaderName</header-extraction-name>
           |        </validate-tenant>
           |    </tenant-handling>
           |</keystone-v2>
@@ -2329,7 +2331,7 @@ with HttpDelegationManager {
 
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/678/foo")
+      request.addHeader(expectedTenantHeaderName, "678")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       val response = new MockHttpServletResponse()
@@ -2338,12 +2340,12 @@ with HttpDelegationManager {
       filter.doFilter(request, response, chain)
 
       response.getStatus shouldBe SC_UNAUTHORIZED
-      response.getErrorMessage shouldBe "A tenant from the URI and/or the configured header does not match any of the user's tenants"
+      response.getErrorMessage shouldBe "A tenant from the configured header does not match any of the user's tenants"
     }
 
-    it("will extract the tenant from the URI and reject if the user only use the tenant on a configured ignored role") {
+    it("will extract the tenant from a header and reject if the user only use the tenant on a configured ignored role") {
       def configuration = Marshaller.keystoneV2ConfigFromString(
-        """<?xml version="1.0" encoding="UTF-8"?>
+        s"""<?xml version="1.0" encoding="UTF-8"?>
           |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0" ignored-roles="role:234">
           |    <identity-service
           |            username="username"
@@ -2353,7 +2355,7 @@ with HttpDelegationManager {
           |            />
           |    <tenant-handling>
           |        <validate-tenant>
-          |            <uri-extraction-regex>/(.+)/.*</uri-extraction-regex>
+          |            <header-extraction-name>$expectedTenantHeaderName</header-extraction-name>
           |        </validate-tenant>
           |    </tenant-handling>
           |</keystone-v2>
@@ -2385,7 +2387,7 @@ with HttpDelegationManager {
 
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/234/foo")
+      request.addHeader(expectedTenantHeaderName, "234")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       val response = new MockHttpServletResponse()
@@ -2394,7 +2396,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, chain)
 
       response.getStatus shouldBe SC_UNAUTHORIZED
-      response.getErrorMessage shouldBe "A tenant from the URI and/or the configured header does not match any of the user's tenants"
+      response.getErrorMessage shouldBe "A tenant from the configured header does not match any of the user's tenants"
     }
 
     it("sends all tenant IDs when configured to") {
@@ -2404,7 +2406,7 @@ with HttpDelegationManager {
 
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/tenant/test")
+      request.addHeader(expectedTenantHeaderName, "tenant")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("tenant"), roles = Seq(Role("role1", Some("rick")), Role("role2", Some("morty"))), tenantIds = Seq("rick", "morty")), Nil: _*)
@@ -2425,7 +2427,7 @@ with HttpDelegationManager {
     it("sends all tenant IDs with a quality when all three are configured") {
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/rick/test")
+      request.addHeader(expectedTenantHeaderName, "rick")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("tenant"), roles = Seq(Role("role1", Some("rick")), Role("role2", Some("morty"))), tenantIds = Seq("rick", "morty")), Nil: _*)
@@ -2447,7 +2449,7 @@ with HttpDelegationManager {
 
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/rick/test")
+      request.addHeader(expectedTenantHeaderName, "rick")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(roles = Seq(Role("role1", Some("rick")), Role("role2", Some("morty"))), tenantIds = Seq("rick", "morty")), Nil: _*)
@@ -2462,10 +2464,10 @@ with HttpDelegationManager {
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID) shouldBe "rick;q=0.7"
     }
 
-    it("bypasses the URI tenant validation check when a user has a role in the pre-authorized-roles list") {
+    it("bypasses the header tenant validation check when a user has a role in the pre-authorized-roles list") {
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/tenant/test")
+      request.addHeader(expectedTenantHeaderName, "tenant")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("not-tenant"), roles = Seq(Role("racker")), tenantIds = Seq("racker")), Nil: _*)
@@ -2478,7 +2480,7 @@ with HttpDelegationManager {
       filterChain.getResponse shouldNot be(null)
     }
 
-    it("sends the tenant matching the URI when send all tenants is false and validate-tenant is enabled") {
+    it("sends the tenant matching the header when send all tenants is false and validate-tenant is enabled") {
       val modifiedConfig = configuration
       modifiedConfig.getTenantHandling.setSendAllTenantIds(false)
       modifiedConfig.getTenantHandling.setSendTenantIdQuality(null)
@@ -2486,7 +2488,7 @@ with HttpDelegationManager {
 
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/morty/test")
+      request.addHeader(expectedTenantHeaderName, "morty")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("tenant"), roles = Seq(Role("role1", Some("rick")), Role("role2", Some("morty"))), tenantIds = Seq("rick", "morty")), Nil: _*)
@@ -2507,12 +2509,12 @@ with HttpDelegationManager {
       val modifiedConfig = configuration
       modifiedConfig.getTenantHandling.setSendAllTenantIds(false)
       modifiedConfig.getTenantHandling.setSendTenantIdQuality(null)
-      modifiedConfig.getTenantHandling.getValidateTenant.getUriExtractionRegexAndHeaderExtractionName.add(new HeaderExtractionType().withValue("Tenant-Out"))
+      modifiedConfig.getTenantHandling.getValidateTenant.getHeaderExtractionName.add("Tenant-Out")
       filter.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/morty/test")
+      request.addHeader(expectedTenantHeaderName, "morty")
       request.addHeader("Tenant-Out", "rick")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
@@ -2537,7 +2539,7 @@ with HttpDelegationManager {
 
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/years/test")
+      request.addHeader(expectedTenantHeaderName, "years")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("one"), roles = Seq(Role("role1", Some("hundred")), Role("role2", Some("years"))), tenantIds = Seq("hundred", "years")), Nil: _*)
@@ -2552,26 +2554,10 @@ with HttpDelegationManager {
       processedRequest.getHeader(OpenStackServiceHeader.TENANT_ID) shouldBe "one"
     }
 
-    it("should return a failure if a tenant could not be parsed from the URI") {
+    it("should send the X-Authorization header with the tenant in the header") {
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/bu-%tts/test")
-      request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
-
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(defaultTenantId = Some("bu-%tts")), Nil: _*)
-
-      val response = new MockHttpServletResponse
-      val filterChain = new MockFilterChain()
-      filter.doFilter(request, response, filterChain)
-
-      response.getStatus shouldBe SC_UNAUTHORIZED
-      response.getErrorMessage shouldBe "Could not parse tenant from the URI and/or the configured header"
-    }
-
-    it("should send the X-Authorization header with the tenant in the uri") {
-      val request = new MockHttpServletRequest()
-      request.setServerName("www.sample.com")
-      request.setRequestURI("/years/test")
+      request.addHeader(expectedTenantHeaderName, "years")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(roles = Seq(Role("role1", Some("hundred")), Role("role2", Some("years"))), tenantIds = Seq("hundred", "years")), Nil: _*)
@@ -2591,7 +2577,7 @@ with HttpDelegationManager {
 
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/foo/test")
+      request.addHeader(expectedTenantHeaderName, "foo")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(tenantIds = Seq("hundred", "years"), defaultTenantId = Some("defaultTenant")), Nil: _*)
@@ -2607,16 +2593,16 @@ with HttpDelegationManager {
 
     it("should send the X-Authorization header with multiple matching tenants") {
       val modifiedConfig = configuration
-      modifiedConfig.getTenantHandling.getValidateTenant.getUriExtractionRegexAndHeaderExtractionName.add(new HeaderExtractionType().withValue(OpenStackServiceHeader.TENANT_ID))
+      modifiedConfig.getTenantHandling.getValidateTenant.getHeaderExtractionName.add(OpenStackServiceHeader.TENANT_ID)
       filter.configurationUpdated(modifiedConfig)
 
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/uriTenant/test")
+      request.addHeader(expectedTenantHeaderName, "expectedHeaderTenant")
       request.addHeader(OpenStackServiceHeader.TENANT_ID, "headerTenant")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
-      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(roles = Seq(Role("role1", Some("uriTenant")), Role("role2", Some("headerTenant")), Role("role3", Some("nonMatchingTenant"))), tenantIds = Seq("uriTenant", "headerTenant", "nonMatchingTenant")), Nil: _*)
+      when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(roles = Seq(Role("role1", Some("expectedHeaderTenant")), Role("role2", Some("headerTenant")), Role("role3", Some("nonMatchingTenant"))), tenantIds = Seq("expectedHeaderTenant", "headerTenant", "nonMatchingTenant")), Nil: _*)
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()
@@ -2624,7 +2610,7 @@ with HttpDelegationManager {
       filter.configurationUpdated(configuration)
 
       val processedRequest = filterChain.getRequest.asInstanceOf[HttpServletRequest]
-      processedRequest.getHeaders(OpenStackServiceHeader.EXTENDED_AUTHORIZATION).asScala.toSeq should contain only("Proxy uriTenant", "Proxy headerTenant")
+      processedRequest.getHeaders(OpenStackServiceHeader.EXTENDED_AUTHORIZATION).asScala.toSeq should contain only("Proxy expectedHeaderTenant", "Proxy headerTenant")
     }
 
     it("should send the X-Authorization header without a tenant if tenant handling is not used and no default tenant exists") {
@@ -2634,7 +2620,7 @@ with HttpDelegationManager {
 
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/years/test")
+      request.addHeader(expectedTenantHeaderName, "years")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(tenantIds = Seq("hundred", "years")), Nil: _*)
@@ -2655,7 +2641,7 @@ with HttpDelegationManager {
 
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/years/test")
+      request.addHeader(expectedTenantHeaderName, "years")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       when(mockDatastore.get(s"$TOKEN_KEY_PREFIX$VALID_TOKEN")).thenReturn(createValidToken(tenantIds = Seq("hundred", "years")), Nil: _*)
@@ -3246,6 +3232,8 @@ with HttpDelegationManager {
   }
 
   describe("Handling tenanted roles") {
+    val expectedTenantHeaderName = "X-Expected-Tenant"
+
     it("should forward all roles that are not ignored if not in tenanted mode") {
       def configuration = Marshaller.keystoneV2ConfigFromString(
         """<?xml version="1.0" encoding="UTF-8"?>
@@ -3302,7 +3290,7 @@ with HttpDelegationManager {
 
     it("should forward all roles that are not ignored in tenanted mode if legacy mode is enabled") {
       def configuration = Marshaller.keystoneV2ConfigFromString(
-        """<?xml version="1.0" encoding="UTF-8"?>
+        s"""<?xml version="1.0" encoding="UTF-8"?>
           |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
           |    <identity-service
           |            username="username"
@@ -3312,7 +3300,7 @@ with HttpDelegationManager {
           |            />
           |    <tenant-handling>
           |        <validate-tenant enable-legacy-roles-mode="true">
-          |            <uri-extraction-regex>/(.+)/.*</uri-extraction-regex>
+          |            <header-extraction-name>$expectedTenantHeaderName</header-extraction-name>
           |        </validate-tenant>
           |    </tenant-handling>
           |</keystone-v2>
@@ -3344,7 +3332,7 @@ with HttpDelegationManager {
 
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/456/foo")
+      request.addHeader(expectedTenantHeaderName, "456")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       val response = new MockHttpServletResponse()
@@ -3361,7 +3349,7 @@ with HttpDelegationManager {
 
     it("should only forward matching tenant roles (excluding ignored roles) if legacy mode is disabled") {
       def configuration = Marshaller.keystoneV2ConfigFromString(
-        """<?xml version="1.0" encoding="UTF-8"?>
+        s"""<?xml version="1.0" encoding="UTF-8"?>
           |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
           |    <identity-service
           |            username="username"
@@ -3371,7 +3359,7 @@ with HttpDelegationManager {
           |            />
           |    <tenant-handling>
           |        <validate-tenant enable-legacy-roles-mode="false">
-          |            <uri-extraction-regex>/(.+)/.*</uri-extraction-regex>
+          |            <header-extraction-name>$expectedTenantHeaderName</header-extraction-name>
           |        </validate-tenant>
           |    </tenant-handling>
           |</keystone-v2>
@@ -3403,7 +3391,7 @@ with HttpDelegationManager {
 
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/345/foo")
+      request.addHeader(expectedTenantHeaderName, "345")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       val response = new MockHttpServletResponse()
@@ -3419,7 +3407,7 @@ with HttpDelegationManager {
 
     it("should forward all roles if legacy mode is disabled, but the user is pre-authorized") {
       def configuration = Marshaller.keystoneV2ConfigFromString(
-        """<?xml version="1.0" encoding="UTF-8"?>
+        s"""<?xml version="1.0" encoding="UTF-8"?>
           |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
           |    <identity-service
           |            username="username"
@@ -3429,7 +3417,7 @@ with HttpDelegationManager {
           |            />
           |    <tenant-handling>
           |        <validate-tenant enable-legacy-roles-mode="false">
-          |            <uri-extraction-regex>/(.+)/.*</uri-extraction-regex>
+          |            <header-extraction-name>$expectedTenantHeaderName</header-extraction-name>
           |        </validate-tenant>
           |    </tenant-handling>
           |    <pre-authorized-roles>
@@ -3464,7 +3452,7 @@ with HttpDelegationManager {
 
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/345/foo")
+      request.addHeader(expectedTenantHeaderName, "345")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       val response = new MockHttpServletResponse()
@@ -3480,7 +3468,7 @@ with HttpDelegationManager {
 
     it("should only forward matching tenant roles if legacy mode is disabled, and the user is not pre-authorized") {
       def configuration = Marshaller.keystoneV2ConfigFromString(
-        """<?xml version="1.0" encoding="UTF-8"?>
+        s"""<?xml version="1.0" encoding="UTF-8"?>
           |<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
           |    <identity-service
           |            username="username"
@@ -3490,7 +3478,7 @@ with HttpDelegationManager {
           |            />
           |    <tenant-handling>
           |        <validate-tenant enable-legacy-roles-mode="false">
-          |            <uri-extraction-regex>/(.+)/.*</uri-extraction-regex>
+          |            <header-extraction-name>$expectedTenantHeaderName</header-extraction-name>
           |        </validate-tenant>
           |    </tenant-handling>
           |    <pre-authorized-roles>
@@ -3525,7 +3513,7 @@ with HttpDelegationManager {
 
       val request = new MockHttpServletRequest()
       request.setServerName("www.sample.com")
-      request.setRequestURI("/345/foo")
+      request.addHeader(expectedTenantHeaderName, "345")
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
 
       val response = new MockHttpServletResponse()
@@ -3549,9 +3537,9 @@ with HttpDelegationManager {
         |    />
         |    <tenant-handling>
         |        <validate-tenant>
-        |            <uri-extraction-regex>/serverOne/(.+)/.*</uri-extraction-regex>
-        |            <uri-extraction-regex>/serverTwo/(.+)/.*</uri-extraction-regex>
-        |            <uri-extraction-regex>/serverToo/(.+)/.*</uri-extraction-regex>
+        |            <header-extraction-name>X-Expected-Tenant-One</header-extraction-name>
+        |            <header-extraction-name>X-Expected-Tenant-Two</header-extraction-name>
+        |            <header-extraction-name>X-Expected-Tenant-Too</header-extraction-name>
         |        </validate-tenant>
         |    </tenant-handling>
         |</keystone-v2>
@@ -3563,12 +3551,12 @@ with HttpDelegationManager {
     filter.configurationUpdated(configuration)
     filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
-    Seq("One", "Two", "Too") foreach { uri =>
-      it(s"will authenticate and authorize if able to extract a tenant from the URI: /server$uri/345/foo") {
+    Seq("One", "Two", "Too") foreach { header =>
+      it(s"will authenticate and authorize if able to extract a tenant from the header: X-Expected-Tenant-$header") {
         //make a request and validate that it called the akka service client?
         val request = new MockHttpServletRequest
         request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
-        request.setRequestURI(s"/server$uri/345/foo")
+        request.addHeader(s"X-Expected-Tenant-$header", "345")
 
         when(mockHttpClient.execute(
           argThat(HC.allOf[HttpUriRequest](
@@ -3596,11 +3584,11 @@ with HttpDelegationManager {
       }
     }
 
-    it(s"will neither authenticate nor authorize if not able to extract a tenant from the URI: /serverBad/345/foo") {
+    it(s"will neither authenticate nor authorize if not able to extract a tenant from the header: X-Expected-Tenant-Bad") {
       //make a request and validate that it called the akka service client?
       val request = new MockHttpServletRequest
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
-      request.setRequestURI("/serverBad/345/foo")
+      request.addHeader("X-Expected-Tenant-Bad", "345")
 
       when(mockHttpClient.execute(
         argThat(HC.allOf[HttpUriRequest](
@@ -3623,7 +3611,7 @@ with HttpDelegationManager {
       filter.doFilter(request, response, filterChain)
 
       response.getStatus shouldBe SC_UNAUTHORIZED
-      response.getErrorMessage shouldBe "Could not parse tenant from the URI and/or the configured header"
+      response.getErrorMessage shouldBe "Could not parse tenant from the configured header"
       response.getHeaders(WWW_AUTHENTICATE) should contain("Keystone uri=https://some.identity.com")
     }
   }

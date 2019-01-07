@@ -270,7 +270,7 @@ class KeystoneV2FilterPrepTest extends FunSpec with Matchers with MockitoSugar w
           |    <identity-service uri="https://lol.com"/>
           |    <tenant-handling>
           |        <validate-tenant>
-          |            <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
+          |            <header-extraction-name>X-Tenant-Id</header-extraction-name>
           |        </validate-tenant>
           |    </tenant-handling>
           |</keystone-v2>

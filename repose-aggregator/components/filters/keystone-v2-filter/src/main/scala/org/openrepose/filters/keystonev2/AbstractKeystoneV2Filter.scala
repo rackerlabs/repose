@@ -139,10 +139,6 @@ abstract class AbstractKeystoneV2Filter[T <: KeystoneV2Config: ClassTag](configu
       configurationObject.withWhiteList(new WhiteListType())
     }
 
-    Option(configurationObject.getTenantHandling.getValidateTenant).map(_.getUriExtractionRegexAndHeaderExtractionName).filter(_.asScala.exists(_.isInstanceOf[UriExtractionType])) foreach { _ =>
-      logger.warn("Support for uri-extraction-regex has been deprecated in Repose 8 and will be removed in Repose 9")
-    }
-
     configurationObject
   }
 }
