@@ -53,12 +53,14 @@ abstract class ReposeLauncher {
 
     abstract void addToClassPath(String path)
 
-    def waitForNon500FromUrl(url, int timeoutInSeconds = 60, int intervalInSeconds = 2) {
+    def static MAX_STARTUP_TIME = 120
+
+    def waitForNon500FromUrl(url, int timeoutInSeconds = MAX_STARTUP_TIME, int intervalInSeconds = 2) {
 
         waitForResponseCodeFromUrl(url, timeoutInSeconds, intervalInSeconds) { code -> code < 500 }
     }
 
-    def waitForDesiredResponseCodeFromUrl(url, desiredCodes, timeoutInSeconds = 60, int intervalInSeconds = 2) {
+    def waitForDesiredResponseCodeFromUrl(url, desiredCodes, timeoutInSeconds = MAX_STARTUP_TIME, int intervalInSeconds = 2) {
 
         waitForResponseCodeFromUrl(url, timeoutInSeconds, intervalInSeconds) { code -> code in desiredCodes }
     }

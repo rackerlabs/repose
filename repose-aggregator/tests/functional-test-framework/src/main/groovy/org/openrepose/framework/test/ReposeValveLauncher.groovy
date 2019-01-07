@@ -184,7 +184,7 @@ class ReposeValveLauncher extends ReposeLauncher {
                 print("Waiting for repose auto-guessed node to start: ")
             }
 
-            waitForCondition(clock, '60s', '1s') {
+            waitForCondition(clock, MAX_STARTUP_TIME, '1s') {
                 isReposeNodeUp(clusterId, nodeId)
             }
         }
