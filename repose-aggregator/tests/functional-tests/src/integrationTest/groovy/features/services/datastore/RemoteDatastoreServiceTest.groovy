@@ -101,7 +101,7 @@ class RemoteDatastoreServiceTest extends Specification {
     }
 
     static def waitUntilReadyToServiceRequests(ReposeLogSearch reposeLogSearch) {
-        reposeLogSearch.awaitByString("Repose ready", 1, 60, TimeUnit.SECONDS)
+        reposeLogSearch.awaitByString("Repose ready", 1, 120, TimeUnit.SECONDS)
     }
 
     def "When a limit has not been reached, request should pass"() {
