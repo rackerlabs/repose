@@ -34,7 +34,7 @@ import spock.lang.Unroll
  *      3, forward all roles if tenanted mode, roles legacy mode disabled, but pre-authorize role set for user
  *      4, forward only role(s) that tenant associated with. if tenanted mode and role legacy mode disabled
  */
-class Keystonev2TenantAndRolesHandlingTest extends ReposeValveTest {
+class Keystonev2NonTenantAndIso8559Test extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
@@ -144,98 +144,5 @@ class Keystonev2TenantAndRolesHandlingTest extends ReposeValveTest {
         tenantId <<
             // All non-ASCII (thus, opaque) octets
             (0x80..0xFF).collect { (it as char) as String }
-    }
-
-    def "Tenanted with role handling in legacy mode"() {
-        given:
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystonev2/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystonev2/tenantandroleshandling/tenantedlegacymode", params)
-        repose.start()
-
-        fakeIdentityV2Service.with {
-            client_token = UUID.randomUUID().toString()
-            client_tenantid = "12345"
-            client_tenantname = "mytenantname"
-            client_userid = "12345"
-            service_admin_role = "repose:test"
-        }
-
-        when: "User passes a request through repose with valid token"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/12345", method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
-
-        then: "should return all roles"
-        mc.receivedResponse.code == "200"
-        mc.handlings.size() == 1
-        mc.handlings[0].request.headers.findAll("x-roles").toString().contains("compute:admin")
-        mc.handlings[0].request.headers.findAll("x-roles").toString().contains("object-store:admin")
-        mc.handlings[0].request.headers.findAll("x-roles").toString().contains("repose:test")
-    }
-
-    @Unroll("request with tenant: #tenantid should return role: #returnroles")
-    def "Tenanted with role handling"() {
-        given:
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystonev2/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystonev2/tenantandroleshandling/tenantedwrole", params)
-        repose.start()
-
-        fakeIdentityV2Service.with {
-            client_token = UUID.randomUUID().toString()
-            client_tenantid = "mytenant"
-            client_tenantid2 = "12345"
-            client_tenantname = "mytenantname"
-            client_userid = "12345"
-            service_admin_role = "repose:test"
-        }
-
-        when: "User passes a request through repose with valid token"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/" + tenantid, method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
-
-        then: "should return only role(s) that tenant associated with"
-        mc.receivedResponse.code == "200"
-        mc.handlings.size() == 1
-        mc.handlings[0].request.headers.findAll("x-roles").toString().contains(returnroles[0])
-        mc.handlings[0].request.headers.findAll("x-roles").toString().contains(returnroles[1])
-        !mc.handlings[0].request.headers.findAll("x-roles").toString().contains(notreturnrole)
-
-        where:
-        tenantid   | returnroles                           | notreturnrole
-        "mytenant" | ["compute:admin", "repose:test"]      | "object-store:admin"
-        "12345"    | ["object-store:admin", "repose:test"] | "compute:admin"
-    }
-
-    @Unroll
-    def "Tenanted with pre-authorize role handling"() {
-        given: "configuration"
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystonev2/common", params)
-        repose.configurationProvider.applyConfigs("features/filters/keystonev2/tenantandroleshandling/tenantedwpreauthorizerole", params)
-        repose.start()
-
-        fakeIdentityV2Service.with {
-            client_token = UUID.randomUUID().toString()
-            client_tenantid = "mytenant"
-            client_tenantid2 = "12345"
-            client_tenantname = "mytenantname"
-            client_userid = "12345"
-            service_admin_role = "repose:test"
-        }
-
-        when: "User passes a request through repose with valid token"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/" + tenantid, method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityV2Service.client_token])
-
-        then: "should return all roles"
-        mc.receivedResponse.code == "200"
-        mc.handlings.size() == 1
-        mc.handlings[0].request.headers.findAll("x-roles").toString().contains("compute:admin")
-        mc.handlings[0].request.headers.findAll("x-roles").toString().contains("object-store:admin")
-        mc.handlings[0].request.headers.findAll("x-roles").toString().contains("repose:test")
-
-        where:
-        tenantid << ["12345", "mytenant"]
     }
 }
