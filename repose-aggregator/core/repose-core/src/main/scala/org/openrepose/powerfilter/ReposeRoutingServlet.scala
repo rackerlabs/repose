@@ -32,6 +32,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 import org.apache.http.client.utils.URIBuilder
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.StringUriUtilities
+import org.openrepose.commons.utils.http.CommonHttpHeader.TRACE_GUID
 import org.openrepose.commons.utils.http.{CommonHttpHeader, CommonRequestAttributes}
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestUtil, HttpServletRequestWrapper, RouteDestination}
@@ -149,6 +150,12 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
             proxyRequest(target, wrappedReq, resp).map { _ =>
               val stopTime = System.currentTimeMillis
               postProxyMetrics(stopTime - startTime, resp, destination, target.url)
+
+              // If configured to do so, add the trace header to the response, ignoring any issues
+              Try(
+                Option(wrappedReq.getAttribute(TRACE_GUID))
+                  .map(_.asInstanceOf[String])
+                  .foreach(resp.addHeader(TRACE_GUID, _)))
 
               // Fix the Location header on the response
               fixLocationHeader(

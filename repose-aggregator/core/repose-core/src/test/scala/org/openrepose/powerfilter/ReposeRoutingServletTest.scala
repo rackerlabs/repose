@@ -21,13 +21,13 @@ package org.openrepose.powerfilter
 
 import java.io.IOException
 import java.net.{URI, URL}
-import java.util.Optional
+import java.util.{Optional, UUID}
 
 import com.codahale.metrics.MetricRegistry
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
 import org.apache.http.HttpVersion
-import org.apache.http.client.methods.{CloseableHttpResponse, HttpUriRequest}
+import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet, HttpUriRequest}
 import org.apache.http.message.BasicHttpResponse
 import org.apache.http.protocol.HttpContext
 import org.apache.logging.log4j.LogManager
@@ -37,6 +37,7 @@ import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, contains, eq => isEq}
 import org.mockito.Mockito._
 import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.commons.utils.http.CommonHttpHeader.TRACE_GUID
 import org.openrepose.commons.utils.http.CommonRequestAttributes
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException
 import org.openrepose.commons.utils.servlet.http.RouteDestination
@@ -205,6 +206,34 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
       reposeRoutingServlet.service(req, resp)
 
       resp.getStatus shouldBe SC_NOT_ACCEPTABLE
+    }
+
+    it(s"should set the tracing header on the response if flagged on the request") {
+      val req = new MockHttpServletRequest(HttpGet.METHOD_NAME, "/")
+      val resp = new MockHttpServletResponse()
+
+      val traceGuid = UUID.randomUUID.toString
+      req.setAttribute(TRACE_GUID, traceGuid)
+
+      reposeRoutingServlet.init(mockServletConfig)
+      reposeRoutingServlet.configurationUpdated(minimalConfiguration())
+      reposeRoutingServlet.service(req, resp)
+
+      resp.getHeader(TRACE_GUID) shouldBe traceGuid
+    }
+
+    it(s"should ignore throwables that arise while attempting to set the tracing header on the response") {
+      val req = new MockHttpServletRequest(HttpGet.METHOD_NAME, "/")
+      val resp = new MockHttpServletResponse()
+
+      val traceGuid = UUID.randomUUID
+      req.setAttribute(TRACE_GUID, traceGuid)
+
+      reposeRoutingServlet.init(mockServletConfig)
+      reposeRoutingServlet.configurationUpdated(minimalConfiguration())
+      reposeRoutingServlet.service(req, resp)
+
+      resp.getHeader(TRACE_GUID) shouldBe null
     }
   }
 

@@ -161,7 +161,7 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
             }
             val tracingHeader = wrappedRequest.getHeader(TRACE_GUID)
             TraceIdLogger.info("Tracing header: {}", TracingHeaderHelper.decode(tracingHeader))
-            wrappedResponse.addHeader(TRACE_GUID, tracingHeader)
+            wrappedRequest.setAttribute(TRACE_GUID, tracingHeader)
           }
 
           new ReposeFilterChain(
