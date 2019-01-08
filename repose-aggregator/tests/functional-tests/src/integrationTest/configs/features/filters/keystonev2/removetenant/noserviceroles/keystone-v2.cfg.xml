@@ -8,7 +8,7 @@
     </cache>
     <tenant-handling>
         <validate-tenant>
-            <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
+            <header-extraction-name>X-Expected-Tenant</header-extraction-name>
         </validate-tenant>
     </tenant-handling>
     <identity-service username="admin_username"

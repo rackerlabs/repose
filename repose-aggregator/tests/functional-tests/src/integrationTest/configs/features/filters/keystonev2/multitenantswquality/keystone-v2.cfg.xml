@@ -8,7 +8,7 @@
     </cache>
     <tenant-handling send-all-tenant-ids="true">
         <validate-tenant enable-legacy-roles-mode="true">
-            <uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
+            <header-extraction-name>X-Expected-Tenant</header-extraction-name>
         </validate-tenant>
         <send-tenant-id-quality default-tenant-quality="0.9" roles-tenant-quality="0.7"/>
     </tenant-handling>
