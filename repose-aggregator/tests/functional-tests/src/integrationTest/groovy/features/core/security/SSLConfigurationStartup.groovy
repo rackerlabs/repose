@@ -92,8 +92,8 @@ class SSLConfigurationStartup extends ReposeValveTest {
         def sslContext = SSLContexts.custom().loadTrustMaterial(TrustSelfSignedStrategy.INSTANCE).build()
         def sf = new SSLConnectionSocketFactory(
             sslContext,
-            (String[]) [protocol],
-            (String[]) [cipher],
+            (String[]) (protocol ? [protocol] : protocol),
+            (String[]) (cipher ? [cipher] : cipher),
             NoopHostnameVerifier.INSTANCE
         )
         def client = HttpClients.custom().setSSLSocketFactory(sf).build()
@@ -106,9 +106,16 @@ class SSLConfigurationStartup extends ReposeValveTest {
         thrown IOException
 
         where:
-        protocol     | cipher
-        'SSLv3'      | 'SSL_DHE_RSA_WITH_DES_CBC_SHA'
-        'TLSv1'      | 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA'
-        'TLSv1.1'    | 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA'
+        protocol  | cipher
+        'SSLv3'   | null
+        'TLSv1'   | null
+        'TLSv1.1' | null
+        null      | 'TLS_RSA_WITH_AES_256_CBC_SHA256'
+        null      | 'TLS_RSA_WITH_AES_256_GCM_SHA384'
+        null      | 'TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384'
+        null      | 'TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384'
+        'SSLv3'   | 'SSL_DHE_RSA_WITH_DES_CBC_SHA'
+        'TLSv1'   | 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA'
+        'TLSv1.1' | 'TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA'
     }
 }
