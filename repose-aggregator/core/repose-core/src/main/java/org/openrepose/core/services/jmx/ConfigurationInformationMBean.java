@@ -27,10 +27,7 @@ import java.util.Map;
 public interface ConfigurationInformationMBean {
 
     //TODO: I don't think this is useful any more...
-    Map<String, List<CompositeData>> getPerNodeFilterInformation() throws OpenDataException;
+    List<CompositeData> getFilterInformation() throws OpenDataException;
 
-    // @TODO: There will be only one cluster after REP-7314
-    @Deprecated
-    boolean isNodeReady(String clusterId, String nodeId);
     boolean isNodeReady(String nodeId);
 }
