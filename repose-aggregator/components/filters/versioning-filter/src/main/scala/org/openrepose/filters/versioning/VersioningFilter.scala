@@ -34,37 +34,29 @@ import org.openrepose.commons.utils.http.CommonRequestAttributes
 import org.openrepose.commons.utils.http.media.MediaType
 import org.openrepose.commons.utils.io.RawInputStreamReader
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, RouteDestination}
-import org.openrepose.core.filter.{FilterConfigHelper, SystemModelInterrogator}
+import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.healthcheck.{HealthCheckService, Severity}
 import org.openrepose.core.services.reporting.metrics.MetricsService
-import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.core.systemmodel.config.{Destination, SystemModel}
 import org.openrepose.filters.versioning.config.{ServiceVersionMapping, ServiceVersionMappingList}
 import org.openrepose.filters.versioning.domain.{ConfigurationData, VersionedHostNotFoundException, VersionedRequest}
 import org.openrepose.filters.versioning.schema.ObjectFactory
 import org.openrepose.filters.versioning.util.{ContentTransformer, RequestMediaRangeInterrogator, VersionChoiceFactory}
-import org.springframework.beans.factory.annotation.Value
 
 import scala.collection.JavaConversions._
 
 @Named
-class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
-                                 @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String,
-                                 configurationService: ConfigurationService,
-                                 healthCheckService: HealthCheckService,
+class VersioningFilter @Inject()(configurationService: ConfigurationService,
                                  optMetricsService: Optional[MetricsService])
   extends Filter with StrictLogging {
 
   private final val SystemModelConfigFileName = "system-model.cfg.xml"
   private final val DefaultVersioningConfigFileName = "versioning.cfg.xml"
   private final val VersioningSchemaFilePath = "/META-INF/schema/config/versioning-configuration.xsd"
-  private final val SystemModelConfigIssue = "SystemModelConfigIssue"
   private final val VersioningDefaultQuality = 0.5
   private final val VersionedRequestMetricPrefix = MetricRegistry.name(classOf[VersioningFilter], "VersionedRequest")
 
   private val versioningObjectFactory = new ObjectFactory()
-  private val healthCheckServiceProxy = healthCheckService.register
   private val metricsService = Option(optMetricsService.orElse(null))
 
   private var configurationFileName: String = _
@@ -202,24 +194,11 @@ class VersioningFilter @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) 
     private var initialized = false
 
     override def configurationUpdated(configurationObject: SystemModel): Unit = {
-      val interrogator = new SystemModelInterrogator(clusterId, nodeId)
-      val localCluster = interrogator.getLocalCluster(configurationObject)
-      val localNode = interrogator.getLocalNode(configurationObject)
+      destinations = configurationObject.getDestinations.getEndpoint
+        .map(destination => destination.getId -> destination)
+        .toMap
 
-      if (localCluster.isPresent && localNode.isPresent) {
-        destinations = (localCluster.get().getDestinations.getEndpoint ++ localCluster.get.getDestinations.getTarget)
-          .map(destination => destination.getId -> destination)
-          .toMap
-
-        healthCheckServiceProxy.resolveIssue(SystemModelConfigIssue)
-        initialized = true
-      } else {
-        logger.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml")
-        healthCheckServiceProxy.reportIssue(
-          SystemModelConfigIssue,
-          "Unable to identify the local host in the system model - please check your system-model.cfg.xml",
-          Severity.BROKEN)
-      }
+      initialized = true
     }
 
     override def isInitialized: Boolean = initialized

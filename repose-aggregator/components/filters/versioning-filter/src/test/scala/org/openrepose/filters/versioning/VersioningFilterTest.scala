@@ -32,7 +32,6 @@ import org.mockito.Mockito._
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.media.MimeType
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.healthcheck.{HealthCheckService, HealthCheckServiceProxy, Severity}
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.systemmodel.config._
 import org.openrepose.filters.versioning.config.{MediaType, MediaTypeList, ServiceVersionMapping, ServiceVersionMappingList}
@@ -45,25 +44,14 @@ import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttp
 class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach with MockitoSugar {
 
   val systemModel = new SystemModel()
-  val cluster = new ReposeCluster()
-  val nodeList = new NodeList()
-  val node = new Node()
   val destinationList = new DestinationList()
-  val endpoint = new DestinationEndpoint()
+  val endpoint = new Destination()
   endpoint.setId("endpoint")
   endpoint.setDefault(true)
   destinationList.getEndpoint.add(endpoint)
-  node.setId("node")
-  node.setHostname("localhost")
-  nodeList.getNode.add(node)
-  cluster.setId("cluster")
-  cluster.setNodes(nodeList)
-  cluster.setDestinations(destinationList)
-  systemModel.getReposeCluster.add(cluster)
+  systemModel.setDestinations(destinationList)
 
   var configurationService: ConfigurationService = _
-  var healthCheckService: HealthCheckService = _
-  var healthCheckServiceProxy: HealthCheckServiceProxy = _
   var metricsService: MetricsService = _
   var metricsServiceOpt: Optional[MetricsService] = _
   var metricRegistry: MetricRegistry = _
@@ -77,15 +65,12 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
 
   override def beforeEach(): Unit = {
     configurationService = mock[ConfigurationService]
-    healthCheckService = mock[HealthCheckService]
-    healthCheckServiceProxy = mock[HealthCheckServiceProxy]
     metricsService = mock[MetricsService]
     metricRegistry = mock[MetricRegistry]
     meter = mock[Meter]
 
     metricsServiceOpt = Optional.of(metricsService)
 
-    when(healthCheckService.register()).thenReturn(healthCheckServiceProxy)
     when(metricsService.getRegistry).thenReturn(metricRegistry)
     when(metricRegistry.meter(anyString())).thenReturn(meter)
 
@@ -98,7 +83,7 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
     doNothing().when(configurationService).subscribeTo(anyString(), anyString(), any[URL], versioningListenerCaptor.capture(), any[Class[ServiceVersionMappingList]])
     doNothing().when(configurationService).subscribeTo(anyString(), systemModelListenerCaptor.capture(), any[Class[SystemModel]])
 
-    filter = new VersioningFilter("cluster", "node", configurationService, healthCheckService, metricsServiceOpt)
+    filter = new VersioningFilter(configurationService, metricsServiceOpt)
     filter.init(new MockFilterConfig())
 
     systemModelListener = systemModelListenerCaptor.getValue
@@ -206,32 +191,6 @@ class VersioningFilterTest extends FunSpec with Matchers with BeforeAndAfterEach
       filter.doFilter(request, response, filterChain)
 
       filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(HttpHeaders.ACCEPT) shouldBe MimeType.APPLICATION_XML.toString
-    }
-  }
-
-  describe("system model configurationUpdated") {
-    it("should report an issue if the local node is not defined in the system model") {
-      systemModelListener.configurationUpdated {
-        val systemModel = new SystemModel()
-        val cluster = new ReposeCluster()
-        val nodeList = new NodeList()
-        val node = new Node()
-        val destinationList = new DestinationList()
-        val endpoint = new DestinationEndpoint()
-        endpoint.setId("endpoint")
-        endpoint.setDefault(true)
-        destinationList.getEndpoint.add(endpoint)
-        node.setId("randomnode")
-        node.setHostname("localhost")
-        nodeList.getNode.add(node)
-        cluster.setId("randomcluster")
-        cluster.setNodes(nodeList)
-        cluster.setDestinations(destinationList)
-        systemModel.getReposeCluster.add(cluster)
-        systemModel
-      }
-
-      verify(healthCheckServiceProxy).reportIssue(anyString(), anyString(), org.mockito.Matchers.eq(Severity.BROKEN))
     }
   }
 
