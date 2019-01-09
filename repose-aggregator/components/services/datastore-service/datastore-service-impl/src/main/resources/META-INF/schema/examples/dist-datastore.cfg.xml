@@ -12,8 +12,7 @@
     </allowed-hosts>
 
     <port-config>
-        <port port="3888" cluster="38"/>
-        <port port="3999" cluster="40" node="8"/>
-        <port port="4000" cluster="40"/>
+        <port port="3888"/>
+        <port port="3999" node="8"/>
     </port-config>
 </distributed-datastore>
