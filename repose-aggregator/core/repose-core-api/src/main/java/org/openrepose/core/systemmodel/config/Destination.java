@@ -26,21 +26,21 @@ import java.io.Serializable;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Destination")
-@XmlSeeAlso({
-    DestinationCluster.class,
-    DestinationEndpoint.class
-})
 @Data
 public class Destination
     implements Serializable {
     @XmlAttribute(name = "id", required = true)
     private String id;
+    @XmlAttribute(name = "default")
+    private boolean isDefault;
     @XmlAttribute(name = "protocol")
     private String protocol = "https";
+    @XmlAttribute(name = "hostname")
+    private String hostname = "localhost";
+    @XmlAttribute(name = "port")
+    private int port;
     @XmlAttribute(name = "root-path")
     private String rootPath = "";
     @XmlAttribute(name = "chunked-encoding")
     private ChunkedEncoding chunkedEncoding = ChunkedEncoding.TRUE;
-    @XmlAttribute(name = "default")
-    private boolean isDefault;
 }

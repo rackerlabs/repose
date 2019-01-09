@@ -41,72 +41,26 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="repose-cluster" type="mod:ReposeCluster" minOccurs="1" maxOccurs="unbounded"/>
-            <xs:element name="service-cluster" type="mod:Cluster" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="nodes" type="mod:NodeList" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="filters" type="mod:FilterList" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="services" type="mod:ServicesList" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="destinations" type="mod:DestinationList" minOccurs="1" maxOccurs="1"/>
             <xs:element name="phone-home" type="mod:PhoneHomeServiceConfig" minOccurs="0" maxOccurs="1"/>
             <xs:element name="tracing-header" type="mod:TracingHeaderConfig" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
-    </xs:complexType>
 
-    <xs:complexType name="Cluster">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>
-                    Defines a single service cluster in the system model. A service cluster is a collection of nodes
-                    that provide equivalent functionality. If a service cluster represents a repose cluster, then
-                    it will contain a filter list and a destination list.
-                </html:p>
-            </xs:documentation>
-        </xs:annotation>
-
-        <xs:sequence>
-            <xs:element name="nodes" type="mod:NodeList" minOccurs="1" maxOccurs="1"/>
-        </xs:sequence>
-
-        <xs:attribute name="id" type="xs:ID" use="required">
+        <xs:attribute name="rewrite-host-header" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Defines the service cluster's id which may be referenced elsewhere in various configuration
-                        files
+                    <html:p>Determines whether or not repose nodes rewrite the HOST header to
+                        contain
+                        the host and port of the origin service. If true, repose will rewrite the HOST header.
+                        If false, repose
+                        will pass whatever value is received on as the value for the HOST header.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-    </xs:complexType>
-
-    <xs:complexType name="ReposeCluster">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>
-                    Defines a single service cluster in the system model. A service cluster is a collection of nodes
-                    that provide equivalent functionality. If a service cluster represents a repose cluster, then
-                    it will contain a filter list and a destination list.
-                </html:p>
-            </xs:documentation>
-        </xs:annotation>
-
-        <xs:complexContent>
-            <xs:extension base="mod:Cluster">
-                <xs:sequence>
-                    <xs:element name="filters" type="mod:FilterList" minOccurs="0" maxOccurs="1"/>
-                    <xs:element name="services" type="mod:ServicesList" minOccurs="0" maxOccurs="1"/>
-                    <xs:element name="destinations" type="mod:DestinationList" minOccurs="1" maxOccurs="1"/>
-                </xs:sequence>
-
-                <xs:attribute name="rewrite-host-header" type="xs:boolean" use="optional" default="true">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>Determines whether or not repose nodes in this cluster rewrite the HOST header to
-                                contain
-                                the host and port of the origin service. If true, repose will rewrite the HOST header.
-                                If false, repose
-                                will pass whatever value is received on as the value for the HOST header.
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-            </xs:extension>
-        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="PhoneHomeServiceConfig">
@@ -152,7 +106,7 @@
     <xs:complexType name="NodeList">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Defines a list of nodes within a cluster</html:p>
+                <html:p>Defines a list of nodes</html:p>
             </xs:documentation>
         </xs:annotation>
 
@@ -161,8 +115,7 @@
         </xs:sequence>
         <xs:assert vc:minVersion="1.1" test="count(distinct-values(mod:node/@id)) = count(mod:node/@id)"
                    xerces:message="Each node should have a unique id"
-                   saxon:message="Each node should have a unique id">
-        </xs:assert>
+                   saxon:message="Each node should have a unique id"/>
     </xs:complexType>
 
     <xs:complexType name="Node">
@@ -213,8 +166,7 @@
         </xs:attribute>
         <xs:assert vc:minVersion="1.1" test="@https-port > 0 or @http-port > 0"
                    xerces:message="You must specify an http-port and/or an https-port"
-                   saxon:message="You must specify an http-port and/or an https-port">
-        </xs:assert>
+                   saxon:message="You must specify an http-port and/or an https-port"/>
     </xs:complexType>
 
     <xs:complexType name="FilterList">
@@ -239,8 +191,7 @@
         </xs:attribute>
         <xs:assert vc:minVersion="1.1" test="count(distinct-values(mod:filter/@id)) = count(mod:filter/@id)"
                    xerces:message="Filters must have ids unique within their containing filter list"
-                   saxon:message="Filters must have ids unique within their containing filter list">
-        </xs:assert>
+                   saxon:message="Filters must have ids unique within their containing filter list"/>
     </xs:complexType>
 
     <xs:complexType name="Filter">
@@ -460,8 +411,7 @@
         </xs:sequence>
         <xs:assert vc:minVersion="1.1" test="count(distinct-values(mod:service/@name)) = count(mod:service/@name)"
                    xerces:message="Services must have name unique within their containing service list"
-                   saxon:message="Services must have name unique within their containing service list">
-        </xs:assert>
+                   saxon:message="Services must have name unique within their containing service list"/>
     </xs:complexType>
 
     <xs:complexType name="Service">
@@ -489,35 +439,21 @@
     <xs:complexType name="DestinationList">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Defines a list of target destinations reachable from a cluster</html:p>
+                <html:p>Defines a list of target destinations</html:p>
             </xs:documentation>
         </xs:annotation>
 
-        <xs:all vc:minVersion="1.1">
-            <xs:element name="endpoint" type="mod:DestinationEndpoint" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="target" type="mod:DestinationCluster" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:all>
-        <!--
-            Order matters in 1.0 land :-(
-        -->
-        <xs:sequence vc:minVersion="1.0" vc:maxVersion="1.1">
-            <xs:element name="endpoint" type="mod:DestinationEndpoint" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="target" type="mod:DestinationCluster" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:sequence>
+            <xs:element name="endpoint" type="mod:Destination" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
-        <xs:assert vc:minVersion="1.1" test="(count(mod:endpoint)+count(mod:target)) gt 0"
-                   xerces:message="Must have at least one destination defined."
-                   saxon:message="Must have at least one destination defined.">
-        </xs:assert>
         <xs:assert vc:minVersion="1.1"
                    test="count(mod:*[xs:boolean(@default) = true()]) eq 1"
                    xerces:message="There should be one and only one default destination"
-                   saxon:message="There should be one and only one default destination">
-        </xs:assert>
+                   saxon:message="There should be one and only one default destination"/>
         <xs:assert vc:minVersion="1.1" test="count(distinct-values(mod:*/@id)) = count(mod:*/@id)"
                    xerces:message="Destinations must have ids unique within their containing list"
-                   saxon:message="Destinations must have ids unique within their containing list">
-        </xs:assert>
+                   saxon:message="Destinations must have ids unique within their containing list"/>
     </xs:complexType>
 
     <xs:complexType name="Destination">
@@ -527,6 +463,8 @@
                     <html:p>Defines the endpoint's id which will be referenced elsewhere in different configs</html:p>
                 </xs:documentation>
             </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="default" type="xs:boolean" use="optional" default="false">
         </xs:attribute>
         <xs:attribute name="protocol" use="optional" default="https">
             <xs:annotation>
@@ -541,6 +479,31 @@
                 <xs:restriction base="xs:string">
                     <xs:enumeration value="http"/>
                     <xs:enumeration value="https"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="hostname" type="xs:string" use="optional" default="localhost">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines the endpoint's host name. Optional. If not specified, localhost is
+                        assumed.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="port" use="optional" default="0">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines the endpoint's port. Optional. If not specified (or 0), the
+                        default port associated with the protocol will be used.
+                        Otherwise, the specified port will be used.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:int">
+                    <xs:minInclusive value="0"/>
+                    <xs:maxInclusive value="65535"/>
                 </xs:restriction>
             </xs:simpleType>
         </xs:attribute>
@@ -575,73 +538,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
-        <xs:attribute name="default" type="xs:boolean" use="optional" default="false">
-        </xs:attribute>
-    </xs:complexType>
-
-    <xs:complexType name="DestinationEndpoint">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>Defines a single node that is a target destination reachable from a cluster</html:p>
-            </xs:documentation>
-        </xs:annotation>
-        <xs:complexContent>
-            <xs:extension base="mod:Destination">
-                <xs:attribute name="hostname" type="xs:string" use="optional" default="localhost">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>Defines the endpoint's host name. Optional. If not specified, localhost is
-                                assumed.
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-
-                <xs:attribute name="port" use="optional" default="0">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>Defines the endpoint's port. Optional. If not specified (or 0), the
-                                default port associated with the protocol will be used.
-                                Otherwise, the specified port will be used.
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                    <xs:simpleType>
-                        <xs:restriction base="xs:int">
-                            <xs:minInclusive value="0"/>
-                            <xs:maxInclusive value="65535"/>
-                        </xs:restriction>
-                    </xs:simpleType>
-                </xs:attribute>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
-
-    <xs:complexType name="DestinationCluster">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>Defines a single node that is a target destination reachable from a cluster</html:p>
-            </xs:documentation>
-        </xs:annotation>
-        <xs:complexContent>
-            <xs:extension base="mod:Destination">
-                <xs:attribute name="cluster" type="xs:IDREF" use="required">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>Defines the destination cluster. Repose will choose a host from this cluster to
-                                handle a request.
-                            </html:p>
-                        </xs:documentation>
-                        <xs:appinfo>
-                            <jaxb:property>
-                                <jaxb:baseType name="org.openrepose.core.systemmodel.config.Cluster"/>
-                            </jaxb:property>
-                        </xs:appinfo>
-                    </xs:annotation>
-                </xs:attribute>
-            </xs:extension>
-        </xs:complexContent>
     </xs:complexType>
 
     <xs:simpleType name="ChunkedEncoding">

@@ -33,11 +33,4 @@
         </ssl-configuration>
         <via-header response-prefix="Add me to the Via header." repose-version="true"/>
     </deployment-config>
-
-    <cluster-config cluster-id="internal-cluster">
-        <ssl-configuration need-client-auth="true">
-            <truststore-filename>external.truststore</truststore-filename>
-        </ssl-configuration>
-        <via-header response-prefix="Override the Deployment Config Via header." repose-version="false"/>
-    </cluster-config>
 </repose-container>
