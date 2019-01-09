@@ -85,9 +85,9 @@ class StripTenantPrefixTest extends ReposeValveTest {
         "1234"        | "hybrid:1234"  | "200"
         "1234"        | "foo:1234"     | "200"
         "1234"        | "bar-1234"     | "200"
+        "hybrid:1235" | "hybrid:1235"  | "200"
+        "bar-1234"    | "bar-1234"     | "200"
         "1234"        | "hybrid:1235"  | "401"
-        "hybrid:1235" | "hybrid:1235"  | "401"
         "hybrid:1235" | "1235"         | "401"
-        "bar-1234"    | "bar-1234"     | "401"
     }
 }
