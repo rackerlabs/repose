@@ -48,7 +48,7 @@
 +
 [source,xml]
 ----
-<uri-extraction-regex>.*/servers/([:|-|\w]+)/?.*</uri-extraction-regex>
+<uri-extraction-regex>.*/servers/([:|\-|\w]+)/?.*</uri-extraction-regex>
 ----
 +
 Then you would configure the <<../filters/url-extractor-to-header.adoc#, URL Extractor to Header Filter>> with:
