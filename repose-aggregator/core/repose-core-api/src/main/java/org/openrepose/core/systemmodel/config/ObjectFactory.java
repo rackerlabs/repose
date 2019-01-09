@@ -63,13 +63,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link DestinationCluster }
-     */
-    public DestinationCluster createDestinationCluster() {
-        return new DestinationCluster();
-    }
-
-    /**
      * Create an instance of {@link NodeList }
      */
     public NodeList createNodeList() {
@@ -84,24 +77,10 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Cluster }
-     */
-    public Cluster createCluster() {
-        return new Cluster();
-    }
-
-    /**
      * Create an instance of {@link Service }
      */
     public Service createService() {
         return new Service();
-    }
-
-    /**
-     * Create an instance of {@link ReposeCluster }
-     */
-    public ReposeCluster createReposeCluster() {
-        return new ReposeCluster();
     }
 
     /**
@@ -130,13 +109,6 @@ public class ObjectFactory {
      */
     public ServicesList createServicesList() {
         return new ServicesList();
-    }
-
-    /**
-     * Create an instance of {@link DestinationEndpoint }
-     */
-    public DestinationEndpoint createDestinationEndpoint() {
-        return new DestinationEndpoint();
     }
 
     /**

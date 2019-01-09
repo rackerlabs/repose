@@ -1,25 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-    <repose-cluster id="repose">
+    <nodes>
+        <node id="node1" hostname="localhost" http-port="8088"/>
+        <!-- localhost service instance will be started on specified port -->
+        <!-- node id="node2" hostname="other-host" http-port="8088"/--> <!-- other hosts are not started, only commmunicated with -->
+    </nodes>
 
-        <nodes>
-            <node id="node1" hostname="localhost" http-port="8088"/>
-            <!-- localhost service instance will be started on specified port -->
-            <!-- node id="node2" hostname="other-host" http-port="8088"/--> <!-- other hosts are not started, only commmunicated with -->
-        </nodes>
+    <filters bypass-uri-regex="/healthcheck">
+        <filter name="client-auth" uri-regex=".*/servers/([-\w]+)/?.*"/>
+        <!--filter name="api-validator" /-->
+    </filters>
 
-        <filters bypass-uri-regex="/healthcheck">
-            <filter name="client-auth" uri-regex=".*/servers/([-\w]+)/?.*"/>
-            <!--filter name="api-validator" /-->
-        </filters>
-
-        <destinations>
-            <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"
-                      default="true"/>
-        </destinations>
-
-    </repose-cluster>
+    <destinations>
+        <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"
+                  default="true"/>
+    </destinations>
 
     <!-- Please set the enabled attribute to true to send us usage updates and help us improve Repose! -->
     <phone-home enabled="false"
