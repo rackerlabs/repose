@@ -34,7 +34,6 @@ import org.openrepose.nodeservice.distributed.servlet.DistributedDatastoreServle
  */
 public class DistributedDatastoreServer {
 
-    private final String clusterId;
     private final String nodeId;
     private final DistributedDatastoreServlet ddServlet;
     private final DistributedDatastoreConfiguration ddConfig;
@@ -42,12 +41,10 @@ public class DistributedDatastoreServer {
     private int port;
     private Server server;
 
-    public DistributedDatastoreServer(String clusterId,
-                                      String nodeId,
+    public DistributedDatastoreServer(String nodeId,
                                       DistributedDatastoreServlet ddServlet,
                                       DistributedDatastoreConfiguration ddConfig
     ) {
-        this.clusterId = clusterId;
         this.nodeId = nodeId;
         this.ddServlet = ddServlet;
         this.ddConfig = ddConfig;
@@ -98,7 +95,7 @@ public class DistributedDatastoreServer {
             ServletContextHandler rootContext = new ServletContextHandler(server, "/");
 
             ServletHolder holder = new ServletHolder(ddServlet);
-            holder.setName("DistDatastoreServlet-" + clusterId + "-" + nodeId);
+            holder.setName("DistDatastoreServlet-" + nodeId);
             rootContext.addServlet(holder, "/*");
             server.setHandler(rootContext);
             server.setStopAtShutdown(true);
