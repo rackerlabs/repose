@@ -59,8 +59,8 @@ class StripTenantPrefixTest extends ReposeValveTest {
         fakeIdentityV2Service.resetHandlers()
     }
 
-    @Unroll("request tenant: #requestTenant and response tenant: #responseTenant - #responseCode")
-    def "Strip Tenant Prefix enabled"() {
+    @Unroll
+    def "request tenant: #requestTenant and response tenant: #responseTenant - #responseCode"() {
         given:
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()

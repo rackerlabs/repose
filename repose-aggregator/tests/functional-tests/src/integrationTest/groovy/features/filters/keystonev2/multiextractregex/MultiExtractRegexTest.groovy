@@ -54,7 +54,7 @@ class MultiExtractRegexTest extends ReposeValveTest {
         fakeIdentityV2Service.resetHandlers()
     }
 
-    @Unroll("#uriSegment")
+    @Unroll
     def "When the tenant ID can be in multiple places in the request URI and it contains #uriSegment"() {
         given: "a configured Identity service"
         fakeIdentityV2Service.with {
