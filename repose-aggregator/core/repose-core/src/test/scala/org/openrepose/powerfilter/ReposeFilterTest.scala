@@ -44,7 +44,7 @@ import org.openrepose.commons.utils.logging.TracingKey.TRACING_KEY
 import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.services.uriredaction.UriRedactionService
-import org.openrepose.core.systemmodel.config.{TracingHeaderConfig, Filter => FilterConfig}
+import org.openrepose.core.systemmodel.config.{Filter => FilterConfig}
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService
 import org.openrepose.nodeservice.response.ResponseHeaderService
 import org.openrepose.powerfilter.ReposeFilterLoader.{FilterContext, FilterContextList, FilterContextRegistrar}
@@ -319,24 +319,6 @@ class ReposeFilterTest extends FunSpec
 
       assertTrue("MDC Values should be blank.", StringUtils.isBlank(MDC.get(TRACE_REQUEST)))
       assertTrue("MDC Values should be blank.", StringUtils.isBlank(MDC.get(TRACING_KEY)))
-    }
-
-    it("should set a tracing attribute if a tracing header should be set on the response") {
-      filter.doFilter(request, response, filterChain)
-
-      request.getAttribute(TRACE_GUID) should not be null
-    }
-
-    it("should not set a tracing attribute if a tracing header should not be set on the response") {
-      when(reposeFilterLoader.getTracingHeaderConfig).thenReturn(Some {
-        val config = new TracingHeaderConfig
-        config.setEnabled(false)
-        config
-      })
-
-      filter.doFilter(request, response, filterChain)
-
-      request.getAttribute(TRACE_GUID) shouldBe null
     }
   }
 
