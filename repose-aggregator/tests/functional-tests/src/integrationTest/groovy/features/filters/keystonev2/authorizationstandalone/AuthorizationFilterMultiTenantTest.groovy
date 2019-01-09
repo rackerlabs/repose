@@ -154,7 +154,7 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
         mc.handlings.size() == 0
 
         and: "The reason should have been logged"
-        def foundLogs = reposeLogSearch.searchByString("A tenant from the URI and/or the configured header does not match any of the user's tenants")
+        def foundLogs = reposeLogSearch.searchByString("A tenant from the configured header does not match any of the user's tenants")
         foundLogs.size() == 1
     }
 
@@ -205,7 +205,7 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
         mc.handlings.size() == 0
 
         and: "The reason should have been logged"
-        def foundLogs = reposeLogSearch.searchByString("A tenant from the URI and/or the configured header does not match any of the user's tenants")
+        def foundLogs = reposeLogSearch.searchByString("A tenant from the configured header does not match any of the user's tenants")
         foundLogs.size() == 1
     }
 
@@ -227,7 +227,7 @@ class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
         mc.handlings.size() == 0
 
         and: "The reason should have been logged"
-        def foundLogs = reposeLogSearch.searchByString("Could not parse tenant from the URI and/or the configured header")
+        def foundLogs = reposeLogSearch.searchByString("Could not parse tenant from the configured header")
         foundLogs.size() == 1
     }
 
