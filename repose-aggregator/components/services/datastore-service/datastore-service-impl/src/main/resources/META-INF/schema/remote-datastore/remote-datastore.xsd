@@ -36,26 +36,6 @@
                 <html:p>The root config type for the Remote Datastore configuration file.</html:p>
             </xs:documentation>
         </xs:annotation>
-        <xs:sequence>
-            <xs:element name="cluster" type="RemoteClusterConfiguration" minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="RemoteClusterConfiguration">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>The config type to define a Remote Datastore configuration for a specific cluster.</html:p>
-            </xs:documentation>
-        </xs:annotation>
-        <xs:attribute name="id" type="xs:ID" use="required">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                        Defines the id of the cluster this configuration is for.
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
         <xs:attribute name="host" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
@@ -91,6 +71,7 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
+
     <xs:simpleType name="PortNumber">
         <xs:restriction base="xs:integer">
             <xs:minInclusive value="1"/>
