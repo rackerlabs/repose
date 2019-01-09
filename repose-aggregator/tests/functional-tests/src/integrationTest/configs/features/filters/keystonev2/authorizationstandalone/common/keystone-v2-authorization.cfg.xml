@@ -5,7 +5,6 @@
     </pre-authorized-roles>
     <tenant-handling send-all-tenant-ids="false">
         <validate-tenant>
-            <uri-extraction-regex>.*/extract/([-|\w]+)/?.*</uri-extraction-regex>
             <header-extraction-name>x-expected-tenant</header-extraction-name>
         </validate-tenant>
         <send-tenant-id-quality
