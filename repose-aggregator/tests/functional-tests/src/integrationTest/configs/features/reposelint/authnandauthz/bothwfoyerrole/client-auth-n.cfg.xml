@@ -8,9 +8,9 @@
         <identity-service username="admin_username"
                           password="admin_password"
                           uri="http://localhost:${identityPort}"/>
-        <client-mapping id-regex=".*/servers/([-|\w]+)/?.*"/>
+        <client-mapping id-regex=".*/servers/([-\w]+)/?.*"/>
         <ignore-tenant-roles>
             <role>foyer</role>
         </ignore-tenant-roles>
-    </openstack-auth>    
+    </openstack-auth>
 </client-auth>

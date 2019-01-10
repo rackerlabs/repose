@@ -2,5 +2,5 @@
 
 <url-extractor-to-header xmlns="http://docs.openrepose.org/repose/url-extractor-to-header/v1.0">
     <!-- Grab the Tenant ID from the URI path segment immediately following extract; don't include header if URL doesn't match -->
-    <extraction header="X-Tenant-ID" url-regex=".*/extract/([:|\-|\w]+)/?.*"/>
+    <extraction header="X-Tenant-ID" url-regex=".*/extract/([:\-\w]+)/?.*"/>
 </url-extractor-to-header>

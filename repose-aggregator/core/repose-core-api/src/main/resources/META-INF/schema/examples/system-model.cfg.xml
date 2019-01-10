@@ -10,7 +10,7 @@
         </nodes>
 
         <filters bypass-uri-regex="/healthcheck">
-            <filter name="client-auth" uri-regex=".*/servers/([-|\w]+)/?.*"/>
+            <filter name="client-auth" uri-regex=".*/servers/([-\w]+)/?.*"/>
             <!--filter name="api-validator" /-->
         </filters>
 

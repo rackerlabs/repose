@@ -48,14 +48,14 @@
 +
 [source,xml]
 ----
-<uri-extraction-regex>.*/servers/([:|\-|\w]+)/?.*</uri-extraction-regex>
+<uri-extraction-regex>.*/servers/([:\-\w]+)/?.*</uri-extraction-regex>
 ----
 +
 Then you would configure the <<../filters/url-extractor-to-header.adoc#, URL Extractor to Header Filter>> with:
 +
 [source,xml]
 ----
-<extraction url-regex=".*/servers/([-|\w]+)/?.*" header="X-Expected-Tenant"/>
+<extraction url-regex=".*/servers/([:-\w]+)/?.*" header="X-Expected-Tenant"/>
 ----
 .. Replace usage of the `uri-extraction-regex` element with the `header-extraction-name` element in your <<../filters/keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>> and <<../filters/keystone-v2.adoc#, Keystone v2 Filter>> configuration.
 ... The value of the `header-extraction-name` element should match the value of the header name configured in the <<../filters/url-extractor-to-header.adoc#, URL Extractor to Header Filter>>.
