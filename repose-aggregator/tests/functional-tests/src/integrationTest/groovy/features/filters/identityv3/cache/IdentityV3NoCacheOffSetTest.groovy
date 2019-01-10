@@ -29,14 +29,11 @@ import spock.lang.Unroll
 
 class IdentityV3NoCacheOffSetTest extends ReposeValveTest {
     @Shared def identityEndpoint
-    @Shared def MockIdentityV3Service fakeIdentityV3Service
+    @Shared MockIdentityV3Service fakeIdentityV3Service
 
     def cleanup() {
-        if (deproxy)
-            deproxy.shutdown()
-
-        if (repose)
-            repose.stop(throwExceptionOnKill: false)
+        deproxy?.shutdown()
+        repose?.stop(throwExceptionOnKill: false)
     }
 
     /**
@@ -45,8 +42,8 @@ class IdentityV3NoCacheOffSetTest extends ReposeValveTest {
      * - cache timeout for these users will be set at a range of tokenTimeout +/- cacheOffset
      * - all tokens will expire at tokenTimeout+cacheOffset
      */
-    @Unroll("when cache-offset is not config or equals 0 and token-cache-timeout #tokenTimeout: #id")
-    def "when cache offset is not config or set to 0 no cache offset is used"() {
+    @Unroll
+    def "when cache offset is not config or equals 0, token-cache-timeout of #tokenTimeout, and ID #id, then no cache offset is used"() {
 
         given: "All users have unique X-Auth-Token"
         deproxy = new Deproxy()
