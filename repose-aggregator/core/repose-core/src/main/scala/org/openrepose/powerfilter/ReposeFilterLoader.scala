@@ -30,7 +30,6 @@ import javax.servlet.{Filter, ServletContext, ServletException}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.classloader.EarClassLoaderContext
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
-import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.services.classloader.ClassLoaderManagerService
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.deploy.ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED
@@ -141,45 +140,34 @@ class ReposeFilterLoader @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) n
 
   private def updateConfiguration(systemModel: SystemModel, servletContext: ServletContext): Unit = {
     configurationLock.synchronized {
-      val interrogator = new SystemModelInterrogator(nodeId)
+      try {
+        // Only if we've been configured with some filters should we get a new list
+        // Sometimes we won't have any filters
+        val newFilterChain = Option(systemModel.getFilters) match {
+          case Some(listOfFilters: FilterList) => buildFilterContexts(servletContext, listOfFilters.getFilter.asScala.toList)
+          case _ => List.empty[FilterContext]
+        }
 
-      Option(interrogator.getLocalCluster(systemModel).orElse(null)) match {
-        case Some(localCluster) =>
-          healthCheckServiceProxy.resolveIssue(SystemModelConfigHealthReport)
-          try {
-            // Only if we've been configured with some filters should we get a new list
-            // Sometimes we won't have any filters
-            val newFilterChain = Option(localCluster.getFilters) match {
-              case Some(listOfFilters: FilterList) => buildFilterContexts(servletContext, listOfFilters.getFilter.asScala.toList)
-              case _ => List.empty[FilterContext]
-            }
+        // Set the new FilterContextRegistrar and
+        // set the Close flag on the old one.
+        currentFilterContextRegistrar.synchronized {
+          val previousFilterContextRegistrar = currentFilterContextRegistrar
+          currentFilterContextRegistrar = Option(new FilterContextRegistrar(newFilterChain, Option(systemModel.getFilters).map(_.getBypassUriRegex).flatMap(Option.apply)))
+          previousFilterContextRegistrar
+        }.foreach(_.close())
 
-            // Set the new FilterContextRegistrar and
-            // set the Close flag on the old one.
-            currentFilterContextRegistrar.synchronized {
-              val previousFilterContextRegistrar = currentFilterContextRegistrar
-              currentFilterContextRegistrar = Option(new FilterContextRegistrar(newFilterChain, Option(localCluster.getFilters).map(_.getBypassUriRegex).flatMap(Option.apply)))
-              previousFilterContextRegistrar
-            }.foreach(_.close())
+        val filterChainInfo = newFilterChain.map(ctx => ctx.filter.getClass.getName).mkString(",")
+        logger.debug("{} -- Repose filter chain: {}", nodeId, filterChainInfo)
 
-            val filterChainInfo = newFilterChain.map(ctx => ctx.filter.getClass.getName).mkString(",")
-            logger.debug("{} -- Repose filter chain: {}", nodeId, filterChainInfo)
-
-            //Only log this repose ready if we're able to properly fire up a new filter chain
-            logger.info("{} -- Repose ready", nodeId)
-            //Update the JMX bean with our status
-            configurationInformation.updateNodeStatus(nodeId, true)
-          } catch {
-            case fie: FilterInitializationException =>
-              logger.error("{} -- Unable to create new filter chain.", nodeId, fie)
-              //Update the JMX bean with our status
-              configurationInformation.updateNodeStatus(nodeId, false)
-          }
-        case _ =>
-          logger.error("{} -- Unhealthy system-model config (cannot identify local node, or no default destination) - please check your system-model.cfg.xml", nodeId)
-          healthCheckServiceProxy.reportIssue(SystemModelConfigHealthReport,
-            "Unable to identify the local host in the system model, or no default destination - please check your system-model.cfg.xml",
-            Severity.BROKEN)
+        //Only log this repose ready if we're able to properly fire up a new filter chain
+        logger.info("{} -- Repose ready", nodeId)
+        //Update the JMX bean with our status
+        configurationInformation.updateNodeStatus(nodeId, true)
+      } catch {
+        case fie: FilterInitializationException =>
+          logger.error("{} -- Unable to create new filter chain.", nodeId, fie)
+          //Update the JMX bean with our status
+          configurationInformation.updateNodeStatus(nodeId, false)
       }
     }
   }
@@ -310,6 +298,5 @@ object ReposeFilterLoader {
     }
   }
 
-  val SystemModelConfigHealthReport = "SystemModelConfigError"
   val ApplicationDeploymentHealthReport = "ApplicationDeploymentError"
 }

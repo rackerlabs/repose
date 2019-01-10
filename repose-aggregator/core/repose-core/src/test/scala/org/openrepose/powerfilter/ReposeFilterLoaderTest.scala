@@ -282,17 +282,15 @@ object ReposeFilterLoaderTest {
   final val SystemModelXml =
     s"""<?xml version="1.0" encoding="UTF-8"?>
        |<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-       |    <repose-cluster id="repose">
-       |        <nodes>
-       |            <node id="$NodeId" hostname="localhost" http-port="8080"/>
-       |        </nodes>
-       |        <filters>
-       |            <filter name="$FilterName"/>
-       |        </filters>
-       |        <destinations>
-       |            <endpoint id="target" protocol="http" port="8081" default="true"/>
-       |        </destinations>
-       |    </repose-cluster>
+       |    <nodes>
+       |        <node id="$NodeId" hostname="localhost" http-port="8080"/>
+       |    </nodes>
+       |    <filters>
+       |        <filter name="$FilterName"/>
+       |    </filters>
+       |    <destinations>
+       |        <endpoint id="target" protocol="http" port="8081" default="true"/>
+       |    </destinations>
        |</system-model>
        |""".stripMargin
 }
