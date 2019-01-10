@@ -40,7 +40,7 @@ class OpenTracingServiceInvalidHostUdpTest extends ReposeValveTest {
 
         originEndpoint = deproxy.addEndpoint(params.targetPort, 'origin service')
 
-        repose.start(true, false, "repose", "node1")
+        repose.start(true, false, "node1")
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 

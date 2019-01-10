@@ -33,7 +33,7 @@ class HealthCheckServiceTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/proxy", params)
         repose.configurationProvider.applyConfigs("features/services/datastore/badconfig", params)
-        repose.start(true, false, "repose", "node1")
+        repose.start(true, false, "node1")
         repose.waitForDesiredResponseCodeFromUrl(reposeEndpoint, [503], 120)
     }
 
