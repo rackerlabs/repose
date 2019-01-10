@@ -22,7 +22,6 @@ package org.openrepose.framework.test
 import org.linkedin.util.clock.SystemClock
 import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
 import org.openrepose.commons.config.resource.impl.BufferedURLConfigurationResource
-import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.framework.test.client.jmx.JmxClient
 
@@ -89,10 +88,9 @@ class ReposeValveLauncher extends ReposeLauncher {
             waitOnJmxAfterStarting = params.waitOnJmxAfterStarting
         }
 
-        String clusterId = params.get('clusterId', "")
         String nodeId = params.get('nodeId', "")
 
-        start(killOthersBeforeStarting, waitOnJmxAfterStarting, clusterId, nodeId)
+        start(killOthersBeforeStarting, waitOnJmxAfterStarting, nodeId)
     }
 
     /**
@@ -100,7 +98,7 @@ class ReposeValveLauncher extends ReposeLauncher {
      * @param killOthersBeforeStarting
      * @param waitOnJmxAfterStarting
      */
-    void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting, String clusterId, String nodeId) {
+    void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting, String nodeId) {
 
         File jarFile = new File(reposeJar)
         if (!jarFile.exists() || !jarFile.isFile()) {
@@ -183,14 +181,14 @@ class ReposeValveLauncher extends ReposeLauncher {
             waitForCondition(clock, '60s', '1s') {
                 connectViaJmxRemote(jmxUrl)
             }
-            if (clusterId && nodeId) {
-                print("Waiting for repose node: ${clusterId}:${nodeId} to start: ")
+            if (nodeId) {
+                print("Waiting for repose node: ${nodeId} to start: ")
             } else {
                 print("Waiting for repose auto-guessed node to start: ")
             }
 
             waitForCondition(clock, "${MAX_STARTUP_TIME}s", '1s') {
-                isReposeNodeUp(clusterId, nodeId)
+                isReposeNodeUp(nodeId)
             }
         }
     }
@@ -271,30 +269,24 @@ class ReposeValveLauncher extends ReposeLauncher {
      * are all present and accounted for
      * @return
      */
-    private boolean isReposeNodeUp(String clusterId, String nodeId) {
+    private boolean isReposeNodeUp(String nodeId) {
         print('.')
 
         //Marshal the SystemModel if possible, and try to get information from it about which node we care about....
         def systemModelFile = configurationProvider.getSystemModel()
         def systemModelXSDUrl = getClass().getResource("/META-INF/schema/system-model/system-model.xsd")
         def parser = new JaxbConfigurationParser(SystemModel.class, systemModelXSDUrl, this.getClass().getClassLoader())
-        def systemModel = parser.read(new BufferedURLConfigurationResource(systemModelFile.toURI().toURL()))
+        def systemModel = (SystemModel) parser.read(new BufferedURLConfigurationResource(systemModelFile.toURI().toURL()))
 
         //If the systemModel didn't validate, we're going to toss an exception here, which is fine
 
-        //Get the systemModel cluster/node, if there's only one we can guess. If there's many, bad things happen.
-        if (clusterId == "" || nodeId == "") {
-            Map<String, List<String>> clusterNodes = SystemModelInterrogator.allClusterNodes(systemModel)
-
-            if (clusterNodes.size() == 1) {
-                clusterId = clusterNodes.keySet().toList().first()
-                if (clusterNodes.get(clusterId).size() == 1) {
-                    nodeId = clusterNodes.get(clusterId).first()
-                } else {
-                    throw new Exception("Unable to guess what nodeID you want in cluster: " + clusterId)
-                }
+        //Get the systemModel node, if there's only one we can guess. If there's many, bad things happen.
+        if (!nodeId) {
+            def nodes = systemModel.nodes.node
+            if (nodes.size() == 1) {
+                nodeId = nodes.head().id
             } else {
-                throw new Exception("Unable to guess what clusterID you want!")
+                throw new Exception("Unable to guess what nodeID you want")
             }
         }
 

@@ -95,7 +95,7 @@ class RemoteDatastoreServiceTest extends Specification {
         reposeValveLauncher.configurationProvider.applyConfigs("features/services/datastore/remote", params)
         reposeValveLauncher.configurationProvider.applyConfigs("features/services/datastore/remote/$type", params)
 
-        reposeValveLauncher.start(false, false, "repose", type)
+        reposeValveLauncher.start(false, false, type)
 
         return [reposeValveLauncher, reposeLogSearch]
     }

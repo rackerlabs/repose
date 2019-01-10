@@ -53,7 +53,7 @@ class OpenTracingServiceInvalidHostHttpTest extends ReposeValveTest {
             'tracer http service', null, fakeTracer.handler)
 
 
-        repose.start(true, false, "repose", "node1")
+        repose.start(true, false, "node1")
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
