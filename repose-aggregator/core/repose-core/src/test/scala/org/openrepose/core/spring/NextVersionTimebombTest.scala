@@ -44,32 +44,24 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
       /*
        * Before moving to version 9, the following updates should be made:
        *
-       * 1. Remove the functional tests for the above attributes:
-       *    a. IdentityV3CacheOffSetOldTest
-       *    b. IdentityV3NoCacheOffSetOldTest
-       *
-       * 2. Remove these attributes from container-configuration.xsd:
+       * 1. Remove these attributes from system-model.xsd:
        *    a. http-port
        *    b. https-port
        *
-       * 3. Remove the flush output filter
+       * 2. Remove the flush output filter
        *
-       * 4. Extract common XML types (e.g., keystore configuration).
-       *
-       * 5. Remove the Container Configuration's `cluster-config` element's deprecated `via` attribute.
+       * 4. Remove the Container Configuration's `cluster-config` element's deprecated `via` attribute.
        *    a. This needs done in the XSD.
        *    b. There will also be some tests that should be removed also.
        *
-       * 6. Allow the Container config to provide empty [in|ex]cluded-[protocols|ciphers].
+       * 5. For Keystone Authorization, when the default tenant ID matches a request tenant, use the configured request tenant quality rather than using the higher of the request tenant and default tenant qualities.
+       *    Before doing so, verify that this behavior is not useful.
        *
-       * 7. For Keystone Authorization, when the default tenant ID matches a request tenant, use the configured request tenant quality rather than using the higher of the request tenant and default tenant qualities.
-       *     Before doing so, verify that this behavior is not useful.
+       * 6. Remove the population of X-Auth-Token-Key from Keystone v2 Filter.
        *
-       * 8. Remove the population of X-Auth-Token-Key from Keystone v2 Filter.
-       *
-       * 9. The following classes should all be obsoleted when the `ReposeRoutingServlet` is put to use:
-       *     m. ResponseHeaderService
-       *     n. ResponseHeaderServiceImpl
+       * 7. The following classes should all be obsoleted when the `ReposeRoutingServlet` is put to use:
+       *    a. ResponseHeaderService
+       *    b. ResponseHeaderServiceImpl
        */
     }
 
@@ -99,6 +91,8 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        * 3. Remove these elements from openstack-identity-v3.xsd:
        *    a. token
        *    b. group
+       *
+       * 4. Extract common XML types (e.g., keystore configuration).
        */
     }
   }
