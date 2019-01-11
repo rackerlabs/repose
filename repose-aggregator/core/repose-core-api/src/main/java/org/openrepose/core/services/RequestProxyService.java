@@ -21,9 +21,6 @@ package org.openrepose.core.services;
 
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Map;
 
 public interface RequestProxyService {
