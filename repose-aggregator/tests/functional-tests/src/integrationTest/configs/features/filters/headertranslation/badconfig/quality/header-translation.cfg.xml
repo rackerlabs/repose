@@ -2,8 +2,6 @@
 <header-translation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://docs.openrepose.org/repose/header-translation/v1.0"
         xmlns="http://docs.openrepose.org/repose/header-translation/v1.0">
-    <!--headers not unigue-->
+    <!--quality invalid-->
     <header original-name="Content-type" new-name="rax-content-type" quality="-1.0" splittable="true"/>
-    <header original-name="Content-Length" new-name="rax-content-type" quality="0.0" splittable="true"/>
-    <header original-name="repose-test" new-name="rax-repose-test" quality="1.1" splittable="true"/>
 </header-translation>
