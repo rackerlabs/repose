@@ -54,7 +54,7 @@ class MetricsEnableDisableTest extends ReposeValveTest {
     }
 
     def cleanup() {
-        repose.stop()
+        repose?.stop()
     }
 
     def "when metrics are enabled, reporting should occur"() {

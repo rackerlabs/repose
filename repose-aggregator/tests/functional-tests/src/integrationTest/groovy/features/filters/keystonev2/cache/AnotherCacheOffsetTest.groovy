@@ -35,8 +35,8 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
     def MockIdentityV2Service fakeIdentityV2Service
 
     def cleanup() {
-        deproxy.shutdown()
-        repose.stop()
+        deproxy?.shutdown()
+        repose?.stop()
     }
 
     /**
