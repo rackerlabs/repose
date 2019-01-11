@@ -1,22 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
     <deployment-config>
-        <deployment-directory auto-clean="true">${repose.home}</deployment-directory>
-        <artifact-directory check-interval="1000">${repose.home}/artifacts</artifact-directory>
+        <deployment-directory>${repose.home}</deployment-directory>
+        <artifact-directory>${repose.home}/artifacts</artifact-directory>
         <logging-configuration href="file://${repose.config.directory}/log4j2-test.xml"/>
-
         <ssl-configuration>
             <keystore-filename>server.jks</keystore-filename>
             <keystore-password>password</keystore-password>
             <key-password>password</key-password>
-
-            <!-- here's a couple things to explicitly include only some ciphers, and exclude SSLv3 -->
+            <!-- include only the recommended protocols and ciphers -->
+            <included-protocols>
+                <protocol>TLSv1.2</protocol>
+            </included-protocols>
             <included-ciphers>
-                <cipher>.*TLS.*</cipher>
+                <!-- This allows only the following:
+                - TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+                - TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
+                - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+                - TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+                - TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
+                - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+                -->
+                <cipher>TLS_ECDHE_RSA_WITH_AES_(128|256)_(CBC|GCM)_SHA(256|384)?</cipher>
+                <!-- The opening ^ and closing $ are assumed and will cause failure if present. -->
             </included-ciphers>
-            <excluded-protocols>
-                <protocol>SSLv3</protocol>
-            </excluded-protocols>
             <tls-renegotiation-allowed>false</tls-renegotiation-allowed>
         </ssl-configuration>
     </deployment-config>
