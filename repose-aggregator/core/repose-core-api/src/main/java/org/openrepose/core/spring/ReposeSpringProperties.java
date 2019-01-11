@@ -50,7 +50,6 @@ public class ReposeSpringProperties {
      */
     public static class NODE {
         public static final String NODE_ID = "${repose-node-id}";
-        public static final String CLUSTER_ID = "${repose-cluster-id}";
 
         private NODE() {
         }
