@@ -32,17 +32,15 @@ import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.openrepose.commons.utils.io.FileUtilities
 import org.openrepose.core.container.config.SslConfiguration
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
-import org.openrepose.powerfilter.ReposeRoutingServlet
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.support.{AbstractApplicationContext, PropertySourcesPlaceholderConfigurer}
 
 /**
   * Each jetty server starts here. These are the unique things that identify a jetty.
   * A single jetty can listen on both an HTTP port and an HTTPS port. In theory, a single jetty could listen on many
-  * ports, and just have many connectors. A clusterID and nodeID is all that is needed to figure out what jetty it is.
+  * ports, and just have many connectors. A nodeID is all that is needed to figure out what jetty it is.
   * It will fail to build if there's no SSL configuration
   *
-  * @param clusterId    Repose Cluster ID
   * @param nodeId       Repose Node ID
   * @param httpPort     The port to listen on for HTTP traffic
   * @param httpsPort    The port to listen on for HTTPS traffic
@@ -51,7 +49,6 @@ import org.springframework.context.support.{AbstractApplicationContext, Property
   * @param sslConfig    The SSL Configuration to use
   */
 class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
-                        val clusterId: String,
                         val nodeId: String,
                         val httpPort: Option[Int],
                         val httpsPort: Option[Int],
@@ -215,7 +212,7 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
     */
   def restart(): ReposeJettyServer = {
     shutdown()
-    new ReposeJettyServer(nodeContext, clusterId, nodeId, httpPort, httpsPort, sslConfig, idleTimeout, soLingerTime, testMode)
+    new ReposeJettyServer(nodeContext, nodeId, httpPort, httpsPort, sslConfig, idleTimeout, soLingerTime, testMode)
   }
 
   /**
