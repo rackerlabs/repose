@@ -48,7 +48,6 @@ import scala.util.{Failure, Success, Try}
 
 @Named
 class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSION) reposeVersion: String,
-                                    @Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
                                     @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String,
                                     httpClientService: HttpClientService,
                                     configurationService: ConfigurationService,
@@ -252,9 +251,9 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
 
         initialized = true
 
-        val systemModelInterrogator = new SystemModelInterrogator(clusterId, nodeId)
+        val systemModelInterrogator = new SystemModelInterrogator(nodeId)
 
-        isServiceEnabled = systemModelInterrogator.getServiceForCluster(configurationObject, ServiceName).isPresent
+        isServiceEnabled = systemModelInterrogator.getService(configurationObject, ServiceName).isPresent
 
         if (isServiceEnabled) {
           feedActors foreach { case (_, actorPair) =>
