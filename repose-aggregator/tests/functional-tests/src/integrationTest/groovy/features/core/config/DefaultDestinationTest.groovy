@@ -55,8 +55,8 @@ class DefaultDestinationTest extends ReposeValveTest {
         repose?.stop()
     }
 
-    @Unroll("Fails to connect when defaults: #default1, #default2, #default3")
-    def "start with more or less than one default destination endpoint in system model configs, should log error and fail to connect"() {
+    @Unroll()
+    def "Fails to connect when defaults: #default1, #default2, #default3"() {
         given:
         // set the common and good configs
         repose.configurationProvider.applyConfigs("common", params)
@@ -97,8 +97,8 @@ class DefaultDestinationTest extends ReposeValveTest {
 
     }
 
-    @Unroll("starts and returns 200 when defaults: #default1, #default2, #default3")
-    def "start with only one default destination endpoint in system model configs, should return 200"() {
+    @Unroll()
+    def "starts and returns 200 when defaults: #default1, #default2, #default3"() {
         given:
         // set the common and good configs
         repose.configurationProvider.applyConfigs("common", params)
@@ -127,8 +127,8 @@ class DefaultDestinationTest extends ReposeValveTest {
 
     }
 
-    @Unroll("when defaults: #default1, #default2, #default3")
-    def "start with more or less than one default destination and null values, should log error and fail to connect"() {
+    @Unroll()
+    def "when defaults: #default1, #default2, #default3"() {
         given:
         // set the common and good configs
         repose.configurationProvider.cleanConfigDirectory()
