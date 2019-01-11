@@ -73,7 +73,7 @@ class AtomFeedServiceImplTest
 
   describe("init") {
     it("should register configuration listeners") {
-      val atomFeedService = new AtomFeedServiceImpl("1.0", "", "", mockHttpClientService, mockConfigService, mockAppContext, mockTracer)
+      val atomFeedService = new AtomFeedServiceImpl("1.0", "", mockHttpClientService, mockConfigService, mockAppContext, mockTracer)
 
       atomFeedService.init()
 
@@ -93,7 +93,7 @@ class AtomFeedServiceImplTest
 
   describe("destroy") {
     it("should unregister configuration listeners") {
-      val atomFeedService = new AtomFeedServiceImpl("1.0", "", "", mockHttpClientService, mockConfigService, mockAppContext, mockTracer)
+      val atomFeedService = new AtomFeedServiceImpl("1.0", "", mockHttpClientService, mockConfigService, mockAppContext, mockTracer)
 
       atomFeedService.destroy()
 
@@ -104,7 +104,7 @@ class AtomFeedServiceImplTest
 
   describe("registerListener") {
     it("should register a notifier with a notifier manager") {
-      val atomFeedService = new AtomFeedServiceImpl("1.0", "clusterId", "nodeId", mockHttpClientService, mockConfigService, mockAppContext, mockTracer)
+      val atomFeedService = new AtomFeedServiceImpl("1.0", "nodeId", mockHttpClientService, mockConfigService, mockAppContext, mockTracer)
 
       val listenerIdOne = atomFeedService.registerListener("feedId", mock[AtomFeedListener])
       val listenerIdTwo = atomFeedService.registerListener("feedIdTwo", mock[AtomFeedListener])
@@ -117,7 +117,7 @@ class AtomFeedServiceImplTest
 
   describe("unregisterListener") {
     it(s"should unregister a listener when passed a valid listener ID") {
-      val atomFeedService = new AtomFeedServiceImpl("1.0", "clusterId", "nodeId", mockHttpClientService, mockConfigService, mockAppContext, mockTracer)
+      val atomFeedService = new AtomFeedServiceImpl("1.0", "nodeId", mockHttpClientService, mockConfigService, mockAppContext, mockTracer)
 
       val listenerId = "test-listener-id"
       val notifierManagerProbe = TestProbe()
@@ -133,7 +133,7 @@ class AtomFeedServiceImplTest
     }
 
     it("should report if a listener ID is not registered") {
-      val atomFeedService = new AtomFeedServiceImpl("1.0", "clusterId", "nodeId", mockHttpClientService, mockConfigService, mockAppContext, mockTracer)
+      val atomFeedService = new AtomFeedServiceImpl("1.0", "nodeId", mockHttpClientService, mockConfigService, mockAppContext, mockTracer)
 
       atomFeedService.unregisterListener("notRegisteredFeedId")
 
@@ -144,7 +144,6 @@ class AtomFeedServiceImplTest
 
   def getSystemModelWithService: SystemModel = {
     val systemModel = new SystemModel()
-    val cluster = new ReposeCluster()
     val nodes = new NodeList()
     val node = new Node()
     val services = new ServicesList()
@@ -153,10 +152,8 @@ class AtomFeedServiceImplTest
     nodes.getNode.add(node)
     service.setName(AtomFeedServiceImpl.ServiceName)
     services.getService.add(service)
-    cluster.setId("clusterId")
-    cluster.setServices(services)
-    cluster.setNodes(nodes)
-    systemModel.getReposeCluster.add(cluster)
+    systemModel.setServices(services)
+    systemModel.setNodes(nodes)
     systemModel
   }
 }
