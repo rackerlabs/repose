@@ -121,28 +121,26 @@ class ValveRunner @Inject()(
         }
 
         //Because it's so much easier to have all this in one object rather than having to get it from a hierarchy
-        case class ConfiguredNode(clusterId: String, nodeId: String, host: String, httpPort: Option[Int], httpsPort: Option[Int])
+        case class ConfiguredNode(nodeId: String, host: String, httpPort: Option[Int], httpsPort: Option[Int])
 
         import scala.collection.JavaConversions._
         //Figure out what nodes are new in the system model, and do things
         //Get a list of ConfiguredNodes (so I have all the information I need) from the XML object by mapping the heck out of the
         //ugly jaxb objects
-        val newConfiguredLocalNodes = systemModel.getReposeCluster.toList.flatMap { cluster =>
-          cluster.getNodes.getNode.toList.filter(node => isLocal(node.getHostname)).map { xmlNode =>
-            //This is a wrapper function to go from the XSD's primitive int type to an Option, so that it has meaning
-            val intToOption: Int => Option[Int] = { i =>
-              if (i == 0) {
-                None
-              } else {
-                Some(i)
-              }
+        val newConfiguredLocalNodes = systemModel.getNodes.getNode.toList.filter(node => isLocal(node.getHostname)).map { xmlNode =>
+          //This is a wrapper function to go from the XSD's primitive int type to an Option, so that it has meaning
+          val intToOption: Int => Option[Int] = { i =>
+            if (i == 0) {
+              None
+            } else {
+              Some(i)
             }
-            ConfiguredNode(cluster.getId,
-              xmlNode.getId,
-              xmlNode.getHostname,
-              intToOption(xmlNode.getHttpPort),
-              intToOption(xmlNode.getHttpsPort))
           }
+          ConfiguredNode(
+            xmlNode.getId,
+            xmlNode.getHostname,
+            intToOption(xmlNode.getHttpPort),
+            intToOption(xmlNode.getHttpsPort))
         }
 
         //If there are no configured local nodes, we're going to bail on all of it
@@ -159,7 +157,6 @@ class ValveRunner @Inject()(
             val stopList = activeNodes.filterNot { activeNode =>
               newConfiguredLocalNodes.exists { node =>
                 node.nodeId == activeNode.nodeId &&
-                  node.clusterId == activeNode.clusterId &&
                   node.httpPort == activeNode.httpPort &&
                   node.httpsPort == activeNode.httpsPort
               }
@@ -170,7 +167,6 @@ class ValveRunner @Inject()(
             val startList = newConfiguredLocalNodes.filterNot { n =>
               activeNodes.exists { active =>
                 active.nodeId == n.nodeId &&
-                  active.clusterId == n.clusterId &&
                   active.httpPort == n.httpPort &&
                   active.httpsPort == n.httpsPort
               }
@@ -181,17 +177,17 @@ class ValveRunner @Inject()(
 
             logger.debug({
               "New configured nodes: " +
-                newConfiguredLocalNodes.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}" }
+                newConfiguredLocalNodes.map { node => s"${node.nodeId}:${node.httpPort}:${node.httpsPort}" }
             })
 
             logger.debug({
               " Nodes to stop: " +
-                stopList.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}" }
+                stopList.map { node => s"${node.nodeId}:${node.httpPort}:${node.httpsPort}" }
             })
 
             logger.debug({
               "Nodes to start: " +
-                startList.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}" }
+                startList.map { node => s"${node.nodeId}:${node.httpPort}:${node.httpsPort}" }
 
             })
 
@@ -199,7 +195,7 @@ class ValveRunner @Inject()(
             activeNodes = activeNodes -- stopList //Take out all the nodes that we're going to stop
             stopList.foreach { node =>
               valvePortMXBean.foreach { mxbean =>
-                mxbean.removeNode(node.clusterId, node.nodeId)
+                mxbean.removeNode(node.nodeId)
               }
               node.shutdown()
             }
@@ -207,18 +203,18 @@ class ValveRunner @Inject()(
 
             //Start up all the new nodes, replacing the existing nodes list with a new one
             activeNodes = activeNodes ++ startList.flatMap { n =>
-              val nodeContext = CoreSpringProvider.getInstance().getNodeContext(n.clusterId, n.nodeId)
+              val nodeContext = CoreSpringProvider.getInstance().getNodeContext(n.nodeId)
               val containerConfigurationService = nodeContext.getBean(classOf[ContainerConfigurationService])
               val deploymentConfiguration = containerConfigurationService.getDeploymentConfiguration
               val sslConfig = Option(deploymentConfiguration.getSslConfiguration)
               val idleTimeout = Option(deploymentConfiguration.getIdleTimeout)
               val soLingerTime = Option(deploymentConfiguration.getSoLingerTime)
-              val node = new ReposeJettyServer(nodeContext, n.clusterId, n.nodeId, n.httpPort, n.httpsPort, sslConfig, idleTimeout, soLingerTime, testMode)
+              val node = new ReposeJettyServer(nodeContext, n.nodeId, n.httpPort, n.httpsPort, sslConfig, idleTimeout, soLingerTime, testMode)
               try {
                 node.start()
                 //Update the MX bean with port info
                 valvePortMXBean.foreach { mxbean =>
-                  mxbean.addNode(n.clusterId, n.nodeId, node)
+                  mxbean.addNode(n.nodeId, node)
                 }
                 Some(node)
               } catch {
@@ -226,7 +222,7 @@ class ValveRunner @Inject()(
                   //If we couldn't start a node, throw a fatal error, and try to start other nodes?
                   // at the very least, we need to unload all the things, because it's buggered.
                   node.shutdown()
-                  logger.error(s"Unable to start repose node ${node.clusterId}:${node.nodeId} !!!!", e)
+                  logger.error(s"Unable to start repose node ${node.nodeId} !!!!", e)
                   None
               }
             }
@@ -239,7 +235,7 @@ class ValveRunner @Inject()(
 
             logger.debug({
               "Current running nodes: " +
-                activeNodes.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}" }
+                activeNodes.map { node => s"${node.nodeId}:${node.httpPort}:${node.httpsPort}" }
             })
 
           }
@@ -257,14 +253,14 @@ class ValveRunner @Inject()(
         nodeModificationLock.synchronized {
           logger.debug({
             "ALL Nodes restarted (Container Config updated): " +
-              activeNodes.map { node => s"${node.clusterId}:${node.nodeId}:${node.httpPort}:${node.httpsPort}" }
+              activeNodes.map { node => s"${node.nodeId}:${node.httpPort}:${node.httpsPort}" }
           })
           activeNodes = activeNodes.map { node =>
             val n1 = node.restart()
             n1.start()
             //Update the mx bean
             valvePortMXBean.foreach{ mxbean =>
-              mxbean.replaceNode(node.clusterId, node.nodeId, n1)
+              mxbean.replaceNode(node.nodeId, n1)
             }
             n1
           }
