@@ -28,12 +28,9 @@ import javax.inject.{Inject, Named}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.{ContainerConfiguration, DeploymentConfiguration}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.spring.ReposeSpringProperties
-import org.springframework.beans.factory.annotation.Value
 
 @Named
-class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
-                                                  configurationService: ConfigurationService)
+class ContainerConfigurationServiceImpl @Inject()(configurationService: ConfigurationService)
   extends ContainerConfigurationService with UpdateListener[ContainerConfiguration] with StrictLogging {
 
   import ContainerConfigurationServiceImpl._
