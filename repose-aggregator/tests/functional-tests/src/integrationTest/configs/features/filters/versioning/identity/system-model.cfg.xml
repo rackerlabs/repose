@@ -1,22 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-    <repose-cluster id="repose">
+    <nodes>
+        <node id="config-test" hostname="localhost" http-port="${reposePort}"/>
+    </nodes>
 
-        <nodes>
-            <node id="config-test" hostname="localhost" http-port="${reposePort}"/>
-        </nodes>
+    <filters>
+        <filter name="versioning"/>
+    </filters>
 
-        <filters>
-            <filter name="versioning"/>
-        </filters>
-
-        <destinations>
-            <endpoint id="target1" protocol="http" hostname="localhost" port="${targetPort}" root-path="/"
-                      default="true"/>
-            <endpoint id="target2" protocol="http" hostname="localhost" port="${targetPort2}" root-path="/"
-                      default="false"/>
-        </destinations>
-
-    </repose-cluster>
+    <destinations>
+        <endpoint id="target1" protocol="http" hostname="localhost" port="${targetPort}" root-path="/"
+                  default="true"/>
+        <endpoint id="target2" protocol="http" hostname="localhost" port="${targetPort2}" root-path="/"
+                  default="false"/>
+    </destinations>
 </system-model>

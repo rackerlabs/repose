@@ -1,26 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-    <repose-cluster id="repose">
+    <nodes>
+        <node id="node1" hostname="localhost" http-port="${reposePort}"/>
+    </nodes>
 
-        <nodes>
-            <node id="node1" hostname="localhost" http-port="${reposePort}"/>
-        </nodes>
+    <filters>
+        <filter name="destination-router" uri-regex=".*/endpoint/.*" configuration="destination-endpoint.cfg.xml"/>
+        <filter name="destination-router" uri-regex=".*/cluster/.*" configuration="destination-cluster.cfg.xml"/>
+    </filters>
 
-        <filters>
-            <filter name="destination-router" uri-regex=".*/endpoint/.*" configuration="destination-endpoint.cfg.xml"/>
-            <filter name="destination-router" uri-regex=".*/cluster/.*" configuration="destination-cluster.cfg.xml"/>
-        </filters>
-
-        <destinations>
-            <endpoint id="endpoint" protocol="http" hostname="localhost" root-path="/root_path" port="${targetPort}"
-                      default="true"/>
-            <target id="mocks-cluster" cluster="mocks-cluster" protocol="http" root-path="/root_cluster"
-                    default="false"/>
-        </destinations>
-
-    </repose-cluster>
-
+    <destinations>
+        <endpoint id="endpoint" protocol="http" hostname="localhost" root-path="/root_path" port="${targetPort}"
+                  default="true"/>
+        <target id="mocks-cluster" cluster="mocks-cluster" protocol="http" root-path="/root_cluster"
+                default="false"/>
+    </destinations>
     <service-cluster id="mocks-cluster">
         <nodes>
             <node id="mock-node" hostname="localhost" http-port="${targetPort}"/>

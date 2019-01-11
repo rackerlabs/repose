@@ -1,30 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-
-    <repose-cluster id="repose">
-        <nodes>
-            <node id="node" hostname="localhost" http-port="${reposePort}"/>
-        </nodes>
-        <filters>
-            <filter name="keystone-v2"/>
-            <filter name="ip-user"/>
-            <filter name="destination-router"/>
-            <filter name="header-user"/>
-            <filter name="header-normalization"/>
-            <filter name="header-translation"/>
-            <filter name="rate-limiting"/>
-            <filter name="uri-user"/>
-            <filter name="uri-normalization"/>
-            <filter name="uri-stripper"/>
-            <filter name="versioning"/>
-            <filter name="api-validator"/>
-        </filters>
-        <destinations>
-            <endpoint id="service" protocol="http" hostname="localhost" root-path="/" port="${targetPort}"
-                      default="true"/>
-        </destinations>
-    </repose-cluster>
-
-
+    <nodes>
+        <node id="node" hostname="localhost" http-port="${reposePort}"/>
+    </nodes>
+    <filters>
+        <filter name="keystone-v2"/>
+        <filter name="ip-user"/>
+        <filter name="destination-router"/>
+        <filter name="header-user"/>
+        <filter name="header-normalization"/>
+        <filter name="header-translation"/>
+        <filter name="rate-limiting"/>
+        <filter name="uri-user"/>
+        <filter name="uri-normalization"/>
+        <filter name="uri-stripper"/>
+        <filter name="versioning"/>
+        <filter name="api-validator"/>
+    </filters>
+    <destinations>
+        <endpoint id="service" protocol="http" hostname="localhost" root-path="/" port="${targetPort}"
+                  default="true"/>
+    </destinations>
 </system-model>
