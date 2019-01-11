@@ -217,23 +217,21 @@ public class CoreSpringProvider {
     }
 
     /**
-     * Get an application context, with the core context as it's parent, for a clusterId and a nodeId.
+     * Get an application context, with the core context as it's parent, for a nodeId.
      * Then things can be scanned. Like node specific services and such. (distDatastore needs this)
      * per-node services must exist under org.openrepose.nodeservice to be scanned and picked up at this phase
      *
-     * @param clusterId
      * @param nodeId
      */
-    public AbstractApplicationContext getNodeContext(String clusterId, String nodeId) {
+    public AbstractApplicationContext getNodeContext(String nodeId) {
         AnnotationConfigApplicationContext nodeContext = new AnnotationConfigApplicationContext();
         nodeContext.setParent(getCoreContext());
 
-        nodeContext.setDisplayName(clusterId + "-" + nodeId + "-context");
+        nodeContext.setDisplayName(nodeId + "-context");
 
         Properties props = new Properties();
         props.put(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.NODE.NODE_ID), nodeId);
-        props.put(ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.NODE.CLUSTER_ID), clusterId);
-        PropertiesPropertySource mps = new PropertiesPropertySource(clusterId + "-" + nodeId + "-" + "props", props);
+        PropertiesPropertySource mps = new PropertiesPropertySource(nodeId + "-" + "props", props);
         nodeContext.getEnvironment().getPropertySources().addFirst(mps);
 
         if (LOG.isTraceEnabled()) {
@@ -248,7 +246,7 @@ public class CoreSpringProvider {
         nodeContext.addBeanFactoryPostProcessor(propConfig);
 
         String nodeServicePackage = conf.getString("nodeSpringContextPath");
-        LOG.debug("Creating node service context for {}-{}", clusterId, nodeId);
+        LOG.debug("Creating node service context for {}", nodeId);
         LOG.debug("Node service annotation scanning package {}", nodeServicePackage);
 
         nodeContext.scan(nodeServicePackage);
