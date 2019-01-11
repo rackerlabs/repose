@@ -1,23 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-    <repose-cluster id="repose">
+    <nodes>
+        <node id="node1" hostname="localhost" http-port="${reposePort}"/>
+    </nodes>
 
-        <nodes>
-            <node id="node1" hostname="localhost" http-port="${reposePort}"/>
-        </nodes>
+    <filters>
+        <filter name="destination-router" uri-regex=".*/endpoint/.*" configuration="destination-router.cfg.xml"/>
+        <filter name="destination-router" uri-regex=".*/endpoint2/.*" configuration="destination-endpoint.cfg.xml"/>
+    </filters>
 
-        <filters>
-            <filter name="destination-router" uri-regex=".*/endpoint/.*" configuration="destination-router.cfg.xml"/>
-            <filter name="destination-router" uri-regex=".*/endpoint2/.*" configuration="destination-endpoint.cfg.xml"/>
-        </filters>
-
-        <destinations>
-            <endpoint id="endpoint" protocol="http" hostname="localhost" root-path="/root_path" port="${targetPort}"
-                      default="true"/>
-            <endpoint id="endpoint2" protocol="http" hostname="localhost" root-path="/root_path" port="${targetPort}"
-                      default="false"/>
-        </destinations>
-
-    </repose-cluster>
+    <destinations>
+        <endpoint id="endpoint" protocol="http" hostname="localhost" root-path="/root_path" port="${targetPort}"
+                  default="true"/>
+        <endpoint id="endpoint2" protocol="http" hostname="localhost" root-path="/root_path" port="${targetPort}"
+                  default="false"/>
+    </destinations>
 </system-model>
