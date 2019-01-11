@@ -22,11 +22,12 @@ package features.core.config
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Slow
 import spock.lang.Unroll
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
+import static org.openrepose.framework.test.ReposeLauncher.MAX_STARTUP_TIME
 
 @Category(Slow)
 class DefaultDestinationTest extends ReposeValveTest {
@@ -64,7 +65,6 @@ class DefaultDestinationTest extends ReposeValveTest {
 
         params += [
                 "default1": default1, "default2": default2, "default3": default3
-
         ]
         repose.configurationProvider.applyConfigs("features/core/config/default-dest", params)
         reposeLogSearch.cleanLog()
@@ -74,10 +74,10 @@ class DefaultDestinationTest extends ReposeValveTest {
         repose.start([waitOnJmxAfterStarting: false])
 
         then: "error should be logged"
-        waitForCondition(repose.clock, "30s", "2s") {
+        waitForCondition(repose.clock, "${MAX_STARTUP_TIME}s", "2s") {
             new File(reposeLogSearch.logFileLocation).exists()
         }
-        waitForCondition(repose.clock, "120s", "2s") {
+        waitForCondition(repose.clock, "${MAX_STARTUP_TIME}s", "2s") {
             reposeLogSearch.searchByString(errorMessage).size() != 0
         }
 
@@ -106,7 +106,6 @@ class DefaultDestinationTest extends ReposeValveTest {
 
         params += [
                 "default1": default1, "default2": default2, "default3": default3
-
         ]
         repose.configurationProvider.applyConfigs("features/core/config/default-dest", params)
 
@@ -150,10 +149,10 @@ class DefaultDestinationTest extends ReposeValveTest {
         repose.start([waitOnJmxAfterStarting: false])
 
         then: "error should be logged"
-        waitForCondition(repose.clock, "30s", "2s") {
+        waitForCondition(repose.clock, "${MAX_STARTUP_TIME}s", "2s") {
             new File(reposeLogSearch.logFileLocation).exists()
         }
-        waitForCondition(repose.clock, "20s", "2s") {
+        waitForCondition(repose.clock, "${MAX_STARTUP_TIME}s", "2s") {
             reposeLogSearch.searchByString(errorMessage).size() != 0
         }
 

@@ -24,6 +24,7 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
+import static org.openrepose.framework.test.ReposeLauncher.getMAX_STARTUP_TIME
 
 class InvalidServiceNameTest extends ReposeValveTest {
 
@@ -65,10 +66,10 @@ class InvalidServiceNameTest extends ReposeValveTest {
         repose.start(killOthersBeforeStarting: false,
                 waitOnJmxAfterStarting: false)
         then: "error should be logged"
-        waitForCondition(repose.clock, "30s", "2s") {
+        waitForCondition(repose.clock, "${MAX_STARTUP_TIME}s", "2s") {
             new File(reposeLogSearch.logFileLocation).exists()
         }
-        waitForCondition(repose.clock, "20s", "2s") {
+        waitForCondition(repose.clock, "${MAX_STARTUP_TIME}s", "2s") {
             reposeLogSearch.searchByString(errorMessage).size() != 0
         }
 
@@ -101,7 +102,7 @@ class InvalidServiceNameTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/core/config/service-name-bad", params)
 
         then: "error should be logged and Repose should still return 200"
-        waitForCondition(repose.clock, "20s", "2s") {
+        waitForCondition(repose.clock, "${MAX_STARTUP_TIME}s", "2s") {
             reposeLogSearch.searchByString(errorMessage).size() != 0
         }
         deproxy.makeRequest(url: reposeEndpoint).receivedResponse.code == "200"
