@@ -52,7 +52,6 @@ import scala.util.matching.Regex
 
 @Named
 class HerpFilter @Inject()(configurationService: ConfigurationService,
-                           @Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
                            @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String)
   extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with StrictLogging {
   private final val DEFAULT_CONFIG = "highly-efficient-record-processor.cfg.xml"
@@ -163,7 +162,6 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
       "serviceCode" -> serviceCode,
       "region" -> region,
       "dataCenter" -> dataCenter,
-      "clusterId" -> clusterId,
       "nodeId" -> nodeId,
       "requestorIp" -> Option(stripHeaderParams(httpServletRequest.getHeader(CommonHttpHeader.X_FORWARDED_FOR)))
         .getOrElse(httpServletRequest.getRemoteAddr)

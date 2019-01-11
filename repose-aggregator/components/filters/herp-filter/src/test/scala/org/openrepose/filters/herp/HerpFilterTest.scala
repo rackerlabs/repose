@@ -59,7 +59,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
     listAppenderPre = ctx.getConfiguration.getAppender("highly-efficient-record-processor-pre-ListAppender").asInstanceOf[ListAppender].clear
     listAppenderPost = ctx.getConfiguration.getAppender("highly-efficient-record-processor-post-ListAppender").asInstanceOf[ListAppender].clear
 
-    herpFilter = new HerpFilter(null, "cluster", "node")
+    herpFilter = new HerpFilter(null, "node")
     herpConfig = new HerpConfig
     servletRequest = new MockHttpServletRequest
     servletRequest.setMethod("GET")
@@ -73,7 +73,6 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
         |  "ServiceCode" : "{{serviceCode}}",
         |  "Region" : "{{region}}",
         |  "DataCenter" : "{{dataCenter}}",
-        |  "Cluster" : "{{clusterId}}",
         |  "Node" : "{{nodeId}}",
         |  "RequestorIp" : "{{requestorIp}}",
         |  "Timestamp" : "{{timestamp}}",
@@ -204,14 +203,6 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include(""""DataCenter" : "some-data-center"""")
-    }
-    it("should log the parametered cluster") {
-      herpFilter.configurationUpdated(herpConfig)
-      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
-
-      val logEvents = listAppenderPre.getEvents
-      logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include(""""Cluster" : "cluster"""")
     }
     it("should log the parametered node") {
       herpFilter.configurationUpdated(herpConfig)
