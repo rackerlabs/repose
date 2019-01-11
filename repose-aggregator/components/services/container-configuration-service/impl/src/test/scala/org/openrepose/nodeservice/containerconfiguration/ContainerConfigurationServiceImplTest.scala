@@ -34,14 +34,12 @@ import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 @RunWith(classOf[JUnitRunner])
 class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
-  final val DefaultClusterId = "defaultClusterId"
-
   var mockConfigService: ConfigurationService = _
   var containerConfigurationService: ContainerConfigurationServiceImpl = _
 
   override def beforeEach() = {
     mockConfigService = mock[ConfigurationService]
-    containerConfigurationService = new ContainerConfigurationServiceImpl(DefaultClusterId, mockConfigService)
+    containerConfigurationService = new ContainerConfigurationServiceImpl(mockConfigService)
   }
 
   describe("init") {

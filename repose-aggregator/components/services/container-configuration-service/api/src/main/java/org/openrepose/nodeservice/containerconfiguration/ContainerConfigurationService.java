@@ -28,7 +28,7 @@ import java.util.Optional;
  * The Container Configuration Service will manage the container configuration. Since the container configuration
  * is patchable, this service was made a node service so that it is able to handle said patching.
  * <p>
- * Consumers may query this service to retrieve up-to-date configured container settings for their cluster.
+ * Consumers may query this service to retrieve up-to-date configured container settings.
  */
 public interface ContainerConfigurationService {
 
