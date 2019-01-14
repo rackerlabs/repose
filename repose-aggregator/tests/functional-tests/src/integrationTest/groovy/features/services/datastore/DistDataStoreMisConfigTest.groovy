@@ -73,14 +73,12 @@ class DistDataStoreMisConfigTest extends ReposeValveTest {
         "noportconfig"       | "port-config"
         "noportelement"      | "The content of element 'port-config' is not complete"
         "noportattribute"    | "Attribute 'port' must appear on element 'port'"
-        "noclusterattribute" | "Attribute 'cluster' must appear on element 'port'"
 
     }
 
-    @Unroll("When start data store mismatch for config #configuration")
     def "Test data store with mismatch config"() {
         given:
-        def searchError = "Unable to determine Distributed Datastore port for" //clusterId:nodeId
+        def searchError = "Unable to determine Distributed Datastore port for" //nodeId
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
         int dataStorePort = PortFinder.instance.getNextOpenPort()
@@ -94,7 +92,7 @@ class DistDataStoreMisConfigTest extends ReposeValveTest {
         ]
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/datastore", params)
-        repose.configurationProvider.applyConfigs("features/services/datastore/" + configuration, params)
+        repose.configurationProvider.applyConfigs("features/services/datastore/nodemismatch", params)
 
         when:
         repose.start([waitOnJmxAfterStarting: false])
@@ -105,9 +103,6 @@ class DistDataStoreMisConfigTest extends ReposeValveTest {
         timedSearch(10) {
             reposeLogSearch.searchByString(searchError).size() > 0
         }
-
-        where:
-        configuration << ["clustermismatch", "nodemismatch"]
 
     }
 
