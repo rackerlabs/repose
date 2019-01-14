@@ -180,19 +180,6 @@ class SystemModelSchemaTest extends ConfigurationTest {
       validator.validateConfigString(config)
     }
 
-    it("should reject the config if there are no defined destination endpoints nor targets") {
-      val config = """<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-                     |   <nodes>
-                     |       <node id="node1" hostname="10.0.0.1" http-port="8088"/>
-                     |   </nodes>
-                     |   <destinations>
-                     |   </destinations>
-                     |</system-model>""".stripMargin
-      intercept[SAXParseException] {
-        validator.validateConfigString(config)
-      }.getLocalizedMessage should include ("Must have at least one destination defined.")
-    }
-
     it("should reject the config if two destinations are marked as the default") {
       val config = """<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
                      |   <nodes>
@@ -201,7 +188,7 @@ class SystemModelSchemaTest extends ConfigurationTest {
                      |   <destinations>
                      |       <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"
                      |                 default="true"/>
-                     |       <target id="foo" cluster="bar" default="true"/>
+                     |       <endpoint id="foo" default="true"/>
                      |   </destinations>
                      |</system-model>""".stripMargin
       intercept[SAXParseException] {
@@ -217,7 +204,7 @@ class SystemModelSchemaTest extends ConfigurationTest {
                      |   <destinations>
                      |       <endpoint id="foo" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"
                      |                 default="true"/>
-                     |       <target id="foo" cluster="bar"/>
+                     |       <endpoint id="foo"/>
                      |   </destinations>
                      |</system-model>""".stripMargin
       intercept[SAXParseException] {
