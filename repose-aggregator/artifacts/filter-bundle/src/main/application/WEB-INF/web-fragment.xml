@@ -53,10 +53,6 @@
         <filter-class>org.openrepose.filters.destinationrouter.DestinationRouterFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>flush-output</filter-name>
-        <filter-class>org.openrepose.filters.flush.FlushOutputFilter</filter-class>
-    </filter>
-    <filter>
         <filter-name>forwarded-proto</filter-name>
         <filter-class>org.openrepose.filters.forwardedproto.ForwardedProtoFilter</filter-class>
     </filter>

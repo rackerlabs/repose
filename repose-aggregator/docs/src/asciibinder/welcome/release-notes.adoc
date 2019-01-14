@@ -26,6 +26,7 @@
 * https://repose.atlassian.net/browse/REP-6663[REP-6663] - Added support for forwarding the response status line reason phrase from the origin service.
 * https://repose.atlassian.net/browse/REP-7428[REP-7428] - Removed support for URI-based tenant validation in the <<../filters/keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>> and <<../filters/keystone-v2.adoc#, Keystone v2 Filter>>.
 * https://repose.atlassian.net/browse/REP-6379[REP-6379] - Updated the recommended SSL Protocol and Cipher lists and clarified this in the in the <<../architecture/container.adoc#, Container>> documentation.
+* https://repose.atlassian.net/browse/REP-4993[REP-4993] - Flush output filter was removed.
 
 == 8.10.0.0 (2018-08-27)
 * https://repose.atlassian.net/browse/REP-6969[REP-6969] - Added support for more expressive filter determination in the <<../architecture/system-model.adoc#,System Model>> using boolean operators.
