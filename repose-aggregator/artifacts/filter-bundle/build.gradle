@@ -10,7 +10,6 @@ dependencies {
     earlib project(":repose-aggregator:components:filters:cors-filter")
     earlib project(":repose-aggregator:components:filters:derp-filter")
     earlib project(":repose-aggregator:components:filters:destination-router-filter")
-    earlib project(":repose-aggregator:components:filters:flush-output-filter")
     earlib project(":repose-aggregator:components:filters:forwarded-proto-filter")
     earlib project(":repose-aggregator:components:filters:header-normalization-filter")
     earlib project(":repose-aggregator:components:filters:header-translation-filter")

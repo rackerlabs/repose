@@ -44,12 +44,6 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
       /*
        * Before moving to version 9, the following updates should be made:
        *
-       * 1. Remove these attributes from system-model.xsd:
-       *    a. http-port
-       *    b. https-port
-       *
-       * 2. Remove the flush output filter
-       *
        * 4. Remove the Container Configuration's `cluster-config` element's deprecated `via` attribute.
        *    a. This needs done in the XSD.
        *    b. There will also be some tests that should be removed also.
@@ -93,6 +87,11 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        *    b. group
        *
        * 4. Extract common XML types (e.g., keystore configuration).
+       *
+       * 5. Remove these attributes from system-model.xsd:
+       *    a. http-port
+       *    b. https-port
+       *
        */
     }
   }
