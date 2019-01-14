@@ -33,7 +33,6 @@
         tracing: {
           rewrite_header: "false"
         },
-        cluster_id: "performance",
         http_port: 7070,
         origin_hostname: "localhost",
         origin_port: 8080,
