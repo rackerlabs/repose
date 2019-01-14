@@ -138,7 +138,7 @@ In other words, the `match` elements are logically AND'd and the `filterOut` blo
                     </cadf:content>
                 </cadf:attachment>
             </cadf:attachments>
-            <cadf:observer id="{{serviceCode}}-{{clusterId}}-{{nodeId}}" name="repose" typeURI="service/security" />
+            <cadf:observer id="{{serviceCode}}-{{nodeId}}" name="repose" typeURI="service/security" />
             <cadf:reason reasonCode="{{responseCode}}"
                          reasonType="http://www.iana.org/assignments/http-status-codes/http-status-codes.xml"/>
         </cadf:event>
@@ -195,7 +195,6 @@ A list of supported keys follows:
 [cols="3", options="header,autowidth"]
 |===
 | Supported fields     | Description                                                                                                                        | Prerequisite Filter(s)
-| clusterId            | The cluster ID of the *Repose* node on which the filter is running, configured in the *Repose* system model.                           | -
 | dataCenter           | The data center, configured in the highly-efficient-record-processor.cfg.xml file.
                          This string will be used in logging to note the data center of the service.                                                        | -
 | guid	               | A globally unique identifier generated for a particular request.

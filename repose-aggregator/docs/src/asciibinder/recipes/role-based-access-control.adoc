@@ -306,22 +306,20 @@ The following example shows a basic System Model that enables the Tenant Culling
 <?xml version="1.0" encoding="UTF-8"?>
 
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-    <repose-cluster id="repose">
-        <nodes>
-            <node id="repose_node1" hostname="localhost" http-port="8080"/>
-        </nodes>
+    <nodes>
+        <node id="repose_node1" hostname="localhost" http-port="8080"/>
+    </nodes>
 
-        <filters>
-            <filter name="header-normalization"/>
-            <filter name="keystone-v2"/>
-            <filter name="simple-rbac"/>
-            <filter name="tenant-culling"/>
-        </filters>
+    <filters>
+        <filter name="header-normalization"/>
+        <filter name="keystone-v2"/>
+        <filter name="simple-rbac"/>
+        <filter name="tenant-culling"/>
+    </filters>
 
-        <destinations>
-            <endpoint id="local" protocol="http" hostname="localhost" root-path="/" port="8000" default="true"/>
-        </destinations>
-    </repose-cluster>
+    <destinations>
+        <endpoint id="local" protocol="http" hostname="localhost" root-path="/" port="8000" default="true"/>
+    </destinations>
 </system-model>
 ----
 

@@ -16,9 +16,9 @@ Data will not be shared among the nodes, so each *Repose* node will have its own
 For example, if using rate limiting with the local datastore, then each node will track its own limit information and limit updates will not be shared with other nodes.
 
 == Distributed Datastore
-A *Repose* cluster may, at times, need to share information between cluster nodes.
-The Distributed Datastore component allows *Repose* to host a simple hash-ring object store that shares consistency between all of the participating cluster nodes.
-This, in turn, allows other hosted components as well as external programs to use the *Repose* cluster as a whole to store information.
+A *Repose* node may, at times, need to share information with other *Repose* nodes.
+The Distributed Datastore component allows *Repose* to host a simple hash-ring object store that shares consistency between all of the participating nodes.
+This, in turn, allows other hosted components as well as external programs to use a cluster of *Repose* nodes as a whole to store information.
 Instead of cache operations communicating through the *Repose* Service port (which is the port a *Repose* instance services requests to pass to the Origin Service), the Distributed Datastore Service will communicate through configured port(s) within the distributed datastore configuration.
 If the Distributed Datastore Service is unable to communicate with the service on other nodes, it will fall back on the local datastore temporarily.
 Once other nodes become reachable, the Distributed Datastore Service will return to being distributed.
@@ -34,20 +34,19 @@ The Distributed Datastore service can be enabled in a *Repose* deployment by add
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-  <repose-cluster id="repose">
-    ...
-    <services>
-      <service name="dist-datastore"/>
-    </services>
-    ...
-  </repose-cluster>
+  ...
+  <services>
+    <service name="dist-datastore"/>
+  </services>
+  ...
 </system-model>
 ----
 
 Adding the Distributed Datastore Service to a *Repose* deployment requires that listening ports be configured within the `dist-datastore.cfg.xml` file.
 The `<port>` element is the port configuration for the Distributed Datastore.
-When you configure *Repose* to start with the Distributed Datastore, the running *Repose* instance will try to find the `<port>` configuration that matches it's own `cluster` and `node`.
-If only the `cluster` attribute is defined, the running *Repose* instance will assume that is the port in which to open a listener for the Distributed Datastore.
+When you configure *Repose* to start with the Distributed Datastore, the running *Repose* instance will try to find the `<port>` configuration that matches it's own node ID in the <<../architecture/system-model.adoc#,System Model>>.
+If the `node` attribute is not defined for a `<port>`, that `<port>` is considered the default `<port>`.
+A running *Repose* instance will listen on the default `<port>` for Distributed Datastore traffic if no `<port>` is defined with a `node` attribute matching its own node ID in the <<../architecture/system-model.adoc#,System Model>>.
 
 The following is a basic sample configuration.
 [source,xml]
@@ -57,7 +56,7 @@ The following is a basic sample configuration.
 <distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'>
     <allowed-hosts allow-all="true"/>
     <port-config>
-        <port port="9999" cluster="repose"/>
+        <port port="9999"/>
     </port-config>
 </distributed-datastore>
 ----
@@ -78,8 +77,8 @@ The following is a basic sample configuration.
         <allow host="127.0.0.1"/> <!--9-->
     </allowed-hosts>
     <port-config>
-        <port port="9999" cluster="repose"/> <!--10-->
-        <port port="7777" cluster="repose" node="node2"/> <!--11-->
+        <port port="9999"/> <!--10-->
+        <port port="7777" node="node2"/> <!--11-->
     </port-config>
 </distributed-datastore>
 ----
@@ -102,8 +101,8 @@ The following is a basic sample configuration.
 <8> Setting the optional `allow-all` to `true` will turn off host ACL checking. +
     Default: `false`
 <9> Defines a host who has access to the distributed datastore API.
-<10> Defines the `port` on which all datastores in this `cluster` will listen.
-<11> Overrides the default `port`, defined for this `cluster` 's datastores to listen, only for this particular `node`.
+<10> Defines the default `port` on which all datastores will listen.
+<11> Overrides the default `port`, defined for all datastores to listen, only for this particular `node`.
 
 === Security
 The distributed datastore provides the option to encrypt communication between nodes using HTTP over SSL/TLS.
@@ -230,13 +229,11 @@ The Remote Datastore service can be enabled in the dynamic clients by adding it 
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-  <repose-cluster id="repose">
-    ...
-    <services>
-      <service name="remote-datastore"/>
-    </services>
-    ...
-  </repose-cluster>
+  ...
+  <services>
+    <service name="remote-datastore"/>
+  </services>
+  ...
 </system-model>
 ----
 
@@ -245,11 +242,8 @@ The following is a basic sample configuration.
 .remote-datastore.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
-<remote-datastore>
-    <cluster id="repose"
-             host="remote.example.com"
-             port="8080"/>
-</remote-datastore>
+<remote-datastore host="remote.example.com"
+                  port="8080"/>
 ----
 
 ==== Full Configuration
@@ -257,20 +251,16 @@ The following is a basic sample configuration.
 .remote-datastore.cfg.xml
 ----
 <?xml version="1.0" encoding="UTF-8"?>
-<remote-datastore>
-    <cluster id="repose" <!--1-->
-             host="remote.example.com" <!--2-->
-             port="8080" <!--3-->
-             useHTTPS="true" <!--4-->
-             connection-pool-id="remote-datastore"/> <!--5-->
-</remote-datastore>
+<remote-datastore host="remote.example.com" <!--1-->
+                  port="8080" <!--2-->
+                  useHTTPS="true" <!--3-->
+                  connection-pool-id="remote-datastore"/> <!--4-->
 ----
-<1> Defines the id of the cluster this configuration is for.
-<2> Defines the host providing the remote datastore.
-<3> Defines the port on which the remote datastore is listening (1-65535).
-<4> Defines if the remote datastore is expecting a secure connection request. +
+<1> Defines the host providing the remote datastore.
+<2> Defines the port on which the remote datastore is listening (1-65535).
+<3> Defines if the remote datastore is expecting a secure connection request. +
     Default: `true`
-<5> Http Connection Pool ID to use when connecting to the Remote Datastore.
+<4> Http Connection Pool ID to use when connecting to the Remote Datastore.
 
 [NOTE]
 ====
