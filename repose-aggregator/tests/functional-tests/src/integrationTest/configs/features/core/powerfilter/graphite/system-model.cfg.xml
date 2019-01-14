@@ -13,13 +13,5 @@
     <destinations>
         <endpoint id="endpoint" protocol="http" hostname="localhost" root-path="/root_path" port="${targetPort}"
                   default="true"/>
-        <target id="mocks-cluster" cluster="mocks-cluster" protocol="http" root-path="/root_cluster"
-                default="false"/>
     </destinations>
-    <service-cluster id="mocks-cluster">
-        <nodes>
-            <node id="mock-node" hostname="localhost" http-port="${targetPort}"/>
-        </nodes>
-    </service-cluster>
-
 </system-model>
