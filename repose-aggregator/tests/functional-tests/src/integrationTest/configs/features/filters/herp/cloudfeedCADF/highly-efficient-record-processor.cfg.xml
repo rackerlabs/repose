@@ -44,7 +44,7 @@
                 </content>
                 </attachment>
             </attachments>
-            <observer id="{{serviceCode}}-{{clusterId}}-{{nodeId}}" name="repose-7.0.0.1" typeURI="service/security" />
+            <observer id="{{serviceCode}}-{{nodeId}}" name="repose-7.0.0.1" typeURI="service/security" />
             <reason reasonCode="{{responseCode}}"
                 reasonType="http://www.iana.org/assignments/http-status-codes/http-status-codes.xml"/>
         </event>
