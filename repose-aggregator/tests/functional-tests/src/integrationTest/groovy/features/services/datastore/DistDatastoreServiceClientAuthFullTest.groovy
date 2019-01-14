@@ -54,7 +54,6 @@ class DistDatastoreServiceClientAuthFullTest extends Specification {
         params += [
                 'reposePort1'      : reposePort1,
                 'reposePort2'      : reposePort2,
-                'repose.cluster.id': 'repose1',
                 'repose.node.id'   : 'node1',
                 'datastorePort1'   : dataStorePort1,
                 'datastorePort2'   : dataStorePort2
