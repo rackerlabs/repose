@@ -35,30 +35,6 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
   coreSpringProvider.initializeCoreContext("/etc/repose", false)
 
   describe("Repose Version") {
-    it("is not 9 (timebomb)") {
-      val reposeVersion = coreSpringProvider.getCoreContext.getEnvironment.getProperty(
-        ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.REPOSE_VERSION))
-
-      reposeVersion should not startWith "9"
-
-      /*
-       * Before moving to version 9, the following updates should be made:
-       *
-       * 4. Remove the Container Configuration's `cluster-config` element's deprecated `via` attribute.
-       *    a. This needs done in the XSD.
-       *    b. There will also be some tests that should be removed also.
-       *
-       * 5. For Keystone Authorization, when the default tenant ID matches a request tenant, use the configured request tenant quality rather than using the higher of the request tenant and default tenant qualities.
-       *    Before doing so, verify that this behavior is not useful.
-       *
-       * 6. Remove the population of X-Auth-Token-Key from Keystone v2 Filter.
-       *
-       * 7. The following classes should all be obsoleted when the `ReposeRoutingServlet` is put to use:
-       *    a. ResponseHeaderService
-       *    b. ResponseHeaderServiceImpl
-       */
-    }
-
     it("is not 10 (timebomb)") {
       val reposeVersion = coreSpringProvider.getCoreContext.getEnvironment.getProperty(
         ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.REPOSE_VERSION))
@@ -91,6 +67,15 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        * 5. Remove these attributes from system-model.xsd:
        *    a. http-port
        *    b. https-port
+       *
+       * 6. For Keystone Authorization, when the default tenant ID matches a request tenant, use the configured request tenant quality rather than using the higher of the request tenant and default tenant qualities.
+       *    Before doing so, verify that this behavior is not useful.
+       *
+       * 7. Remove the population of X-Auth-Token-Key from Keystone v2 Filter.
+       *
+       * 8. The following classes should all be obsoleted when the `ReposeRoutingServlet` is put to use:
+       *    a. ResponseHeaderService
+       *    b. ResponseHeaderServiceImpl
        *
        */
     }
