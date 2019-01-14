@@ -16,12 +16,11 @@ The filter can be enabled by adding it to the list of filters in the <<../archit
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- To configure Repose see: http://wiki.openrepose.org/display/REPOSE/Configuration -->
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-  <repose-cluster id="repose">
-    ...
-    <filters>
-      <filter name="rate-limiting"/>
-    </filters>
-    ...
+  ...
+  <filters>
+    <filter name="rate-limiting"/>
+  </filters>
+  ...
 </system-model>
 ----
 

@@ -30,11 +30,6 @@ It is responsible for routing the HTTP request from *Repose* to the origin servi
 
 This servlet uses the configuration information stored in the <<system-model.adoc#,System Model>> to determine what destinations are available.
 Routing to an app on the same host but in another container or environment is easily configured in a generic way.
-There is also a way to route to another *Repose* cluster defined in the <<system-model.adoc#,System Model>> using a basic built in Round Robin algorithm.
-
-Even though Cluster Routing is possible, the complexity and inflexibility make its use viable in only the most specific situations.
-The Round Robin routing does not do any health checks and will route to unhealthy nodes.
-These are great options to have available for testing and early prototyping, but are not recommended for production.
 
 The preferred deployment strategy is to put a repose node as a side-car proxy on the same host as the origin service in a 1 to 1 fashion.
 If *Repose* needs to horizontally scale at a different rate from the origin service, then putting an external load balancer as the destination is the safer option.

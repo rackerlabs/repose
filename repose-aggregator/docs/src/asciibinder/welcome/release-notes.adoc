@@ -37,6 +37,7 @@
 ** Headers with an empty value are now supported and will not be removed from requests/responses.
 ** A bug causing multiple OpenTracing headers (i.e., `uber-trace-id`) with potentially different values to be forwarded on the request to the origin service has been fixed.
    Now only a single OpenTracing header will be forwarded.
+* https://repose.atlassian.net/browse/REP-7314[REP-7314] - Removed support for <<../architecture/system-model.adoc#,system model>> clusters.
 
 == 8.10.0.0 (2018-08-27)
 * https://repose.atlassian.net/browse/REP-6969[REP-6969] - Added support for more expressive filter determination in the <<../architecture/system-model.adoc#,System Model>> using boolean operators.
