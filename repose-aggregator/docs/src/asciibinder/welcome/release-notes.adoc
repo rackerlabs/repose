@@ -28,6 +28,7 @@
 * https://repose.atlassian.net/browse/REP-6379[REP-6379] - Updated the recommended SSL Protocol and Cipher lists and clarified this in the in the <<../architecture/container.adoc#, Container>> documentation.
 * https://repose.atlassian.net/browse/REP-4993[REP-4993] - Flush output filter was removed.
 * https://repose.atlassian.net/browse/REP-7314[REP-7314] - Removed support for <<../architecture/system-model.adoc#,system model>> clusters.
+* https://repose.atlassian.net/browse/REP-7310[REP-7310] - Fixing the `IllegalArgumentException` thrown by the <<../filters/herp.adoc#, HERP Filter>> when incorrectly attempting to decode query parameters.
 
 == 8.10.0.0 (2018-08-27)
 * https://repose.atlassian.net/browse/REP-6969[REP-6969] - Added support for more expressive filter determination in the <<../architecture/system-model.adoc#,System Model>> using boolean operators.
