@@ -84,7 +84,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
         |    "URL" : "{{requestURL}}",
         |    "TargetHost" : "{{targetHost}}",
         |    "QueryString" : "{{requestQueryString}}",
-        |    "Parameters" : { {{#each parameters}}{{#if @index}},{{/if}}"{{key}}" : [{{#each value}}{{#if @index}},{{/if}}"{{.}}"{{/each}}]{{/each}}
+        |    "Parameters" : { {{#each parameters}}{{#if @index}},{{/if}}"{{key}}" : [{{#each value}}{{#if @index}},{{/if}}"{{{.}}}"{{/each}}]{{/each}}
         |                   },
         |    "UserName" : "{{userName}}",
         |    "ImpersonatorName" : "{{impersonatorName}}",
@@ -323,19 +323,6 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include(""""Parameters" : { "foo" : ["bar","baz"] }""")
-    }
-    it("should extract and log the decoded request parameters") {
-      // given:
-      servletRequest.setAttribute(QUERY_PARAMS, Map("foo%20bar" -> Array("baz%20test")).asJava)
-
-      // when:
-      herpFilter.configurationUpdated(herpConfig)
-      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
-
-      // then:
-      val logEvents = listAppenderPre.getEvents
-      logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include(""""Parameters" : { "foo bar" : ["baz test"] }""")
     }
     it("should extract and log the request user name header") {
       // given:
