@@ -1,5 +1,12 @@
 = Response Messaging service
 
+[IMPORTANT]
+====
+This service is not currently supported.
+The functionality provided by this service is planned to be reintroduced at some point in the future.
+Please http://www.openrepose.org/#contact-us[contact us] if you need this functionality or would like a workaround!
+====
+
 The Response Messaging service enables *Repose* to conditionally overwrite the response body with a pre-configured message.
 
 This service may be used to provide consistent error messages to users.

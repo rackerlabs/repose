@@ -3,6 +3,28 @@
 == Core Behavior Changes
 . Headers will no longer be split unnecessarily at the boundaries of *Repose*.
   If you were counting on this behavior for some reason see <<../recipes/header-splitting.adoc#, Pre 9.0 Header Splitting>>.
+. Headers with an empty value will no longer be automatically removed from requests or responses.
+  If you were counting on this behavior for some reason, the <<../filters/scripting.adoc#, Scripting Filter>> can be used.
+  The scripting filter configuration may look like the following:
++
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+         language="groovy">
+  request.headerNames.each { headerName ->
+      if (!request.getHeader(headerName)) {
+          request.removeHeader(headerName)
+      }
+  }
+  filterChain.doFilter(request, response)
+  response.headerNames.each { headerName ->
+      if (!response.getHeader(headerName)) {
+          response.removeHeader(headerName)
+      }
+  }
+</scripting>
+----
 . The response status line reason phrase from the origin service will now be forwarded from the origin service.
   If you were expecting *Repose* to normalize the reason phrase, see the <<../recipes/reason-phrase-normalization.adoc#, Reason Phrase Normalization recipe>>.
 . Requests can now contain headers with empty values.
