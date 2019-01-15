@@ -26,6 +26,8 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
+import java.nio.charset.StandardCharsets
+
 /**
  * Created by jennyvo on 12/16/14.
  */
@@ -64,6 +66,31 @@ class HerpSimpleTest extends ReposeValveTest {
         result.Request.Method == "GET"
         result.Response.Code == 200
         result.Response.Message == "OK"
+    }
+
+    def "encoded query parameters should be decoded and logged"() {
+        setup:
+        String queryParamKey = "Test"
+        String encodedQueryParamValue = "%21%40%23%24%25%5E%26Z%2A9%29"
+        reposeLogSearch.cleanLog()
+
+        when:
+        MessageChain messageChain = deproxy.makeRequest(
+            url: reposeEndpoint + "?" + queryParamKey + "=" + encodedQueryParamValue
+        )
+
+        and:
+        String logLine = reposeLogSearch.searchByString("INFO  highly-efficient-record-processor")
+        String jsonpart = logLine.substring(logLine.indexOf("{"))
+        JsonSlurper slurper = new JsonSlurper()
+        def result = slurper.parseText(jsonpart)
+
+        then:
+        messageChain.receivedResponse.code == "200"
+
+        and:
+        String decodedQueryParamValue = URLDecoder.decode(encodedQueryParamValue, StandardCharsets.US_ASCII.name())
+        result.Request.Parameters.Test == [decodedQueryParamValue]
     }
 
     @Unroll
