@@ -72,7 +72,7 @@ class EnableBypassAccountAdminTest extends ReposeValveTest {
         fakeValkyrie.resetParameters()
     }
 
-    @Unroll()
+    @Unroll
     def "account_admin user request with an X-Device-Id header value not contained in the user's permissions will be permitted"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
         fakeIdentityService.with {

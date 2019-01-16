@@ -56,7 +56,7 @@ class DefaultDestinationTest extends ReposeValveTest {
         repose?.stop()
     }
 
-    @Unroll()
+    @Unroll
     def "Fails to connect when defaults: #default1, #default2, #default3"() {
         given:
         // set the common and good configs
@@ -97,7 +97,7 @@ class DefaultDestinationTest extends ReposeValveTest {
 
     }
 
-    @Unroll()
+    @Unroll
     def "starts and returns 200 when defaults: #default1, #default2, #default3"() {
         given:
         // set the common and good configs
@@ -126,7 +126,7 @@ class DefaultDestinationTest extends ReposeValveTest {
 
     }
 
-    @Unroll()
+    @Unroll
     def "when defaults: #default1, #default2, #default3"() {
         given:
         // set the common and good configs

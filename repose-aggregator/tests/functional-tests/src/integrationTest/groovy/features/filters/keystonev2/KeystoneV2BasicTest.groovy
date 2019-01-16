@@ -101,7 +101,7 @@ class KeystoneV2BasicTest extends ReposeValveTest {
            so if get group call return 404 or empty group we handle as no x-pp-groups in header
     */
 
-    @Unroll()
+    @Unroll
     def "Validate conditional group call to handle racker token with 404 resp for getGroups call"() {
         given:
         fakeIdentityV2Service.with {

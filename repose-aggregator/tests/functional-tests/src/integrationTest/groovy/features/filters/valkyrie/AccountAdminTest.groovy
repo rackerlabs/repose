@@ -157,7 +157,7 @@ class AccountAdminTest extends ReposeValveTest {
         method << ["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"]
     }
 
-    @Unroll()
+    @Unroll
     def "account_admin user request with an X-Device-Id header value that exists in their permissions should be permitted"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
         fakeIdentityService.with {
