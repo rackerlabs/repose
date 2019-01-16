@@ -177,7 +177,7 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
           // Handle Throwables that arose while processing
           case ime: InvalidMethodException =>
             logger.debug(s"$nodeId -- Invalid HTTP method requested: ${wrappedRequest.getMethod}", ime)
-            wrappedResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Error processing request", true)
+            wrappedResponse.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "Error processing request", true)
           case use: URISyntaxException =>
             logger.debug(s"$nodeId -- Invalid URI requested: ${wrappedRequest.getRequestURI}", use)
             wrappedResponse.sendError(SC_BAD_REQUEST, "Error processing request", true)

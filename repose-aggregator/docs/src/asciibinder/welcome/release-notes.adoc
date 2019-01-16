@@ -17,6 +17,9 @@
 ** Removed the `ServiceClient` utility.
 ** Removed the `HttpComponentFactory` utility.
 ** Removed part of the `RequestProxyService` API.
+** Moved the HTTP request method check to the beginning of processing rather than just before proxying the request.
+   As a result, *Repose* will reject requests with an unsupported HTTP method before any filter processing can occur.
+*** Updated the HTTP response status code returned for a request with an unsupported method from a `500` to a `405`.
 * https://repose.atlassian.net/browse/REP-7201[REP-7201] - The Rackspace Auth User, SAML Policy Translation, and Attribute Mapping Policy Validation filters were removed and placed in their own bundle.
 * https://repose.atlassian.net/browse/REP-5147[REP-5147] - The <<../filters/header-normalization.adoc#, Header Normalization>> filter now evaluates all targets not just the first to match.
 * https://repose.atlassian.net/browse/REP-5326[REP-5326] - Removed the deprecated via attribute from the <<../architecture/container.adoc#, Container configuration>>.

@@ -217,14 +217,14 @@ class ReposeFilterTest extends FunSpec
     }
 
     Set("CONNECT", "NONSTANDARD").foreach { method =>
-      it(s"should return a 400 if the request method is not supported: $method") {
+      it(s"should return a 405 if the request method is not supported: $method") {
         request.setMethod(method)
 
         filter.doFilter(request, response, filterChain)
 
         val messageList = listAppender.getEvents.asScala.map(_.getMessage.getFormattedMessage)
         messageList.filter(_.contains("Invalid HTTP method requested:")) should have length 1
-        response.getStatus shouldBe SC_BAD_REQUEST
+        response.getStatus shouldBe SC_METHOD_NOT_ALLOWED
       }
     }
 
