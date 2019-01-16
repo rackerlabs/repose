@@ -4,6 +4,6 @@
              service-name="repose">
     <jaeger>
         <connection-http endpoint="http://fake-host:${collectorTracingPort}"/>
-        <sampling-constant />
+        <sampling-constant/>
     </jaeger>
 </open-tracing>
