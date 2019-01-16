@@ -45,20 +45,17 @@ public class ConfigurationDataTest {
     private ConfigurationData configurationData;
     private Map<String, Destination> configuredHosts;
     private ServiceVersionMapping version1;
-    private DestinationEndpoint localEndpoint;
+    private Destination localEndpoint;
 
     @Before
     public void setUp() {
-        ReposeCluster domain = new ReposeCluster();
-        domain.setFilters(mock(FilterList.class));
-
         Node localHost = new Node();
         localHost.setHostname("localhost");
         localHost.setHttpPort(8080);
         localHost.setHttpsPort(0);
         localHost.setId("localhost");
 
-        localEndpoint = new DestinationEndpoint();
+        localEndpoint = new Destination();
         localEndpoint.setHostname("localhost");
         localEndpoint.setPort(8080);
         localEndpoint.setProtocol("http");
