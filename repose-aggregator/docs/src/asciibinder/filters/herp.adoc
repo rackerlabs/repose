@@ -116,10 +116,10 @@ In other words, the `match` elements are logically AND'd and the `filterOut` blo
                     outcome="{{cadfOutcome responseCode}}">
             <cadf:initiator id="{{#if impersonatorName}}impersonatorName{{else}}{{userName}}{{/if}}"
                             typeURI="network/node" name="{{#if impersonatorName}}impersonatorName{{else}}{{userName}}{{/if}}">
-                <cadf:host address="{{requestorIp}}" agent="{{userAgent}}" />
+                <cadf:host address="{{requestorIp}}" agent="{{userAgent}}"/>
             </cadf:initiator>
-            <cadf:target id="{{targetHost}}" typeURI="service" name="{{serviceCode}}" >
-                <cadf:host address="{{targetHost}}" />
+            <cadf:target id="{{targetHost}}" typeURI="service" name="{{serviceCode}}">
+                <cadf:host address="{{targetHost}}"/>
             </cadf:target>
             <cadf:attachments>
                 <cadf:attachment name="auditData" contentType="ua:auditData">
@@ -138,7 +138,7 @@ In other words, the `match` elements are logically AND'd and the `filterOut` blo
                     </cadf:content>
                 </cadf:attachment>
             </cadf:attachments>
-            <cadf:observer id="{{serviceCode}}-{{clusterId}}-{{nodeId}}" name="repose" typeURI="service/security" />
+            <cadf:observer id="{{serviceCode}}-{{clusterId}}-{{nodeId}}" name="repose" typeURI="service/security"/>
             <cadf:reason reasonCode="{{responseCode}}"
                          reasonType="http://www.iana.org/assignments/http-status-codes/http-status-codes.xml"/>
         </cadf:event>

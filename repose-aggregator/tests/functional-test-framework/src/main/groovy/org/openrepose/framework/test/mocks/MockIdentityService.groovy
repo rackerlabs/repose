@@ -935,20 +935,20 @@ class MockIdentityService {
     xmlns="http://docs.openstack.org/identity/api/v2.0">
     <token id="\${token}"
         expires="\${expires}">
-        <tenant id="\${tenant}" name="\${tenant}" />
+        <tenant id="\${tenant}" name="\${tenant}"/>
     </token>
     <user
         xmlns:rax-auth="http://docs.rackspace.com/identity/api/ext/RAX-AUTH/v1.0"
         id="\${userid}" username="\${username}" rax-auth:defaultRegion="DFW">
         <roles xmlns="http://docs.openstack.org/identity/api/v2.0">
-            <role id="123" name="compute:admin" />
-            <role id="234" name="object-store:admin" />
+            <role id="123" name="compute:admin"/>
+            <role id="234" name="object-store:admin"/>
         </roles>
     </user>
     <rax-auth:impersonator id="\${impersonateid}" name="\${impersonatename}">
         <roles xmlns="http://docs.openstack.org/identity/api/v2.0">
-            <role id="123" name="Racker" />
-            <role id="234" name="object-store:admin" />
+            <role id="123" name="Racker"/>
+            <role id="234" name="object-store:admin"/>
         </roles>
     </rax-auth:impersonator>
 </access>

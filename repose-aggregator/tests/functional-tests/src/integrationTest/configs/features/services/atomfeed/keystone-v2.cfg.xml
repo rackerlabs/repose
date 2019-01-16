@@ -5,7 +5,7 @@
             <token>60000</token>
             <group>60000</group>
         </timeouts>
-        <atom-feed id="${atom-feed-id}" />
+        <atom-feed id="${atom-feed-id}"/>
     </cache>
 
     <identity-service username="admin_username"

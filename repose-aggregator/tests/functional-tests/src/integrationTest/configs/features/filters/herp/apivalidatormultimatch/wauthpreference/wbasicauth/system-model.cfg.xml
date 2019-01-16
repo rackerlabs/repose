@@ -9,7 +9,7 @@
 
         <filters>
             <filter name="keystone-v2-basic-auth"/>
-            <filter name="keystone-v2" />
+            <filter name="keystone-v2"/>
             <filter name="api-validator"/>
             <filter name="herp"/>
             <filter name="derp"/>

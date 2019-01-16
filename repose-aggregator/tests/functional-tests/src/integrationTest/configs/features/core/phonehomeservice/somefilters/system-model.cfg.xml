@@ -9,7 +9,7 @@
         </nodes>
 
         <filters>
-            <filter name="rate-limiting" />
+            <filter name="rate-limiting"/>
         </filters>
         <services>
             <service name="dist-datastore"/>

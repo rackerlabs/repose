@@ -5,7 +5,7 @@
             password="password"
             uri="http://localhost:${identityPort}"
             set-groups-in-header="true"
-            set-catalog-in-header="true" />
+            set-catalog-in-header="true"/>
     <white-list>
         <uri-regex>^$</uri-regex>
         <uri-regex>/buildinfo</uri-regex>

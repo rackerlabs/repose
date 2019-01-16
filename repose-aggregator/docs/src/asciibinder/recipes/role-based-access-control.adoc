@@ -19,8 +19,8 @@ To prevent users from submitting their own roles, you will need to blacklist hea
             <header id="X-Identity-Status"/>
             <header id="X-Impersonator-Id"/>
             <header id="X-Impersonator-Name"/>
-            <header id="X-PP-Groups" />
-            <header id="X-PP-User" />
+            <header id="X-PP-Groups"/>
+            <header id="X-PP-User"/>
             <header id="X-Roles"/>
             <header id="X-Tenant-Id"/>
             <header id="X-Tenant-Name"/>

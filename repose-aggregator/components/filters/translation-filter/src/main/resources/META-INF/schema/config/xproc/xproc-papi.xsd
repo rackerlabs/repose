@@ -10,8 +10,8 @@
 
     <!--<xs:complexType name="pipeline">-->
     <!--<xs:sequence>-->
-    <!--<xs:element name="input" type="p:input" minOccurs="1" maxOccurs="1" />-->
-    <!--<xs:element name="xslt" type="p:xslt" minOccurs="1" maxOccurs="unbounded" />-->
+    <!--<xs:element name="input" type="p:input" minOccurs="1" maxOccurs="1"/>-->
+    <!--<xs:element name="xslt" type="p:xslt" minOccurs="1" maxOccurs="unbounded"/>-->
     <!--</xs:sequence>-->
 
     <!--<xs:attribute name="name" type="xs:string">-->
@@ -25,7 +25,7 @@
 
     <!--<xs:complexType name="xslt">-->
     <!--<xs:sequence>-->
-    <!--<xs:element name="input" type="p:input" minOccurs="1" maxOccurs="1" />-->
+    <!--<xs:element name="input" type="p:input" minOccurs="1" maxOccurs="1"/>-->
     <!--</xs:sequence>-->
 
     <!--<xs:attribute name="name" type="xs:string">-->
@@ -39,7 +39,7 @@
 
     <!--<xs:complexType name="input">-->
     <!--<xs:sequence>-->
-    <!--<xs:element name="document" type="p:document" minOccurs="1" maxOccurs="1" />-->
+    <!--<xs:element name="document" type="p:document" minOccurs="1" maxOccurs="1"/>-->
     <!--</xs:sequence>-->
 
     <!--<xs:attribute name="port" type="xs:string">-->

@@ -51,7 +51,7 @@
                         maxOccurs="1"/>
         </xs:sequence>
 
-        <!-- <xs:attribute name="allow-entities" type="xs:boolean" use="optional" default="false" /> -->
+        <!-- <xs:attribute name="allow-entities" type="xs:boolean" use="optional" default="false"/> -->
         <xs:attribute name="allow-doctype-decl" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>

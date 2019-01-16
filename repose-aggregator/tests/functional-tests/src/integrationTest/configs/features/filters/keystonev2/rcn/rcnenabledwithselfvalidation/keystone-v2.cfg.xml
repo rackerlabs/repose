@@ -4,7 +4,7 @@
             uri="http://localhost:${identityPort}"
             set-groups-in-header="true"
             set-catalog-in-header="true"
-            apply-rcn-roles="true" />
+            apply-rcn-roles="true"/>
     <white-list>
         <uri-regex>^$</uri-regex>
         <uri-regex>/buildinfo</uri-regex>

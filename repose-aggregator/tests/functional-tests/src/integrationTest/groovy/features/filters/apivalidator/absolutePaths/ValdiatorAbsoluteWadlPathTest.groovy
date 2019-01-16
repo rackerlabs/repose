@@ -70,7 +70,7 @@ class ValdiatorAbsoluteWadlPathTest extends ReposeValveTest {
         validatorConfig.write(
                 """<?xml version="1.0" encoding="UTF-8"?>
 <validators multi-role-match="true" xmlns='http://docs.openrepose.org/repose/validator/v1.0'>
-  <validator role="test_user" wadl="${wadlFile.getAbsolutePath()}" default="false" />
+  <validator role="test_user" wadl="${wadlFile.getAbsolutePath()}" default="false"/>
 </validators>
 """
         )
@@ -108,7 +108,7 @@ class ValdiatorAbsoluteWadlPathTest extends ReposeValveTest {
         validatorConfig.write(
                 """<?xml version="1.0" encoding="UTF-8"?>
 <validators multi-role-match="true" xmlns='http://docs.openrepose.org/repose/validator/v1.0'>
-  <validator role="test_user" wadl="${wadlFile.getAbsolutePath()}" default="false" />
+  <validator role="test_user" wadl="${wadlFile.getAbsolutePath()}" default="false"/>
 </validators>
 """
         )

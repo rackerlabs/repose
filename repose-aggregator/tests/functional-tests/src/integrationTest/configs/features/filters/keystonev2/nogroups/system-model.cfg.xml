@@ -8,7 +8,7 @@
         </nodes>
 
         <filters>
-            <filter name="url-extractor-to-header" />
+            <filter name="url-extractor-to-header"/>
             <filter name="keystone-v2"/>
         </filters>
 
