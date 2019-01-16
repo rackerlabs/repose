@@ -88,6 +88,17 @@ Therefore, the <<../filters/keystone-v2-authorization.adoc#, Keystone v2 Authori
 ----
 <header-extraction-name>X-Expected-Tenant</header-extraction-name>
 ----
++
+.. If desired, follow best practice guidelines by adding the configured header name to the <<../filters/header-normalization.adoc#, Header Normalization Filter>> blacklist.
+... Following the previous examples, the configured header name would be `X-Expected-Tenant`.
+Therefore, the <<../filters/header-normalization.adoc#, Header Normalization Filter>> configuration should contain something like:
++
+[source,xml]
+----
+<blacklist>
+    <header id="X-Expected-Tenant"/>
+</blacklist>
+----
 
 == For Integrators
 
