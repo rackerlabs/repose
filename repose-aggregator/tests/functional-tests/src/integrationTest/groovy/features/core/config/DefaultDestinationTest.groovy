@@ -64,7 +64,7 @@ class DefaultDestinationTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/core/config/common", params)
 
         params += [
-                "default1": default1, "default2": default2, "default3": default3
+                default1: default1, default2: default2, default3: default3
         ]
         repose.configurationProvider.applyConfigs("features/core/config/default-dest", params)
         reposeLogSearch.cleanLog()
@@ -105,7 +105,7 @@ class DefaultDestinationTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/core/config/common", params)
 
         params += [
-                "default1": default1, "default2": default2, "default3": default3
+                default1: default1, default2: default2, default3: default3
         ]
         repose.configurationProvider.applyConfigs("features/core/config/default-dest", params)
 
@@ -135,9 +135,9 @@ class DefaultDestinationTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/core/config/common", params)
 
         params += [
-                "default1": defaultParamWrapper(default1),
-                "default2": defaultParamWrapper(default2),
-                "default3": defaultParamWrapper(default3)
+                default1: defaultParamWrapper(default1),
+                default2: defaultParamWrapper(default2),
+                default3: defaultParamWrapper(default3)
         ]
         repose.configurationProvider.applyConfigs("features/core/config/default-dest-null", params)
 
