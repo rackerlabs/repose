@@ -24,7 +24,7 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
-import static org.openrepose.framework.test.ReposeLauncher.getMAX_STARTUP_TIME
+import static org.openrepose.framework.test.ReposeLauncher.MAX_STARTUP_TIME
 
 class InvalidServiceNameTest extends ReposeValveTest {
 
