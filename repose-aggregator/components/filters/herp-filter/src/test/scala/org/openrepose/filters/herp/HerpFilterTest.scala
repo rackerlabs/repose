@@ -324,6 +324,19 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       logEvents.size shouldBe 1
       logEvents.get(0).getMessage.getFormattedMessage should include(""""Parameters" : { "foo" : ["bar","baz"] }""")
     }
+    it("should extract and log the encoded request parameters as is") {
+      // given:
+      servletRequest.setAttribute(QUERY_PARAMS, Map("foo%20bar" -> Array("baz%20test")).asJava)
+
+      // when:
+      herpFilter.configurationUpdated(herpConfig)
+      herpFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      // then:
+      val logEvents = listAppenderPre.getEvents
+      logEvents.size shouldBe 1
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""Parameters" : { "foo%20bar" : ["baz%20test"] }""")
+    }
     it("should extract and log the request user name header") {
       // given:
       servletRequest.addHeader("X-User-Name", "foo")
