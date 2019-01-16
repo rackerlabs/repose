@@ -108,30 +108,30 @@ If set to localhost, any physical node will match and run the *Repose* node.
 .system-model.cfg.xml
 ----
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-    <nodes>
-      <node id="repose_node" hostname="localhost" http-port="8080"/> <!--1-->
-    </nodes>
+  <nodes>
+    <node id="repose_node" hostname="localhost" http-port="8080"/> <!--1-->
+  </nodes>
 
-    <filters> <!--2-->
-      <filter name="ip-user"> <!--3-->
-          <and> <!--4-->
-            <methods value="GET HEAD POST PUT"/> <!--5-->
-            <or> <!--6-->
-              <header name="foo"/> <!--7-->
-              <header name="bar" value="BaZ"/> <!--8-->
-            </or>
-            <not> <!--9-->
-              <uri regex="^/v1/[^/]+/[^/]+/public/?"/> <!--10-->
-            </not>
-          </and>
-      </filter>
-    </filters>
+  <filters> <!--2-->
+    <filter name="ip-user"> <!--3-->
+        <and> <!--4-->
+          <methods value="GET HEAD POST PUT"/> <!--5-->
+          <or> <!--6-->
+            <header name="foo"/> <!--7-->
+            <header name="bar" value="BaZ"/> <!--8-->
+          </or>
+          <not> <!--9-->
+            <uri regex="^/v1/[^/]+/[^/]+/public/?"/> <!--10-->
+          </not>
+        </and>
+    </filter>
+  </filters>
 
-    <services/> <!--11-->
+  <services/> <!--11-->
 
-    <destinations>
-      <endpoint id="origin_service" protocol="http" port="80" default="true"/> <!--12-->
-    </destinations>
+  <destinations>
+    <endpoint id="origin_service" protocol="http" port="80" default="true"/> <!--12-->
+  </destinations>
 </system-model>
 ----
 <1> Defines a new *Repose* node.
