@@ -2,9 +2,9 @@
 
 == Core Behavior Changes
 . Headers will no longer be split unnecessarily at the boundaries of *Repose*.
-  If you were counting on this behavior for some reason see <<../recipes/header-splitting.adoc#, Pre 9.0 Header Splitting>>.
+  If you were counting on this behavior, see <<../recipes/header-splitting.adoc#, Pre 9.0 Header Splitting>>.
 . Headers with an empty value will no longer be automatically removed from requests or responses.
-  If you were counting on this behavior for some reason, the <<../filters/scripting.adoc#, Scripting Filter>> can be used.
+  If you were counting on this behavior, the <<../filters/scripting.adoc#, Scripting Filter>> can be used.
   The scripting filter configuration may look like the following:
 +
 [source,xml]
@@ -26,7 +26,7 @@
 </scripting>
 ----
 . The response status line reason phrase from the origin service will now be forwarded from the origin service.
-  If you were expecting *Repose* to normalize the reason phrase, see the <<../recipes/reason-phrase-normalization.adoc#, Reason Phrase Normalization recipe>>.
+  If you need *Repose* to normalize the reason phrase, see the <<../recipes/reason-phrase-normalization.adoc#, Reason Phrase Normalization recipe>>.
 . Requests can now contain headers with empty values.
   For example, if *Repose* receives a request with the header line `My-Header: `, that header line will now be forwarded to the origin service.
 
