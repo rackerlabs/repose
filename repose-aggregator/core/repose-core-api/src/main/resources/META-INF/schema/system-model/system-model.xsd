@@ -465,6 +465,17 @@
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="default" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Declares whether or not this destination is the default destination.
+                        The default destination will be used if no other destination is selected during processing.
+                        If true, this destination is the default destination.
+                        If false, this destination is not the default destination.
+                        Defaults to false.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
         </xs:attribute>
         <xs:attribute name="protocol" use="optional" default="https">
             <xs:annotation>

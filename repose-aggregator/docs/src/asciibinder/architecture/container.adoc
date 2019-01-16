@@ -81,7 +81,7 @@ As such, care should be taken to ensure that errant files do not end up in the d
 [NOTE]
 ====
 Something else to be aware of is that the `deployment-directory` and `artifact-directory` values should be fully qualified paths.
-This is the case as the exact location of the launcing JVM may not remain in the same location and this would effect relative paths.
+This is the case as the exact location of the launching JVM may not remain in the same location and this would effect relative paths.
 The path should not start or end with a whitespace character as all leading and trailing whitespace is ignored in reading this value.
 All white space in the middle of the path name will be preserved and should not be escaped in any way.
 ====
