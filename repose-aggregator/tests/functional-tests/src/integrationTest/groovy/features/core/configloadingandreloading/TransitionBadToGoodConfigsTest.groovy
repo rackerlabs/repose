@@ -56,8 +56,7 @@ class TransitionBadToGoodConfigsTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-bad", params)
 
         and: "start repose"
-        repose.start(killOthersBeforeStarting: false,
-            waitOnJmxAfterStarting: true)
+        repose.start(killOthersBeforeStarting: false)
 
         expect: "starting Repose with bad configs should yield 503's"
         deproxy.makeRequest(url: reposeEndpoint).receivedResponse.code == "503"
