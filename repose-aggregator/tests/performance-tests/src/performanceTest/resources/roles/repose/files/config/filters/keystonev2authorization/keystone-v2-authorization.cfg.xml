@@ -3,7 +3,6 @@
     <tenant-handling>
         <validate-tenant>
             <header-extraction-name>x-tenant-id</header-extraction-name>
-            <uri-extraction-regex>/([^/]+)</uri-extraction-regex>
         </validate-tenant>
     </tenant-handling>
 </keystone-v2-authorization>
