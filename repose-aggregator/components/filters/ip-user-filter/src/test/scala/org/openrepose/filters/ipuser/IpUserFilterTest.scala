@@ -20,6 +20,7 @@
 
 package org.openrepose.filters.ipuser
 
+import javax.servlet.http.HttpServletResponse
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.ipuser.config.{GroupType, IpUserConfig}
@@ -156,6 +157,17 @@ class IpUserFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
       ipUserFilter.doFilter(servletRequest, servletResponse, filterChain)
 
       getPostFilterRequest.getHeader("x-pp-groups") shouldEqual "some-other-group" + DefaultQuality
+    }
+  }
+
+  describe("when presented with non-sense") {
+    it("should return a 400 when X-Forwarded-For is malformed") {
+      servletRequest.setRemoteAddr("10.1.2.3")
+      servletRequest.addHeader("X-Forwarded-For", "banana-phone")
+
+      ipUserFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      servletResponse.getStatus shouldBe HttpServletResponse.SC_BAD_REQUEST
     }
   }
 

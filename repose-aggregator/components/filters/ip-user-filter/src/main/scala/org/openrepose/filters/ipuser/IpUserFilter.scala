@@ -19,12 +19,12 @@
  */
 package org.openrepose.filters.ipuser
 
-import java.net.URL
+import java.net.{URL, UnknownHostException}
 import java.util.concurrent.atomic.AtomicReference
+
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import edazdarevic.commons.net.CIDRUtils
 import org.openrepose.commons.config.manager.UpdateListener
@@ -77,16 +77,21 @@ class IpUserFilter @Inject()(configurationService: ConfigurationService) extends
       val clientIpAddress = request.getSplittableHeaderScala(CommonHttpHeader.X_FORWARDED_FOR)
         .headOption.getOrElse(servletRequest.getRemoteAddr)
 
-      getClassificationLabel(clientIpAddress).foreach { label =>
-        request.addHeader(groupHeaderName, label, groupHeaderQuality)
+      try {
+        getClassificationLabel(clientIpAddress).foreach { label =>
+          request.addHeader(groupHeaderName, label, groupHeaderQuality)
+        }
+
+        //Always set the user header name to the current IP address
+        request.addHeader(userHeaderName, clientIpAddress, userHeaderQuality)
+
+        logger.trace("IP User filter passing request...")
+        filterChain.doFilter(request, servletResponse)
+      } catch {
+        case uhe: UnknownHostException =>
+          logger.debug(s"Bad X-Forwarded-For header: $clientIpAddress", uhe)
+          servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_BAD_REQUEST, "Malformed X-Forwarded-For header")
       }
-
-      //Always set the user header name to the current IP address
-      request.addHeader(userHeaderName, clientIpAddress, userHeaderQuality)
-
-      logger.trace("IP User filter passing request...")
-      filterChain.doFilter(request, servletResponse)
-
       logger.trace("IP User filter returning response...")
     }
   }
