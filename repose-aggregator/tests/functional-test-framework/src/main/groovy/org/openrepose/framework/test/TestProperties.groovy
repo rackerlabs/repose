@@ -24,7 +24,6 @@ class TestProperties {
     String runDirectory
     String configDirectory
     String logFile
-    String reposeLintLogFile
     String logFilePattern
     String configTemplates
     String connFramework
@@ -39,7 +38,6 @@ class TestProperties {
     }
 
     String reposeJar
-    String reposeLintJar
     String mocksWar
 
     int reposeMajorVersion
@@ -91,7 +89,6 @@ class TestProperties {
                     configDirectory = runDirectory + properties.getProperty("repose.config.directory")
                     configTemplates = properties.getProperty("repose.config.templates")
                     logFile = runDirectory + properties.getProperty("repose.log.name")
-                    reposeLintLogFile = runDirectory + properties.getProperty("repose.lint.log.name")
                     logFilePattern = runDirectory + properties.getProperty("repose.log.pattern")
 
                     connFramework = "jersey"
@@ -101,7 +98,6 @@ class TestProperties {
                     }
 
                     reposeJar = properties.getProperty("repose.jar")
-                    reposeLintJar = properties.getProperty("repose.lint.jar")
 
                     int portStart = properties.getProperty("port.finder.port.start") as int
                     int portMax = properties.getProperty("port.finder.port.max") as int

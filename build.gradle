@@ -49,8 +49,6 @@ task('publishToPackageRepo', group: 'publishing', description: 'Publishes the de
                     ':repose-aggregator:artifacts:extensions-filter-bundle:buildRpm',
                     ':repose-aggregator:artifacts:filter-bundle:buildDeb',
                     ':repose-aggregator:artifacts:filter-bundle:buildRpm',
-                    ':repose-aggregator:artifacts:repose-lint:buildDeb',
-                    ':repose-aggregator:artifacts:repose-lint:buildRpm',
                     ':repose-aggregator:artifacts:valve:buildDeb',
                     ':repose-aggregator:artifacts:valve:buildRpm',
                     ':buildAll',
@@ -66,8 +64,6 @@ task('publishToPackageRepo', group: 'publishing', description: 'Publishes the de
                 put from: tasks.getByPath(':repose-aggregator:artifacts:extensions-filter-bundle:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
                 put from: tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
                 put from: tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:repose-lint:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:repose-lint:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
                 put from: tasks.getByPath(':repose-aggregator:artifacts:valve:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
                 put from: tasks.getByPath(':repose-aggregator:artifacts:valve:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
             }
