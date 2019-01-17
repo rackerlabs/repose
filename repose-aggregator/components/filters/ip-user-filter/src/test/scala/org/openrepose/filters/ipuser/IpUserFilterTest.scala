@@ -169,6 +169,17 @@ class IpUserFilterTest extends FunSpec with BeforeAndAfterEach with Matchers {
 
       servletResponse.getStatus shouldBe HttpServletResponse.SC_BAD_REQUEST
     }
+
+    it("should return a 400 when remote Address is malformed") {
+      //Ideally this would return a 500, but for this to even happen somebody has to be using their own wrapper,
+      // and they have to override the behavior for getRemoteAddr. This case seems unlikely enough to not be worth the
+      // complexity it would add to the production code, and we have elected to allow the misbehavior of this use case.
+      servletRequest.setRemoteAddr("banana-phone")
+
+      ipUserFilter.doFilter(servletRequest, servletResponse, filterChain)
+
+      servletResponse.getStatus shouldBe HttpServletResponse.SC_BAD_REQUEST
+    }
   }
 
   def getPostFilterRequest: HttpServletRequestWrapper = filterChain.getRequest.asInstanceOf[HttpServletRequestWrapper]
