@@ -43,7 +43,7 @@ class MisbehavingOriginTest extends ReposeValveTest {
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/proxy", params) //just a very simple config
-        repose.start([waitOnJmxAfterStarting: true])
+        repose.start()
     }
 
     def cleanupSpec() {
