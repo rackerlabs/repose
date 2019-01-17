@@ -364,8 +364,10 @@ class HeaderPassthroughTest extends ReposeValveTest {
 
     }
 
-    @Unroll("Responses - headers not defined by RFC: #headerName with \"#headerValue\" should pass through without modification")
     def "Responses - headers not defined by the RFC, and not known to Repose should be passed through unchanged in responses"() {
+        given:
+        String headerName = "X-Random-Header"
+        String headerValue = "Value1,Value2"
 
         when:
         def headers = [
@@ -379,10 +381,6 @@ class HeaderPassthroughTest extends ReposeValveTest {
         mc.handlings.size() == 1
         mc.receivedResponse.headers.getCountByName(headerName) == 1
         mc.receivedResponse.headers.getFirstValue(headerName) == headerValue
-
-        where:
-        headerName        | headerValue
-        "X-Random-Header" | "Value1,Value2"
     }
 
     /*
