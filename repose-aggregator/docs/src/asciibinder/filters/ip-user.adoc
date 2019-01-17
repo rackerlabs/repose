@@ -51,7 +51,7 @@ This filter does not modify the response body.
 This filter does not create/modify any response headers.
 
 === Response Status Codes
-This filter does not modify the response code.
+* Returns a `400` when the `X-Forwarded-For` header is improperly formatted.
 
 == Examples
 === Basic Configuration

@@ -23,6 +23,8 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
+
 /**
  * Created by jennyvo on 4/26/16.
  *  REP-3838 fix using x-forward-for as x-pp-user
@@ -154,5 +156,19 @@ class IpUserWXForwardedForHeaderTest extends ReposeValveTest {
 
         and: "Repose will not send x-pp-groups because x-forwarded-for does not match any group"
         sentRequest.request.headers.findAll("x-pp-groups").size() == 0
+    }
+
+    def "When x-forwarded-for has an invalid value should return 400"() {
+        given: "x-forwarded-for header has invalid value"
+        def headers = ['x-forwarded-for': 'bad-value']
+
+        when: "Request is sent to repose"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'get', headers: headers)
+
+        then: "Repose will not pass the request to the origin service"
+        mc.handlings.size() == 0
+
+        and: "Repose will return a 400"
+        mc.receivedResponse.code as Integer == SC_BAD_REQUEST
     }
 }
