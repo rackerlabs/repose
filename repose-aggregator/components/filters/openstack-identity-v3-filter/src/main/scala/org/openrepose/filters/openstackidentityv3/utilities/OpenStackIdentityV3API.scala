@@ -138,7 +138,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 val json = Json.parse(EntityUtils.toString(authTokenResponse.get.getEntity))
                 val tokenExpiration = (json \ "token" \ "expires_at").as[String]
                 val adminTokenTtl = safeLongToInt(new DateTime(tokenExpiration).getMillis - DateTime.now.getMillis)
-                logger.debug(s"Caching admin token with TTL set to: ${adminTokenTtl}ms")
+                logger.debug(s"Caching admin token with TTL set to: ${adminTokenTtl} milliseconds")
 
                 datastore.put(AdminTokenKey, token, adminTokenTtl, TimeUnit.MILLISECONDS)
                 Success(token)
@@ -214,7 +214,8 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                   impersonatorId = (json \ "token" \ "RAX-AUTH:impersonator" \ "id").asOpt[String],
                   impersonatorName = (json \ "token" \ "RAX-AUTH:impersonator" \ "name").asOpt[String])
 
-                val identityTtl = safeLongToInt(new DateTime(subjectTokenObject.expiresAt).getMillis - DateTime.now.getMillis)
+                val identityTtlMillis = new DateTime(subjectTokenObject.expiresAt).getMillis - DateTime.now.getMillis
+                val identityTtl = safeLongToInt(TimeUnit.MILLISECONDS.toSeconds(identityTtlMillis))
                 val offsetConfiguredTtl = offsetTtl(tokenCacheTtl, cacheOffset)
                 // TODO: Come up with a better algorithm to decide the cache TTL and handle negative/0 TTLs
                 val ttl = if (offsetConfiguredTtl < 1) identityTtl else math.max(math.min(offsetConfiguredTtl, identityTtl), 1)
@@ -282,7 +283,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 val offsetConfiguredTtl = offsetTtl(groupsCacheTtl, cacheOffset)
                 val ttl = if (offsetConfiguredTtl < 1) {
                   logger.error("Offset group cache ttl was negative, defaulting to 10 minutes. Please check your configuration.")
-                  600000
+                  600
                 } else {
                   offsetConfiguredTtl
                 }
