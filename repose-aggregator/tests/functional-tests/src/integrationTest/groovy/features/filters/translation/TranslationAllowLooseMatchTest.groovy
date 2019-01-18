@@ -50,10 +50,10 @@ class TranslationAllowLooseMatchTest extends ReposeValveTest {
     }
 
     @Unroll
-    def "Allow looser matches with content-type: #contenttype with resp from origin #response_from_origin and resp to client #response_to_client"() {
+    def "Allow looser matches with content-type: #contentType with resp from origin #responseFromOrigin and resp to client #responseToClient"() {
         given:
         def headers = [
-            "content-type": contenttype,
+            "content-type": contentType,
             "accept"      : "application/xml"
         ]
         def handler = { request -> return new Response(201, "Created", headers, xmlPayLoad) }
@@ -66,13 +66,13 @@ class TranslationAllowLooseMatchTest extends ReposeValveTest {
         then:
         mc.handlings.size() == 1
         mc.receivedResponse.code == "201"
-        new String(mc.receivedResponse.body) == response_to_client
-        new String(mc.handlings[0].response.body) == response_from_origin
+        new String(mc.receivedResponse.body) == responseToClient
+        new String(mc.handlings[0].response.body) == responseFromOrigin
         mc.receivedResponse.getHeaders().findAll("Content-Type").size() == 1
         !mc.receivedResponse.body.toString().contains("httpx:unknown-content")
 
         where:
-        contenttype                        | response_from_origin | response_to_client
+        contentType                        | responseFromOrigin | responseToClient
         "application/atom+xml"             | xmlPayLoad           | "<a>somebody</a>"
         "application/atom+xml; type=event" | xmlPayLoad           | "<a>somebody</a>"
         "application/atom+xml; v=1"        | xmlPayLoad           | "<a>somebody</a>"
@@ -93,11 +93,11 @@ class TranslationAllowLooseMatchTest extends ReposeValveTest {
     }
 
     @Unroll
-    def "Retain only matching content-type: #contenttype"() {
+    def "Retain only matching content-type: #contentType"() {
         given:
         def reqHeaders = [
             "accept"      : "application/xml;q=1 , application/json;q=0.5",
-            "Content-Type": contenttype
+            "Content-Type": contentType
         ]
 
         when: "User sends a request through repose"
@@ -106,10 +106,10 @@ class TranslationAllowLooseMatchTest extends ReposeValveTest {
         then:
         mc.handlings.size() == 1
         mc.handlings[0].request.getHeaders().findAll("Content-Type").size() == 1
-        mc.handlings[0].request.headers["Content-Type"] == contenttype
+        mc.handlings[0].request.headers["Content-Type"] == contentType
 
         where:
-        contenttype << [
+        contentType << [
             "application/xml+atom; type=event",
             "application/json; v=1",
             "text/plain; */*",
