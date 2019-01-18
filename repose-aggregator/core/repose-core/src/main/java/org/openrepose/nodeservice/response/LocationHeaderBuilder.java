@@ -66,13 +66,13 @@ public class LocationHeaderBuilder {
         try {
             targetUri = new URI(targetHost);
         } catch (URISyntaxException e) {
-            LOG.error("Invalid target host url: " + targetHost, e);
+            LOG.warn("Invalid target host url: " + targetHost, e);
         }
         if (targetUri != null && targetUri.getScheme() != null && targetUri.getHost() != null) {
             try {
                 returnUrl = new URL(targetUri.getScheme(), targetUri.getHost(), targetUri.getPort(), "");
             } catch (MalformedURLException ex) {
-                LOG.error("Invalid host url: " + targetUri, ex);
+                LOG.warn("Invalid host url: " + targetUri, ex);
             }
         }
         return returnUrl;
