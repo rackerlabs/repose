@@ -26,6 +26,9 @@ import org.rackspace.deproxy.Response
 import spock.lang.Ignore
 import spock.lang.Unroll
 
+import static javax.servlet.http.HttpServletResponse.*
+import static org.openrepose.commons.utils.http.CommonHttpHeader.VIA
+
 class HeaderPassthroughTest extends ReposeValveTest {
 
     def setupSpec() {
@@ -38,22 +41,18 @@ class HeaderPassthroughTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/headers", params)
 
-        repose.start(
-            killOthersBeforeStarting: false,
-            waitOnJmxAfterStarting: false)
-
-        repose.waitForNon500FromUrl(reposeEndpoint)
+        repose.start()
     }
 
     @Unroll("Requests - headers defined by RFC: #headerName with \"#headerValue\" should pass through without modification")
     def "Requests - headers defined by the RFC as comma-separated lists should be passed through unchanged in requests"() {
+        given:
+        def headers = [
+            'Content-Length': '0',
+            (headerName): headerValue
+        ]
 
         when: "make a request with the given header and value"
-        def headers = [
-            'Content-Length': '0'
-        ]
-        headers[headerName.toString()] = headerValue.toString()
-
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers)
 
         then: "the request should make it to the origin service with the header appropriately split"
@@ -61,7 +60,7 @@ class HeaderPassthroughTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getCountByName(headerName) == 1
         mc.handlings[0].request.headers.findAll(headerName).contains(headerValue)
 
-
+        // Connection, Expect, Proxy-Authenticate, TE, Trailer, Transfer-Encoding, Upgrade are all hop-by-hop headers, and thus wouldn't be forwarded by a proxy
         where:
         headerName         | headerValue
         "Accept"           | "text/plain"
@@ -106,47 +105,46 @@ class HeaderPassthroughTest extends ReposeValveTest {
         "Accept-Encoding"  | "identity;q=0.5, gzip;q=0.9, *;q=0.1"
         "Accept-Encoding"  | "gzip;q=0.9, identity;q=0.5"
         "Accept-Encoding"  | "gzip;q=0.9, identity;q=0.5 *;q=0.6"
+        "Accept-Encoding"  | "gzip;foo=bar"
+        "Accept-Encoding"  | "gzip;q=0.9;foo=bar"
         "Accept-Encoding"  | ""
-
-        // Connection, Expect, Proxy-Authenticate, TE, Trailer, Transfer-Encoding, Upgrade are all hop-by-hop headers, and thus wouldn't be forwarded by a proxy
-
     }
 
     @Unroll("Requests - Via header with \"#headerValue\" should have a value added for Repose")
     def "Requests - Via header is special, because Repose will add one"() {
+        given:
+        def headers = [
+            'Content-Length': '0',
+            (VIA): headerValue
+        ]
 
         when: "make a request with the given header and value"
-        def headers = [
-            'Content-Length': '0'
-        ]
-        headers[headerName.toString()] = headerValue.toString()
-
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers)
 
         then: "the request should make it to the origin service with the header appropriately split"
         mc.handlings.size() == 1
-        mc.handlings[0].request.headers.getCountByName(headerName) == 2
-        mc.handlings[0].request.headers.findAll(headerName).contains(headerValue)
-
+        mc.handlings[0].request.headers.getCountByName(VIA) == 2
+        mc.handlings[0].request.headers.findAll(VIA).contains(headerValue)
 
         where:
-        headerName | headerValue
-        "Via"      | "HTTP/2.0 pseudonym"
-        "Via"      | "HTTP/2.0 pseudonym (this, is, a, comment)"
-        "Via"      | "1.0 fred, 1.1 nowhere.com (Apache/1.1)"
-        "Via"      | "1.0 ricky, 1.1 ethel, 1.1 fred, 1.0 lucy"
-        "Via"      | "1.0 ricky, 1.1 mertz, 1.0 lucy"
+        headerValue << [
+            "HTTP/2.0 pseudonym",
+            "HTTP/2.0 pseudonym (this, is, a, comment)",
+            "1.0 fred, 1.1 nowhere.com (Apache/1.1)",
+            "1.0 ricky, 1.1 ethel, 1.1 fred, 1.0 lucy",
+            "1.0 ricky, 1.1 mertz, 1.0 lucy"
+        ]
     }
 
     @Unroll("Requests - headers not defined by RFC: #headerName with \"#headerValue\" should pass through without modification")
     def "Requests - headers not defined by the RFC as comma-separated lists should be passed through unchanged in requests"() {
+        given:
+        def headers = [
+            'Content-Length': '0',
+            (headerName): headerValue
+        ]
 
         when: "make a request with the given header and value"
-        def headers = [
-            'Content-Length': '0'
-        ]
-        headers[headerName.toString()] = headerValue.toString()
-
         def mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers)
 
         then: "the request should make it to the origin service with the header appropriately split"
@@ -164,6 +162,7 @@ class HeaderPassthroughTest extends ReposeValveTest {
         "If-None-Match"    | "entity-tag-1, entity-tag-2"
         "Server"           | "ServerSoft/1.2.3 libwww/9.53.7b2 (comment, comment, comment)"
         "Vary"             | "header-1, header-2, header-3"
+        "Vary"             | "header-1;foo=bar"
         "WWW-Authenticate" | "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=="
         "WWW-Authenticate" | "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==, Basic QWxhZGRpbjpwbGVhc2U/Cg=="
         "x-pp-user"        | "usertest1, usertest2, usertest3"
@@ -171,13 +170,13 @@ class HeaderPassthroughTest extends ReposeValveTest {
 
     @Unroll("Requests - headers not defined by RFC: #headerName with \"#headerValue\" should pass through without modification")
     def "Requests - headers not defined by the RFC, but still known to Repose to be comma-separated lists should be passed through unchanged in requests"() {
+        given:
+        def headers = [
+            'Content-Length': '0',
+            (headerName): headerValue
+        ]
 
         when: "make a request with the given header and value"
-        def headers = [
-            'Content-Length': '0'
-        ]
-        headers[headerName.toString()] = headerValue.toString()
-
         def mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers)
 
         then: "the request should make it to the origin service with the header appropriately split"
@@ -185,56 +184,57 @@ class HeaderPassthroughTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getCountByName(headerName) == 1
         mc.handlings[0].request.headers.getFirstValue(headerName) == headerValue
 
-
         where:
         headerName    | headerValue
         "X-PP-Groups" | "group1"
+        "X-PP-Groups" | "group1;q=0.7"
+        "X-PP-Groups" | "group1;foo=bar"
         "X-PP-Groups" | "group1,group2"
         "X-PP-Groups" | "group1,group2,group3"
         "X-PP-Roles"  | "group1"
         "X-PP-Roles"  | "group1,group2"
         "X-PP-Roles"  | "group1,group2,group3"
+        "X-PP-Roles"  | "group1;q=0.7"
+        "X-PP-Roles"  | "group1;foo=bar"
     }
 
-    @Unroll("Requests - headers not defined by RFC: #headerName with \"#headerValue\" should pass through without modification")
     def "Requests - headers not defined by the RFC, and not known to Repose should be passed through unchanged in requests"() {
+        given:
+        String headerName = "X-Random-Header"
+        String headerValue = "Value1,Value2"
+
+        and:
+        def headers = [
+            'Content-Length': '0',
+            (headerName): headerValue
+        ]
 
         when: "make a request with the given header and value"
-        def headers = [
-            'Content-Length': '0'
-        ]
-        headers[headerName.toString()] = headerValue.toString()
-
         def mc = deproxy.makeRequest(url: reposeEndpoint, headers: headers)
 
         then: "the request should make it to the origin service with the header appropriately split"
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getCountByName(headerName) == 1
         mc.handlings[0].request.headers.getFirstValue(headerName) == headerValue
-
-        where:
-        headerName        | headerValue
-        "X-Random-Header" | "Value1,Value2"
     }
-
 
     @Unroll("Responses - headers defined by RFC: #headerName with \"#headerValue\" should pass through without modification")
     def "Responses - headers defined by the RFC as comma-separated lists should be passed through unchanged in responses"() {
-
-        when:
+        given:
         def headers = [
-            'Content-Length': '0'
+            'Content-Length': '0',
+            (headerName): headerValue
         ]
-        headers[headerName.toString()] = headerValue.toString()
 
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: { new Response(200, null, headers) })
+        when: "the origin service responds with the given header name and value"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: { new Response(SC_OK, null, headers) })
 
         then: "the response from the origin service should be returned to the client with the header appropriately split"
         mc.handlings.size() == 1
         mc.receivedResponse.headers.getCountByName(headerName) == 1
         mc.receivedResponse.headers.getFirstValue(headerName) == headerValue
 
-
+        // Connection, Expect, Proxy-Authenticate, TE, Trailer, Transfer-Encoding, Upgrade are all hop-by-hop headers, and thus wouldn't be forwarded by a proxy
         where:
         headerName         | headerValue
         "Accept"           | "text/plain"
@@ -279,48 +279,47 @@ class HeaderPassthroughTest extends ReposeValveTest {
         "Accept-Encoding"  | "identity;q=0.5, gzip;q=0.9, *;q=0.1"
         "Accept-Encoding"  | "gzip;q=0.9, identity;q=0.5"
         "Accept-Encoding"  | "gzip;q=0.9, identity;q=0.5 *;q=0.6"
+        "Accept-Encoding"  | "gzip;foo=bar"
+        "Accept-Encoding"  | "gzip;q=0.9;foo=bar"
         "Accept-Encoding"  | ""
-
-        // Connection, Expect, Proxy-Authenticate, TE, Trailer, Transfer-Encoding, Upgrade are all hop-by-hop headers, and thus wouldn't be forwarded by a proxy
-
     }
 
     @Unroll("Responses - Via header with \"#headerValue\" should not be split")
     def "Responses - Via header will not be split, but Repose will add to it"() {
-
-        when:
+        given:
         def headers = [
-            'Content-Length': '0'
+            'Content-Length': '0',
+            (VIA): headerValue
         ]
-        headers[headerName.toString()] = headerValue.toString()
 
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: { new Response(200, null, headers) })
+        when: "the origin service responds with a Via header with the given value"
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: { new Response(SC_OK, null, headers) })
 
         then: "the response from the origin service should be returned to the client with the header appropriately split"
         mc.handlings.size() == 1
-        mc.receivedResponse.headers.getCountByName(headerName) == 1
-        mc.receivedResponse.headers.getFirstValue(headerName).contains(headerValue)
-
+        mc.receivedResponse.headers.getCountByName(VIA) == 1
+        mc.receivedResponse.headers.getFirstValue(VIA).contains(headerValue)
 
         where:
-        headerName | headerValue
-        "Via"      | "HTTP/2.0 pseudonym"
-        "Via"      | "HTTP/2.0 pseudonym (this, is, a, comment)"
-        "Via"      | "1.0 fred, 1.1 nowhere.com (Apache/1.1)"
-        "Via"      | "1.0 ricky, 1.1 ethel, 1.1 fred, 1.0 lucy"
-        "Via"      | "1.0 ricky, 1.1 mertz, 1.0 lucy"
+        headerValue << [
+            "HTTP/2.0 pseudonym",
+            "HTTP/2.0 pseudonym (this, is, a, comment)",
+            "1.0 fred, 1.1 nowhere.com (Apache/1.1)",
+            "1.0 ricky, 1.1 ethel, 1.1 fred, 1.0 lucy",
+            "1.0 ricky, 1.1 mertz, 1.0 lucy"
+        ]
     }
 
     @Unroll("Responses - headers defined by RFC: #headerName with \"#headerValue\" should pass through without modification")
     def "Responses - headers defined by the RFC as not being comma-separated lists should be passed through unchanged in responses"() {
-
-        when:
+        given:
         def headers = [
-            'Content-Length': '0'
+            'Content-Length': '0',
+            (headerName): headerValue
         ]
-        headers[headerName.toString()] = headerValue.toString()
 
-        def mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: { new Response(200, null, headers) })
+        when: "the origin service responds with the given header name and value"
+        def mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: { new Response(SC_OK, null, headers) })
 
         then: "the response from the origin service should be returned to the client without the header being split"
         mc.handlings.size() == 1
@@ -337,31 +336,38 @@ class HeaderPassthroughTest extends ReposeValveTest {
         // TODO: Uncomment this as part of: https://repose.atlassian.net/browse/REP-5320
         //"Server"        | "ServerSoft/1.2.3 libwww/9.53.7b2 (comment, comment, comment)"
         "Vary"          | "header-1, header-2, header-3"
+        "Vary"          | "header-1;foo=bar"
+
     }
 
     @Unroll("Responses - headers not defined by RFC: #headerName with \"#headerValue\" should pass through without modification")
     def "Responses - headers not defined by the RFC, but still known to Repose to be comma-separated lists should be passed through unchanged in responses"() {
-
-        when:
+        given:
         def headers = [
-            'Content-Length': '0'
+            'Content-Length': '0',
+            (headerName): headerValue
         ]
-        headers[headerName.toString()] = headerValue.toString()
 
-        def mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: { new Response(200, null, headers) })
+        when: "the origin service responds with the given header name and value"
+        def mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: { new Response(SC_OK, null, headers) })
 
         then: "the response from the origin service should be returned to the client with the header appropriately split"
         mc.handlings.size() == 1
         mc.receivedResponse.headers.getCountByName(headerName) == 1
         mc.receivedResponse.headers.getFirstValue(headerName) == headerValue
 
-
         where:
         headerName    | headerValue
         "X-PP-Groups" | "group1"
+        "X-PP-Groups" | "group1;q=0.7"
+        "X-PP-Groups" | "group1;foo=bar"
         "X-PP-Groups" | "group1,group2"
         "X-PP-Groups" | "group1,group2,group3"
-
+        "X-PP-Roles"  | "group1"
+        "X-PP-Roles"  | "group1,group2"
+        "X-PP-Roles"  | "group1,group2,group3"
+        "X-PP-Roles"  | "group1;q=0.7"
+        "X-PP-Roles"  | "group1;foo=bar"
     }
 
     def "Responses - headers not defined by the RFC, and not known to Repose should be passed through unchanged in responses"() {
@@ -369,13 +375,14 @@ class HeaderPassthroughTest extends ReposeValveTest {
         String headerName = "X-Random-Header"
         String headerValue = "Value1,Value2"
 
-        when:
+        and:
         def headers = [
-            'Content-Length': '0'
+            'Content-Length': '0',
+            (headerName): headerValue
         ]
-        headers[headerName.toString()] = headerValue.toString()
 
-        def mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: { new Response(200, null, headers) })
+        when: "the origin service responds with the given header name and value"
+        def mc = deproxy.makeRequest(url: reposeEndpoint, defaultHandler: { new Response(SC_OK, null, headers) })
 
         then: "the response from the origin service should be returned to the client without the header being split"
         mc.handlings.size() == 1
@@ -420,7 +427,7 @@ class HeaderPassthroughTest extends ReposeValveTest {
         )
 
         then:
-        mc.receivedResponse.code.toInteger() == 200
+        mc.receivedResponse.code.toInteger() == SC_OK
         mc.handlings.size() == 1
         mc.handlings[0].request.headers.getCountByName(testHeaderName) == 1
         mc.handlings[0].request.headers.getFirstValue(testHeaderName) == headerValue
@@ -462,7 +469,7 @@ class HeaderPassthroughTest extends ReposeValveTest {
             url: reposeEndpoint,
             defaultHandler: {
                 new Response(
-                    200,
+                    SC_OK,
                     null,
                     [(testHeaderName): headerValue]
                 )
@@ -470,7 +477,7 @@ class HeaderPassthroughTest extends ReposeValveTest {
         )
 
         then:
-        mc.receivedResponse.code.toInteger() == 200
+        mc.receivedResponse.code.toInteger() == SC_OK
         mc.handlings.size() == 1
         mc.receivedResponse.headers.getCountByName(testHeaderName) == 1
         mc.receivedResponse.headers.getFirstValue(testHeaderName) == headerValue
@@ -513,7 +520,7 @@ class HeaderPassthroughTest extends ReposeValveTest {
         )
 
         then:
-        mc.receivedResponse.code.toInteger() == 500
+        mc.receivedResponse.code.toInteger() == SC_INTERNAL_SERVER_ERROR
         mc.handlings.isEmpty()
     }
 
@@ -527,7 +534,7 @@ class HeaderPassthroughTest extends ReposeValveTest {
             url: reposeEndpoint,
             defaultHandler: {
                 new Response(
-                    200,
+                    SC_OK,
                     null,
                     [(testHeaderName): (0xC0 as char) as String]
                 )
@@ -535,7 +542,7 @@ class HeaderPassthroughTest extends ReposeValveTest {
         )
 
         then:
-        mc.receivedResponse.code.toInteger() == 200
+        mc.receivedResponse.code.toInteger() == SC_OK
         mc.handlings.size() == 1
         mc.receivedResponse.headers.getCountByName(testHeaderName) == 1
         mc.receivedResponse.headers.getFirstValue(testHeaderName) == ''
