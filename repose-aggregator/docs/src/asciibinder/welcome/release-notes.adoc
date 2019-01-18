@@ -36,6 +36,7 @@
 ** Removed support for the <<../services/response-message.adoc#, Response Messaging Service>>.
 ** Headers are no longer automatically split.
 ** Headers with an empty value are now supported and will not be removed from requests/responses.
+*** When querying rate limits via the the <<../filters/rate-limiting.adoc#, Rate Limiting Filter>>, an `Accept` header with an empty value will now result in a `406` response rather than a response of the default `Content-Type: application/json`.
 ** A bug causing multiple OpenTracing headers (i.e., `uber-trace-id`) with potentially different values to be forwarded on the request to the origin service has been fixed.
    Now only a single OpenTracing header will be forwarded.
 * https://repose.atlassian.net/browse/REP-7314[REP-7314] - Removed support for <<../architecture/system-model.adoc#,system model>> clusters.
