@@ -2,7 +2,7 @@
 
 == Core Behavior Changes
 . Headers will no longer be split unnecessarily at the boundaries of *Repose*.
-  If you were counting on this behavior, see <<../recipes/header-splitting.adoc#, Pre 9.0 Header Splitting>>.
+  If you were counting on this behavior, or for a list of headers that were being split, see <<../recipes/header-splitting.adoc#, Pre 9.0 Header Splitting>>.
 . Headers with an empty value will no longer be automatically removed from requests or responses.
   If you were counting on this behavior, the <<../filters/scripting.adoc#, Scripting Filter>> can be used.
   The scripting filter configuration may look like the following:
