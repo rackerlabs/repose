@@ -342,7 +342,6 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
 
     it("should send a JSON message to the data collection point") {
       val systemModel = new SystemModel()
-      val reposeCluster = new ReposeCluster()
       val filterList = new FilterList()
       val servicesList = new ServicesList()
       val phoneHomeConfig = new PhoneHomeServiceConfig()
@@ -364,11 +363,10 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
       servicesList.getService.add(serviceC)
       servicesList.getService.add(serviceD)
 
-      reposeCluster.setFilters(filterList)
-      reposeCluster.setServices(servicesList)
       phoneHomeConfig.setCollectionUri(CollectionUri)
       phoneHomeConfig.setOriginServiceId("foo-service")
-      systemModel.getReposeCluster.add(reposeCluster)
+      systemModel.setFilters(filterList)
+      systemModel.setServices(servicesList)
       systemModel.setPhoneHome(phoneHomeConfig)
 
       when(
@@ -389,17 +387,13 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
         "serviceId" -> "foo-service",
         "contactEmail" -> JsNull,
         "reposeVersion" -> "1.0.0",
-        "clusters" -> Json.arr(
-          Json.obj(
-            "filters" -> Json.arr(
-              "a",
-              "b"
-            ),
-            "services" -> Json.arr(
-              "c",
-              "d"
-            )
-          )
+        "filters" -> Json.arr(
+          "a",
+          "b"
+        ),
+        "services" -> Json.arr(
+          "c",
+          "d"
         )
       ))
 
@@ -460,14 +454,12 @@ object PhoneHomeServiceTest {
 
   def basicSystemModel(): SystemModel = {
     val systemModel = new SystemModel()
-    val reposeCluster = new ReposeCluster()
     val filterList = new FilterList()
     val servicesList = new ServicesList()
     val phoneHomeConfig = new PhoneHomeServiceConfig()
 
-    reposeCluster.setFilters(filterList)
-    reposeCluster.setServices(servicesList)
-    systemModel.getReposeCluster.add(reposeCluster)
+    systemModel.setFilters(filterList)
+    systemModel.setServices(servicesList)
     systemModel.setPhoneHome(phoneHomeConfig)
 
     systemModel

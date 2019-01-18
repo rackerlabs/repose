@@ -2,24 +2,19 @@
 
 
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-    <repose-cluster id="repose">
-
-        <nodes>
-            <node id="config-test" hostname="localhost" http-port="${reposePort}"/>
-        </nodes>
-
-        <filters>
-            <filter name="rate-limiting"/>
-        </filters>
-        <services>
-            <service name="dist-datastore"/>
-        </services>
-        <destinations>
-            <endpoint id="mock-service" protocol="http" hostname="${targetHostname}" port="${targetPort}" root-path="/"
-                      default="true"/>
-        </destinations>
-
-    </repose-cluster>
+    <nodes>
+        <node id="config-test" hostname="localhost" http-port="${reposePort}"/>
+    </nodes>
+    <filters>
+        <filter name="rate-limiting"/>
+    </filters>
+    <services>
+        <service name="dist-datastore"/>
+    </services>
+    <destinations>
+        <endpoint id="mock-service" protocol="http" hostname="${targetHostname}" port="${targetPort}" root-path="/"
+                  default="true"/>
+    </destinations>
     <!-- Please set the enabled attribute to true to send us usage updates and help us improve Repose! -->
     <phone-home enabled="true"
                 collection-uri="http://localhost:${phonehomePort}"

@@ -1,21 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-    <repose-cluster id="repose">
+    <nodes>
+        <node id="node1" hostname="localhost" http-port="${reposePort}"/>
+    </nodes>
 
-        <nodes>
-            <node id="node1" hostname="localhost" http-port="${reposePort}"/>
-        </nodes>
+    <filters>
+        <filter name="slf4j-http-logging"/>
+        <!-- had to use a simple filter as we have issues when no filter is present-->
+    </filters>
 
-        <filters>
-            <filter name="slf4j-http-logging"/>
-            <!-- had to use a simple filter as we have issues when no filter is present-->
-        </filters>
-
-        <destinations>
-            <endpoint id="openrepose" protocol="http" hostname="localhost" root-path="/" port="${targetPort}"
-                      default="true"/>
-        </destinations>
-
-    </repose-cluster>
-
+    <destinations>
+        <endpoint id="openrepose" protocol="http" hostname="localhost" root-path="/" port="${targetPort}"
+                  default="true"/>
+    </destinations>
 </system-model>

@@ -153,12 +153,8 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
         "jvmName" -> System.getProperty("java.vm.name", "UNKNOWN"),
         "contactEmail" -> contactEmail,
         "reposeVersion" -> reposeVer,
-        "clusters" -> staticSystemModel.getReposeCluster.asScala.map(cluster =>
-          Json.obj(
-            "filters" -> cluster.getFilters,
-            "services" -> cluster.getServices
-          )
-        )
+        "filters" -> staticSystemModel.getFilters,
+        "services" -> staticSystemModel.getServices
       ))
 
       MsgLogger.info(updateMessage)

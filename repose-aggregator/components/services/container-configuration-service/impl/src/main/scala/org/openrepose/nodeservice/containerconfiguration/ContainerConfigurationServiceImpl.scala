@@ -21,27 +21,22 @@ package org.openrepose.nodeservice.containerconfiguration
 
 import java.lang.Long
 import java.util.Optional
-import javax.annotation.{PostConstruct, PreDestroy}
-import javax.inject.{Inject, Named}
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
+import javax.annotation.{PostConstruct, PreDestroy}
+import javax.inject.{Inject, Named}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.{ContainerConfiguration, DeploymentConfiguration}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.spring.ReposeSpringProperties
-import org.springframework.beans.factory.annotation.Value
-
-import scala.collection.JavaConversions._
 
 @Named
-class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
-                                                  configurationService: ConfigurationService)
+class ContainerConfigurationServiceImpl @Inject()(configurationService: ConfigurationService)
   extends ContainerConfigurationService with UpdateListener[ContainerConfiguration] with StrictLogging {
 
   import ContainerConfigurationServiceImpl._
 
   private var initialized: Boolean = false
-  private var patchedDeploymentConfiguration: DeploymentConfiguration = _
+  private var deploymentConfiguration: DeploymentConfiguration = _
   private var updateListeners: Set[UpdateListener[DeploymentConfiguration]] = Set.empty
 
   @PostConstruct
@@ -66,7 +61,7 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
   override def getRequestVia: Optional[String] = {
     initializationCheck()
     Optional ofNullable {
-      Option(patchedDeploymentConfiguration.getViaHeader)
+      Option(deploymentConfiguration.getViaHeader)
         .map(_.getRequestPrefix)
         .orNull
     }
@@ -75,7 +70,7 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
   override def getResponseVia: Optional[String] = {
     initializationCheck()
     Optional ofNullable {
-      Option(patchedDeploymentConfiguration.getViaHeader)
+      Option(deploymentConfiguration.getViaHeader)
         .map(_.getResponsePrefix)
         .orNull
     }
@@ -83,17 +78,17 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
 
   override def includeViaReposeVersion: Boolean = {
     initializationCheck()
-    Option(patchedDeploymentConfiguration.getViaHeader).forall(_.isReposeVersion)
+    Option(deploymentConfiguration.getViaHeader).forall(_.isReposeVersion)
   }
 
   override def getContentBodyReadLimit: Optional[Long] = {
     initializationCheck()
-    Optional.ofNullable(patchedDeploymentConfiguration.getContentBodyReadLimit)
+    Optional.ofNullable(deploymentConfiguration.getContentBodyReadLimit)
   }
 
   override def getDeploymentConfiguration: DeploymentConfiguration = {
     initializationCheck()
-    patchedDeploymentConfiguration
+    deploymentConfiguration
   }
 
   override def subscribeTo(listener: UpdateListener[DeploymentConfiguration]): Unit = {
@@ -107,7 +102,7 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
     // TODO: Clean this up with Scala 2.12 support for Scala function -> Java 8 function
     updateListeners = updateListeners + listener
 
-    if (sendNotificationNow) listener.configurationUpdated(patchedDeploymentConfiguration)
+    if (sendNotificationNow) listener.configurationUpdated(deploymentConfiguration)
   }
 
   override def unsubscribeFrom(listener: UpdateListener[DeploymentConfiguration]): Unit = {
@@ -121,18 +116,12 @@ class ContainerConfigurationServiceImpl @Inject()(@Value(ReposeSpringProperties.
     initialized
 
   override def configurationUpdated(containerConfiguration: ContainerConfiguration): Unit = {
-    val baseConfig = containerConfiguration.getDeploymentConfig
-    val patchedDeploymentConfig = containerConfiguration.getClusterConfig
-      .find(patchConfig => clusterId.equals(patchConfig.getClusterId))
-      .map(patchConfig => DeploymentConfigPatchUtil.patch(baseConfig, patchConfig))
-      .getOrElse(baseConfig)
-
-    patchedDeploymentConfiguration = patchedDeploymentConfig
+    deploymentConfiguration = containerConfiguration.getDeploymentConfig
     initialized = true
 
     updateListeners foreach { listener =>
       try {
-        listener.configurationUpdated(patchedDeploymentConfig)
+        listener.configurationUpdated(deploymentConfiguration)
       } catch {
         case ex: Exception =>
           logger.error("Configuration update error. Reason: {}", ex.getLocalizedMessage)

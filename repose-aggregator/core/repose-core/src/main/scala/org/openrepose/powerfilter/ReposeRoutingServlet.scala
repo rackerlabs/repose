@@ -39,7 +39,6 @@ import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.httpclient.{CachingHttpClientContext, HttpClientService, HttpClientServiceClient}
 import org.openrepose.core.services.reporting.metrics.MetricsService
-import org.openrepose.core.services.routing.robin.Clusters
 import org.openrepose.core.spring.ReposeSpringProperties
 import org.openrepose.core.systemmodel.config._
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService
@@ -53,7 +52,6 @@ import scala.util.Try
 
 @Named("reposeRoutingServlet")
 class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSION) reposeVersion: String,
-                                     @Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
                                      @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String,
                                      configurationService: ConfigurationService,
                                      containerConfigurationService: ContainerConfigurationService,
@@ -64,16 +62,14 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
   private val metricsService: Option[MetricsService] = Option(optMetricsService.orElse(null))
 
   private var httpClient: HttpClientServiceClient = _
-  private var localCluster: ReposeCluster = _
   private var localNode: Node = _
   private var defaultDestination: Destination = _
   private var destinations: Map[String, Destination] = Map.empty
-  private var domains: Clusters = _ // TODO: Remove this when routing to a cluster is removed.
   private var rewriteHostHeader: Boolean = _
   private var initialized = false
 
   override def init(): Unit = {
-    logger.info("{}:{} -- Reticulating Splines - Initializing Repose Routing Servlet", clusterId, nodeId)
+    logger.info("{} -- Reticulating Splines - Initializing Repose Routing Servlet", nodeId)
     configurationService.subscribeTo(
       SystemModelConfigurationFilename,
       getClass.getResource("/META-INF/schema/system-model/system-model.xsd"),
@@ -87,40 +83,31 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
   override def destroy(): Unit = {
     logger.trace("destroying ...")
     configurationService.unsubscribeFrom(SystemModelConfigurationFilename, this)
-    logger.info("{}:{} -- Obfuscated Quigley Matrix - Destroyed Repose Routing Servlet", clusterId, nodeId)
+    logger.info("{} -- Obfuscated Quigley Matrix - Destroyed Repose Routing Servlet", nodeId)
   }
 
   override def configurationUpdated(configurationObject: SystemModel): Unit = {
     logger.trace("received a configuration update")
 
-    val interrogator = new SystemModelInterrogator(clusterId, nodeId)
-    val cluster = interrogator.getLocalCluster(configurationObject)
-    val node = interrogator.getLocalNode(configurationObject)
+    val interrogator = new SystemModelInterrogator(nodeId)
+    val node = interrogator.getNode(configurationObject)
 
-    if (cluster.isPresent && node.isPresent) {
-      localCluster = cluster.get()
-      localNode = node.get()
+    // The existence of the Spring context in which this object exists implies
+    // the existence of a local node, so an explicit check is not necessary.
+    localNode = node.get()
 
-      defaultDestination = interrogator.getDefaultDestination(configurationObject).get()
-      destinations = (localCluster.getDestinations.getEndpoint.asScala ++ localCluster.getDestinations.getTarget.asScala)
-          .map(it => it.getId -> it)
-          .toMap
-      domains = new Clusters(configurationObject)
-      rewriteHostHeader = localCluster.isRewriteHostHeader
+    defaultDestination = interrogator.getDefaultDestination(configurationObject).get()
+    destinations = configurationObject.getDestinations.getEndpoint.asScala
+      .map(it => it.getId -> it)
+      .toMap
+    rewriteHostHeader = configurationObject.isRewriteHostHeader
 
-      val clusterId: String = localCluster.getId
-      //Build a list of the nodes in this cluster, just so we know what we're doing
-      val clusterNodes = localCluster.getNodes.getNode.asScala.map(n => s"${n.getId}-${n.getHostname}")
-      logger.debug("{}:{} - Nodes for this router: {}", clusterId, nodeId, clusterNodes)
-      val destStrings = destinations
-        .filter { case (_, dest) => dest.isInstanceOf[DestinationEndpoint] }
-        .map { case (_, endpoint) => s"${endpoint.getId}-${endpoint.asInstanceOf[DestinationEndpoint].getHostname}" }
-      logger.debug("{}:{} - Destinations for this router: {}", clusterId, nodeId, destStrings)
+    //Build a list of the destinations in this cluster, just so we know what we're doing
+    val destStrings = destinations
+      .map { case (_, endpoint) => s"${endpoint.getId}-${endpoint.getHostname}" }
+    logger.debug("{} - Destinations for this router: {}", nodeId, destStrings)
 
-      initialized = true
-    } else {
-      logger.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml")
-    }
+    initialized = true
   }
 
   override def isInitialized: Boolean = {
@@ -200,37 +187,18 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
 
   def getDestination(route: RouteDestination): Try[Destination] = Try {
     destinations.getOrElse(route.getDestinationId, {
-      logger.warn("Invalid routing destination specified: {} for cluster: {}", route.getDestinationId, localCluster.getId)
+      logger.warn("Invalid routing destination specified: {}", route.getDestinationId)
       throw new Exception("Invalid routing destination specified")
     })
   }
 
   def getTarget(route: RouteDestination, destination: Destination): Try[Target] = Try {
-    destination match {
-      case endpoint: DestinationEndpoint =>
-        val uriBuilder = new URIBuilder()
-          .setScheme(endpoint.getProtocol)
-          .setHost(endpoint.getHostname)
-          .setPath(StringUriUtilities.concatUris(endpoint.getRootPath, route.getUri))
-        Option(endpoint.getPort).filterNot(_ == 0).foreach(uriBuilder.setPort)
-        Target(uriBuilder.build().toURL, endpoint.getChunkedEncoding)
-      case cluster: DestinationCluster =>
-        // todo: remove this when routing to a cluster is removed.
-        Option(domains.getDomain(cluster.getCluster.getId)) match {
-          case Some(clusterWrapper) =>
-            val routableNode = clusterWrapper.getNextNode
-            val port = if (HttpsProtocol.equalsIgnoreCase(cluster.getProtocol)) routableNode.getHttpsPort else routableNode.getHttpPort
-            val targetUrl = new URL(cluster.getProtocol, routableNode.getHostname, port, StringUriUtilities.concatUris(cluster.getRootPath, route.getUri))
-            Target(targetUrl, cluster.getChunkedEncoding)
-          case None =>
-            logger.warn("No routable node for domain: {}", cluster.getId)
-            throw new Exception("No routable node for domain: " + cluster.getId)
-        }
-      case _ =>
-        // todo: remove this when routing to a cluster is removed (it would only ever occur due to a development issue anyway).
-        logger.error(s"Unknown destination type: ${destination.getClass.getName} -- please notify the Repose team")
-        throw new Exception("Unknown destination type")
-    }
+    val uriBuilder = new URIBuilder()
+      .setScheme(destination.getProtocol)
+      .setHost(destination.getHostname)
+      .setPath(StringUriUtilities.concatUris(destination.getRootPath, route.getUri))
+    Option(destination.getPort).filterNot(_ == 0).foreach(uriBuilder.setPort)
+    Target(uriBuilder.build().toURL, destination.getChunkedEncoding)
   }
 
   def preProxyMetrics(destination: Destination): Unit = {
@@ -340,9 +308,9 @@ object ReposeRoutingServlet {
   final val OriginServiceErrorMessage = "Error communicating with origin service"
   final val RequestContentErrorMessage = "Error reading request content"
   private final val AllEndpoints = "All Endpoints"
-  private final val HttpsProtocol = "https"
 
   case class Target(url: URL, chunkedEncoding: ChunkedEncoding)
 
   case class OriginServiceCommunicationException(cause: Throwable) extends Exception(cause: Throwable)
+
 }

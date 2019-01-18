@@ -9,7 +9,6 @@ PROJECTS=(
     repose-aggregator:artifacts:experimental-filter-bundle
     repose-aggregator:artifacts:extensions-filter-bundle
     repose-aggregator:artifacts:filter-bundle
-    repose-aggregator:artifacts:repose-lint
     repose-aggregator:artifacts:valve
     repose-aggregator:artifacts:web-application
 )

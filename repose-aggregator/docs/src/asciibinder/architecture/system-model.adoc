@@ -3,18 +3,12 @@
 include::./_includes/in-progress.adoc[]
 
 The *Repose* `system-model.cfg.xml` is the main configuration file for *Repose*.
-It outlines the entire deployment layout for the service cluster.
+It outlines the deployment layout and behavior for *Repose*.
 *Repose* must be aware of this in order to configure itself and correctly coordinate routing if necessary.
 Additionally, the system model lets *Repose* know where the other *Repose* nodes reside.
-Using this information, *Repose* can coordinate its own clustering to help load balance or share data among nodes that share common filters.
+Using this information, *Repose* can coordinate its own clustering to share data among nodes that share common filters.
 
 == Model Definitions
-Cluster (Service or Repose)::
-An entity that defines a collection of nodes, all of which provide equivalent functionality.
-This element also defines service's scope within the system model.
-The service hosted on each node must be functionally equivalent at the API level.
-A filter chain may be attached to a *Repose* cluster to identify the *Repose* HTTP message interception logic that must be performed by each node within the cluster.
-
 Endpoint::
 An endpoint is a special type of destination.
 An endpoint destination can specify an exact node to which requests can be routed.
@@ -22,11 +16,10 @@ This element can contain protocol, hostname, root-path, and port elements that a
 If the endpoint is within the same container as *Repose*, protocol, hostname and port are not specified.
 
 Destinations::
-A *Repose* cluster must enumerate eligible routes to which HTTP messages can be forwarded.
-These are listed in the destinations section of the repose-cluster.
+An enumeration of eligible routes to which HTTP messages can be forwarded.
+These are listed in the destinations section of the system model.
 If a destination is requested that is not listed in this section, a "service not available" code is returned.
-A valid destination can either be an endpoint or a target cluster.
-All nodes within the target cluster of a destination are considered eligible for routing, and by default, *Repose* forwards to each node in round-robin order, starting at the top of the node sequence.
+The destination selected for routing is determined during processing (e.g., by the <<../filters/destination-router.adoc#, Destination Router Filter>>) with the default destination being used if no other destination was selected.
 
 Filter::
 An HTTP message interceptor that provides a specific piece of business functionality.
@@ -37,7 +30,7 @@ A sequence of filters that will intercept and process the request and/ord respon
 The request will be processed in order starting from the topmost filter in the sequence down to the bottom.
 The response will be processed in order starting from the bottommost filter in the sequence up to the top.
 
-Node (Cluster Node)::
+Node::
 A named reference that may be used to locate a network endpoint.
 The hostname may be the human readable, string representation of an IPv4 or IPv6 address or a named reference that an IPv4 or IPv6 address.
 
@@ -46,12 +39,7 @@ A service is any served REST API bound to a TCP/IP address and port.
 A service is considered served and available so long as it is addressable and accessible to a separate processes (local or remote).
 
 Services::
-A sequence of services that will be loaded into the servlet context to be available for filters in the cluster.
-
-Target Cluster::
-A target cluster is a type of destination that specifies another cluster (*Repose* or service) as a routing destination.
-The target cluster element can contain cluster, protocol, root-path attributes.
-*Repose* will choose a node from the target cluster as the target of the dispatch in a round-robin manner.
+A sequence of services that will be loaded into the servlet context to be available for filters.
 
 == Configuration
 This section is only meant to explain certain quirks of the system model, and to provide a link to the comprehensive configuration schema.
@@ -73,101 +61,94 @@ There are several ways to go about getting around this, but one of the most gene
 .system-model.cfg.xml
 ----
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-  <repose-cluster id="repose_cluster1"> <!--1-->
-    <nodes>
-      <node id="repose_node1" <!--2-->
-            hostname="localhost" <!--3-->
-            http-port="8080"/> <!--4-->
-    </nodes>
+  <nodes>
+    <node id="repose_node1" <!--1-->
+          hostname="localhost" <!--2-->
+          http-port="8080"/> <!--3-->
+  </nodes>
 
-    <filters/> <!--5-->
+  <filters/> <!--4-->
 
-    <services/> <!--6-->
+  <services/> <!--5-->
 
-    <destinations>
-      <endpoint id="open_repose" <!--7-->
-                protocol="http" <!--8-->
-                hostname="openrepose.org" <!--9-->
-                root-path="/" <!--10-->
-                port="80" <!--11-->
-                default="true"/> <!--12-->
-    </destinations>
-  </repose-cluster>
+  <destinations>
+    <endpoint id="open_repose" <!--6-->
+              protocol="http" <!--7-->
+              hostname="openrepose.org" <!--8-->
+              root-path="/" <!--9-->
+              port="80" <!--10-->
+              default="true"/> <!--11-->
+  </destinations>
 </system-model>
 ----
-<1> Defines a new *Repose* cluster with an ID that must be unique across all defined clusters.
-<2> Defines a new *Repose* node with an ID that must be unique across all defined nodes in the list.
-<3> Defines the hostname of the *Repose* node.
+<1> Defines a new *Repose* node with an ID that must be unique across all defined nodes in the list.
+<2> Defines the hostname of the *Repose* node.
 If set to localhost, any physical node will match and run the *Repose* node.
-<4> Defines the port for the node to listen on.
-<5> Defines a sequence of filters to run.
+<3> Defines the port for the node to listen on.
+<4> Defines a sequence of filters to run.
     In this case, no filters are being used.
-<6> Defines a set of services to run.
+<5> Defines a set of services to run.
     In this case, no services are being used.
-<7> Defines a new endpoint with an ID that must be unique across all defined endpoints in the destinations list.
+<6> Defines a new endpoint with an ID that must be unique across all defined endpoints in the destinations list.
     There must be exactly one default destination endpoint.
-<8> Defines the endpoint's protocol.
+<7> Defines the endpoint's protocol.
     If the protocol is not specified, then internal dispatch is assumed.
-<9> Defines the endpoint's host name.
+<8> Defines the endpoint's host name.
     If not specified, localhost is assumed.
-<10> Defines the endpoint's base path.
-     This will be used in building the URI/path for connecting to the service.
-     Any additional URI info will be appended to this.
-<11> Defines the endpoint's port.
+<9> Defines the endpoint's base path.
+    This will be used in building the URI/path for connecting to the service.
+    Any additional URI info will be appended to this.
+<10> Defines the endpoint's port.
      If not specified (or 0), internal dispatch is assumed.
-<12> Specifies whether or not this is the default destination endpoint.
+<11> Specifies whether or not this is the default destination endpoint.
      The default destination endpoint will be responsible for handling all traffic that is not explicitly routed to a different destination endpoint.
-     Remember that a target can be specified rather than an endpoint if you want to use round-robin routing to a service cluster.
 
 === Filter Activation Determination
 [source,xml]
 .system-model.cfg.xml
 ----
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-  <repose-cluster id="repose_cluster1"> <!--1-->
-    <nodes>
-      <node id="repose_node" hostname="localhost" http-port="8080"/> <!--2-->
-    </nodes>
+  <nodes>
+    <node id="repose_node" hostname="localhost" http-port="8080"/> <!--1-->
+  </nodes>
 
-    <filters> <!--3-->
-      <filter name="ip-user"> <!--4-->
-          <and> <!--5-->
-            <methods value="GET HEAD POST PUT"/> <!--6-->
-            <or> <!--7-->
-              <header name="foo"/> <!--8-->
-              <header name="bar" value="BaZ"/> <!--9-->
-            </or>
-            <not> <!--10-->
-              <uri regex="^/v1/[^/]+/[^/]+/public/?"/> <!--11-->
-            </not>
-          </and>
-      </filter>
-    </filters>
+  <filters> <!--2-->
+    <filter name="ip-user"> <!--3-->
+        <and> <!--4-->
+          <methods value="GET HEAD POST PUT"/> <!--5-->
+          <or> <!--6-->
+            <header name="foo"/> <!--7-->
+            <header name="bar" value="BaZ"/> <!--8-->
+          </or>
+          <not> <!--9-->
+            <uri regex="^/v1/[^/]+/[^/]+/public/?"/> <!--10-->
+          </not>
+        </and>
+    </filter>
+  </filters>
 
-    <services/> <!--12-->
+  <services/> <!--11-->
 
-    <destinations>
-      <endpoint id="origin_service" protocol="http" port="80" default="true"/> <!--13-->
-    </destinations>
-  </repose-cluster>
+  <destinations>
+    <endpoint id="origin_service" protocol="http" port="80" default="true"/> <!--12-->
+  </destinations>
 </system-model>
 ----
-<1> Defines a new *Repose* cluster with an ID that must be unique across all defined clusters.
-<2> Defines a new *Repose* node.
-<3> Defines a sequence of filters to run.
-<4> Defines the <<../filters/ip-user.adoc#,IP User Filter>> should be used by the nodes in this cluster.
-<5> Defines a boolean `AND` operator where all direct sub-elements must evaluate to `true`.
-<6> Defines the space separated list of case sensitive methods to check the current request against.
-<7> Defines a boolean `OR` operator where at least one direct sub-element must evaluate to `true`.
-<8> Defines that a header named `foo` (case insensitive) must be defined.
-<9> Defines that a header named `bar` (case insensitive) must be defined and have a value of `BaZ` (case sensitive).
-<10> Defines a boolean `NOT` operator that negates the result of the single direct sub-element's evaluation.
-<11> Defines the https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#sum[Java regular expression] the URI must match.
+<1> Defines a new *Repose* node.
+<2> Defines a sequence of filters to run.
+<3> Defines the <<../filters/ip-user.adoc#,IP User Filter>> should be used.
+<4> Defines a boolean `AND` operator where all direct sub-elements must evaluate to `true`.
+<5> Defines the space separated list of case sensitive methods to check the current request against.
+<6> Defines a boolean `OR` operator where at least one direct sub-element must evaluate to `true`.
+<7> Defines that a header named `foo` (case insensitive) must be defined.
+<8> Defines that a header named `bar` (case insensitive) must be defined and have a value of `BaZ` (case sensitive).
+<9> Defines a boolean `NOT` operator that negates the result of the single direct sub-element's evaluation.
+<10> Defines the https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#sum[Java regular expression] the URI must match.
      This particular one requires that it has exactly four total path segments, the first path segment must be `v1`, the fourth path segment is `public`, and the trailing slash is optional. +
      Example: `/v1/two/three/public`
-<12> Defines a set of services to run.
+<11> Defines a set of services to run.
      In this case, no services are being used.
-<13> Defines the required one default endpoint.
+<12> Defines the required one default endpoint.
 
 ==== Streaming Request Body to the Origin Service
 Streaming a request body to the origin service is accomplished by using the `chunked` transfer encoding.
@@ -176,18 +157,16 @@ Streaming a request body to the origin service is accomplished by using the `chu
 .partial http-connection-pool.cfg
 ----
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-  <repose-cluster id="repose_cluster1">
-    <nodes>
-      <node id="repose_node" hostname="localhost" http-port="8080"/>
-    </nodes>
+  <nodes>
+    <node id="repose_node" hostname="localhost" http-port="8080"/>
+  </nodes>
 
-    <filters/>
+  <filters/>
 
-    <destinations>
-      <endpoint id="origin_service" default="true" protocol="http" port="80"
-                chunked-encoding="auto"/> <!--1-->
-    </destinations>
-  </repose-cluster>
+  <destinations>
+    <endpoint id="origin_service" default="true" protocol="http" port="80"
+              chunked-encoding="auto"/> <!--1-->
+  </destinations>
 </system-model>
 ----
 <1> Determines whether or not the request body should be `chunked` when forwarded to the origin service.
@@ -207,9 +186,6 @@ It is recommended that users leave this value as `true` unless their service doe
 ====
 
 === Nova-API Localhost Deployment
-*IN PROGRESS*
-
-=== Complex Cluster Layout With Cluster Routing
 *IN PROGRESS*
 
 === Health Check Passthrough

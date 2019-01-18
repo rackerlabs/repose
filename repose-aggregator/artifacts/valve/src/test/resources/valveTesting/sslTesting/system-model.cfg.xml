@@ -2,18 +2,16 @@
 
 <!-- just a single node configuration for use in testing servo proper -->
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-    <repose-cluster id="cluster">
-        <nodes>
-            <node id="node" hostname="localhost" https-port="10235"/>
-        </nodes>
-        <filters>
-        </filters>
-        <services>
-        </services>
+    <nodes>
+        <node id="node" hostname="localhost" https-port="10235"/>
+    </nodes>
+    <filters>
+    </filters>
+    <services>
+    </services>
 
-        <destinations>
-            <endpoint id="open_repose" protocol="http" hostname="httpbin.org" root-path="/get" port="80"
-                      default="true"/>
-        </destinations>
-    </repose-cluster>
+    <destinations>
+        <endpoint id="open_repose" protocol="http" hostname="httpbin.org" root-path="/get" port="80"
+                  default="true"/>
+    </destinations>
 </system-model>

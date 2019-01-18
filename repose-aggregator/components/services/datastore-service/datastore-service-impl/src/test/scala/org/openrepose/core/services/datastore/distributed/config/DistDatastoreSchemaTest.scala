@@ -38,7 +38,7 @@ class DistDatastoreSchemaTest extends ConfigurationTest {
       val config = """<distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'>
                      |    <allowed-hosts allow-all="true"/>
                      |    <port-config>
-                     |        <port port="3888" cluster="38"/>
+                     |        <port port="3888"/>
                      |    </port-config>
                      |</distributed-datastore>""".stripMargin
       validator.validateConfigString(config)
@@ -50,7 +50,7 @@ class DistDatastoreSchemaTest extends ConfigurationTest {
                      |        <allow host="127.0.0.1"/>
                      |    </allowed-hosts>
                      |    <port-config>
-                     |        <port port="3888" cluster="38"/>
+                     |        <port port="3888"/>
                      |    </port-config>
                      |</distributed-datastore>""".stripMargin
       validator.validateConfigString(config)
@@ -62,13 +62,49 @@ class DistDatastoreSchemaTest extends ConfigurationTest {
                      |        <allow host="127.0.0.1"/>
                      |    </allowed-hosts>
                      |    <port-config>
-                     |        <port port="3888" cluster="38"/>
+                     |        <port port="3888"/>
                      |    </port-config>
                      |</distributed-datastore>""".stripMargin
       val exception = intercept[SAXParseException] {
         validator.validateConfigString(config)
       }
-      exception.getLocalizedMessage should include ("If allow-all is true then allow elements not allowed.")
+      exception.getLocalizedMessage should include ("If allow-all is true then allow elements not allowed")
+    }
+
+    it("should successfully validate config with no default port") {
+      val config = """<distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'>
+                     |    <allowed-hosts allow-all="true"/>
+                     |    <port-config>
+                     |        <port port="3888" node="1"/>
+                     |        <port port="8333" node="2"/>
+                     |    </port-config>
+                     |</distributed-datastore>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should successfully validate config with one default port") {
+      val config = """<distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'>
+                     |    <allowed-hosts allow-all="true"/>
+                     |    <port-config>
+                     |        <port port="3888"/>
+                     |        <port port="8333" node="2"/>
+                     |    </port-config>
+                     |</distributed-datastore>""".stripMargin
+      validator.validateConfigString(config)
+    }
+
+    it("should reject config with more than one default port") {
+      val config = """<distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'>
+                     |    <allowed-hosts allow-all="true"/>
+                     |    <port-config>
+                     |        <port port="3888"/>
+                     |        <port port="8333"/>
+                     |    </port-config>
+                     |</distributed-datastore>""".stripMargin
+      val exception = intercept[SAXParseException] {
+        validator.validateConfigString(config)
+      }
+      exception.getLocalizedMessage should include ("At most one default port may be defined")
     }
 
     it("should reject config missing keystore-filename") {
@@ -80,7 +116,7 @@ class DistDatastoreSchemaTest extends ConfigurationTest {
           |                       truststore-password="trusting">
           |    <allowed-hosts allow-all="true"/>
           |    <port-config>
-          |        <port port="3888" cluster="38"/>
+          |        <port port="3888"/>
           |    </port-config>
           |</distributed-datastore>""".stripMargin
       intercept[SAXParseException] {
@@ -97,7 +133,7 @@ class DistDatastoreSchemaTest extends ConfigurationTest {
           |                       truststore-password="trusting">
           |    <allowed-hosts allow-all="true"/>
           |    <port-config>
-          |        <port port="3888" cluster="38"/>
+          |        <port port="3888"/>
           |    </port-config>
           |</distributed-datastore>""".stripMargin
       intercept[SAXParseException] {
@@ -114,7 +150,7 @@ class DistDatastoreSchemaTest extends ConfigurationTest {
           |                       truststore-password="trusting">
           |    <allowed-hosts allow-all="true"/>
           |    <port-config>
-          |        <port port="3888" cluster="38"/>
+          |        <port port="3888"/>
           |    </port-config>
           |</distributed-datastore>""".stripMargin
       intercept[SAXParseException] {

@@ -38,7 +38,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
   SpringContextResetter.resetContext()
   CoreSpringProvider.getInstance().initializeCoreContext("/config/root", false)
 
-  val nodeContext = CoreSpringProvider.getInstance().getNodeContext("cluster", "le_node_id")
+  val nodeContext = CoreSpringProvider.getInstance().getNodeContext("le_node_id")
 
   val httpPort = Some(10234)
   val httpsPort = Some(10235)
@@ -59,7 +59,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
   it("can create a jetty server listening on an HTTP port") {
     val repose = new ReposeJettyServer(
       nodeContext,
-      "cluster",
       "node",
       httpPort,
       None,
@@ -78,7 +77,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
   it("can create a jetty server listening on an HTTPS port") {
     val repose = new ReposeJettyServer(
       nodeContext,
-      "cluster",
       "node",
       None,
       httpsPort,
@@ -97,7 +95,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
   it("can create a jetty server listening on both an HTTP port and an HTTPS port") {
     val repose = new ReposeJettyServer(
       nodeContext,
-      "cluster",
       "node",
       httpPort,
       httpsPort,
@@ -113,7 +110,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
   it("the jetty server listening on an HTTP port and having a non-default idleTimeout") {
     val repose = new ReposeJettyServer(
       nodeContext,
-      "cluster",
       "node",
       httpPort,
       None,
@@ -133,7 +129,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
   it("the jetty server listening on an HTTPS port and a non-default soLingerTime") {
     val repose = new ReposeJettyServer(
       nodeContext,
-      "cluster",
       "node",
       None,
       httpsPort,
@@ -153,7 +148,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
   it("the jetty server listening on both an HTTP port and an HTTPS port has non-default idleTimeout & soLingerTime") {
     val repose = new ReposeJettyServer(
       nodeContext,
-      "cluster",
       "node",
       httpPort,
       httpsPort,
@@ -173,7 +167,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
     intercept[ServerInitializationException] {
       new ReposeJettyServer(
         nodeContext,
-        "cluster",
         "node",
         None,
         httpsPort,
@@ -188,7 +181,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
     intercept[ServerInitializationException] {
       new ReposeJettyServer(
         nodeContext,
-        "cluster",
         "node",
         None,
         None,
@@ -205,7 +197,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
     val response = mock[HttpServletResponse]
     val repose = new ReposeJettyServer(
       nodeContext,
-      "cluster",
       "node",
       httpPort,
       httpsPort,
@@ -224,7 +215,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
   it("Can terminate a server, shutting down the node's entire context") {
     val server = new ReposeJettyServer(
       nodeContext,
-      "cluster",
       "node",
       httpPort,
       None,
@@ -249,7 +239,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
   it("can be restarted, terminating and restarting everything") {
     val server = new ReposeJettyServer(
       nodeContext,
-      "cluster",
       "node",
       httpPort,
       None,
@@ -282,7 +271,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
   it("Fails when attempting to start a shutdown server") {
     val server = new ReposeJettyServer(
       nodeContext,
-      "cluster",
       "node",
       httpPort,
       None,
@@ -306,7 +294,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
   it("has the spring properties we need at this stage") {
     val server = new ReposeJettyServer(
       nodeContext,
-      "cluster",
       "le_node_id",
       Some(8080),
       None,
@@ -318,7 +305,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
     import ReposeSpringProperties.NODE._
 
     val expectedProperties = Map(
-      CLUSTER_ID -> "cluster",
       NODE_ID -> "le_node_id",
       CONFIG_ROOT -> "/config/root",
       INSECURE -> "false" //Spring puts this into a string for us

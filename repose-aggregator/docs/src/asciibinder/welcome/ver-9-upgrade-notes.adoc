@@ -30,6 +30,18 @@
 . Requests can now contain headers with empty values.
   For example, if *Repose* receives a request with the header line `My-Header: `, that header line will now be forwarded to the origin service.
 
+== System Model Configuration
+. Support for multi-cluster deployments has been removed.
+.. The `cluster` element was removed from the <<../architecture/system-model.adoc#, system model>>.
+   Remember that a cluster is just a logical grouping of nodes by their functionality, and as such, logical clusters can still be constructed outside of *Repose*.
+... *Repose* clusters are no longer supported.
+    Instead, an operator will need to define *Repose* behavior per-node.
+    In other words, each *Repose* cluster will become a new <<../architecture/system-model.adoc#, system model>> configuration.
+    To route a request between *Repose* nodes, see the following bullet.
+... Service clusters (via round-robin routing) are no longer supported.
+    Instead, an operator may choose to use a router to route traffic between destinations with identical functionality.
+    A route could be anything from a physical F5 Load Balancer to a Cloud Load Balancer to an OpenShift service.
+
 == Container Configuration
 . The `via` attribute was removed from the <<../architecture/container.adoc#, container configuration>>.
   It has been replaced with the `via-header` element.

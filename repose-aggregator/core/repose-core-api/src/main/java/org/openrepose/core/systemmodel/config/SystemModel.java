@@ -29,20 +29,26 @@ import java.util.List;
 @XmlRootElement(name = "system-model")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = {
-    "reposeCluster",
-    "serviceCluster",
+    "nodes",
+    "filters",
+    "services",
+    "destinations",
     "phoneHome",
     "tracingHeader"
 })
 @Data
 public class SystemModel
     implements Serializable {
-    @XmlElement(name = "repose-cluster", required = true)
-    private List<ReposeCluster> reposeCluster = new ArrayList<>();
-    @XmlElement(name = "service-cluster")
-    private List<Cluster> serviceCluster = new ArrayList<>();
+    @XmlElement(required = true)
+    private NodeList nodes;
+    private FilterList filters;
+    private ServicesList services;
+    @XmlElement(required = true)
+    private DestinationList destinations;
     @XmlElement(name = "phone-home")
     private PhoneHomeServiceConfig phoneHome;
     @XmlElement(name = "tracing-header")
     private TracingHeaderConfig tracingHeader;
+    @XmlAttribute(name = "rewrite-host-header")
+    private boolean rewriteHostHeader = true;
 }

@@ -19,11 +19,9 @@
  */
 package org.openrepose.core.filter
 
-import org.intellij.lang.annotations.Language
+
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
-import org.openrepose.core.Marshaller
 import org.openrepose.core.systemmodel.config.*
 
 import static org.hamcrest.Matchers.equalTo
@@ -35,42 +33,14 @@ public class SystemModelInterrogatorTest {
 
     @Before
     public void setup() throws Exception {
-        interrogator = new SystemModelInterrogator("cluster1", "node1")
-    }
-
-    @Test
-    public void "when passed a valid system model, getLocalServiceDomain(...) should return a matching cluster"() throws Exception {
-        SystemModel sysModel = getValidSystemModel()
-
-        Optional<ReposeCluster> returnedCluster = interrogator.getLocalCluster(sysModel)
-
-        assertTrue(returnedCluster.isPresent())
-
-        ReposeCluster cluster = returnedCluster.get()
-
-        assertThat(cluster.getId(), equalTo("cluster1"))
-        assertThat(cluster.getNodes().getNode().get(0).getId(), equalTo("node1"))
-        assertThat(cluster.getNodes().getNode().get(0).getHostname(), equalTo("localhost"))
-        assertThat(cluster.getNodes().getNode().get(0).getHttpPort(), equalTo(8080))
-    }
-
-    // @TODO: There will be only one cluster after REP-7314
-    @Ignore
-    @Test
-    public void "when passed a system model missing a matching cluster, getLocalServiceDomain(...) should return an absent Optional"() throws Exception {
-        SystemModel sysModel = getValidSystemModel()
-        sysModel.getReposeCluster().get(0).setId("nope")
-
-        Optional<ReposeCluster> returnedCluster = interrogator.getLocalCluster(sysModel)
-
-        assertFalse(returnedCluster.isPresent())
+        interrogator = new SystemModelInterrogator("node1")
     }
 
     @Test
     public void "when passed a valid system model, getLocalHost(...) should return a matching node"() throws Exception {
         SystemModel sysModel = getValidSystemModel()
 
-        Optional<Node> returnedNode = interrogator.getLocalNode(sysModel)
+        Optional<Node> returnedNode = interrogator.getNode(sysModel)
 
         assertTrue(returnedNode.isPresent())
 
@@ -84,11 +54,39 @@ public class SystemModelInterrogatorTest {
     @Test
     public void "when passed a system model missing a matching node, getLocalHost(...) should return an absent Optional"() throws Exception {
         SystemModel sysModel = getValidSystemModel()
-        sysModel.getReposeCluster().get(0).getNodes().getNode().get(0).setId("nopes")
+        sysModel.getNodes().getNode().get(0).setId("nopes")
 
-        Optional<Node> returnedNode = interrogator.getLocalNode(sysModel)
+        Optional<Node> returnedNode = interrogator.getNode(sysModel)
 
         assertFalse(returnedNode.isPresent())
+    }
+
+    @Test
+    public void "when passed a valid system model including a service, getService(...) should return a matching service"() throws Exception {
+        String serviceName = "foo"
+        SystemModel sysModel = getValidSystemModel()
+        sysModel.services = new ServicesList()
+        sysModel.services.service <<
+            new Service(name: serviceName)
+
+        Optional<Service> returnedService = interrogator.getService(sysModel, serviceName)
+
+        assertTrue(returnedService.isPresent())
+
+        Service service = returnedService.get()
+
+        assertThat(service.getName(), equalTo(serviceName))
+    }
+
+    @Test
+    public void "when passed a system model missing a service, getService(...) should return an absent Optional"() throws Exception {
+        String serviceName = "foo"
+        SystemModel sysModel = getValidSystemModel()
+        sysModel.services = new ServicesList()
+
+        Optional<Service> returnedService = interrogator.getService(sysModel, serviceName)
+
+        assertFalse(returnedService.isPresent())
     }
 
     @Test
@@ -104,103 +102,31 @@ public class SystemModelInterrogatorTest {
         assertThat(destination.getId(), equalTo("dest1"))
         assertThat(destination.getProtocol(), equalTo("http"))
         assertThat(destination.getId(), equalTo("dest1"))
-        assertThat(destination, instanceOf(DestinationEndpoint))
+        assertThat(destination, instanceOf(Destination))
     }
 
     @Test
     public void "when passed a system model missing a matching default destination, getDefaultDestination(...) should return an absent Optional"() throws Exception {
         SystemModel sysModel = getValidSystemModel()
-        sysModel.getReposeCluster().get(0).getNodes().getNode().get(0).setId("NOPES")
+        sysModel.getDestinations().getEndpoint().head().setDefault(false)
 
         Optional<Destination> returnedDestination = interrogator.getDefaultDestination(sysModel)
 
         assertFalse(returnedDestination.isPresent())
     }
 
-    @Test
-    public void "when no destinations are present, cluster exists but destinations are absent"() {
-        SystemModel sysModel = getValidSystemModel()
-        sysModel.reposeCluster[0].destinations = new DestinationList()
-
-        Optional<ReposeCluster> returnedCluster = interrogator.getLocalCluster(sysModel)
-
-        assertTrue(returnedCluster.isPresent())
-
-        Optional<Destination> destination = interrogator.getDefaultDestination(sysModel)
-
-        assertFalse(destination.isPresent())
-
-    }
-
-    @Test
-    public void "when no clusters are present, cluster and destination are absent"() {
-        SystemModel sysModel = getValidSystemModel()
-        sysModel.reposeCluster = new ArrayList<ReposeCluster>()
-
-        Optional<ReposeCluster> returnedCluster = interrogator.getLocalCluster(sysModel)
-
-        assertFalse(returnedCluster.isPresent())
-
-        Optional<Destination> destination = interrogator.getDefaultDestination(sysModel)
-
-        assertFalse(destination.isPresent())
-    }
-
-    @Test
-    public void "When having multiple clusters, it should select the right local Cluster"() {
-        @Language("XML")
-        def systemModelXML = """<?xml version="1.0" encoding="UTF-8"?>
-<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-  <repose-cluster id="cluster-1">
-    <nodes>
-      <node id="node-1-1" hostname="localhost" http-port="1011"/>
-      <node id="node-1-2" hostname="example.com" http-port="1012"/>
-    </nodes>
-    <filters></filters>
-    <destinations>
-      <endpoint id="target" protocol="http" hostname="localhost" port="801" root-path="/" default="true"/>
-    </destinations>
-  </repose-cluster>
-
-  <repose-cluster id="cluster-2">
-    <nodes>
-      <node id="node-2-1" hostname="localhost" http-port="1021"/>
-      <node id="node-2-2" hostname="example.com" http-port="1022"/>
-    </nodes>
-    <filters></filters>
-    <destinations>
-      <endpoint id="target" protocol="http" hostname="localhost" port="802" root-path="/" default="true"/>
-    </destinations>
-  </repose-cluster>
-</system-model>
-"""
-
-        SystemModel systemModel = Marshaller.systemModelString(systemModelXML)
-
-        def interrogator = new SystemModelInterrogator("cluster-2", "node-2-1")
-        def localCluster = interrogator.getLocalCluster(systemModel)
-        assertTrue(localCluster.isPresent())
-        def lc = localCluster.get()
-        assertThat(lc.getId(), equalTo("cluster-2"))
-
-    }
-
     /**
      * @return a valid system model
      */
-    private SystemModel getValidSystemModel() {
-        ReposeCluster cluster = new ReposeCluster()
+    private static SystemModel getValidSystemModel() {
         SystemModel sysModel = new SystemModel()
 
-        cluster.setId("cluster1")
-        cluster.setNodes(new NodeList())
-        cluster.getNodes().getNode() <<
-                new Node(id: "node1", hostname: "localhost", httpPort: 8080, httpsPort: 8181)
-        cluster.setDestinations(new DestinationList())
-        cluster.getDestinations().getEndpoint() << new DestinationEndpoint(
-                hostname: "localhost", port: 9090, default: true, id: "dest1", protocol: "http")
-
-        sysModel.getReposeCluster().add(cluster)
+        sysModel.setNodes(new NodeList())
+        sysModel.getNodes().getNode() <<
+            new Node(id: "node1", hostname: "localhost", httpPort: 8080, httpsPort: 8181)
+        sysModel.setDestinations(new DestinationList())
+        sysModel.getDestinations().getEndpoint() << new Destination(
+            hostname: "localhost", port: 9090, isDefault: true, id: "dest1", protocol: "http")
 
         return sysModel
     }

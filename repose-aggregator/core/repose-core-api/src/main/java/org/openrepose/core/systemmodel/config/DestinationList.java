@@ -30,12 +30,10 @@ import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DestinationList", propOrder = {
-    "endpoint",
-    "target"
+    "endpoint"
 })
 @Data
 public class DestinationList
     implements Serializable {
-    private List<DestinationEndpoint> endpoint = new ArrayList<>();
-    private List<DestinationCluster> target = new ArrayList<>();
+    private List<Destination> endpoint = new ArrayList<>();
 }

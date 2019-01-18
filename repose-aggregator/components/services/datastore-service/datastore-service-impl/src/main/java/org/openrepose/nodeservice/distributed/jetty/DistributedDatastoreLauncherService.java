@@ -35,7 +35,6 @@ import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 import org.openrepose.core.services.uriredaction.UriRedactionService;
 import org.openrepose.core.spring.ReposeSpringProperties;
-import org.openrepose.core.systemmodel.config.ReposeCluster;
 import org.openrepose.core.systemmodel.config.SystemModel;
 import org.openrepose.nodeservice.distributed.cluster.utils.AccessListDeterminator;
 import org.openrepose.nodeservice.distributed.cluster.utils.ClusterMemberDeterminator;
@@ -57,7 +56,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class DistributedDatastoreLauncherService {
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreLauncherService.class);
 
-    private final String clusterId;
     private final String nodeId;
     private final String configRoot;
     private final String reposeVersion;
@@ -80,7 +78,6 @@ public class DistributedDatastoreLauncherService {
 
     @Inject
     public DistributedDatastoreLauncherService(
-        @Value(ReposeSpringProperties.NODE.CLUSTER_ID) String clusterId,
         @Value(ReposeSpringProperties.NODE.NODE_ID) String nodeId,
         @Value(ReposeSpringProperties.CORE.CONFIG_ROOT) String configRoot,
         @Value(ReposeSpringProperties.CORE.REPOSE_VERSION) String reposeVersion,
@@ -91,7 +88,6 @@ public class DistributedDatastoreLauncherService {
         Tracer tracer,
         HealthCheckService healthCheckService) {
 
-        this.clusterId = clusterId;
         this.nodeId = nodeId;
         this.configRoot = configRoot;
         this.reposeVersion = reposeVersion;
@@ -154,9 +150,9 @@ public class DistributedDatastoreLauncherService {
 
                 //We have configuration options!
                 //extract data and do things with it?
-                int ddPort = ClusterMemberDeterminator.getNodeDDPort(ddConfig, clusterId, nodeId);
+                int ddPort = ClusterMemberDeterminator.getNodeDDPort(ddConfig, nodeId);
                 if (ddPort == -1) {
-                    LOG.error("Unable to determine Distributed Datastore port for {} : {}", clusterId, nodeId);
+                    LOG.error("Unable to determine Distributed Datastore port for {}", nodeId);
                     healthCheckServiceProxy.reportIssue(DD_CONFIG_ISSUE, "Dist-Datastore Configuration Issue: ddPort not defined", Severity.BROKEN);
                     return;
                 }
@@ -183,7 +179,7 @@ public class DistributedDatastoreLauncherService {
                         reposeVersion,
                         uriRedactionService);
 
-                    DistributedDatastoreServer server = new DistributedDatastoreServer(clusterId, nodeId, ddServlet, ddConfig);
+                    DistributedDatastoreServer server = new DistributedDatastoreServer(nodeId, ddServlet, ddConfig);
                     this.ddServer = Optional.of(server);
 
                     //Make sure the server is running now -- the dist datastore is up
@@ -215,10 +211,10 @@ public class DistributedDatastoreLauncherService {
 
                     //Update the Servlet ClusterView and ACL
                     ddServlet.getClusterView().updateMembers(
-                        ClusterMemberDeterminator.getClusterMembers(systemModel, ddConfig, clusterId)
+                        ClusterMemberDeterminator.getClusterMembers(systemModel, ddConfig)
                     );
                     ddServlet.updateAcl(
-                        AccessListDeterminator.getAccessList(ddConfig, AccessListDeterminator.getClusterMembers(systemModel, clusterId))
+                        AccessListDeterminator.getAccessList(ddConfig, AccessListDeterminator.getClusterMembers(systemModel))
                     );
                 }
             }
@@ -262,20 +258,17 @@ public class DistributedDatastoreLauncherService {
 
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
-            SystemModelInterrogator smi = new SystemModelInterrogator(clusterId, nodeId);
-            Optional<ReposeCluster> clusterOption = smi.getLocalCluster(configurationObject);
-            if (clusterOption.isPresent()) {
+            SystemModelInterrogator smi = new SystemModelInterrogator(nodeId);
 
-                boolean listed = smi.getServiceForCluster(configurationObject, "dist-datastore").isPresent();
+            boolean listed = smi.getService(configurationObject, "dist-datastore").isPresent();
 
-                if (listed && !isRunning) {
-                    //Note it as being broke, until it's properly configured.
-                    healthCheckServiceProxy.reportIssue(DD_CONFIG_ISSUE, "Dist-Datastore Configuration Issue: DD Specified in system model, but not configured yet", Severity.BROKEN);
-                    startDistributedDatastore();
-                } else if (!listed && isRunning) {
-                    //any health check problems are resolved when we stop it
-                    stopDistributedDatastore();
-                }
+            if (listed && !isRunning) {
+                //Note it as being broke, until it's properly configured.
+                healthCheckServiceProxy.reportIssue(DD_CONFIG_ISSUE, "Dist-Datastore Configuration Issue: DD Specified in system model, but not configured yet", Severity.BROKEN);
+                startDistributedDatastore();
+            } else if (!listed && isRunning) {
+                //any health check problems are resolved when we stop it
+                stopDistributedDatastore();
             }
 
             currentSystemModel.set(configurationObject);

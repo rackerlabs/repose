@@ -21,50 +21,6 @@ The following example shows a basic configuration for the Container file.
 
 === link:../schemas/container-configuration.xsd[Schema]
 
-== Cluster Specific Container Configuration
-A user may configure different values for different *Repose* clusters.
-This is achieved by including one or more `cluster-config` elements which map to clusters in the system-model.
-All configuration within a `cluster-config` element is optional.
-When configuration is present, it will override the base configuration (i.e., the `deployment-config` element) values.
-This functionality may be referred to as _"container configuration patching"_ or simply as _"patching"_.
-
-When discussing patches, one might notice that there is ambiguity in the rules for how patches are applied.
-Below is a list of common ambiguities, and how they are handled in this context:
-
-* Is there any way to _"patch out"_ or remove some configuration that is in the `deployment-config` element?
-** Generally speaking, no.
-   The applied patch will only override existing values.
-   There is no way to designate that some configuration should be removed.
-   However, there is a case where configuration may technically be removed – collections.
-   See the next bullet for more details.
-* How are collections (i.e., _all_ and _sequence_ XSD elements, _list_ attributes) patched?
-  Are elements in the patch collection added to the base collection?
-  Does the patch collection replace the base collection?
-** Patching will treat collections as a single unit, and so configuring a collection in the `cluster-config` (e.g., `included-protocols` for SSL) will result in that cluster using the _"patched"_ collection.
-   It will not use anything configured in the `deployment-config` element.
-   Items in collections are not combined.
-
-[NOTE]
-====
-Not all configuration is patchable.
-Some values (e.g., the `deployment-directory`) cannot be overridden due to internal system constraints.
-Currently the only items that are patchable are some of the `deployment-config` element's attributes.
-Specifically only the following:
-
-* `via-header`
-* `content-body-read-limit`
-* `idleTimeout`
-* `soLingerTime`
-====
-
-[NOTE]
-====
-Something else to be aware of is that the `deployment-directory` and `artifact-directory` values should be fully qualified paths.
-This is the case as the exact location of the launcing JVM may not remain in the same location and this would effect relative paths.
-The path should not start or end with a whitespace character as all leading and trailing whitespace is ignored in reading this value.
-All white space in the middle of the path name will be preserved and should not be escaped in any way.
-====
-
 == Artifacts
 
 Artifacts are files containing resources which extend the functionality of *Repose*.
@@ -120,6 +76,14 @@ If the `auto-clean` feature is not being used, it should be safe to share the `d
 Files in the deployment directory are only removed if the `auto-clean` feature is used, and even then, only when *Repose* shuts down.
 Since files in the deployment directory are made accessible to *Repose* at runtime (via the classpath), files in the deployment directory that are not managed by *Repose* could affect the behavior of *Repose* and could even result in errors.
 As such, care should be taken to ensure that errant files do not end up in the deployment directory.
+====
+
+[NOTE]
+====
+Something else to be aware of is that the `deployment-directory` and `artifact-directory` values should be fully qualified paths.
+This is the case as the exact location of the launching JVM may not remain in the same location and this would effect relative paths.
+The path should not start or end with a whitespace character as all leading and trailing whitespace is ignored in reading this value.
+All white space in the middle of the path name will be preserved and should not be escaped in any way.
 ====
 
 == Via Header Configuration

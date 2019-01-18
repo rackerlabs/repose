@@ -4,6 +4,6 @@
         <allow host="127.0.0.1"/>
     </allowed-hosts>
     <port-config>
-        <port port="${datastorePort}" cluster="repose"/>
+        <port port="${datastorePort}"/>
     </port-config>
 </distributed-datastore>

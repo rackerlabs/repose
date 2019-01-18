@@ -38,7 +38,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
 
   val fakeConfigService = new FakeConfigService()
   val fakeContainerConfigurationService =
-    CoreSpringProvider.getInstance().getNodeContext("cluster", "node").getBean(classOf[FakeContainerConfigurationService])
+    CoreSpringProvider.getInstance().getNodeContext("node").getBean(classOf[FakeContainerConfigurationService])
 
   import scala.concurrent.ExecutionContext.Implicits.global
   import scala.concurrent.duration._

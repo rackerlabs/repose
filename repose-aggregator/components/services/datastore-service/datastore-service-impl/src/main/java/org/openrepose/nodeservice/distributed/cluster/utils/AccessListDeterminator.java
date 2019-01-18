@@ -23,7 +23,6 @@ import org.openrepose.core.services.datastore.DatastoreAccessControl;
 import org.openrepose.core.services.datastore.distributed.config.DistributedDatastoreConfiguration;
 import org.openrepose.core.services.datastore.distributed.config.HostAccessControl;
 import org.openrepose.core.systemmodel.config.Node;
-import org.openrepose.core.systemmodel.config.ReposeCluster;
 import org.openrepose.core.systemmodel.config.SystemModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,13 +45,10 @@ public class AccessListDeterminator {
 
     public static DatastoreAccessControl getAccessList(DistributedDatastoreConfiguration config, List<InetAddress> clusterMembers) {
 
-        List<InetAddress> hostAccessList = new LinkedList<>();
-
-
         boolean allowAll = config.getAllowedHosts().isAllowAll();
 
         //Automatically Adds all cluster members to access list
-        hostAccessList.addAll(clusterMembers);
+        List<InetAddress> hostAccessList = new LinkedList<>(clusterMembers);
 
         if (!allowAll) {
             hostAccessList.addAll(getConfiguredAllowedHosts(config));
@@ -87,17 +83,16 @@ public class AccessListDeterminator {
         return configuredAllowedHosts;
     }
 
-    public static List<InetAddress> getClusterMembers(SystemModel config, String clusterId) {
+    public static List<InetAddress> getClusterMembers(SystemModel config) {
 
-        ReposeCluster cluster = ClusterMemberDeterminator.getCurrentCluster(config.getReposeCluster(), clusterId);
         final List<InetAddress> reposeClusterMembers = new LinkedList<>();
 
-        for (Node node : cluster.getNodes().getNode()) {
+        for (Node node : config.getNodes().getNode()) {
             try {
                 final InetAddress hostAddress = InetAddress.getByName(node.getHostname());
                 reposeClusterMembers.add(hostAddress);
             } catch (UnknownHostException e) {
-                LOG.warn("Unable to resolve host: " + node.getHostname() + "for Node " + node.getId() + " in Repose Cluster " + clusterId, e);
+                LOG.warn("Unable to resolve host: " + node.getHostname() + "for Node " + node.getId(), e);
             }
 
         }
