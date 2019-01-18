@@ -71,6 +71,8 @@
 .. `token-cache-timeout` on the `openstack-identity-v3` element; `token` on the `timeouts` element should be used instead.
 .. `groups-cache-timeout` on the `openstack-identity-v3` element; `group` on the `timeouts` element should be used instead.
 .. `cache-offset` on the `openstack-identity-v3` element; `variance` on the `timeouts` element should be used instead.
+. Cache timeouts are now defined in seconds rather than milliseconds.
+.. To convert existing timeouts, divide by `1000`.
 
 == Keystone v2 and Keystone v2 Authorization Filters
 . The `uri-tenant-quality` attribute was removed; the `validated-tenant-quality` should be used in its place.
