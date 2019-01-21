@@ -19,7 +19,6 @@
  */
 package features.services.opentracing
 
-import groovy.json.JsonSlurper
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Unroll
@@ -27,8 +26,6 @@ import spock.lang.Unroll
 class OpenTracingServiceMisconfiguredSamplingConfigTest extends ReposeValveTest {
 
     def static originEndpoint
-
-    def static slurper = new JsonSlurper()
 
     static String TRACING_HEADER = "uber-trace-id"
 
