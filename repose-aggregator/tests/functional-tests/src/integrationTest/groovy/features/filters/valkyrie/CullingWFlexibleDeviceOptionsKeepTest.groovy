@@ -20,20 +20,17 @@
 package features.filters.valkyrie
 
 import groovy.json.JsonSlurper
-import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.openrepose.framework.test.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import scaffold.category.Slow
 import spock.lang.Unroll
 
 import static features.filters.valkyrie.CullingWFlexibleDeviceOptionsTestsHelper.jsonrespbody
 import static features.filters.valkyrie.CullingWFlexibleDeviceOptionsTestsHelper.randomTenant
 
-@Category(Slow)
 class CullingWFlexibleDeviceOptionsKeepTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
@@ -66,19 +63,20 @@ class CullingWFlexibleDeviceOptionsKeepTest extends ReposeValveTest {
 
     @Unroll
     def "Keep - permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode"() {
-        given: "reconfig repose with null uri keep action"
+        given: "a user defined in Identity"
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
             client_tenantid = tenantID
         }
 
+        and: "permissions defined in Valkyrie"
         fakeValkyrie.with {
             device_id = deviceID
             device_id2 = deviceID2
             device_perm = permission
         }
 
-        "Json Response from origin service"
+        and: "a JSON Response from origin service"
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"
