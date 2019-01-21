@@ -6,7 +6,6 @@ dependencies {
     earlib project(":repose-aggregator:components:filters:echo-filter")
     earlib project(":repose-aggregator:components:filters:exception-filter")
     earlib project(":repose-aggregator:components:filters:tightly-coupled-filter")
-    earlib project(":repose-aggregator:components:filters:scripting-filter")
 }
 
 ear {

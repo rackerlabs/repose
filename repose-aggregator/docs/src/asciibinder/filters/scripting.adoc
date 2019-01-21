@@ -7,7 +7,7 @@ Custom filters can be used to perform arbitrary processing with access to the bi
 * *Name:* scripting
 * *Default Configuration:* scripting.cfg.xml
 * *Released:* v8.0.0.0
-* *Bundle:* repose-experimental-filter-bundle
+* *Bundle:* repose-filter-bundle
 * link:../schemas/scripting.xsd[Schema]
 
 == Prerequisites & Postconditions
