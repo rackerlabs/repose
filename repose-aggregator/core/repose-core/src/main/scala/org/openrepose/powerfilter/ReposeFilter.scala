@@ -208,6 +208,8 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
 
           logger.trace("ReposeFilter returning response...")
           MDC.clear()
+
+          filterContextList.close()
         }
 
       case None =>

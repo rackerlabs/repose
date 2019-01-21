@@ -120,7 +120,7 @@ class ReposeFilterTest extends FunSpec
     filterConfig = new FilterConfig
     filterConfig.setName("foo")
     filterContexts = List(FilterContext(mockFilter, filterConfig, (request: HttpServletRequest) => true, mockAbstractApplicationContext))
-    filterContextList = new FilterContextList(mock[FilterContextRegistrar], filterContexts, None)
+    filterContextList = spy(new FilterContextList(mock[FilterContextRegistrar], filterContexts, None))
     when(reposeFilterLoader.getFilterContextList).thenReturn(Option(filterContextList))
     filter = new ReposeFilter(
       nodeId,
@@ -350,5 +350,11 @@ class ReposeFilterTest extends FunSpec
     response.getStatus shouldBe 600
     verify(metricRegistry, never).meter(contains("org.openrepose.core.ResponseCode.Repose"))
     verify(metricRegistry, never).timer(contains("org.openrepose.core.ResponseTime.Repose"))
+  }
+
+  it("should close the filterContextList") {
+    filter.doFilter(request, response, filterChain)
+
+    verify(filterContextList).close()
   }
 }
