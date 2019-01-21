@@ -29,6 +29,8 @@ import spock.lang.Specification
 
 import java.util.concurrent.TimeUnit
 
+import static org.openrepose.framework.test.ReposeLauncher.MAX_STARTUP_TIME
+
 @Category(Intense.class)
 class DistDatastoreServiceClientAuthFullTest extends Specification {
     static String reposeEndpoint1
@@ -75,8 +77,8 @@ class DistDatastoreServiceClientAuthFullTest extends Specification {
         repose1 = new ReposeValveLauncher(config, reposeJar, reposeEndpoint1, configDirectory,  reposePort1)
         repose1.enableDebug()
         repose1.start(clusterId: "repose1", nodeId: "node1")
-        reposeLogSearch.awaitByString("node1 -- Repose ready", 1, 60, TimeUnit.SECONDS)
-        reposeLogSearch.awaitByString("node2 -- Repose ready", 1, 60, TimeUnit.SECONDS)
+        reposeLogSearch.awaitByString("node1 -- Repose ready", 1, MAX_STARTUP_TIME, TimeUnit.SECONDS)
+        reposeLogSearch.awaitByString("node2 -- Repose ready", 1, MAX_STARTUP_TIME, TimeUnit.SECONDS)
     }
 
     def "Test repose container with multi-nodes"() {
