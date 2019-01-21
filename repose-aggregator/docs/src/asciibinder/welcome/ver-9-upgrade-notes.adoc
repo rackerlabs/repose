@@ -64,6 +64,7 @@
 == Deployment
 . Support for installing *Repose* into an existing container has been dropped. For help moving to another deployment see <<../recipes/valve-installation.adoc, Valve Installation>> and <<../recipes/quick-start.adoc, Quick Start with Docker>>.
 . The package for valve installation has changed from `repose-valve` to `repose`.
+. The <<../filters/scripting.adoc#, Scripting Filter>> has been moved from the `repose-experimental-filter-bundle` to the `repose-filter-bundle`.
 
 == HTTP Client/Connection Pool Service
 . If setting the `chunked-encoding` attribute, it will no longer be set in <<../services/http-client.adoc#configuration, HTTP Client Service configuration>> but instead will be set in the <<../architecture/system-model.adoc#configuration, System Model configuration>>.

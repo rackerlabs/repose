@@ -33,6 +33,7 @@
 * https://repose.atlassian.net/browse/REP-4993[REP-4993] - Flush output filter was removed.
 * https://repose.atlassian.net/browse/REP-7231[REP-7231] - Switching over to new filter, filter chain, and servlet classes.
 ** Many unused and deprecated classes have been removed.
+** The <<../filters/scripting.adoc#, Scripting Filter>> has been moved from the `repose-experimental-filter-bundle` to the `repose-filter-bundle`.
 ** Removed support for the <<../services/response-message.adoc#, Response Messaging Service>>.
 ** Headers are no longer automatically split.
 ** Headers with an empty value are now supported and will not be removed from requests/responses.
