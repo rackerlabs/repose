@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
+import static org.openrepose.framework.test.ReposeLauncher.MAX_STARTUP_TIME
 
 abstract class ReposeValveTest extends Specification {
 
@@ -98,18 +99,15 @@ abstract class ReposeValveTest extends Specification {
             logSearch.cleanLog()
         MessageChain mc
         try {
-            waitForCondition(clock, '60s', '1s', {
+            waitForCondition(clock, "${MAX_STARTUP_TIME}s", '1s', {
                 if (checkLogMessage &&
-                        //TODO: this will not work, because of clusterID/NodeId awareness
-                        //This needs to do a bit more regexp
-                        // ClusterId and NodeID need to be known for what node we expect to be alive
-                        // .*PowerFilter.* clusterId-nodeId: Repose Ready
+                        // WARNING: This check is not node aware; if any node is ready, all of Repose is considered ready.
                         logSearch.awaitByString(
-                                "Repose ready", 1, 60, TimeUnit.SECONDS).size() > 0) {
+                                "Repose ready", 1, MAX_STARTUP_TIME, TimeUnit.SECONDS).size() > 0) {
                     return true
                 }
                 try {
-                    mc = innerDeproxy.makeRequest([url: reposeEndpoint])
+                    mc = innerDeproxy.makeRequest(url: reposeEndpoint)
                 } catch (Exception e) {
                 }
                 if (mc != null) {
