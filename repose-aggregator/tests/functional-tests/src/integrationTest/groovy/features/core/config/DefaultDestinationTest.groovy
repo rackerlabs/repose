@@ -43,12 +43,13 @@ class DefaultDestinationTest extends ReposeValveTest {
 
     def setup() {
         int dataStorePort = PortFinder.instance.getNextOpenPort()
-        params = properties.getDefaultTemplateParams()
 
+        params = properties.getDefaultTemplateParams()
         params += [
-                'datastorePort': dataStorePort,
+            datastorePort: dataStorePort,
         ]
 
+        reposeLogSearch.cleanLog()
         repose.configurationProvider.cleanConfigDirectory()
     }
 
@@ -56,22 +57,22 @@ class DefaultDestinationTest extends ReposeValveTest {
         repose?.stop()
     }
 
-    @Unroll
-    def "Fails to connect when defaults: #default1, #default2, #default3"() {
-        given:
-        // set the common and good configs
+    @Unroll("not exactly one default destination with defaults: #default1, #default2, #default3")
+    def "when there is not exactly one default destination, an error is recorded and a request cannot be processed"() {
+        given: "default destination parameters to apply to configuration templates"
+        params += [
+            default1: defaultParamWrapper(default1),
+            default2: defaultParamWrapper(default2),
+            default3: defaultParamWrapper(default3)
+        ]
+
+        and: "Repose configuration"
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/config/common", params)
-
-        params += [
-                default1: default1, default2: default2, default3: default3
-        ]
         repose.configurationProvider.applyConfigs("features/core/config/default-dest", params)
-        reposeLogSearch.cleanLog()
 
-        // start repose
-        when: "starting Repose with more or less than one default destination endpoint"
-        repose.start([waitOnJmxAfterStarting: false])
+        when: "Repose is started"
+        repose.start(waitOnJmxAfterStarting: false)
 
         then: "error should be logged"
         waitForCondition(repose.clock, "${MAX_STARTUP_TIME}s", "2s") {
@@ -81,11 +82,11 @@ class DefaultDestinationTest extends ReposeValveTest {
             reposeLogSearch.searchByString(errorMessage).size() != 0
         }
 
-        when: "making a request to repose with and invalid default destination endpoint settings"
+        when: "a request is made to Repose"
         deproxy.makeRequest(url: reposeEndpoint)
-        then: "connection exception should be returned"
-        thrown(ConnectException)
 
+        then: "Deproxy should fail to connect"
+        thrown(ConnectException)
 
         where:
         default1 | default2 | default3
@@ -94,76 +95,6 @@ class DefaultDestinationTest extends ReposeValveTest {
         true     | true     | false
         true     | false    | true
         false    | true     | true
-
-    }
-
-    @Unroll
-    def "starts and returns 200 when defaults: #default1, #default2, #default3"() {
-        given:
-        // set the common and good configs
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/core/config/common", params)
-
-        params += [
-                default1: default1, default2: default2, default3: default3
-        ]
-        repose.configurationProvider.applyConfigs("features/core/config/default-dest", params)
-
-        // start repose
-        reposeLogSearch.cleanLog()
-        repose.start(killOthersBeforeStarting: false,
-                waitOnJmxAfterStarting: false)
-        repose.waitForNon500FromUrl(reposeEndpoint)
-
-        expect: "starting Repose with good configs should yield 200"
-        deproxy.makeRequest(url: reposeEndpoint).receivedResponse.code == "200"
-
-        where:
-        default1 | default2 | default3
-        true     | false    | false
-        false    | true     | false
-        false    | false    | true
-
-    }
-
-    @Unroll
-    def "when defaults: #default1, #default2, #default3"() {
-        given:
-        // set the common and good configs
-        repose.configurationProvider.cleanConfigDirectory()
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/core/config/common", params)
-
-        params += [
-                default1: defaultParamWrapper(default1),
-                default2: defaultParamWrapper(default2),
-                default3: defaultParamWrapper(default3)
-        ]
-        repose.configurationProvider.applyConfigs("features/core/config/default-dest-null", params)
-
-        // start repose
-
-
-        when: "starting Repose with more or less than one default destination endpoint"
-        reposeLogSearch.cleanLog()
-        repose.start([waitOnJmxAfterStarting: false])
-
-        then: "error should be logged"
-        waitForCondition(repose.clock, "${MAX_STARTUP_TIME}s", "2s") {
-            new File(reposeLogSearch.logFileLocation).exists()
-        }
-        waitForCondition(repose.clock, "${MAX_STARTUP_TIME}s", "2s") {
-            reposeLogSearch.searchByString(errorMessage).size() != 0
-        }
-
-        when: "making a request to repose with and invalid default destination endpoint settings"
-        deproxy.makeRequest(url: reposeEndpoint)
-        then: "connection exception should be returned"
-        thrown(ConnectException)
-
-
-        where:
-        default1 | default2 | default3
         null     | null     | null
         null     | null     | false
         null     | false    | false
@@ -176,7 +107,43 @@ class DefaultDestinationTest extends ReposeValveTest {
         false    | false    | null
     }
 
-    private def defaultParamWrapper(Object value) {
-        return value == null ? '' : '\" default=\"' + value
+    @Unroll("exactly one default destination with defaults: #default1, #default2, #default3")
+    def "when there is exactly one default destination, a request can be successfully processed"() {
+        given: "default destination parameters to apply to configuration templates"
+        params += [
+            default1: defaultParamWrapper(default1),
+            default2: defaultParamWrapper(default2),
+            default3: defaultParamWrapper(default3)
+        ]
+
+        and: "Repose configuration"
+        repose.configurationProvider.applyConfigs("common", params)
+        repose.configurationProvider.applyConfigs("features/core/config/common", params)
+        repose.configurationProvider.applyConfigs("features/core/config/default-dest", params)
+
+        when: "Repose is started"
+        repose.start()
+
+        then: "a request is processed and a 200 is returned"
+        deproxy.makeRequest(url: reposeEndpoint).receivedResponse.code == "200"
+
+        where:
+        default1 | default2 | default3
+        true     | false    | false
+        true     | null     | false
+        true     | false    | null
+        true     | null     | null
+        false    | true     | false
+        null     | true     | false
+        false    | true     | null
+        null     | true     | null
+        false    | false    | true
+        null     | false    | true
+        false    | null     | true
+        null     | null     | true
+    }
+
+    private static def defaultParamWrapper(Object value) {
+        return value == null ? '' : "default=\"$value\""
     }
 }
