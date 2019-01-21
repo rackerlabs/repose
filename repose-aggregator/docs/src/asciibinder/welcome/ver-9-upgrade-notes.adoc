@@ -29,6 +29,20 @@
   If you need *Repose* to normalize the reason phrase, see the <<../recipes/reason-phrase-normalization.adoc#, Reason Phrase Normalization recipe>>.
 . Requests can now contain headers with empty values.
   For example, if *Repose* receives a request with the header line `My-Header: `, that header line will now be forwarded to the origin service.
+. Some core classes have been renamed.
+  If you need to customize the logging behavior for the loggers used by these classes, or if you rely on these classes directly, use the following mapping to update to the new class names:
++
+[cols="2", options="header,autowidth"]
+|===
+| Old Class Name
+| New Class Name
+
+| org.openrepose.powerfilter.PowerFilter
+| org.openrepose.powerfilter.ReposeFilter
+
+| org.openrepose.powerfilter.PowerFilterChain
+| org.openrepose.powerfilter.ReposeFilterChain
+|===
 
 == System Model Configuration
 . Support for multi-cluster deployments has been removed.
