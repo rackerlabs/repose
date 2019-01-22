@@ -497,6 +497,69 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
       }
     }
 
+    describe("and the user has the upgrade_account account permission") {
+      List(
+        (true, Some("123456"), "GET", SC_FORBIDDEN),
+        (true, Some("123456"), "HEAD", SC_FORBIDDEN),
+        (true, Some("123456"), "POST", SC_FORBIDDEN),
+        (true, Some("123456"), "PUT", SC_FORBIDDEN),
+        (true, Some("123456"), "DELETE", SC_OK),
+        (true, None, "GET", SC_OK),
+        (true, None, "HEAD", SC_OK),
+        (true, None, "POST", SC_OK),
+        (true, None, "PUT", SC_OK),
+        (true, None, "DELETE", SC_OK),
+        (false, Some("123456"), "GET", SC_FORBIDDEN),
+        (false, Some("123456"), "HEAD", SC_FORBIDDEN),
+        (false, Some("123456"), "POST", SC_FORBIDDEN),
+        (false, Some("123456"), "PUT", SC_FORBIDDEN),
+        (false, Some("123456"), "DELETE", SC_FORBIDDEN),
+        (false, None, "GET", SC_OK),
+        (false, None, "HEAD", SC_OK),
+        (false, None, "POST", SC_OK),
+        (false, None, "PUT", SC_OK),
+        (false, None, "DELETE", SC_OK)
+      ).foreach { case (enableUpgradeAccountPermissions, deviceId, method, responseCode) =>
+        it(s"should return $responseCode when request device ID is $deviceId, request method is $method, and enable-upgrade-account-permission is $enableUpgradeAccountPermissions") {
+          Mockito.when(httpClient.execute(
+            argThat(HC.allOf[HttpUriRequest](
+              hasMethod(HttpGet.METHOD_NAME),
+              hasUri(URI.create("http://foo.com:8080/account/someTenant/permissions/contacts/any/by_contact/123456/effective")),
+              hasHeader("X-Auth-User", HC.equalTo("someUser")),
+              hasHeader(AUTH_TOKEN, HC.equalTo("somePassword"))
+            )),
+            argThat(hasAttribute(
+              CachingHttpClientContext.CACHE_KEY,
+              HC.equalTo(CachePrefix + "any" + "someTenant" + "123456")
+            ))
+          )).thenReturn(makeResponse(
+            SC_OK,
+            EntityBuilder.create()
+              .setText(createValkyrieResponse(accountPermissions("upgrade_account", "upgrade_account")))
+              .build()
+          ))
+
+          val filter: ValkyrieAuthorizationFilter = new ValkyrieAuthorizationFilter(mock[ConfigurationService], httpClientService, mockDatastoreService)
+          filter.configurationUpdated(createGenericValkyrieConfiguration(null, enableUpgradeAccountPermissions = enableUpgradeAccountPermissions))
+
+          val mockServletRequest = new MockHttpServletRequest
+          val request = RequestProcessor(method, Map(TENANT_ID -> "hybrid:someTenant", CONTACT_ID -> "123456") ++ deviceId.map(DeviceId -> _))
+          mockServletRequest.setMethod(request.method)
+          mockServletRequest.setServerName(request.name)
+          mockServletRequest.setServerPort(request.port)
+          mockServletRequest.setRequestURI(request.uri)
+          request.headers.foreach { case (k, v) => mockServletRequest.addHeader(k, v) }
+
+          val mockServletResponse = new MockHttpServletResponse
+          val mockFilterChain = mock[FilterChain]
+
+          filter.doWork(mockServletRequest, mockServletResponse, mockFilterChain)
+
+          mockServletResponse.getStatus shouldBe responseCode
+        }
+      }
+    }
+
     describe("when user has the account_admin role") {
       val deviceId = "56700"
 
@@ -2430,6 +2493,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
 
   def createGenericValkyrieConfiguration(delegation: DelegatingType = null,
                                          enableBypassAccountAdmin: Boolean = true,
+                                         enableUpgradeAccountPermissions: Boolean = false,
                                          httpMethods: List[HttpMethod] = List(HttpMethod.ALL),
                                          passNonDedicatedTenant: Boolean = false): ValkyrieAuthorizationConfig = {
     val configuration = new ValkyrieAuthorizationConfig
@@ -2461,6 +2525,7 @@ class ValkyrieAuthorizationFilterTest extends FunSpec with BeforeAndAfterEach wi
     collectionResources.getResource.add(resource)
     configuration.setCollectionResources(collectionResources)
     configuration.setEnableBypassAccountAdmin(enableBypassAccountAdmin)
+    configuration.setEnableUpgradeAccountPermissions(enableUpgradeAccountPermissions)
     configuration.setPassNonDedicatedTenant(passNonDedicatedTenant)
     configuration
   }
