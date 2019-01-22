@@ -97,6 +97,24 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="enable-upgrade-account-permissions" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If enabled (true), the Valkyrie filter WILL take the "upgrade_account" account-level  permission
+                        into consideration during authorization.
+                        The "upgrade_account" permission will allow a user to DELETE any device on the account or to
+                        create a new device on the account.
+                    </html:p>
+                    <html:p>
+                        If disabled (false), the Valkyrie filter WILL NOT take the "upgrade_account" permission into
+                        consideration during authorization.
+                        No additional actions will be authorized due to the presence of the "upgrade_account"
+                        permission.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="ValkyrieServer">

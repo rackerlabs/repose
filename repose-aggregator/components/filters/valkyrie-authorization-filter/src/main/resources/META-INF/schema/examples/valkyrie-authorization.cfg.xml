@@ -5,7 +5,8 @@
         enable-masking-403s="true"
         enable-bypass-account-admin="false"
         connection-pool-id="valkyrie-auth-pool"
-        pass-non-dedicated-tenant="false">
+        pass-non-dedicated-tenant="false"
+        enable-upgrade-account-permissions="false">
 
     <!-- Used is you wish to use delegating authorization, see derp filter -->
     <delegating quality="0.9"/>
