@@ -29,6 +29,7 @@ import io.opentracing.Tracer
 import io.opentracing.mock.MockTracer
 import javax.net.ssl.SSLContext
 import org.apache.commons.io.FileUtils
+import org.apache.http.HttpHost
 import org.apache.http.client.config.RequestConfig
 import org.apache.http.config.{ConnectionConfig, MessageConstraints, SocketConfig}
 import org.apache.http.conn.ConnectionKeepAliveStrategy
@@ -242,7 +243,8 @@ class HttpClientProviderTest extends FunSpec with BeforeAndAfterEach with Mockit
 
       val clientConfig = minimalPoolConfig(
         _.setHttpConnManagerMaxPerRoute(maxConnectionsPerRoute),
-        _.setHttpConnManagerMaxTotal(maxConnectionsTotal))
+        _.setHttpConnManagerMaxTotal(maxConnectionsTotal),
+        _.setHttpRouteDefaultProxy("http://example.com:80"))
 
       httpClientProvider.createClient(clientConfig)
 
@@ -259,6 +261,7 @@ class HttpClientProviderTest extends FunSpec with BeforeAndAfterEach with Mockit
       verify(httpClientBuilder).setDefaultRequestConfig(any[RequestConfig])
       verify(httpClientBuilder).addInterceptorLast(any[ReposeTracingRequestInterceptor])
       verify(httpClientBuilder).addInterceptorLast(any[ReposeTracingResponseInterceptor])
+      verify(httpClientBuilder).setProxy(any[HttpHost])
       verify(httpClientBuilder).build
     }
 
