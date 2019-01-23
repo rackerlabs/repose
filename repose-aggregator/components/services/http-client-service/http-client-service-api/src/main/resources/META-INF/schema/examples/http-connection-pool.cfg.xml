@@ -16,6 +16,7 @@
           http.connection.max-line-length="8192"
           http.connection.max-header-count="100"
           http.tcp.nodelay="true"
+          http.route.default-proxy="http://example.com:80"
           keepalive.timeout="0"
           cache.ttl="500"/>
 
