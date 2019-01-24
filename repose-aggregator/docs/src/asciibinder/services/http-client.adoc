@@ -34,17 +34,18 @@ An operator configuring this service will interact with the named connection poo
           http.connection.max-line-length="8192" <!--9-->
           http.connection.max-header-count="100" <!--10-->
           http.tcp.nodelay="true" <!--11-->
-          keepalive.timeout="0" <!--12-->
-          keystore-filename="client.jks" <!--13-->
-          keystore-password="password" <!--14-->
-          key-password="password" <!--15-->
-          truststore-filename="servers.jks" <!--16-->
-          truststore-password="password"> <!--17-->
-        <headers> <!--18-->
-            <header name="foo" value="bar"/> <!--19-->
+          http.route.default-proxy="http://example.com:80" <!--12-->
+          keepalive.timeout="0" <!--13-->
+          keystore-filename="client.jks" <!--14-->
+          keystore-password="password" <!--15-->
+          key-password="password" <!--16-->
+          truststore-filename="servers.jks" <!--17-->
+          truststore-password="password"> <!--18-->
+        <headers> <!--19-->
+            <header name="foo" value="bar"/> <!--20-->
         </headers>
     </pool>
-    <pool id="banana"/> <!--20-->
+    <pool id="banana"/> <!--21-->
 </http-connection-pools>
 ----
 <1> The id/name of this pool, it must be unique.
@@ -89,33 +90,45 @@ An operator configuring this service will interact with the named connection poo
      When applications wish to decrease network latency and increase performance, they can disable Nagle's algorithm (that is enable http.tcp.nodelay).
      Data will be sent earlier, at the cost of an increase in bandwidth consumption. +
      Default: `true`
-<12> If a Keep-Alive header is not present in the response, the value of keepalive.timeout is evaluated.
+<12> Optionally defines a proxy host to be used. +
+     If present, requests made using this connection pool will be proxied through the provided proxy host. +
+     If absent, requests made using this connection pool will not be proxied. +
+     The value of this attribute should be in the form `{scheme}://{host}:{port}`.
+     Note that `{scheme}` and `{port}` are optional while `{host}` is required.
+     If no scheme is provided, `http` is assumed.
+     If no port is provided, `80` (the default port for `http`) is assumed.
+     The following are examples of acceptable values for this attribute:
+     - `http://example.com:80`
+     - `http://example.com`
+     - `example.com:80`
+     - `example.com`
+<13> If a Keep-Alive header is not present in the response, the value of keepalive.timeout is evaluated.
      If this value is 0, the connection will be kept alive indefinitely.
      If the value is greater than 0, the connection will be kept alive for the number of milliseconds specified.
      Set to 1 to connect:close. +
      Default: `0`
-<13> The keystore filename either fully qualified or relative to the *Repose* <<../architecture/configuration.adoc#, configuration directory>>.
+<14> The keystore filename either fully qualified or relative to the *Repose* <<../architecture/configuration.adoc#, configuration directory>>.
      Used for SSL/TLS Client Authentication. +
      NOTE: The `keystore-filename`, `keystore-password`, and `key-password` are all mutually required.
      If one exists, then they all must exist and client authentication is assumed to be required.
-<14> The password to access the keystore. +
+<15> The password to access the keystore. +
      NOTE: The `keystore-filename`, `keystore-password`, and `key-password` are all mutually required.
      If one exists, then they all must exist and client authentication is assumed to be required.
-<15> The password for the particular key within the keystore. +
+<16> The password for the particular key within the keystore. +
      NOTE: The `keystore-filename`, `keystore-password`, and `key-password` are all mutually required.
      If one exists, then they all must exist and client authentication is assumed to be required.
-<16> The truststore filename either fully qualified or relative to the *Repose* <<../architecture/configuration.adoc#, configuration directory>>.
+<17> The truststore filename either fully qualified or relative to the *Repose* <<../architecture/configuration.adoc#, configuration directory>>.
      Used when it is necessary to have the certificate of the requested resource's server. +
      NOTE: The `truststore-filename` and `truststore-password` are mutually required.
      If one exists, then the other must exist.
-<17> The password to access the truststore. +
+<18> The password to access the truststore. +
      NOTE: The `truststore-filename` and `truststore-password` are mutually required.
      If one exists, then the other must exist.
-<18> Indicates that the configured list of headers should be added to every outbound request on this connection pool.
+<19> Indicates that the configured list of headers should be added to every outbound request on this connection pool.
      Use is optional.
-<19> A header to be added to every outbound request from this connection pool.
+<20> A header to be added to every outbound request from this connection pool.
      At least on is required when using the optional `headers` element.
-<20> A second pool is defined here that uses all the defaults.
+<21> A second pool is defined here that uses all the defaults.
 
 == Common Use Cases/Problems
 
@@ -159,6 +172,26 @@ Some services require a static header be present just for the purposes of identi
 <1> The element to add to the pool configuration to trigger this behavior.
 <2> The header name and value to add to the outbound request.
     Multiple `header` elements can be specified if more than one is desired.
+
+=== Proxy must be used
+
+In certain environments, it may be necessary to utilize a proxy for outbound requests.
+For example, *Repose* running on a private network may not be allowed to make direct connections to resources outside of the network.
+Instead, controlled connections can be made with a proxy which will forward requests to their intended destinations.
+
+To configure the usage of a proxy, simply update the configuration for this service as done below.
+
+[source,xml]
+.partial http-connection-pool.cfg.xml
+----
+<http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
+    <pool id="default"
+          default="true"
+          http.route.default-proxy="http://example.com:80"/> <!--1-->
+</http-connection-pools>
+----
+<1> The proxy to be used.
+    For details on acceptable values for this attribute, see <<Full Configuration>>.
 
 === SSL/TLS Client Authentication
 
