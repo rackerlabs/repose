@@ -70,7 +70,6 @@ class StartWithGoodConfigsTest extends ReposeValveTest {
         componentLabel       | expectedResponseCode
         "system-model"       | 200
         "container"          | 200
-        "response-messaging" | 200
         "rate-limiting"      | 200
         "versioning"         | 200
         "translation"        | 200

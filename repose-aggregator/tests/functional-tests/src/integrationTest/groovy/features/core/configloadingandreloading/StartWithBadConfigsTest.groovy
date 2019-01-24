@@ -64,7 +64,6 @@ class StartWithBadConfigsTest extends ReposeValveTest {
 
         where:
         componentLabel            | _
-        "response-messaging"      | _
         "rate-limiting"           | _
         "versioning"              | _
         "translation"             | _
