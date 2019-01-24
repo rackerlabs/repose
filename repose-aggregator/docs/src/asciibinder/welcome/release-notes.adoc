@@ -17,14 +17,31 @@
 ** Removed the `ServiceClient` utility.
 ** Removed the `HttpComponentFactory` utility.
 ** Removed part of the `RequestProxyService` API.
+** Moved the HTTP request method check to the beginning of processing rather than just before proxying the request.
+   As a result, *Repose* will reject requests with an unsupported HTTP method before any filter processing can occur.
+*** Updated the HTTP response status code returned for a request with an unsupported method from a `500` to a `405`.
 * https://repose.atlassian.net/browse/REP-7201[REP-7201] - The Rackspace Auth User, SAML Policy Translation, and Attribute Mapping Policy Validation filters were removed and placed in their own bundle.
 * https://repose.atlassian.net/browse/REP-5147[REP-5147] - The <<../filters/header-normalization.adoc#, Header Normalization>> filter now evaluates all targets not just the first to match.
 * https://repose.atlassian.net/browse/REP-5326[REP-5326] - Removed the deprecated via attribute from the <<../architecture/container.adoc#, Container configuration>>.
 * https://repose.atlassian.net/browse/REP-7338[REP-7338] - The WAR deployment was removed as an option.
 * https://repose.atlassian.net/browse/REP-6603[REP-6603] - Added support for multiple capture groups to the <<../filters/url-extractor-to-header.adoc#, URL Extractor to Header Filter>>.
 * https://repose.atlassian.net/browse/REP-4990[REP-4990] - Removed deprecated cache attributes from the <<../filters/openstack-identity-v3.adoc#, OpenStack Identity v3 Filter>>.
+** Cache timeouts are now defined in seconds rather than milliseconds.
 * https://repose.atlassian.net/browse/REP-6663[REP-6663] - Added support for forwarding the response status line reason phrase from the origin service.
 * https://repose.atlassian.net/browse/REP-7428[REP-7428] - Removed support for URI-based tenant validation in the <<../filters/keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>> and <<../filters/keystone-v2.adoc#, Keystone v2 Filter>>.
+* https://repose.atlassian.net/browse/REP-6379[REP-6379] - Updated the recommended SSL Protocol and Cipher lists and clarified this in the in the <<../architecture/container.adoc#, Container>> documentation.
+* https://repose.atlassian.net/browse/REP-4993[REP-4993] - Flush output filter was removed.
+* https://repose.atlassian.net/browse/REP-7231[REP-7231] - Switching over to new filter, filter chain, and servlet classes.
+** Many unused and deprecated classes have been removed.
+** The <<../filters/scripting.adoc#, Scripting Filter>> has been moved from the `repose-experimental-filter-bundle` to the `repose-filter-bundle`.
+** Removed support for the <<../services/response-message.adoc#, Response Messaging Service>>.
+** Headers are no longer automatically split.
+** Headers with an empty value are now supported and will not be removed from requests/responses.
+*** When querying rate limits via the the <<../filters/rate-limiting.adoc#, Rate Limiting Filter>>, an `Accept` header with an empty value will now result in a `406` response rather than a response of the default `Content-Type: application/json`.
+** A bug causing multiple OpenTracing headers (i.e., `uber-trace-id`) with potentially different values to be forwarded on the request to the origin service has been fixed.
+   Now only a single OpenTracing header will be forwarded.
+* https://repose.atlassian.net/browse/REP-7314[REP-7314] - Removed support for <<../architecture/system-model.adoc#,system model>> clusters.
+* https://repose.atlassian.net/browse/REP-7310[REP-7310] - Fixing the `IllegalArgumentException` thrown by the <<../filters/herp.adoc#, HERP Filter>> when incorrectly attempting to decode query parameters.
 * https://repose.atlassian.net/browse/REP-7387[REP-7387] - The <<../filters/ip-user.adoc#, IP User>> filter now returns a `400` when the X-Forwarded-For header contains a bad value.
 
 == 8.10.0.0 (2018-08-27)

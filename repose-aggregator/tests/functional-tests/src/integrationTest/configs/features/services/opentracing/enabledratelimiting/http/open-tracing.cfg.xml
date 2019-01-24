@@ -3,7 +3,7 @@
 <open-tracing xmlns="http://docs.openrepose.org/repose/open-tracing-service/v1.0"
              service-name="repose">
     <jaeger>
-        <connection-http endpoint="http://localhost:${collectorTracingPort}" />
-        <sampling-rate-limiting max-traces-per-second="5.0" />
+        <connection-http endpoint="http://localhost:${collectorTracingPort}"/>
+        <sampling-rate-limiting max-traces-per-second="5.0"/>
     </jaeger>
 </open-tracing>

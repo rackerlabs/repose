@@ -15,7 +15,7 @@
     </cache>
     <tenant-handling send-all-tenant-ids="true">
         <validate-tenant>
-            <uri-extraction-regex>/.*/v2.1/users/([\w\d]*)/verification</uri-extraction-regex>
+            <header-extraction-name>x-expected-tenant</header-extraction-name>
         </validate-tenant>
     </tenant-handling>
 </keystone-v2>

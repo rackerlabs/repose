@@ -213,7 +213,7 @@ class ClientAuthNTenantedDelegableTest extends ReposeValveTest {
 
         where:
         requestTenant | responseTenant | serviceAdminRole | identityStatus  | clientToken       | delegatedMsg
-        309           | 310            | "non-admin"      | "Indeterminate" | UUID.randomUUID() | "status_code=401.component=keystone-v2.message=A tenant from the URI and/or the configured header does not match.*;q=0.7"
+        309           | 310            | "non-admin"      | "Indeterminate" | UUID.randomUUID() | "status_code=401.component=keystone-v2.message=A tenant from the configured header does not match.*;q=0.7"
         ""            | 312            | "not-admin"      | "Indeterminate" | ""                | "status_code=401.component=keystone-v2.message=.*;q=0.7"
     }
 

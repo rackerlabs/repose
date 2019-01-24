@@ -19,9 +19,12 @@
  */
 package features.services.metrics
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Slow
 
+@Category(Slow.class)
 class MetricsEnableDisableTest extends ReposeValveTest {
 
     private static final String KEY_PROPERTIES_PREFIX = /001="org",002="openrepose"/
@@ -54,7 +57,7 @@ class MetricsEnableDisableTest extends ReposeValveTest {
     }
 
     def cleanup() {
-        repose.stop()
+        repose?.stop()
     }
 
     def "when metrics are enabled, reporting should occur"() {

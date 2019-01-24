@@ -3,7 +3,7 @@
 <open-tracing xmlns="http://docs.openrepose.org/repose/open-tracing-service/v1.0"
              service-name="repose">
     <jaeger>
-        <connection-http endpoint="http://localhost:${collectorTracingPort}" />
-        <sampling-probabilistic probability="0.9" />
+        <connection-http endpoint="http://localhost:${collectorTracingPort}"/>
+        <sampling-probabilistic probability="0.9"/>
     </jaeger>
 </open-tracing>

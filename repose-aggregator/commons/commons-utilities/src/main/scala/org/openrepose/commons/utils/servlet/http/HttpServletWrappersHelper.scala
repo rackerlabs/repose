@@ -31,7 +31,7 @@ import scala.collection.JavaConverters._
  */
 object HttpServletWrappersHelper {
   def processMediaType(request: HttpServletRequestWrapper): util.List[MediaType] = {
-    processMediaType(request.getPreferredHeaders("Accept"))
+    processMediaType(request.getPreferredSplittableHeadersWithParameters(ACCEPT))
   }
 
   def processMediaType(headerValues: util.List[String]): util.List[MediaType] = {

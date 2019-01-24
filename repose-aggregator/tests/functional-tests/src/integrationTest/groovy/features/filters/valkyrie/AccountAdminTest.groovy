@@ -19,9 +19,8 @@
  */
 package features.filters.valkyrie
 
-import org.junit.experimental.categories.Category
+
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.openrepose.framework.test.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
@@ -38,7 +37,6 @@ import static org.openrepose.commons.utils.http.OpenStackServiceHeader.ROLES
  * Update on 01/28/15
  *  - replace client-auth with keystone-v2
  */
-@Category(Slow.class)
 class AccountAdminTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
@@ -79,17 +77,17 @@ class AccountAdminTest extends ReposeValveTest {
 
     @Unroll
     def "user with account_admin role can access a device it has permissions to for method #method"() {
-        given:
-        def deviceId = "520707"
+        given: "a user defined in Identity"
         def tenantId = randomTenant()
-        def permission = "account_admin"
-
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
             client_tenantid = tenantId
         }
 
+        and: "permissions defined in Valkyrie"
+        def deviceId = "520707"
+        def permission = "account_admin"
         fakeValkyrie.with {
             device_id = deviceId
             device_perm = "edit_product"
@@ -123,13 +121,14 @@ class AccountAdminTest extends ReposeValveTest {
 
     @Unroll
     def "Enablebypass false, account_admin user request with an X-Device-Id header value not contained in the user's permissions will not be permitted"() {
-        given: "A device ID with a particular permission level defined in Valkyrie"
+        given: "a user defined in Identity"
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
             client_tenantid = randomTenant()
         }
 
+        and: "permissions defined in Valkyrie"
         fakeValkyrie.with {
             account_perm = "account_admin"
         }
@@ -157,15 +156,16 @@ class AccountAdminTest extends ReposeValveTest {
         method << ["HEAD", "GET", "PUT", "POST", "PATCH", "DELETE"]
     }
 
-    @Unroll()
+    @Unroll
     def "account_admin user request with an X-Device-Id header value that exists in their permissions should be permitted"() {
-        given: "A device ID with a particular permission level defined in Valkyrie"
+        given: "a user defined in Identity"
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
             client_tenantid = randomTenant()
         }
 
+        and: "permissions defined in Valkyrie"
         fakeValkyrie.with {
             device_perm = "account_admin"
             device_id = "99999"

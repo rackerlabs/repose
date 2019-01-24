@@ -2,30 +2,28 @@
 
 <!-- To configure Repose see: @docsHome@ -->
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-    <repose-cluster id="repose">
-        <nodes>
-            <node id="repose_node1" hostname="localhost" http-port="8080"/>
-            <!--
-            <node id="repose_node2" hostname="other_repose_host" http-port="8080" https-port="8443"/>
-            -->
-        </nodes>
-        <filters>
-            <!--
-            <filter name="ip-user"/>
-            <filter name="header-user"/>
-            <filter name="rate-limiting"/>
-            -->
-        </filters>
-        <services>
-            <!--
-            <service name="dist-datastore"/>
-            -->
-        </services>
-        <destinations>
-            <!-- Update this endpoint if you want Repose to send requests to a different service -->
-            <endpoint id="rackspace" protocol="http" hostname="rackspace.com" root-path="/" port="80" default="true"/>
-        </destinations>
-    </repose-cluster>
+    <nodes>
+        <node id="repose_node1" hostname="localhost" http-port="8080"/>
+        <!--
+        <node id="repose_node2" hostname="other_repose_host" http-port="8080" https-port="8443"/>
+        -->
+    </nodes>
+    <filters>
+        <!--
+        <filter name="ip-user"/>
+        <filter name="header-user"/>
+        <filter name="rate-limiting"/>
+        -->
+    </filters>
+    <services>
+        <!--
+        <service name="dist-datastore"/>
+        -->
+    </services>
+    <destinations>
+        <!-- Update this endpoint if you want Repose to send requests to a different service -->
+        <endpoint id="rackspace" protocol="http" hostname="rackspace.com" root-path="/" port="80" default="true"/>
+    </destinations>
 
     <!-- Please set the enabled attribute to true to send us usage updates and help us improve Repose! -->
     <phone-home enabled="false"

@@ -33,7 +33,7 @@ import com.rackspace.httpdelegation._
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.http.HttpHeaders
 import org.openrepose.commons.config.manager.UpdateListener
-import org.openrepose.commons.utils.http.CommonRequestAttributes.QUERY_PARAMS
+import org.openrepose.commons.utils.http.CommonRequestAttributes.{QUERY_PARAMS, REQUEST_URL}
 import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader}
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.commons.utils.servlet.http.{HeaderInteractor, HttpServletRequestWrapper, HttpServletResponseWrapper, ResponseMode}
@@ -52,7 +52,6 @@ import scala.util.matching.Regex
 
 @Named
 class HerpFilter @Inject()(configurationService: ConfigurationService,
-                           @Value(ReposeSpringProperties.NODE.CLUSTER_ID) clusterId: String,
                            @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String)
   extends Filter with HttpDelegationManager with UpdateListener[HerpConfig] with StrictLogging {
   private final val DEFAULT_CONFIG = "highly-efficient-record-processor.cfg.xml"
@@ -105,12 +104,11 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
   private def handleResponse(httpServletRequest: HttpServletRequest,
                              httpServletResponse: HttpServletResponseWrapper) = {
     def translateParameters(): Map[String, Array[String]] = {
-      def decode(s: String) = URLDecoder.decode(s, StandardCharsets.UTF_8.name)
-
+      // Note that decoding of query parameters is handled by Jetty (the Servlet container)
+      // and thus not handled by our code here.
       Option(httpServletRequest.getAttribute(QUERY_PARAMS)) match {
         case Some(parameters) =>
-          val parametersMap = parameters.asInstanceOf[java.util.Map[String, Array[String]]].asScala
-          parametersMap.map({ case (key, values) => decode(key) -> values.map(value => decode(value)) }).toMap
+          parameters.asInstanceOf[java.util.Map[String, Array[String]]].asScala.toMap
         case None => Map[String, Array[String]]()
       }
     }
@@ -148,8 +146,8 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
       "userAgent" -> httpServletRequest.getHeader(HttpHeaders.USER_AGENT),
       "requestMethod" -> httpServletRequest.getMethod,
       "methodLabel" -> httpServletRequest.getHeader(X_METHOD_LABEL),
-      "requestURL" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map(_.toString).orNull,
-      "targetHost" -> Option(httpServletRequest.getAttribute("http://openrepose.org/requestUrl")).map { requestUrl =>
+      "requestURL" -> Option(httpServletRequest.getAttribute(REQUEST_URL)).map(_.toString).orNull,
+      "targetHost" -> Option(httpServletRequest.getAttribute(REQUEST_URL)).map { requestUrl =>
         Try(new URL(requestUrl.toString).getHost).getOrElse(null)
       }.orNull,
       "requestQueryString" -> httpServletRequest.getQueryString,
@@ -163,7 +161,6 @@ class HerpFilter @Inject()(configurationService: ConfigurationService,
       "serviceCode" -> serviceCode,
       "region" -> region,
       "dataCenter" -> dataCenter,
-      "clusterId" -> clusterId,
       "nodeId" -> nodeId,
       "requestorIp" -> Option(stripHeaderParams(httpServletRequest.getHeader(CommonHttpHeader.X_FORWARDED_FOR)))
         .getOrElse(httpServletRequest.getRemoteAddr)

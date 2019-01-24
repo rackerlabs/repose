@@ -114,22 +114,22 @@ class CullingBypassValkyrieAuthorizationTest extends ReposeValveTest {
         fakeIdentityV2Service.resetDefaultParameters()
     }
 
-    @Category(Slow)
     @Unroll("permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
     def "Test get match resource list"() {
-        given: "a list permission devices defined in Valkyrie"
+        given: "a user defined in Identity"
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             client_tenantid = tenantID
         }
 
+        and: "permissions defined in Valkyrie"
         fakeValkyrie.with {
             device_id = deviceID
             device_id2 = deviceID2
             device_perm = permission
         }
 
-        "Json Response from origin service"
+        and: "a JSON Response from origin service"
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"
@@ -170,19 +170,20 @@ class CullingBypassValkyrieAuthorizationTest extends ReposeValveTest {
     }
 
     def "Test missing tenantid"() {
-        given: "a list permission devices defined in Valkyrie"
+        given: "a user defined in Identity"
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
             client_tenantid = ""
         }
 
+        and: "permissions defined in Valkyrie"
         fakeValkyrie.with {
             device_id = "520707"
             device_id2 = "520708"
             device_perm = "view_product"
         }
 
-        "Json Response from origin service"
+        and: "a JSON Response from origin service"
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"
@@ -209,13 +210,14 @@ class CullingBypassValkyrieAuthorizationTest extends ReposeValveTest {
             client_userid = "rackerSSOUsername"
         }
 
+        and: "permissions defined in Valkyrie"
         fakeValkyrie.with {
             device_id = "520707"
             device_id2 = "520708"
             device_perm = "view_product"
         }
 
-        "Json Response from origin service"
+        and: "a JSON Response from origin service"
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"

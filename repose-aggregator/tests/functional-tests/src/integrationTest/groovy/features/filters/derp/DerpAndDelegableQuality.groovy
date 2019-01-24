@@ -26,6 +26,8 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
 
+import static javax.servlet.http.HttpServletResponse.*
+
 /**
  * Created by jamesc on 12/2/14.
  * Update on 01/27/16
@@ -39,7 +41,6 @@ class DerpAndDelegableQuality extends ReposeValveTest {
     def static MockIdentityV2Service fakeIdentityService
 
     def setupSpec() {
-
         deproxy = new Deproxy()
 
         def params = properties.defaultTemplateParams
@@ -51,8 +52,7 @@ class DerpAndDelegableQuality extends ReposeValveTest {
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
-
+            'identity service', null, fakeIdentityService.handler)
     }
 
     def setup() {
@@ -63,13 +63,12 @@ class DerpAndDelegableQuality extends ReposeValveTest {
         This test to verify that discrete quality values for 2 delegable filters processed correctly by the
         DeRP filter.
     */
-
-    @Unroll("req method: #method, #path, #roles")
-    def "when req without token, non tenanted and delegable mode (2) with quality"() {
+    @Unroll
+    def "when req is #method to #path with roles \"#roles\" without token, then response should be #responseCode"() {
         given:
         fakeIdentityService.with {
             client_token = ""
-            tokenExpiresAt = (new DateTime()).plusDays(1);
+            tokenExpiresAt = (new DateTime()).plusDays(1)
             service_admin_role = "non-admin"
         }
         Map<String, String> headers = ["X-Roles"     : roles,
@@ -78,26 +77,22 @@ class DerpAndDelegableQuality extends ReposeValveTest {
 
         when: "User passes a request through repose with authN and apiValidator delegable"
         MessageChain mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/$path",
-                method: method,
-                headers: headers)
+            url: "$reposeEndpoint/$path",
+            method: method,
+            headers: headers)
 
-        then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == responseCode
-        mc.receivedResponse.body.contains(msgBody)
+        then: "Origin Service should never be invoked and the Response from Repose to Client should be"
+        mc.receivedResponse.code as Integer == responseCode
+        mc.receivedResponse.message.contains(message)
         mc.handlings.size() == 0
 
-
         where:
-        method   | path           | roles                 | responseCode | msgBody                         | component       | quality
-        "GET"    | "servers/"     | "raxRole"             | "403"        | "forbidden"                     | "api-validator" | 0.6
-        "GET"    | "servers/"     | "raxRole, a:observer" | "401"        | "X-Auth-Token header not found" | "keystone-v2"   | 0.3
-        "POST"   | "servers/1235" | "raxRole, a:observer" | "404"        | "Resource not found"            | "api-validator" | 0.6
-        "PUT"    | "servers/"     | "raxRole, a:admin"    | "405"        | "Bad method"                    | "api-validator" | 0.6
-        "DELETE" | "servers/test" | "raxRole, a:observer" | "404"        | "Resource not found"            | "api-validator" | 0.6
-        "GET"    | "get/"         | "raxRole"             | "404"        | "Resource not found"            | "api-validator" | 0.6
-
+        method   | path           | roles                 | responseCode          | message
+        "GET"    | "servers/"     | "raxRole"             | SC_FORBIDDEN          | "forbidden"
+        "GET"    | "servers/"     | "raxRole, a:observer" | SC_UNAUTHORIZED       | "X-Auth-Token header not found"
+        "POST"   | "servers/1235" | "raxRole, a:observer" | SC_NOT_FOUND          | "Resource not found"
+        "PUT"    | "servers/"     | "raxRole, a:admin"    | SC_METHOD_NOT_ALLOWED | "Bad method"
+        "DELETE" | "servers/test" | "raxRole, a:observer" | SC_NOT_FOUND          | "Resource not found"
+        "GET"    | "get/"         | "raxRole"             | SC_NOT_FOUND          | "Resource not found"
     }
-
 }
-

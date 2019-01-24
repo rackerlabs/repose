@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit
 
 import static javax.servlet.http.HttpServletResponse.SC_OK
 import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
+import static org.openrepose.framework.test.ReposeLauncher.MAX_STARTUP_TIME
 import static org.springframework.http.HttpStatus.I_AM_A_TEAPOT
 
 @Category(Intense.class)
@@ -95,13 +96,13 @@ class RemoteDatastoreServiceTest extends Specification {
         reposeValveLauncher.configurationProvider.applyConfigs("features/services/datastore/remote", params)
         reposeValveLauncher.configurationProvider.applyConfigs("features/services/datastore/remote/$type", params)
 
-        reposeValveLauncher.start(false, false, "repose", type)
+        reposeValveLauncher.start(false, false, type)
 
         return [reposeValveLauncher, reposeLogSearch]
     }
 
     static def waitUntilReadyToServiceRequests(ReposeLogSearch reposeLogSearch) {
-        reposeLogSearch.awaitByString("Repose ready", 1, 60, TimeUnit.SECONDS)
+        reposeLogSearch.awaitByString("Repose ready", 1, MAX_STARTUP_TIME, TimeUnit.SECONDS)
     }
 
     def "When a limit has not been reached, request should pass"() {

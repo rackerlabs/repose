@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-    <repose-cluster id="repose1">
-        <nodes>
-            <node id="node1" hostname="localhost" http-port="${reposePort}"/>
-        </nodes>
+    <nodes>
+        <node id="node1" hostname="localhost" http-port="${reposePort}"/>
+    </nodes>
 
-        <filters>
-            <filter name="uri-normalization"/>
-        </filters>
+    <filters>
+        <filter name="uri-normalization"/>
+    </filters>
 
-        <destinations>
-            <endpoint id="openrepose" protocol="http" root-path="/" port="${targetPort}" default="true"/>
-        </destinations>
-    </repose-cluster>
+    <destinations>
+        <endpoint id="openrepose" protocol="http" root-path="/" port="${targetPort}" default="true"/>
+    </destinations>
 </system-model>

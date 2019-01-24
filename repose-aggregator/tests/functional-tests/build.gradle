@@ -20,11 +20,11 @@ dependencies {
     integrationTestCompile "org.eclipse.jetty:jetty-servlet"
     integrationTestCompile "org.apache.commons:commons-lang3"
     integrationTestCompile "org.springframework:spring-web"
+    integrationTestCompile "org.apache.logging.log4j:log4j-slf4j-impl"
     integrationTestCompile "org.slf4j:jcl-over-slf4j"
     integrationTestCompile "com.google.guava:guava"
 
     integrationTestRunnable project(path: ":repose-aggregator:artifacts:valve", configuration: "fatJar")
-    integrationTestRunnable project(path: ":repose-aggregator:artifacts:repose-lint", configuration: "fatJar")
     integrationTestRunnable project(path: ":repose-aggregator:tests:mocks-servlet", configuration: "archives")
 
     integrationTestBundle project(path: ":repose-aggregator:artifacts:filter-bundle", configuration: "archives")
@@ -39,7 +39,6 @@ dependencies {
 
 task copyArtifacts() {
     dependsOn(":repose-aggregator:artifacts:valve:shadowJar",
-              ":repose-aggregator:artifacts:repose-lint:shadowJar",
               ":repose-aggregator:tests:mocks-servlet:war",
               ":repose-aggregator:tests:mocks-servlet:war",
               ":repose-aggregator:artifacts:filter-bundle:ear",
@@ -92,7 +91,6 @@ integrationTest.dependsOn copyArtifacts, copyConfigs
 def container = "valve"
 def targetHostName = "localhost"
 def valveFileName = tasks.getByPath(":repose-aggregator:artifacts:valve:shadowJar").archiveName.split("/").last()
-def lintFileName = tasks.getByPath(":repose-aggregator:artifacts:repose-lint:shadowJar").archiveName.split("/").last()
 def mocksFileName = tasks.getByPath(":repose-aggregator:tests:mocks-servlet:war").archiveName.split("/").last()
 
 processIntegrationTestResources {
@@ -103,7 +101,6 @@ processIntegrationTestResources {
         configTemplates: copyConfigs.outputDir,
         reposeContainer: container,
         valveLocation: "${copyArtifacts.outputDir}/$valveFileName",
-        lintLocation: "${copyArtifacts.outputDir}/$lintFileName",
         mocksLocation: "${copyArtifacts.outputDir}/$mocksFileName",
         targetHostname: targetHostName
     )

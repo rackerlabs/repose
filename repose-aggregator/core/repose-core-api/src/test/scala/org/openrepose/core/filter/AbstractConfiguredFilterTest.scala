@@ -20,9 +20,10 @@
 package org.openrepose.core.filter
 
 import java.net.URL
+
+import javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{FilterChain, FilterConfig}
-
 import org.hamcrest.Matchers.{endsWith, hasProperty}
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, anyString, argThat, same, eq => eql}
@@ -218,16 +219,16 @@ class AbstractConfiguredFilterTest
   }
 
   describe("doFilter method") {
-    it("should 500 if listener is uninitialized") {
+    it("should 503 if listener is uninitialized") {
       val response: MockHttpServletResponse = new MockHttpServletResponse
 
       filter.doFilter(mock[HttpServletRequest], response, mock[FilterChain])
 
-      response.getStatus shouldBe 500
+      response.getStatus shouldBe SC_SERVICE_UNAVAILABLE
       response.getErrorMessage shouldBe "Filter not initialized"
     }
 
-    it("should 500 if filter says it's not initialized") {
+    it("should 503 if filter says it's not initialized") {
       val aFilter = new StubbedFilter(configurationService) {
         override def filterInitialized = false
       }
@@ -238,7 +239,7 @@ class AbstractConfiguredFilterTest
 
       aFilter.doFilter(mock[HttpServletRequest], response, mock[FilterChain])
 
-      response.getStatus shouldBe 500
+      response.getStatus shouldBe SC_SERVICE_UNAVAILABLE
       response.getErrorMessage shouldBe "Filter not initialized"
     }
 

@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit
 
 import com.codahale.metrics.{MetricRegistry, Timer}
 import io.opentracing.mock.MockTracer
+import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{Filter, FilterChain}
 import org.apache.logging.log4j.core.LoggerContext
@@ -42,7 +43,6 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.slf4j.MDC
-import org.springframework.context.support.AbstractApplicationContext
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.collection.JavaConverters._
@@ -311,7 +311,7 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
       messageList.find(_.startsWith("Filter foo spent")) should not be empty
     }
 
-    it("should not stop an exception from being thrown") {
+    it("should return a 500 when an exception occurs") {
       val filterChain = new ReposeFilterChain(
         List.empty,
         originalChain,
@@ -320,10 +320,29 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
         tracer)
       val message = "test exception"
       when(originalChain.doFilter(any[HttpServletRequest], any[HttpServletResponse])).thenThrow(new RuntimeException(message))
-      val throwable = intercept[Throwable] {
-        filterChain.doFilter(mockRequest, mockResponse)
-      }
-      throwable.getMessage shouldBe message
+
+      filterChain.doFilter(mockRequest, mockResponse)
+
+      mockResponse.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
+    }
+
+    it("should log if there was a an exception and the response was already committed") {
+      val filterChain = new ReposeFilterChain(
+        List.empty,
+        originalChain,
+        None,
+        Option(metricsRegistry),
+        tracer)
+      when(originalChain.doFilter(any[HttpServletRequest], any[HttpServletResponse])).thenThrow(new RuntimeException("test exception"))
+      mockResponse.setCommitted(true)
+      val loggerContext = LogManager.getContext(false).asInstanceOf[LoggerContext]
+      val listAppender = loggerContext.getConfiguration.getAppender("List0").asInstanceOf[ListAppender]
+      listAppender.clear()
+
+      filterChain.doFilter(mockRequest, mockResponse)
+
+      val messageList = listAppender.getEvents.asScala.map(_.getMessage.getFormattedMessage)
+      messageList.filter(_.contains("Exception thrown while processing the chain.")) should have length 1
     }
 
     it("should create a span with the filter name") {

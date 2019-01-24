@@ -1,18 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-    <repose-cluster id="repose">
-
-        <nodes>
-            <node id="ssl-node" hostname="localhost" https-port="${reposePort}"/>
-        </nodes>
-
-        <filters/>
-
-        <destinations>
-            <endpoint id="target" protocol="http" hostname="localhost" root-path="/" port="${targetPort}"
-                      default="true"/>
-        </destinations>
-
-    </repose-cluster>
+    <nodes>
+        <node id="ssl-node" hostname="localhost" https-port="${reposePort}"/>
+    </nodes>
+    <filters/>
+    <destinations>
+        <endpoint id="target" protocol="http" port="${targetPort}" default="true"/>
+    </destinations>
 </system-model>

@@ -34,7 +34,7 @@ class StripTenantPrefixTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
 
-    def static MockIdentityV2Service fakeIdentityV2Service
+    static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
 
@@ -49,18 +49,15 @@ class StripTenantPrefixTest extends ReposeValveTest {
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
-        identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityV2Service.handler)
-
-
+        identityEndpoint = deproxy.addEndpoint(properties.identityPort, 'identity service', null, fakeIdentityV2Service.handler)
     }
 
     def setup() {
         fakeIdentityV2Service.resetHandlers()
     }
 
-    @Unroll("request tenant: #requestTenant and response tenant: #responseTenant - #responseCode")
-    def "Strip Tenant Prefix enabled"() {
+    @Unroll
+    def "request tenant: #requestTenant and response tenant: #responseTenant - #responseCode"() {
         given:
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()
@@ -69,8 +66,7 @@ class StripTenantPrefixTest extends ReposeValveTest {
             client_userid = requestTenant
         }
 
-        when:
-        "User passes a request through repose with request tenant: $requestTenant, response tenant: $responseTenant in non-admin service role"
+        when: "User passes a request through repose"
         MessageChain mc = deproxy.makeRequest(
                 url: "$reposeEndpoint/accounts/$requestTenant/",
                 method: 'GET',
@@ -80,7 +76,7 @@ class StripTenantPrefixTest extends ReposeValveTest {
                 ]
         )
 
-        then: "Request body sent from repose to the origin service should contain"
+        then: "Response from Repose should be"
         mc.receivedResponse.code == responseCode
         //mc.receivedResponse.headers.contains("www-authenticate") == x_www_auth
 
@@ -89,9 +85,9 @@ class StripTenantPrefixTest extends ReposeValveTest {
         "1234"        | "hybrid:1234"  | "200"
         "1234"        | "foo:1234"     | "200"
         "1234"        | "bar-1234"     | "200"
+        "hybrid:1235" | "hybrid:1235"  | "200"
+        "bar-1234"    | "bar-1234"     | "200"
         "1234"        | "hybrid:1235"  | "401"
-        "hybrid:1235" | "hybrid:1235"  | "401"
         "hybrid:1235" | "1235"         | "401"
-        "bar-1234"    | "bar-1234"     | "401"
     }
 }

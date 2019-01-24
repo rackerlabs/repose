@@ -2,7 +2,7 @@
 
 <validators xmlns='http://docs.openrepose.org/repose/validator/v1.0'>
 
-    <validator role="raxRolesDisabled" default="true" enable-rax-roles="false" >
+    <validator role="raxRolesDisabled" default="true" enable-rax-roles="false">
         <application xmlns="http://wadl.dev.java.net/2009/02" xmlns:rax="http://docs.rackspace.com/api" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
             <resources base="http://localhost:${targetPort}">
                 <resource path="/resource">

@@ -29,6 +29,8 @@ import spock.lang.Specification
 
 import java.util.concurrent.TimeUnit
 
+import static org.openrepose.framework.test.ReposeLauncher.MAX_STARTUP_TIME
+
 @Category(Intense.class)
 class DistDatastoreServiceClientAuthFullTest extends Specification {
     static String reposeEndpoint1
@@ -54,7 +56,6 @@ class DistDatastoreServiceClientAuthFullTest extends Specification {
         params += [
                 'reposePort1'      : reposePort1,
                 'reposePort2'      : reposePort2,
-                'repose.cluster.id': 'repose1',
                 'repose.node.id'   : 'node1',
                 'datastorePort1'   : dataStorePort1,
                 'datastorePort2'   : dataStorePort2
@@ -75,15 +76,15 @@ class DistDatastoreServiceClientAuthFullTest extends Specification {
 
         repose1 = new ReposeValveLauncher(config, reposeJar, reposeEndpoint1, configDirectory,  reposePort1)
         repose1.enableDebug()
-        repose1.start([clusterId: "repose1", nodeId: "node1"])
-        reposeLogSearch.awaitByString("repose1:node1 -- Repose ready", 1, 60, TimeUnit.SECONDS)
-        reposeLogSearch.awaitByString("repose1:node2 -- Repose ready", 1, 60, TimeUnit.SECONDS)
+        repose1.start(clusterId: "repose1", nodeId: "node1")
+        reposeLogSearch.awaitByString("node1 -- Repose ready", 1, MAX_STARTUP_TIME, TimeUnit.SECONDS)
+        reposeLogSearch.awaitByString("node2 -- Repose ready", 1, MAX_STARTUP_TIME, TimeUnit.SECONDS)
     }
 
     def "Test repose container with multi-nodes"() {
         given:
         MessageChain mc
-        def user = UUID.randomUUID().toString();
+        def user = UUID.randomUUID().toString()
 
         // This tests rate limit share between 2 nodes which is accomplished using the dist datastore.
         when: "the request hit the first node using up all limit"

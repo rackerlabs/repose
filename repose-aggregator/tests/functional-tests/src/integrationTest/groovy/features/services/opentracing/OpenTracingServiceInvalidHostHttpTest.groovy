@@ -53,7 +53,7 @@ class OpenTracingServiceInvalidHostHttpTest extends ReposeValveTest {
             'tracer http service', null, fakeTracer.handler)
 
 
-        repose.start(true, false, "repose", "node1")
+        repose.start(true, false, "node1")
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
@@ -68,7 +68,6 @@ class OpenTracingServiceInvalidHostHttpTest extends ReposeValveTest {
 
         and: "Repose should return with a 200"
         messageChain.receivedResponse.code == "200"
-
 
         and: "OpenTracingService has logged that span was sent to tracer"
         //TODO: right now this is a no-op.  We aren't told that the trace is lost.  Not good.  However, in future
@@ -88,5 +87,4 @@ class OpenTracingServiceInvalidHostHttpTest extends ReposeValveTest {
         "TRACE"  | _
         "HEAD"   | _
     }
-
 }

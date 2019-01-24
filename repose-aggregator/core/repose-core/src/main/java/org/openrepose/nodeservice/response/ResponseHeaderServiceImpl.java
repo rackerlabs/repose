@@ -22,23 +22,18 @@ package org.openrepose.nodeservice.response;
 import org.apache.commons.lang3.StringUtils;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestUtil;
-import org.openrepose.commons.utils.servlet.http.RouteDestination;
 import org.openrepose.core.spring.ReposeSpringProperties;
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.net.MalformedURLException;
 import java.util.Optional;
 
 @Named
 public class ResponseHeaderServiceImpl implements ResponseHeaderService {
-
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ResponseHeaderServiceImpl.class);
 
     private final String reposeVersion;
     private final ContainerConfigurationService containerConfigurationService;
@@ -73,23 +68,5 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
             }
             response.setHeader(CommonHttpHeader.VIA, builder.toString());
         }
-    }
-
-    @Override
-    public void fixLocationHeader(HttpServletRequest originalRequest, HttpServletResponse response, RouteDestination destination, String destinationLocationUri, String proxiedRootContext) {
-        String destinationUri = cleanPath(destinationLocationUri);
-        if (!destinationUri.matches("^https?://.*")) {
-            // local dispatch
-            destinationUri = proxiedRootContext;
-        }
-        try {
-            LocationHeaderBuilder.setLocationHeader(originalRequest, response, destinationUri, destination.getContextRemoved(), proxiedRootContext);
-        } catch (MalformedURLException ex) {
-            LOG.warn("Invalid URL in location header processing", ex);
-        }
-    }
-
-    private String cleanPath(String uri) {
-        return uri == null ? "" : uri.split("\\?")[0];
     }
 }

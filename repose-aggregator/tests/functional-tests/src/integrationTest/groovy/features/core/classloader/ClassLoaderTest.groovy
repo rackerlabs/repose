@@ -80,10 +80,7 @@ class ClassLoaderTest extends ReposeValveTest {
         reposeConfigProvider.applyConfigs("common", params)
         reposeConfigProvider.applyConfigs("features/core/classloader/one", params)
 
-        repose.start(killOthersBeforeStarting: false,
-                waitOnJmxAfterStarting: false)
-
-        reposeLogSearch.awaitByString("Repose ready", 1, 30)
+        repose.start(killOthersBeforeStarting: false)
 
         when: "make a request with the FOO header"
         def headers = [
@@ -146,7 +143,6 @@ class ClassLoaderTest extends ReposeValveTest {
         reposeConfigProvider.applyConfigs("features/core/classloader/two", params)
 
         repose.start()
-        reposeLogSearch.awaitByString("Repose ready", 1, 30)
 
         when: "make a request with the FOO header"
         def headers = [
@@ -192,10 +188,7 @@ class ClassLoaderTest extends ReposeValveTest {
         reposeConfigProvider.applyConfigs("common", params)
         reposeConfigProvider.applyConfigs("features/core/classloader/three", params)
 
-        repose.start(killOthersBeforeStarting: false,
-                waitOnJmxAfterStarting: false)
-
-        reposeLogSearch.awaitByString("Repose ready", 1, 30)
+        repose.start(killOthersBeforeStarting: false)
 
         when: "make a request with the FOO header"
         def headers = [

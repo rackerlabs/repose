@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<openstack-identity-v3 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"
-                       cache-offset="0"
-                       token-cache-timeout="0">
+<openstack-identity-v3 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0">
 
     <openstack-identity-service username="admin-username"
                                 password="admin-password"

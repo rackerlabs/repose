@@ -364,7 +364,7 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        Cache timeout variance (in milliseconds) for cached data. A random value
+                        Cache timeout variance (in seconds) for cached data. A random value
                         between -variance and +variance will be applied to the existing
                         cache timeout values. A timeout variance mitigates issues caused by cached
                         data expiring at the same time.

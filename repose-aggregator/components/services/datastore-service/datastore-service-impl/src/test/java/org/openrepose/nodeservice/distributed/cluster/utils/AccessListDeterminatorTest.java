@@ -28,7 +28,6 @@ import org.openrepose.core.services.datastore.distributed.config.*;
 import org.openrepose.core.systemmodel.config.*;
 
 import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -42,23 +41,14 @@ public class AccessListDeterminatorTest {
 
         private SystemModel sysConfig;
         private DistributedDatastoreConfiguration ddConfig;
-        private ReposeCluster cluster;
         private Node node1, node2;
         private NodeList nodeList;
-        private List<Filter> filters;
-        private FilterList filterList;
         private HostAccessControlList hacl;
         private boolean isAllowed;
         private HostAccessControl ctrl;
-        private PortConfiguration portConfig;
-        private Port node1Port;
 
         @Before
         public void setUp() {
-
-            filters = new ArrayList<Filter>();
-            filterList = new FilterList();
-            filterList.getFilter().addAll(filters);
 
             node1 = new Node();
             node1.setHttpPort(8888);
@@ -67,23 +57,15 @@ public class AccessListDeterminatorTest {
             nodeList = new NodeList();
             nodeList.getNode().add(node1);
 
-
             node2 = new Node();
             node2.setHttpPort(8889);
             node2.setHostname("127.0.0.1");
             node2.setId("node2");
             nodeList.getNode().add(node2);
 
-            cluster = new ReposeCluster();
-            cluster.setFilters(filterList);
-            cluster.setId("reposeCluster");
-            cluster.setNodes(nodeList);
-
             sysConfig = new SystemModel();
-            sysConfig.getReposeCluster().add(cluster);
-
-            node1Port = new Port();
-            node1Port.setCluster("reposeCluster");
+            sysConfig.setFilters(new FilterList());
+            sysConfig.setNodes(nodeList);
 
             isAllowed = false;
 
@@ -96,15 +78,13 @@ public class AccessListDeterminatorTest {
 
             ddConfig = new DistributedDatastoreConfiguration();
             ddConfig.setAllowedHosts(hacl);
-            ddConfig.setPortConfig(portConfig);
-
 
         }
 
         @Test
         public void shouldGetClusterMembers() {
 
-            List<InetAddress> clusterMembers = AccessListDeterminator.getClusterMembers(sysConfig, "reposeCluster");
+            List<InetAddress> clusterMembers = AccessListDeterminator.getClusterMembers(sysConfig);
 
             assertThat("Should have two cluster members", clusterMembers.size(), equalTo(2));
         }
@@ -112,7 +92,7 @@ public class AccessListDeterminatorTest {
         @Test
         public void shouldGetAccessList() {
 
-            List<InetAddress> clusterMembers = AccessListDeterminator.getClusterMembers(sysConfig, "reposeCluster");
+            List<InetAddress> clusterMembers = AccessListDeterminator.getClusterMembers(sysConfig);
 
             DatastoreAccessControl allowedHosts = AccessListDeterminator.getAccessList(ddConfig, clusterMembers);
 

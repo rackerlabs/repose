@@ -36,10 +36,6 @@ class KeystoneV2AuthorizationFilterSimulation extends AbstractReposeSimulation {
       |{
       |  "defaultTenant": [
       |  ],
-      |  "uriTenant": [
-      |    "uriRole1",
-      |    "uriRole2"
-      |  ],
       |  "headerTenant": [
       |    "headerRole1",
       |    "headerRole2"
@@ -67,7 +63,7 @@ class KeystoneV2AuthorizationFilterSimulation extends AbstractReposeSimulation {
 
   def getRequest: HttpRequestBuilder = {
     http(session => session.scenario)
-      .get("/uriTenant")
+      .get("/path")
       .header("x-tenant-id", "headerTenant")
       .header("x-map-roles", encodedTenantToRolesMap)
       .check(status.is(200))

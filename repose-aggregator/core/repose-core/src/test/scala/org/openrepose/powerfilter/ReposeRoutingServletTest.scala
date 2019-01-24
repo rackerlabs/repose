@@ -26,12 +26,15 @@ import java.util.Optional
 import com.codahale.metrics.MetricRegistry
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
-import org.apache.http.client.methods.HttpUriRequest
+import org.apache.http.HttpVersion
+import org.apache.http.client.methods.{CloseableHttpResponse, HttpUriRequest}
+import org.apache.http.message.BasicHttpResponse
+import org.apache.http.protocol.HttpContext
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
-import org.mockito.Matchers.{any, anyLong, anyString, contains, eq => isEq}
+import org.mockito.Matchers.{any, contains, eq => isEq}
 import org.mockito.Mockito._
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonRequestAttributes
@@ -77,10 +80,14 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     when(mockMetricsService.getRegistry).thenReturn(metricRegistry)
     when(mockContainerConfigurationService.getRequestVia).thenReturn(Optional.empty[String]())
     when(mockHttpClientService.getDefaultClient).thenReturn(mockHttpClient)
+    when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext])).thenReturn(
+      new BasicHttpResponse(HttpVersion.HTTP_1_1, SC_OK, null) with CloseableHttpResponse {
+        override def close(): Unit = {}
+      }
+    )
 
     reposeRoutingServlet = new ReposeRoutingServlet(
       DefaultVersion,
-      DefaultClusterId,
       DefaultNodeId,
       mockConfigurationService,
       mockContainerConfigurationService,
@@ -135,10 +142,10 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     Seq(
       // @formatter:off
       ("one", SC_OK,                       null),
-      ("one", SC_SERVICE_UNAVAILABLE,      new IOException()),
+      ("one", SC_BAD_GATEWAY,              new IOException()),
       ("one", SC_REQUEST_ENTITY_TOO_LARGE, new IOException().initCause(new ReadLimitReachedException("too much"))),
       ("two", SC_OK,                       null),
-      ("two", SC_SERVICE_UNAVAILABLE,      new IOException()),
+      ("two", SC_BAD_GATEWAY,              new IOException()),
       ("two", SC_REQUEST_ENTITY_TOO_LARGE, new IOException().initCause(new ReadLimitReachedException("too much")))
       // @formatter:on
     ).foreach { case (defaultDestinationId, responseCode, dispatchError) =>
@@ -150,25 +157,25 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
           request.setServerPort(8080)
           val response = new MockHttpServletResponse()
           val systemModel = minimalConfiguration()
-          val destinationEndpointList = systemModel.getReposeCluster.headOption.map(_.getDestinations).map(_.getEndpoint)
-          destinationEndpointList.foreach(_.clear())
-          val destinationEndpointOne = new DestinationEndpoint()
+          val destinationList = systemModel.getDestinations.getEndpoint
+          destinationList.clear()
+          val destinationEndpointOne = new Destination()
           destinationEndpointOne.setDefault("one".equals(defaultDestinationId))
           destinationEndpointOne.setId("one")
           destinationEndpointOne.setProtocol("http")
           Option(port).foreach(p => destinationEndpointOne.setPort(p.asInstanceOf[Int]))
-          destinationEndpointList.foreach(_.add(destinationEndpointOne))
-          val destinationEndpointTwo = new DestinationEndpoint()
+          destinationList.add(destinationEndpointOne)
+          val destinationEndpointTwo = new Destination()
           destinationEndpointTwo.setDefault("two".equals(defaultDestinationId))
           destinationEndpointTwo.setId("two")
           destinationEndpointTwo.setProtocol("http")
-          destinationEndpointList.foreach(_.add(destinationEndpointTwo))
+          destinationList.add(destinationEndpointTwo)
           val servletContext = mock[ServletContext]
 
           mockServletConfig = new MockServletConfig(servletContext)
 
           Option(dispatchError).foreach { error =>
-            when(mockHttpClient.execute(any[HttpUriRequest])).thenThrow(error)
+            when(mockHttpClient.execute(any[HttpUriRequest], any[HttpContext])).thenThrow(error)
           }
 
           reposeRoutingServlet.init(mockServletConfig)
@@ -177,9 +184,11 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
 
           response.getStatus == responseCode
 
-          verify(mockHttpClient).execute(any[HttpUriRequest])
+          verify(mockHttpClient).execute(any[HttpUriRequest], any[HttpContext])
+          if (Option(dispatchError).isEmpty) {
             verify(metricRegistry, times(2)).meter(contains("ResponseCode"))
             verify(metricRegistry, times(2)).timer(contains("ResponseTime"))
+          }
         }
       }
     }
@@ -217,9 +226,9 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     it("should return a route to the default destination if no other routes are available") {
       val request = new MockHttpServletRequest()
       val systemModel = minimalConfiguration()
-      val destinationOne = { val destination = new DestinationEndpoint(); destination.setId("destinationOne"); destination }
-      val destinationTwo = { val destination = new DestinationEndpoint(); destination.setId("destinationTwo"); destination }
-      systemModel.getReposeCluster.head.getDestinations.getEndpoint.addAll(Seq(
+      val destinationOne = { val destination = new Destination(); destination.setId("destinationOne"); destination }
+      val destinationTwo = { val destination = new Destination(); destination.setId("destinationTwo"); destination }
+      systemModel.getDestinations.getEndpoint.addAll(Seq(
         destinationOne,
         destinationTwo
       ))
@@ -236,9 +245,9 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
 
       val request = new MockHttpServletRequest()
       val systemModel = minimalConfiguration()
-      val destinationOne = { val destination = new DestinationEndpoint(); destination.setId("destinationOne"); destination }
-      val destinationTwo = { val destination = new DestinationEndpoint(); destination.setId("destinationTwo"); destination }
-      systemModel.getReposeCluster.head.getDestinations.getEndpoint.addAll(Seq(
+      val destinationOne = { val destination = new Destination(); destination.setId("destinationOne"); destination }
+      val destinationTwo = { val destination = new Destination(); destination.setId("destinationTwo"); destination }
+      systemModel.getDestinations.getEndpoint.addAll(Seq(
         destinationOne,
         destinationTwo
       ))
@@ -257,9 +266,9 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     it("should return the highest quality route available (Scala)") {
       val request = new MockHttpServletRequest()
       val systemModel = minimalConfiguration()
-      val destinationOne = { val destination = new DestinationEndpoint(); destination.setId("destinationOne"); destination }
-      val destinationTwo = { val destination = new DestinationEndpoint(); destination.setId("destinationTwo"); destination }
-      systemModel.getReposeCluster.head.getDestinations.getEndpoint.addAll(Seq(
+      val destinationOne = { val destination = new Destination(); destination.setId("destinationOne"); destination }
+      val destinationTwo = { val destination = new Destination(); destination.setId("destinationTwo"); destination }
+      systemModel.getDestinations.getEndpoint.addAll(Seq(
         destinationOne,
         destinationTwo
       ))
@@ -278,11 +287,11 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
 
   describe("getDestination") {
     it("should return a Failure if no potential destination corresponds to the route") {
-      val destinationOne = { val destination = new DestinationEndpoint(); destination.setId("destinationOne"); destination }
-      val destinationTwo = { val destination = new DestinationEndpoint(); destination.setId("destinationTwo"); destination }
+      val destinationOne = { val destination = new Destination(); destination.setId("destinationOne"); destination }
+      val destinationTwo = { val destination = new Destination(); destination.setId("destinationTwo"); destination }
       val route = new RouteDestination("not-a-destination", "/", 0.0)
       val systemModel = minimalConfiguration()
-      systemModel.getReposeCluster.head.getDestinations.getEndpoint.addAll(Seq(
+      systemModel.getDestinations.getEndpoint.addAll(Seq(
         destinationOne,
         destinationTwo
       ))
@@ -295,11 +304,11 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     }
 
     it("should return the destination corresponding to the route") {
-      val destinationOne = { val destination = new DestinationEndpoint(); destination.setId("destinationOne"); destination }
-      val destinationTwo = { val destination = new DestinationEndpoint(); destination.setId("destinationTwo"); destination }
+      val destinationOne = { val destination = new Destination(); destination.setId("destinationOne"); destination }
+      val destinationTwo = { val destination = new Destination(); destination.setId("destinationTwo"); destination }
       val route = new RouteDestination(destinationOne.getId, "/", 0.0)
       val systemModel = minimalConfiguration()
-      systemModel.getReposeCluster.head.getDestinations.getEndpoint.addAll(Seq(
+      systemModel.getDestinations.getEndpoint.addAll(Seq(
         destinationOne,
         destinationTwo
       ))
@@ -315,7 +324,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
   describe("getTarget") {
     it("should return a Failure when the destination is invalid") {
       val route = new RouteDestination("id", "/some/resource", 0.0)
-      val destination = new DestinationEndpoint()
+      val destination = new Destination()
       destination.setChunkedEncoding(ChunkedEncoding.AUTO)
       destination.setProtocol("ht tp")
       destination.setHostname("example.com")
@@ -329,7 +338,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
 
     it("should encode an invalid route and return a URL locating the correct resource") {
       val route = new RouteDestination("id", "/some/re source", 0.0)
-      val destination = new DestinationEndpoint()
+      val destination = new Destination()
       destination.setChunkedEncoding(ChunkedEncoding.AUTO)
       destination.setProtocol("http")
       destination.setHostname("example.com")
@@ -347,8 +356,8 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     }
 
     it("should return a URL locating the correct resource") {
+      val destination = new Destination()
       val route = new RouteDestination("id", "/some/resource", 0.0)
-      val destination = new DestinationEndpoint()
       destination.setChunkedEncoding(ChunkedEncoding.AUTO)
       destination.setProtocol("http")
       destination.setHostname("example.com")
@@ -367,7 +376,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
 
     it("should return a URL locating the correct resource when the destination does not have a set port") {
       val route = new RouteDestination("id", "/some/resource", 0.0)
-      val destination = new DestinationEndpoint()
+      val destination = new Destination()
       destination.setChunkedEncoding(ChunkedEncoding.AUTO)
       destination.setProtocol("http")
       destination.setHostname("example.com")
@@ -387,7 +396,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
   describe("preProxyMetrics") {
     it("should increment the request count") {
       val destId = "testId"
-      val destination = new DestinationEndpoint()
+      val destination = new Destination()
       destination.setId(destId)
 
       reposeRoutingServlet.preProxyMetrics(destination)
@@ -400,7 +409,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     it("should record the service response") {
       val timeElapsed = 1234L
       val response = new MockHttpServletResponse()
-      val destination = new DestinationEndpoint()
+      val destination = new Destination()
       val targetUrl = URI.create("http://example.com/some/path").toURL
       response.setStatus(201)
       destination.setId("testId")
@@ -413,8 +422,6 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
 
   def minimalConfiguration(): SystemModel = {
     val systemModel = new SystemModel()
-    val reposeCluster = new ReposeCluster()
-    reposeCluster.setId(DefaultClusterId)
     val node = new Node()
     node.setId(DefaultNodeId)
     node.setHostname(DefaultNodeName)
@@ -422,21 +429,19 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
     node.setHttpsPort(8443)
     val nodesList = new NodeList()
     nodesList.getNode.add(node)
-    reposeCluster.setNodes(nodesList)
-    val destinationEndpoint = new DestinationEndpoint()
+    systemModel.setNodes(nodesList)
+    val destinationEndpoint = new Destination()
     destinationEndpoint.setDefault(true)
     destinationEndpoint.setId(DefaultDestId)
     val destinationList = new DestinationList()
     destinationList.getEndpoint.add(destinationEndpoint)
-    reposeCluster.setDestinations(destinationList)
-    systemModel.getReposeCluster.add(reposeCluster)
+    systemModel.setDestinations(destinationList)
     systemModel
   }
 }
 
 object ReposeRoutingServletTest {
   final val DefaultVersion = "0.0.0.0"
-  final val DefaultClusterId = "defaultClusterId"
   final val DefaultNodeId = "defaultNodeId"
   final val DefaultNodeName = "defaultNodeName"
   final val DefaultDestId = "defaultDestId"

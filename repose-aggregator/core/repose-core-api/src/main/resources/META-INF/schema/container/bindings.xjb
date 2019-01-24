@@ -28,6 +28,6 @@
         <package name="org.openrepose.core.container.config"/>
     </schemaBindings>
     <globalBindings>
-        <serializable uid="1530211364291" />
+        <serializable uid="1530211364291"/>
     </globalBindings>
 </bindings>

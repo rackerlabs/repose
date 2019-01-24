@@ -2,9 +2,59 @@
 
 == Core Behavior Changes
 . Headers will no longer be split unnecessarily at the boundaries of *Repose*.
-  If you were counting on this behavior for some reason see <<../recipes/header-splitting.adoc#, Pre 9.0 Header Splitting>>.
+  If you were counting on this behavior, or for a list of headers that were being split, see <<../recipes/header-splitting.adoc#, Pre 9.0 Header Splitting>>.
+. Headers with an empty value will no longer be automatically removed from requests or responses.
+  If you were counting on this behavior, the <<../filters/scripting.adoc#, Scripting Filter>> can be used.
+  The scripting filter configuration may look like the following:
++
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+         language="groovy">
+  request.headerNames.each { headerName ->
+      if (!request.getHeader(headerName)) {
+          request.removeHeader(headerName)
+      }
+  }
+  filterChain.doFilter(request, response)
+  response.headerNames.each { headerName ->
+      if (!response.getHeader(headerName)) {
+          response.removeHeader(headerName)
+      }
+  }
+</scripting>
+----
 . The response status line reason phrase from the origin service will now be forwarded from the origin service.
-  If you were expecting *Repose* to normalize the reason phrase, see the <<../recipes/reason-phrase-normalization.adoc#, Reason Phrase Normalization recipe>>.
+  If you need *Repose* to normalize the reason phrase, see the <<../recipes/reason-phrase-normalization.adoc#, Reason Phrase Normalization recipe>>.
+. Requests can now contain headers with empty values.
+  For example, if *Repose* receives a request with the header line `My-Header: `, that header line will now be forwarded to the origin service.
+. Some core classes have been renamed.
+  If you need to customize the logging behavior for the loggers used by these classes, or if you rely on these classes directly, use the following mapping to update to the new class names:
++
+[cols="2", options="header,autowidth"]
+|===
+| Old Class Name
+| New Class Name
+
+| org.openrepose.powerfilter.PowerFilter
+| org.openrepose.powerfilter.ReposeFilter
+
+| org.openrepose.powerfilter.PowerFilterChain
+| org.openrepose.powerfilter.ReposeFilterChain
+|===
+
+== System Model Configuration
+. Support for multi-cluster deployments has been removed.
+.. The `cluster` element was removed from the <<../architecture/system-model.adoc#, system model>>.
+   Remember that a cluster is just a logical grouping of nodes by their functionality, and as such, logical clusters can still be constructed outside of *Repose*.
+... *Repose* clusters are no longer supported.
+    Instead, an operator will need to define *Repose* behavior per-node.
+    In other words, each *Repose* cluster will become a new <<../architecture/system-model.adoc#, system model>> configuration.
+    To route a request between *Repose* nodes, see the following bullet.
+... Service clusters (via round-robin routing) are no longer supported.
+    Instead, an operator may choose to use a router to route traffic between destinations with identical functionality.
+    A route could be anything from a physical F5 Load Balancer to a Cloud Load Balancer to an OpenShift service.
 
 == Container Configuration
 . The `via` attribute was removed from the <<../architecture/container.adoc#, container configuration>>.
@@ -14,6 +64,7 @@
 == Deployment
 . Support for installing *Repose* into an existing container has been dropped. For help moving to another deployment see <<../recipes/valve-installation.adoc, Valve Installation>> and <<../recipes/quick-start.adoc, Quick Start with Docker>>.
 . The package for valve installation has changed from `repose-valve` to `repose`.
+. The <<../filters/scripting.adoc#, Scripting Filter>> has been moved from the `repose-experimental-filter-bundle` to the `repose-filter-bundle`.
 
 == HTTP Client/Connection Pool Service
 . If setting the `chunked-encoding` attribute, it will no longer be set in <<../services/http-client.adoc#configuration, HTTP Client Service configuration>> but instead will be set in the <<../architecture/system-model.adoc#configuration, System Model configuration>>.
@@ -35,6 +86,8 @@
 .. `token-cache-timeout` on the `openstack-identity-v3` element; `token` on the `timeouts` element should be used instead.
 .. `groups-cache-timeout` on the `openstack-identity-v3` element; `group` on the `timeouts` element should be used instead.
 .. `cache-offset` on the `openstack-identity-v3` element; `variance` on the `timeouts` element should be used instead.
+. Cache timeouts are now defined in seconds rather than milliseconds.
+.. To convert existing timeouts, divide by `1000`.
 
 == Keystone v2 and Keystone v2 Authorization Filters
 . The `uri-tenant-quality` attribute was removed; the `validated-tenant-quality` should be used in its place.
@@ -46,14 +99,14 @@
 +
 [source,xml]
 ----
-<uri-extraction-regex>.*/servers/([-|\w]+)/?.*</uri-extraction-regex>
+<uri-extraction-regex>.*/servers/([:\-\w]+)/?.*</uri-extraction-regex>
 ----
 +
 Then you would configure the <<../filters/url-extractor-to-header.adoc#, URL Extractor to Header Filter>> with:
 +
 [source,xml]
 ----
-<extraction url-regex=".*/servers/([-|\w]+)/?.*" header="X-Expected-Tenant"/>
+<extraction url-regex=".*/servers/([:-\w]+)/?.*" header="X-Expected-Tenant"/>
 ----
 .. Replace usage of the `uri-extraction-regex` element with the `header-extraction-name` element in your <<../filters/keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>> and <<../filters/keystone-v2.adoc#, Keystone v2 Filter>> configuration.
 ... The value of the `header-extraction-name` element should match the value of the header name configured in the <<../filters/url-extractor-to-header.adoc#, URL Extractor to Header Filter>>.
@@ -63,6 +116,17 @@ Therefore, the <<../filters/keystone-v2-authorization.adoc#, Keystone v2 Authori
 [source,xml]
 ----
 <header-extraction-name>X-Expected-Tenant</header-extraction-name>
+----
++
+.. If desired, follow best practice guidelines by adding the configured header name to the <<../filters/header-normalization.adoc#, Header Normalization Filter>> blacklist.
+... Following the previous examples, the configured header name would be `X-Expected-Tenant`.
+Therefore, the <<../filters/header-normalization.adoc#, Header Normalization Filter>> configuration should contain something like:
++
+[source,xml]
+----
+<blacklist>
+    <header id="X-Expected-Tenant"/>
+</blacklist>
 ----
 
 == For Integrators

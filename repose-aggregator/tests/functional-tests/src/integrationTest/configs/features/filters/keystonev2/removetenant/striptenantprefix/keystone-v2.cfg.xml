@@ -9,7 +9,7 @@
     <tenant-handling>
         <!--multi prefix separate by "/" -->
         <validate-tenant strip-token-tenant-prefixes="hybrid:/foo:/bar-">
-            <uri-extraction-regex>.*/accounts/(\w+)/.*</uri-extraction-regex>
+            <header-extraction-name>X-Expected-Tenant</header-extraction-name>
         </validate-tenant>
     </tenant-handling>
 

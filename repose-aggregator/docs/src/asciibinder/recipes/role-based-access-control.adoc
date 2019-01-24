@@ -19,8 +19,8 @@ To prevent users from submitting their own roles, you will need to blacklist hea
             <header id="X-Identity-Status"/>
             <header id="X-Impersonator-Id"/>
             <header id="X-Impersonator-Name"/>
-            <header id="X-PP-Groups" />
-            <header id="X-PP-User" />
+            <header id="X-PP-Groups"/>
+            <header id="X-PP-User"/>
             <header id="X-Roles"/>
             <header id="X-Tenant-Id"/>
             <header id="X-Tenant-Name"/>
@@ -306,22 +306,20 @@ The following example shows a basic System Model that enables the Tenant Culling
 <?xml version="1.0" encoding="UTF-8"?>
 
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-    <repose-cluster id="repose">
-        <nodes>
-            <node id="repose_node1" hostname="localhost" http-port="8080"/>
-        </nodes>
+    <nodes>
+        <node id="repose_node1" hostname="localhost" http-port="8080"/>
+    </nodes>
 
-        <filters>
-            <filter name="header-normalization"/>
-            <filter name="keystone-v2"/>
-            <filter name="simple-rbac"/>
-            <filter name="tenant-culling"/>
-        </filters>
+    <filters>
+        <filter name="header-normalization"/>
+        <filter name="keystone-v2"/>
+        <filter name="simple-rbac"/>
+        <filter name="tenant-culling"/>
+    </filters>
 
-        <destinations>
-            <endpoint id="local" protocol="http" hostname="localhost" root-path="/" port="8000" default="true"/>
-        </destinations>
-    </repose-cluster>
+    <destinations>
+        <endpoint id="local" protocol="http" hostname="localhost" root-path="/" port="8000" default="true"/>
+    </destinations>
 </system-model>
 ----
 

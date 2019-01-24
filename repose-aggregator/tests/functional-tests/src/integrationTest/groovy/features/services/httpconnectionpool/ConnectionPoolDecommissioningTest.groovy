@@ -44,7 +44,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/decommissioned/onepool", params)
-        repose.start([waitOnJmxAfterStarting: false])
+        repose.start()
 
         when: "Repose is up and the HTTPClientService has been configured"
         waitUntilReadyToServiceRequests()
@@ -64,7 +64,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/decommissioned/onepool", params)
-        repose.start([waitOnJmxAfterStarting: false])
+        repose.start()
 
         when: "Repose is up and the HTTPClientService has been reconfigured"
         waitUntilReadyToServiceRequests()
@@ -92,7 +92,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/decommissioned/onepool", params)
-        repose.start([waitOnJmxAfterStarting: false])
+        repose.start()
         waitUntilReadyToServiceRequests()
 
         when:
@@ -123,7 +123,7 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/common", params)
         repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/decommissioned/" + firstConfig, params)
-        repose.start([waitOnJmxAfterStarting: false])
+        repose.start()
         waitUntilReadyToServiceRequests()
 
         and: "Alot of concurrent users are making requests to Repose"

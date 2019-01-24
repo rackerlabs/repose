@@ -38,8 +38,7 @@ class ExceptionFilterTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/experimental/helpers", params)
-        repose.start([waitOnJmxAfterStarting: false])
-        waitUntilReadyToServiceRequests("200", true, true)
+        repose.start()
         logSearch.cleanLog()
 
         when:

@@ -36,6 +36,8 @@ import javax.net.ssl.SSLContext
 import java.nio.file.Files
 import java.util.concurrent.TimeUnit
 
+import static org.openrepose.framework.test.ReposeLauncher.MAX_STARTUP_TIME
+
 class DistDatastoreClientAuthSingleTest extends ReposeValveTest {
     //Since we're serializing objects here for the dist datastore, we must have the dist datastore objects in our classpath
     final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())
@@ -107,7 +109,7 @@ class DistDatastoreClientAuthSingleTest extends ReposeValveTest {
         deproxy.addEndpoint(properties.targetPort)
 
         repose.start()
-        reposeLogSearch.awaitByString("Repose ready", 1, 60, TimeUnit.SECONDS)
+        reposeLogSearch.awaitByString("Repose ready", 1, MAX_STARTUP_TIME, TimeUnit.SECONDS)
     }
 
     def "should be able to put an object in the datastore as an authenticated client"() {

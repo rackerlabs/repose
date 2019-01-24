@@ -21,59 +21,38 @@ package features.filters.headertranslation
 
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
-
-/**
- * Created by jennyvo on 4/13/16.
- */
 
 class HeaderTranslationSchemaAssertionTest extends ReposeValveTest {
     def static params = [:]
+
     def setupSpec() {
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-        reposeLogSearch.cleanLog()
-
         params = properties.defaultTemplateParams
+    }
+
+    def cleanup() {
+        repose?.stop()
+    }
+
+    @Unroll
+    def "starting with a bad config should fail (#config)."() {
+        given: "a bad config"
+        reposeLogSearch.cleanLog()
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/headertranslation/badconfig", params)
-        repose.start()
-    }
+        repose.configurationProvider.applyConfigs("features/filters/headertranslation/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/headertranslation/badconfig/$config", params)
 
-    @Unroll("Test with method:#method and #reqHeaders")
-    def "when translating request headers one-to-one without removal"() {
-
-        when: "client passes a request through repose with headers to be translated"
-        MessageChain mc = deproxy.makeRequest(url: (String) reposeEndpoint, method: method, headers: reqHeaders)
-
-        then: "filter failed to initialize"
-        mc.receivedResponse.code == "503"
-        reposeLogSearch.searchByString("Assertion failed for schema type 'header-translationType'. Original names must be unique. Evaluation is case insensitive.").size() == 1
-
-        where:
-        method | reqHeaders
-        "POST" | ["Content-type": "a", "Content-Type": "b"]
-        "GET"  | ["Content-type": "a", "Content-Type": "b"]
-    }
-
-    @Unroll("Test with method:#method and #reqHeaders")
-    def "Change config verify quality assertion" () {
-        setup: "update config"
-        repose.configurationProvider.applyConfigs("features/filters/headertranslation/badconfig", params)
-        repose.configurationProvider.applyConfigs("features/filters/headertranslation/badconfig/quality", params)
+        when: "repose is started"
         repose.start()
 
-        when: "client passes a request through repose with headers to be translated"
-        MessageChain mc = deproxy.makeRequest(url: (String) reposeEndpoint, method: method, headers: reqHeaders)
-
-        then: "filter failed to initialize"
-        mc.receivedResponse.code == "400"
-        reposeLogSearch.searchByString("Value '-1.0' is not facet-valid with respect to minInclusive '0.0E1' for type 'doubleBetweenZeroAndOne'").size() > 0
+        then: "filter fails to initialize"
+        reposeLogSearch.searchByString(errMsg).size() == 1
 
         where:
-        method | reqHeaders
-        "POST" | ["Content-type": "a", "Content-length": "b"]
-        "GET"  | ["Content-length": "b", "repose-test": "test"]
+        config    | errMsg
+        "quality" | "Value '-1.0' is not facet-valid with respect to minInclusive '0.0E1' for type 'doubleBetweenZeroAndOne'"
+        "unique"  | "Assertion failed for schema type 'header-translationType'. Original names must be unique. Evaluation is case insensitive."
     }
 }

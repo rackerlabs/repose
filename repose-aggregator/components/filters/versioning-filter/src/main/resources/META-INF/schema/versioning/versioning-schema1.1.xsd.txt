@@ -10,13 +10,13 @@
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
     
     <!-- Import ATOM specific schema definitions -->
-    <xs:import namespace="http://www.w3.org/2005/Atom" schemaLocation="../atom/atom.xsd" />
+    <xs:import namespace="http://www.w3.org/2005/Atom" schemaLocation="../atom/atom.xsd"/>
     
     <!-- Multiple choices -->
-    <xs:element name="choices" type="vers:VersionChoiceList" />
+    <xs:element name="choices" type="vers:VersionChoiceList"/>
 
     <!-- Versioning -->
-    <xs:element name="versions" type="vers:VersionChoiceList" />
+    <xs:element name="versions" type="vers:VersionChoiceList"/>
     <xs:element name="version" type="vers:VersionChoice" vc:minVersion="1.0" vc:maxVersion="1.1"/>
     <xs:element name="version" type="vers:VersionChoiceRoot" vc:minVersion="1.1"/>
 
@@ -31,10 +31,10 @@
         </xs:annotation>
         
         <xs:restriction base="xs:string">
-            <xs:enumeration value="DEPRECATED" />
-            <xs:enumeration value="ALPHA" />
-            <xs:enumeration value="BETA" />
-            <xs:enumeration value="CURRENT" />
+            <xs:enumeration value="DEPRECATED"/>
+            <xs:enumeration value="ALPHA"/>
+            <xs:enumeration value="BETA"/>
+            <xs:enumeration value="CURRENT"/>
         </xs:restriction>
     </xs:simpleType>
     
@@ -48,8 +48,8 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="version" type="vers:VersionChoice" minOccurs="1" maxOccurs="unbounded" />
-            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="version" type="vers:VersionChoice" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:anyAttribute namespace="##other" processContents="lax"/>
@@ -97,9 +97,9 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="media-types" type="vers:MediaTypeList" minOccurs="0" maxOccurs="1" />
-            <xs:element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded" />
-            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="media-types" type="vers:MediaTypeList" minOccurs="0" maxOccurs="1"/>
+            <xs:element vc:minVersion="1.1" ref="atom:link" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:attribute name="id" type="xs:string" use="required">
@@ -154,8 +154,8 @@
         </xs:annotation>
         
         <xs:sequence>
-            <xs:element name="media-type" type="vers:MediaType" minOccurs="1" maxOccurs="unbounded" />
-            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="media-type" type="vers:MediaType" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:anyAttribute namespace="##other" processContents="lax"/>
@@ -171,7 +171,7 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:attribute name="base" type="xs:string" use="optional" default="">

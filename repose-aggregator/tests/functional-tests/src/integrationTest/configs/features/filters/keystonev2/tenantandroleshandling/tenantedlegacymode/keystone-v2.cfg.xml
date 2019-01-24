@@ -3,7 +3,7 @@
 <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
     <tenant-handling>
         <validate-tenant enable-legacy-roles-mode="true">
-            <uri-extraction-regex>.*/servers/([:|-|\w]+)/?.*</uri-extraction-regex>
+            <header-extraction-name>X-Expected-Tenant</header-extraction-name>
         </validate-tenant>
     </tenant-handling>
     <identity-service

@@ -3,9 +3,7 @@
     <identity-service uri="http://localhost:${identityPort}"/>
     <tenant-handling>
         <validate-tenant>
-            <uri-extraction-regex>.*/serversOne/([-|\w]+)/?.*</uri-extraction-regex>
-            <uri-extraction-regex>.*/serversTwo/([-|\w]+)/?.*</uri-extraction-regex>
-            <uri-extraction-regex>.*/serversToo/([-|\w]+)/?.*</uri-extraction-regex>
+            <header-extraction-name>X-Expected-Tenant</header-extraction-name>
         </validate-tenant>
     </tenant-handling>
 </keystone-v2>

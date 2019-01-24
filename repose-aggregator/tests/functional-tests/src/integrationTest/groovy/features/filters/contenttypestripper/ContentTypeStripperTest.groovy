@@ -34,8 +34,7 @@ class ContentTypeStripperTest extends ReposeValveTest {
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/contenttypestripper", params)
-        repose.start([waitOnJmxAfterStarting: false])
-        waitUntilReadyToServiceRequests()
+        repose.start()
     }
 
     @Unroll("Reg with method:#method, req body:#requestBody - #desc")

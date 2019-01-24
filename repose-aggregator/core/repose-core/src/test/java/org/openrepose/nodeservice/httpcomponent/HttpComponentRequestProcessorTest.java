@@ -66,17 +66,19 @@ public class HttpComponentRequestProcessorTest {
     }
 
     @Test
-    public void shouldSetUri() throws IOException, URISyntaxException {
-        String uri = "/foo/bar";
-        request.setRequestURI(uri);
+    public void shouldSetUriFromTargetNotRequest() throws IOException, URISyntaxException {
+        String targetPath = "/foo";
+        String requestPath = "/bar/baz";
+        request.setRequestURI(requestPath);
 
         HttpUriRequest clientRequest = HttpComponentRequestProcessor.process(
             request,
-            URI.create("http://www.openrepose.org:8080"),
+            URI.create("http://www.openrepose.org:8080" + targetPath),
             true,
             ChunkedEncoding.TRUE);
 
-        assertThat(clientRequest.getURI().getPath(), endsWith(request.getRequestURI()));
+        assertThat(clientRequest.getURI().getPath(), equalTo(targetPath));
+        assertThat(clientRequest.getURI().getPath(), not(containsString(requestPath)));
     }
 
     @Test

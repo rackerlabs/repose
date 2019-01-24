@@ -19,33 +19,28 @@
  */
 package org.openrepose.valve
 
-import java.io.Writer
 import java.util
-import javax.servlet.DispatcherType
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.typesafe.config.ConfigFactory
+import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
+import javax.servlet.{DispatcherType, Filter}
 import org.eclipse.jetty.http.HttpHeader
-import org.eclipse.jetty.server.handler.ErrorHandler
 import org.eclipse.jetty.server._
-import org.eclipse.jetty.servlet.{FilterHolder, ServletContextHandler}
+import org.eclipse.jetty.server.handler.ErrorHandler
+import org.eclipse.jetty.servlet.{FilterHolder, ServletContextHandler, ServletHolder}
 import org.eclipse.jetty.util.ssl.SslContextFactory
 import org.openrepose.commons.utils.io.FileUtilities
 import org.openrepose.core.container.config.SslConfiguration
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
-import org.openrepose.powerfilter.EmptyServlet
+import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.support.{AbstractApplicationContext, PropertySourcesPlaceholderConfigurer}
-import org.springframework.web.context.ContextLoaderListener
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext
-import org.springframework.web.filter.DelegatingFilterProxy
 
 /**
   * Each jetty server starts here. These are the unique things that identify a jetty.
   * A single jetty can listen on both an HTTP port and an HTTPS port. In theory, a single jetty could listen on many
-  * ports, and just have many connectors. A clusterID and nodeID is all that is needed to figure out what jetty it is.
+  * ports, and just have many connectors. A nodeID is all that is needed to figure out what jetty it is.
   * It will fail to build if there's no SSL configuration
   *
-  * @param clusterId    Repose Cluster ID
   * @param nodeId       Repose Node ID
   * @param httpPort     The port to listen on for HTTP traffic
   * @param httpsPort    The port to listen on for HTTPS traffic
@@ -54,7 +49,6 @@ import org.springframework.web.filter.DelegatingFilterProxy
   * @param sslConfig    The SSL Configuration to use
   */
 class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
-                        val clusterId: String,
                         val nodeId: String,
                         val httpPort: Option[Int],
                         val httpsPort: Option[Int],
@@ -67,7 +61,7 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
 
   val config = ConfigFactory.load("springConfiguration.conf")
 
-  val appContext = new AnnotationConfigWebApplicationContext()
+  val appContext = new AnnotationConfigApplicationContext()
 
   val coreSpringProvider = CoreSpringProvider.getInstance()
 
@@ -78,6 +72,8 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
 
   appContext.setParent(nodeContext) //Use the local node context, not the core context
   appContext.scan(config.getString("powerFilterSpringContextPath"))
+  appContext.refresh()
+
   /**
     * Create the jetty server for this guy,
     * and get back the connectors so I can ask for ports for them :D
@@ -169,29 +165,11 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
 
     val contextHandler = new ServletContextHandler()
     contextHandler.setContextPath("/")
-    contextHandler.addServlet(classOf[EmptyServlet], "/*")
-
-    // todo: when switching to the new ReposeFilterChain, replace the previous line with the following line
-    // todo: to wire in the new routing servlet
-    // contextHandler.addServlet(new ServletHolder(appContext.getBean(classOf[ReposeRoutingServlet])), "/*")
-
-    val cll = new ContextLoaderListener(appContext)
-    contextHandler.addEventListener(cll)
+    contextHandler.addServlet(new ServletHolder(appContext.getBean("reposeRoutingServlet").asInstanceOf[HttpServlet]), "/*")
 
     val filterHolder = new FilterHolder()
-
-    //Don't use our bean directly, but use the Delegating Filter Bean from spring, so that sanity happens
-    // See: http://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html
-    //Create a spring delegating proxy for a repose filter bean
-    // The name must match the Named bean name (powerFilter)
-    val delegatingProxy = new DelegatingFilterProxy("powerFilter")
-    filterHolder.setFilter(delegatingProxy)
-    filterHolder.setDisplayName("SpringDelegatingFilter")
-
-    // todo: when switching to the new ReposeFilterChain, replace the previous line with the following line
-    // todo: to wire in the new ReposeFilter.
-    //filterHolder.setFilter(appContext.getBean("reposeFilter"))
-    //filterHolder.setDisplayName("ReposeFilter")
+    filterHolder.setFilter(appContext.getBean("reposeFilter").asInstanceOf[Filter])
+    filterHolder.setDisplayName("ReposeFilter")
 
     //All the dispatch types...
     val dispatchTypes = util.EnumSet.allOf(classOf[DispatcherType]) //Using what was in the old repose
@@ -234,7 +212,7 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
     */
   def restart(): ReposeJettyServer = {
     shutdown()
-    new ReposeJettyServer(nodeContext, clusterId, nodeId, httpPort, httpsPort, sslConfig, idleTimeout, soLingerTime, testMode)
+    new ReposeJettyServer(nodeContext, nodeId, httpPort, httpsPort, sslConfig, idleTimeout, soLingerTime, testMode)
   }
 
   /**
@@ -242,6 +220,7 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
     */
   def shutdown(): Unit = {
     isShutdown = true
+    appContext.close()
     nodeContext.close()
     stop()
   }

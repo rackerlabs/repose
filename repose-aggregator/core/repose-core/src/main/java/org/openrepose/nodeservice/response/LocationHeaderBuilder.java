@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,16 +20,20 @@
 package org.openrepose.nodeservice.response;
 
 import org.apache.commons.lang3.StringUtils;
-import org.openrepose.commons.utils.proxy.TargetHostInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 public class LocationHeaderBuilder {
 
+    private static final Logger LOG = LoggerFactory.getLogger(LocationHeaderBuilder.class);
     private static final String HTTPS = "https";
     private static final String HTTP = "http";
     private static final Integer DEFAULT_HTTP_PORT = 80;
@@ -47,13 +51,31 @@ public class LocationHeaderBuilder {
         }
 
         final URL requestedHostUrl = extractHostPath(originalRequest);
-        final URL proxiedHostUrl = new TargetHostInfo(destinationUri).getProxiedHostUrl();
+        final URL proxiedHostUrl = getProxiedHostUrl(destinationUri);
 
         final String translatedLocationUrl = translateLocationUrl(locationUrl, proxiedHostUrl, requestedHostUrl, requestedContext, rootPath);
 
         if (translatedLocationUrl != null) {
             servletResponse.setHeader(HttpHeaders.LOCATION, translatedLocationUrl);
         }
+    }
+
+    private static URL getProxiedHostUrl(String targetHost) {
+        URL returnUrl = null;
+        URI targetUri = null;
+        try {
+            targetUri = new URI(targetHost);
+        } catch (URISyntaxException e) {
+            LOG.warn("Invalid target host url: " + targetHost, e);
+        }
+        if (targetUri != null && targetUri.getScheme() != null && targetUri.getHost() != null) {
+            try {
+                returnUrl = new URL(targetUri.getScheme(), targetUri.getHost(), targetUri.getPort(), "");
+            } catch (MalformedURLException ex) {
+                LOG.warn("Invalid host url: " + targetUri, ex);
+            }
+        }
+        return returnUrl;
     }
 
     private static int getPort(URL url) {

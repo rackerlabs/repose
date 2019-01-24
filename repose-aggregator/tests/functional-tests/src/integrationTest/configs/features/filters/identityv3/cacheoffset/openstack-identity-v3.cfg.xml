@@ -5,7 +5,7 @@
                                 uri="http://localhost:${identityPort}"
                                 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"/>
     <cache>
-        <timeouts variance="3000"
-                  token="5000"/>
+        <timeouts variance="3"
+                  token="5"/>
     </cache>
 </openstack-identity-v3>

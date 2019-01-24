@@ -20,10 +20,11 @@
 package org.openrepose.core.filter
 
 import java.net.URL
+
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-
 import com.typesafe.scalalogging.slf4j.StrictLogging
+import javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.config.ConfigurationService
 
@@ -132,7 +133,7 @@ abstract class AbstractConfiguredFilter[T: ClassTag](val configurationService: C
   override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {
     if (!filterInitialized) {
       logger.error("{} has not yet initialized...", this.getClass.getSimpleName)
-      response.asInstanceOf[HttpServletResponse].sendError(500, "Filter not initialized")
+      response.asInstanceOf[HttpServletResponse].sendError(SC_SERVICE_UNAVAILABLE, "Filter not initialized")
     } else {
       logger.trace("{} processing request...", this.getClass.getSimpleName)
       doWork(request.asInstanceOf[HttpServletRequest], response.asInstanceOf[HttpServletResponse], chain)

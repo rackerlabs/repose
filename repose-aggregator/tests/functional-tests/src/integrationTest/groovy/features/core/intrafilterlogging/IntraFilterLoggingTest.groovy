@@ -117,7 +117,7 @@ class IntraFilterLoggingTest extends ReposeValveTest {
             assert logSearch.size() == size
             if (size > 0) {
                 def json = convertToJson(logSearch[0])
-                assertHeadersExists(['X-Auth-Token', 'Intrafilter-UUID'], json)
+                assertHeadersExists(['X-Auth-Token', 'X-Trans-ID'], json)
                 assertKeyValueMatch([
                     'currentFilter': filterName,
                     'httpMethod'   : 'GET',
@@ -126,13 +126,13 @@ class IntraFilterLoggingTest extends ReposeValveTest {
                 ], json)
             }
         }
+
         and: "log at every filter on the response"
         configuredFilters.each { filterName ->
             def logSearch = reposeLogSearch.searchByString("$logPreStringResponse$filterName$logPostStringAny")
             assert logSearch.size() == size
             if (size > 0) {
                 def json = convertToJson(logSearch[0])
-                assertHeadersExists(['Intrafilter-UUID'], json)
                 assertKeyValueMatch([
                     'currentFilter'   : filterName,
                     'responseBody'    : '',
@@ -144,10 +144,6 @@ class IntraFilterLoggingTest extends ReposeValveTest {
         configuredFilters.each { filterName ->
             def logSearch = reposeLogSearch.searchByString("TRACE filter-timing - Filter $filterName spent .*ms processing")
             assert logSearch.size() == size
-        }
-        and: "add the headers to the response"
-        configuredFilters.each { filterName ->
-            assert mc.receivedResponse.headers.findAll("X-$filterName-Time").size() == size
         }
         and: "not log at any filter a NULL in the name"
         configuredFilters.each { filterName ->

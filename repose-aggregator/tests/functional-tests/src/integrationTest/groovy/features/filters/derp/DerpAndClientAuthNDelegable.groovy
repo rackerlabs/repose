@@ -27,6 +27,8 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
+import static javax.servlet.http.HttpServletResponse.*
+
 /**
  * Created by jamesc on 12/1/14.
  * Update on 01/27/16
@@ -52,7 +54,7 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
         fakeIdentityService = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
         identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityService.handler)
+            'identity service', null, fakeIdentityService.handler)
 
 
     }
@@ -66,12 +68,12 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
         that information back to the client.  The origin service, thus, never gets invoked.
     */
 
-    @Unroll("tenant: #requestTenant, response: #responseTenant, and #delegatedMsg")
-    def "when req without token, non tenanted and delegable mode with quality"() {
+    @Unroll
+    def "Req without token and tenant \"#requestTenant\" should return UNAUTHORIZED (401)"() {
         given:
         fakeIdentityService.with {
             client_token = ""
-            tokenExpiresAt = (new DateTime()).plusDays(1);
+            tokenExpiresAt = (new DateTime()).plusDays(1)
             client_tenantid = responseTenant
             client_userid = requestTenant
             service_admin_role = serviceAdminRole
@@ -80,33 +82,28 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
         when:
         "User passes a request through repose with tenant in service admin role = $serviceAdminRole, request tenant: $requestTenant, response tenant: $responseTenant"
         MessageChain mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/$requestTenant",
-                method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+            url: "$reposeEndpoint/servers/$requestTenant",
+            method: 'GET',
+            headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
-        then: "Request body sent from repose to the origin service should contain"
-        mc.receivedResponse.code == responseCode
-        mc.receivedResponse.headers.contains("Content-Type")
-        mc.receivedResponse.body.contains(msgBody)
+        then: "Origin Service should never be invoked and the Response from Repose to Client should be"
+        mc.receivedResponse.code as Integer == SC_UNAUTHORIZED
+        mc.receivedResponse.message.contains("X-Auth-Token header not found")
         mc.handlings.size() == 0
 
-        /* expected internal delegated message to derp from authn:
-            "status_code=401.component=client-auth-n.message=Failure in AuthN filter.;q=0.3"
-        */
-
         where:
-        requestTenant | responseTenant | serviceAdminRole | responseCode | msgBody
-        506           | 506            | "not-admin"      | "401"        | "X-Auth-Token header not found"
-        ""            | 512            | "not-admin"      | "401"        | "X-Auth-Token header not found"
+        requestTenant | responseTenant | serviceAdminRole
+        506           | 506            | "not-admin"
+        ""            | 512            | "not-admin"
     }
 
 
-    @Unroll("Req with auth resp: #authRespCode")
-    def "When req with invalid token using delegable mode with quality"() {
+    @Unroll
+    def "Req with auth resp: #authRespCode using delegable mode with quality should return #responseCode"() {
         given:
         fakeIdentityService.with {
             client_token = UUID.randomUUID()
-            tokenExpiresAt = (new DateTime()).plusDays(1);
+            tokenExpiresAt = (new DateTime()).plusDays(1)
         }
 
         fakeIdentityService.validateTokenHandler = {
@@ -116,19 +113,18 @@ class DerpAndClientAuthNDelegable extends ReposeValveTest {
 
         when: "User passes a request through repose expire/invalid token"
         MessageChain mc = deproxy.makeRequest(
-                url: "$reposeEndpoint/servers/1234",
-                method: 'GET',
-                headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
+            url: "$reposeEndpoint/servers/1234",
+            method: 'GET',
+            headers: ['content-type': 'application/json', 'X-Auth-Token': fakeIdentityService.client_token])
 
-        then:
-        mc.receivedResponse.code == responseCode
-        mc.receivedResponse.headers.contains("Content-Type")
-        mc.receivedResponse.body.contains(msgBody)
+        then: "Origin Service should never be invoked and the Response from Repose to Client should be"
+        mc.receivedResponse.code as Integer == responseCode
+        mc.receivedResponse.message.contains(message)
         mc.handlings.size() == 0
 
         where:
-        authRespCode | responseCode | msgBody
-        404          | "401"        | "Resource not found for validate token request"
-        401          | "500"        | "Admin token unauthorized to make validate token request"
+        authRespCode | responseCode             | message
+        404          | SC_UNAUTHORIZED          | "Resource not found for validate token request"
+        401          | SC_INTERNAL_SERVER_ERROR | "Admin token unauthorized to make validate token request"
     }
 }

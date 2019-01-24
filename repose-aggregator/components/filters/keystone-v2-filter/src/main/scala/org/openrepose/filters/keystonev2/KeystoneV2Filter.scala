@@ -27,6 +27,7 @@ import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.HttpHeaders
+import org.apache.commons.lang3.StringUtils
 import org.apache.http.client.HttpClient
 import org.apache.http.client.utils.DateUtils
 import org.openrepose.commons.config.manager.UpdateListener
@@ -116,8 +117,8 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       logger.trace("Getting the x-auth-token header value")
 
       Option(request.getHeader(CommonHttpHeader.AUTH_TOKEN)) match {
-        case Some(token) => Success(token)
-        case None => Failure(MissingAuthTokenException("X-Auth-Token header not found"))
+        case Some(token) if StringUtils.isNotBlank(token) => Success(token)
+        case _ => Failure(MissingAuthTokenException("X-Auth-Token header not found"))
       }
     }
 

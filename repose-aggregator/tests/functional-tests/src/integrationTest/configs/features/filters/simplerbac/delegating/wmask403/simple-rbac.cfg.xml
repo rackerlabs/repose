@@ -3,7 +3,7 @@
 <simple-rbac xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0"
              roles-header-name="X-ROLES"
              mask-rax-roles-403="true">
-    <delegating quality="0.5" />
+    <delegating quality="0.5"/>
     <resources>
 /path/to/this  GET       super,useradmin,admin,user
 /path/to/this  PUT       super,useradmin,admin

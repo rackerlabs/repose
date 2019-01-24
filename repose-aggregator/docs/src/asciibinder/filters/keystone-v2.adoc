@@ -65,8 +65,10 @@ If any of this information is provided, then it will be passed in the following 
 * `X-Domain-ID` - The domain ID for the user.
 * `X-Contact-ID` - The Contact ID for the user.
 * `X-Default-Region` - The Default Region for the user.
-* `X-Tenant-ID` - The Tenant ID's for the user.
+* `X-Tenant-ID` - The Tenant ID(s) for the user.
 ** The value of this header is governed by `send-all-tenant-ids` attribute and what is provided by the Keystone v2 Identity service.
+** Tenant IDs containing characters represented by a byte in the range `0x80`-`0xFF` (known as `obs-text`) may not be forwarded correctly.
+   However, tenant IDs containing any other characters allowed by https://tools.ietf.org/html/rfc7230#section-3.2[HTTP/1.1 specification] will be forwarded correctly (i.e., without modification).
 * `X-Tenant-Name` - The Tenant Name for the user.
 * `X-Token-Expires` - The date/time of when the token provided by the Keystone v2 Identity service expires.
 * `X-Auth-Token-Key` - The key for the parsed version of the token response that is contained in the datastore service.

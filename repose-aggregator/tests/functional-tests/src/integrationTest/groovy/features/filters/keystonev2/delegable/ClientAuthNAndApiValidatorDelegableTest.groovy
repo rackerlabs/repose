@@ -19,9 +19,8 @@
  */
 package features.filters.keystonev2.delegable
 
-import org.joda.time.DateTime
+
 import org.openrepose.framework.test.ReposeValveTest
-import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import spock.lang.Unroll
@@ -33,8 +32,6 @@ class ClientAuthNAndApiValidatorDelegableTest extends ReposeValveTest {
 
     def static originEndpoint
     def static identityEndpoint
-
-    def static MockIdentityV2Service fakeIdentityV2Service
 
     def setupSpec() {
 
@@ -48,31 +45,16 @@ class ClientAuthNAndApiValidatorDelegableTest extends ReposeValveTest {
         repose.start()
 
         originEndpoint = deproxy.addEndpoint(properties.targetPort, 'origin service')
-        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
-        identityEndpoint = deproxy.addEndpoint(properties.identityPort,
-                'identity service', null, fakeIdentityV2Service.handler)
-
-
     }
 
-    def setup() {
-        fakeIdentityV2Service.resetHandlers()
-    }
     /*
         This test to verify the forward fail reason and default quality for authn
     */
-
     @Unroll("req method: #method, #path, #apiDelegatedMsg")
     def "when req without token, non tenanted and delegable mode with quality"() {
         given:
-        fakeIdentityV2Service.with {
-            client_token = ""
-            tokenExpiresAt = (new DateTime()).plusDays(1);
-            service_admin_role = "non-admin"
-        }
         Map<String, String> headers = ["X-Roles"     : roles,
-                                       "Content-Type": "application/xml",
-                                       "X-Auth-Token": fakeIdentityV2Service.client_token]
+                                       "Content-Type": "application/xml"]
         def authDelegatedMsg = 'status_code=401.component=keystone-v2.message=X-Auth-Token header not found;q=0.3'
 
         when: "User passes a request through repose with authN and apiValidator delegable"

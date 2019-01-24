@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-    <repose-cluster id="repose">
-        <nodes>
-            <node id="datastore" hostname="localhost" http-port="${reposePort}"/>
-        </nodes>
-        <filters>
-            <!-- Scripting filter is being used to block requests going to the origin service -->
-            <filter name="scripting"/>
-        </filters>
-        <services>
-            <service name="dist-datastore"/>
-        </services>
-        <destinations>
-            <endpoint id="openrepose" protocol="http" hostname="localhost" root-path="/" port="${targetPort}" default="true"/>
-        </destinations>
-    </repose-cluster>
+    <nodes>
+        <node id="datastore" hostname="localhost" http-port="${reposePort}"/>
+    </nodes>
+    <filters>
+        <!-- Scripting filter is being used to block requests going to the origin service -->
+        <filter name="scripting"/>
+    </filters>
+    <services>
+        <service name="dist-datastore"/>
+    </services>
+    <destinations>
+        <endpoint id="openrepose" protocol="http" hostname="localhost" root-path="/" port="${targetPort}"
+                  default="true"/>
+    </destinations>
 </system-model>

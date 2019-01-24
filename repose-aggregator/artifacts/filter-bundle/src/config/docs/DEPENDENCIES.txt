@@ -52,13 +52,17 @@ org.apache.logging.log4j                            log4j-flume-ng            2.
 org.apache.logging.log4j                            log4j-iostreams           2.9.0              Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
 org.apache.logging.log4j                            log4j-jul                 2.9.0              Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
 org.apache.logging.log4j                            log4j-slf4j-impl          2.9.0              Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
+org.codehaus.groovy                                 groovy-all                2.4.3            Apache License Version 2.0  https://github.com/apache/groovy
 org.eclipse.jetty                                   jetty-server              9.4.8.v20171121  Apache License Version 2.0  http://www.eclipse.org/jetty/licenses.php
 org.eclipse.jetty                                   jetty-servlet             9.4.8.v20171121  Apache License Version 2.0  http://www.eclipse.org/jetty/licenses.php
 org.gnieh                                           diffson_2.11              2.0.1            Apache License Version 2.0  https://github.com/gnieh/diffson
 org.joda                                            joda-convert              1.8.1            Apache License Version 2.0  http://www.joda.org/joda-convert/
+org.jruby                                           jruby-complete            1.7.24           EPL 1.0, GPL 2 and LGPL 2.1 https://github.com/jruby/jruby
 org.jtwig                                           jtwig-core                5.86.1.RELEASE   Apache License Version 2.0  https://github.com/jtwig/jtwig-core/blob/5.86.1.RELEASE/LICENSE
 org.jvnet.jaxb2_commons                             jaxb2-basics-runtime      0.6.5            CDDL v1.1 and GPL v2        https://jaxb.java.net/
+org.luaj                                            luaj-jse                  3.0.1            MIT License                 http://luaj.sourceforge.net/
 org.openrepose                                      http-delegation           4.0.0            Apache License Version 2.0  https://github.com/rackerlabs/repose
+org.python                                          jython-standalone         2.7.0            Jython Specific License     http://www.jython.org/license.html
 org.scala-lang.modules                              scala-xml_2.11            1.0.5            Scala Specific License      http://www.scala-lang.org/license.html
 org.scala-lang                                      scala-library             2.11.8           Scala Specific License      http://www.scala-lang.org/license.html
 org.slf4j                                           jcl-over-slf4j            1.7.7            MIT License                 http://slf4j.org/license.html

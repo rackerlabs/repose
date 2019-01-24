@@ -20,9 +20,7 @@
 package features.filters.valkyrie
 
 import groovy.json.JsonSlurper
-import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.openrepose.framework.test.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
@@ -35,7 +33,6 @@ import spock.lang.Unroll
  * Update on 01/28/15
  *  - replace client-auth with keystone-v2
  */
-@Category(Slow)
 class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint
@@ -111,19 +108,20 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
 
     @Unroll("permission: #permission for #method with tenant: #tenantID and deviceIDs: #deviceID, #deviceID2 should return a #responseCode")
     def "Test get match resource list"() {
-        given: "a list permission devices defined in Valkyrie"
+        given: "a user defined in Identity"
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
             client_tenantid = tenantID
         }
 
+        and: "permissions defined in Valkyrie"
         fakeValkyrie.with {
             device_id = deviceID
             device_id2 = deviceID2
             device_perm = permission
         }
 
-        "Json Response from origin service"
+        and: "a JSON Response from origin service"
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"
@@ -163,20 +161,21 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
 
     @Unroll("account_admin with device id permission: #deviceid1, #deviceid2, response list no. item #size")
     def "enable-bypass-account-admin false, account_admin only get device within its permission"() {
-        given: "a list permission devices defined in Valkyrie"
+        given: "a user defined in Identity"
         def tenantID = randomTenant()
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
             client_tenantid = tenantID
         }
 
+        and: "permissions defined in Valkyrie"
         fakeValkyrie.with {
             device_perm = "account_admin"
             device_id = deviceid1
             device_id2 = deviceid2
         }
 
-        "Json Response from origin service"
+        and: "a JSON Response from origin service"
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json"], jsonrespbody) }
 
         when: "a request is made against a device with Valkyrie set permissions"
@@ -210,19 +209,20 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
 
     @Unroll("Origin RespCode: #originResp")
     def "Verify no culling on non 2xx responses"() {
-        given: "a list permission devices defined in Valkyrie"
+        given: "a user defined in Identity"
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
             client_tenantid = tenantID
         }
 
+        and: "permissions defined in Valkyrie"
         fakeValkyrie.with {
             device_id = deviceID
             device_id2 = deviceID2
             device_perm = permission
         }
 
-        "Json Response from origin service"
+        and: "a JSON Response from origin service"
         def jsonResp = { request -> return new Response(originResp, "OK", ["content-type": "application/json"], null) }
 
         when: "a request is made against a device with Valkyrie set permissions"
@@ -250,19 +250,20 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
 
     @Unroll("Origin RespCode: #originResp")
     def "Case 2xx response with empty body"() {
-        given: "a list permission devices defined in Valkyrie"
+        given: "a user defined in Identity"
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
             client_tenantid = tenantID
         }
 
+        and: "permissions defined in Valkyrie"
         fakeValkyrie.with {
             device_id = deviceID
             device_id2 = deviceID2
             device_perm = permission
         }
 
-        "Json Response from origin service"
+        and: "a JSON Response from origin service"
         def jsonResp = { request -> return new Response(originResp, "OK", ["content-type": "application/json"], null) }
 
         when: "a request is made against a device with Valkyrie set permissions"
@@ -287,20 +288,21 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
 
     @Unroll('#charset encoded response should be culled')
     def 'encoded response should be culled'() {
-        given:
+        given: "a user defined in Identity"
         String tenantId = randomTenant()
-
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
             client_tenantid = tenantId
         }
 
+        and: "permissions defined in Valkyrie"
         fakeValkyrie.with {
             device_id = deviceId1
             device_id2 = deviceId2
             device_perm = 'view_product'
         }
 
+        and: "a JSON Response from origin service"
         byte[] responseBody = '''
         {
             "values": [
@@ -337,20 +339,21 @@ class CollectResourceBaseOnPermissionTest extends ReposeValveTest {
 
     @Unroll('#charset encoded response should NOT be culled')
     def 'encoded response should NOT be culled'() {
-        given: "a list permission devices defined in Valkyrie"
+        given: "a user defined in Identity"
         def tenantID = randomTenant()
         fakeIdentityService.with {
             client_token = UUID.randomUUID().toString()
             client_tenantid = tenantID
         }
 
+        and: "permissions defined in Valkyrie"
         fakeValkyrie.with {
             device_perm = "account_admin"
             device_id = "520713"
             device_id2 = "520707"
         }
 
-        "Json Response from origin service"
+        and: "a JSON Response from origin service"
         def jsonResp = { request -> return new Response(200, "OK", ["content-type": "application/json; charset=$charset"], jsonrespbody.getBytes(charset)) }
 
         when: "a request is made against a device with Valkyrie set permissions"

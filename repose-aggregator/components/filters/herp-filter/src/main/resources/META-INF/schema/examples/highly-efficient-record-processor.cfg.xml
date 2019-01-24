@@ -20,10 +20,10 @@
                outcome="{{cadfOutcome responseCode}}">
             <initiator id="{{#if impersonatorName}}impersonatorName{{else}}{{userName}}{{/if}}"
                        typeURI="network/node" name="{{#if impersonatorName}}impersonatorName{{else}}{{userName}}{{/if}}">
-                <host address="{{requestorIp}}" agent="{{userAgent}}" />
+                <host address="{{requestorIp}}" agent="{{userAgent}}"/>
             </initiator>
-            <target typeURI="service" name="{{serviceCode}}" >
-                <host address="{{targetHost}}" />
+            <target typeURI="service" name="{{serviceCode}}">
+                <host address="{{targetHost}}"/>
             </target>
             <attachments>
                 <attachment name="auditData" contentType="ua:auditData">
@@ -42,7 +42,7 @@
                     </content>
                 </attachment>
             </attachments>
-            <observer id="{{serviceCode}}-{{clusterId}}-{{nodeId}}" name="repose-7.0.0.1" typeURI="service/security" />
+            <observer id="{{serviceCode}}-{{clusterId}}-{{nodeId}}" name="repose-7.0.0.1" typeURI="service/security"/>
             <reason reasonCode="{{responseCode}}"
                     reasonType="http://www.iana.org/assignments/http-status-codes/http-status-codes.xml"/>
         </event>

@@ -26,6 +26,8 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import spock.lang.Unroll
 
+import java.nio.charset.StandardCharsets
+
 /**
  * Created by jennyvo on 12/16/14.
  */
@@ -66,8 +68,33 @@ class HerpSimpleTest extends ReposeValveTest {
         result.Response.Message == "OK"
     }
 
-    @Unroll("Test Herp filter with method #method, origin service respCode #responseCode")
-    def "Happy path using herp with simple request"() {
+    def "encoded query parameters should be decoded and logged"() {
+        setup:
+        String queryParamKey = "Test"
+        String encodedQueryParamValue = "%21%40%23%24%25%5E%26Z%2A9%29"
+        reposeLogSearch.cleanLog()
+
+        when:
+        MessageChain messageChain = deproxy.makeRequest(
+            url: reposeEndpoint + "?" + queryParamKey + "=" + encodedQueryParamValue
+        )
+
+        and:
+        String logLine = reposeLogSearch.searchByString("INFO  highly-efficient-record-processor")
+        String jsonpart = logLine.substring(logLine.indexOf("{"))
+        JsonSlurper slurper = new JsonSlurper()
+        def result = slurper.parseText(jsonpart)
+
+        then:
+        messageChain.receivedResponse.code == "200"
+
+        and:
+        String decodedQueryParamValue = URLDecoder.decode(encodedQueryParamValue, StandardCharsets.US_ASCII.name())
+        result.Request.Parameters.Test == [decodedQueryParamValue]
+    }
+
+    @Unroll
+    def "Happy path using HERP filter with method #method, origin service respCode #responseCode"() {
         setup: "declare messageChain to be of type MessageChain"
         List listattr = ["GUID", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",
                          "UserName", "ImpersonatorName", "ProjectID", "Role", "UserAgent", "Response", "Code", "Message"]
@@ -122,8 +149,8 @@ class HerpSimpleTest extends ReposeValveTest {
         "500"        | "/resource1/id/aaaaaaaa-aaaa-aaaa-aaaa-ffffffffffff" | "PUT"   | "some data" | "INTERNAL_SERVER_ERROR"
     }
 
-    @Unroll("Test Herp filter with method #method, parameters #parameters, origin service respCode #responseCode")
-    def "Herp test with api body request"() {
+    @Unroll
+    def "With API body with HERP filter with method #method, parameters #parameters, origin service respCode #responseCode"() {
         setup: "declare messageChain to be of type MessageChain"
         List listattr = ["GUID", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",
                          "UserName", "ImpersonatorName", "ProjectID", "Role", "UserAgent", "Response", "Code", "Message"]
@@ -186,8 +213,8 @@ class HerpSimpleTest extends ReposeValveTest {
         "500"        | "name=test%20repose"    | "PUT"   | "INTERNAL_SERVER_ERROR"
     }
 
-    @Unroll("Test Herp filter with method #method, parameters #parameters, origin service respCode #responseCode")
-    def "Herp test also support projectId"() {
+    @Unroll
+    def "Test ProjectID support with HERP filter with method #method, parameters #parameters, origin service respCode #responseCode"() {
         setup: "declare messageChain to be of type MessageChain"
         List listattr = ["GUID", "ServiceCode", "Region", "DataCenter", "Timestamp", "Request", "Method", "URL", "Parameters",
                          "UserName", "ImpersonatorName", "ProjectID", "Role", "UserAgent", "Response", "Code", "Message"]
@@ -265,12 +292,12 @@ class HerpSimpleTest extends ReposeValveTest {
         mc.receivedResponse.code == "201"
         mc.handlings.size() == 1
         mc.receivedResponse.headers.findAll("location").size() == 1
-        mc.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
+        mc.receivedResponse.headers['location'] == "$reposeEndpoint/blah?a=b,c,d"
         mc.receivedResponse.headers.findAll("via").size() == 1
     }
 
-    @Unroll("Requests - headers: #headerName with \"#headerValue\" keep its case")
-    def "Requests - headers should keep its case in requests"() {
+    @Unroll
+    def "Requests - headers: #headerName with \"#headerValue\" should keep its case in requests"() {
 
         when: "make a request with the given header and value"
         def headers = [
@@ -298,8 +325,8 @@ class HerpSimpleTest extends ReposeValveTest {
         //"Content-Encoding" | "IDENTITY"
     }
 
-    @Unroll("Responses - headers: #headerName with \"#headerValue\" keep its case")
-    def "Responses - header keep its case in responses"() {
+    @Unroll
+    def "Responses - headers: #headerName with \"#headerValue\" should keep its case in responses"() {
 
         when: "make a request with the given header and value"
         def headers = [

@@ -20,12 +20,12 @@
 package org.openrepose.filters.tenantculling
 
 import java.io.IOException
-import javax.servlet._
-import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.fasterxml.jackson.core.JsonParseException
 import com.typesafe.scalalogging.slf4j.StrictLogging
+import javax.servlet._
+import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.openrepose.commons.utils.http.OpenStackServiceHeader.{TENANT_ID, TENANT_ROLES_MAP}
 import org.openrepose.commons.utils.http.PowerApiHeader.RELEVANT_ROLES
 import org.openrepose.commons.utils.json.JsonHeaderHelper
@@ -53,8 +53,12 @@ class TenantCullingFilter extends Filter with StrictLogging {
       case Some(tenantToRolesMap) =>
         try {
           val culledMap = JsonHeaderHelper.jsonHeaderToValue(tenantToRolesMap).as[TenantToRolesMap].filter({ case (_, roles) => roles.toList.intersect(relevantRoles).nonEmpty })
+          val culledTenantIds = culledMap.keySet - "repose/domain/roles"
           request.replaceHeader(TENANT_ROLES_MAP, JsonHeaderHelper.anyToJsonHeader(culledMap))
-          request.replaceHeader(TENANT_ID, culledMap.keySet.filterNot("repose/domain/roles".equals).mkString(","))
+          request.removeHeader(TENANT_ID)
+          if (culledTenantIds.nonEmpty) {
+            culledTenantIds.foreach(request.appendHeader(TENANT_ID, _))
+          }
           chain.doFilter(request, response)
         } catch {
           case e@(_: IllegalArgumentException | _: JsonParseException) =>

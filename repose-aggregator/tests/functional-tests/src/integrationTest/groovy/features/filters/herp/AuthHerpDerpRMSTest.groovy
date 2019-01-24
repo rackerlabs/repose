@@ -25,6 +25,7 @@ import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Ignore
 import spock.lang.Unroll
 
 /**
@@ -32,6 +33,7 @@ import spock.lang.Unroll
  * Update on 01/21/16
  *  - Replace client-auth-n with keystone-v2 filter
  */
+@Ignore
 class AuthHerpDerpRMSTest extends ReposeValveTest {
 
     def static originEndpoint

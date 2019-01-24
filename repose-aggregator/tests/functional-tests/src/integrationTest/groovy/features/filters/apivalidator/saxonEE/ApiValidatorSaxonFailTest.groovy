@@ -24,6 +24,9 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 
+import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
+import static javax.servlet.http.HttpServletResponse.SC_OK
+
 /*
  * Api validator tests ported over from and JMeter
  */
@@ -48,47 +51,39 @@ class ApiValidatorSaxonFailTest extends ReposeValveTest {
     }
 
     def "GET on /path/to/test (XML) should fail without header X-TEST"() {
-        setup: "declare messageChain to be of type MessageChain"
+        setup: "declare custom handler and additional headers"
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/saxonEE", params)
         repose.configurationProvider.applyConfigs("features/filters/apivalidator/saxonEE/xml", params)
         repose.start()
         repose.waitForNon500FromUrl(reposeEndpoint)
-
-        MessageChain messageChain
-        def customHandler = { return new Response(200, "OK") }
-
-        def Map<String, String> headers = [
-                "Accept"         : "application/xml",
-                "Content-Type"   : "application/xml",
-                "Host"           : "localhost",
-                "User-Agent"     : "gdeproxy"
+        def customHandler = { return new Response(SC_OK, "OK") }
+        def headers = [
+            "Accept"      : "application/xml",
+            "Content-Type": "application/xml",
+            "Host"        : "localhost",
+            "User-Agent"  : "gdeproxy"
         ]
-
-        def reqBody = "<body-root xmlns=\"http://test.rackspace.com/body\">" +
-                "<body-element>1</body-element>" +
-                "<body-element>2</body-element>" +
-                "<body-element>3</body-element>" +
-                "</body-root>"
+        def reqBody =
+            """<body-root xmlns="http://test.rackspace.com/body">
+              |<body-element>1</body-element>
+              |<body-element>2</body-element>
+              |<body-element>3</body-element>
+              |</body-root>""".stripMargin()
 
         when:
-        messageChain = deproxy.makeRequest(url: reposeEndpoint + "/path/to/test",
-                method: 'GET', headers: headers,
-                requestBody: reqBody, defaultHandler: customHandler,
-                addDefaultHeaders: false
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint + "/path/to/test",
+            method: 'GET', headers: headers,
+            requestBody: reqBody, defaultHandler: customHandler,
+            addDefaultHeaders: false
         )
 
-        then:
-        "result should be " + 403
-        messageChain.receivedResponse.code.equals("403")
-        messageChain.receivedResponse.headers["Content-Type"].equals("application/xml")
-        println messageChain.receivedResponse.body
-        messageChain.receivedResponse.body == "<response\n" +
-                "    xmlns=\"http://docs.openstack.org/common/api/v1.1\">\n" +
-                "  <message>XML Not Authorized... Syntax highlighting is magical.</message>\n" +
-                "</response>"
-
+        then: "result should be 403"
+        messageChain.receivedResponse.code as Integer == SC_FORBIDDEN
+        // @TODO: Bring this back in when the RMS replacement is in use.
+        //messageChain.receivedResponse.body.contains("XML Not Authorized... Syntax highlighting is magical.")
     }
 
     def "GET on /path/to/test (JSON) should fail without header X-TEST"() {
@@ -101,35 +96,30 @@ class ApiValidatorSaxonFailTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
 
         MessageChain messageChain
-        def customHandler = { return new Response(200, "OK") }
-
-        def Map<String, String> headers = [
-                "Accept"         : "application/json",
-                "Content-Type"   : "application/json",
-                "Host"           : "localhost",
-                "User-Agent"     : "gdeproxy"
+        def customHandler = { return new Response(SC_OK, "OK") }
+        def headers = [
+            "Accept"      : "application/json",
+            "Content-Type": "application/json",
+            "Host"        : "localhost",
+            "User-Agent"  : "gdeproxy"
         ]
-
-        def reqBody = "{\n" +
-                "         \"firstName\" : \"Jorge\",\n" +
-                "         \"lastName\" : \"Williams\",\n" +
-                "         \"age\" : 38\n" +
-                "    }"
+        def reqBody =
+            """{
+              |         "firstName" : "Jorge",
+              |         "lastName" : "Williams",
+              |         "age" : 38
+              |    }""".stripMargin()
 
         when:
         messageChain = deproxy.makeRequest(url: reposeEndpoint + "/path/to/test",
-                method: 'GET', headers: headers,
-                requestBody: reqBody, defaultHandler: customHandler,
-                addDefaultHeaders: false
+            method: 'GET', headers: headers,
+            requestBody: reqBody, defaultHandler: customHandler,
+            addDefaultHeaders: false
         )
 
-        then:
-        "result should be " + 403
-        messageChain.receivedResponse.code.equals("403")
-        messageChain.receivedResponse.headers["Content-Type"].equals("application/json")
-        messageChain.receivedResponse.body == "{\n" +
-                "            \"message\": \"JSON Not Authorized... The brackets are too confusing.\"\n" +
-                "            }"
-
+        then: "result should be 403"
+        messageChain.receivedResponse.code as Integer == SC_FORBIDDEN
+        // @TODO: Bring this back in when the RMS replacement is in use.
+        //messageChain.receivedResponse.body.contains("JSON Not Authorized... The brackets are too confusing.")
     }
 }

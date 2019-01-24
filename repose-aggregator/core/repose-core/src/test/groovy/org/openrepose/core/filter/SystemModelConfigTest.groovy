@@ -144,21 +144,19 @@ class SystemModelConfigTest extends Specification {
         }
         return xmlBuilder.bind {
             'system-model'('xmlns': 'http://docs.openrepose.org/repose/system-model/v2.0') {
-                'repose-cluster'('id': 'repose') {
-                    'nodes'() {
-                        'node'('id': 'node1', 'hostname': 'localhost', 'http-port': '8080')
-                    }
-                    'services'() {
-                        'service'('name': 'dist-datastore')
-                    }
-                    'destinations'() {
-                        int counter = 0;
-                        for (Boolean endpointDefault : endpointDefaults) {
-                            if (endpointDefault == null) {
-                                'endpoint'('id': 'openrepose' + counter++, 'protocol': 'http', 'hostname': '192.168.1.1', 'root-path': '/', 'port': '8080')
-                            } else {
-                                'endpoint'('id': 'openrepose' + counter++, 'protocol': 'http', 'hostname': '192.168.1.1', 'root-path': '/', 'port': '8080', 'default': endpointDefault.toString())
-                            }
+                'nodes'() {
+                    'node'('id': 'node1', 'hostname': 'localhost', 'http-port': '8080')
+                }
+                'services'() {
+                    'service'('name': 'dist-datastore')
+                }
+                'destinations'() {
+                    int counter = 0;
+                    for (Boolean endpointDefault : endpointDefaults) {
+                        if (endpointDefault == null) {
+                            'endpoint'('id': 'openrepose' + counter++, 'protocol': 'http', 'hostname': '192.168.1.1', 'root-path': '/', 'port': '8080')
+                        } else {
+                            'endpoint'('id': 'openrepose' + counter++, 'protocol': 'http', 'hostname': '192.168.1.1', 'root-path': '/', 'port': '8080', 'default': endpointDefault.toString())
                         }
                     }
                 }

@@ -31,6 +31,8 @@ import org.rackspace.deproxy.Deproxy
 import java.nio.file.Files
 import java.util.concurrent.TimeUnit
 
+import static org.openrepose.framework.test.ReposeLauncher.MAX_STARTUP_TIME
+
 class SSLClientAuthenticationTest extends ReposeValveTest {
 
     def setupSpec() {
@@ -52,7 +54,7 @@ class SSLClientAuthenticationTest extends ReposeValveTest {
         repose.start()
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
-        reposeLogSearch.awaitByString("Repose ready", 1, 60, TimeUnit.SECONDS)
+        reposeLogSearch.awaitByString("Repose ready", 1, MAX_STARTUP_TIME, TimeUnit.SECONDS)
     }
 
     def "Can execute a simple request via SSL"() {

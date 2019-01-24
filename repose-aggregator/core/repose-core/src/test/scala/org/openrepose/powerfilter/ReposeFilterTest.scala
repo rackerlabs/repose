@@ -25,9 +25,10 @@ import com.codahale.metrics.MetricRegistry
 import io.opentracing.Tracer.SpanBuilder
 import io.opentracing.{Scope, Span, SpanContext, Tracer}
 import javax.servlet._
-import javax.servlet.http.HttpServletResponse.{SC_BAD_GATEWAY, SC_BAD_REQUEST, SC_INTERNAL_SERVER_ERROR, SC_OK}
+import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.apache.commons.lang3.StringUtils
+import org.apache.http.client.methods.HttpGet
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
@@ -38,7 +39,9 @@ import org.mockito.Mockito._
 import org.openrepose.commons.test.MockitoAnswers
 import org.openrepose.commons.utils.http.CommonHttpHeader.TRACE_GUID
 import org.openrepose.commons.utils.http.PowerApiHeader.TRACE_REQUEST
+import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.commons.utils.logging.TracingKey.TRACING_KEY
+import org.openrepose.core.services.healthcheck.HealthCheckService
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.services.uriredaction.UriRedactionService
 import org.openrepose.core.systemmodel.config.{Filter => FilterConfig}
@@ -68,6 +71,7 @@ class ReposeFilterTest extends FunSpec
   var optMetricsService: Optional[MetricsService] = _
   var reposeFilterLoader: ReposeFilterLoader = _
   var containerConfigurationService: ContainerConfigurationService = _
+  var healthCheckService: HealthCheckService = _
   var tracer: Tracer = _
   var spanBuilder: SpanBuilder = _
   var scope: Scope = _
@@ -98,6 +102,8 @@ class ReposeFilterTest extends FunSpec
     when(reposeFilterLoader.getTracingHeaderConfig).thenReturn(None)
     containerConfigurationService = mock[ContainerConfigurationService]
     when(containerConfigurationService.getContentBodyReadLimit).thenReturn(Optional.ofNullable[java.lang.Long](null))
+    healthCheckService = mock[HealthCheckService]
+    when(healthCheckService.isHealthy).thenReturn(true)
     tracer = mock[Tracer]
     spanBuilder = mock[SpanBuilder]
     scope = mock[Scope]
@@ -114,7 +120,7 @@ class ReposeFilterTest extends FunSpec
     filterConfig = new FilterConfig
     filterConfig.setName("foo")
     filterContexts = List(FilterContext(mockFilter, filterConfig, (request: HttpServletRequest) => true, mockAbstractApplicationContext))
-    filterContextList = new FilterContextList(mock[FilterContextRegistrar], filterContexts, None)
+    filterContextList = spy(new FilterContextList(mock[FilterContextRegistrar], filterContexts, None))
     when(reposeFilterLoader.getFilterContextList).thenReturn(Option(filterContextList))
     filter = new ReposeFilter(
       nodeId,
@@ -122,11 +128,12 @@ class ReposeFilterTest extends FunSpec
       optMetricsService,
       reposeFilterLoader,
       containerConfigurationService,
+      healthCheckService,
       tracer,
       uriRedactionService,
       responseHeaderService
     )
-    request = new MockHttpServletRequest
+    request = new MockHttpServletRequest(HttpGet.METHOD_NAME, "/")
     response = new MockHttpServletResponse
     filterChain = mock[FilterChain]
     loggerContext = LogManager.getContext(false).asInstanceOf[LoggerContext]
@@ -156,6 +163,15 @@ class ReposeFilterTest extends FunSpec
 
       response.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
       response.getErrorMessage shouldBe "ReposeFilter not initialized"
+    }
+
+    it("should return an Internal Server Error (503) if not healthy") {
+      when(healthCheckService.isHealthy).thenReturn(false)
+
+      filter.doFilter(request, response, filterChain)
+
+      response.getStatus shouldBe SC_SERVICE_UNAVAILABLE
+      response.getErrorMessage shouldBe "Currently unable to serve requests"
     }
 
     it("should call through to the filter in the FilterContextList") {
@@ -200,6 +216,18 @@ class ReposeFilterTest extends FunSpec
       response.getStatus shouldBe SC_OK
     }
 
+    Set("CONNECT", "NONSTANDARD").foreach { method =>
+      it(s"should return a 405 if the request method is not supported: $method") {
+        request.setMethod(method)
+
+        filter.doFilter(request, response, filterChain)
+
+        val messageList = listAppender.getEvents.asScala.map(_.getMessage.getFormattedMessage)
+        messageList.filter(_.contains("Invalid HTTP method requested:")) should have length 1
+        response.getStatus shouldBe SC_METHOD_NOT_ALLOWED
+      }
+    }
+
     it("should log and return Bad Request (400) on a malformed URI") {
       request.setRequestURI("\\BAD_URI\\")
 
@@ -213,11 +241,14 @@ class ReposeFilterTest extends FunSpec
     it("should log and return Bad Gateway (502) when an exception is caught") {
       when(mockFilter.doFilter(any[HttpServletRequest], any[HttpServletResponse], any[FilterChain])).thenThrow(new RuntimeException("abc"))
 
-      filter.doFilter(request, response, filterChain)
+      val spyResponse = spy(response)
+      when(spyResponse.isCommitted).thenThrow(new RuntimeException("def")).thenReturn(false)
+
+      filter.doFilter(request, spyResponse, filterChain)
 
       val messageList = listAppender.getEvents.asScala.map(_.getMessage.getFormattedMessage)
       messageList.filter(_.contains("Issue encountered while processing filter chain.")) should have length 1
-      response.getStatus shouldBe SC_BAD_GATEWAY
+      spyResponse.getStatus shouldBe SC_BAD_GATEWAY
     }
 
     it("should return Bad Gateway (502) and rethrow the throwable") {
@@ -270,7 +301,8 @@ class ReposeFilterTest extends FunSpec
         mdcValue = MDC.get(TRACING_KEY)
       }))
       val traceGUID = UUID.randomUUID.toString
-      request.addHeader(TRACE_GUID, traceGUID)
+      val traceHeader = TracingHeaderHelper.createTracingHeader(traceGUID, "origin")
+      request.addHeader(TRACE_GUID, traceHeader)
 
       filter.doFilter(request, response, filterChain)
 
@@ -279,8 +311,9 @@ class ReposeFilterTest extends FunSpec
 
     it("should verify all values put in the MDC are cleared") {
       val traceGUID = UUID.randomUUID.toString
+      val traceHeader = TracingHeaderHelper.createTracingHeader(traceGUID, "origin")
       request.addHeader(TRACE_REQUEST, true)
-      request.addHeader(TRACE_GUID, traceGUID)
+      request.addHeader(TRACE_GUID, traceHeader)
 
       filter.doFilter(request, response, filterChain)
 
@@ -317,5 +350,11 @@ class ReposeFilterTest extends FunSpec
     response.getStatus shouldBe 600
     verify(metricRegistry, never).meter(contains("org.openrepose.core.ResponseCode.Repose"))
     verify(metricRegistry, never).timer(contains("org.openrepose.core.ResponseTime.Repose"))
+  }
+
+  it("should close the filterContextList") {
+    filter.doFilter(request, response, filterChain)
+
+    verify(filterContextList).close()
   }
 }

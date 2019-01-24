@@ -56,26 +56,6 @@ class HeaderParserTest extends ReposeValveTest {
         resp.getReceivedResponse().getHeaders().getFirstValue("Location").equals(locations)
     }
 
-    def "when expecting a comma-separated header to be split"() {
-        given: "Origin service returns a comma-separated header"
-        def headerResp = { request ->
-            return new Response(200, "OK",
-                    ["Allow": "GET,POST"], "")
-        }
-
-        when: "User sends a request through repose"
-        def resp = deproxy.makeRequest(
-                url: (String) reposeEndpoint,
-                method: "GET",
-                headers: ["x-test": "test"],
-                requestBody: "",
-                defaultHandler: headerResp)
-
-        then: "Repose returns multiple headers after splitting on commas"
-        resp.getReceivedResponse().getHeaders().findAll("Allow").get(0).equalsIgnoreCase("GET")
-        resp.getReceivedResponse().getHeaders().findAll("Allow").get(1).equalsIgnoreCase("POST")
-    }
-
     def "when client sends a Location header with an un-escaped comma, then Repose should pass it through unchanged"() {
 
         def locations2 = "/path/to/resource?ids=valueOne,valueTwo"

@@ -24,7 +24,7 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Handlers
 import org.rackspace.deproxy.MessageChain
 
-import javax.servlet.http.HttpServletResponse
+import static javax.servlet.http.HttpServletResponse.SC_BAD_GATEWAY
 
 class RoutingFailuresTest extends ReposeValveTest {
 
@@ -46,7 +46,7 @@ class RoutingFailuresTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint)
 
         then:
-        mc.receivedResponse.code as Integer == HttpServletResponse.SC_SERVICE_UNAVAILABLE
+        mc.receivedResponse.code as Integer == SC_BAD_GATEWAY
         reposeLogSearch.searchByString("Error communicating with ")
     }
 }

@@ -19,9 +19,7 @@ Explicit action must be taken for the Phone Home service to be used.
 .system-model.cfg.xml
 ----
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-    <repose-cluster id="repose">
-        ...
-    </repose-cluster>
+    ...
 
     <!-- Please set the enabled attribute to true to send us usage updates and help us improve Repose! -->
     <phone-home enabled="false" <!--1-->

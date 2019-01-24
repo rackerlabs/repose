@@ -5,7 +5,7 @@
     <jaeger>
         <connection-udp
             host="localhost"
-            port="${agentTracingPort}" />
-        <sampling-constant />
+            port="${agentTracingPort}"/>
+        <sampling-constant/>
     </jaeger>
 </open-tracing>

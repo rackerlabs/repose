@@ -35,61 +35,6 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
   coreSpringProvider.initializeCoreContext("/etc/repose", false)
 
   describe("Repose Version") {
-    it("is not 9 (timebomb)") {
-      val reposeVersion = coreSpringProvider.getCoreContext.getEnvironment.getProperty(
-        ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.REPOSE_VERSION))
-
-      reposeVersion should not startWith "9"
-
-      /*
-       * Before moving to version 9, the following updates should be made:
-       *
-       * 1. Remove the functional tests for the above attributes:
-       *    a. IdentityV3CacheOffSetOldTest
-       *    b. IdentityV3NoCacheOffSetOldTest
-       *
-       * 2. Remove these attributes from container-configuration.xsd:
-       *    a. http-port
-       *    b. https-port
-       *
-       * 3. Remove the flush output filter
-       *
-       * 4. Extract common XML types (e.g., keystore configuration).
-       *
-       * 5. Remove the Container Configuration's `cluster-config` element's deprecated `via` attribute.
-       *    a. This needs done in the XSD.
-       *    b. There will also be some tests that should be removed also.
-       *
-       * 6. Allow the Container config to provide empty [in|ex]cluded-[protocols|ciphers].
-       *
-       * 7. For Keystone Authorization, when the default tenant ID matches a request tenant, use the configured request tenant quality rather than using the higher of the request tenant and default tenant qualities.
-       *     Before doing so, verify that this behavior is not useful.
-       *
-       * 8. Remove the population of X-Auth-Token-Key from Keystone v2 Filter.
-       *
-       * 9. The following classes should all be obsoleted when the `ReposeRoutingServlet` is put to use:
-       *     a. PowerFilterRouter
-       *     b. PowerFilterRouterImpl
-       *     c. PowerFilterRouterFactory
-       *     d. DispatchPathBuilder
-       *     e. RoutingService
-       *     f. RoundRobinRoutingService
-       *     g. DestinationLocation
-       *     h. DestinationLocationBuilder
-       *     i. EndpointUriBuilder
-       *     j. EndpointUrlBuilder
-       *     k. RequestHeaderService
-       *     l. RequestHeaderServiceImpl
-       *     m. ResponseHeaderService
-       *     n. ResponseHeaderServiceImpl
-       *     o. Port
-       *     p. ReposeReport
-       *     q. ReposeReportMBean
-       *     r. ReportingService
-       *     s. ReportingServiceImpl
-       */
-    }
-
     it("is not 10 (timebomb)") {
       val reposeVersion = coreSpringProvider.getCoreContext.getEnvironment.getProperty(
         ReposeSpringProperties.stripSpringValueStupidity(ReposeSpringProperties.CORE.REPOSE_VERSION))
@@ -116,6 +61,22 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        * 3. Remove these elements from openstack-identity-v3.xsd:
        *    a. token
        *    b. group
+       *
+       * 4. Extract common XML types (e.g., keystore configuration).
+       *
+       * 5. Remove these attributes from system-model.xsd:
+       *    a. http-port
+       *    b. https-port
+       *
+       * 6. For Keystone Authorization, when the default tenant ID matches a request tenant, use the configured request tenant quality rather than using the higher of the request tenant and default tenant qualities.
+       *    Before doing so, verify that this behavior is not useful.
+       *
+       * 7. Remove the population of X-Auth-Token-Key from Keystone v2 Filter.
+       *
+       * 8. The following classes should all be obsoleted when the `ReposeRoutingServlet` is put to use:
+       *    a. ResponseHeaderService
+       *    b. ResponseHeaderServiceImpl
+       *
        */
     }
   }

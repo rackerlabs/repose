@@ -137,7 +137,6 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         ["Accept": "application/xml"]  | "application/xml"
         ["Accept": "application/json"] | "application/json"
         []                             | "application/json"
-        ["Accept": ""]                 | "application/json"
         ["Accept": "*/*"]              | "application/json"
     }
 
@@ -159,7 +158,6 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         ["Accept": "application/xml"]  | "application/xml"
         ["Accept": "application/json"] | "application/json"
         []                             | "application/json"
-        ["Accept": ""]                 | "application/json"
         ["Accept": "*/*"]              | "application/json"
     }
 
@@ -199,7 +197,6 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         ["Accept": "application/xml"]  | "application/xml"
         ["Accept": "application/json"] | "application/json"
         []                             | "application/json"
-        ["Accept": ""]                 | "application/json"
         ["Accept": "*/*"]              | "application/json"
     }
 
@@ -236,7 +233,6 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         "/service2/limits" | ["Accept": "application/xml"]  | "application/xml"
         "/service2/limits" | ["Accept": "application/json"] | "application/json"
         "/service2/limits" | []                             | "application/json"
-        "/service2/limits" | ["Accept": ""]                 | "application/json"
         "/service2/limits" | ["Accept": "*/*"]              | "application/json"
     }
 
@@ -275,7 +271,6 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         ["Accept": "application/xml"]  | "application/xml"
         ["Accept": "application/json"] | "application/json"
         []                             | "application/json"
-        ["Accept": ""]                 | "application/json"
         ["Accept": "*/*"]              | "application/json"
     }
 
@@ -328,7 +323,6 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         path               | acceptHeader                   | expectedFormat
         "/service2/limits" | ["Accept": "application/json"] | "application/json"
         "/service2/limits" | []                             | "application/json"
-        "/service2/limits" | ["Accept": ""]                 | "application/json"
         "/service2/limits" | ["Accept": "*/*"]              | "application/json"
     }
 
@@ -363,7 +357,6 @@ class AbsoluteRateLimitTest extends ReposeValveTest {
         path               | acceptHeader                   | expectedFormat
         "/service2/limits" | ["Accept": "application/json"] | "application/json"
         "/service2/limits" | []                             | "application/json"
-        "/service2/limits" | ["Accept": ""]                 | "application/json"
         "/service2/limits" | ["Accept": "*/*"]              | "application/json"
     }
 

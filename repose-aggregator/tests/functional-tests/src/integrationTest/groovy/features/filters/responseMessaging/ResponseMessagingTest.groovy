@@ -23,6 +23,7 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -32,6 +33,7 @@ import spock.lang.Unroll
  * 1. Origin service responds with 345, 345 is configured with overwrite="IF_EMPTY", REPOSE does NOT apply RMS body
  * 2. RMS is configured to respond with a different status code than what origin service responds with
  */
+@Ignore
 class ResponseMessagingTest extends ReposeValveTest {
 
     def setupSpec() {
@@ -131,28 +133,6 @@ class ResponseMessagingTest extends ReposeValveTest {
         messageChain.receivedResponse.code == "200"
     }
 
-    def "Should split request headers according to rfc by default"() {
-        given:
-        def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
-                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
-        def reqHeaders =
-                [
-                        "user-agent": userAgentValue,
-                        "x-pp-user" : "usertest1, usertest2, usertest3",
-                        "accept"    : "application/xml;q=1 , application/json;q=0.5"
-                ]
-
-        when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/", method: 'GET', headers: reqHeaders)
-
-        then:
-        mc.handlings.size() == 1
-        mc.handlings[0].request.getHeaders().findAll("user-agent").size() == 1
-        mc.handlings[0].request.headers['user-agent'] == userAgentValue
-        mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 3
-        mc.handlings[0].request.getHeaders().findAll("accept").size() == 2
-    }
-
     def "Should not split response headers according to rfc"() {
         given: "Origin service returns headers "
         def respHeaders = ["location": "http://somehost.com/blah?a=b,c,d", "via": "application/xml;q=0.3, application/json;q=1"]
@@ -165,7 +145,7 @@ class ResponseMessagingTest extends ReposeValveTest {
         mc.receivedResponse.code == "201"
         mc.handlings.size() == 1
         mc.receivedResponse.headers.findAll("location").size() == 1
-        mc.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
+        mc.receivedResponse.headers['location'] == "$reposeEndpoint/blah?a=b,c,d"
         mc.receivedResponse.headers.findAll("via").size() == 1
     }
 

@@ -64,7 +64,7 @@ class MergeHeaderTest extends ReposeValveTest {
         mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 1
         mc.handlings[0].request.getHeaders().findAll("accept").size() == 1
         // split this header since it's not in merge-header config
-        mc.handlings[0].request.getHeaders().findAll("Accept-Charset").size() == 4
+        mc.handlings[0].request.getHeaders().findAll("Accept-Charset").toString().split(",").size() == 4
     }
 
     def "Should merge response headers when configured as such with merge-header filter"() {
@@ -91,6 +91,6 @@ class MergeHeaderTest extends ReposeValveTest {
         mc.receivedResponse.headers.findAll("accept").size() == 1
         mc.receivedResponse.headers['accept'].contains("application/json")
         mc.receivedResponse.headers['accept'].contains("application/xml")
-        mc.receivedResponse.headers.findAll("Accept-Charset").size() == 3
+        mc.receivedResponse.headers.findAll("Accept-Charset").toString().split(",").size() == 3
     }
 }

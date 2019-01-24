@@ -125,12 +125,12 @@ Provided below are sample requests to give you a better idea of what that looks 
         include-absolute-limits="false"/> <!--3-->
 
     <limit-group id="limited" groups="BETA_Group IP_Standard" default="false">
-        <limit uri="*" uri-regex="/something/(.*)" http-methods="PUT" unit="MINUTE" value="10" />
-        <limit uri="*" uri-regex="/something/(.*)" http-methods="GET" unit="MINUTE" value="10" />
+        <limit uri="*" uri-regex="/something/(.*)" http-methods="PUT" unit="MINUTE" value="10"/>
+        <limit uri="*" uri-regex="/something/(.*)" http-methods="GET" unit="MINUTE" value="10"/>
     </limit-group>
 
     <limit-group id="limited-all" groups="My_Group" default="true">
-        <limit uri="*" uri-regex="/something/(.*)" http-methods="ALL" unit="HOUR" value="10" />
+        <limit uri="*" uri-regex="/something/(.*)" http-methods="ALL" unit="HOUR" value="10"/>
     </limit-group>
 </rate-limiting>
 ----

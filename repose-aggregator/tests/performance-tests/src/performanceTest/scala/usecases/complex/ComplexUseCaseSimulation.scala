@@ -56,7 +56,6 @@ class ComplexUseCaseSimulation extends AbstractReposeSimulation {
       .queryParam("limit", "1000")
       .queryParam("includeLocked", "true")
       .header("x-auth-token", "${authToken}")
-
       .check(status.is(200))
   }
 }

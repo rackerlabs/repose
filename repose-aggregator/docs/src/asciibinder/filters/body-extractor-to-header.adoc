@@ -57,7 +57,7 @@ This configuration will extract user data from the example request body into hea
 .body-extractor-to-header.cfg.xml
 ----
 <body-extractor-to-header xmlns="http://docs.openrepose.org/repose/body-extractor-to-header/v1.0">
-    <extraction header="User-Name" jsonpath="$.user.name" /> <!--1-->
+    <extraction header="User-Name" jsonpath="$.user.name"/> <!--1-->
 
     <extraction
         header="First-Alias" <!--2-->

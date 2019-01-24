@@ -20,7 +20,6 @@
 package features.services.httpconnectionpool
 
 import org.apache.http.client.methods.HttpGet
-import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.impl.client.HttpClients
 import org.eclipse.jetty.http.HttpVersion
 import org.eclipse.jetty.server.*
@@ -37,6 +36,8 @@ import javax.servlet.http.HttpServletResponse
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.util.concurrent.TimeUnit
+
+import static org.openrepose.framework.test.ReposeLauncher.MAX_STARTUP_TIME
 
 class HttpsClientAuthMultiStorePoolTest extends ReposeValveTest {
 
@@ -83,7 +84,7 @@ class HttpsClientAuthMultiStorePoolTest extends ReposeValveTest {
         identityEndpoint = deproxy.addEndpoint(params.identityPort, 'identity service', null, fakeIdentityV2Service.handler)
 
         repose.start()
-        reposeLogSearch.awaitByString("Repose ready", 1, 60, TimeUnit.SECONDS)
+        reposeLogSearch.awaitByString("Repose ready", 1, MAX_STARTUP_TIME, TimeUnit.SECONDS)
     }
 
     def startJettyServer() {

@@ -138,7 +138,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 val json = Json.parse(EntityUtils.toString(authTokenResponse.get.getEntity))
                 val tokenExpiration = (json \ "token" \ "expires_at").as[String]
                 val adminTokenTtl = safeLongToInt(new DateTime(tokenExpiration).getMillis - DateTime.now.getMillis)
-                logger.debug(s"Caching admin token with TTL set to: ${adminTokenTtl}ms")
+                logger.debug(s"Caching admin token with TTL set to: ${adminTokenTtl} milliseconds")
 
                 datastore.put(AdminTokenKey, token, adminTokenTtl, TimeUnit.MILLISECONDS)
                 Success(token)
@@ -214,15 +214,16 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                   impersonatorId = (json \ "token" \ "RAX-AUTH:impersonator" \ "id").asOpt[String],
                   impersonatorName = (json \ "token" \ "RAX-AUTH:impersonator" \ "name").asOpt[String])
 
-                val identityTtl = safeLongToInt(new DateTime(subjectTokenObject.expiresAt).getMillis - DateTime.now.getMillis)
+                val identityTtlMillis = new DateTime(subjectTokenObject.expiresAt).getMillis - DateTime.now.getMillis
+                val identityTtl = safeLongToInt(TimeUnit.MILLISECONDS.toSeconds(identityTtlMillis))
                 val offsetConfiguredTtl = offsetTtl(tokenCacheTtl, cacheOffset)
                 // TODO: Come up with a better algorithm to decide the cache TTL and handle negative/0 TTLs
                 val ttl = if (offsetConfiguredTtl < 1) identityTtl else math.max(math.min(offsetConfiguredTtl, identityTtl), 1)
-                logger.debug(s"Caching token '$subjectToken' with TTL set to: ${ttl}ms")
+                logger.debug(s"Caching token '$subjectToken' with TTL set to: ${ttl} seconds")
                 subjectTokenObject.userId foreach { userId =>
-                  datastore.patch(getUserIdKey(userId), new SetPatch(subjectToken), ttl, TimeUnit.MILLISECONDS)
+                  datastore.patch(getUserIdKey(userId), new SetPatch(subjectToken), ttl, TimeUnit.SECONDS)
                 }
-                datastore.put(getTokenKey(subjectToken), subjectTokenObject, ttl, TimeUnit.MILLISECONDS)
+                datastore.put(getTokenKey(subjectToken), subjectTokenObject, ttl, TimeUnit.SECONDS)
 
                 Success(subjectTokenObject)
               case Success(statusCode) if statusCode == SC_NOT_FOUND =>
@@ -282,13 +283,13 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 val offsetConfiguredTtl = offsetTtl(groupsCacheTtl, cacheOffset)
                 val ttl = if (offsetConfiguredTtl < 1) {
                   logger.error("Offset group cache ttl was negative, defaulting to 10 minutes. Please check your configuration.")
-                  600000
+                  600
                 } else {
                   offsetConfiguredTtl
                 }
-                logger.debug(s"Caching groups for user '$userId' with TTL set to: ${ttl}ms")
+                logger.debug(s"Caching groups for user '$userId' with TTL set to: ${ttl} seconds")
                 // TODO: Maybe handle all this conversion jank?
-                datastore.put(getGroupsKey(subjectToken), groups.asInstanceOf[Serializable], ttl, TimeUnit.MILLISECONDS)
+                datastore.put(getGroupsKey(subjectToken), groups.asInstanceOf[Serializable], ttl, TimeUnit.SECONDS)
 
                 Success(groups)
               case Success(statusCode) if statusCode == SC_NOT_FOUND =>

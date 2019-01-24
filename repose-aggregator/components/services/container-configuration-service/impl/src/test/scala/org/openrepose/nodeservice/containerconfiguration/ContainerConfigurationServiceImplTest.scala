@@ -34,14 +34,12 @@ import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 @RunWith(classOf[JUnitRunner])
 class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
 
-  final val DefaultClusterId = "defaultClusterId"
-
   var mockConfigService: ConfigurationService = _
   var containerConfigurationService: ContainerConfigurationServiceImpl = _
 
   override def beforeEach() = {
     mockConfigService = mock[ConfigurationService]
-    containerConfigurationService = new ContainerConfigurationServiceImpl(DefaultClusterId, mockConfigService)
+    containerConfigurationService = new ContainerConfigurationServiceImpl(mockConfigService)
   }
 
   describe("init") {
@@ -103,24 +101,6 @@ class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with M
 
       containerConfigurationService.getRequestVia.get shouldEqual "via"
     }
-
-    it("should return the patched via string") {
-      val config = minimalContainerConfiguration()
-      val viaHeader = new ViaHeader
-      viaHeader.setRequestPrefix("via")
-      config.getDeploymentConfig.setViaHeader(viaHeader)
-
-      val configPatch = new DeploymentConfigurationPatch()
-      val viaHeaderPatch = new ViaHeaderPatch
-      viaHeaderPatch.setRequestPrefix("patch-via")
-      configPatch.setClusterId(DefaultClusterId)
-      configPatch.setViaHeader(viaHeaderPatch)
-      config.getClusterConfig.add(configPatch)
-
-      containerConfigurationService.configurationUpdated(config)
-
-      containerConfigurationService.getRequestVia.get shouldEqual "patch-via"
-    }
   }
 
   describe("getResponseVia") {
@@ -145,24 +125,6 @@ class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with M
       containerConfigurationService.configurationUpdated(config)
 
       containerConfigurationService.getResponseVia.get shouldEqual "via"
-    }
-
-    it("should return the patched via string") {
-      val config = minimalContainerConfiguration()
-      val viaHeader = new ViaHeader
-      viaHeader.setResponsePrefix("via")
-      config.getDeploymentConfig.setViaHeader(viaHeader)
-
-      val configPatch = new DeploymentConfigurationPatch()
-      val viaHeaderPatch = new ViaHeaderPatch
-      viaHeaderPatch.setResponsePrefix("patch-via")
-      configPatch.setClusterId(DefaultClusterId)
-      configPatch.setViaHeader(viaHeaderPatch)
-      config.getClusterConfig.add(configPatch)
-
-      containerConfigurationService.configurationUpdated(config)
-
-      containerConfigurationService.getResponseVia.get shouldEqual "patch-via"
     }
   }
 
@@ -200,22 +162,6 @@ class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with M
 
         containerConfigurationService.includeViaReposeVersion shouldBe state
       }
-
-      it(s"should return the patched configured state '$state'") {
-        val config = minimalContainerConfiguration()
-        val viaHeader = new ViaHeader
-        config.getDeploymentConfig.setViaHeader(viaHeader)
-        val configPatch = new DeploymentConfigurationPatch()
-        val viaHeaderPatch = new ViaHeaderPatch
-        viaHeaderPatch.setReposeVersion(state)
-        configPatch.setViaHeader(viaHeaderPatch)
-        configPatch.setClusterId(DefaultClusterId)
-        config.getClusterConfig.add(configPatch)
-
-        containerConfigurationService.configurationUpdated(config)
-
-        containerConfigurationService.includeViaReposeVersion shouldBe state
-      }
     }
   }
 
@@ -240,19 +186,6 @@ class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with M
 
       containerConfigurationService.getContentBodyReadLimit.get shouldEqual 1000L
     }
-
-    it("should return the patched content body read limit") {
-      val config = minimalContainerConfiguration()
-      val configPatch = new DeploymentConfigurationPatch()
-      config.getDeploymentConfig.setContentBodyReadLimit(1000L)
-      configPatch.setContentBodyReadLimit(2000L)
-      configPatch.setClusterId(DefaultClusterId)
-      config.getClusterConfig.add(configPatch)
-
-      containerConfigurationService.configurationUpdated(config)
-
-      containerConfigurationService.getContentBodyReadLimit.get shouldEqual 2000L
-    }
   }
 
   describe("getDeploymentConfiguration") {
@@ -262,40 +195,16 @@ class ContainerConfigurationServiceImplTest extends FunSpec with Matchers with M
       }
     }
 
-    it("should return an un-patched deployment configuration if no patch matches the cluster ID") {
+    it("should return the deployment configuration") {
       val config = minimalContainerConfiguration()
       val viaHeader = new ViaHeader()
       viaHeader.setRequestPrefix("base-via")
       config.getDeploymentConfig.setViaHeader(viaHeader)
-      val clusterConfig = new DeploymentConfigurationPatch()
-      clusterConfig.setClusterId("foo-cluster-id")
-      val viaHeaderPatch = new ViaHeaderPatch()
-      viaHeaderPatch.setRequestPrefix("patch-via")
-      clusterConfig.setViaHeader(viaHeaderPatch)
-      config.getClusterConfig.add(clusterConfig)
 
       containerConfigurationService.configurationUpdated(config)
 
       containerConfigurationService.getDeploymentConfiguration should be theSameInstanceAs config.getDeploymentConfig
       containerConfigurationService.getDeploymentConfiguration.getViaHeader.getRequestPrefix shouldEqual "base-via"
-    }
-
-    it("should return the patched deployment configuration") {
-      val config = minimalContainerConfiguration()
-      val viaHeader = new ViaHeader()
-      viaHeader.setRequestPrefix("base-via")
-      config.getDeploymentConfig.setViaHeader(viaHeader)
-      val clusterConfig = new DeploymentConfigurationPatch()
-      clusterConfig.setClusterId(DefaultClusterId)
-      val viaHeaderPatch = new ViaHeaderPatch()
-      viaHeaderPatch.setRequestPrefix("patch-via")
-      clusterConfig.setViaHeader(viaHeaderPatch)
-      config.getClusterConfig.add(clusterConfig)
-
-      containerConfigurationService.configurationUpdated(config)
-
-      containerConfigurationService.getDeploymentConfiguration should not be theSameInstanceAs(config.getDeploymentConfig)
-      containerConfigurationService.getDeploymentConfiguration.getViaHeader.getRequestPrefix shouldEqual "patch-via"
     }
   }
 

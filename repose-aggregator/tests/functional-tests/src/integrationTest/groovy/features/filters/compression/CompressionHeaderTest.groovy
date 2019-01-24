@@ -121,7 +121,7 @@ class CompressionHeaderTest extends ReposeValveTest {
         encoding   | unzippedContent | zippedContent | responseCode | handlings
         "gzip"     | content         | falseZip      | '400'        | 0
         "x-gzip"   | content         | falseZip      | '400'        | 0
-        "deflate"  | content         | falseZip      | '500'        | 0
+        "deflate"  | content         | falseZip      | '502'        | 0
         "identity" | content         | falseZip      | '200'        | 1
     }
 
@@ -142,31 +142,8 @@ class CompressionHeaderTest extends ReposeValveTest {
         encoding   | unzippedContent | zippedContent | responseCode | handlings
         "gzip"     | content         | content       | '400'        | 0
         "x-gzip"   | content         | content       | '400'        | 0
-        "deflate"  | content         | content       | '500'        | 0
+        "deflate"  | content         | content       | '502'        | 0
         "identity" | content         | content       | '200'        | 1
-    }
-
-    def "Should split request headers according to rfc by default"() {
-        given:
-        def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
-                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
-        def reqHeaders =
-                [
-                        "user-agent": userAgentValue,
-                        "x-pp-user" : "usertest1, usertest2, usertest3",
-                        "accept"    : "application/xml;q=1 , application/json;q=0.5"
-                ]
-
-        when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: reqHeaders)
-
-        then: "Repose should split"
-        mc.receivedResponse.code == "200"
-        mc.handlings.size() == 1
-        mc.handlings[0].request.getHeaders().findAll("user-agent").size() == 1
-        mc.handlings[0].request.headers['user-agent'] == userAgentValue
-        mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 3
-        mc.handlings[0].request.getHeaders().findAll("accept").size() == 2
     }
 
     def "Should not split response headers according to rfc"() {
@@ -181,7 +158,7 @@ class CompressionHeaderTest extends ReposeValveTest {
         mc.receivedResponse.code == "201"
         mc.handlings.size() == 1
         mc.receivedResponse.headers.findAll("location").size() == 1
-        mc.receivedResponse.headers['location'] == "http://somehost.com/blah?a=b,c,d"
+        mc.receivedResponse.headers['location'] == "$reposeEndpoint/blah?a=b,c,d"
         mc.receivedResponse.headers.findAll("via").size() == 1
     }
 

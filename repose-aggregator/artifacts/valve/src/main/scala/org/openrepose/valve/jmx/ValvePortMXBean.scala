@@ -24,7 +24,7 @@ object ValvePortMXBean {
 }
 
 trait ValvePortMXBean {
-  def getPort(clusterId: String, nodeId: String): Int
+  def getPort(nodeId: String): Int
 
-  def getSslPort(clusterId: String, nodeId: String): Int
+  def getSslPort(nodeId: String): Int
 }

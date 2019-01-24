@@ -20,7 +20,7 @@ The first thing to do is update your system model to include the `split-header` 
 <2> The rest of the existing filter chain.
 
 
-== Add the New Filter Config
+== Add the Split Header Filter Config
 
 Add the new filter config to your config directory.
 
@@ -31,56 +31,90 @@ Add the new filter config to your config directory.
 
 <split-header xmlns='http://docs.openrepose.org/repose/split-header/v1.0'>
     <request>
-        <header>X-PP-Next-Route</header>
-        <header>X-PP-User</header>
-        <header>X-PP-Groups</header>
-        <header>X-Domain</header>
+        <header>accept</header>
+        <header>accept-charset</header>
+        <header>accept-encoding</header>
+        <header>accept-language</header>
+        <header>allow</header>
+        <header>cache-control</header>
+        <header>connection</header>
+        <header>content-encoding</header>
+        <header>content-language</header>
+        <header>expect</header>
+        <header>pragma</header>
+        <header>proxy-authenticate</header>
+        <header>te</header>
+        <header>trailer</header>
+        <header>transfer-encoding</header>
+        <header>upgrade</header>
+        <header>warning</header>
+        <header>x-authenticated-by</header>
+        <header>x-authorization</header>
         <header>x-catalog</header>
-        <header>X-Relevant-Roles</header>
-        <header>x-trace-request</header>
-        <header>X-Authorization</header>
-        <header>X-Identity-Status</header>
-        <header>X-Domain-Id</header>
-        <header>X-User-Name</header>
-        <header>X-User-Id</header>
-        <header>X-Tenant-Name</header>
-        <header>X-Tenant-Id</header>
-        <header>X-Map-Roles</header>
-        <header>X-Roles</header>
-        <header>X-Authenticated-By</header>
-        <header>X-Impersonator-Id</header>
-        <header>X-Impersonator-Name</header>
-        <header>X-Impersonator-Roles</header>
-        <header>X-Default-Region</header>
+        <header>x-contact-id</header>
+        <header>x-default-region</header>
+        <header>x-domain</header>
+        <header>x-domain-id</header>
+        <header>x-identity-status</header>
+        <header>x-impersonator-id</header>
+        <header>x-impersonator-name</header>
+        <header>x-impersonator-roles</header>
+        <header>x-map-roles</header>
+        <header>x-pp-next-route</header>
+        <header>x-pp-user</header>
+        <header>x-pp-groups</header>
+        <header>x-relevant-roles</header>
+        <header>x-roles</header>
+        <header>x-tenant-id</header>
+        <header>x-tenant-name</header>
         <header>x-token-expires</header>
-        <header>X-CONTACT-ID</header>
-        <header>X-TTL</header>
+        <header>x-trace-request</header>
+        <header>x-ttl</header>
+        <header>x-user-name</header>
+        <header>x-user-id</header>
     </request>
     <response>
-        <header>X-PP-Next-Route</header>
-        <header>X-PP-User</header>
-        <header>X-PP-Groups</header>
-        <header>X-Domain</header>
+        <header>accept</header>
+        <header>accept-charset</header>
+        <header>accept-encoding</header>
+        <header>accept-language</header>
+        <header>allow</header>
+        <header>cache-control</header>
+        <header>connection</header>
+        <header>content-encoding</header>
+        <header>content-language</header>
+        <header>expect</header>
+        <header>pragma</header>
+        <header>proxy-authenticate</header>
+        <header>te</header>
+        <header>trailer</header>
+        <header>transfer-encoding</header>
+        <header>upgrade</header>
+        <header>warning</header>
+        <header>x-authenticated-by</header>
+        <header>x-authorization</header>
         <header>x-catalog</header>
-        <header>X-Relevant-Roles</header>
-        <header>x-trace-request</header>
-        <header>X-Authorization</header>
-        <header>X-Identity-Status</header>
-        <header>X-Domain-Id</header>
-        <header>X-User-Name</header>
-        <header>X-User-Id</header>
-        <header>X-Tenant-Name</header>
-        <header>X-Tenant-Id</header>
-        <header>X-Map-Roles</header>
-        <header>X-Roles</header>
-        <header>X-Authenticated-By</header>
-        <header>X-Impersonator-Id</header>
-        <header>X-Impersonator-Name</header>
-        <header>X-Impersonator-Roles</header>
-        <header>X-Default-Region</header>
+        <header>x-contact-id</header>
+        <header>x-default-region</header>
+        <header>x-domain</header>
+        <header>x-domain-id</header>
+        <header>x-identity-status</header>
+        <header>x-impersonator-id</header>
+        <header>x-impersonator-name</header>
+        <header>x-impersonator-roles</header>
+        <header>x-map-roles</header>
+        <header>x-pp-next-route</header>
+        <header>x-pp-user</header>
+        <header>x-pp-groups</header>
+        <header>x-relevant-roles</header>
+        <header>x-roles</header>
+        <header>x-tenant-id</header>
+        <header>x-tenant-name</header>
         <header>x-token-expires</header>
-        <header>X-CONTACT-ID</header>
-        <header>X-TTL</header>
+        <header>x-trace-request</header>
+        <header>x-ttl</header>
+        <header>x-user-name</header>
+        <header>x-user-id</header>
     </response>
 </split-header>
 ----

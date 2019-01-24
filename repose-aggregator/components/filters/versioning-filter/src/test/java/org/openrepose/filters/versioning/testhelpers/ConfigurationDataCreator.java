@@ -20,7 +20,6 @@
 package org.openrepose.filters.versioning.testhelpers;
 
 import org.openrepose.core.systemmodel.config.Destination;
-import org.openrepose.core.systemmodel.config.DestinationEndpoint;
 import org.openrepose.filters.versioning.config.MediaType;
 import org.openrepose.filters.versioning.config.MediaTypeList;
 import org.openrepose.filters.versioning.config.ServiceVersionMapping;
@@ -76,7 +75,7 @@ public abstract class ConfigurationDataCreator {
         Map<String, Destination> hosts = new HashMap<String, Destination>();
 
         for (int i = 0; i < numOfHosts; i++) {
-            DestinationEndpoint host = new DestinationEndpoint();
+            Destination host = new Destination();
             host.setId("service-v1." + i);
 
             hosts.put("service-v1." + i, host);

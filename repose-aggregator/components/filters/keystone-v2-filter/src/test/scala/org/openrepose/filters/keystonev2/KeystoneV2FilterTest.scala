@@ -99,13 +99,13 @@ with HttpDelegationManager {
   describe("Filter lifecycle") {
     val filter = new KeystoneV2Filter(mockConfigurationService, mockHttpClientService, mock[AtomFeedService], mockDatastoreService)
 
-    it("should throw 500 if filter is not initialized") {
+    it("should throw 503 if filter is not initialized") {
       val request = new MockHttpServletRequest
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain
       filter.isInitialized shouldBe false
       filter.doFilter(request, response, filterChain)
-      response.getStatus shouldBe SC_INTERNAL_SERVER_ERROR
+      response.getStatus shouldBe SC_SERVICE_UNAVAILABLE
     }
 
     it("should subscribe a listener to the configuration service on init") {
@@ -384,6 +384,21 @@ with HttpDelegationManager {
     it("rejects with 403 if no x-auth-token is present") {
       //No auth token, no interactions with identity at all!
       val request = new MockHttpServletRequest()
+
+      val response = new MockHttpServletResponse
+      val filterChain = new MockFilterChain()
+      filter.doFilter(request, response, filterChain)
+
+      filterChain.getRequest shouldBe null
+      filterChain.getResponse shouldBe null
+
+      response.getStatus shouldBe SC_UNAUTHORIZED
+      response.getHeader(WWW_AUTHENTICATE) shouldBe "Keystone uri=https://some.identity.com"
+    }
+
+    it("rejects with 403 if an empty x-auth-token is present") {
+      val request = new MockHttpServletRequest()
+      request.addHeader(CommonHttpHeader.AUTH_TOKEN, "")
 
       val response = new MockHttpServletResponse
       val filterChain = new MockFilterChain()

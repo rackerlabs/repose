@@ -14,13 +14,11 @@ The Atom Feed Consumption Service can be enabled in a *Repose* deployment by add
 ----
 <?xml version="1.0" encoding="UTF-8"?>
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-  <repose-cluster id="repose">
-    ...
-    <services>
-      <service name="atom-feed-service"/>
-    </services>
-    ...
-  </repose-cluster>
+  ...
+  <services>
+    <service name="atom-feed-service"/>
+  </services>
+  ...
 </system-model>
 ----
 

@@ -66,6 +66,8 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
     private ContainerConfigurationListener containerConfigurationListener;
     private DestroyableThreadWrapper watcherThread;
 
+    private volatile boolean processingArtifacts = false;
+
     @Inject
     public ArtifactManager(EventService eventService,
                            ConfigurationService configurationService,
@@ -130,7 +132,9 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
      * @param e
      */
     @Override
-    public void onEvent(Event<ApplicationArtifactEvent, List<ArtifactDirectoryItem>> e) {
+    public synchronized void onEvent(Event<ApplicationArtifactEvent, List<ArtifactDirectoryItem>> e) {
+        processingArtifacts = true;
+
         final List<ArtifactDirectoryItem> artifacts = e.payload();
 
         List<EarClassLoaderContext> contexts = new ArrayList<>();
@@ -189,6 +193,8 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
             }
             e.eventManager().newEvent(ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED, notificationList);
         }
+
+        processingArtifacts = false;
     }
 
     private EarClassLoaderContext loadArtifact(File artifact, File deploymentDir) {
@@ -228,7 +234,11 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
 
     @Override
     public boolean allArtifactsLoaded() {
-        return !containerConfigurationListener.getDirWatcher().checkArtifacts();
+        // todo: Adding a processing flag minimizes the window during which this method may return a false positive,
+        // todo: however a false positive is still possible if this method is called while an ApplicationArtifactEvent
+        // todo: is in the event queue (i.e., the ArtifactDirectoryWatcher has noticed a change and emitted an event,
+        // todo: but the event has not yet been passed to this class, the ArtifactManager).
+        return !containerConfigurationListener.getDirWatcher().checkArtifacts() && !processingArtifacts;
     }
 
     @Override

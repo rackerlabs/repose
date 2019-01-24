@@ -57,8 +57,8 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
         fakeIdentityV2Service.resetHandlers()
     }
 
-    @Unroll("tenant: #requestTenant, with return from identity with HTTP code (#authResponseCode), group HTTP code (#groupResponseCode) and response tenant: #responseTenant")
-    def "when authenticating user in tenanted and non delegable mode and without service-admin - fail"() {
+    @Unroll
+    def "tenant: #requestTenant, with return from identity with HTTP code (#authResponseCode), group HTTP code (#groupResponseCode) and response tenant: #responseTenant"() {
 
         given:
         fakeIdentityV2Service.with {
@@ -110,7 +110,7 @@ class TenantedNonDelegableWOServiceAdminTest extends ReposeValveTest {
 
     }
 
-    def "when authenticating user in tenanted and non delegable mode and without soervice-admin - pass"() {
+    def "when authenticating user in tenanted and non delegable mode and without service-admin - pass"() {
         given:
         fakeIdentityV2Service.with {
             client_token = UUID.randomUUID().toString()

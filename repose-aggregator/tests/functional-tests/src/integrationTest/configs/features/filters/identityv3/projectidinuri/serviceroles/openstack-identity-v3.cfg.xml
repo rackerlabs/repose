@@ -5,7 +5,7 @@
                                 password="admin-password"
                                 uri="http://localhost:${identityPort}"
                                 xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"/>
-    <validate-project-id-in-uri regex=".*/servers/([-|\w]+)/?.*"/>
+    <validate-project-id-in-uri regex=".*/servers/([-\w]+)/?.*"/>
     <roles-which-bypass-project-id-check>
         <role>service:admin-role1</role>
         <role>service:admin-role2</role>

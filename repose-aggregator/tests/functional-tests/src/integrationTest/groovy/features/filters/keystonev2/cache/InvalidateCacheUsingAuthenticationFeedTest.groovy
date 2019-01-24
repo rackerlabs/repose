@@ -65,10 +65,8 @@ class InvalidateCacheUsingAuthenticationFeedTest extends ReposeValveTest {
     }
 
     def cleanup() {
-        if (deproxy) {
-            deproxy.shutdown()
-        }
-        repose.stop()
+        deproxy?.shutdown()
+        repose?.stop()
     }
 
     def "when token is cached then invalidated by atom feed, should attempt to revalidate token with identity endpoint"() {

@@ -44,9 +44,10 @@ class InvalidURITest extends ReposeValveTest {
     def "when given a uri with a invalid characters, Repose should return a 400"() {
         when:
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, path: "/path/" + uriSuffixGiven, method: method)
+
         then:
         messageChain.receivedResponse.code == "400"
-        messageChain.receivedResponse.body.contains('Invalid URI message')
+        messageChain.receivedResponse.message == 'Error processing request'
 
         where:
         // Deproxy currently does not support non-UTF-8 characters, so only invalid UTF-8 characters are tested
