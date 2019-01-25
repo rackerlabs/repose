@@ -2,6 +2,15 @@
 
 <http-connection-pools xmlns="http://docs.openrepose.org/repose/http-connection-pool/v1.0">
     <pool id="default"
-          default="true"
+          default="true"/>
+    <pool id="cp-one"
           http.route.default-proxy="http://localhost:${targetPort2}"/>
+    <!-- cannot test this proxy URI since it is lacking a port, but left here to test that the configuration can be loaded successfully -->
+    <pool id="cp-two"
+          http.route.default-proxy="http://localhost"/>
+    <pool id="cp-three"
+          http.route.default-proxy="localhost:${targetPort2}"/>
+    <!-- cannot test this proxy URI since it is lacking a port, but left here to test that the configuration can be loaded successfully -->
+    <pool id="cp-four"
+          http.route.default-proxy="localhost"/>
 </http-connection-pools>

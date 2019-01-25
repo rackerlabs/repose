@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+    <nodes>
+        <node id="node" hostname="localhost" http-port="${reposePort}"/>
+    </nodes>
+
+    <filters>
+        <filter name="keystone-v2-basic-auth" uri-regex="[^/]*/one/?" configuration="kv2ba-one.cfg.xml"/>
+        <filter name="keystone-v2-basic-auth" uri-regex="[^/]*/two/?" configuration="kv2ba-two.cfg.xml"/>
+        <filter name="keystone-v2-basic-auth" uri-regex="[^/]*/three/?" configuration="kv2ba-three.cfg.xml"/>
+        <filter name="keystone-v2-basic-auth" uri-regex="[^/]*/four/?" configuration="kv2ba-four.cfg.xml"/>
+    </filters>
+
+    <destinations>
+        <endpoint id="endpoint" protocol="http" port="${targetPort}" default="true"/>
+    </destinations>
+</system-model>
+
