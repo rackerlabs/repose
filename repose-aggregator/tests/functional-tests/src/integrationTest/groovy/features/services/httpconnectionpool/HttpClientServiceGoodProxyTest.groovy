@@ -38,7 +38,7 @@ import spock.lang.Unroll
  * additional test setup that would not otherwise be required), but this is preferable
  * to having to reload configuration for each proxy configuration under test.
  */
-class HttpClientServiceProxyTest extends ReposeValveTest {
+class HttpClientServiceGoodProxyTest extends ReposeValveTest {
 
     final static String encodedBasicAuthCredentials = Base64.encoder.encode("username:password".getBytes())
 
@@ -72,7 +72,7 @@ class HttpClientServiceProxyTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/proxy", params)
+        repose.configurationProvider.applyConfigs("features/services/httpconnectionpool/proxy/good", params)
         repose.start()
     }
 
