@@ -1,6 +1,8 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 dependencies {
+    annotationProcessor 'org.projectlombok:lombok'
+
     compile project(":repose-aggregator:commons:commons-utilities")
     compile "io.dropwizard.metrics:metrics-core"
     compile "org.scala-lang:scala-library"

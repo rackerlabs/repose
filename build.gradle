@@ -11,8 +11,7 @@ buildscript {
         classpath 'gradle.plugin.org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:1.4.2'
         classpath 'com.netflix.nebula:nebula-dependency-recommender:4.3.0'
         classpath 'gradle.plugin.org.openrepose:gradle-jaxb-plugin:2.5.0'
-        classpath 'gradle.plugin.org.scoverage:gradle-scoverage:2.1.0'
-        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.3'
         classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:1.0.1'
         classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.13.1'
         classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.4'
@@ -123,17 +122,12 @@ subprojects {
     apply plugin: 'jacoco'
     apply plugin: 'nebula.maven-publish'
     apply plugin: 'signing'
-    apply plugin: 'org.scoverage'
 
     dependencies {
         jaxb "com.sun.xml.bind:jaxb-xjc"
         jaxb "com.sun.xml.bind:jaxb-impl"
         jaxb "javax.xml.bind:jaxb-api"
         jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-ant"
-
-        scoverage "org.scoverage:scalac-scoverage-plugin_$scalaMajDotMin:1.1.0"
-        scoverage "org.scoverage:scalac-scoverage-runtime_$scalaMajDotMin:1.1.0"
-
     }
 
     testSets {
@@ -241,29 +235,11 @@ subprojects {
             compileClasspath += files([sourceSets.generated.java.outputDir])
             runtimeClasspath += files([sourceSets.generated.java.outputDir])
         }
-        scoverage {
-            compileClasspath += configurations.compileOnly
-            runtimeClasspath += configurations.compileOnly
-            compileClasspath += files([sourceSets.generated.java.outputDir, sourceSets.main.java.outputDir])
-            runtimeClasspath += files([sourceSets.generated.java.outputDir, sourceSets.main.java.outputDir, sourceSets.test.groovy.outputDir])
-        }
-        testScoverage {
-            compileClasspath += configurations.compileOnly
-            runtimeClasspath += configurations.compileOnly
-            compileClasspath += files([sourceSets.generated.java.outputDir, sourceSets.main.java.outputDir])
-            runtimeClasspath += files([sourceSets.generated.java.outputDir,
-                                       sourceSets.main.java.outputDir,
-                                       sourceSets.main.groovy.outputDir,
-                                       sourceSets.test.groovy.outputDir,
-                                       file("${project.buildDir}/resources/scoverage/")
-            ])
-        }
     }
 
     compileJava.dependsOn compileGeneratedJava
     compileScala.dependsOn compileGeneratedJava
     compileIntegrationTestGroovy.dependsOn compileGeneratedJava
-    testScoverage.dependsOn compileTestGroovy
 
     [JavaCompile, ScalaCompile, GroovyCompile].collect { type ->
         tasks.withType(type) {
@@ -279,12 +255,12 @@ subprojects {
 
     checkstyle {
         configFile = file("$rootDir/repose-aggregator/src/config/styles/checkstyle.xml")
-        sourceSets = sourceSets.matching {it.name != 'generated' && it.name != 'scoverage' && it.name != 'testScoverage'}
+        sourceSets = sourceSets.matching {it.name != 'generated'}
     }
 
     codenarc {
         configFile = file("$rootDir/repose-aggregator/src/config/styles/codenarc.xml")
-        sourceSets = sourceSets.matching {it.name != 'generated' && it.name != 'scoverage' && it.name != 'testScoverage'}
+        sourceSets = sourceSets.matching {it.name != 'generated'}
         toolVersion = "1.0"
     }
 
@@ -307,7 +283,7 @@ subprojects {
         }
         exclude "**/*.cfg.xml"
         exclude "**/log4j2*.xml"
-        sourceSets = sourceSets.matching {it.name != 'generated' && it.name != 'scoverage' && it.name != 'testScoverage'}
+        sourceSets = sourceSets.matching {it.name != 'generated'}
     }
 
     //todo: for some reason jacoco freaks when we do clean and build together
@@ -420,7 +396,6 @@ subprojects {
 
     sonarqube {
         properties {
-            property "sonar.scoverage.reportPath", "$buildDir/reports/scoverage/scoverage.xml"
             property "sonar.jacoco.reportPath", "$buildDir/jacoco/jacocoTest.exec"
             property "sonar.jacoco.itReportPath", "$buildDir/jacoco/jacocoIntegrationTest.exec"
         }
@@ -445,11 +420,6 @@ subprojects {
                     fileTree(dir: classDirectory, excludes: ['**/ObjectFactory.class'])
                 })
             }
-        }
-
-        // Configure the Scoverage test coverage verification
-        checkScoverage {
-            minimumRate = minCoverageRatio
         }
 
         // Wire in test coverage verification tasks
