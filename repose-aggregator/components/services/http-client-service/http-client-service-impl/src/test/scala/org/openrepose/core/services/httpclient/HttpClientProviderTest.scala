@@ -293,6 +293,31 @@ class HttpClientProviderTest extends FunSpec with BeforeAndAfterEach with Mockit
 
       headersCaptor.getValue.asScala.map(hdr => hdr.getName -> hdr.getValue).toMap shouldEqual headerMap
     }
+
+    Seq(
+      "http://example.com:80",
+      "http://example.com",
+      "example.com:80",
+      "example.com"
+    ).foreach { proxy =>
+      it(s"should successfully create a client for valid proxy URI $proxy") {
+        val clientConfig = minimalPoolConfig(
+          _.setHttpRouteDefaultProxy(proxy))
+
+        httpClientProvider.createClient(clientConfig)
+      }
+    }
+
+    Seq(
+      "http://example.com:abc"
+    ).foreach { proxy =>
+      it(s"should fail to create a client for invalid proxy URI $proxy") {
+        val clientConfig = minimalPoolConfig(
+          _.setHttpRouteDefaultProxy(proxy))
+
+        an [IllegalArgumentException] should be thrownBy httpClientProvider.createClient(clientConfig)
+      }
+    }
   }
 
   def minimalPoolConfig(configurations: PoolConfig => Unit*): PoolConfig = {
