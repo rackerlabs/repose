@@ -81,8 +81,6 @@ class ReposeTracingRequestInterceptor(tracer: Tracer, reposeVersion: String, uri
 
       httpContext.setAttribute(OpenTracingSpan, clientSpan)
 
-      if (Option(tracer.scopeManager.active).isEmpty) logger.warn("Current scope is null; possibly failed to start client tracing span.")
-
       tracer.inject(clientSpan.context, HTTP_HEADERS, new TextMap {
         override def iterator = throw new UnsupportedOperationException
 

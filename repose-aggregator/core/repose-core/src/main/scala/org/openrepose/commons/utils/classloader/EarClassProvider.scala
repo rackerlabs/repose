@@ -145,17 +145,17 @@ class EarClassProvider(earFile: File, val outputDir: File) {
         } else {
           val ofs = new FileOutputStream(entryFile)
           try {
-            log.debug("Obtaining file lock on: {}", entryFile)
+            log.trace("Obtaining file lock on: {}", entryFile)
             val lock = ofs.getChannel.lock()
             try {
               if (!entryFile.exists() || entry.getCrc != checksumCRC32(entryFile)) {
-                log.debug("Unpacking: {}", entryFile)
+                log.trace("Unpacking: {}", entryFile)
                 Stream.continually(zis.read(buffer)).takeWhile(_ != -1).foreach(count => ofs.write(buffer, 0, count))
               } else {
-                log.debug("File already exists in a valid condition. Skipping: {}", entryFile)
+                log.trace("File already exists in a valid condition. Skipping: {}", entryFile)
               }
             } finally {
-              log.debug("Releasing file lock on: {}", entryFile)
+              log.trace("Releasing file lock on: {}", entryFile)
               lock.release()
             }
           } finally {
