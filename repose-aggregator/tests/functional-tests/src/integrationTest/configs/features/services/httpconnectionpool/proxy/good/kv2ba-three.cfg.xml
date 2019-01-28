@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<keystone-v2-basic-auth
+    xmlns="http://docs.openrepose.org/repose/keystone-v2-basic-auth/v1.0"
+    keystone-v2-service-uri="http://localhost:${identityPort}"
+    connection-pool-id="cp-three"
+    token-cache-timeout-millis="0"/>

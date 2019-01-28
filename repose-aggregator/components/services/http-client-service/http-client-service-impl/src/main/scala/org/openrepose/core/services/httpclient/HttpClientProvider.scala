@@ -31,6 +31,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.opentracing.Tracer
 import javax.inject.{Inject, Named}
 import javax.net.ssl.SSLContext
+import org.apache.http.HttpHost
 import org.apache.http.client.config.RequestConfig
 import org.apache.http.config.{ConnectionConfig, MessageConstraints, RegistryBuilder, SocketConfig}
 import org.apache.http.conn.socket.{ConnectionSocketFactory, PlainConnectionSocketFactory}
@@ -154,6 +155,7 @@ class HttpClientProvider @Inject()(@Value(ReposeSpringProperties.CORE.CONFIG_ROO
       .addInterceptorLast(new ReposeTracingResponseInterceptor())
       .disableRedirectHandling()
       .setDefaultRequestConfig(requestConfig)
+    Option(clientConfig.getHttpRouteDefaultProxy).map(HttpHost.create).foreach(clientBuilder.setProxy)
     headers.foreach(clientBuilder.setDefaultHeaders)
 
     // Add caching to the raw client

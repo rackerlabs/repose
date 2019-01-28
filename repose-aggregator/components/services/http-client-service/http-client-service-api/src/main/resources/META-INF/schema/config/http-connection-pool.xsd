@@ -171,6 +171,30 @@
             </xs:annotation>
         </xs:attribute>
 
+        <xs:attribute name="http.route.default-proxy" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Optionally defines a proxy host to be used.
+                        If present, requests made using this connection pool will be proxied through the provided
+                        proxy host.
+                        If absent, requests made using this connection pool will not be proxied.
+                    </html:p>
+                    <html:p>
+                        The value of this attribute should be in the form `{scheme}://{host}:{port}`.
+                        Note that `{scheme}` and `{port}` are optional while `{host}` is required.
+                        If no scheme is provided, `http` is assumed.
+                        If no port is provided, `80` (the default port for `http`) is assumed.
+                        The following are examples of acceptable values for this attribute:
+                        - http://example.com:80
+                        - http://example.com
+                        - example.com:80
+                        - example.com
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
         <xs:attribute name="http.tcp.nodelay" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
