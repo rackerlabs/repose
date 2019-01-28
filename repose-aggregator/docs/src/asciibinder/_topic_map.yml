@@ -207,8 +207,6 @@ Topics:
     File: open-tracing.adoc
   - Name: Phone Home Service
     File: phone-home.adoc
-  - Name: Response Messaging service
-    File: response-messaging.adoc
   - Name: URI Redaction service
     File: uri-redaction.adoc
 ---

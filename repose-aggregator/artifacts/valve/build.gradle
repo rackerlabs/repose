@@ -261,7 +261,6 @@ buildDeb {
     preInstall file('src/config/scripts/preinst-deb')
     configurationFile '/etc/repose/container.cfg.xml'
     configurationFile '/etc/repose/system-model.cfg.xml'
-    configurationFile '/etc/repose/response-messaging.cfg.xml'
     configurationFile '/etc/repose/log4j2.xml'
     configurationFile '/etc/init.d/repose'
 }

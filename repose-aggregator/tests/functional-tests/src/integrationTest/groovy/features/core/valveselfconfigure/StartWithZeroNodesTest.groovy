@@ -48,7 +48,6 @@ class StartWithZeroNodesTest extends ReposeValveTest {
 
         repose.configurationProvider.cleanConfigDirectory()
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/core/valveselfconfigure/common", params)
         repose.configurationProvider.applyConfigs("features/core/valveselfconfigure/container-no-port", params)
         repose.configurationProvider.applyConfigs("features/core/valveselfconfigure/zero-nodes", params)
         repose.start(killOthersBeforeStarting: false,

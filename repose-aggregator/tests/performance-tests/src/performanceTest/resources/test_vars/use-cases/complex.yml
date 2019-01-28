@@ -63,7 +63,6 @@
         "{{ dir_prefix }}/keystone-v2_tenantid.cfg.xml",
         "{{ dir_prefix }}/rate-limiting.cfg.xml",
         "{{ dir_prefix }}/rate-limiting_user.cfg.xml",
-        "{{ dir_prefix }}/response-messaging.cfg.xml",
         "{{ dir_prefix }}/slf4j-http-logging.cfg.xml",
         "{{ dir_prefix }}/uri-normalization.cfg.xml"
       ]

@@ -79,7 +79,6 @@ class TransitionGoodToBadConfigsTest extends ReposeValveTest {
         componentLabel << [
             "system-model",
             "container",
-            "response-messaging",
             "rate-limiting",
             "versioning",
             "translation",

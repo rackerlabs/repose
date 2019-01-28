@@ -63,7 +63,6 @@ class RuntimeSysmodChangesTest extends ReposeValveTest {
         repose.configurationProvider.cleanConfigDirectory()
 
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/core/valveselfconfigure/common", params)
         repose.configurationProvider.applyConfigs("features/core/valveselfconfigure/container-no-port", params)
         repose.configurationProvider.applyConfigs("features/core/valveselfconfigure/single-node-with-proto", params)
         repose.start(killOthersBeforeStarting: false,

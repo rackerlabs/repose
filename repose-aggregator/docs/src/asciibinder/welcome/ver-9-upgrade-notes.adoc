@@ -43,6 +43,39 @@
 | org.openrepose.powerfilter.PowerFilterChain
 | org.openrepose.powerfilter.ReposeFilterChain
 |===
+. The Response Messaging Service has been removed.
+  If you were counting on this behavior, the <<../filters/scripting.adoc#, Scripting Filter>> can be used.
+  The scripting filter configuration may look like the following:
++
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="groovy"><![CDATA[
+    import groovy.xml.MarkupBuilder
+
+    //Continue the filter chain
+    filterChain.doFilter(request, response)
+
+    //Check to see if we should monkey with the response because we have xml and a 2xx
+    if((response.contentType ==~ /.*(xml|XML).*/) && (response.status >= 400) && (response.status < 600)) {
+
+        //Uncommit the response just in case
+        response.uncommit()
+
+        //Clear the current response body
+        response.resetBuffer()
+
+        //Write the new body
+        def xml = new MarkupBuilder(response.getWriter())
+        xml.error() {
+            status(response.getStatus())
+            message(response.getReason())
+        }
+    }
+]]></scripting>
+----
 
 == System Model Configuration
 . Support for multi-cluster deployments has been removed.
