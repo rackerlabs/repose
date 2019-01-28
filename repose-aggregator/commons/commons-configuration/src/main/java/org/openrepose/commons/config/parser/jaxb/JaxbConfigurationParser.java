@@ -48,10 +48,6 @@ public class JaxbConfigurationParser<T> extends AbstractConfigurationObjectParse
         super(configurationClass);
         if (xsdStreamSource == null) {
             LOG.warn("Creating a JAXB Parser Pool without any schema to validate for {}", configurationClass);
-            if (LOG.isDebugEnabled()) {
-                Exception tracer = new Exception("Repose Devs might care about this trace");
-                LOG.debug("Logging the current stack to find where a parser pool is created without a validator", tracer);
-            }
         }
         objectPool = new SoftReferenceObjectPool<>(new UnmarshallerPoolableObjectFactory(jaxbContext, xsdStreamSource));
     }

@@ -45,6 +45,10 @@
 * https://repose.atlassian.net/browse/REP-7387[REP-7387] - The <<../filters/ip-user.adoc#, IP User>> filter now returns a `400` when the X-Forwarded-For header contains a bad value.
 * https://repose.atlassian.net/browse/REP-7386[REP-7386] - Added support for the `upgrade_account` account-level permission in the <<../filters/valkyrie-authorization.adoc#, Valkyrie Authorization Filter>>.
 * https://repose.atlassian.net/browse/REP-7486[REP-7486] - Documented removal and replacement solution for the Response Messaging Service.
+* https://repose.atlassian.net/browse/REP-7490[REP-7490] - Cleaning up some log messages in pursuit of more meaningful logging.
+** Changing the `org.eclipse.jetty` logger level from `off` to `warn` in the default `log4j2.xml` configuration file.
+** Removing a log event with a message including `Repose Devs might care about this trace` by the `org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser` logger.
+** Changing the log level of events relating to unpacking artifacts by the `org.openrepose.commons.utils.classloader.EarClassProvider` logger from `debug` to `trace`.
 
 == 8.10.0.0 (2018-08-27)
 * https://repose.atlassian.net/browse/REP-6969[REP-6969] - Added support for more expressive filter determination in the <<../architecture/system-model.adoc#,System Model>> using boolean operators.

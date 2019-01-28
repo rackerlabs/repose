@@ -25,7 +25,7 @@
                 <ThresholdFilter level="WARN" onMatch="NEUTRAL" onMismatch="DENY"/>
             </Filters>
         </Logger>
-        <Logger name="org.eclipse.jetty" level="off"/>
+        <Logger name="org.eclipse.jetty" level="warn"/>
         <Logger name="org.openrepose" level="debug"/>
         <Logger name="org.rackspace.deproxy" level="info"/>
         <Logger name="org.springframework" level="warn"/>
@@ -45,5 +45,6 @@
 
         <!-- because adding the JUL bridge, I need to silence a bunch of internal sun stuff -->
         <Logger name="com.sun.xml.internal" level="warn"/>
+        <Logger name="sun.rmi" level="info"/>
     </Loggers>
 </Configuration>
