@@ -31,7 +31,7 @@ apply plugin: 'nebula.gradle-git-scm'
 apply plugin: 'org.hidetake.ssh'
 
 ext {
-    reposeCodename = "Ezio"
+    reposeCodename = "Falco"
     scalaMajor = '2'
     scalaMinor = '11'
     scalaPatch = '12'
