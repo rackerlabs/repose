@@ -43,6 +43,7 @@
 * https://repose.atlassian.net/browse/REP-7314[REP-7314] - Removed support for <<../architecture/system-model.adoc#,system model>> clusters.
 * https://repose.atlassian.net/browse/REP-7310[REP-7310] - Fixing the `IllegalArgumentException` thrown by the <<../filters/herp.adoc#, HERP Filter>> when incorrectly attempting to decode query parameters.
 * https://repose.atlassian.net/browse/REP-7387[REP-7387] - The <<../filters/ip-user.adoc#, IP User>> filter now returns a `400` when the X-Forwarded-For header contains a bad value.
+* https://repose.atlassian.net/browse/REP-7386[REP-7386] - Added support for the `upgrade_account` account-level permission in the <<../filters/valkyrie-authorization.adoc#, Valkyrie Authorization Filter>>.
 
 == 8.10.0.0 (2018-08-27)
 * https://repose.atlassian.net/browse/REP-6969[REP-6969] - Added support for more expressive filter determination in the <<../architecture/system-model.adoc#,System Model>> using boolean operators.

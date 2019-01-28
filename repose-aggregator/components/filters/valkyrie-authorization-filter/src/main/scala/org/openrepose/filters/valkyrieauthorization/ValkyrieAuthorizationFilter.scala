@@ -19,23 +19,23 @@
  */
 package org.openrepose.filters.valkyrieauthorization
 
-import java.io.{ByteArrayInputStream, InputStream}
+import java.io.ByteArrayInputStream
 import java.net.URL
 import java.util.concurrent.TimeUnit
 import java.util.regex.PatternSyntaxException
 
-import javax.inject.{Inject, Named}
-import javax.servlet._
-import javax.servlet.http.HttpServletResponse._
-import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import javax.ws.rs.core.HttpHeaders.RETRY_AFTER
 import com.fasterxml.jackson.core.JsonParseException
 import com.josephpconley.jsonpath.JSONPath
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.jsonpath.AST.{Field, PathToken, RootNode}
 import io.gatling.jsonpath.Parser
-import org.apache.http.client.methods.{CloseableHttpResponse, RequestBuilder}
+import javax.inject.{Inject, Named}
+import javax.servlet._
+import javax.servlet.http.HttpServletResponse._
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import javax.ws.rs.core.HttpHeaders.RETRY_AFTER
+import org.apache.http.client.methods._
 import org.apache.http.util.EntityUtils
 import org.openrepose.commons.utils.http.CommonHttpHeader.{AUTH_TOKEN, TRACE_GUID}
 import org.openrepose.commons.utils.http.OpenStackServiceHeader.{CONTACT_ID, ROLES, TENANT_ID, TENANT_ROLES_MAP}
@@ -219,6 +219,8 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         if (authorizingPermissions.nonEmpty) {
           permissions.copy(roles = permissions.roles ++ authorizingPermissions)
         } else if (permissions.roles.contains(AccountAdmin) && configuration.isEnableBypassAccountAdmin) {
+          permissions
+        } else if (permissions.roles.contains(UpgradeAccount) && configuration.isEnableUpgradeAccountPermissions && method == "DELETE") {
           permissions
         } else {
           ResponseResult(SC_FORBIDDEN, "Not Authorized")
@@ -512,6 +514,7 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
 object ValkyrieAuthorizationFilter {
   final val DeviceId = "X-Device-Id"
   final val AccountAdmin = "account_admin"
+  final val UpgradeAccount = "upgrade_account"
   final val CachePrefix = "VALKYRIE-FILTER"
 
   type DeviceToPermissions = Map[Int, Set[String]]

@@ -147,35 +147,36 @@ This configuration will authorize non-admin users, translate permissions to role
         cache-timeout-millis="300000" <!--1-->
         enable-masking-403s="false" <!--2-->
         enable-bypass-account-admin="false" <!--3-->
-        connection-pool-id="valkyrie-auth-pool" <!--4-->
-        pass-non-dedicated-tenant="false"> <!--5-->
+        enable-upgrade-account-permissions="false" <!--4-->
+        connection-pool-id="valkyrie-auth-pool" <!--5-->
+        pass-non-dedicated-tenant="false"> <!--6-->
 
-    <delegating quality="0.9"/> <!--6-->
+    <delegating quality="0.9"/> <!--7-->
 
-    <valkyrie-server uri="http://theserver:8080"/> <!--7-->
+    <valkyrie-server uri="http://theserver:8080"/> <!--8-->
 
-    <translate-permissions-to-roles/> <!--8-->
+    <translate-permissions-to-roles/> <!--9-->
 
-    <collection-resources device-id-mismatch-action="fail"> <!--9-->
+    <collection-resources device-id-mismatch-action="fail"> <!--10-->
         <resource>
-            <path-regex http-methods="GET"> <!--10-->
-                /devices/.* <!--11-->
+            <path-regex http-methods="GET"> <!--11-->
+                /devices/.* <!--12-->
             </path-regex>
             <collection>
-                <json> <!--12-->
-                    <path-to-collection>$.values</path-to-collection> <!--13-->
+                <json> <!--13-->
+                    <path-to-collection>$.values</path-to-collection> <!--14-->
                     <path-to-device-id>
-                        <path>$.uri</path> <!--14-->
-                        <regex capture-group="1">http://core.rackspace.com/accounts/\d*/devices/(\d*)</regex> <!--15-->
+                        <path>$.uri</path> <!--15-->
+                        <regex capture-group="1">http://core.rackspace.com/accounts/\d*/devices/(\d*)</regex> <!--16-->
                     </path-to-device-id>
-                    <path-to-item-count>$.metadata.count</path-to-item-count> <!--16-->
+                    <path-to-item-count>$.metadata.count</path-to-item-count> <!--17-->
                 </json>
             </collection>
         </resource>
     </collection-resources>
 
-    <pre-authorized-roles> <!--17-->
-        <role>admin</role> <!--18-->
+    <pre-authorized-roles> <!--18-->
+        <role>admin</role> <!--19-->
         <role>openstack:admin</role>
     </pre-authorized-roles>
 </valkyrie-authorization>
@@ -188,34 +189,40 @@ This configuration will authorize non-admin users, translate permissions to role
     This has the potential to increase the response time.
     If enabled (`true`), then the secondary authorization call is bypassed and no culling of the origin service response will occur. +
     Default: `false`
-<4> Specifies the connection pool to use by ID. +
+<4> Specifies whether or not to consider the `upgrade_account` account-level permission during authorization. +
+    If enabled (`true`), the Valkyrie filter will take the `upgrade_account` permission into consideration during authorization.
+    The `upgrade_account` permission will allow a user to `DELETE` any device on the account or to create a new device on the account. +
+    If disabled (`false`), the Valkyrie filter will not take the `upgrade_account` permission into consideration during authorization.
+    No additional actions will be authorized due to the presence of the `upgrade_account` permission. +
+    Default: `false`
+<5> Specifies the connection pool to use by ID. +
     Default: `default`
-<5> Specifies whether or not to verify that the `X-Tenant-Id` header starts with `hybrid:`.
+<6> Specifies whether or not to verify that the `X-Tenant-Id` header starts with `hybrid:`.
     If disabled (`false`), this filter will verify that the `X-Tenant-Id` header starts with `hybrid:` (indicating a dedicated tenant) before making a request to Valkyrie.
     If the header does not start with `hybrid:` (indicating a non-dedicated tenant), the request is immediately rejected.
     If enabled (`true`), the filter will be skipped for non-dedicated tenants allowing processing to continue. +
     Default: `false`
-<6> Specifies whether or not to send a failing response when an invalid state is reach.
+<7> Specifies whether or not to send a failing response when an invalid state is reach.
 If present, the filter will not send a failing response.
 Instead, it will add the data relating to the failure to a header and forward the request to be handled by a different filter or service.
 If not present, the filter will send a failing response when an invalid state is reached.
 See <<derp.adoc#, DeRP Filter>> and <<../recipes/user-access-events.adoc#, User Access Events>> for more details.
-<7> Specifies the URI of the Valkyrie service.
-<8> Specifies whether or not to translate Valkyrie account permissions to roles, including  the specific device permission for requests including a `X-Device-Id` header.
-<9> Specifies the action to take when a null or non-matching JSON value is found where a device ID is expected.
+<8> Specifies the URI of the Valkyrie service.
+<9> Specifies whether or not to translate Valkyrie account permissions to roles, including  the specific device permission for requests including a `X-Device-Id` header.
+<10> Specifies the action to take when a null or non-matching JSON value is found where a device ID is expected.
 See the schema in <<General filter information>> for available actions.
-<10> Specifies which request methods this resource path should enable culling for.
-<11> Specifies a regular expression.
+<11> Specifies which request methods this resource path should enable culling for.
+<12> Specifies a regular expression.
 All resources matching this regular expression will having culling enabled.
-<12> Specifies that the response body will be JSON.
-<13> Specifies the path to the collection to be culled relative to the document root.
+<13> Specifies that the response body will be JSON.
+<14> Specifies the path to the collection to be culled relative to the document root.
 In this case, JSONPath is used since the response body will be JSON.
-<14> Specifies the path to the field containing the device ID relative to an object within the collection.
-<15> Specifies a regular expression used to extract the device ID from the field specified by the path.
+<15> Specifies the path to the field containing the device ID relative to an object within the collection.
+<16> Specifies a regular expression used to extract the device ID from the field specified by the path.
 Also specifies the capture group within the regular expression which captures the device ID.
-<16> Specifies the path to the field containing the item count for the collection relative to the document root.
-<17> Specifies a collection of pre-authorized (admin) roles.
-<18> Specifies the name of a particular pre-authorized (admin) role.
+<17> Specifies the path to the field containing the item count for the collection relative to the document root.
+<18> Specifies a collection of pre-authorized (admin) roles.
+<19> Specifies the name of a particular pre-authorized (admin) role.
 
 [WARNING]
 ====
