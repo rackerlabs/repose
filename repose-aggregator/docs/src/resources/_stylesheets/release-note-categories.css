@@ -1,0 +1,26 @@
+/* Styling for release note tags */
+
+.enhancement-tag, .breaking-tag, .bug-tag, .new-tag {
+    color: black;
+    border-radius: 3px;
+    display: inline;
+    font-weight: bold;
+    padding: 2px 6px;
+    text-align: center;
+}
+
+.new-tag {
+    background-color: #2070F3;
+}
+
+.enhancement-tag {
+    background-color: #4caf50;
+}
+
+.bug-tag {
+    background-color: #ffeb3b;
+}
+
+.breaking-tag {
+    background-color: #d9534f;
+}
