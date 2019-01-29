@@ -11,12 +11,14 @@ MAINTAINER The Repose Team <reposecore@rackspace.com>
 EXPOSE 8080 10037
 
 RUN apt-get update -qq && apt-get install -y -qq \
+    apt-transport-https \
+    ca-certificates \
     wget \
     curl \
     python-pip \
     openjdk-8-jre-headless
-RUN wget -O - http://repo.openrepose.org/debian/pubkey.gpg | apt-key add -
-RUN echo "deb http://repo.openrepose.org/debian stable main" > /etc/apt/sources.list.d/openrepose.list
+RUN wget --quiet -O - https://nexus.openrepose.org/repository/el/RPM_GPG_KEY-openrepose | apt-key add -
+RUN echo 'deb https://nexus.openrepose.org/repository/debian stable main' > /etc/apt/sources.list.d/openrepose.list
 
 # Note: The COPY instruction was used rather than VOLUME since the behave of VOLUME varies based on the host OS
 COPY etc_repose /release-verification/etc_repose

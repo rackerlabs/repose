@@ -9,7 +9,7 @@ ARG REPOSE_VERSION
 
 # Install Repose (and Java) from the Debian package repository.
 RUN yum update -q -y && yum install -q -y wget java-1.8.0-openjdk-headless
-RUN wget --quiet -O /etc/yum.repos.d/openrepose.repo http://repo.openrepose.org/el/openrepose.repo
+RUN wget --quiet -O /etc/yum.repos.d/openrepose.repo https://nexus.openrepose.org/repository/el/openrepose.repo
 RUN yum update -q -y && yum install -q -y repose-$REPOSE_VERSION repose-filter-bundle-$REPOSE_VERSION repose-extensions-filter-bundle-$REPOSE_VERSION repose-experimental-filter-bundle-$REPOSE_VERSION
 
 ENV APP_ROOT=/etc/repose

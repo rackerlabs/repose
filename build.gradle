@@ -481,8 +481,8 @@ sonarqube {
 
 remotes {
     packageRepo {
-        user = 'repose-dev'
-        host = 'repo.openrepose.org'
+        user = 'repose-publish'
+        host = 'nexus.openrepose.org'
         def repoKey = new File("${System.properties['user.home']}/.ssh/repo_key")
         if (repoKey.exists()) {
             identity = file(repoKey)

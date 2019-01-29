@@ -50,6 +50,7 @@
 ** Removing a log event with a message including `Repose Devs might care about this trace` by the `org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser` logger.
 ** Changing the log level of events relating to unpacking artifacts by the `org.openrepose.commons.utils.classloader.EarClassProvider` logger from `debug` to `trace`.
 * https://repose.atlassian.net/browse/REP-7519[REP-7519] - Added support for proxies to the <<../services/http-client.adoc#, HTTP Client Service>>.
+* https://repose.atlassian.net/browse/REP-7534[REP-7534] - Updated all repository references to the new location.
 
 == 8.10.0.0 (2018-08-27)
 * https://repose.atlassian.net/browse/REP-6969[REP-6969] - Added support for more expressive filter determination in the <<../architecture/system-model.adoc#,System Model>> using boolean operators.
