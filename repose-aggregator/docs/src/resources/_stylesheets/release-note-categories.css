@@ -1,0 +1,47 @@
+/* Styling for release note tags */
+
+.release-note-tag {
+    color: black;
+    background-color: #5cb85c;
+    border-radius: 3px;
+    display: inline;
+    font-weight: bold;
+    padding: 2px 6px;
+    text-align: center;
+}
+
+.added-tag {
+    background-color: #4caf50;
+}
+
+.bug-added-tag {
+    background-color: #ffeb3b;
+}
+
+.breaking-added-tag {
+    background-color: #d9534f;
+}
+
+.updated-tag {
+    background-color: #4caf50;
+}
+
+.bug-updated-tag {
+    background-color: #ffeb3b;
+}
+
+.breaking-updated-tag {
+    background-color: #d9534f;
+}
+
+.removed-tag {
+    background-color: #4caf50;
+}
+
+.bug-removed-tag {
+    background-color: #ffeb3b;
+}
+
+.breaking-removed-tag {
+    background-color: #d9534f;
+}
