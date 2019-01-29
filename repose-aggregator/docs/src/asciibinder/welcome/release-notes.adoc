@@ -3,7 +3,7 @@
 == 9.0.0.0 (2018-??-??)
 <<ver-9-upgrade-notes.adoc, Upgrade Notes>>
 
-* https://repose.atlassian.net/browse/REP-4992[REP-4922] - Removed ambiguous setting for chunked encoding options on <<../services/http-client.adoc, HTTP Client/Connection Pool Service>>.
+* https://repose.atlassian.net/browse/REP-4992[REP-4992] - Removed ambiguous setting for chunked encoding options on <<../services/http-client.adoc, HTTP Client/Connection Pool Service>>.
 * https://repose.atlassian.net/browse/REP-3589[REP-3589] - Rewrote the <<../services/http-client.adoc#, HTTP Client Service>>.
 ** Redesigned the <<../services/http-client.adoc#, HTTP Client Service>> API.
 ** Moved the `chunked-encoding` configuration from the <<../services/http-client.adoc#configuration, HTTP Client Service configuration>> to the <<../architecture/system-model.adoc#configuration, System Model configuration>>.
