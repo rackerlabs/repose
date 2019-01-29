@@ -26,7 +26,7 @@ RUN yum update -y --quiet && yum install -y --quiet \
     java-1.8.0-openjdk-headless
 RUN easy_install pip
 RUN pip install --upgrade pip setuptools
-RUN wget --quiet -O /etc/yum.repos.d/openrepose.repo http://repo.openrepose.org/el/openrepose.repo
+RUN wget --quiet -O /etc/yum.repos.d/openrepose.repo https://nexus.openrepose.org/repository/el/openrepose.repo
 
 # Note: The COPY instruction was used rather than VOLUME since the behave of VOLUME varies based on the host OS
 COPY etc_repose /release-verification/etc_repose

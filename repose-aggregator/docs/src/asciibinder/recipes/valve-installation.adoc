@@ -16,11 +16,11 @@ sudo apt-get update
 sudo apt-get upgrade -y
 
 # install potentially missing packages needed to install Repose
-sudo apt-get install -y wget
+sudo apt-get install -y apt-transport-https ca-certificates wget
 
 # add openrepose.org repository
-wget -O - http://repo.openrepose.org/debian/pubkey.gpg | sudo apt-key add -
-sudo sh -c 'echo "deb http://repo.openrepose.org/debian stable main" > /etc/apt/sources.list.d/openrepose.list'
+wget -O - https://nexus.openrepose.org/repository/el/RPM_GPG_KEY-openrepose | sudo apt-key add -
+sudo sh -c 'echo "deb https://nexus.openrepose.org/repository/debian stable main" > /etc/apt/sources.list.d/openrepose.list'
 sudo apt-get update
 
 # install Repose
@@ -40,7 +40,7 @@ sudo yum install -y wget
 sudo yum install -y daemonize
 
 # add openrepose.org repository
-sudo wget -O /etc/yum.repos.d/openrepose.repo http://repo.openrepose.org/el/openrepose.repo
+sudo wget -O /etc/yum.repos.d/openrepose.repo https://nexus.openrepose.org/repository/el/openrepose.repo
 
 # install Repose
 sudo yum install -y repose repose-filter-bundle repose-extensions-filter-bundle
