@@ -3,19 +3,17 @@
 == 9.0.0.0 (2018-??-??)
 <<ver-9-upgrade-notes.adoc, Upgrade Notes>>
 
-* *Added* | https://repose.atlassian.net/browse/REP-6603[REP-6603] - Added support for multiple capture groups to the <<../filters/url-extractor-to-header.adoc#, URL Extractor to Header Filter>>.
-* *Added* | https://repose.atlassian.net/browse/REP-7386[REP-7386] - Added support for the `upgrade_account` account-level permission in the <<../filters/valkyrie-authorization.adoc#, Valkyrie Authorization Filter>>.
-* *Added* | https://repose.atlassian.net/browse/REP-7519[REP-7519] - Added support for proxies to the <<../services/http-client.adoc#, HTTP Client Service>>.
-* *Updated* | https://repose.atlassian.net/browse/REP-6379[REP-6379] - Updated the recommended SSL Protocol and Cipher lists and clarified this in the in the <<../architecture/container.adoc#, Container>> documentation.
-* *Updated* | https://repose.atlassian.net/browse/REP-7534[REP-7534] - Updated all repository references to the new location.
-
-* *Bug Fix* | *Updated* | https://repose.atlassian.net/browse/REP-7310[REP-7310] - Fixing the `IllegalArgumentException` thrown by the <<../filters/herp.adoc#, HERP Filter>> when incorrectly attempting to decode query parameters.
-* *Bug Fix* | *Updated* | https://repose.atlassian.net/browse/REP-7387[REP-7387] - The <<../filters/ip-user.adoc#, IP User>> filter now returns a `400` when the X-Forwarded-For header contains a bad value.
-
-* *Breaking Change* | *Added* | https://repose.atlassian.net/browse/REP-6663[REP-6663] - Added support for forwarding the response status line reason phrase from the origin service.
-* *Breaking Change* | *Updated* | https://repose.atlassian.net/browse/REP-5147[REP-5147] - The <<../filters/header-normalization.adoc#, Header Normalization>> filter now evaluates all targets not just the first to match.
-* *Breaking Change* | *Updated* | https://repose.atlassian.net/browse/REP-3589[REP-3589] - Rewrote the <<../services/http-client.adoc#, HTTP Client Service>>.
-* *Breaking Change* | *Updated* | https://repose.atlassian.net/browse/REP-7231[REP-7231] - Switching over to new filter, filter chain, and servlet classes.
+* image:../../_images/g-plus.png[title="Added"] https://repose.atlassian.net/browse/REP-6603[REP-6603] - Added support for multiple capture groups to the <<../filters/url-extractor-to-header.adoc#, URL Extractor to Header Filter>>.
+* image:../../_images/g-plus.png[title="Added"] https://repose.atlassian.net/browse/REP-7386[REP-7386] - Added support for the `upgrade_account` account-level permission in the <<../filters/valkyrie-authorization.adoc#, Valkyrie Authorization Filter>>.
+* image:../../_images/g-plus.png[title="Added"] https://repose.atlassian.net/browse/REP-7519[REP-7519] - Added support for proxies to the <<../services/http-client.adoc#, HTTP Client Service>>.
+* image:../../_images/g-plus.png[title="Added"] https://repose.atlassian.net/browse/REP-6663[REP-6663] - Added support for forwarding the response status line reason phrase from the origin service.
+* image:../../_images/g-triangle.png[title="Updated"] https://repose.atlassian.net/browse/REP-6379[REP-6379] - Updated the recommended SSL Protocol and Cipher lists and clarified this in the in the <<../architecture/container.adoc#, Container>> documentation.
+* image:../../_images/g-triangle.png[title="Updated"] https://repose.atlassian.net/browse/REP-7534[REP-7534] - Updated all repository references to the new location.
+* image:../../_images/y-triangle.png[title="Updated | Bug Fix"] https://repose.atlassian.net/browse/REP-7310[REP-7310] - Fixing the `IllegalArgumentException` thrown by the <<../filters/herp.adoc#, HERP Filter>> when incorrectly attempting to decode query parameters.
+* image:../../_images/y-triangle.png[title="Updated | Bug Fix"] https://repose.atlassian.net/browse/REP-7387[REP-7387] - The <<../filters/ip-user.adoc#, IP User>> filter now returns a `400` when the X-Forwarded-For header contains a bad value.
+* image:../../_images/r-triangle.png[title="Updated | Breaking Change"] https://repose.atlassian.net/browse/REP-5147[REP-5147] - The <<../filters/header-normalization.adoc#, Header Normalization>> filter now evaluates all targets not just the first to match.
+* image:../../_images/r-triangle.png[title="Updated | Breaking Change"] https://repose.atlassian.net/browse/REP-3589[REP-3589] - Rewrote the <<../services/http-client.adoc#, HTTP Client Service>>.
+* image:../../_images/r-triangle.png[title="Updated | Breaking Change"] https://repose.atlassian.net/browse/REP-7231[REP-7231] - Switching over to new filter, filter chain, and servlet classes.
 ** Many unused and deprecated classes have been removed.
 ** The <<../filters/scripting.adoc#, Scripting Filter>> has been moved from the `repose-experimental-filter-bundle` to the `repose-filter-bundle`.
 ** Removed support for the <<../services/response-message.adoc#, Response Messaging Service>>.
@@ -39,20 +37,20 @@
 ** Moved the HTTP request method check to the beginning of processing rather than just before proxying the request.
    As a result, *Repose* will reject requests with an unsupported HTTP method before any filter processing can occur.
 *** Updated the HTTP response status code returned for a request with an unsupported method from a `500` to a `405`.
-* *Breaking Change* | *Updated* | https://repose.atlassian.net/browse/REP-7490[REP-7490] - Cleaning up some log messages in pursuit of more meaningful logging.
+* image:../../_images/r-triangle.png[title="Updated | Breaking Change"] https://repose.atlassian.net/browse/REP-7490[REP-7490] - Cleaning up some log messages in pursuit of more meaningful logging.
 ** Changing the `org.eclipse.jetty` logger level from `off` to `warn` in the default `log4j2.xml` configuration file.
 ** Removing a log event with a message including `Repose Devs might care about this trace` by the `org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser` logger.
 ** Changing the log level of events relating to unpacking artifacts by the `org.openrepose.commons.utils.classloader.EarClassProvider` logger from `debug` to `trace`.
-* *Breaking Change* | *Removed* | https://repose.atlassian.net/browse/REP-4992[REP-4992] - Removed ambiguous setting for chunked encoding options on <<../services/http-client.adoc, HTTP Client/Connection Pool Service>>.
-* *Breaking Change* | *Removed* | https://repose.atlassian.net/browse/REP-7201[REP-7201] - The Rackspace Auth User, SAML Policy Translation, and Attribute Mapping Policy Validation filters were removed and placed in their own bundle.
-* *Breaking Change* | *Removed* | https://repose.atlassian.net/browse/REP-5326[REP-5326] - Removed the deprecated via attribute from the <<../architecture/container.adoc#, Container configuration>>.
-* *Breaking Change* | *Removed* | https://repose.atlassian.net/browse/REP-7338[REP-7338] - The WAR deployment was removed as an option.
-* *Breaking Change* | *Removed* | https://repose.atlassian.net/browse/REP-4990[REP-4990] - Removed deprecated cache attributes from the <<../filters/openstack-identity-v3.adoc#, OpenStack Identity v3 Filter>>.
+* image:../../_images/r-minus.png[title="Removed | Breaking Change"] https://repose.atlassian.net/browse/REP-4992[REP-4992] - Removed ambiguous setting for chunked encoding options on <<../services/http-client.adoc, HTTP Client/Connection Pool Service>>.
+* image:../../_images/r-minus.png[title="Removed | Breaking Change"] https://repose.atlassian.net/browse/REP-7201[REP-7201] - The Rackspace Auth User, SAML Policy Translation, and Attribute Mapping Policy Validation filters were removed and placed in their own bundle.
+* image:../../_images/r-minus.png[title="Removed | Breaking Change"] https://repose.atlassian.net/browse/REP-5326[REP-5326] - Removed the deprecated via attribute from the <<../architecture/container.adoc#, Container configuration>>.
+* image:../../_images/r-minus.png[title="Removed | Breaking Change"] https://repose.atlassian.net/browse/REP-7338[REP-7338] - The WAR deployment was removed as an option.
+* image:../../_images/r-minus.png[title="Removed | Breaking Change"] https://repose.atlassian.net/browse/REP-4990[REP-4990] - Removed deprecated cache attributes from the <<../filters/openstack-identity-v3.adoc#, OpenStack Identity v3 Filter>>.
 ** Cache timeouts are now defined in seconds rather than milliseconds.
-* *Breaking Change* | *Removed* | https://repose.atlassian.net/browse/REP-7428[REP-7428] - Removed support for URI-based tenant validation in the <<../filters/keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>> and <<../filters/keystone-v2.adoc#, Keystone v2 Filter>>.
-* *Breaking Change* | *Removed* | https://repose.atlassian.net/browse/REP-4993[REP-4993] - Flush output filter was removed.
-* *Breaking Change* | *Removed* | https://repose.atlassian.net/browse/REP-7314[REP-7314] - Removed support for <<../architecture/system-model.adoc#,system model>> clusters.
-* *Breaking Change* | *Removed* | https://repose.atlassian.net/browse/REP-7486[REP-7486] - Removed the Response Messaging Service itself and documented a replacement solution.
+* image:../../_images/r-minus.png[title="Removed | Breaking Change"] https://repose.atlassian.net/browse/REP-7428[REP-7428] - Removed support for URI-based tenant validation in the <<../filters/keystone-v2-authorization.adoc#, Keystone v2 Authorization Filter>> and <<../filters/keystone-v2.adoc#, Keystone v2 Filter>>.
+* image:../../_images/r-minus.png[title="Removed | Breaking Change"] https://repose.atlassian.net/browse/REP-4993[REP-4993] - Flush output filter was removed.
+* image:../../_images/r-minus.png[title="Removed | Breaking Change"] https://repose.atlassian.net/browse/REP-7314[REP-7314] - Removed support for <<../architecture/system-model.adoc#,system model>> clusters.
+* image:../../_images/r-minus.png[title="Removed | Breaking Change"] https://repose.atlassian.net/browse/REP-7486[REP-7486] - Removed the Response Messaging Service itself and documented a replacement solution.
 
 == 8.10.0.0 (2018-08-27)
 * https://repose.atlassian.net/browse/REP-6969[REP-6969] - Added support for more expressive filter determination in the <<../architecture/system-model.adoc#,System Model>> using boolean operators.
