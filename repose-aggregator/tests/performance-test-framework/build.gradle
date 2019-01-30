@@ -3,3 +3,7 @@ dependencies {
     compileOnly 'io.gatling:gatling-core'
     compileOnly 'io.gatling:gatling-http'
 }
+
+dependencyCheck {
+    skip = true
+}

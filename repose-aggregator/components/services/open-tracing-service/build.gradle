@@ -8,6 +8,7 @@ dependencies {
     compile "org.springframework:spring-beans"
     compile "io.opentracing:opentracing-api"
     compile "io.opentracing:opentracing-util"
+    compile 'org.apache.thrift:libthrift' // Forces the version used by jaeger-core.
     compile "io.jaegertracing:jaeger-core"
 
     compileOnly "javax.servlet:javax.servlet-api"

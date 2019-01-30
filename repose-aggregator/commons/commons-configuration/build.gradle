@@ -5,6 +5,7 @@ dependencies {
     compile "xalan:xalan:2.7.1"
     compile "org.slf4j:slf4j-api"
     compile "commons-io:commons-io"
+    compile "com.google.guava:guava" // Forces the version used by jtwig-core
     compile "org.jtwig:jtwig-core"
 
     compileOnly "javax.servlet:javax.servlet-api"
@@ -14,6 +15,7 @@ dependencies {
     testCompile "org.mockito:mockito-core"
     testCompile "org.scala-lang:scala-library"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
+    testCompile "org.scala-lang:scala-reflect" // Forces the version used by scala-logging.
     testCompile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.spockframework:spock-core"

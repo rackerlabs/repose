@@ -3,6 +3,7 @@ dependencies {
     compile project(":repose-aggregator:commons:commons-utilities")
     compile "org.slf4j:slf4j-api"
     compile "org.scala-lang:scala-library"
+    compile "org.scala-lang:scala-reflect" // Forces the version used by scala-logging.
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
     compile "io.gatling:jsonpath_$scalaMajDotMin"
