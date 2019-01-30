@@ -33,7 +33,7 @@ import scala.util.Random
   */
 class IdentityTransferEncodingSimulation extends AbstractReposeSimulation {
 
-  final val BodySize: Int = 1048576
+  final val BodySize: Int = 10485
 
   // set up the warm up scenario
   override val warmupScenario = scenario("Warmup")
@@ -53,8 +53,8 @@ class IdentityTransferEncodingSimulation extends AbstractReposeSimulation {
   // make a request with non-streamed content (using a known-size ByteArrayBody)
   def postRequest: HttpRequestBuilder = {
     http(session => session.scenario)
-      .post("/transferencoding/chunked")
-      .body(ByteArrayBody(new Random().alphanumeric.take(BodySize).map(_.toByte).toArray))
+      .post("/transferencoding/identity")
+      .body(StringBody(new Random().alphanumeric.take(BodySize).mkString))
       .header(HeaderNames.ContentType, HeaderValues.TextPlain)
       .header(HttpHeaderNames.Host, "localhost")
       .check(status.is(201))
