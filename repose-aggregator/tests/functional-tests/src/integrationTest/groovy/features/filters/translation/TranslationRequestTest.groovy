@@ -19,13 +19,16 @@
  */
 package features.filters.translation
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Handling
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.XmlParsing
 import spock.lang.Unroll
 
+@Category(XmlParsing)
 class TranslationRequestTest extends ReposeValveTest {
 
     static String xmlPayLoad = "<a><remove-me>test</remove-me>somebody</a>"

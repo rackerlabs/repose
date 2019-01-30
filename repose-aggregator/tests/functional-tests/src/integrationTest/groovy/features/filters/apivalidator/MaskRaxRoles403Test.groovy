@@ -19,9 +19,11 @@
  */
 package features.filters.apivalidator
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.XmlParsing
 import spock.lang.Unroll
 
 /**
@@ -29,6 +31,7 @@ import spock.lang.Unroll
  * This test to verify that user can validate roles via api-checker and
  * set up mask-rax-roles-403 option to get resp code 404 or 405 instead of 403.
  */
+@Category(XmlParsing)
 class MaskRaxRoles403Test extends ReposeValveTest {
 
     def setupSpec() {

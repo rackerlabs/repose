@@ -20,10 +20,13 @@
 package features.filters.apivalidator
 
 import groovy.json.JsonSlurper
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.XmlParsing
 
+@Category(XmlParsing)
 class ApiValidatorDelegatingWAuditingTest extends ReposeValveTest {
     def static originEndpoint
 

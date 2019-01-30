@@ -19,14 +19,17 @@
  */
 package features.filters.apivalidator
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.XmlParsing
 import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 11/3/14.
  */
+@Category(XmlParsing)
 class ApiValidatorDelegatingTest extends ReposeValveTest {
 
     def setupSpec() {

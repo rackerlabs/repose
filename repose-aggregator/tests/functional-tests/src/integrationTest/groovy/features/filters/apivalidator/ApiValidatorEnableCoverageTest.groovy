@@ -19,9 +19,11 @@
  */
 package features.filters.apivalidator
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.XmlParsing
 import spock.lang.Unroll
 
 /**
@@ -29,6 +31,7 @@ import spock.lang.Unroll
  *  This test verify api stage machine coverage
  */
 
+@Category(XmlParsing)
 class ApiValidatorEnableCoverageTest extends ReposeValveTest {
     String intrumentedHandler = 'com.rackspace.com.papi.components.checker:type=handler*,*'
     def static s0_count = 0

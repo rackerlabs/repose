@@ -25,10 +25,11 @@ import org.openrepose.framework.test.ReposeValveTest
 import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.XmlParsing
 
 import javax.servlet.http.HttpServletResponse
 
-@Category (Slow.class)
+@Category(XmlParsing)
 class ValidatorConfiguratorTest extends ReposeValveTest {
     def static params = [:]
 

@@ -17,12 +17,14 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.apivalidator.saxonEE
+package features.filters.apivalidator.saxonee
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.XmlParsing
 
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
 import static javax.servlet.http.HttpServletResponse.SC_OK
@@ -31,6 +33,7 @@ import static javax.servlet.http.HttpServletResponse.SC_OK
  * Api validator tests ported over from and JMeter
  */
 
+@Category(XmlParsing)
 class ApiValidatorSaxonFailTest extends ReposeValveTest {
 
     def setupSpec() {

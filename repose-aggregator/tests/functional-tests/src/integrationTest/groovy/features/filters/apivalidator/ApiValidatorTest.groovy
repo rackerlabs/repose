@@ -19,10 +19,12 @@
  */
 package features.filters.apivalidator
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.XmlParsing
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.*
@@ -31,6 +33,7 @@ import static javax.servlet.http.HttpServletResponse.*
  * Api validator tests ported over from and JMeter
  */
 
+@Category(XmlParsing)
 class ApiValidatorTest extends ReposeValveTest {
 
     private final String baseGroupPath = "/wadl/group1"

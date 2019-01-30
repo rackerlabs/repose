@@ -21,13 +21,13 @@ package features.filters.translation.saxonEE
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.SaxonEE
+import scaffold.category.XmlParsing
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Handling
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 
-@Category(SaxonEE.class)
+@Category(XmlParsing)
 class TranslationSaxonEEFunctionalityTest extends ReposeValveTest {
 
     def static String xmlPayLoad = "<a>test</a>"

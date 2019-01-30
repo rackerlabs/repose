@@ -20,11 +20,13 @@
 package features.filters.apivalidator
 
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.XmlParsing
 import spock.lang.Unroll
 
 /**
@@ -33,6 +35,7 @@ import spock.lang.Unroll
  *  - Api Validator with delegable set to true
  *  - keystone-v2 with delegating set to true
  */
+@Category(XmlParsing)
 class ApiValidatorDelegatingWAuthDelegatingTest extends ReposeValveTest {
 
     def static originEndpoint

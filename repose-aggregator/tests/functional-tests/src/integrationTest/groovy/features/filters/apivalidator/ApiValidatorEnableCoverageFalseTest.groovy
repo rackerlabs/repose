@@ -24,12 +24,13 @@ import org.openrepose.framework.test.ReposeValveTest
 import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.XmlParsing
 import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 6/12/14.
  */
-@Category(Slow.class)
+@Category(XmlParsing)
 class ApiValidatorEnableCoverageFalseTest extends ReposeValveTest {
     String intrumentedHandler = 'com.rackspace.com.papi.components.checker:*'
 
