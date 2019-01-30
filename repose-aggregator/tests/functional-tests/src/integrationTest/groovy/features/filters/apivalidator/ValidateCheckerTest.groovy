@@ -21,7 +21,6 @@ package features.filters.apivalidator
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
 import scaffold.category.XmlParsing
 import spock.lang.Unroll

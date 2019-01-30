@@ -22,9 +22,8 @@ package features.core.valveselfconfigure
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Core
-import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Core
 import spock.lang.Shared
 
 @Category(Core)

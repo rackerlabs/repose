@@ -27,7 +27,6 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import scaffold.category.Filters
-import spock.lang.Ignore
 import spock.lang.Unroll
 
 @Category(Filters)

@@ -21,8 +21,8 @@ package features.filters.headernormalization
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Filters
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 @Category(Filters)

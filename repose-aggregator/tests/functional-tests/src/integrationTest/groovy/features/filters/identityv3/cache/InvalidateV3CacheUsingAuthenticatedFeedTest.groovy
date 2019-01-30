@@ -22,14 +22,13 @@ package features.filters.identityv3.cache
 import features.filters.keystonev2.AtomFeedResponseSimulator
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Filters
-import scaffold.category.Slow
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.openrepose.framework.test.mocks.MockIdentityV3Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 
 @Category(Filters)
 class InvalidateV3CacheUsingAuthenticatedFeedTest extends ReposeValveTest {

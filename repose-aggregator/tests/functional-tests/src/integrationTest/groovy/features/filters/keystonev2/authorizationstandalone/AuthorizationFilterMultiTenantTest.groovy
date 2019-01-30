@@ -24,14 +24,10 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import scaffold.category.Filters
-import scaffold.category.Slow
 
-import static javax.servlet.http.HttpServletResponse.SC_OK
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
-import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-import static org.openrepose.commons.utils.string.Base64Helper.base64EncodeUtf8
+import static javax.servlet.http.HttpServletResponse.*
 import static org.openrepose.commons.utils.string.Base64Helper.base64DecodeUtf8
+import static org.openrepose.commons.utils.string.Base64Helper.base64EncodeUtf8
 
 @Category(Filters)
 class AuthorizationFilterMultiTenantTest extends ReposeValveTest {

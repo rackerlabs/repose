@@ -21,7 +21,6 @@ package features.services.opentracing
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import org.openrepose.framework.test.mocks.MockTracerAgent
 import org.openrepose.framework.test.mocks.MockTracerCollector
 import org.rackspace.deproxy.Deproxy
 import scaffold.category.Services

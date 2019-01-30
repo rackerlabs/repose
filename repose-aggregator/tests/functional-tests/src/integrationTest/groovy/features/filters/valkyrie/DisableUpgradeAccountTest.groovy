@@ -28,8 +28,6 @@ import org.rackspace.deproxy.MessageChain
 import scaffold.category.Filters
 import spock.lang.Unroll
 
-import static org.openrepose.commons.utils.http.OpenStackServiceHeader.ROLES
-
 @Category(Filters)
 class DisableUpgradeAccountTest extends ReposeValveTest {
     def static originEndpoint

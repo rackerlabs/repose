@@ -24,10 +24,10 @@ import org.openrepose.commons.utils.io.ObjectSerializer
 import org.openrepose.core.services.datastore.types.StringValue
 import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Services
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.springframework.http.HttpHeaders
+import scaffold.category.Services
 
 @Category(Services)
 class DistDatastoreServiceTest extends ReposeValveTest {

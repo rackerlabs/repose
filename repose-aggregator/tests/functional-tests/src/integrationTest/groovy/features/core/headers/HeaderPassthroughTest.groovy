@@ -28,7 +28,8 @@ import scaffold.category.Core
 import spock.lang.Ignore
 import spock.lang.Unroll
 
-import static javax.servlet.http.HttpServletResponse.*
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+import static javax.servlet.http.HttpServletResponse.SC_OK
 import static org.openrepose.commons.utils.http.CommonHttpHeader.VIA
 
 @Category(Core)

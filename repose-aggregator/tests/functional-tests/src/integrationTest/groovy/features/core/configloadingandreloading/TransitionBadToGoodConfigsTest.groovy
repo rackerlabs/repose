@@ -24,7 +24,6 @@ import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import scaffold.category.Core
-import scaffold.category.Slow
 import spock.lang.Shared
 import spock.lang.Unroll
 

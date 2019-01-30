@@ -29,7 +29,8 @@ import org.rackspace.deproxy.Response
 import scaffold.category.Filters
 import spock.lang.Unroll
 
-import static javax.servlet.http.HttpServletResponse.*
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED
 
 /**
  * Created by jamesc on 12/1/14.

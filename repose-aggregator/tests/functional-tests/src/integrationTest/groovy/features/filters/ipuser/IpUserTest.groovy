@@ -26,10 +26,6 @@ import org.rackspace.deproxy.Handling
 import org.rackspace.deproxy.MessageChain
 import scaffold.category.Filters
 
-import java.util.concurrent.TimeUnit
-
-import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE
-
 @Category(Filters)
 class IpUserTest extends ReposeValveTest {
 

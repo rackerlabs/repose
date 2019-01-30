@@ -24,7 +24,6 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockTracerAgent
 import org.rackspace.deproxy.Deproxy
 import scaffold.category.Services
-import spock.lang.Ignore
 import spock.lang.Unroll
 
 /**

@@ -19,14 +19,13 @@
  */
 package features.filters.keystonev2.authorization
 
-import features.filters.keystonev2.authorizationstandalone.AuthorizationFilterMultiTenantTest
+
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import scaffold.category.Filters
-import scaffold.category.Slow
 
 import static javax.servlet.http.HttpServletResponse.SC_OK
 import static org.openrepose.commons.utils.string.Base64Helper.base64DecodeUtf8

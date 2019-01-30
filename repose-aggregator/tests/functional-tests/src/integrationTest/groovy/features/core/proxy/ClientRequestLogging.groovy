@@ -21,9 +21,9 @@ package features.core.proxy
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Bug
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Bug
 
 /**
  * User: dimi5963

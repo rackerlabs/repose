@@ -25,12 +25,10 @@ import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import scaffold.category.Filters
-import scaffold.category.Slow
 import spock.lang.Unroll
 
-import static javax.servlet.http.HttpServletResponse.SC_OK
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
-
+import static javax.servlet.http.HttpServletResponse.SC_OK
 
 @Category(Filters)
 class AuthorizationFilterTest extends ReposeValveTest {

@@ -25,8 +25,6 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import scaffold.category.Core
 
-import javax.servlet.http.HttpServletResponse
-
 import static javax.servlet.http.HttpServletResponse.SC_BAD_GATEWAY
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 

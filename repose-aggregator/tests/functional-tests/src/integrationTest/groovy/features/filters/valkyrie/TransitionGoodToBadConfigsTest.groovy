@@ -21,11 +21,10 @@ package features.filters.valkyrie
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Filters
-import scaffold.category.Slow
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.openrepose.framework.test.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Filters
 
 import java.util.concurrent.TimeUnit
 

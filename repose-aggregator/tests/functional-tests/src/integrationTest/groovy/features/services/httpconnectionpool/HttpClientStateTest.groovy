@@ -21,7 +21,6 @@ package features.services.httpconnectionpool
 
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
-import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.impl.client.HttpClients
 import org.eclipse.jetty.server.Handler
 import org.eclipse.jetty.server.Server

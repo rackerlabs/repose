@@ -28,7 +28,6 @@ import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
 import scaffold.category.Services
-import scaffold.category.Slow
 
 import java.util.concurrent.TimeUnit
 

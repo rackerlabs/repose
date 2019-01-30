@@ -26,7 +26,6 @@ import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import scaffold.category.Filters
-import spock.lang.Ignore
 
 /**
  * Created by jennyvo on 8/28/15.
