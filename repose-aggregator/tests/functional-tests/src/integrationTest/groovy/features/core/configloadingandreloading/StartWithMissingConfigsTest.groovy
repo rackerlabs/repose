@@ -21,12 +21,13 @@ package features.core.configloadingandreloading
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
+import scaffold.category.Core
 import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
 import spock.lang.Shared
 import spock.lang.Unroll
 
-@Category(Slow.class)
+@Category(Core)
 class StartWithMissingConfigsTest extends ReposeValveTest {
 
     @Shared

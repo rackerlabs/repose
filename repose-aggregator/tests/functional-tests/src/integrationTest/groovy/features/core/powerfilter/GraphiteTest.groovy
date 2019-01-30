@@ -19,11 +19,14 @@
  */
 package features.core.powerfilter
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockGraphite
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Core
 
+@Category(Core)
 class GraphiteTest extends ReposeValveTest {
 
     static final String METRIC_PREFIX = "test\\.1\\.metrics"

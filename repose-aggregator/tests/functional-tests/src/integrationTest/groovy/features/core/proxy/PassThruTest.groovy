@@ -24,8 +24,10 @@ import org.openrepose.framework.test.ReposeValveTest
 import scaffold.category.Bug
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Response
+import scaffold.category.Core
 import spock.lang.Unroll
 
+@Category(Core)
 class PassThruTest extends ReposeValveTest {
 
     def setupSpec() {

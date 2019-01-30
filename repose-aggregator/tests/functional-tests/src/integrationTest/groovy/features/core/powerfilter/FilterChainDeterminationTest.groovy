@@ -19,11 +19,14 @@
  */
 package features.core.powerfilter
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Core
 import spock.lang.Ignore
 import spock.lang.Unroll
 
+@Category(Core)
 class FilterChainDeterminationTest extends ReposeValveTest {
 
     final static String HEADER_NAME = "Applied-Filters"

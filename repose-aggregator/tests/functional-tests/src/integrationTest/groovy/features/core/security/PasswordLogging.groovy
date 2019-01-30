@@ -19,12 +19,15 @@
  */
 package features.core.security
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Core
 
 /**
  * D-15183 Ensure passwords are not logged when in DEBUG mode and config files are updated.
  */
+@Category(Core)
 class PasswordLogging extends ReposeValveTest {
 
     def setupSpec() {

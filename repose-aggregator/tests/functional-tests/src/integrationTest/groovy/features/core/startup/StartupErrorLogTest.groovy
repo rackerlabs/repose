@@ -19,9 +19,12 @@
  */
 package features.core.startup
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Core
 
+@Category(Core)
 class StartupErrorLogTest extends ReposeValveTest {
 
     def setupSpec() {

@@ -24,6 +24,7 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import scaffold.category.Smoke
 
+@Category(Smoke)
 class ApiValidatorRunSmokeTest extends ReposeValveTest {
 
     def setupSpec() {
@@ -37,7 +38,6 @@ class ApiValidatorRunSmokeTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(properties.reposeEndpoint)
     }
 
-    @Category(Smoke)
     def "when request is sent check to make sure it goes through ip-user and API-Validator filters"() {
         when:
         deproxy.makeRequest(

@@ -23,13 +23,14 @@ import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Core
 import scaffold.category.Slow
 import spock.lang.Unroll
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 import static org.openrepose.framework.test.ReposeLauncher.MAX_STARTUP_TIME
 
-@Category(Slow)
+@Category(Core)
 class DefaultDestinationTest extends ReposeValveTest {
 
     Map params = [:]

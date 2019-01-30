@@ -19,16 +19,19 @@
  */
 package features.core.headers
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Core
 import spock.lang.Ignore
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.*
 import static org.openrepose.commons.utils.http.CommonHttpHeader.VIA
 
+@Category(Core)
 class HeaderPassthroughTest extends ReposeValveTest {
 
     def setupSpec() {

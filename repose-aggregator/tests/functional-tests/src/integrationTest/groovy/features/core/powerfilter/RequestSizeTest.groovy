@@ -20,15 +20,18 @@
 package features.core.powerfilter
 
 import org.apache.commons.lang3.RandomStringUtils
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Header
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Core
 import spock.lang.Unroll
 
 /**
  * Setup: the configuration for this test has a container.cfg.xml with a content-body-read-limit="32000"
  */
+@Category(Core)
 class RequestSizeTest extends ReposeValveTest {
 
     String charset = (('A'..'Z') + ('0'..'9')).join()

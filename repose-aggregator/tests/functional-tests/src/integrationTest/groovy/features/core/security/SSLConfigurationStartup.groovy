@@ -25,8 +25,10 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.ssl.SSLContexts
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Core
 import spock.lang.Unroll
 
 import java.nio.file.Files
@@ -34,6 +36,7 @@ import java.nio.file.Files
 /**
  * Make sure we can start up with SSL configuration parameters
  */
+@Category(Core)
 class SSLConfigurationStartup extends ReposeValveTest {
 
     def setupSpec() {
