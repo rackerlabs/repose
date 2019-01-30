@@ -20,12 +20,15 @@
 package features.services.datastore
 
 import org.apache.commons.lang3.RandomStringUtils
+import org.junit.experimental.categories.Category
 import org.openrepose.commons.utils.io.ObjectSerializer
 import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Services
 
+@Category(Services)
 class DistDatastoreServiceGetTest extends ReposeValveTest {
 
     //Since we're serializing objects here for the dist datastore, we must have the dist datastore objects in our classpath

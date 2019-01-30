@@ -25,9 +25,11 @@ import org.eclipse.jetty.http.HttpVersion
 import org.eclipse.jetty.server.*
 import org.eclipse.jetty.server.handler.AbstractHandler
 import org.eclipse.jetty.util.ssl.SslContextFactory
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Services
 import spock.lang.Shared
 
 import javax.servlet.ServletException
@@ -39,6 +41,7 @@ import java.util.concurrent.TimeUnit
 
 import static org.openrepose.framework.test.ReposeLauncher.MAX_STARTUP_TIME
 
+@Category(Services)
 class HttpsClientAuthMultiStorePoolTest extends ReposeValveTest {
 
     @Shared

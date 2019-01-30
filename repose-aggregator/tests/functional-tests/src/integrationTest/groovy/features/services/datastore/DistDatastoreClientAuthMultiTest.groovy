@@ -26,10 +26,12 @@ import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.ssl.SSLContexts
 import org.apache.http.util.EntityUtils
+import org.junit.experimental.categories.Category
 import org.openrepose.commons.utils.io.ObjectSerializer
 import org.openrepose.core.services.datastore.types.StringValue
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.*
+import scaffold.category.Services
 import spock.lang.Shared
 
 import javax.net.ssl.SSLContext
@@ -38,6 +40,7 @@ import java.util.concurrent.TimeUnit
 
 import static org.openrepose.framework.test.ReposeLauncher.MAX_STARTUP_TIME
 
+@Category(Services)
 class DistDatastoreClientAuthMultiTest extends ReposeValveTest {
     //Since we're serializing objects here for the dist datastore, we must have the dist datastore objects in our classpath
     final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())

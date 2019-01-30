@@ -21,11 +21,12 @@ package features.services.httpconnectionpool
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Handlers
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Services
 
+@Category(Services)
 class ConnectionPoolDecommissioningTest extends ReposeValveTest {
 
     def setupSpec() {
@@ -83,7 +84,6 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         repose.stop()
     }
 
-    @Category(Slow)
     def "active connections should stay alive during config changes and log an error"() {
         given:
         def MessageChain messageChain
@@ -115,7 +115,6 @@ class ConnectionPoolDecommissioningTest extends ReposeValveTest {
         repose.stop()
     }
 
-    @Category(Slow)
     def "under heavy load and constant HTTPClientService reconfigures, should not drop in use connections"() {
 
         given: "Repose is up and the HTTPClientService has been configured"

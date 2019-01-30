@@ -19,16 +19,19 @@
  */
 package features.services.opentracing
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockTracerAgent
 import org.openrepose.framework.test.mocks.MockTracerCollector
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Services
 import spock.lang.Ignore
 import spock.lang.Unroll
 
 /**
  * Tests that sampling probability type is set to 0 (nothing gets reported)
  */
+@Category(Services)
 class OpenTracingServiceProbabilisticSetToZeroHttpTest extends ReposeValveTest {
 
     def static originEndpoint

@@ -19,15 +19,18 @@
  */
 package features.services.opentracing
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockTracerAgent
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Services
 import spock.lang.Ignore
 import spock.lang.Unroll
 
 /**
  * Tests that sampling rate limiting type is set to 5 rps
  */
+@Category(Services)
 class OpenTracingServiceRateLimitedUdpTest extends ReposeValveTest {
 
     def static originEndpoint

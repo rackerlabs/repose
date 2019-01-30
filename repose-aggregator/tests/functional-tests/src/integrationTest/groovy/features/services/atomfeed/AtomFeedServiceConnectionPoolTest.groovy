@@ -23,7 +23,7 @@ package features.services.atomfeed
 import features.filters.keystonev2.AtomFeedResponseSimulator
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
+import scaffold.category.Services
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
@@ -33,7 +33,7 @@ import spock.lang.Unroll
 
 import java.util.concurrent.TimeUnit
 
-@Category(Slow.class)
+@Category(Services)
 class AtomFeedServiceConnectionPoolTest extends ReposeValveTest {
 
     Endpoint atomEndpoint

@@ -26,7 +26,7 @@ import scaffold.category.Bug
 import org.rackspace.deproxy.Deproxy
 
 @Category(Bug.class)
-//@Category(Slow.class)
+//@Category(Services)
 class DistDatastoreServiceBurstTest extends ReposeValveTest {
     static def datastoreEndpoint1
 
