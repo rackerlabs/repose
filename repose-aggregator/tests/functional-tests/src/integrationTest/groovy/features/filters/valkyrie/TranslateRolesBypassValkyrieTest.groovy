@@ -19,11 +19,13 @@
  */
 package features.filters.valkyrie
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.openrepose.framework.test.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.ROLES
 
@@ -32,6 +34,7 @@ import static org.openrepose.commons.utils.http.OpenStackServiceHeader.ROLES
  *  Bypass the calls to Valkyrie if configured roles exist.
  *    This also means we will not do culling, device authorization or role translation
  */
+@Category(Filters)
 class TranslateRolesBypassValkyrieTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

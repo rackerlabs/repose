@@ -22,6 +22,7 @@ package features.filters.keystonev2.timeout
 import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
+import scaffold.category.Filters
 import scaffold.category.Slow
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
@@ -33,7 +34,7 @@ import javax.servlet.http.HttpServletResponse
  * Created by jennyvo on 11/9/15.
  *  Verify no pool id in the keystone config will take default connection pool
  */
-@Category(Slow.class)
+@Category(Filters)
 class NoPoolIdTimeoutUsingDefaultTest extends ReposeValveTest {
 
     def static originEndpoint

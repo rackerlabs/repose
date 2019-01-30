@@ -19,10 +19,12 @@
  */
 package features.filters.keystonev2.tenantandroleshandling
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 /**
@@ -34,6 +36,7 @@ import spock.lang.Unroll
  *      3, forward all roles if tenanted mode, roles legacy mode disabled, but pre-authorize role set for user
  *      4, forward only role(s) that tenant associated with. if tenanted mode and role legacy mode disabled
  */
+@Category(Filters)
 class Keystonev2NonTenantAndIso8559Test extends ReposeValveTest {
 
     def static originEndpoint

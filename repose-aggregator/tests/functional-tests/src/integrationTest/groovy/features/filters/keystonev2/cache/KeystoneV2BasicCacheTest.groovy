@@ -19,11 +19,14 @@
  */
 package features.filters.keystonev2.cache
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 
+@Category(Filters)
 class KeystoneV2BasicCacheTest extends ReposeValveTest {
 
     static MockIdentityV2Service fakeIdentityV2Service

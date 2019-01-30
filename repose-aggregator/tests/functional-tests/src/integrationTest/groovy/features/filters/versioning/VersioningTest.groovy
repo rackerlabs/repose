@@ -20,10 +20,12 @@
 package features.filters.versioning
 
 import groovy.json.JsonSlurper
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 /**
@@ -31,6 +33,7 @@ import spock.lang.Unroll
  * Date: 9/11/13
  * Time: 5:03 PM
  */
+@Category(Filters)
 class VersioningTest extends ReposeValveTest {
     def static Map acceptXML = [accept: "application/xml"]
     def static Map acceptJSON = [accept: "application/json"]

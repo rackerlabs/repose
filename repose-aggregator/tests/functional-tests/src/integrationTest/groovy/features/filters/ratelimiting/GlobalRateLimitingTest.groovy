@@ -21,10 +21,10 @@ package features.filters.ratelimiting
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 import static org.hamcrest.Matchers.equalTo
@@ -33,6 +33,7 @@ import static org.junit.Assert.assertThat
 /**
  * Created by jennyvo on 7/30/14.
  */
+@Category(Filters)
 class GlobalRateLimitingTest extends ReposeValveTest {
     final handler = { return new Response(200, "OK") }
 
@@ -84,7 +85,6 @@ class GlobalRateLimitingTest extends ReposeValveTest {
         messageChain.receivedResponse.code.equals("503")
     }
 
-    @Category(Slow.class)
     def "When Run with different users, hit the same resource, global limit share between users"() {
         given: "the rate-limit has not been reached"
         //waitForLimitReset

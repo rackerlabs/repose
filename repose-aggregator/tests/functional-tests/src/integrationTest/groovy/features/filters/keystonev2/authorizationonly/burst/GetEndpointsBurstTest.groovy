@@ -19,13 +19,16 @@
  */
 package features.filters.keystonev2.authorizationonly.burst
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 import spock.lang.Unroll
 
+@Category(Filters)
 class GetEndpointsBurstTest extends ReposeValveTest {
 
     def static originEndpoint

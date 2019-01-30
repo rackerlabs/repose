@@ -19,9 +19,11 @@
  */
 package features.filters.bodyextractortoheader
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 import static org.junit.Assert.assertEquals
@@ -31,6 +33,7 @@ import static org.junit.Assert.assertTrue
  * Created by jennyvo on 4/28/16.
  *  Verify body extractor to headers
  */
+@Category(Filters)
 class BodyExtractorToHeaderTest extends ReposeValveTest {
     def setupSpec() {
         reposeLogSearch.cleanLog()

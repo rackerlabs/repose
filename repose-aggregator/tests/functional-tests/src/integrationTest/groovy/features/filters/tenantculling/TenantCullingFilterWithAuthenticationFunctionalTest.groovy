@@ -22,12 +22,14 @@ package features.filters.tenantculling
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import org.apache.commons.lang3.RandomStringUtils
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -39,6 +41,7 @@ import static org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ROLES_MAP
 import static org.openrepose.commons.utils.http.PowerApiHeader.RELEVANT_ROLES
 
+@Category(Filters)
 class TenantCullingFilterWithAuthenticationFunctionalTest extends ReposeValveTest {
     static final def BODY_CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWYZabcdefghijklmnopqrstuvwyz '
 

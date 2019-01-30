@@ -20,15 +20,18 @@
 package features.filters.keystonev2.tenantvalidation
 
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 8/11/15.
  */
+@Category(Filters)
 class BypassTenantRolesWQualityTest extends ReposeValveTest {
 
     def static originEndpoint

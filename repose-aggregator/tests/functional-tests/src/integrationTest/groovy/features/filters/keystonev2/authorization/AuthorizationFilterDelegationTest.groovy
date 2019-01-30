@@ -24,12 +24,13 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 import scaffold.category.Slow
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.SC_OK
 
-@Category(Slow.class)
+@Category(Filters)
 class AuthorizationFilterDelegationTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

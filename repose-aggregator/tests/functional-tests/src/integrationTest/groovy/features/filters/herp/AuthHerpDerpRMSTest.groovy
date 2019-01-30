@@ -20,11 +20,13 @@
 package features.filters.herp
 
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 import spock.lang.Ignore
 import spock.lang.Unroll
 
@@ -34,6 +36,7 @@ import spock.lang.Unroll
  *  - Replace client-auth-n with keystone-v2 filter
  */
 @Ignore
+@Category(Filters)
 class AuthHerpDerpRMSTest extends ReposeValveTest {
 
     def static originEndpoint

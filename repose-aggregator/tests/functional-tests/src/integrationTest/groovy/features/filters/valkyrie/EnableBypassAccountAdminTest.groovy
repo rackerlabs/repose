@@ -19,11 +19,13 @@
  */
 package features.filters.valkyrie
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.openrepose.framework.test.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.ROLES
@@ -34,6 +36,7 @@ import static org.openrepose.commons.utils.http.OpenStackServiceHeader.ROLES
  * Update on 01/28/15
  *  - replace client-auth with keystone-v2
  */
+@Category(Filters)
 class EnableBypassAccountAdminTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

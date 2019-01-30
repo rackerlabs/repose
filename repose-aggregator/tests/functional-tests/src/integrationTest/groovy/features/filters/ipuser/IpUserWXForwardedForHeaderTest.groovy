@@ -19,9 +19,11 @@
  */
 package features.filters.ipuser
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
 
@@ -29,6 +31,7 @@ import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
  * Created by jennyvo on 4/26/16.
  *  REP-3838 fix using x-forward-for as x-pp-user
  */
+@Category(Filters)
 class IpUserWXForwardedForHeaderTest extends ReposeValveTest {
 
     def setupSpec() {

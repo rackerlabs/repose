@@ -19,10 +19,13 @@
  */
 package features.filters.slf4jlogging
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeLogSearch
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Filters
 
+@Category(Filters)
 class Slf4jHttpLoggingCustomDateFormatTest extends ReposeValveTest {
     def setupSpec() {
         //remove old log

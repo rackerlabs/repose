@@ -21,6 +21,7 @@ package features.filters.valkyrie
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
+import scaffold.category.Filters
 import scaffold.category.Slow
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.openrepose.framework.test.mocks.MockValkyrie
@@ -32,7 +33,7 @@ import java.util.concurrent.TimeUnit
  * Update on 01/28/15
  *  - replace client-auth with keystone-v2
  */
-@Category(Slow.class)
+@Category(Filters)
 class TransitionGoodToBadConfigsTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

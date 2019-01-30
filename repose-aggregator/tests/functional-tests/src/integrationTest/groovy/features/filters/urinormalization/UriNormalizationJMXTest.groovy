@@ -17,16 +17,16 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.uriNormalization
+package features.filters.urinormalization
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
+import scaffold.category.Filters
 import org.rackspace.deproxy.Deproxy
 
 import static javax.servlet.http.HttpServletResponse.SC_OK
 
-@Category(Slow.class)
+@Category(Filters)
 class UriNormalizationJMXTest extends ReposeValveTest {
 
     private static final String KEY_PROPERTIES_PREFIX =

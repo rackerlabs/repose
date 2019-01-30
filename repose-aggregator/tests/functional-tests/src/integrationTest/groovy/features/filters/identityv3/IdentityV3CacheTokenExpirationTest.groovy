@@ -20,10 +20,12 @@
 package features.filters.identityv3
 
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV3Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 import spock.lang.Ignore
 
 /**
@@ -31,6 +33,7 @@ import spock.lang.Ignore
  * test token max expired
  */
 @Ignore("Ignore this test for now since we haven't explicitly logged the WARN message to client")
+@Category(Filters)
 class IdentityV3CacheTokenExpirationTest extends ReposeValveTest {
     def originEndpoint
     def identityEndpoint

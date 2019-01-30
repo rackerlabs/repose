@@ -20,9 +20,11 @@
 
 package features.filters.keystonev2.rcn
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Filters
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -33,6 +35,7 @@ import static javax.servlet.http.HttpServletResponse.SC_OK
 /**
  * Same as KeystoneV2ApplyRcnRolesDisabledTest but without retries and admin tests.
  */
+@Category(Filters)
 class KeystoneV2ApplyRcnRolesDisabledWithSelfValidationTest extends ReposeValveTest {
     private static final String APPLY_RCN_ROLES = "apply_rcn_roles"
     private static final Pattern TOKEN_VALIDATION_PATH = ~$/$/v2.0/tokens/[^/]+/$

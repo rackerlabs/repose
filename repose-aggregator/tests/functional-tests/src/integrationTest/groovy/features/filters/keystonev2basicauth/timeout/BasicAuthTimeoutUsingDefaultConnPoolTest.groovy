@@ -23,6 +23,7 @@ import org.apache.commons.codec.binary.Base64
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeLogSearch
 import org.openrepose.framework.test.ReposeValveTest
+import scaffold.category.Filters
 import scaffold.category.Slow
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
@@ -37,7 +38,7 @@ import javax.ws.rs.core.HttpHeaders
  * Update on 01/21/16
  *  - Replace client-auth-n with keystone-v2 filter
  */
-@Category(Slow.class)
+@Category(Filters)
 class BasicAuthTimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

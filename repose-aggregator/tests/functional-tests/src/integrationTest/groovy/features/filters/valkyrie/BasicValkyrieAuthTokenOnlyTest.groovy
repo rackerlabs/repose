@@ -20,17 +20,20 @@
 
 package features.filters.valkyrie
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.openrepose.framework.test.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 /**
   Created by joelrizner on 5/31/16
   Basically a copy of BasicValkyrieTest where the config contains no username or password headers.
  */
+@Category(Filters)
 class BasicValkyrieAuthTokenOnlyTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

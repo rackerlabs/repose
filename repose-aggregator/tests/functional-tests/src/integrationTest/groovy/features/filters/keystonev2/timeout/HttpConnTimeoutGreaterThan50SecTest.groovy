@@ -22,6 +22,7 @@ package features.filters.keystonev2.timeout
 import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
+import scaffold.category.Filters
 import scaffold.category.Slow
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
@@ -35,7 +36,7 @@ import javax.servlet.http.HttpServletResponse
  *  timeout. Test is checking If the HttpClient connection timeout is greater than 50 seconds,
  *  then it is not triggered prematurely at 50 seconds.
  */
-@Category(Slow)
+@Category(Filters)
 class HttpConnTimeoutGreaterThan50SecTest extends ReposeValveTest {
 
     def static originEndpoint

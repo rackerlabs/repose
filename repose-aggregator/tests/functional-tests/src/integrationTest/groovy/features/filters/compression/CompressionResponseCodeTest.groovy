@@ -19,11 +19,14 @@
  */
 package features.filters.compression
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 
+@Category(Filters)
 class CompressionResponseCodeTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()

@@ -20,17 +20,20 @@
 package features.filters.valkyrie
 
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.openrepose.framework.test.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 
 /**
  * Created by jennyvo on 4/21/15.
  * Update on 01/28/15
  *  - replace client-auth with keystone-v2
  */
+@Category(Filters)
 class ValkyrieAuthorizationCacheTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

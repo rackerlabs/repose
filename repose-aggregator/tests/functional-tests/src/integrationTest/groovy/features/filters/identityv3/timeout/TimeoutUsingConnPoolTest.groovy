@@ -22,6 +22,7 @@ package features.filters.identityv3.timeout
 import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
+import scaffold.category.Filters
 import scaffold.category.Slow
 import org.openrepose.framework.test.mocks.MockIdentityV3Service
 import org.rackspace.deproxy.Deproxy
@@ -30,7 +31,7 @@ import org.rackspace.deproxy.MessageChain
 /**
  * Created by jennyvo on 11/9/15.
  */
-@Category(Slow.class)
+@Category(Filters)
 class TimeoutUsingConnPoolTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

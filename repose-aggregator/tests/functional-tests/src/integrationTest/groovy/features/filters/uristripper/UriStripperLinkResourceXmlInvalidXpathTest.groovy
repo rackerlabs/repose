@@ -19,11 +19,14 @@
  */
 package features.filters.uristripper
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Filters
 
 import javax.servlet.http.HttpServletResponse
 
+@Category(Filters)
 class UriStripperLinkResourceXmlInvalidXpathTest extends ReposeValveTest {
 
     def setupSpec() {

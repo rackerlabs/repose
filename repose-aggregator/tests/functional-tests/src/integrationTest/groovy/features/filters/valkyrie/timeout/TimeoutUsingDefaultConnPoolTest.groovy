@@ -21,6 +21,7 @@ package features.filters.valkyrie.timeout
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
+import scaffold.category.Filters
 import scaffold.category.Slow
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.openrepose.framework.test.mocks.MockValkyrie
@@ -33,7 +34,7 @@ import org.rackspace.deproxy.MessageChain
  * update on 02/04/15
  *  using using keystonev2 filter
  */
-@Category(Slow.class)
+@Category(Filters)
 class TimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

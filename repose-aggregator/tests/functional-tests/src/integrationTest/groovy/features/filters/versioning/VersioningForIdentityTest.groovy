@@ -20,14 +20,17 @@
 package features.filters.versioning
 
 import groovy.json.JsonSlurper
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 5/31/16.
  *  Versioning for identity when config versioning with json-format="IDENTITY"
  */
+@Category(Filters)
 class VersioningForIdentityTest extends ReposeValveTest {
     def static Map acceptXML = [accept: "application/xml"]
     def static Map acceptJSON = [accept: "application/json"]

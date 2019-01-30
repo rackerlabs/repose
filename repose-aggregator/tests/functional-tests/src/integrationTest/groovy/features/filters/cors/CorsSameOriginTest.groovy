@@ -27,10 +27,12 @@ import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.ssl.SSLContexts
 import org.apache.http.util.EntityUtils
+import org.junit.experimental.categories.Category
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.CorsHttpHeader
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.*
+import scaffold.category.Filters
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -40,6 +42,7 @@ import static javax.servlet.http.HttpServletResponse.*
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
 import static javax.ws.rs.core.HttpHeaders.HOST
 
+@Category(Filters)
 class CorsSameOriginTest extends ReposeValveTest {
 
     private static final String RESPONSE_BODY = "The fish flies at night."

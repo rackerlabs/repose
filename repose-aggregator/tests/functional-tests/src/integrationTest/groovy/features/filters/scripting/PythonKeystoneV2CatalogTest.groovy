@@ -20,6 +20,7 @@
 package features.filters.scripting
 
 import groovy.text.SimpleTemplateEngine
+import org.junit.experimental.categories.Category
 import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
@@ -27,9 +28,11 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 
 import javax.servlet.http.HttpServletResponse
 
+@Category(Filters)
 class PythonKeystoneV2CatalogTest extends ReposeValveTest {
     static tenantId = "mytenant"
 

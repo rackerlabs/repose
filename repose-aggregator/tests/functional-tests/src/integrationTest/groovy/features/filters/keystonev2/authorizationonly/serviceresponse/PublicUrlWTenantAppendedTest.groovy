@@ -19,14 +19,17 @@
  */
 package features.filters.keystonev2.authorizationonly.serviceresponse
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 
 /**
  * Created by jennyvo on 12/2/15.
  */
+@Category(Filters)
 class PublicUrlWTenantAppendedTest extends ReposeValveTest {
 
     def static originEndpoint
