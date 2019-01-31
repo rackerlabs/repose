@@ -9,3 +9,6 @@ This is a lot of information we found useful as developers on using Docker with 
 
 === <<performance.adoc#,Performance Testing>>
 Provides detail about the performance testing framework.
+
+=== <<functional.adoc#,Functional Testing>>
+Provides detail about the functional testing framework.

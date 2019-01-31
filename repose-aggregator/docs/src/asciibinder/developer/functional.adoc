@@ -1,0 +1,21 @@
+= Functional Testing
+
+== Test Categorization
+The functional tests are categorized for easy division of labor when running the build.
+The primary categorization is along package lines `Core`, `Services`, and `Filters`.
+If a test needs further consideration because of unique needs we use the additional categories `Bug`, `Intense`, `XmlParser`, `Smoke`, and `Recipe`.
+
+While the build could be split strictly along package lines with the unique status categories applied on top, for ease of understanding and configuring the build it was decided to map packages onto categories as well.
+For the same reasons it was decided to only allow one category per test, with a special status category taking precedence over a package category.
+
+=== Package Categories
+* `Core` - Denotes a test that cares about core *Repose* functionality such as configuration loading and startup.
+* `Services` - Denotes a test that is primarily about testing the functionality of one the services that *Repose* provides.
+* `Filters` - Denotes a test that is designed to test a specific filter and it's behavior.
+
+=== Status Categories
+* `Bug` - Denotes a test that highlights a known issue with *Repose* behavior.
+* `Intense` - Denotes a test that is known to be particularly resource intensive, typically because it starts up two or more instances of *Repose*.
+* `XmlParser` - Denotes a test that can potentially use *Saxon* for *XML* parsing, these tests will be run twice once with a *Saxon* license present and once without.
+* `Smoke` - Denotes a super simple test designed to prove that *Repose* can standup and process requests at all, generally there should only ever be one of these.
+* `Recipe` - Denotes a test that has a complex configuration design to test a needed use-case from end to end.
