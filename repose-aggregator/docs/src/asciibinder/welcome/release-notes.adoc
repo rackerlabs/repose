@@ -50,6 +50,7 @@
 * [.breaking-tag]#Breaking Change# | https://repose.atlassian.net/browse/REP-4993[REP-4993] - Flush output filter was removed.
 * [.breaking-tag]#Breaking Change# | https://repose.atlassian.net/browse/REP-7314[REP-7314] - Removed support for <<../architecture/system-model.adoc#,system model>> clusters.
 * [.breaking-tag]#Breaking Change# | https://repose.atlassian.net/browse/REP-7486[REP-7486] - Removed the Response Messaging Service and documented a replacement solution.
+* [.breaking-tag]#Breaking Change# | https://repose.atlassian.net/browse/REP-7391[REP-7391] - Removed the `soLingerTime` attribute from the <<../architecture/container.adoc#, Container configuration>>.
 
 == 8.10.0.0 (2018-08-27)
 * https://repose.atlassian.net/browse/REP-6969[REP-6969] - Added support for more expressive filter determination in the <<../architecture/system-model.adoc#,System Model>> using boolean operators.
