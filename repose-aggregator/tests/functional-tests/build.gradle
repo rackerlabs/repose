@@ -108,16 +108,28 @@ processIntegrationTestResources {
 
 integrationTest {
     useJUnit {
-        def runTest = project.findProperty("run") ?: 'Smoke'
+        def runTest = project.findProperty("run") ?: 'smoke'
         switch(runTest) {
-            case "main":
-                excludeCategories "scaffold.category.Bug", "scaffold.category.Intense"
+            case "all":
+                excludeCategories "scaffold.category.Bug"
+                break
+            case "core":
+                includeCategories "scaffold.category.Core"
+                break
+            case "filters":
+                includeCategories "scaffold.category.Filters"
                 break
             case "intense":
                 includeCategories "scaffold.category.Intense"
                 break
-            case "all":
-                excludeCategories "scaffold.category.Bug"
+            case "recipe":
+                includeCategories "scaffold.category.Recipe"
+                break
+            case "services":
+                includeCategories "scaffold.category.Services"
+                break
+            case "xml":
+                includeCategories "scaffold.category.XmlParsing"
                 break
             default:
                 includeCategories "scaffold.category.Smoke"
