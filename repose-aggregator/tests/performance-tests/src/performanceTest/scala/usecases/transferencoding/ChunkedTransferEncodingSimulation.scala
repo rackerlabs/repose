@@ -33,7 +33,7 @@ import scala.util.Random
   */
 class ChunkedTransferEncodingSimulation extends AbstractReposeSimulation {
 
-  final val BodySize: Int = 1048576
+  final val BodySize: Int = 10485
 
   // set up the warm up scenario
   override val warmupScenario = scenario("Warmup")
@@ -54,8 +54,8 @@ class ChunkedTransferEncodingSimulation extends AbstractReposeSimulation {
   def postRequest: HttpRequestBuilder = {
     http(session => session.scenario)
       .post("/transferencoding/chunked")
-      .body(ByteArrayBody(new Random().alphanumeric.take(BodySize).map(_.toByte).toArray))
-      .processRequestBody(streamBody)
+      .body(StringBody(new Random().alphanumeric.take(BodySize).mkString))
+      .header(HeaderNames.TransferEncoding, "chunked")
       .header(HeaderNames.ContentType, HeaderValues.TextPlain)
       .header(HttpHeaderNames.Host, "localhost")
       .check(status.is(201))
