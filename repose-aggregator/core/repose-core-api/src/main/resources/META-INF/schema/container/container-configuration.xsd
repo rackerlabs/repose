@@ -116,19 +116,6 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-
-                <xs:attribute name="soLingerTime" type="xs:int" use="optional" default="-1">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                                A value >=0 sets the socket SO_LINGER value in milliseconds.
-                                Repose (Jetty) attempts to gently close all TCP/IP connections with proper half close semantics,
-                                so a linger timeout should not be required and thus the default is -1.
-                                See: http://www.eclipse.org/jetty/documentation/current/configuring-connectors.html#jetty-connectors-network-settings
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

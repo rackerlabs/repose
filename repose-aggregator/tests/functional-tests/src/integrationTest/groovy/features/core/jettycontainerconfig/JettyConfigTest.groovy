@@ -42,25 +42,13 @@ class JettyConfigTest extends ReposeValveTest {
         repose.start()
     }
 
-    def "Repose should start and handle request normaly when the jetty server listening on both an HTTP port and an HTTPS port has non-default idleTimeout & soLingerTime"() {
+    def "Repose should start and handle request normaly when the jetty server listening on both an HTTP port and an HTTPS port has non-default idleTimeout"() {
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint)
 
         then:
         reposeLogSearch.searchByString("Repose ready").size() > 0
         mc.receivedResponse.code == "200"
-    }
-
-    def "reject a config with soLingerTime exceed max (int)"() {
-        params = properties.getDefaultTemplateParams()
-        repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/core/jettycontainerconfig/soLingerTimeexceedmax", params)
-
-        when:
-        sleep(15000)
-
-        then:
-        reposeLogSearch.searchByString("Value '2147483648' is not facet-valid with respect to maxInclusive '2147483647' for type 'int'.").size() > 0
     }
 
     def "reject a config with idleTimeout exceed max (long)"() {

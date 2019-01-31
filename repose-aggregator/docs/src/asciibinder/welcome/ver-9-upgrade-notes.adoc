@@ -93,6 +93,9 @@
 . The `via` attribute was removed from the <<../architecture/container.adoc#, container configuration>>.
   It has been replaced with the `via-header` element.
   To replicate the previous behavior set the value that was previously in the `via` attribute in the `request-prefix` and `response-prefix` attributes of the new element.
+. The `soLingerTime` attribute was removed from the <<../architecture/container.adoc#, container configuration>>.
+  The underlying Jetty server no longer respects this value and therefore Repose will no longer expose it.
+  To replicate the previous behavior you need to configure it in the operating system.
 
 == Deployment
 . Support for installing *Repose* into an existing container has been dropped. For help moving to another deployment see <<../recipes/valve-installation.adoc, Valve Installation>> and <<../recipes/quick-start.adoc, Quick Start with Docker>>.

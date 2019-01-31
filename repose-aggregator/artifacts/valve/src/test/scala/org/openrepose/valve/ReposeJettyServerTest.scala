@@ -43,9 +43,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
   val httpPort = Some(10234)
   val httpsPort = Some(10235)
   val idleTimeout = Some(10236L)
-  val soLingerTime = Some(10237)
   val DEFAULT_IDLE_TIMEOUT = 30000
-  val DEFAULT_SO_LINGER_TIME = -1
 
   val sslConfig = {
     val s = new SslConfiguration()
@@ -63,15 +61,13 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
       httpPort,
       None,
       None,
-      None,
       None
     )
 
     //Cannot verify too much, really can just prove that I have one connector
     repose.server.getConnectors.length shouldBe 1
-    // and it should have default idleTimeout & soLingerTime
+    // and it should have default idleTimeout
     repose.server.getConnectors.head.getIdleTimeout shouldBe DEFAULT_IDLE_TIMEOUT
-    repose.server.getConnectors.head.asInstanceOf[ServerConnector].getSoLingerTime shouldBe DEFAULT_SO_LINGER_TIME
   }
 
   it("can create a jetty server listening on an HTTPS port") {
@@ -81,15 +77,13 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
       None,
       httpsPort,
       sslConfig,
-      None,
       None
     )
 
     //Cannot verify too much, really can just prove that I have one connector
     repose.server.getConnectors.length shouldBe 1
-    // and it should have the default idleTimeout & soLingerTime
+    // and it should have the default idleTimeout
     repose.server.getConnectors.head.getIdleTimeout shouldBe DEFAULT_IDLE_TIMEOUT
-    repose.server.getConnectors.head.asInstanceOf[ServerConnector].getSoLingerTime shouldBe DEFAULT_SO_LINGER_TIME
   }
 
   it("can create a jetty server listening on both an HTTP port and an HTTPS port") {
@@ -99,68 +93,11 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
       httpPort,
       httpsPort,
       sslConfig,
-      None,
       None
     )
 
     //Cannot verify too much, really can just prove that I have two connectors
     repose.server.getConnectors.length shouldBe 2
-  }
-
-  it("the jetty server listening on an HTTP port and having a non-default idleTimeout") {
-    val repose = new ReposeJettyServer(
-      nodeContext,
-      "node",
-      httpPort,
-      None,
-      None,
-      idleTimeout,
-      None
-    )
-
-    //Cannot verify too much, really can just prove that I have one connector
-    repose.server.getConnectors.length shouldBe 1
-    // and it should have the new idleTimeout
-    repose.server.getConnectors.head.getIdleTimeout shouldBe idleTimeout.get
-    // and it should have the default soLingerTime
-    repose.server.getConnectors.head.asInstanceOf[ServerConnector].getSoLingerTime shouldBe DEFAULT_SO_LINGER_TIME
-  }
-
-  it("the jetty server listening on an HTTPS port and a non-default soLingerTime") {
-    val repose = new ReposeJettyServer(
-      nodeContext,
-      "node",
-      None,
-      httpsPort,
-      sslConfig,
-      None,
-      soLingerTime
-    )
-
-    //Cannot verify too much, really can just prove that I have one connector
-    repose.server.getConnectors.length shouldBe 1
-    // and it should have the default idleTimeout
-    repose.server.getConnectors.head.getIdleTimeout shouldBe DEFAULT_IDLE_TIMEOUT
-    // and it should have the new soLingerTime
-    repose.server.getConnectors.head.asInstanceOf[ServerConnector].getSoLingerTime shouldBe soLingerTime.get
-  }
-
-  it("the jetty server listening on both an HTTP port and an HTTPS port has non-default idleTimeout & soLingerTime") {
-    val repose = new ReposeJettyServer(
-      nodeContext,
-      "node",
-      httpPort,
-      httpsPort,
-      sslConfig,
-      idleTimeout,
-      soLingerTime
-    )
-
-    //Cannot verify too much, really can just prove that I have two connectors
-    repose.server.getConnectors.length shouldBe 2
-    // and both should have the new idleTimeout and the new soLingerTime
-    repose.server.getConnectors foreach { conn => conn.getIdleTimeout shouldBe idleTimeout.get }
-    repose.server.getConnectors foreach { conn => conn.asInstanceOf[ServerConnector].getSoLingerTime shouldBe soLingerTime.get }
   }
 
   it("raises an exception when an HTTPS port is specified, but no ssl config is provided") {
@@ -170,7 +107,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
         "node",
         None,
         httpsPort,
-        None,
         None,
         None
       )
@@ -182,7 +118,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
       new ReposeJettyServer(
         nodeContext,
         "node",
-        None,
         None,
         None,
         None,
@@ -201,8 +136,7 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
       httpPort,
       httpsPort,
       sslConfig,
-      idleTimeout,
-      soLingerTime
+      idleTimeout
     )
 
     repose.server.getErrorHandler.handle("some-target", baseRequest, request, response)
@@ -217,7 +151,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
       nodeContext,
       "node",
       httpPort,
-      None,
       None,
       None,
       None
@@ -241,7 +174,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
       nodeContext,
       "node",
       httpPort,
-      None,
       None,
       None,
       None
@@ -275,7 +207,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
       httpPort,
       None,
       None,
-      None,
       None
     )
     println(s"app context active: ${server.appContext.isActive}")
@@ -296,7 +227,6 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
       nodeContext,
       "le_node_id",
       Some(8080),
-      None,
       None,
       None,
       None

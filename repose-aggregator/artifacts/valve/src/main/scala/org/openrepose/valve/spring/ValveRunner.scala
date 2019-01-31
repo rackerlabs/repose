@@ -208,8 +208,7 @@ class ValveRunner @Inject()(
               val deploymentConfiguration = containerConfigurationService.getDeploymentConfiguration
               val sslConfig = Option(deploymentConfiguration.getSslConfiguration)
               val idleTimeout = Option(deploymentConfiguration.getIdleTimeout)
-              val soLingerTime = Option(deploymentConfiguration.getSoLingerTime)
-              val node = new ReposeJettyServer(nodeContext, n.nodeId, n.httpPort, n.httpsPort, sslConfig, idleTimeout, soLingerTime, testMode)
+              val node = new ReposeJettyServer(nodeContext, n.nodeId, n.httpPort, n.httpsPort, sslConfig, idleTimeout, testMode)
               try {
                 node.start()
                 //Update the MX bean with port info
