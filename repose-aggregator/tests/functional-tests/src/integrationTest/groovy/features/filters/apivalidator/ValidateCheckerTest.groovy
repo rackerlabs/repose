@@ -21,13 +21,13 @@ package features.filters.apivalidator
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.XmlParsing
 import spock.lang.Unroll
 
 import java.util.concurrent.TimeoutException
 
-@Category(Slow.class)
+@Category(XmlParsing)
 class ValidateCheckerTest extends ReposeValveTest {
 
     def setupSpec() {

@@ -22,9 +22,9 @@ package features.core.via
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Core
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -34,7 +34,7 @@ import static org.springframework.http.HttpHeaders.VIA
  * Tests the various possibilities for how the via-header element can be configured and their effect on the request and
  * response Via header values. This test has to start Repose for each configuration possibility.
  */
-@Category(Slow)
+@Category(Core)
 class ViaHeaderElementConfigAllPossibleConfigTest extends ReposeValveTest {
 
     @Shared String reposePort

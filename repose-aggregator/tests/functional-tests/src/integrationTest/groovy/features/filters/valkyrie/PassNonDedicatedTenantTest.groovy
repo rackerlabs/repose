@@ -20,13 +20,16 @@
 package features.filters.valkyrie
 
 import groovy.json.JsonSlurper
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 import spock.lang.Shared
 
+@Category(Filters)
 class PassNonDedicatedTenantTest extends ReposeValveTest {
 
     @Shared

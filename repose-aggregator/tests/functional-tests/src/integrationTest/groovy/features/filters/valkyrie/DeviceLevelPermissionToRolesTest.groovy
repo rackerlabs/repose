@@ -20,11 +20,13 @@
 package features.filters.valkyrie
 
 import groovy.json.JsonSlurper
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.openrepose.framework.test.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 import static java.nio.charset.StandardCharsets.UTF_8
@@ -37,6 +39,7 @@ import static org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_RO
  * Update on 01/28/15
  *  - replace client-auth with keystone-v2
  */
+@Category(Filters)
 class DeviceLevelPermissionToRolesTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

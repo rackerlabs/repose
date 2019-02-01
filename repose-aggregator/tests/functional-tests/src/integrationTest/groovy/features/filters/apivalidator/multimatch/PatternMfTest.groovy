@@ -19,10 +19,13 @@
  */
 package features.filters.apivalidator.multimatch
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.XmlParsing
 
+@Category(XmlParsing)
 class PatternMfTest extends ReposeValveTest {
 
     static def params

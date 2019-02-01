@@ -19,13 +19,16 @@
  */
 package features.core.classloader
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeConfigurationProvider
 import org.openrepose.framework.test.ReposeValveLauncher
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Core
 
+@Category(Core)
 class ClassLoaderTest extends ReposeValveTest {
     static int reposePort
     static String url

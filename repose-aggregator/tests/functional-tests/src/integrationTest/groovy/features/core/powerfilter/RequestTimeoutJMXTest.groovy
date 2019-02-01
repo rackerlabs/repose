@@ -19,12 +19,15 @@
  */
 package features.core.powerfilter
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Response
+import scaffold.category.Core
 
 import static javax.servlet.http.HttpServletResponse.SC_REQUEST_TIMEOUT
 
+@Category(Core)
 class RequestTimeoutJMXTest extends ReposeValveTest {
     private static final String KEY_PROPERTIES_PREFIX =
         /001="org",002="openrepose",003="core",004="RequestTimeout",005="TimeoutToOrigin"/

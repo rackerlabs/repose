@@ -19,9 +19,12 @@
  */
 package features.filters.apivalidator
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.XmlParsing
 
+@Category(XmlParsing)
 class ApiValidatorJMXTest extends ReposeValveTest {
     private static final String KEY_PROPERTIES_PREFIX =
         /001="org",002="openrepose",003="filters",004="apivalidator",005="ApiValidatorHandler",006="invalid-request"/

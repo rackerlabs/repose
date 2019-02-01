@@ -20,16 +20,19 @@
 package features.filters.identityv3
 
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV3Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 9/29/14.
  * test option when send-all-project-ids set to false
  */
+@Category(Filters)
 class MultiProjectIdsHeadersFalseTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

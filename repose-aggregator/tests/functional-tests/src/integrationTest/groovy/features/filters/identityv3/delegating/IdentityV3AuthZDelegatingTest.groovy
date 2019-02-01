@@ -19,16 +19,19 @@
  */
 package features.filters.identityv3.delegating
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV3Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 11/18/14.
  */
+@Category(Filters)
 class IdentityV3AuthZDelegatingTest extends ReposeValveTest {
 
     def static originEndpoint

@@ -22,10 +22,10 @@ package features.filters.keystonev2.timeout
 import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 
 import javax.servlet.http.HttpServletResponse
 
@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletResponse
  *  Test is checking if the HttpClient connection timeout is less than 50 seconds,
  *  then the client is notified then and not delayed until 50 seconds.
  */
-@Category(Slow)
+@Category(Filters)
 class TimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
 
     def static originEndpoint

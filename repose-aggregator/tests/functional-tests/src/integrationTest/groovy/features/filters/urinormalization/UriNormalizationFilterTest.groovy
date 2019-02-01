@@ -17,21 +17,21 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.uriNormalization
+package features.filters.urinormalization
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Handling
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 /**
  * Functional test for the URI Normalization filter
  */
-@Category(Slow.class)
+@Category(Filters)
 class UriNormalizationFilterTest extends ReposeValveTest {
 
     def setupSpec() {

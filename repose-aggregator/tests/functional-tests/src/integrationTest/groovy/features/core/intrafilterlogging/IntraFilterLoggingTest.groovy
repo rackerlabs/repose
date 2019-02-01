@@ -20,18 +20,21 @@
 package features.core.intrafilterlogging
 
 import groovy.json.JsonSlurper
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.openrepose.framework.test.mocks.MockIdentityV3Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Core
 import spock.lang.Unroll
 
 import javax.ws.rs.core.HttpHeaders
 
 import static javax.servlet.http.HttpServletResponse.SC_OK
 
+@Category(Core)
 class IntraFilterLoggingTest extends ReposeValveTest {
     def static originEndpoint
     def static keystoneV2Endpoint

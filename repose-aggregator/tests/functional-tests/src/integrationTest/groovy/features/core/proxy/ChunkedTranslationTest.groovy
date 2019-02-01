@@ -19,16 +19,19 @@
  */
 package features.core.proxy
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Handling
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Core
 
 /**
  * User: dimi5963
  * Date: 9/24/13
  * Time: 3:36 PM
  */
+@Category(Core)
 class ChunkedTranslationTest extends ReposeValveTest {
 
     def static String xmlPayLoad = "<a><remove-me>test</remove-me>somebody</a>"

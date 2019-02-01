@@ -20,17 +20,20 @@
 package features.filters.identityv3.delegating
 
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV3Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 11/18/14.
  * Multi filters identity v3 authn and Api validator with delegating mode
  */
+@Category(Filters)
 class IdentityV3AuthNAndApiValidatorDelegatingTest extends ReposeValveTest {
 
     def static originEndpoint

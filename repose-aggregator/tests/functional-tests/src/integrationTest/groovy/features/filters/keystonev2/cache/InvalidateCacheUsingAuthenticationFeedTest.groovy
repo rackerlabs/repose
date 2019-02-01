@@ -21,17 +21,17 @@ package features.filters.keystonev2.cache
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 
 /**
  * Created by jennyvo on 1/22/16.
  *  identity using authenticated feed
  */
-@Category(Slow.class)
+@Category(Filters)
 class InvalidateCacheUsingAuthenticationFeedTest extends ReposeValveTest {
 
     def originEndpoint

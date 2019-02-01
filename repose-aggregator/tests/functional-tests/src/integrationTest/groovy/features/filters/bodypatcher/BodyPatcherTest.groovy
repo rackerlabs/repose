@@ -20,16 +20,19 @@
 package features.filters.bodypatcher
 
 import groovy.json.JsonSlurper
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 5/10/16.
  *   Body Patch Json Test RFC-6902
  */
+@Category(Filters)
 class BodyPatcherTest extends ReposeValveTest {
 
     def static bodyJson1 = """{"bar": "test", "banana": "2"}"""

@@ -19,14 +19,17 @@
  */
 package features.filters.headertranslation
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 
 /**
  * Created by jennyvo on 3/22/16.
  *  Header Translation With Quality
  */
+@Category(Filters)
 class HeaderTranslationWQualityTest extends ReposeValveTest {
     def static Map params = [:]
     def static originEndpoint

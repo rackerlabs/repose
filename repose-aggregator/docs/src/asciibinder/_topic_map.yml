@@ -217,5 +217,7 @@ Topics:
     File: index.adoc
   - Name: Docker
     File: docker.adoc
-  - Name: Performance
+  - Name: Performance Testing
     File: performance.adoc
+  - Name: Functional Testing
+    File: functional.adoc

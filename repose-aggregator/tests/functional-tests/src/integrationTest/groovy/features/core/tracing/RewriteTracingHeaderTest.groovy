@@ -21,14 +21,17 @@ package features.core.tracing
 
 import groovy.json.JsonSlurper
 import org.apache.commons.codec.binary.Base64
+import org.junit.experimental.categories.Category
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Core
 import spock.lang.Unroll
 
 import java.util.regex.Pattern
 
+@Category(Core)
 class RewriteTracingHeaderTest extends ReposeValveTest {
     def static final Pattern UUID_PATTERN = ~/\p{XDigit}{8}-\p{XDigit}{4}-\p{XDigit}{4}-\p{XDigit}{4}-\p{XDigit}{12}/
     static def params

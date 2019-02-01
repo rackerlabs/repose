@@ -19,15 +19,18 @@
  */
 package features.filters.apivalidator.absolutePaths
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeLogSearch
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.XmlParsing
 
 import javax.servlet.http.HttpServletResponse
 
 /**
  * Created by jennyvo on 2/17/15.
  */
+@Category(XmlParsing)
 class ApiValidatorWadlAbsPathTest extends ReposeValveTest {
 
     def setupSpec() {

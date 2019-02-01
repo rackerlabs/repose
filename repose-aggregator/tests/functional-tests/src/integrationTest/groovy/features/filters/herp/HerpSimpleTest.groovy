@@ -20,10 +20,12 @@
 package features.filters.herp
 
 import groovy.json.JsonSlurper
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 import java.nio.charset.StandardCharsets
@@ -31,6 +33,7 @@ import java.nio.charset.StandardCharsets
 /**
  * Created by jennyvo on 12/16/14.
  */
+@Category(Filters)
 class HerpSimpleTest extends ReposeValveTest {
 
     def setupSpec() {

@@ -20,12 +20,15 @@
 package features.filters.ratelimiting
 
 import groovy.json.JsonSlurper
+import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 
 /**
  * Trying to reduce some of the copypasta in all the rate limiting tests :|
  */
+@Category(Filters)
 class RateLimitMeasurementUtilities {
 
     private Deproxy deproxy

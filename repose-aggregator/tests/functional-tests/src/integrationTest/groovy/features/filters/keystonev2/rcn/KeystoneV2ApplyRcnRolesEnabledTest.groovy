@@ -20,10 +20,12 @@
 
 package features.filters.keystonev2.rcn
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -36,6 +38,7 @@ import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED
  * This is the primary functional test suite for the Apply RCN Roles feature. Other functional tests cover unique cases
  * and try to not cover essentially the same cases already covered here.
  */
+@Category(Filters)
 class KeystoneV2ApplyRcnRolesEnabledTest extends ReposeValveTest {
     private static final Pattern APPLY_RCN_ROLES_QUERY_PARAM = ~$/$/.*\?.*apply_rcn_roles=(?i:true).*/$
     private static final Pattern TOKEN_VALIDATION_PATH = ~$/$/v2.0/tokens/[^/]+/$

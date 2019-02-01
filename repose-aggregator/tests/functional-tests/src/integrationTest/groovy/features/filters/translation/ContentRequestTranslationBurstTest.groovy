@@ -21,8 +21,8 @@ package features.filters.translation
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Bug
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Bug
 
 @Category(Bug.class)
 class ContentRequestTranslationBurstTest extends ReposeValveTest {

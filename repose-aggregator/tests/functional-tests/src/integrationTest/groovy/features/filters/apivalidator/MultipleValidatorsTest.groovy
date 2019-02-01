@@ -19,14 +19,17 @@
  */
 package features.filters.apivalidator
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.XmlParsing
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
 import static javax.servlet.http.HttpServletResponse.SC_OK
 
 
+@Category(XmlParsing)
 class MultipleValidatorsTest extends ReposeValveTest {
 
     def static badElementBody = "<a><testing>test</testing>Stuff</a>"

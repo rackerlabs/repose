@@ -22,11 +22,11 @@ package features.services.datastore
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Bug
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Bug
 
 @Category(Bug.class)
-//@Category(Slow.class)
+//@Category(Services)
 class DistDatastoreServiceBurstTest extends ReposeValveTest {
     static def datastoreEndpoint1
 

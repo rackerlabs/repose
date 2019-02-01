@@ -22,10 +22,10 @@ package features.filters.keystonev2.timeout
 import org.joda.time.DateTime
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 
 import javax.servlet.http.HttpServletResponse
 
@@ -33,7 +33,7 @@ import javax.servlet.http.HttpServletResponse
  * Created by jennyvo on 11/9/15.
  *  Verify wrong pool id in the keystone config it will use default pool
  */
-@Category(Slow)
+@Category(Filters)
 class DiffPoolIdTimeoutUsingDefaultTest extends ReposeValveTest {
 
     def static originEndpoint

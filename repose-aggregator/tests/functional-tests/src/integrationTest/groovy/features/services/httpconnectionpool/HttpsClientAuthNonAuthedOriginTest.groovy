@@ -19,13 +19,16 @@
  */
 package features.services.httpconnectionpool
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Services
 
 /**
  * Created by adrian on 3/3/17.
  */
+@Category(Services)
 class HttpsClientAuthNonAuthedOriginTest extends ReposeValveTest {
 
     def setupSpec() {

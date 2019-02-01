@@ -19,14 +19,17 @@
  */
 package features.core.powerfilter
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Response
+import scaffold.category.Core
 
 import java.util.concurrent.TimeoutException
 
 /* Checks to see if having Unstable filter chain on startup due to configuration errors will log errors into the log file */
 
+@Category(Core)
 class FilterChainUnstableTest extends ReposeValveTest {
     static int requestCount = 1
     def handler5XX = { request -> return new Response(503, 'SERVICE UNAVAILABLE') }

@@ -19,13 +19,16 @@
  */
 package features.core.powerfilter
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Handlers
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Core
 
 import static javax.servlet.http.HttpServletResponse.SC_BAD_GATEWAY
 
+@Category(Core)
 class RoutingFailuresTest extends ReposeValveTest {
 
     def setupSpec() {

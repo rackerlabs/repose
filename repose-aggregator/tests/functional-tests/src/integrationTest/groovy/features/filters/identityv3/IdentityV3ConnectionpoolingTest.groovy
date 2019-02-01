@@ -19,17 +19,20 @@
  */
 package features.filters.identityv3
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV3Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.Handling
+import scaffold.category.Filters
 import spock.lang.Shared
 
 /**
  * Created by jennyvo on 9/5/14.
  * Test Repose re-use connection to identity service
  */
+@Category(Filters)
 class IdentityV3ConnectionpoolingTest extends ReposeValveTest {
 
     @Shared

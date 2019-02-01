@@ -19,9 +19,12 @@
  */
 package features.core.proxy
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Core
 
+@Category(Core)
 class NoHostHeaderRewriteTest extends ReposeValveTest {
 
     def setupSpec() {

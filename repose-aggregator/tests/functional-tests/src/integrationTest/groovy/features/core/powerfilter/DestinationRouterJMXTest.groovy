@@ -19,9 +19,12 @@
  */
 package features.core.powerfilter
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Core
 
+@Category(Core)
 class DestinationRouterJMXTest extends ReposeValveTest {
     private static final String KEY_PROPERTIES_PREFIX =
         /001="org",002="openrepose",003="filters",004="destinationrouter",005="DestinationRouterFilter",006="Routed Response"/

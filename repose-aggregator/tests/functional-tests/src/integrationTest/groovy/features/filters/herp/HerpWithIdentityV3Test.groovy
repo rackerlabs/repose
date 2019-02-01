@@ -21,15 +21,18 @@ package features.filters.herp
 
 import groovy.json.JsonSlurper
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV3Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 
 /**
  * Created by jennyvo on 1/12/15.
  */
+@Category(Filters)
 class HerpWithIdentityV3Test extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

@@ -19,13 +19,16 @@
  */
 package features.core.powerfilter
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Core
 
 /**
  * Created by adrian on 8/19/16.
  */
+@Category(Core)
 class FilterChainBypassTest extends ReposeValveTest {
     def setupSpec() {
         deproxy = new Deproxy()

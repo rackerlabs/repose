@@ -23,13 +23,13 @@ import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Response
-import scaffold.category.Slow
+import scaffold.category.Core
 import spock.lang.Unroll
 import spock.util.concurrent.PollingConditions
 
 import static javax.servlet.http.HttpServletResponse.*
 
-@Category(Slow.class)
+@Category(Core)
 class ResponseCodeJMXTest extends ReposeValveTest {
     private static final String KEY_PROPERTIES_PREFIX = /001="org",002="openrepose",003="core",004="ResponseCode"/
     private static final String REPOSE_ENDPOINT = /005="Repose"/

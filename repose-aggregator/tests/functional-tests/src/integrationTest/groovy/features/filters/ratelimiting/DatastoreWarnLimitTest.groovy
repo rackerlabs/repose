@@ -19,12 +19,15 @@
  */
 package features.filters.ratelimiting
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 /* Checks to see if DatastoreWarnLimit throws warn in log if hit that limit of cache keys */
 
+@Category(Filters)
 class DatastoreWarnLimitTest extends ReposeValveTest {
     static int WARN_LIMIT = 1
 

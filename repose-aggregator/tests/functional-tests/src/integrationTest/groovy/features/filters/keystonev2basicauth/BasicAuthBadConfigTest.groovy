@@ -19,11 +19,14 @@
  */
 package features.filters.keystonev2basicauth
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Filters
 
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE
 
+@Category(Filters)
 class BasicAuthBadConfigTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

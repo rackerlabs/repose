@@ -19,10 +19,12 @@
  */
 package features.filters.valkyrie
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockValkyrie
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -32,6 +34,7 @@ import static org.openrepose.commons.utils.http.CommonHttpHeader.AUTH_TOKEN
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.CONTACT_ID
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID
 
+@Category(Filters)
 class ValkyrieAuthorizationQualityTest extends ReposeValveTest {
     static def HDR_DEVICE_ID = "X-Device-Id"
 

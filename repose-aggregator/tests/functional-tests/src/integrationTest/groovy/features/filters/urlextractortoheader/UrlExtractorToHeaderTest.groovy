@@ -19,15 +19,18 @@
  */
 package features.filters.urlextractortoheader
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 11/23/15.
  *  url-extractor-to-header test
  */
+@Category(Filters)
 class UrlExtractorToHeaderTest extends ReposeValveTest {
     def static originEndpoint
     def static Map params = [:]

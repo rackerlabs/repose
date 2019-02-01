@@ -19,9 +19,11 @@
  */
 package features.filters.simplerbac
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -31,6 +33,7 @@ import static org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_RO
 import static org.openrepose.commons.utils.http.PowerApiHeader.RELEVANT_ROLES
 import static org.openrepose.commons.utils.string.Base64Helper.base64EncodeUtf8
 
+@Category(Filters)
 class SimpleRBACMultitenantTest extends ReposeValveTest {
 
     def static random = new Random()

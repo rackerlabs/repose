@@ -17,22 +17,20 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.headerNormalization
+package features.filters.headernormalization
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 import spock.lang.Unroll
 
-/**
- * This will go away with v10.0.0.0.
- */
-class HeaderNormalizationOldStyleTest extends ReposeValveTest {
+@Category(Filters)
+class HeaderNormalizationTest extends ReposeValveTest {
 
-    static Map params = [:]
-
-    def headers = [
+    static final HEADERS = [
         'user1'             : 'usertest1',
         'X-Auth-Token'      : '358484212:99493',
         'X-First-Filter'    : 'firstValue',
@@ -44,19 +42,14 @@ class HeaderNormalizationOldStyleTest extends ReposeValveTest {
     ]
 
     def setupSpec() {
-        params = properties.getDefaultTemplateParams()
+        def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/headerNormalization", params)
-        repose.configurationProvider.applyConfigs("features/filters/headerNormalization/oldStyle", params)
-        repose.start()
-        deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort)
-    }
 
-    def "Make sure the incompatibility warnings are presented"() {
-        expect:
-        reposeLogSearch.searchByString("Your Header Normalization configuration will not be compatible with v10.0.0.0.")
-        reposeLogSearch.searchByString("Please refer to the documentation to update your Header Normalization configuration accordingly.")
+        repose.start()
+
+        deproxy = new Deproxy()
+        deproxy.addEndpoint(port: properties.targetPort, defaultHandler: { new Response(200, null, HEADERS) })
     }
 
     def "When Filtering Based on URI and Method"() {
@@ -66,7 +59,7 @@ class HeaderNormalizationOldStyleTest extends ReposeValveTest {
                         [
                                 method : 'GET',
                                 url    : reposeEndpoint + "/v1/usertest1/servers/something",
-                                headers: headers
+                                headers: HEADERS
                         ])
 
         then:
@@ -80,6 +73,12 @@ class HeaderNormalizationOldStyleTest extends ReposeValveTest {
         mc.orphanedHandlings[0].request.headers.getFirstValue("x-shared") == 'shared'
         mc.orphanedHandlings[0].request.headers.getFirstValue("via").contains("1.1 localhost:${properties.reposePort} (Repose/")
         mc.receivedResponse.code == '200'
+        mc.receivedResponse.headers.findAll("x-auth-token") == []
+        mc.receivedResponse.headers.findAll("x-first-filter") == []
+        mc.receivedResponse.headers.findAll("x-second-filter") == []
+        mc.receivedResponse.headers.findAll("x-third-filter") == []
+        mc.receivedResponse.headers.findAll("x-last-filter") == []
+        mc.receivedResponse.headers.getFirstValue("x-shared") == 'shared'
     }
 
     def "When Filtering Based on URI"() {
@@ -89,7 +88,7 @@ class HeaderNormalizationOldStyleTest extends ReposeValveTest {
                         [
                                 method : 'POST',
                                 url    : reposeEndpoint + "/v1/usertest1/servers/something",
-                                headers: headers
+                                headers: HEADERS
                         ])
 
         then:
@@ -103,6 +102,12 @@ class HeaderNormalizationOldStyleTest extends ReposeValveTest {
         mc.orphanedHandlings[0].request.headers.findAll("x-shared") == []
         mc.orphanedHandlings[0].request.headers.getFirstValue("via").contains("1.1 localhost:${properties.reposePort} (Repose/")
         mc.receivedResponse.code == '200'
+        mc.receivedResponse.headers.findAll("x-auth-token") == []
+        mc.receivedResponse.headers.findAll("x-first-filter") == []
+        mc.receivedResponse.headers.findAll("x-second-filter") == []
+        mc.receivedResponse.headers.findAll("x-third-filter") == []
+        mc.receivedResponse.headers.findAll("x-last-filter") == []
+        mc.receivedResponse.headers.findAll("x-shared") == []
 
     }
 
@@ -113,7 +118,7 @@ class HeaderNormalizationOldStyleTest extends ReposeValveTest {
                         [
                                 method : 'POST',
                                 url    : reposeEndpoint + "/v1/usertest1/resources/something",
-                                headers: headers
+                                headers: HEADERS
                         ])
         then:
         mc.handlings.size() == 0
@@ -126,6 +131,12 @@ class HeaderNormalizationOldStyleTest extends ReposeValveTest {
         mc.orphanedHandlings[0].request.headers.findAll("x-shared") == []
         mc.orphanedHandlings[0].request.headers.getFirstValue("via").contains("1.1 localhost:${properties.reposePort} (Repose/")
         mc.receivedResponse.code == '200'
+        mc.receivedResponse.headers.findAll("x-auth-token") == []
+        mc.receivedResponse.headers.findAll("x-first-filter") == []
+        mc.receivedResponse.headers.findAll("x-second-filter") == []
+        mc.receivedResponse.headers.getFirstValue("x-third-filter") == 'thirdValue'
+        mc.receivedResponse.headers.findAll("x-last-filter") == []
+        mc.receivedResponse.headers.findAll("x-shared") == []
     }
 
     def "When Filtering using catch all"() {
@@ -135,7 +146,7 @@ class HeaderNormalizationOldStyleTest extends ReposeValveTest {
                         [
                                 method : 'GET',
                                 url    : reposeEndpoint + "/v1/usertest1/resources/something",
-                                headers: headers
+                                headers: HEADERS
                         ])
         then:
         mc.handlings.size() == 1
@@ -150,28 +161,14 @@ class HeaderNormalizationOldStyleTest extends ReposeValveTest {
         mc.handlings[0].request.headers.getFirstValue("x-shared") == 'shared'
         mc.handlings[0].request.headers.getFirstValue("via").contains("1.1 localhost:${properties.reposePort} (Repose/")
         mc.receivedResponse.code == '200'
-    }
-
-    def "Should not split request headers according to rfc by default"() {
-        given:
-        def userAgentValue = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) " +
-                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36"
-        def reqHeaders =
-                [
-                        "user-agent": userAgentValue,
-                        "x-pp-user" : "usertest1, usertest2, usertest3",
-                        "accept"    : "application/xml;q=1 , application/json;q=0.5"
-                ]
-
-        when: "User sends a request through repose"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: reqHeaders)
-
-        then:
-        mc.handlings.size() == 1
-        mc.handlings[0].request.getHeaders().findAll("user-agent").size() == 1
-        mc.handlings[0].request.headers['user-agent'] == userAgentValue
-        mc.handlings[0].request.getHeaders().findAll("x-pp-user").size() == 1
-        mc.handlings[0].request.getHeaders().findAll("accept").size() == 1
+        mc.receivedResponse.headers.findAll("x-auth-token") == []
+        mc.receivedResponse.headers.getFirstValue("x-user-token") == 'something'
+        mc.receivedResponse.headers.getFirstValue("user1") == 'usertest1'
+        mc.receivedResponse.headers.getFirstValue("x-first-filter") == 'firstValue'
+        mc.receivedResponse.headers.getFirstValue("x-second-filter") == 'secondValue'
+        mc.receivedResponse.headers.getFirstValue("x-third-filter") == 'thirdValue'
+        mc.receivedResponse.headers.findAll("x-last-filter") == []
+        mc.receivedResponse.headers.getFirstValue("x-shared") == 'shared'
     }
 
     def "Should not split response headers according to rfc"() {
@@ -239,10 +236,10 @@ class HeaderNormalizationOldStyleTest extends ReposeValveTest {
 
         where:
         headerName     | headerValue
-        "x-auth-token" | "123445"
-        "X-AUTH-TOKEN" | "239853"
-        "x-AUTH-token" | "slDSFslk&D"
-        "x-auth-TOKEN" | "sl4hsdlg"
+        "x-hdr"        | "123445"
+        "X-hdr"        | "239853"
+        "x-hdr"        | "slDSFslk&D"
+        "x-hdr"        | "sl4hsdlg"
         "CONTENT-Type" | "application/json"
         "Content-TYPE" | "application/json"
         //"content-type" | "application/xMl"

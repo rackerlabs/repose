@@ -19,15 +19,17 @@
  */
 package features.services.opentracing
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockTracerAgent
 import org.rackspace.deproxy.Deproxy
-import spock.lang.Ignore
+import scaffold.category.Services
 import spock.lang.Unroll
 
 /**
  * Tests that sampling probably type is set to 0.9 (90% of requests get reported)
  */
+@Category(Services)
 class OpenTracingServiceProbabilisticSetToPoint9UdpTest extends ReposeValveTest {
 
     def static originEndpoint

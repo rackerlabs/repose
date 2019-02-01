@@ -20,16 +20,19 @@
 package features.filters.apivalidator
 
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.XmlParsing
 import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 11/3/14.
  */
+@Category(XmlParsing)
 class ApiValidatorDelegatingWAuthTest extends ReposeValveTest {
 
     def static originEndpoint

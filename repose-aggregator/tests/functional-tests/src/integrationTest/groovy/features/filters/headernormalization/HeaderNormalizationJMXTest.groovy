@@ -17,15 +17,15 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package features.filters.headerNormalization
+package features.filters.headernormalization
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Filters
 import spock.lang.Unroll
 
-@Category(Slow.class)
+@Category(Filters)
 class HeaderNormalizationJMXTest extends ReposeValveTest {
 
     private static final String KEY_PROPERTIES_PREFIX =

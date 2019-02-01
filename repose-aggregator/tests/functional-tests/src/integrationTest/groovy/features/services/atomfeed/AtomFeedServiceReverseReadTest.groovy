@@ -27,13 +27,13 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
-import scaffold.category.Slow
+import scaffold.category.Services
 
 import java.util.concurrent.TimeUnit
 
 import static javax.servlet.http.HttpServletResponse.SC_OK
 
-@Category(Slow.class)
+@Category(Services)
 class AtomFeedServiceReverseReadTest extends ReposeValveTest {
     Endpoint originEndpoint
     Endpoint atomEndpoint

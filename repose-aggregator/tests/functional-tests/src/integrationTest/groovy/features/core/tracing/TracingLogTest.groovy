@@ -20,15 +20,18 @@
 package features.core.tracing
 
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Core
 
 /**
  * Specific tests for admin token
  */
+@Category(Core)
 class TracingLogTest extends ReposeValveTest {
 
     def static originEndpoint

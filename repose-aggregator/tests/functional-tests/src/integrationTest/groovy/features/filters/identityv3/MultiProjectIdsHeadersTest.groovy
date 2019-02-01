@@ -20,16 +20,19 @@
 package features.filters.identityv3
 
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV3Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 9/24/14.
  * test option returning multi projects in the headers
  */
+@Category(Filters)
 class MultiProjectIdsHeadersTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

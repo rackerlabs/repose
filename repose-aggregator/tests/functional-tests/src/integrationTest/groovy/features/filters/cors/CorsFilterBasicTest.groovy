@@ -19,6 +19,7 @@
  */
 package features.filters.cors
 
+import org.junit.experimental.categories.Category
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.CorsHttpHeader
 import org.openrepose.framework.test.ReposeValveTest
@@ -26,6 +27,7 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Header
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 import javax.ws.rs.core.HttpHeaders
@@ -33,6 +35,7 @@ import javax.ws.rs.core.HttpHeaders
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN
 import static javax.servlet.http.HttpServletResponse.SC_OK
 
+@Category(Filters)
 class CorsFilterBasicTest extends ReposeValveTest {
 
     // The CORS filter will add all of the current response headers to the 'Access-Control-Expose-Headers' list, but this

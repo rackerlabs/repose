@@ -24,10 +24,12 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 
 /**
  B-50304
@@ -66,6 +68,7 @@ import org.rackspace.deproxy.MessageChain
  service
  */
 
+@Category(Filters)
 class PassTokenExpirationInHeaderTest extends ReposeValveTest {
 
     def originEndpoint

@@ -26,25 +26,28 @@ import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpUriRequest
 import org.apache.http.impl.client.HttpClients
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.server.CustomizableSocketServerConnector
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Core
 import spock.lang.Ignore
 import spock.lang.Shared
 import spock.lang.Unroll
 
-import static javax.servlet.http.HttpServletResponse.SC_OK
 import static CustomizableSocketServerConnector.HTTP_1_0
 import static CustomizableSocketServerConnector.HTTP_1_1
+import static javax.servlet.http.HttpServletResponse.SC_OK
 import static org.rackspace.deproxy.Deproxy.REQUEST_ID_HEADER_NAME
 import static org.springframework.http.HttpHeaders.VIA
 
 /**
  * Tests the full range of inputs and outputs for one possible configuration of the via-header element.
  */
+@Category(Core)
 class ViaHeaderElementConfigTest extends ReposeValveTest {
     private static final String VIA_REQUEST_PREFIX = "Banichi"
     private static final String VIA_RESPONSE_PREFIX = "Jago"

@@ -20,15 +20,18 @@
 package features.filters.identityv3
 
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV3Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 10/3/14.
  */
+@Category(Filters)
 class MultiProjectIdsHeadersFalseNoValidateTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

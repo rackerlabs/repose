@@ -19,10 +19,13 @@
  */
 package features.services.datastore
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Services
 
+@Category(Services)
 class DistDataShutdownTest extends ReposeValveTest {
 
     def setupSpec() {

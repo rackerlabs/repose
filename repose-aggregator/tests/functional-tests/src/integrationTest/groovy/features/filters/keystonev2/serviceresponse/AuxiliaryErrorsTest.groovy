@@ -20,12 +20,14 @@
 package features.filters.keystonev2.serviceresponse
 
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.openrepose.commons.utils.http.HttpDate
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE
@@ -33,6 +35,7 @@ import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE
 import static org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TOO_MANY_REQUESTS
 import static org.springframework.http.HttpHeaders.RETRY_AFTER
 
+@Category(Filters)
 class AuxiliaryErrorsTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

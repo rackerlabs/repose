@@ -22,12 +22,12 @@ package features.core.configloadingandreloading
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Core
 import spock.lang.Shared
 import spock.lang.Unroll
 
-@Category(Slow.class)
+@Category(Core)
 class StartWithGoodConfigsTest extends ReposeValveTest {
 
     @Shared

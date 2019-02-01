@@ -22,15 +22,15 @@ package features.filters.compression
 import org.apache.http.HttpStatus
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 import static features.filters.compression.CompressionHeaderTest.*
 
-@Category(Slow.class)
+@Category(Filters)
 class CompressionBinaryTest extends ReposeValveTest {
 
     def setupSpec() {

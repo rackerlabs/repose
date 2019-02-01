@@ -19,10 +19,13 @@
  */
 package features.services.healthcheck
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
+import scaffold.category.Services
 import spock.lang.Unroll
 
+@Category(Services)
 class HealthCheckServiceTest extends ReposeValveTest {
 
     def setupSpec() {

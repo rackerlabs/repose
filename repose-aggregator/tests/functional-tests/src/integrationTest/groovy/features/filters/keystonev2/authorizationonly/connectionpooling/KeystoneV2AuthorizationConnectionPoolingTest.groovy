@@ -19,11 +19,13 @@
  */
 package features.filters.keystonev2.authorizationonly.connectionpooling
 
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.Handling
+import scaffold.category.Filters
 import spock.lang.Shared
 
 /**
@@ -31,6 +33,7 @@ import spock.lang.Shared
  * User: izrik
  *
  */
+@Category(Filters)
 class KeystoneV2AuthorizationConnectionPoolingTest extends ReposeValveTest {
 
     @Shared

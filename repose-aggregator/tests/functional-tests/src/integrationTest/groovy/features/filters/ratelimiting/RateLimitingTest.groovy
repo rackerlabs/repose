@@ -22,11 +22,11 @@ package features.filters.ratelimiting
 import groovy.json.JsonSlurper
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
-import scaffold.category.Slow
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Header
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
+import scaffold.category.Filters
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -41,6 +41,7 @@ import static org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TO
  *  update test to get limits response in json to parse response and calculate
  *  since often get inconsistent xml response fro limits cause Rate Limiting Tests flaky.
  */
+@Category(Filters)
 class RateLimitingTest extends ReposeValveTest {
     final handler = { return new Response(SC_OK, "OK") }
 
@@ -139,7 +140,6 @@ class RateLimitingTest extends ReposeValveTest {
         messageChain.handlings.size() == 0
     }
 
-    @Category(Slow.class)
     def "When a limit has been reached, the limit should reset after one minute"() {
         given: "the limit has been reached"
         rlmu.useAllRemainingRequests("user", "all-limits-small", "/service/limits")

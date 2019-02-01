@@ -20,13 +20,16 @@
 package features.core.connectionframework
 
 import org.apache.commons.lang3.StringUtils
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Core
 
 /**
  *  Connection framework tests ported over from python
  */
+@Category(Core)
 class ConnectionFrameworkTest extends ReposeValveTest {
 
     def setupSpec() {

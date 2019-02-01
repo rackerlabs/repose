@@ -22,7 +22,9 @@ package scaffold.category
 /*
  * This interface is used to associate spock tests to a category described by the class name.
  *
- * A test is considered slow if it requires >= 1 minute to run.
+ * A test is considered services if it primarily tests a service of repose.
  */
 
-public interface Slow {}
+interface Services {
+
+}

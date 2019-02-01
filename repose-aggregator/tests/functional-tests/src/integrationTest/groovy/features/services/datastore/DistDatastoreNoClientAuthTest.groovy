@@ -19,6 +19,7 @@
  */
 package features.services.datastore
 
+import org.junit.experimental.categories.Category
 import org.openrepose.commons.utils.io.ObjectSerializer
 import org.openrepose.core.services.datastore.types.StringValue
 import org.openrepose.framework.test.PortFinder
@@ -26,6 +27,7 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.ApacheClientConnector
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Services
 import spock.lang.Shared
 
 import javax.net.ssl.SSLHandshakeException
@@ -34,6 +36,7 @@ import java.util.concurrent.TimeUnit
 
 import static org.openrepose.framework.test.ReposeLauncher.MAX_STARTUP_TIME
 
+@Category(Services)
 class DistDatastoreNoClientAuthTest extends ReposeValveTest {
     //Since we're serializing objects here for the dist datastore, we must have the dist datastore objects in our classpath
     final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())

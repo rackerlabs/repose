@@ -20,15 +20,18 @@
 package features.filters.keystonev2.multitenantswquality
 
 import org.joda.time.DateTime
+import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
+import scaffold.category.Filters
 import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 1/13/15.
  */
+@Category(Filters)
 class MultiTenantswQualityTest extends ReposeValveTest {
 
     def static originEndpoint
