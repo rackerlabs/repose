@@ -113,6 +113,9 @@ integrationTest {
             case "all":
                 excludeCategories "scaffold.category.Bug"
                 break
+            case "bug":
+                includeCategories "scaffold.category.Bug"
+                break
             case "core":
                 includeCategories "scaffold.category.Core"
                 break
