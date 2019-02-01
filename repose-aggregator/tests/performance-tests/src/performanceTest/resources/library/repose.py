@@ -262,9 +262,15 @@ def build_with_release(module, release, package, wait, wait_timeout,
             steps.append('do apt-get install')
             (rc, out, err) = module.run_command('export DEBIAN_FRONTEND=noninteractive; apt-get update', check_rc=True, use_unsafe_shell=True)
             steps.append("Just ran update: %s, %s, %s" % (rc, out, err))
-            (rc, out, err) = module.run_command("sudo wget -O - http://repo.openrepose.org/debian/pubkey.gpg | sudo apt-key add -", check_rc=True, use_unsafe_shell=True)
+            (rc, out, err) = module.run_command('export DEBIAN_FRONTEND=noninteractive; apt-get install '
+                                                'apt-transport-https '
+                                                'ca-certificates '
+                                                '-y --force-yes -q',
+                                                use_unsafe_shell=True, check_rc=True)
+            steps.append("Just installed Apt HTTPS support: %s, %s, %s" % (rc, out, err))
+            (rc, out, err) = module.run_command("sudo wget -O - https://nexus.openrepose.org/repository/el/RPM_GPG_KEY-openrepose | sudo apt-key add -", check_rc=True, use_unsafe_shell=True)
             steps.append("Just updated apt-key: %s, %s, %s" % (rc, out, err))
-            (rc, out, err) = module.run_command('sudo sh -c \'echo "deb http://repo.openrepose.org/debian stable main" > /etc/apt/sources.list.d/openrepose.list\'', use_unsafe_shell=True, check_rc=True)
+            (rc, out, err) = module.run_command('sudo sh -c \'echo "deb https://nexus.openrepose.org/repository/debian stable main" > /etc/apt/sources.list.d/openrepose.list\'', use_unsafe_shell=True, check_rc=True)
             steps.append("Just added sources: %s, %s, %s" % (rc, out, err))
             (rc, out, err) = module.run_command('export DEBIAN_FRONTEND=noninteractive; apt-get update', check_rc=True, use_unsafe_shell=True)
             steps.append("Just ran update: %s, %s, %s" % (rc, out, err))
@@ -297,7 +303,7 @@ def build_with_release(module, release, package, wait, wait_timeout,
         elif package == ('RedHat', 'Fedora', 'CentOS'):
             steps.append('do yum install')
             module.run_command('sudo yum update')
-            module.run_command('sudo wget -O /etc/yum.repos.d/openrepose.repo http://repo.openrepose.org/el/openrepose.repo')
+            module.run_command('sudo wget -O /etc/yum.repos.d/openrepose.repo https://nexus.openrepose.org/repository/el/openrepose.repo')
             module.run_command('sudo yum update')
             module.run_command('sudo yum install '
                                'repose=%s '

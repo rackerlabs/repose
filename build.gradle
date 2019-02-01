@@ -31,7 +31,7 @@ apply plugin: 'nebula.gradle-git-scm'
 apply plugin: 'org.hidetake.ssh'
 
 ext {
-    reposeCodename = "Ezio"
+    reposeCodename = "Falco"
     scalaMajor = '2'
     scalaMinor = '11'
     scalaPatch = '12'
@@ -77,13 +77,14 @@ task('tagVersion', description: 'Tag the repository with the current version.', 
     }
 }
 
+//This populates the version number so that jenkins can grab it and send it on to the release verification job
 task('exportVersion', description: 'Write the current build version out to a properties file.') {
     doLast {
         file("$rootDir/repose-aggregator/build/release-version.properties").text = 'RELEASE_VERSION=' + version + System.lineSeparator()
     }
 }
 
-task('release', description: 'Release the project and publish to all repos.', group: 'release', dependsOn: [exportVersion, tagVersion, publishToPackageRepo])
+task('release', description: 'Release the project and publish to all repos.', group: 'release', dependsOn: [exportVersion, tagVersion/*, publishToPackageRepo*/])
 
 allprojects {
     group = 'org.openrepose'
@@ -480,8 +481,8 @@ sonarqube {
 
 remotes {
     packageRepo {
-        user = 'repose-dev'
-        host = 'repo.openrepose.org'
+        user = 'repose-publish'
+        host = 'nexus.openrepose.org'
         def repoKey = new File("${System.properties['user.home']}/.ssh/repo_key")
         if (repoKey.exists()) {
             identity = file(repoKey)

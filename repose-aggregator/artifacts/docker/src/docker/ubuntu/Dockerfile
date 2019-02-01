@@ -8,8 +8,8 @@ MAINTAINER The Repose Team <reposecore@rackspace.com>
 ARG REPOSE_VERSION
 
 # Install Repose (and Java) from the Debian package repository.
-RUN apt-get update -qq && apt-get install -qq -y wget openjdk-8-jre-headless
-RUN wget --quiet -O - http://repo.openrepose.org/debian/pubkey.gpg | apt-key add - && echo 'deb http://repo.openrepose.org/debian stable main' > /etc/apt/sources.list.d/openrepose.list
+RUN apt-get update -qq && apt-get install -qq -y apt-transport-https ca-certificates wget openjdk-8-jre-headless
+RUN wget --quiet -O - https://nexus.openrepose.org/repository/el/RPM_GPG_KEY-openrepose | apt-key add - && echo 'deb https://nexus.openrepose.org/repository/debian stable main' > /etc/apt/sources.list.d/openrepose.list
 RUN apt-get update -qq && apt-get install -y repose=$REPOSE_VERSION repose-filter-bundle=$REPOSE_VERSION repose-extensions-filter-bundle=$REPOSE_VERSION repose-experimental-filter-bundle=$REPOSE_VERSION
 
 ENV APP_ROOT=/etc/repose

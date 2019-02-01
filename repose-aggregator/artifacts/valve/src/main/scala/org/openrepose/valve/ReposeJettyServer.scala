@@ -41,12 +41,13 @@ import org.springframework.context.support.{AbstractApplicationContext, Property
   * ports, and just have many connectors. A nodeID is all that is needed to figure out what jetty it is.
   * It will fail to build if there's no SSL configuration
   *
+  * @param nodeContext  Repose Application Context
   * @param nodeId       Repose Node ID
   * @param httpPort     The port to listen on for HTTP traffic
   * @param httpsPort    The port to listen on for HTTPS traffic
-  * @param idleTimeout  The time in milliseconds that the connection can be idle before it is closed.
-  * @param soLingerTime A value >=0 sets the socket SO_LINGER value in milliseconds.
   * @param sslConfig    The SSL Configuration to use
+  * @param idleTimeout  The time in milliseconds that the connection can be idle before it is closed.
+  * @param testMode     Indicates if this if only for testing.
   */
 class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
                         val nodeId: String,
@@ -54,7 +55,6 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
                         val httpsPort: Option[Int],
                         sslConfig: Option[SslConfiguration],
                         idleTimeout: Option[Long],
-                        soLingerTime: Option[Int],
                         testMode: Boolean = false) {
 
   import ReposeJettyServer._
@@ -155,7 +155,6 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
     } else {
       connectors foreach { connector =>
         idleTimeout foreach connector.setIdleTimeout
-        soLingerTime foreach connector.setSoLingerTime
       }
     }
 
@@ -212,7 +211,7 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
     */
   def restart(): ReposeJettyServer = {
     shutdown()
-    new ReposeJettyServer(nodeContext, nodeId, httpPort, httpsPort, sslConfig, idleTimeout, soLingerTime, testMode)
+    new ReposeJettyServer(nodeContext, nodeId, httpPort, httpsPort, sslConfig, idleTimeout, testMode)
   }
 
   /**

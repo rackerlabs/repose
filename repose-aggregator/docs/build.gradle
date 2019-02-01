@@ -235,7 +235,7 @@ linkchecker {
 
 task publishDocs(dependsOn: stageDocs, group: 'release', description: 'Adds the new version of the docs to github pages') {
     doLast {
-        grgit = Grgit.open(dir: "${project.buildDir}/gh-pages")
+        def grgit = Grgit.open(dir: "${project.buildDir}/gh-pages")
         grgit.with {
             add(patterns: ['.'])
             commit(message: "Adding documentation for $version")
