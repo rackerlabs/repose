@@ -1,9 +1,19 @@
 apply plugin: 'ear'
 apply plugin: 'nebula.ospackage'
 
+configurations {
+    deb
+    rpm
+}
+
 dependencies {
     earlib project(":repose-aggregator:components:filters:api-validator-filter")
     earlib project(":repose-aggregator:components:filters:simple-rbac-filter")
+}
+
+artifacts {
+    deb buildDeb
+    rpm buildRpm
 }
 
 ear {

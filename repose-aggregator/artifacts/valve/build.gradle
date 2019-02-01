@@ -5,6 +5,8 @@ apply plugin: 'nebula.ospackage'
 
 configurations {
     fatJar
+    deb
+    rpm
 }
 
 dependencies {
@@ -56,6 +58,8 @@ shadowJar {
 
 artifacts {
     fatJar shadowJar
+    deb buildDeb
+    rpm buildRpm
 }
 
 build.dependsOn shadowJar

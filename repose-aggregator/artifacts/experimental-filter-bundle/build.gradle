@@ -1,11 +1,21 @@
 apply plugin: 'ear'
 apply plugin: 'nebula.ospackage'
 
+configurations {
+    deb
+    rpm
+}
+
 dependencies {
     earlib project(":repose-aggregator:components:filters:servlet-contract-filter")
     earlib project(":repose-aggregator:components:filters:echo-filter")
     earlib project(":repose-aggregator:components:filters:exception-filter")
     earlib project(":repose-aggregator:components:filters:tightly-coupled-filter")
+}
+
+artifacts {
+    deb buildDeb
+    rpm buildRpm
 }
 
 ear {
