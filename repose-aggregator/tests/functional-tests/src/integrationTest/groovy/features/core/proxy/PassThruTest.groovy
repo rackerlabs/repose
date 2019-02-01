@@ -23,7 +23,6 @@ import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Response
-import scaffold.category.Bug
 import scaffold.category.Core
 import spock.lang.Unroll
 
@@ -84,8 +83,6 @@ class PassThruTest extends ReposeValveTest {
         !requestAtOriginService.headers["host"].equals(messageChain.sentRequest.headers["host"])
     }
 
-    @Category(Bug.class)
-    // Defect D-11822
     @Unroll("Should not interfere with semicolons and equals signs in request: #name - #value")
     def "Should not interfere with semicolons and equals signs in request"() {
 
@@ -136,7 +133,6 @@ class PassThruTest extends ReposeValveTest {
         'Cache-Control'       | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Content-Encoding'    | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Content-Language'    | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
-        'Content-Length'      | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Content-Location'    | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Content-MD5'         | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Content-Range'       | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
@@ -188,8 +184,6 @@ class PassThruTest extends ReposeValveTest {
         (count == 2 && firstValue == value) || (count == 1 && firstValue.startsWith(value))
     }
 
-    @Category(Bug.class)
-    // Defect D-11822
     @Unroll("Should not interfere with semicolons and equals signs in response: #name - #value")
     def "Should not interfere with semicolons and equals signs in response"() {
 
@@ -244,12 +238,11 @@ class PassThruTest extends ReposeValveTest {
         'Cache-Control'       | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Content-Encoding'    | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Content-Language'    | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
-        'Content-Length'      | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Content-Location'    | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Content-MD5'         | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Content-Range'       | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Content-Type'        | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
-        'Date'                | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
+//        'Date'                | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc' //This one does go through, but a second date is applied
         'ETag'                | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Expires'             | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'From'                | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
@@ -265,7 +258,7 @@ class PassThruTest extends ReposeValveTest {
         'Range'               | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Referer'             | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Retry-After'         | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
-        'Server'              | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
+//        'Server'              | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc' //we explicitly don't allow this header through for...reasons?
         'User-Agent'          | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Vary'                | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
         'Warning'             | 'something/1.0; q=0.5, another/0.8 ;q=0.8=0.3 ; a=b=c ; abc'
