@@ -4,7 +4,7 @@ echo "Installing Unmanaged NodeJS"
 echo "-------------------------------------------------------------------------------------------------------------------"
 
 # Download and Unzip the current LTS version to a temporary location.
-cd ~/tmp/
+cd /tmp/
 wget -q https://nodejs.org/dist/v6.9.1/node-v6.9.1-linux-x64.tar.gz
 tar -xzf node-v6.9.1-linux-x64.tar.gz
 
