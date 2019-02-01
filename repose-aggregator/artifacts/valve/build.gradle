@@ -241,7 +241,7 @@ ospackage {
 
     conflicts('repose-war')
     recommends('repose-filter-bundle')
-    suggests('repose-extensions-bundle')
+    suggests('repose-extensions-filter-bundle')
     suggests('logrotate')
     replaces('repose-valve')
 }
