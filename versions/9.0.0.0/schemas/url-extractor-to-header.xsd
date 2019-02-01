@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns="http://docs.openrepose.org/repose/url-extractor-to-header/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/url-extractor-to-header/v1.0"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+    <xs:element name="url-extractor-to-header" type="UrlExtractorToHeaderConfig"/>
+
+    <xs:complexType name="UrlExtractorToHeaderConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The root config type for the URL Extractor to Header filter configuration file.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="extraction" type="Extractor" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Extractor">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Config type for a URL extraction to a header value.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="header" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The name of the header to put the extracted value into.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="url-regex" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The regex to be applied to the URL in order to extract the desired value.  The value will
+                        specifically be extracted from group 1 of the regex.  For example, a regex of
+                        ".*/(hybrid:\d+)/entities/.+" and a URL of "/v1/hybrid:12345/entities/89" would result in the
+                        value of "hybrid:12345" being used as the header value.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="default" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The default value to use when the regex doesn't match the URL.  If no default attribute is
+                        supplied, the header will not be added in the event of no match.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>

@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>9.0.0.0 | Filters | Keystone v2 Filter</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="/_stylesheets/asciibinder.css" >
+  <link rel="stylesheet" href="/_stylesheets/repose.css" >
+  <link rel="stylesheet" href="/_stylesheets/release-note-categories.css" >
+
+   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+   <!--[if lt IE 9]>
+     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+   <![endif]-->
+
+  <link href="/_images/favicon32x32.png" rel="shortcut icon" type="text/css">
+  <!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
+  <meta content="AsciiBinder" name="application-name">
+</head>
+<body onload="selectVersion('9.0.0.0');">
+  <div class="container">
+    <p class="toggle-nav visible-xs pull-left">
+      <button class="btn btn-default btn-sm" type="button" data-toggle="offcanvas">Toggle nav</button>
+    </p>
+    <ol class="breadcrumb">
+      <li class="sitename">
+        <a class="navbar-brand" href="http://www.openrepose.org/">
+          <img alt="OpenRepose" src="/_images/repose-logo.png" align="bottom">
+        </a>
+      </li>
+      <li class="sitename">
+        <a href="../../index.html">
+          Home
+        </a>
+      </li>
+      <li class="hidden-xs active">
+        <a href="/versions/9.0.0.0/welcome/index.html">
+          Repose
+        </a>
+        <select id="version-selector" onchange="versionSelector(this);" w3-include-html="/_includes/versions.html">
+        </select>
+      </li>
+      <li class="hidden-xs active">
+        <a href="../filters/index.html">Filters</a>
+      </li>
+      
+      <li class="hidden-xs active">
+        Keystone v2 Filter
+      </li>
+    </ol>
+    <div class="row row-offcanvas row-offcanvas-left">
+      <div class="col-xs-8 col-sm-3 col-md-3 sidebar sidebar-offcanvas">
+        <a class="navbar-search" href="/versions/search.html">
+          <span class="glyphicon glyphicon-search"/>
+          Search
+        </a>
+        <ul class="nav nav-sidebar">
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup0">
+        <span id="tgSpan0" class="fa fa-angle-right"></span>Welcome to Repose
+      </a>
+      <ul id="topicGroup0" class="collapse  list-unstyled">
+            <li><a class="" href="../welcome/index.html">Welcome</a></li>
+            <li><a class="" href="../welcome/troubleshooting.html">Troubleshooting</a></li>
+            <li><a class="" href="../welcome/release-notes.html">Release Notes</a></li>
+            <li><a class="" href="../welcome/ver-9-upgrade-notes.html">Version 9 Upgrade Notes</a></li>
+            <li><a class="" href="../welcome/style-guide.html">Style Guide</a></li>
+            <li><a class="" href="../welcome/faq.html">FAQ</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup1">
+        <span id="tgSpan1" class="fa fa-angle-right"></span>Architecture
+      </a>
+      <ul id="topicGroup1" class="collapse  list-unstyled">
+            <li><a class="" href="../architecture/index.html">Overview</a></li>
+            <li><a class="" href="../architecture/configuration.html">Configuration</a></li>
+            <li><a class="" href="../architecture/container.html">Container</a></li>
+            <li><a class="" href="../architecture/filter-chain.html">Filter Chain</a></li>
+            <li><a class="" href="../architecture/packages.html">Packages</a></li>
+            <li><a class="" href="../architecture/servlet-spec.html">Servlet Specification</a></li>
+            <li><a class="" href="../architecture/system-model.html">System Model</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup2">
+        <span id="tgSpan2" class="fa fa-angle-right"></span>Recipes
+      </a>
+      <ul id="topicGroup2" class="collapse  list-unstyled">
+            <li><a class="" href="../recipes/index.html">Overview</a></li>
+            <li><a class="" href="../recipes/quick-start.html">Quick Start</a></li>
+            <li><a class="" href="../recipes/getting-started.html">Getting Started</a></li>
+            <li><a class="" href="../recipes/custom-filter-for-repose.html">Custom Filter for Repose</a></li>
+            <li><a class="" href="../recipes/docker.html">Docker</a></li>
+            <li><a class="" href="../recipes/performance-best-practices.html">Performance Best Practices</a></li>
+            <li><a class="" href="../recipes/role-based-access-control.html">Role Based Access Control</a></li>
+            <li><a class="" href="../recipes/running-valve.html">Running Valve</a></li>
+            <li><a class="" href="../recipes/valve-installation.html">Valve Installation</a></li>
+            <li><a class="" href="../recipes/echo-server.html">Echo Server</a></li>
+            <li><a class="" href="../recipes/rate-limiting.html">Rate Limiting</a></li>
+            <li><a class="" href="../recipes/multi-tenant.html">Multi Tenant Authorization</a></li>
+            <li><a class="" href="../recipes/user-access-events.html">User Access Events</a></li>
+            <li><a class="" href="../recipes/basic-authentication.html">Basic Authentication</a></li>
+            <li><a class="" href="../recipes/delegation.html">Delegation</a></li>
+            <li><a class="" href="../recipes/preventing-xml-bomb.html">Preventing XML bomb attacks</a></li>
+            <li><a class="" href="../recipes/api-event-flume.html">API Access Event Recording with Flume</a></li>
+            <li><a class="" href="../recipes/xsd-versioning.html">XSD Versioning Guidelines</a></li>
+            <li><a class="" href="../recipes/client-authentication.html">SSL/TLS Client Authentication</a></li>
+            <li><a class="" href="../recipes/functional-test-framework.html">Functional Test Framework</a></li>
+            <li><a class="" href="../recipes/header-splitting.html">Header Splitting</a></li>
+            <li><a class="" href="../recipes/reason-phrase-normalization.html">Reason Phrase Normalization</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup3">
+        <span id="tgSpan3" class="fa fa-angle-down"></span>Filters
+      </a>
+      <ul id="topicGroup3" class="collapse in list-unstyled">
+            <li><a class="" href="../filters/index.html">Overview</a></li>
+            <li><a class="" href="../filters/add-header.html">Add Header Filter</a></li>
+            <li><a class="" href="../filters/api-validator.html">API Validator Filter</a></li>
+            <li><a class="" href="../filters/body-extractor-to-header.html">Body Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/body-patcher.html">Body Patcher Filter</a></li>
+            <li><a class="" href="../filters/compression.html">Compression Filter</a></li>
+            <li><a class="" href="../filters/content-type-stripper.html">Content Type Stripper Filter</a></li>
+            <li><a class="" href="../filters/cors.html">CORS Filter</a></li>
+            <li><a class="" href="../filters/derp.html">Delegation Response Processor (DeRP) Filter</a></li>
+            <li><a class="" href="../filters/destination-router.html">Destination Router Filter</a></li>
+            <li><a class="" href="../filters/echo.html">Echo Filter</a></li>
+            <li><a class="" href="../filters/exception.html">Exception Filter</a></li>
+            <li><a class="" href="../filters/forwarded-proto.html">Forwarded Protocol Filter</a></li>
+            <li><a class="" href="../filters/header-normalization.html">Header Normalization filter</a></li>
+            <li><a class="" href="../filters/header-translation.html">Header Translation Filter</a></li>
+            <li><a class="" href="../filters/header-user.html">Header User Filter</a></li>
+            <li><a class="" href="../filters/herp.html">Highly Efficient Record Processor (HERP) Filter</a></li>
+            <li><a class="" href="../filters/ip-user.html">IP User Filter</a></li>
+            <li><a class="" href="../filters/iri-validator.html">IRI Validator Filter</a></li>
+            <li><a class=" active" href="../filters/keystone-v2.html">Keystone v2 Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-authorization.html">Keystone v2 Authorization Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-basic-auth.html">Keystone v2 Basic Auth Filter</a></li>
+            <li><a class="" href="../filters/merge-header.html">Merge Header Filter</a></li>
+            <li><a class="" href="../filters/openstack-identity-v3.html">Openstack Identity v3 Filter</a></li>
+            <li><a class="" href="../filters/rate-limiting.html">Rate Limiting Filter</a></li>
+            <li><a class="" href="../filters/regex-rbac.html">RegEx Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/scripting.html">Scripting Filter</a></li>
+            <li><a class="" href="../filters/simple-rbac.html">Simple Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/slf4j-http-logging.html">SFL4J HTTP Logging Filter</a></li>
+            <li><a class="" href="../filters/split-header.html">Split Header Filter</a></li>
+            <li><a class="" href="../filters/tenant-culling.html">Tenant Culling Filter</a></li>
+            <li><a class="" href="../filters/translation.html">Translation Filter</a></li>
+            <li><a class="" href="../filters/uri-normalization.html">URI Normalization Filter</a></li>
+            <li><a class="" href="../filters/uri-stripper.html">URI Stripper Filter</a></li>
+            <li><a class="" href="../filters/uri-user.html">URI User Filter</a></li>
+            <li><a class="" href="../filters/url-extractor-to-header.html">URL Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a></li>
+            <li><a class="" href="../filters/versioning.html">Versioning Filter</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup4">
+        <span id="tgSpan4" class="fa fa-angle-right"></span>Services
+      </a>
+      <ul id="topicGroup4" class="collapse  list-unstyled">
+            <li><a class="" href="../services/index.html">Overview</a></li>
+            <li><a class="" href="../services/atom-feed-consumption.html">Atom Feed Consumption Service</a></li>
+            <li><a class="" href="../services/datastores.html">Datastores</a></li>
+            <li><a class="" href="../services/health-check.html">Health Check Service</a></li>
+            <li><a class="" href="../services/http-client.html">HTTP Client Service</a></li>
+            <li><a class="" href="../services/logging.html">Logging Service</a></li>
+            <li><a class="" href="../services/metrics.html">Metrics Service</a></li>
+            <li><a class="" href="../services/open-tracing.html">OpenTracing Service</a></li>
+            <li><a class="" href="../services/phone-home.html">Phone Home Service</a></li>
+            <li><a class="" href="../services/uri-redaction.html">URI Redaction service</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup5">
+        <span id="tgSpan5" class="fa fa-angle-right"></span>Developer
+      </a>
+      <ul id="topicGroup5" class="collapse  list-unstyled">
+            <li><a class="" href="../developer/index.html">Overview</a></li>
+            <li><a class="" href="../developer/docker.html">Docker</a></li>
+            <li><a class="" href="../developer/performance.html">Performance</a></li>
+      </ul>
+    </li>
+</ul>
+      </div>
+      <div class="col-xs-12 col-sm-9 col-md-9 main">
+        <div class="page-header">
+          <h2>Keystone v2 Filter</h2>
+        </div>
+        <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Provides a mechanism for authenticating and enriching requests with data from an OpenStack Keystone v2 Identity service.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="general-filter-information"><a class="anchor" href="#general-filter-information"></a>General filter information</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Name:</strong> keystone-v2</p>
+</li>
+<li>
+<p><strong>Default Configuration:</strong> keystone-v2.cfg.xml</p>
+</li>
+<li>
+<p><strong>Released:</strong> v7.1.5.0</p>
+</li>
+<li>
+<p><strong>Bundle:</strong> repose-filter-bundle</p>
+</li>
+<li>
+<p><a href="../schemas/keystone-v2.xsd">Schema</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="prerequisites-postconditions"><a class="anchor" href="#prerequisites-postconditions"></a>Prerequisites &amp; Postconditions</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="required-request-headers"><a class="anchor" href="#required-request-headers"></a>Required Request Headers</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>X-Auth-Token</code> - is a required header that is used by this filter to define the operating parameters of the HTTP transaction.
+If an incoming HTTP request is missing the <code>X-Auth-Token</code> header, then a response status code of <em>Unauthorized</em> (<code>401</code>) is returned.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="required-preceding-filters"><a class="anchor" href="#required-preceding-filters"></a>Required Preceding Filters</h3>
+<div class="paragraph">
+<p>This filter has no dependencies on other filters.</p>
+</div>
+<div class="paragraph">
+<p>However, it is a good practice to prevent spoofing of identities by putting the <a href="header-normalization.html">Header Normalization filter</a> before any authentication and/or authorization filters so that it can remove any headers that would be populated by them.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="request-headers-created"><a class="anchor" href="#request-headers-created"></a>Request Headers Created</h3>
+<div class="paragraph">
+<p>The following headers are created using the information returned from the authentication service:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>X-Authorization</code> - Informs origin service that user has been authenticated. (ex. "Proxy User")</p>
+</li>
+<li>
+<p><code>X-Identity-Status</code> - Indicates if identity has been confirmed. (ex. "Confirmed", "Indeterminate")</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Only if the <code>delegating</code> element is defined.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>X-User-Name</code> - Identifies user name. (ex. "jjenkins")</p>
+</li>
+<li>
+<p><code>X-User-ID</code> - Identifies user ID. (ex. "12345")</p>
+</li>
+<li>
+<p><code>X-Authenticated-By</code> - Identifies the method(s) by which the request was authenticated.  (ex. "password")</p>
+</li>
+<li>
+<p><code>X-Map-Roles</code> - Identifies the tenant-to-role mapping for all of the user&#8217;s tenants and roles.
+This header is a base 64 encoded JSON map of strings to arrays of strings (e.g., the base 64 encoding of <code>{"someTenant": ["someRole", "sharedRole"], "otherTenant": ["otherRole", "sharedRole"]}</code>).
+Roles without a tenant association will be mapped to the <code>repose/domain/roles</code> key (e.g., <code>{"repose/domain/roles": ["tenantlessRole"]}</code>).</p>
+</li>
+<li>
+<p><code>X-Roles</code> - Identifies roles. (ex. "admin", "user")</p>
+<div class="ulist">
+<ul>
+<li>
+<p>This header is only populated if the <code>set-roles-in-header</code> attribute is <code>true</code> and there are roles returned from the authentication service.</p>
+</li>
+<li>
+<p>If the <code>validate-tenant</code> element is present, then <strong>Tenanted Mode</strong> is active and this effects the contents of this header as outlined below:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>IF <strong>NOT IN</strong> Tenanted Mode, THEN all roles in the user&#8217;s token will be forwarded.</p>
+</li>
+<li>
+<p>IF <strong>IN</strong> Tenanted Mode AND <code>pre-authorized</code>, THEN all roles in the user&#8217;s token will be forwarded.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>In order for a user to be <code>pre-authorized</code> based on role, the role in question must either not have an associated tenant, or the associated tenant must match the tenant extracted from the request.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>IF <strong>IN</strong> Tenanted Mode AND NOT <code>pre-authorized</code>, THEN only roles with no associated tenant or an associated tenant matching the tenant extracted from the request will be forwarded.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The following headers are added for use by the <a href="rate-limiting.html">Rate Limiting filter</a>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>X-PP-User</code> - Identifies user name. (ex. "jjenkins")</p>
+</li>
+<li>
+<p><code>X-PP-Groups</code> - Identifies groups. (ex. "admin", "user")</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Only if the <code>set-groups-in-header</code> attribute is <code>true</code>.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If the <code>set-catalog-in-header</code> attribute is <code>true</code>, then the service catalog from the authentication service is a base 64 encoded and placed in the following header:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>X-Catalog</code> - the base 64 encoded service catalog for the user. (ex. "amplbmtpbnMgc2VydmljZSBjYXRhbG9nDQo=")</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The Keystone v2 Identity service supports impersonation.
+When an impersonation token is validated, the authentication service will return identifying information for the impersonator.
+This information allows impersonated calls to be tracked (e.g., via <a href="slf4j-http-logging.html">SLF4J HTTP Logging filter</a>).
+The origin service can also determine when a request is impersonated and who the impersonator is.
+The information is placed in the following headers:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>X-Impersonator-ID</code> - Identifies user ID of the impersonator. (ex. "1024")</p>
+</li>
+<li>
+<p><code>X-Impersonator-Name</code> - Identifies user name of the impersonator. (ex. "admin-user")</p>
+</li>
+<li>
+<p><code>X-Impersonator-Roles</code> - Identifies roles of the impersonator. (ex. "racker", "admin")</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The Keystone v2 Identity service also has other attributes it provides when a token is validated.
+If any of this information is provided, then it will be passed in the following headers:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>X-Domain-ID</code> - The domain ID for the user.</p>
+</li>
+<li>
+<p><code>X-Contact-ID</code> - The Contact ID for the user.</p>
+</li>
+<li>
+<p><code>X-Default-Region</code> - The Default Region for the user.</p>
+</li>
+<li>
+<p><code>X-Tenant-ID</code> - The Tenant ID(s) for the user.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>The value of this header is governed by <code>send-all-tenant-ids</code> attribute and what is provided by the Keystone v2 Identity service.</p>
+</li>
+<li>
+<p>Tenant IDs containing characters represented by a byte in the range <code>0x80</code>-<code>0xFF</code> (known as <code>obs-text</code>) may not be forwarded correctly.
+However, tenant IDs containing any other characters allowed by <a href="https://tools.ietf.org/html/rfc7230#section-3.2">HTTP/1.1 specification</a> will be forwarded correctly (i.e., without modification).</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>X-Tenant-Name</code> - The Tenant Name for the user.</p>
+</li>
+<li>
+<p><code>X-Token-Expires</code> - The date/time of when the token provided by the Keystone v2 Identity service expires.</p>
+</li>
+<li>
+<p><code>X-Auth-Token-Key</code> - The key for the parsed version of the token response that is contained in the datastore service.
+<strong>Deprecated</strong> and marked for removal in <strong>Repose</strong> 9+.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If delegation is enabled, then the <code>X-Delegated</code> header is created.
+This is mainly intended for use by the <a href="herp.html">Highly Efficient Record Processor (HERP) filter</a> and <a href="derp.html">Delegation Response Processor (DeRP) filter</a> for internal delegation processing within <strong>Repose</strong>.
+However, it can be exposed to the origin service under certain configurations.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="request-body-changes"><a class="anchor" href="#request-body-changes"></a>Request Body Changes</h3>
+<div class="paragraph">
+<p>This filter does not modify the request body.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="recommended-follow-on-succeeding-filters"><a class="anchor" href="#recommended-follow-on-succeeding-filters"></a>Recommended Follow-On (Succeeding) Filters</h3>
+<div class="paragraph">
+<p>This filter is not strictly required by any other filters.
+However, the following filters may be useful:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="simple-rbac.html">Simple RBAC filter</a> - Provides role-based access control to the origin service&#8217;s API, which can be configured to directly use the <code>X-PP-Groups</code>.</p>
+</li>
+<li>
+<p><a href="api-validator.html">API Validator filter</a> - Provides role-based access control to the origin service&#8217;s API, making use of the <code>X-PP-Groups</code> header.</p>
+</li>
+<li>
+<p><a href="rate-limiting.html">Rate Limiting filter</a> - Provides rate limiting, making use of the <code>X-PP-User</code> header.</p>
+</li>
+<li>
+<p><a href="keystone-v2-authorization.html">Keystone v2 Authorization filter</a> - Provides authorization (e.g., tenant, endpoint) for the request based on user data.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-body-changes"><a class="anchor" href="#response-body-changes"></a>Response Body Changes</h3>
+<div class="paragraph">
+<p>This filter does not modify the response body.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-headers-created"><a class="anchor" href="#response-headers-created"></a>Response Headers Created</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Retry-After</code> - This is included on all <em>Service Unavailable</em> (<code>503</code>) responses to indicate when it is appropriate to retry the request again.</p>
+</li>
+<li>
+<p><code>WWW-Authenticate</code> - This is included on all <em>Unauthorized</em> (<code>401</code>) responses to challenge the authorization of a user agent.
+This includes `401`s from further down the filter chain as well as the origin service.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-status-codes"><a class="anchor" href="#response-status-codes"></a>Response Status Codes</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">When the Keystone v2 Identity service returns:</th>
+<th class="tableblock halign-left valign-top"><strong>Repose</strong> Get Admin Token Call Returns</th>
+<th class="tableblock halign-left valign-top"><strong>Repose</strong> Validate Token Call Returns</th>
+<th class="tableblock halign-left valign-top"><strong>Repose</strong> Groups Call Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><em>Successful</em> (<code>2xx</code>)</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Request continues</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Request continues</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Request continues</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>400</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>500</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>500</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>500</code></p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>401</code></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The admin credentials are invalid.</p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>500</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>500</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>500</code></p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>401</code></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Self-validating tokens are being used, and the user token has expired.</p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>401</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>401</code></p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>403</code></p>
+</div>
+<div class="paragraph">
+<p>The admin token is unauthorized.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>500</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>500</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>500</code></p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>404</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>401</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>401</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Request continues</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>405</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>500</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>500</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>500</code></p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>413</code></p>
+</div>
+<div class="paragraph">
+<p><code>429</code></p>
+</div>
+<div class="paragraph">
+<p>The Keystone v2 Identity service rate limited the <strong>Repose</strong> instance.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>503</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>503</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>503</code></p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>500</code></p>
+</div>
+<div class="paragraph">
+<p><code>501</code></p>
+</div>
+<div class="paragraph">
+<p><code>502</code></p>
+</div>
+<div class="paragraph">
+<p><code>503</code></p>
+</div>
+<div class="paragraph">
+<p>The Keystone v2 Identity service failed to process the request.</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>502</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>502</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>502</code></p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="basic-configuration"><a class="anchor" href="#basic-configuration"></a>Basic Configuration</h3>
+<div class="paragraph">
+<p>This configuration will provide the basic headers using self-validating tokens.</p>
+</div>
+<div class="listingblock">
+<div class="title">keystone-v2.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;keystone-v2</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/keystone-v2/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;identity-service</span> <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://identity.example.com</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+<span style="color:#070;font-weight:bold">&lt;/keystone-v2&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The Keystone v2 Identity service Endpoint URI.</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="using-an-admin-account-not-recommended"><a class="anchor" href="#using-an-admin-account-not-recommended"></a>Using an admin account (not recommended)</h3>
+<div class="paragraph">
+<p>This configuration will use an admin account instead of using the self-validating tokens feature.</p>
+</div>
+<div class="listingblock">
+<div class="title">keystone-v2.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;keystone-v2</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/keystone-v2/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;identity-service</span> <span style="color:#b48">username</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">admin</span><span style="color:#710">&quot;</span></span>                  <i class="conum" data-value="1"></i><b>(1)</b>
+                      <span style="color:#b48">password</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">$3Cr3+</span><span style="color:#710">&quot;</span></span>                 <i class="conum" data-value="2"></i><b>(2)</b>
+                      <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://identity.example.com</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="3"></i><b>(3)</b>
+    <span style="color:#070;font-weight:bold">/&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/keystone-v2&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Admin username to access the Keystone v2 Identity service.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Admin password to access the Keystone v2 Identity service.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The Keystone v2 Identity service Endpoint URI.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>IF either a <code>username</code> OR a <code>password</code> is supplied, THEN you must provide both a <code>username</code> AND a <code>password</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="miscellaneous-identity-service-element-attributes"><a class="anchor" href="#miscellaneous-identity-service-element-attributes"></a>Miscellaneous Identity Service element attributes</h3>
+<div class="paragraph">
+<p>This configuration is an example using the <code>identity-service</code> element&#8217;s configuration attributes that have not yet been shown in an example.</p>
+</div>
+<div class="listingblock">
+<div class="title">keystone-v2.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;keystone-v2</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/keystone-v2/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;identity-service</span> <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://identity.example.com</span><span style="color:#710">&quot;</span></span>  <i class="conum" data-value="1"></i><b>(1)</b>
+                      <span style="color:#b48">connection-pool-id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Keystone-Pool</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="2"></i><b>(2)</b>
+                      <span style="color:#b48">set-roles-in-header</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span>         <i class="conum" data-value="3"></i><b>(3)</b>
+                      <span style="color:#b48">set-groups-in-header</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span>        <i class="conum" data-value="4"></i><b>(4)</b>
+                      <span style="color:#b48">set-catalog-in-header</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span>      <i class="conum" data-value="5"></i><b>(5)</b>
+                      <span style="color:#b48">apply-rcn-roles</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span>            <i class="conum" data-value="6"></i><b>(6)</b>
+    <span style="color:#070;font-weight:bold">/&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/keystone-v2&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The Keystone v2 Identity service Endpoint URI.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Http Connection pool ID to use when talking to the Keystone v2 Identity service.<br>
+<strong>NOTE:</strong> If the <code>connection-pool-id</code> is not defined, then the default pool is used.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Set the user&#8217;s roles in the <code>X-Roles</code> header.<br>
+Default: <code>true</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Set the user&#8217;s groups in the <code>X-PP-Groups</code> header.<br>
+Default: <code>true</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Set the user&#8217;s service catalog, base64 encoded, in the <code>X-Catalog</code> header.<br>
+Default: <code>false</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Indicates whether or not to include the <code>apply_rcn_roles</code> query parameter when talking to the Keystone v2 Identity service.<br>
+Default: <code>false</code></td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="enable-delegation"><a class="anchor" href="#enable-delegation"></a>Enable Delegation</h3>
+<div class="paragraph">
+<p>In some cases, you may want to delegate the decision to reject a request down the chain to either another filter or to the origin service.
+This filter allows a request to pass as either <code>confirmed</code> or <code>indeterminate</code> when configured to run in delegating mode.
+To place the filter in delegating mode, add the <code>delegating</code> element to the filter configuration with an optional <code>quality</code> attribute that determines the delegating priority.
+When in delegating mode, the filter sets the <code>X-Identity-Status</code> header with a value of <code>confirmed</code> when valid credentials have been authenticated by the Keystone v2 Identity service and to <code>indeterminate</code> when the credentials are not.
+The the <code>X-Identity-Status</code> header is in addition to the regular <code>X-Delegated</code> delegation header being created.</p>
+</div>
+<div class="listingblock">
+<div class="title">keystone-v2.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;keystone-v2</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/keystone-v2/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;identity-service</span> <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://identity.example.com</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;delegating</span> <span style="color:#b48">quality</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">0.7</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>  <i class="conum" data-value="1"></i><b>(1)</b> <i class="conum" data-value="2"></i><b>(2)</b>
+<span style="color:#070;font-weight:bold">&lt;/keystone-v2&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>If this element is present, then delegation is enabled.
+Delegation will cause this filter to pass requests it would ordinarily reject along with a header detailing why it would have rejected the request.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Indicates the quality that will be added to any output headers.
+When setting up a chain of delegating filters the highest quality number will be the one that is eventually output to the logging mechanisms.<br>
+Default: <code>0.7</code></td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="configuring-white-listed-uris"><a class="anchor" href="#configuring-white-listed-uris"></a>Configuring White-Listed URI&#8217;s</h3>
+<div class="paragraph">
+<p>You can configure this filter to allow no-op processing of requests that do not require authentication.
+For example, a service might want all calls authenticated with the exception of the call for WADL retrieval.
+In this situation, you can configure the whitelist as shown in the example below.
+The whitelist contains a list of <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Java Regular Expressions</a> that <strong>Repose</strong> attempts to match against the full request URI.
+If the URI matches an expression in the white list, then the request is passed to the origin service.
+Otherwise, authentication is performed against the request.</p>
+</div>
+<div class="listingblock">
+<div class="title">keystone-v2.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;keystone-v2</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/keystone-v2/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;identity-service</span> <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://identity.example.com</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;white-list&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;uri-regex&gt;</span>/application\.wadl$<span style="color:#070;font-weight:bold">&lt;/uri-regex&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+    <span style="color:#070;font-weight:bold">&lt;/white-list&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/keystone-v2&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Java Regular Expression</a> to allow matching URI&#8217;s to pass without requiring authentication.</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="configuring-cache-timeouts"><a class="anchor" href="#configuring-cache-timeouts"></a>Configuring Cache Timeouts</h3>
+<div class="paragraph">
+<p>This filter caches authentication tokens.
+The length of time that tokens are cached is determined by the Time To Live (TTL) value that is returned from the authentication service (e.g., the Keystone v2 Identity service) during token validation.</p>
+</div>
+<div class="paragraph">
+<p>You can configure alternate maximum TTL for caching of authentication tokens, groups, and endpoints.
+If you specify the token element value in the configuration file, this value is used when caching tokens, unless the token TTL value provided by the Keystone v2 Identity service is less than the token-cache-timeout value.
+This method prevents <strong>Repose</strong> from caching stale tokens.
+If the token&#8217;s TTL exceeds the maximum allowed TTL value (2^31 - 1), the maximum allowed TTL is used.</p>
+</div>
+<div class="listingblock">
+<div class="title">keystone-v2.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;keystone-v2</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/keystone-v2/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;identity-service</span> <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://identity.example.com</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;cache&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;timeouts</span> <span style="color:#b48">variability</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>     <i class="conum" data-value="1"></i><b>(1)</b>
+            <span style="color:#070;font-weight:bold">&lt;token&gt;</span>600<span style="color:#070;font-weight:bold">&lt;/token&gt;</span>         <i class="conum" data-value="2"></i><b>(2)</b>
+            <span style="color:#070;font-weight:bold">&lt;group&gt;</span>600<span style="color:#070;font-weight:bold">&lt;/group&gt;</span>         <i class="conum" data-value="3"></i><b>(3)</b>
+            <span style="color:#070;font-weight:bold">&lt;endpoints&gt;</span>600<span style="color:#070;font-weight:bold">&lt;/endpoints&gt;</span> <i class="conum" data-value="4"></i><b>(4)</b>
+        <span style="color:#070;font-weight:bold">&lt;/timeouts&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/cache&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/keystone-v2&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>This value will be added or subtracted to the cache timeouts to help ensure that the cached items have some variability so they don&#8217;t all expire at the exact same time.<br>
+Default: <code>0</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The number of seconds which cached tokens will live in the datastore.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The number of seconds which cached groups will live in the datastore.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>The number of seconds which cached endpoints will live in the datastore.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Each timeout value behaves in the following way:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If <code>-1</code>, caching is disabled.</p>
+</li>
+<li>
+<p>If <code>0</code>, data is cached using the TTL in the token provided by the Keystone v2 Identity service.<br>
+In other words, data is eternal.</p>
+</li>
+<li>
+<p>If greater than <code>0</code>, data is cached for the value provided, in seconds.</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="cache-invalidation-using-an-atom-feed"><a class="anchor" href="#cache-invalidation-using-an-atom-feed"></a>Cache invalidation using an Atom Feed</h3>
+<div class="paragraph">
+<p>You can configure this filter to use an Atom Feed for cache expiration.
+This configuration blocks malicious users from accessing the origin service by repeatedly checking the Cloud Feed from the authentication service.
+To set up this filter to use Cloud Feeds for cache expiration, you will need to enable the <a href="../services/atom-feed-consumption.html">Atom Feed Consumption service</a> in the <a href="../architecture/system-model.html">System model</a>, configure the <a href="../services/atom-feed-consumption.html">Atom Feed Consumption service</a>, and configure this filter with which feeds to listen to.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The Rackspace infrastructure uses Cloud Feeds (formerly Atom Hopper) to notify services of events.
+This is not default OpenStack behavior, and may require additional services for use.
+A list of Rackspace Cloud Feeds endpoints for Identity Events can be found at
+<a href="https://one.rackspace.com/display/auth/Identity+Endpoints#IdentityEndpoints-EndpointsConsumed">the internal Rackspace Wiki page linked here</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">keystone-v2.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;keystone-v2</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/keystone-v2/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;identity-service</span> <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://identity.example.com</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;cache&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;atom-feed</span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">some-feed</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+    <span style="color:#070;font-weight:bold">&lt;/cache&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/keystone-v2&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The unique ID of a feed defined in the <a href="../services/atom-feed-consumption.html">Atom Feed Consumption service</a> configuration.</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="tenant-id-validation"><a class="anchor" href="#tenant-id-validation"></a>Tenant ID Validation</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Tenant validation has been moved to the <a href="keystone-v2-authorization.html">Keystone v2 Authorization Filter</a>, and is considered deprecated in this filter.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Tenant ID Validation is the capability of this filter to parse a tenant ID out of the request and validate it against the tenant ID(s) available in the response token from the Keystone v2 Identity service.</p>
+</div>
+<div class="listingblock">
+<div class="title">keystone-v2.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;keystone-v2</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/keystone-v2/v1.0</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">ignored-roles</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">banana:phone</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+    <span style="color:#070;font-weight:bold">&lt;identity-service</span> <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://identity.example.com</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;tenant-handling</span> <span style="color:#b48">send-all-tenant-ids</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span> <i class="conum" data-value="2"></i><b>(2)</b>
+        <span style="color:#070;font-weight:bold">&lt;validate-tenant</span> <span style="color:#b48">strip-token-tenant-prefixes</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/foo:/bar-</span><span style="color:#710">&quot;</span></span>  <i class="conum" data-value="3"></i><b>(3)</b> <i class="conum" data-value="4"></i><b>(4)</b>
+                         <span style="color:#b48">enable-legacy-roles-mode</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="5"></i><b>(5)</b>
+        <span style="color:#070;font-weight:bold">&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;header-extraction-name&gt;</span>x-expected-tenant<span style="color:#070;font-weight:bold">&lt;/header-extraction-name&gt;</span> <i class="conum" data-value="6"></i><b>(6)</b>
+        <span style="color:#070;font-weight:bold">&lt;/validate-tenant&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;send-tenant-id-quality</span> <span style="color:#b48">default-tenant-quality</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">0.9</span><span style="color:#710">&quot;</span></span>  <i class="conum" data-value="7"></i><b>(7)</b> <i class="conum" data-value="8"></i><b>(8)</b>
+                                <span style="color:#b48">validated-tenant-quality</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">0.7</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="9"></i><b>(9)</b>
+                                <span style="color:#b48">roles-tenant-quality</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">0.5</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="10"></i><b>(10)</b>
+        <span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/tenant-handling&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/keystone-v2&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>ignored-roles</code> attribute indicates which roles from the keystone validation response should be ignored during all further processing.<br>
+Default: <code>identity:tenant-access</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Indicates if all the Tenant IDs from the user and the roles the user has should be sent or not.<br>
+If true, all tenants associated with the user are sent.
+If false, only the matching tenants from the request are sent.
+If no request tenants match any user tenants, then the default user tenant is sent.
+If not default user tenant exists, then a random tenant from the set of role tenants is sent.
+If no role tenants exist, then no tenant is sent.
+Default: <code>false</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>If this element is included, then Tenant ID Validation will be enforced based on the value extracted from the request.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>A <code>/</code> delimited list of prefixes to attempt to strip from the Tenant ID in the token response from the Keystone v2 Identity service.
+The post-strip Tenant ID is only used in the Tenant Validation check.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>If in legacy roles mode, then all roles associated with a user token are forwarded.
+If NOT in legacy roles mode, then roles which aren&#8217;t tied to the tenant provided in the request will NOT be forwarded UNLESS the user has a pre-authorized role.<br>
+Default: <code>false</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>The name of the header carrying the tenant ID(s) required to access the requested resource.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>If this element is included, then include Quality parameters on all the tenant ID headers sent.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>The default tenant has the highest quality by default.<br>
+Default: <code>0.9</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="9"></i><b>9</b></td>
+<td>Followed by validated request tenants by default (if any).<br>
+Default: <code>0.7</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="10"></i><b>10</b></td>
+<td>Followed by the tenants from the roles by default.<br>
+Default: <code>0.5</code></td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The header denoted by the <code>header-extraction-name</code> element can be populated using filters like the <a href="url-extractor-to-header.html">URL Extractor to Header Filter</a> and <a href="body-extractor-to-header.html">Body Extractor to Header Filter</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If the default tenant and a required tenant are the same, then the highest quality between the two will be used.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If the <code>validate-tenant</code> element is not present, then this filter will not attempt to validate a Tenant ID from the request.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>There can be multiple <code>header-extraction-name</code> elements.
+This enables validation of tenant IDs from varying sources.
+All tenant IDs extracted from request headers will be validated.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="tenant-id-validation-bypass"><a class="anchor" href="#tenant-id-validation-bypass"></a>Tenant ID Validation Bypass</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Pre-authorized roles have been moved to the <a href="keystone-v2-authorization.html">Keystone v2 Authorization Filter</a>, and are considered deprecated in this filter.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>If Tenant ID Validation is enabled, then a list of roles that are allowed to bypass this check can be configured.
+These configured roles will be compared to the roles returned in a token from the Keystone v2 Identity service, and if there is a match, the Tenant ID check will be skipped.</p>
+</div>
+<div class="listingblock">
+<div class="title">keystone-v2.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;keystone-v2</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/keystone-v2/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;identity-service</span> <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://identity.example.com</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;pre-authorized-roles&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+        <span style="color:#070;font-weight:bold">&lt;role&gt;</span>racker<span style="color:#070;font-weight:bold">&lt;/role&gt;</span> <i class="conum" data-value="2"></i><b>(2)</b>
+    <span style="color:#070;font-weight:bold">&lt;/pre-authorized-roles&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/keystone-v2&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Enable Tenant ID Validation Bypass.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Defines a role for which the Tenant ID Validation check is not required.</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="require-specific-service-endpoint-for-authorization"><a class="anchor" href="#require-specific-service-endpoint-for-authorization"></a>Require specific service endpoint for authorization</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Service endpoint requirements have been moved to the <a href="keystone-v2-authorization.html">Keystone v2 Authorization Filter</a> and are considered deprecated in this filter.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>If endpoint authorization is enabled, then the user must have an endpoint in their catalog meeting the defined criteria.</p>
+</div>
+<div class="listingblock">
+<div class="title">keystone-v2.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;keystone-v2</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/keystone-v2/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;identity-service</span> <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://identity.example.com</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;require-service-endpoint</span> <span style="color:#b48">public-url</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">https://service.example.com</span><span style="color:#710">&quot;</span></span>  <i class="conum" data-value="1"></i><b>(1)</b> <i class="conum" data-value="2"></i><b>(2)</b>
+                              <span style="color:#b48">region</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">ORD</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="3"></i><b>(3)</b>
+                              <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">OpenStackCompute</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="4"></i><b>(4)</b>
+                              <span style="color:#b48">type</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">compute</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="5"></i><b>(5)</b>
+    <span style="color:#070;font-weight:bold">/&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/keystone-v2&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>If this element is included, then endpoint authorization is enabled and will be enforced based attributes of this element.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Public URL to match on the user&#8217;s service catalog entry.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Region to match on the user&#8217;s service catalog entry.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Name of the service to match in the user&#8217;s service catalog entry.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Type to match in the user&#8217;s service catalog entry.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The <code>region</code>, <code>name</code>, and <code>type</code> attributes are all optional and can be combined as needed to achieve the desired restrictions.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+      </div>
+    </div>
+  </div>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="/_javascripts/bootstrap-offcanvas.js" type="text/javascript"></script>
+  <script src="/_javascripts/page-loader.js" type="text/javascript"></script>
+  <script src="/_javascripts/include-html.js" type="text/javascript"></script>
+  <script>includeHTML();</script>
+  <script type="text/javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+      $("[id^='topicGroup']").on('show.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicGroup']").on('hide.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicSubGroup']").on('show.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+      $("[id^='topicSubGroup']").on('hide.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+    });
+    /*]]>*/
+  </script>
+</body>
+</html>

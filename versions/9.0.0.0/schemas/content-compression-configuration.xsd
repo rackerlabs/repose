@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:content-compression="http://docs.openrepose.org/repose/content-compression/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xerces="http://xerces.apache.org" xmlns:saxon="http://saxon.sf.net/"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified" targetNamespace="http://docs.openrepose.org/repose/content-compression/v1.0">
+
+    <!-- Content Compression Configuration -->
+    <xs:element name="content-compression" type="content-compression:ContentCompressionConfig"/>
+
+
+    <xs:complexType name="ContentCompressionConfig">
+
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The Compression filter is a way for Repose to decompress request data and
+                    compress response data.
+                </html:p>
+                <html:p>The following compression methods are supported.</html:p>
+                <html:ul>
+                    <html:li>gzip</html:li>
+                    <html:li>x-gzip</html:li>
+                    <html:li>deflate</html:li>
+                </html:ul>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="compression" type="content-compression:Compression" minOccurs="1"
+                        maxOccurs="1"/>
+        </xs:sequence>
+
+    </xs:complexType>
+    <xs:complexType name="Compression">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Exposes compressing filter configuration</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+
+        <xs:attribute name="debug" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Debug to servlet log This attribute is deprecated. Logging can be
+                        controlled through the log4j2.xml file
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <!-- TODO: make this a non-negative int -->
+        <xs:attribute name="compression-threshold" type="content-compression:PositiveInt" use="optional" default="1024">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>sets the size of the smallest response that will be compressed, in
+                        bytes. That is, if less than compressionThreshold bytes are written to the
+                        response, it will not be compressed and the response will go to the client
+                        unmodified. If 0, compression always begins immediately. Defaults to 1024.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="statsEnabled" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>enables collection of statistics. This option is deprecated.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="include-content-types" type="content-compression:StringList"
+                      use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>if specified, this is treated as a space seperated list of content types
+                        (e.g. text/html,text/xml). The filter will attempt to only compress
+                        responses which specify one of these values as its content type, for example
+                        via ServletResponse.setContentType(String). Note that the filter does not
+                        know the response content type at the time it is applied, and so must apply
+                        itself and later attempt to disable compression when content type has been
+                        set. This will fail if the response has already been committed. Also note
+                        that this parameter cannot be specified if exclude-content-types is also
+                        configured.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="exclude-content-types" type="content-compression:StringList"
+                      use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>same as above, but specifies a list of content types to not compress.
+                        Everything else will be compressed. However note that any content type that
+                        indicates a compressed format (e.g. application/gzip,
+                        application/x-compress) will not be compressed in any event.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="include-user-agent-patterns" type="content-compression:StringList"
+                      use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Only requests with User-Agent headers whose value matches one of these
+                        regular expressions will be compressed. Can't be specified if
+                        excludeUserAgentPatterns is also configured. This option is deprecated.
+                        Please refer to
+                        <html:a
+                                href="http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html"
+                                >Java Regular Expression Api
+                        </html:a>
+                        for more information on regular
+                        expression syntax.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="exclude-user-agent-patterns" type="content-compression:StringList"
+                      use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>as above, requests whose User-Agent header matches one of these patterns
+                        will not be compressed. This option is deprecated. Please refer to
+                        <html:a
+                                href="http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html"
+                                >Java Regular Expression Api
+                        </html:a>
+                        for more information on regular
+                        expression syntax.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:assert vc:minVersion="1.1"
+                   test="if (@include-content-types) then not (@exclude-content-types) else true()"
+                   xerces:message="Enumerating include-content-type and exclude-content-type is not allowed."
+                   saxon:message="Enumerating include-content-type and exclude-content-type is not allowed."/>
+
+
+        <xs:assert vc:minVersion="1.1"
+                   test="if (@include-user-agent-patterns) then not (@exclude-user-agent-patterns) else true()"
+                   xerces:message="Enumerating include-user-agent-patterns and exclude-user-agent-patterns is not allowed."
+                   saxon:message="Enumerating include-user-agent-patterns and exclude-user-agent-patterns is not allowed."/>
+
+
+    </xs:complexType>
+
+    <xs:simpleType name="StringList">
+        <xs:list itemType="xs:string"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="PositiveInt">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+
+</xs:schema>

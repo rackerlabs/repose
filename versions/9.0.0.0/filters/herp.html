@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>9.0.0.0 | Filters | Highly Efficient Record Processor (HERP) Filter</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="/_stylesheets/asciibinder.css" >
+  <link rel="stylesheet" href="/_stylesheets/repose.css" >
+  <link rel="stylesheet" href="/_stylesheets/release-note-categories.css" >
+
+   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+   <!--[if lt IE 9]>
+     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+   <![endif]-->
+
+  <link href="/_images/favicon32x32.png" rel="shortcut icon" type="text/css">
+  <!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
+  <meta content="AsciiBinder" name="application-name">
+</head>
+<body onload="selectVersion('9.0.0.0');">
+  <div class="container">
+    <p class="toggle-nav visible-xs pull-left">
+      <button class="btn btn-default btn-sm" type="button" data-toggle="offcanvas">Toggle nav</button>
+    </p>
+    <ol class="breadcrumb">
+      <li class="sitename">
+        <a class="navbar-brand" href="http://www.openrepose.org/">
+          <img alt="OpenRepose" src="/_images/repose-logo.png" align="bottom">
+        </a>
+      </li>
+      <li class="sitename">
+        <a href="../../index.html">
+          Home
+        </a>
+      </li>
+      <li class="hidden-xs active">
+        <a href="/versions/9.0.0.0/welcome/index.html">
+          Repose
+        </a>
+        <select id="version-selector" onchange="versionSelector(this);" w3-include-html="/_includes/versions.html">
+        </select>
+      </li>
+      <li class="hidden-xs active">
+        <a href="../filters/index.html">Filters</a>
+      </li>
+      
+      <li class="hidden-xs active">
+        Highly Efficient Record Processor (HERP) Filter
+      </li>
+    </ol>
+    <div class="row row-offcanvas row-offcanvas-left">
+      <div class="col-xs-8 col-sm-3 col-md-3 sidebar sidebar-offcanvas">
+        <a class="navbar-search" href="/versions/search.html">
+          <span class="glyphicon glyphicon-search"/>
+          Search
+        </a>
+        <ul class="nav nav-sidebar">
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup0">
+        <span id="tgSpan0" class="fa fa-angle-right"></span>Welcome to Repose
+      </a>
+      <ul id="topicGroup0" class="collapse  list-unstyled">
+            <li><a class="" href="../welcome/index.html">Welcome</a></li>
+            <li><a class="" href="../welcome/troubleshooting.html">Troubleshooting</a></li>
+            <li><a class="" href="../welcome/release-notes.html">Release Notes</a></li>
+            <li><a class="" href="../welcome/ver-9-upgrade-notes.html">Version 9 Upgrade Notes</a></li>
+            <li><a class="" href="../welcome/style-guide.html">Style Guide</a></li>
+            <li><a class="" href="../welcome/faq.html">FAQ</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup1">
+        <span id="tgSpan1" class="fa fa-angle-right"></span>Architecture
+      </a>
+      <ul id="topicGroup1" class="collapse  list-unstyled">
+            <li><a class="" href="../architecture/index.html">Overview</a></li>
+            <li><a class="" href="../architecture/configuration.html">Configuration</a></li>
+            <li><a class="" href="../architecture/container.html">Container</a></li>
+            <li><a class="" href="../architecture/filter-chain.html">Filter Chain</a></li>
+            <li><a class="" href="../architecture/packages.html">Packages</a></li>
+            <li><a class="" href="../architecture/servlet-spec.html">Servlet Specification</a></li>
+            <li><a class="" href="../architecture/system-model.html">System Model</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup2">
+        <span id="tgSpan2" class="fa fa-angle-right"></span>Recipes
+      </a>
+      <ul id="topicGroup2" class="collapse  list-unstyled">
+            <li><a class="" href="../recipes/index.html">Overview</a></li>
+            <li><a class="" href="../recipes/quick-start.html">Quick Start</a></li>
+            <li><a class="" href="../recipes/getting-started.html">Getting Started</a></li>
+            <li><a class="" href="../recipes/custom-filter-for-repose.html">Custom Filter for Repose</a></li>
+            <li><a class="" href="../recipes/docker.html">Docker</a></li>
+            <li><a class="" href="../recipes/performance-best-practices.html">Performance Best Practices</a></li>
+            <li><a class="" href="../recipes/role-based-access-control.html">Role Based Access Control</a></li>
+            <li><a class="" href="../recipes/running-valve.html">Running Valve</a></li>
+            <li><a class="" href="../recipes/valve-installation.html">Valve Installation</a></li>
+            <li><a class="" href="../recipes/echo-server.html">Echo Server</a></li>
+            <li><a class="" href="../recipes/rate-limiting.html">Rate Limiting</a></li>
+            <li><a class="" href="../recipes/multi-tenant.html">Multi Tenant Authorization</a></li>
+            <li><a class="" href="../recipes/user-access-events.html">User Access Events</a></li>
+            <li><a class="" href="../recipes/basic-authentication.html">Basic Authentication</a></li>
+            <li><a class="" href="../recipes/delegation.html">Delegation</a></li>
+            <li><a class="" href="../recipes/preventing-xml-bomb.html">Preventing XML bomb attacks</a></li>
+            <li><a class="" href="../recipes/api-event-flume.html">API Access Event Recording with Flume</a></li>
+            <li><a class="" href="../recipes/xsd-versioning.html">XSD Versioning Guidelines</a></li>
+            <li><a class="" href="../recipes/client-authentication.html">SSL/TLS Client Authentication</a></li>
+            <li><a class="" href="../recipes/functional-test-framework.html">Functional Test Framework</a></li>
+            <li><a class="" href="../recipes/header-splitting.html">Header Splitting</a></li>
+            <li><a class="" href="../recipes/reason-phrase-normalization.html">Reason Phrase Normalization</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup3">
+        <span id="tgSpan3" class="fa fa-angle-down"></span>Filters
+      </a>
+      <ul id="topicGroup3" class="collapse in list-unstyled">
+            <li><a class="" href="../filters/index.html">Overview</a></li>
+            <li><a class="" href="../filters/add-header.html">Add Header Filter</a></li>
+            <li><a class="" href="../filters/api-validator.html">API Validator Filter</a></li>
+            <li><a class="" href="../filters/body-extractor-to-header.html">Body Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/body-patcher.html">Body Patcher Filter</a></li>
+            <li><a class="" href="../filters/compression.html">Compression Filter</a></li>
+            <li><a class="" href="../filters/content-type-stripper.html">Content Type Stripper Filter</a></li>
+            <li><a class="" href="../filters/cors.html">CORS Filter</a></li>
+            <li><a class="" href="../filters/derp.html">Delegation Response Processor (DeRP) Filter</a></li>
+            <li><a class="" href="../filters/destination-router.html">Destination Router Filter</a></li>
+            <li><a class="" href="../filters/echo.html">Echo Filter</a></li>
+            <li><a class="" href="../filters/exception.html">Exception Filter</a></li>
+            <li><a class="" href="../filters/forwarded-proto.html">Forwarded Protocol Filter</a></li>
+            <li><a class="" href="../filters/header-normalization.html">Header Normalization filter</a></li>
+            <li><a class="" href="../filters/header-translation.html">Header Translation Filter</a></li>
+            <li><a class="" href="../filters/header-user.html">Header User Filter</a></li>
+            <li><a class=" active" href="../filters/herp.html">Highly Efficient Record Processor (HERP) Filter</a></li>
+            <li><a class="" href="../filters/ip-user.html">IP User Filter</a></li>
+            <li><a class="" href="../filters/iri-validator.html">IRI Validator Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2.html">Keystone v2 Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-authorization.html">Keystone v2 Authorization Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-basic-auth.html">Keystone v2 Basic Auth Filter</a></li>
+            <li><a class="" href="../filters/merge-header.html">Merge Header Filter</a></li>
+            <li><a class="" href="../filters/openstack-identity-v3.html">Openstack Identity v3 Filter</a></li>
+            <li><a class="" href="../filters/rate-limiting.html">Rate Limiting Filter</a></li>
+            <li><a class="" href="../filters/regex-rbac.html">RegEx Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/scripting.html">Scripting Filter</a></li>
+            <li><a class="" href="../filters/simple-rbac.html">Simple Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/slf4j-http-logging.html">SFL4J HTTP Logging Filter</a></li>
+            <li><a class="" href="../filters/split-header.html">Split Header Filter</a></li>
+            <li><a class="" href="../filters/tenant-culling.html">Tenant Culling Filter</a></li>
+            <li><a class="" href="../filters/translation.html">Translation Filter</a></li>
+            <li><a class="" href="../filters/uri-normalization.html">URI Normalization Filter</a></li>
+            <li><a class="" href="../filters/uri-stripper.html">URI Stripper Filter</a></li>
+            <li><a class="" href="../filters/uri-user.html">URI User Filter</a></li>
+            <li><a class="" href="../filters/url-extractor-to-header.html">URL Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a></li>
+            <li><a class="" href="../filters/versioning.html">Versioning Filter</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup4">
+        <span id="tgSpan4" class="fa fa-angle-right"></span>Services
+      </a>
+      <ul id="topicGroup4" class="collapse  list-unstyled">
+            <li><a class="" href="../services/index.html">Overview</a></li>
+            <li><a class="" href="../services/atom-feed-consumption.html">Atom Feed Consumption Service</a></li>
+            <li><a class="" href="../services/datastores.html">Datastores</a></li>
+            <li><a class="" href="../services/health-check.html">Health Check Service</a></li>
+            <li><a class="" href="../services/http-client.html">HTTP Client Service</a></li>
+            <li><a class="" href="../services/logging.html">Logging Service</a></li>
+            <li><a class="" href="../services/metrics.html">Metrics Service</a></li>
+            <li><a class="" href="../services/open-tracing.html">OpenTracing Service</a></li>
+            <li><a class="" href="../services/phone-home.html">Phone Home Service</a></li>
+            <li><a class="" href="../services/uri-redaction.html">URI Redaction service</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup5">
+        <span id="tgSpan5" class="fa fa-angle-right"></span>Developer
+      </a>
+      <ul id="topicGroup5" class="collapse  list-unstyled">
+            <li><a class="" href="../developer/index.html">Overview</a></li>
+            <li><a class="" href="../developer/docker.html">Docker</a></li>
+            <li><a class="" href="../developer/performance.html">Performance</a></li>
+      </ul>
+    </li>
+</ul>
+      </div>
+      <div class="col-xs-12 col-sm-9 col-md-9 main">
+        <div class="page-header">
+          <h2>Highly Efficient Record Processor (HERP) Filter</h2>
+        </div>
+        <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Highly Efficient Record Processor (HERP) filter logs an event for each API request.
+These logs provide information regarding the processing of each request.
+The logs can be inspected to view the usage of a service and to perform auditing.
+Events are recorded even if the API request is rejected by <strong>Repose</strong> before reaching the origin service.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="general-filter-information"><a class="anchor" href="#general-filter-information"></a>General Filter Information</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Name:</strong> herp</p>
+</li>
+<li>
+<p><strong>Released:</strong> v7.0.0.1</p>
+</li>
+<li>
+<p><strong>Bundle:</strong> repose-filter-bundle</p>
+</li>
+<li>
+<p><strong>Default Configuration:</strong> highly-efficient-record-processor.cfg.xml</p>
+</li>
+<li>
+<p><strong>Configuration Schema:</strong> <a href="../schemas/highly-efficient-record-processor.xsd">highly-efficient-record-processor.xsd</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="prerequisites-postconditions"><a class="anchor" href="#prerequisites-postconditions"></a>Prerequisites &amp; Postconditions</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="required-request-headers"><a class="anchor" href="#required-request-headers"></a>Required Request Headers</h3>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Response</caption>
+<colgroup>
+<col style="width: 15%;">
+<col style="width: 12%;">
+<col style="width: 73%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Response Headers</th>
+<th class="tableblock halign-left valign-top">Value</th>
+<th class="tableblock halign-left valign-top">Conditions of Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>X-User-Name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Username of the requestor</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Required when the username was not provided in the request (e.g., for change password requests to Identity using a temporary token)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="required-preceding-filters"><a class="anchor" href="#required-preceding-filters"></a>Required Preceding Filters</h3>
+<div class="paragraph">
+<p>This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.</p>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-caution" title="Caution"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>In order for the HERP filter to process and record every request, no preceding filter in the filter chain may write a response.
+To prevent short-circuiting without changing behavior, delegation has been added to many <strong>Repose</strong> filters.
+See <a href="../recipes/delegation.html">Delegation in Repose</a> for more details.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="request-headers-created"><a class="anchor" href="#request-headers-created"></a>Request Headers Created</h3>
+<div class="paragraph">
+<p>This filter does not create/modify any request headers.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="request-body-changes"><a class="anchor" href="#request-body-changes"></a>Request Body Changes</h3>
+<div class="paragraph">
+<p>This filter does not modify the request body.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="recommended-follow-on-succeeding-filters"><a class="anchor" href="#recommended-follow-on-succeeding-filters"></a>Recommended Follow-On (Succeeding) Filters</h3>
+<div class="paragraph">
+<p>This filter is not strictly required by any other filters.
+However, the DeRP filter commonly follows the HERP filter.</p>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-caution" title="Caution"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The HERP filter will not process responses sent from preceding filters.
+The DeRP filter can be used to perform delegation.
+Place the DeRP filter after the HERP filter so that responses sent by any preceding filters are delegated.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-body-changes"><a class="anchor" href="#response-body-changes"></a>Response Body Changes</h3>
+<div class="paragraph">
+<p>This filter does not modify the response body.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-headers-created"><a class="anchor" href="#response-headers-created"></a>Response Headers Created</h3>
+<div class="paragraph">
+<p>This filter does not create/modify any response headers.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-status-codes"><a class="anchor" href="#response-status-codes"></a>Response Status Codes</h3>
+<div class="paragraph">
+<p>This filter does not modify the response code.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To use the HERP filter, you need to:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Edit the <code>highly-efficient-record-processor.cfg.xml</code> file.</p>
+</li>
+<li>
+<p>Add the HERP filter to your system model.</p>
+</li>
+<li>
+<p>Configure the logger-name attribute to note the SLF4j logger</p>
+</li>
+<li>
+<p>Configure the service-code attribute to note the service being accessed.</p>
+</li>
+<li>
+<p>Configure the region attribute to note the region of the service.</p>
+</li>
+<li>
+<p>Configure the data-center attribute to note the data center of the service.</p>
+</li>
+<li>
+<p>Configure the template element to define the format of the messages to be logged by the HERP filter.</p>
+</li>
+</ol>
+</div>
+<div class="sect2">
+<h3 id="optional-user-configurable-filtering"><a class="anchor" href="#optional-user-configurable-filtering"></a>Optional User-Configurable Filtering</h3>
+<div class="paragraph">
+<p>The HERP filter allows user-configurable filtering along with optional pre and post log identifiers.</p>
+</div>
+<div class="paragraph">
+<p>Each <code>filterOut</code> block contains all of the criteria required for a single filter.
+If any of the individual criterion in the <code>match</code> elements contained within a <code>filterOut</code> element fail, then that filter fails and it goes on to evaluate the next one.
+If any of the <code>filterOut</code> blocks fully match, then the event is filtered and not logged to the post-filter log.
+In other words, the <code>match</code> elements are logically AND&#8217;d and the <code>filterOut</code> blocks are logically OR&#8217;d.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Within the match element:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Set the <code>field</code> attribute to name the event field to be matched.
+If the <code>field</code> is a map (e.g., parameters), then a dot separates the <code>field</code> from the map key and both are placed in the <code>field</code> attribute.</p>
+</li>
+<li>
+<p>Set the <code>regex</code> attribute to determine if the regular expressions match the fields' values.
+The regex is currently considered to match if any part of a field&#8217;s value matches.
+For example, a regex of <code>"racker"</code> would match a value of <code>"rackerTwo"</code>.
+To strictly match, use a more explicit regex such as <code>"^racker$"</code>.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Optionally, you can:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Specify a <code>pre-filter-logger-name</code> that logs all events to it prior to performing any filter logic.</p>
+</li>
+<li>
+<p>Specify a <code>post-filter-logger-name</code> that logs all events to it that are not filtered out.</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="title">highly-efficient-record-processor.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;highly-efficient-record-processor</span>
+    <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/highly-efficient-record-processor/v1.0</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#b48">pre-filter-logger-name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">org.openrepose.herp.pre.filter</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#b48">post-filter-logger-name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">org.openrepose.herp.post.filter</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#b48">service-code</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">repose</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">region</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">USA</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">data-center</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">DFW</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;template</span> <span style="color:#b48">crush</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+        <span style="font-weight:bold;color:#666">&lt;![CDATA[</span>
+            &lt;cadf:event xmlns:cadf=&quot;http://schemas.dmtf.org/cloud/audit/1.0/event&quot;
+                    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+                    xsi:schemaLocation='http://schemas.dmtf.org/cloud/audit/1.0/event user-access-cadf.xsd'
+                    xmlns:ua=&quot;http://feeds.api.rackspacecloud.com/cadf/user-access-event&quot;
+                    id=&quot;{{guid}}&quot;
+                    eventType=&quot;activity&quot;
+                    typeURI=&quot;http://schemas.dmtf.org/cloud/audit/1.0/event&quot;
+                    eventTime=&quot;{{cadfTimestamp timestamp}}&quot;
+                    action=&quot;{{cadfMethod requestMethod}}&quot;
+                    outcome=&quot;{{cadfOutcome responseCode}}&quot;&gt;
+            &lt;cadf:initiator id=&quot;{{#if impersonatorName}}impersonatorName{{else}}{{userName}}{{/if}}&quot;
+                            typeURI=&quot;network/node&quot; name=&quot;{{#if impersonatorName}}impersonatorName{{else}}{{userName}}{{/if}}&quot;&gt;
+                &lt;cadf:host address=&quot;{{requestorIp}}&quot; agent=&quot;{{userAgent}}&quot;/&gt;
+            &lt;/cadf:initiator&gt;
+            &lt;cadf:target id=&quot;{{targetHost}}&quot; typeURI=&quot;service&quot; name=&quot;{{serviceCode}}&quot;&gt;
+                &lt;cadf:host address=&quot;{{targetHost}}&quot;/&gt;
+            &lt;/cadf:target&gt;
+            &lt;cadf:attachments&gt;
+                &lt;cadf:attachment name=&quot;auditData&quot; contentType=&quot;ua:auditData&quot;&gt;
+                    &lt;cadf:content&gt;
+                        &lt;ua:auditData version=&quot;1&quot;&gt;
+                            &lt;ua:region&gt;{{region}}&lt;/ua:region&gt;
+                            &lt;ua:dataCenter&gt;{{dataCenter}}&lt;/ua:dataCenter&gt;
+                            &lt;ua:methodLabel&gt;{{methodLabel}}&lt;/ua:methodLabel&gt;
+                            &lt;ua:requestURL&gt;{{requestURL}}&lt;/ua:requestURL&gt;
+                            &lt;ua:queryString&gt;{{requestQueryString}}&lt;/ua:queryString&gt;
+                            &lt;ua:tenantId&gt;{{defaultProjectId}}&lt;/ua:tenantId&gt;
+                            &lt;ua:responseMessage&gt;{{responseMessage}}&lt;/ua:responseMessage&gt;
+                            &lt;ua:userName&gt;{{userName}}&lt;/ua:userName&gt;
+                            &lt;ua:roles&gt;{{#each roles}}{{#if @index}} {{/if}}{{.}}{{/each}}&lt;/ua:roles&gt;
+                        &lt;/ua:auditData&gt;
+                    &lt;/cadf:content&gt;
+                &lt;/cadf:attachment&gt;
+            &lt;/cadf:attachments&gt;
+            &lt;cadf:observer id=&quot;{{serviceCode}}-{{nodeId}}&quot; name=&quot;repose&quot; typeURI=&quot;service/security&quot;/&gt;
+            &lt;cadf:reason reasonCode=&quot;{{responseCode}}&quot;
+                         reasonType=&quot;http://www.iana.org/assignments/http-status-codes/http-status-codes.xml&quot;/&gt;
+        &lt;/cadf:event&gt;
+        <span style="font-weight:bold;color:#666">]]&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/template&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;filterOut&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;match</span> <span style="color:#b48">field</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">userName</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">.*[fF]oo.*</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+        <span style="color:#070;font-weight:bold">&lt;match</span> <span style="color:#b48">field</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">dataCenter</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">DFW</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/filterOut&gt;</span> <i class="conum" data-value="2"></i><b>(2)</b>
+    <span style="color:#070;font-weight:bold">&lt;filterOut&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;match</span> <span style="color:#b48">field</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">userName</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">.*[bB]ar.*</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+        <span style="color:#070;font-weight:bold">&lt;match</span> <span style="color:#b48">field</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">parameters.abc</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">123</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/filterOut&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/highly-efficient-record-processor&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td><code>match</code> elements are implicitly AND&#8217;d</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td><code>filterOut</code> elements are implicitly OR&#8217;d</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The <code>{{methodLabel}}</code> variable value is provided by the <code>api-validator</code> filter.
+If you aren&#8217;t using that filter, <code>{{methodLabel}}</code> will return empty string.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="additional-information"><a class="anchor" href="#additional-information"></a>Additional Information</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="optional-user-configurable-filtering-2"><a class="anchor" href="#optional-user-configurable-filtering-2"></a>Optional User-Configurable Filtering</h3>
+<div class="paragraph">
+<p>The HERP filter allows user-configurable filtering along with optional pre and post log identifiers.</p>
+</div>
+<div class="paragraph">
+<p>Each <code>filterOut</code> block contains all of the criteria required for a single filter.
+If any of the individual criterion in the <code>match</code> elements contained within a <code>filterOut</code> element fail, then that filter fails and it goes on to evaluate the next one.
+If any of the <code>filterOut</code> blocks fully match, then the event is filtered and not logged to the post-filter log.
+In other words, the <code>match</code> elements are logically AND&#8217;d and the <code>filterOut</code> blocks are logically OR&#8217;d.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Within the match element:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Set the <code>field</code> attribute to name the event field to be matched.
+If the <code>field</code> is a map (e.g., parameters), then a dot separates the <code>field</code> from the map key and both are placed in the <code>field</code> attribute.</p>
+</li>
+<li>
+<p>Set the <code>regex</code> attribute to determine if the regular expressions match the fields' values.
+The regex is currently considered to match if any part of a field&#8217;s value matches.
+For example, a regex of <code>"racker"</code> would match a value of <code>"rackerTwo"</code>.
+To strictly match, use a more explicit regex such as <code>"^racker$"</code>.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Optionally, you can:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Specify a <code>pre-filter-logger-name</code> that logs all events to it prior to performing any filter logic.</p>
+</li>
+<li>
+<p>Specify a <code>post-filter-logger-name</code> that logs all events to it that are not filtered out.</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="user-access-event-recording-with-flume"><a class="anchor" href="#user-access-event-recording-with-flume"></a>User Access Event Recording With Flume</h3>
+<div class="paragraph">
+<p>For information about using the Flume with the HERP filter for user access event recording, see <a href="../recipes/api-event-flume.html">CF Flume Sink</a> for more details.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="configurable-parameters"><a class="anchor" href="#configurable-parameters"></a>Configurable Parameters</h3>
+<div class="paragraph">
+<p>In the <code>template</code> element, certain template keys may be used to add dynamic content to the text being logged.
+Any valid key enclosed in brackets (i.e., <code>{{&lt;key&gt;}}</code>) will be replaced, brackets included, by the value associated with that key at runtime.
+Note that key names are case sensitive.
+A list of supported keys follows:</p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Supported fields</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Prerequisite Filter(s)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">dataCenter</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The data center, configured in the highly-efficient-record-processor.cfg.xml file.
+                         This string will be used in logging to note the data center of the service.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">guid</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A globally unique identifier generated for a particular request.
+                         This will begin with the value provided in the Tracing header (X-Trans-Id) if present and be followed by a colon (<code>:</code>) and a GUID.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">impersonatorName</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The impersonator making the request on behalf of a user.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">client-auth <strong>or</strong> openstack-identity-v3</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">methodLabel</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A label which describes the API call.
+                         This is pulled from the WADL used by the api-validator filter.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">api-validator</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">nodeId</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The node ID of the <strong>Repose</strong> node on which the filter is running, configured in the <strong>Repose</strong> system model.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">parameters</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The query parameters for a request.
+                         Note that this field is a map, and specific parameters can be inserted using the following form: <code>{{parameters.&lt;parameter-key&gt;}}</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">projectID</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The tenant ID or project ID of the user making the request authenticated through an OpenStack Identity service.
+                         Note that, if the client-auth filter is used, the <code>tenantId</code> from that filter will be inserted into this field.
+                         IF the origin service will add this header to the response, THEN that will be used if not available on the request.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">client-auth <strong>or</strong> openstack-identity-v3
+                                                                                                                                                              (<code>X-Tenant-ID</code> <strong>or</strong> <code>X-Project-ID</code>)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">region</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The region, configured in the highly-efficient-record-processor.cfg.xml file.
+                         This string will be used in logging to note the region of the service.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">requestMethod</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The HTTP method of the request.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">requestQueryString</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The full query string of the request.
+                         For example, a request to /path?a=1&amp;b=1 would have a query string of a=1&amp;b=2.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">requestURL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The URL of the request.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">requestorIp</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The IP of the user making the request.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">responseCode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The response code to be returned to the user.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">responseMessage</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The response message to be returned to the user.
+                         This is not the body of the response.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">roles</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The roles of the user making the request authenticated through an OpenStack Identity service.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">client-auth <strong>or</strong> openstack-identity-v3</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">serviceCode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The service code, configured in the highly-efficient-record-processor.cfg.xml file.
+                         This string will be used in logging to describe the service being accessed.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">targetHost</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The host portion of the request.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">timestamp</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A timestamp indicating when the HERP filter processed the request.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">userAgent</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The user agent of the request.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">userName</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The username of the user making the request.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">client-auth <strong>or</strong> openstack-identity-v3</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The HERP filter also provides helper functions to the templating engine.
+These helpers work like the keys above, but take some input.
+For example, assuming the HTTP request method is a <code>GET</code>, <code>{{cadfMethod requestMethod}}</code> would be replace by <code>"read/get"</code>.
+The following helpers are available:</p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Supported helpers</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cadfOutcome &lt;responseCode&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Converts a HTTP response code into either "success" or "failure".</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cadfTimestamp &lt;timestamp&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Converts a timestamp into the CADF format.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cadfMethod &lt;requestMethod&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Converts a HTTP method into the CADF format.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="recommendation-for-managing-disk-space"><a class="anchor" href="#recommendation-for-managing-disk-space"></a>Recommendation For Managing Disk Space</h3>
+<div class="paragraph">
+<p>If you expect heavy usage, you should use a logging tool, such as <a href="http://logstash.net/">Logstash</a>, for managing events and logs and should not write events to files.
+Even if you rely on auditing, it is not recommended that you use the file system with the audit logs.
+<strong>Repose</strong> has developed <a href="../recipes/api-event-flume.html">CF Flume Sink</a> to eliminate disk space and log file issues.</p>
+</div>
+</div>
+</div>
+</div>
+      </div>
+    </div>
+  </div>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="/_javascripts/bootstrap-offcanvas.js" type="text/javascript"></script>
+  <script src="/_javascripts/page-loader.js" type="text/javascript"></script>
+  <script src="/_javascripts/include-html.js" type="text/javascript"></script>
+  <script>includeHTML();</script>
+  <script type="text/javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+      $("[id^='topicGroup']").on('show.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicGroup']").on('hide.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicSubGroup']").on('show.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+      $("[id^='topicSubGroup']").on('hide.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+    });
+    /*]]>*/
+  </script>
+</body>
+</html>
