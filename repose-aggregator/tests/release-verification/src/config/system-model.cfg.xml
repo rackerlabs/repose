@@ -1,21 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-  <repose-cluster id="repose">
-
     <nodes>
-      <node id="simple-node" hostname="localhost" http-port="8080"/>
+        <node id="simple-node" hostname="localhost" http-port="8080"/>
     </nodes>
-
     <filters>
-      <filter name="scripting"/>      <!-- Experimental Filter Bundle -->
-      <filter name="keystone-v2"/>    <!-- Standard Filter Bundle -->
-      <filter name="api-validator"/>  <!-- Extensions Filter Bundle -->
+        <filter name="scripting"/>      <!-- Experimental Filter Bundle -->
+        <filter name="keystone-v2"/>    <!-- Standard Filter Bundle -->
+        <filter name="api-validator"/>  <!-- Extensions Filter Bundle -->
     </filters>
-
     <destinations>
         <endpoint id="target" protocol="http" hostname="localhost" root-path="/" port="8000" default="true"/>
     </destinations>
-
-  </repose-cluster>
 </system-model>
