@@ -94,13 +94,13 @@ docker {
     }
 
     task("push${baseImage}ImageVersion", type: DockerPushImage) {
-        dependsOn "tag${baseImage}ImageVersion"
+        dependsOn ':buildAll', "tag${baseImage}ImageVersion"
         imageName = 'rackerlabs/repose'
         tag = currentVersion + tagSuffix
     }
 
     task("push${baseImage}ImageLatest", type: DockerPushImage) {
-        dependsOn "tag${baseImage}ImageLatest"
+        dependsOn ':buildAll', "tag${baseImage}ImageLatest"
         onlyIf { isLatestDockerHubVersion(currentVersion) }
         imageName = 'rackerlabs/repose'
         tag = "latest${tagSuffix}"
@@ -117,7 +117,7 @@ docker {
         force = true
     }
 
-    publish.dependsOn "push${baseImage}Image"
+    tasks.getByPath(':release') dependsOn tasks["push${baseImage}Image"]
 }
 
 private static final boolean isLatestDockerHubVersion(String version) {
