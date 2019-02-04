@@ -23,7 +23,7 @@ import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import scaffold.category.Filters
+import scaffold.category.XmlParsing
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.*
@@ -31,7 +31,7 @@ import static javax.servlet.http.HttpServletResponse.*
 /**
  * Created by jennyvo on 6/1/15.
  */
-@Category(Filters)
+@Category(XmlParsing)
 class SimpleRBACMask403Test extends ReposeValveTest {
 
     def setupSpec() {
