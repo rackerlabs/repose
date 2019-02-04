@@ -98,7 +98,7 @@
   To replicate the previous behavior you need to configure it in the operating system.
 
 == Deployment
-. Support for installing *Repose* into an existing container has been dropped. For help moving to another deployment see <<../recipes/valve-installation.adoc, Valve Installation>> and <<../recipes/quick-start.adoc, Quick Start with Docker>>.
+. Support for installing *Repose* into an existing container has been dropped. For help moving to another deployment see <<../recipes/valve-installation.adoc#, Valve Installation>> and <<../recipes/quick-start.adoc#, Quick Start with Docker>>.
 . The package for valve installation has changed from `repose-valve` to `repose`.
 . The <<../filters/scripting.adoc#, Scripting Filter>> has been moved from the `repose-experimental-filter-bundle` to the `repose-filter-bundle`.
 

@@ -97,19 +97,19 @@ And it will do this before each filter and the origin service allowing you to se
 This can be expensive in both time and disk space and is intended only as a debugging tool, not for full time use.
 ====
 
-For more troubleshooting help see our <<../troubleshooting.adoc, guide>>.
+For more troubleshooting help see our <<../welcome/troubleshooting.adoc#, guide>>.
 
 == Metrics ==
 
 *Repose* automatically records metrics on how long each request spends within a filter.
-If you wish to see these numbers or exfiltrate them to another tool look into the <<../services/metrics.adoc, Metrics Service>>.
+If you wish to see these numbers or exfiltrate them to another tool look into the <<../services/metrics.adoc#, Metrics Service>>.
 They are listed under `org.openrepose.core.FilterProcessingTime.Delay` with an entry for each filter by name.
 
 If you are curious about the numbers for a specific request you can add the `X-Trace-Request` header to the request.
-See <<../troubleshooting.adoc#_time_spent_in_each_filter,Time Spent in Each Filter>> for more details.
+See <<../welcome/troubleshooting.adoc#_time_spent_in_each_filter,Time Spent in Each Filter>> for more details.
 
 We also start an *OpenTracing* span for each filter that is ran.
-If you'd like to get this data look into the <<../services/open-tracing.adoc, OpenTracing Service>>.
+If you'd like to get this data look into the <<../services/open-tracing.adoc#, OpenTracing Service>>.
 
 == Bypass URI ==
 
