@@ -101,6 +101,7 @@ docker {
 
     task("push${baseImage}ImageLatest", type: DockerPushImage) {
         dependsOn "tag${baseImage}ImageLatest"
+        onlyIf { isLatestDockerHubVersion(currentVersion) }
         imageName = 'rackerlabs/repose'
         tag = "latest${tagSuffix}"
     }
@@ -111,12 +112,12 @@ docker {
 
     task("remove${baseImage}Image", type: DockerRemoveImage) {
         dependsOn "build${baseImage}Image"
-        mustRunAfter "tag${baseImage}ImageVersion", "tag${baseImage}ImageLatest", "push${baseImage}ImageVersion", "push${baseImage}ImageLatest"
+        mustRunAfter "tag${baseImage}ImageVersion", "tag${baseImage}ImageLatest", "push${baseImage}ImageVersion", "push${baseImage}ImageLatest", publish
         targetImageId { tasks["build${baseImage}ImageLocal"].getImageId() }
         force = true
     }
 
-    tasks["push${baseImage}ImageLatest"].onlyIf { isLatestDockerHubVersion(currentVersion) }
+    publish.dependsOn "push${baseImage}Image"
 }
 
 private static final boolean isLatestDockerHubVersion(String version) {
