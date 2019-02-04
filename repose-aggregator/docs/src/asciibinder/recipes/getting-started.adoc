@@ -109,15 +109,15 @@ See <<performance-best-practices.adoc#,Performance Best Practices>> for more det
 For further information on common configuration scenarios, visit our <<index.adoc#,Recipes>> page.
 
 ==== Troubleshooting
-For details on common troubleshooting techniques, visit our <<../troubleshooting.adoc#,Troubleshooting>> page.
+For details on common troubleshooting techniques, visit our <<../welcome/troubleshooting.adoc#,Troubleshooting>> page.
 
 ==== FAQs
-For a list of frequently asked questions and answers, visit our <<../faq.adoc#,FAQ>> page.
+For a list of frequently asked questions and answers, visit our <<../welcome/faq.adoc#,FAQ>> page.
 
 == Need More Information About Repose?
 http://www.openrepose.org/#contact-us[Contact us]! We would be happy to address any questions, comments, or concerns with anything having to do with *Repose*!
 
 [TIP]
 ====
-If you wonder what we've been working on lately, visit our <<../release-notes.adoc#,release notes>>.
+If you wonder what we've been working on lately, visit our <<../welcome/release-notes.adoc#,release notes>>.
 ====
