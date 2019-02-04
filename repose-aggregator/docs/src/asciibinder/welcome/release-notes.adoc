@@ -1,6 +1,6 @@
 = Release Notes
 
-== 9.0.0.0 (2018-01-31)
+== 9.0.0.0 (2019-01-31)
 <<ver-9-upgrade-notes.adoc#, Upgrade Notes>>
 
 * [.bug-tag]#Bug Fix# |  https://repose.atlassian.net/browse/REP-7310[REP-7310] - Fixing the `IllegalArgumentException` thrown by the <<../filters/herp.adoc#, HERP Filter>> when incorrectly attempting to decode query parameters.
