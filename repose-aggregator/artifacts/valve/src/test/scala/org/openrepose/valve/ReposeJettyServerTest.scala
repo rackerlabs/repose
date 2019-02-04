@@ -100,6 +100,22 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
     repose.server.getConnectors.length shouldBe 2
   }
 
+  it("the jetty server listening on an HTTP port and having a non-default idleTimeout") {
+    val repose = new ReposeJettyServer(
+      nodeContext,
+      "node",
+      httpPort,
+      None,
+      None,
+      idleTimeout
+    )
+
+    //Cannot verify too much, really can just prove that I have one connector
+    repose.server.getConnectors.length shouldBe 1
+    // and it should have the new idleTimeout
+    repose.server.getConnectors.head.getIdleTimeout shouldBe idleTimeout.get
+  }
+
   it("raises an exception when an HTTPS port is specified, but no ssl config is provided") {
     intercept[ServerInitializationException] {
       new ReposeJettyServer(
