@@ -27,14 +27,14 @@ import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import scaffold.category.Filters
+import scaffold.category.Identity
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.*
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION
 import static javax.ws.rs.core.HttpHeaders.WWW_AUTHENTICATE
 
-@Category(Filters)
+@Category(Identity)
 class BasicAuthTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

@@ -25,14 +25,14 @@ import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
-import scaffold.category.Filters
+import scaffold.category.Identity
 
 import java.util.concurrent.CopyOnWriteArrayList
 
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import static javax.servlet.http.HttpServletResponse.SC_OK
 
-@Category(Filters)
+@Category(Identity)
 class GetAdminTokenBurstTest extends ReposeValveTest {
     static final String X_AUTH_TOKEN = "X-Auth-Token"
     static final String CONTENT_TYPE = "Content-Type"

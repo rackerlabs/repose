@@ -26,7 +26,7 @@ import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import scaffold.category.Filters
+import scaffold.category.Identity
 import spock.lang.Unroll
 
 /**
@@ -38,7 +38,7 @@ import spock.lang.Unroll
  * - request can be delegable, which means that the authentication can be delegated to origin service.
  * @return
  */
-@Category(Filters)
+@Category(Identity)
 class ClientAuthNRemoveTenantTenantedDelegableTest extends ReposeValveTest {
 
     def static originEndpoint

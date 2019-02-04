@@ -25,13 +25,13 @@ import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import scaffold.category.Filters
+import scaffold.category.Identity
 import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 9/23/15.
  */
-@Category(Filters)
+@Category(Identity)
 class KeystoneV2AuthZSelfValidationTest extends ReposeValveTest {
 
     def static originEndpoint

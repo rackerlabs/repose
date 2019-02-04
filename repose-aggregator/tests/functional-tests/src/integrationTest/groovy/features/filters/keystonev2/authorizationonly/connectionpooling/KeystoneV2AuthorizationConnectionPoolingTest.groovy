@@ -25,7 +25,7 @@ import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
 import org.rackspace.deproxy.Handling
-import scaffold.category.Filters
+import scaffold.category.Identity
 import spock.lang.Shared
 
 /**
@@ -33,7 +33,7 @@ import spock.lang.Shared
  * User: izrik
  *
  */
-@Category(Filters)
+@Category(Identity)
 class KeystoneV2AuthorizationConnectionPoolingTest extends ReposeValveTest {
 
     @Shared

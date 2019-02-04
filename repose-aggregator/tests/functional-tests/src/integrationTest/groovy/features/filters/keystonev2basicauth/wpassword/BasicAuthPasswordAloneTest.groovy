@@ -28,7 +28,7 @@ import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import scaffold.category.Filters
+import scaffold.category.Identity
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.*
@@ -40,7 +40,7 @@ import static org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TO
  * Update on 01/21/16
  *  - Replace client-auth-n with keystone-v2 filter
  */
-@Category(Filters)
+@Category(Identity)
 class BasicAuthPasswordAloneTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

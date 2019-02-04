@@ -19,3 +19,4 @@ For the same reasons it was decided to only allow one category per test, with a 
 * `XmlParser` - Denotes a test that can potentially use *Saxon* for *XML* parsing, these tests will be run twice once with a *Saxon* license present and once without.
 * `Smoke` - Denotes a super simple test designed to prove that *Repose* can standup and process requests at all, generally there should only ever be one of these.
 * `Recipe` - Denotes a test that has a complex configuration design to test a needed use-case from end to end.
+* `Identity` - Denotes a test that deals with the integration with *Rackspace* identity services.

@@ -25,7 +25,7 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import scaffold.category.Filters
+import scaffold.category.Identity
 
 import javax.servlet.http.HttpServletResponse
 
@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletResponse
  *  Test is checking if the HttpClient connection timeout is less than 50 seconds,
  *  then the client is notified then and not delayed until 50 seconds.
  */
-@Category(Filters)
+@Category(Identity)
 class TimeoutSameAsHttpConnTimeoutTest extends ReposeValveTest {
 
     def static originEndpoint

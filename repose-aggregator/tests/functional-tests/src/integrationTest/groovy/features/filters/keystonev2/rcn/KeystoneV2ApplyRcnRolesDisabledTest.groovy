@@ -25,7 +25,7 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Response
-import scaffold.category.Filters
+import scaffold.category.Identity
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -37,7 +37,7 @@ import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED
 /**
  * Verifies calls to Identity when the Apply RCN Roles functionality is explicitly disabled in config.
  */
-@Category(Filters)
+@Category(Identity)
 class KeystoneV2ApplyRcnRolesDisabledTest extends ReposeValveTest {
     private static final String APPLY_RCN_ROLES = "apply_rcn_roles"
     private static final Pattern TOKEN_VALIDATION_PATH = ~$/$/v2.0/tokens/[^/]+/$
