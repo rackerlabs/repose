@@ -70,7 +70,7 @@ docker {
     tasks["push${baseImage}ImageLatest"].onlyIf { isLatestDockerHubVersion(reposeVersion) }
 }
 
-boolean isLatestDockerHubVersion(String version) {
+private static final boolean isLatestDockerHubVersion(String version) {
     boolean isLatest = true
 
     String nextPage = 'https://hub.docker.com/v2/repositories/rackerlabs/repose/tags/'
@@ -86,4 +86,35 @@ boolean isLatestDockerHubVersion(String version) {
     }
 
     return isLatest
+}
+
+private static final boolean isLatestVersion(String version, List<String> otherVersions) {
+    return !otherVersions.any {
+        it ==~ /(\d+\.)*\d+/ && compareVersions(version, it) < 0
+    }
+}
+
+/**
+ - * @return -1 if v1 is a lower version than v2, 0 if they are equal, and 1 if v1 is a greater version than v2
+ - */
+private static final compareVersions(String v1, String v2) {
+    List<String> v1Parts = v1.tokenize('.')
+    List<String> v2Parts = v2.tokenize('.')
+
+    int minLen = Math.min(v1Parts.size(), v2Parts.size())
+
+    // Compare each number from the versions until either the numbers do not match,
+    // or the end of a version string is hit.
+    for (int i = 0; i < minLen; ++i) {
+        int n1 = v1Parts[i] as int
+        int n2 = v2Parts[i] as int
+
+        if (n1 != n2) {
+            return n1 <=> n2
+        }
+    }
+
+    // If we got this far, then one version is a substring of the other.
+    // Therefore, whichever version is longer is the greater version.
+    return v1Parts.size() <=> v2Parts.size()
 }
