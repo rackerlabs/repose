@@ -13,7 +13,7 @@ This filter does not require any request headers.
 
 === Required Preceding Filters
 While this filter doesn't require any preceding filter, it's headers are added to any existing values.
-If you desire to only get the new values you should use the <<header-normalization.adoc, header normalization filter>>.
+If you desire to only get the new values you should use the <<header-normalization.adoc#, header normalization filter>>.
 
 === Request Headers Created
 This filter will create whatever headers you configure it to.
