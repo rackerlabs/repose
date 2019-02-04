@@ -6,7 +6,54 @@ import groovy.json.JsonSlurper
 
 apply plugin: 'com.bmuschko.docker-remote-api'
 
-String reposeVersion = project.hasProperty('repose-version') ? project.property('repose-version') as String : version as String
+configurations {
+    dockerDebBundle
+    dockerRpmBundle
+}
+
+dependencies {
+    dockerDebBundle project(path: ':repose-aggregator:artifacts:valve', configuration: 'deb')
+    dockerDebBundle project(path: ':repose-aggregator:artifacts:filter-bundle', configuration: 'deb')
+    dockerDebBundle project(path: ':repose-aggregator:artifacts:extensions-filter-bundle', configuration: 'deb')
+    dockerDebBundle project(path: ':repose-aggregator:artifacts:experimental-filter-bundle', configuration: 'deb')
+
+    dockerRpmBundle project(path: ':repose-aggregator:artifacts:valve', configuration: 'rpm')
+    dockerRpmBundle project(path: ':repose-aggregator:artifacts:filter-bundle', configuration: 'rpm')
+    dockerRpmBundle project(path: ':repose-aggregator:artifacts:extensions-filter-bundle', configuration: 'rpm')
+    dockerRpmBundle project(path: ':repose-aggregator:artifacts:experimental-filter-bundle', configuration: 'rpm')
+}
+
+String dockerBuildDir = "$buildDir/docker"
+String reposeVersion = project.findProperty('repose-version') as String
+String currentVersion = reposeVersion ?: (version as String).replace('~', '-')
+
+task('copyPackages', type: Copy) {
+    onlyIf { !reposeVersion }
+
+    into dockerBuildDir
+
+    from(configurations.dockerDebBundle) {
+        into 'ubuntu'
+    }
+
+    from(configurations.dockerRpmBundle) {
+        into 'centos'
+    }
+}
+
+task('copyDockerfiles', type: Copy) {
+    String reposePackageSource = reposeVersion ? 'repo' : 'file'
+
+    into dockerBuildDir
+
+    from("$projectDir/src/docker/resources/$reposePackageSource/ubuntu") {
+        into 'ubuntu'
+    }
+
+    from("$projectDir/src/docker/resources/$reposePackageSource/centos") {
+        into 'centos'
+    }
+}
 
 docker {
     url = "unix:///var/run/docker.sock"
@@ -20,11 +67,14 @@ docker {
 
 ['Ubuntu': '', 'Centos': '-centos'].forEach { baseImage, tagSuffix ->
     task("build${baseImage}ImageLocal", type: DockerBuildImage) {
-        inputDir = file("$projectDir/src/docker/${baseImage.toLowerCase()}")
-        buildArgs = ['REPOSE_VERSION': reposeVersion]
+        dependsOn copyPackages, copyDockerfiles
+        inputDir = file("$dockerBuildDir/${baseImage.toLowerCase()}")
+        if (reposeVersion) {
+            buildArgs = ['REPOSE_VERSION': reposeVersion]
+        }
     }
 
-    task("build${baseImage}Image") {
+    task("build${baseImage}Image", group: 'docker') {
         dependsOn "build${baseImage}ImageLocal"
         finalizedBy "remove${baseImage}Image"
     }
@@ -32,7 +82,7 @@ docker {
     task("tag${baseImage}ImageVersion", type: DockerTagImage) {
         dependsOn "build${baseImage}Image"
         repository = 'rackerlabs/repose'
-        tag = reposeVersion + tagSuffix
+        tag = currentVersion + tagSuffix
         targetImageId { tasks["build${baseImage}ImageLocal"].getImageId() }
     }
 
@@ -46,7 +96,7 @@ docker {
     task("push${baseImage}ImageVersion", type: DockerPushImage) {
         dependsOn "tag${baseImage}ImageVersion"
         imageName = 'rackerlabs/repose'
-        tag = reposeVersion + tagSuffix
+        tag = currentVersion + tagSuffix
     }
 
     task("push${baseImage}ImageLatest", type: DockerPushImage) {
@@ -55,8 +105,7 @@ docker {
         tag = "latest${tagSuffix}"
     }
 
-    task("push${baseImage}Image") {
-        group = 'docker'
+    task("push${baseImage}Image", group: 'docker') {
         dependsOn "push${baseImage}ImageVersion", "push${baseImage}ImageLatest"
     }
 
@@ -67,7 +116,7 @@ docker {
         force = true
     }
 
-    tasks["push${baseImage}ImageLatest"].onlyIf { isLatestDockerHubVersion(reposeVersion) }
+    tasks["push${baseImage}ImageLatest"].onlyIf { isLatestDockerHubVersion(currentVersion) }
 }
 
 private static final boolean isLatestDockerHubVersion(String version) {
