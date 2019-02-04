@@ -23,25 +23,50 @@ They can be passed in as build properties or the easier way is to add them to yo
 
 Then try to build a quick *Repose Docker* image from the root of the *Repose* project.
 
-[source,bash,subs="verbatim,attributes"]
+[source,bash]
 ----
 ./gradlew \
-    :repose-aggregator:artifacts:docker:buildUbuntuImageLocal \
-    -Prepose-version={project-version}
+    :repose-aggregator:artifacts:docker:tagUbuntuImageVersion \ # <1>
+    -x removeUbuntuImage # <2>
 ----
+<1> The Gradle task to build and tag a *Repose Docker* image (based on an Ubuntu image).
+<2> A Gradle option to prevent the `removeUbuntuImage` task from running.
+    This is used to prevent removal of the newly built image, getting around the task chain built when running `tagUbuntuImageVersion`
 
 This will ultimately result in a message similar to:
 
 ----
 Successfully built IMAGE_ID
 Created image with ID 'IMAGE_ID'.
+Tagging image with ID 'IMAGE_ID'.
 
 BUILD SUCCESSFUL
 ----
 
-Since this method will not automatically tag the image, you will need to tag it yourself for easier reference later:
+Building an image to run a specific version of Repose can be done by providing the desired version as a build property.
 
-[source,bash,subs="verbatim,attributes"]
+[source,bash]
+----
+./gradlew \
+    :repose-aggregator:artifacts:docker:tagUbuntuImageVersion \
+    -x removeUbuntuImage \
+    -Prepose-version={project-version} # <1>
+----
+<1> A property declaring the version of *Repose* to install in the *Repose Docker* image.
+    Note that setting this property will lead to *Repose* being installed from a remote package repository rather than local file packages.
+
+If you wish to tag an image yourself, an untagged image can be built.
+
+[source,bash]
+----
+./gradlew \
+    :repose-aggregator:artifacts:docker:buildUbuntuImageLocal # <1>
+----
+<1> The Gradle task to build a *Repose Docker* image (based on an Ubuntu image).
+
+Using the `IMAGE_ID` provided in the Gradle output (or via a `docker images` query), tag the new *Repose Docker* image.
+
+[source,bash]
 ----
 docker tag IMAGE_ID local/repose:v{project-version}-ubuntu
 ----
