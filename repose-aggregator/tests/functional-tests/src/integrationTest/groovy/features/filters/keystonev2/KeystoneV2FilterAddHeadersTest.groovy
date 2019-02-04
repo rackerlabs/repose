@@ -25,13 +25,13 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import scaffold.category.Filters
+import scaffold.category.Identity
 
 /**
  * Created by jennyvo on 8/28/15.
  *  Verify auth filter will add headers not replace headers.
  */
-@Category(Filters)
+@Category(Identity)
 class KeystoneV2FilterAddHeadersTest extends ReposeValveTest {
 
     def static originEndpoint

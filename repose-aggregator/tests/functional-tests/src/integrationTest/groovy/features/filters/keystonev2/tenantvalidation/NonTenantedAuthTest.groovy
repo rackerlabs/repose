@@ -25,9 +25,9 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import scaffold.category.Filters
+import scaffold.category.Identity
 
-@Category(Filters)
+@Category(Identity)
 class NonTenantedAuthTest extends ReposeValveTest {
 
     def static originEndpoint

@@ -28,7 +28,7 @@ import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import scaffold.category.Filters
+import scaffold.category.Identity
 import spock.lang.Ignore
 import spock.lang.Unroll
 
@@ -40,7 +40,7 @@ import static org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TO
  * Created by jennyvo on 9/17/14.
  * Basic Auth filter can't be used alone, have to use with client-auth filter
  */
-@Category(Filters)
+@Category(Identity)
 class BasicAuthStandaloneTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

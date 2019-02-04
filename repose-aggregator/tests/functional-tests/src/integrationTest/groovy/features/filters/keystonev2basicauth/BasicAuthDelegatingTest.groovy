@@ -26,7 +26,7 @@ import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import scaffold.category.Filters
+import scaffold.category.Identity
 import spock.lang.Unroll
 
 import javax.ws.rs.core.HttpHeaders
@@ -38,7 +38,7 @@ import static org.openrepose.commons.utils.http.normal.ExtendedStatusCodes.SC_TO
  * Created by jennyvo on 11/12/14.
  * Delegating with identity basic auth test
  */
-@Category(Filters)
+@Category(Identity)
 class BasicAuthDelegatingTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

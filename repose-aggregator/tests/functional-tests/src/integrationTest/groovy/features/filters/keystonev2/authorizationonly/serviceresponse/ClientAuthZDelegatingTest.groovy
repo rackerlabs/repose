@@ -26,14 +26,14 @@ import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import scaffold.category.Filters
+import scaffold.category.Identity
 import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 11/11/14.
  * check delegating option for authz
  */
-@Category(Filters)
+@Category(Identity)
 class ClientAuthZDelegatingTest extends ReposeValveTest {
     def static originEndpoint
     def static identityEndpoint

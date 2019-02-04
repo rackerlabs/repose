@@ -26,9 +26,9 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
-import scaffold.category.Filters
+import scaffold.category.Identity
 
-@Category(Filters)
+@Category(Identity)
 class ValidateTokenBurstTest extends ReposeValveTest {
 
     def static originEndpoint

@@ -21,17 +21,14 @@ package features.filters.keystonev2
 
 import groovy.xml.MarkupBuilder
 import org.joda.time.DateTime
-import org.junit.experimental.categories.Category
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
-import scaffold.category.Filters
 
 import static javax.servlet.http.HttpServletResponse.SC_OK
 
 /**
  * Simulates responses from an Identity Atom Feed
  */
-@Category(Filters)
 class AtomFeedResponseSimulator {
     static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'"
 

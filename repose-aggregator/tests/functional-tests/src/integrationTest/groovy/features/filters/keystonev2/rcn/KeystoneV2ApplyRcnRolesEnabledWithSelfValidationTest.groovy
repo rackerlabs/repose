@@ -24,7 +24,7 @@ import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
-import scaffold.category.Filters
+import scaffold.category.Identity
 import spock.lang.Shared
 import spock.lang.Unroll
 
@@ -37,7 +37,7 @@ import static javax.servlet.http.HttpServletResponse.SC_OK
  * but with self-validation turned on. It does not include the admin token test nor does it include the retry tests
  * even though at this time, even self-validating tokens are retried after a 401 response for some reason.
  */
-@Category(Filters)
+@Category(Identity)
 class KeystoneV2ApplyRcnRolesEnabledWithSelfValidationTest extends ReposeValveTest {
     private static final Pattern APPLY_RCN_ROLES_QUERY_PARAM = ~$/$/.*\?.*apply_rcn_roles=(?i:true).*/$
     private static final Pattern TOKEN_VALIDATION_PATH = ~$/$/v2.0/tokens/[^/]+/$

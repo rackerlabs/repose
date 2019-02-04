@@ -25,13 +25,13 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import scaffold.category.Filters
+import scaffold.category.Identity
 import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 8/11/15.
  */
-@Category(Filters)
+@Category(Identity)
 class MultiTenantswDefaultQualityTest extends ReposeValveTest {
 
     def static originEndpoint

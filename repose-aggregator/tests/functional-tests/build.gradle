@@ -122,6 +122,9 @@ integrationTest {
             case "filters":
                 includeCategories "scaffold.category.Filters"
                 break
+            case "identity":
+                includeCategories "scaffold.category.Identity"
+                break
             case "intense":
                 includeCategories "scaffold.category.Intense"
                 break

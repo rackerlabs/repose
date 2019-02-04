@@ -25,11 +25,11 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import scaffold.category.Filters
+import scaffold.category.Identity
 import spock.lang.Shared
 import spock.lang.Unroll
 
-@Category(Filters)
+@Category(Identity)
 class AnotherCacheOffsetTest extends ReposeValveTest {
 
     @Shared

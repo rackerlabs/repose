@@ -23,13 +23,13 @@ import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import scaffold.category.Filters
+import scaffold.category.Identity
 
 import static javax.servlet.http.HttpServletResponse.*
 import static org.openrepose.commons.utils.string.Base64Helper.base64DecodeUtf8
 import static org.openrepose.commons.utils.string.Base64Helper.base64EncodeUtf8
 
-@Category(Filters)
+@Category(Identity)
 class AuthorizationFilterMultiTenantTest extends ReposeValveTest {
     def static originEndpoint
     def static random = new Random()

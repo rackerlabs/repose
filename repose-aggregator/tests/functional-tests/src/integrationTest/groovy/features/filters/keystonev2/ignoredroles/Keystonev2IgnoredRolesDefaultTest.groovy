@@ -26,7 +26,7 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Request
 import org.rackspace.deproxy.Response
-import scaffold.category.Filters
+import scaffold.category.Identity
 
 import static javax.servlet.http.HttpServletResponse.SC_OK
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE
@@ -35,7 +35,7 @@ import static org.openrepose.commons.utils.http.CommonHttpHeader.AUTH_TOKEN
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.ROLES
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.TENANT_ID
 
-@Category(Filters)
+@Category(Identity)
 class Keystonev2IgnoredRolesDefaultTest extends ReposeValveTest {
 
     static final String DEFAULT_IGNORED_ROLE_NAME = 'identity:tenant-access'

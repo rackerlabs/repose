@@ -25,7 +25,7 @@ import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
-import scaffold.category.Filters
+import scaffold.category.Identity
 
 /**
  B-48277
@@ -102,7 +102,7 @@ import scaffold.category.Filters
  assert response code from repose is 401
 
  */
-@Category(Filters)
+@Category(Identity)
 class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
 
     def originEndpoint

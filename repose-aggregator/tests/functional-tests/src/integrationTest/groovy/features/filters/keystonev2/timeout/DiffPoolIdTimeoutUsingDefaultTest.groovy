@@ -25,7 +25,7 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
-import scaffold.category.Filters
+import scaffold.category.Identity
 
 import javax.servlet.http.HttpServletResponse
 
@@ -33,7 +33,7 @@ import javax.servlet.http.HttpServletResponse
  * Created by jennyvo on 11/9/15.
  *  Verify wrong pool id in the keystone config it will use default pool
  */
-@Category(Filters)
+@Category(Identity)
 class DiffPoolIdTimeoutUsingDefaultTest extends ReposeValveTest {
 
     def static originEndpoint
