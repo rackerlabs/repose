@@ -17,15 +17,11 @@ FileCollection commonFiles = files("$projectDir/src/scripts", "$projectDir/src/f
 FileCollection debFiles = files("$projectDir/src/docker/deb")
 FileCollection rpmFiles = files("$projectDir/src/docker/rpm")
 
-if(!project.hasProperty('release-version')) {
+if(releaseVersion == 'local') {
     debFiles = debFiles + files(project.tasks.getByPath(':repose-aggregator:artifacts:valve:buildDeb').getOutputs().getFiles(),
             project.tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildDeb').getOutputs().getFiles(),
             project.tasks.getByPath(':repose-aggregator:artifacts:extensions-filter-bundle:buildDeb').getOutputs().getFiles(),
             project.tasks.getByPath(':repose-aggregator:artifacts:experimental-filter-bundle:buildDeb').getOutputs().getFiles())
-    // TODO: This seems to break when -Prelease is not provided due to how ospackage (or redline-rpm) handles
-    //       SNAPSHOT versions
-    // Execution failed for task ':repose-aggregator:artifacts:experimental-filter-bundle:buildRpm'.
-    // version with value: '8.1.0.0~SNAPSHOT' contains illegal character ~
     rpmFiles = rpmFiles + files(project.tasks.getByPath(':repose-aggregator:artifacts:valve:buildRpm').getOutputs().getFiles(),
             project.tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildRpm').getOutputs().getFiles(),
             project.tasks.getByPath(':repose-aggregator:artifacts:extensions-filter-bundle:buildRpm').getOutputs().getFiles(),
