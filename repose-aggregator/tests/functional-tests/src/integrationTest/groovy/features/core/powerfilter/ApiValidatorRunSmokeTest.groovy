@@ -41,7 +41,7 @@ class ApiValidatorRunSmokeTest extends ReposeValveTest {
     def "when request is sent check to make sure it goes through ip-user and API-Validator filters"() {
         when:
         deproxy.makeRequest(
-            method: "get",
+            method: "GET",
             url: reposeEndpoint + "/resource",
             headers: ['X-Roles': 'role-1', 'x-trace-request': 'true']
         )
