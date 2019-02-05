@@ -4,11 +4,13 @@ FROM centos:7
 
 MAINTAINER The Repose Team <reposecore@rackspace.com>
 
+# Install Java from a Yum package repository.
+RUN yum update -q -y && yum install -q -y wget java-1.8.0-openjdk-headless
+
 # This build-arg is used to pass the Repose version number which will be set up in this image.
 ARG REPOSE_VERSION
 
-# Install Repose (and Java) from the Debian package repository.
-RUN yum update -q -y && yum install -q -y wget java-1.8.0-openjdk-headless
+# Install Repose from a Yum package repository.
 RUN wget --quiet -O /etc/yum.repos.d/openrepose.repo https://nexus.openrepose.org/repository/el/openrepose.repo
 RUN yum update -q -y && yum install -q -y repose-$REPOSE_VERSION repose-filter-bundle-$REPOSE_VERSION repose-extensions-filter-bundle-$REPOSE_VERSION repose-experimental-filter-bundle-$REPOSE_VERSION
 
