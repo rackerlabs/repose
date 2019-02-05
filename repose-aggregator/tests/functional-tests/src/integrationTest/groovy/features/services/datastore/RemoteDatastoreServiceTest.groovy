@@ -107,15 +107,15 @@ class RemoteDatastoreServiceTest extends Specification {
 
     def "When a limit has not been reached, request should pass"() {
         given: "three Repose instances are started, two to handle traffic, one to act as the remote datastore"
-        (repose1, repose1LogSearch) = startRepose('repose1', repose1Port, targetPort, datastorePort, true)
-        (repose2, repose2LogSearch) = startRepose('repose2', repose2Port, targetPort, datastorePort, true)
         (remoteDatastore, reposeRemoteLogSearch) =
             startRepose('remote', reposeRemotePort, targetPort, datastorePort, false)
+        (repose1, repose1LogSearch) = startRepose('repose1', repose1Port, targetPort, datastorePort, true)
+        (repose2, repose2LogSearch) = startRepose('repose2', repose2Port, targetPort, datastorePort, true)
 
         and: "they are ready to service requests"
+        waitUntilReadyToServiceRequests(reposeRemoteLogSearch)
         waitUntilReadyToServiceRequests(repose1LogSearch)
         waitUntilReadyToServiceRequests(repose2LogSearch)
-        waitUntilReadyToServiceRequests(reposeRemoteLogSearch)
 
         and: "the rate-limit has not been reached"
         def headers = ["X-PP-User": "user", "X-PP-Groups": "group"]
