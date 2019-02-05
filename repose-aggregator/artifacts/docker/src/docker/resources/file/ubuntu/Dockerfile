@@ -1,6 +1,6 @@
 # Use Ubuntu as a base, since it works and is familiar.
 # The version should be the latest tested, LTS version.
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 MAINTAINER The Repose Team <reposecore@rackspace.com>
 
@@ -14,14 +14,14 @@ ENV PKG_DIR=/tmp/packages/repose/
 # The user can manually set these options using the "-e" flag with the Docker run command.
 ENV JAVA_OPTS=
 
+# Install Java from a package repository.
+RUN apt-get update -qq && apt-get install -qq -y openjdk-8-jre-headless
+
 # Copy local Repose packages
 COPY repose_*.deb ${PKG_DIR}
 COPY repose-filter-bundle_*.deb ${PKG_DIR}
 COPY repose-extensions-filter-bundle_*.deb ${PKG_DIR}
 COPY repose-experimental-filter-bundle_*.deb ${PKG_DIR}
-
-# Install Java from a package repository.
-RUN apt-get update -qq && apt-get install -qq -y openjdk-8-jre-headless
 
 # Install Repose directly from packages
 RUN dpkg -R --install ${PKG_DIR}

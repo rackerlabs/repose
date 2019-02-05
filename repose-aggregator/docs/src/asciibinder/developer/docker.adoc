@@ -45,6 +45,13 @@ BUILD SUCCESSFUL
 
 Building an image to run a specific version of Repose can be done by providing the desired version as a build property.
 
+[NOTE]
+====
+Only images for *Repose* v9.0.0.0 and above can be built this way.
+The Dockerfile instructions used to build the images expect to install the core of *Repose* from the `repose` package.
+Prior to *Repose* v9.0.0.0, the `repose-valve` was used instead, but was renamed.
+====
+
 [source,bash]
 ----
 ./gradlew \

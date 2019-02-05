@@ -14,14 +14,14 @@ ENV PKG_DIR=/tmp/packages/repose/
 # The user can manually set these options using the "-e" flag with the Docker run command.
 ENV JAVA_OPTS=
 
+# Install Java from a package repository.
+RUN yum update -q -y && yum install -q -y java-1.8.0-openjdk-headless
+
 # Copy local Repose packages
 COPY repose-*.rpm ${PKG_DIR}
 COPY repose-filter-bundle-*.rpm ${PKG_DIR}
 COPY repose-extensions-filter-bundle-*.rpm ${PKG_DIR}
 COPY repose-experimental-filter-bundle-*.rpm ${PKG_DIR}
-
-# Install Java from a package repository.
-RUN yum update -q -y && yum install -q -y java-1.8.0-openjdk-headless
 
 # Install Repose directly from packages
 RUN yum install -y ${PKG_DIR}/*.rpm

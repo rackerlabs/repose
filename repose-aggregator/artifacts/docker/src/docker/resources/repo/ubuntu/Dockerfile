@@ -1,6 +1,6 @@
 # Use Ubuntu as a base, since it works and is familiar.
 # The version should be the latest tested, LTS version.
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 MAINTAINER The Repose Team <reposecore@rackspace.com>
 
