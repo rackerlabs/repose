@@ -77,6 +77,11 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        *    a. ResponseHeaderService
        *    b. ResponseHeaderServiceImpl
        *
+       * 9. Remove deprecated support for multiple validators in API-Validator Filter.
+       *
+       * 10. Turn off legacy case-insensitive methods in Jetty. (REP-7598)
+       *     a. ReposeJettyServer
+       *
        */
     }
   }

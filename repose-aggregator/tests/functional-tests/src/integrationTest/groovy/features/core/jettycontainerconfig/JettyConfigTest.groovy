@@ -24,6 +24,7 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import scaffold.category.Core
+import spock.lang.Unroll
 
 /**
  * Created by jennyvo on 6/1/16.
@@ -45,7 +46,7 @@ class JettyConfigTest extends ReposeValveTest {
         repose.start()
     }
 
-    def "Repose should start and handle request normaly when the jetty server listening on both an HTTP port and an HTTPS port has non-default idleTimeout"() {
+    def "Repose should start and handle request normally when the jetty server listening on both an HTTP port and an HTTPS port has non-default idleTimeout"() {
         when:
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint)
 
@@ -54,15 +55,30 @@ class JettyConfigTest extends ReposeValveTest {
         mc.receivedResponse.code == "200"
     }
 
+    @Unroll
+    def "Repose handle request methods in a case-insensitive manner for #methodOrig"() {
+        when:
+        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: methodOrig)
+
+        then:
+        reposeLogSearch.searchByString("Repose ready").size() > 0
+        mc.receivedResponse.code == "200"
+        mc.handlings[0].request.method == methodExpected
+
+        where:
+        methodOrig << ["oPtIoNs", "gEt", "HEad", "PoSt", "Put", "delETE", "tRaCe"]
+        // TODO: Legacy RFC7230 support will be disabled in v10.0.0.0. (REP-7598)
+        // TODO: All methods should then arrive at the origin in the original format.
+        methodExpected << ["OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE"]
+    }
+
     def "reject a config with idleTimeout exceed max (long)"() {
+        when:
         params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/jettycontainerconfig/idleTimeoutexceedmax", params)
 
-        when:
-        sleep(15000)
-
         then:
-        reposeLogSearch.searchByString("Value '9223372036854775808' is not facet-valid with respect to maxInclusive '9223372036854775807' for type 'long'.").size() > 0
+        reposeLogSearch.awaitByString("Value '9223372036854775808' is not facet-valid with respect to maxInclusive '9223372036854775807' for type 'long'.", 1, 15).size() > 0
     }
 }

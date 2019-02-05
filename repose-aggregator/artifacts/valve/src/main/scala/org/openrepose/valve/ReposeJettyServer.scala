@@ -24,6 +24,7 @@ import java.util
 import com.typesafe.config.ConfigFactory
 import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 import javax.servlet.{DispatcherType, Filter}
+import org.eclipse.jetty.http.HttpCompliance.RFC7230_LEGACY
 import org.eclipse.jetty.http.HttpHeader
 import org.eclipse.jetty.server._
 import org.eclipse.jetty.server.handler.ErrorHandler
@@ -89,6 +90,11 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
       conn.getConnectionFactory(classOf[HttpConnectionFactory])
         .getHttpConfiguration
         .setSendServerVersion(false)
+      ///////////////////////////////////////////////////////////////
+      // TODO: Remove this legacy support in v10.0.0.0. (REP-7598) //
+      conn.getConnectionFactory(classOf[HttpConnectionFactory])    //
+        .setHttpCompliance(RFC7230_LEGACY)                         //
+      ///////////////////////////////////////////////////////////////
 
       if (testMode) {
         conn.setPort(0)
@@ -118,6 +124,12 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
         }
 
         val sslConnector = new ServerConnector(s, cf)
+        ////////////////////////////////////////////////////////////////////
+        // TODO: Remove this legacy support in v10.0.0.0. (REP-7598)      //
+        sslConnector.getConnectionFactory(classOf[HttpConnectionFactory]) //
+          .setHttpCompliance(RFC7230_LEGACY)                              //
+        ////////////////////////////////////////////////////////////////////
+
         if (testMode) {
           sslConnector.setPort(0)
         } else {
