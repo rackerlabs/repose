@@ -79,7 +79,8 @@ task('exportVersion', description: 'Write the current build version out to a pro
 
 task('publishToPackageRepo', type: HttpTask, group: 'publishing') {
     description 'Publishes the DEB and RPM packages to the package repository'
-    dependsOn configurations.debBundle, configurations.rpmBundle, tasks.getByPath(':buildAll')
+    dependsOn configurations.debBundle, configurations.rpmBundle, buildAll
+    mustRunAfter tagVersion
 
     config {
         if (!project.hasProperty('nexus.openrepose.username')) {
