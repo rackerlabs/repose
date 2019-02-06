@@ -19,16 +19,15 @@ buildscript {
         classpath 'com.netflix.nebula:nebula-publishing-plugin:5.1.5'
         classpath 'com.netflix.nebula:gradle-git-scm-plugin:3.0.1'
         classpath 'com.netflix.nebula:gradle-ospackage-plugin:4.5.1'
-        classpath 'org.hidetake:gradle-ssh-plugin:2.9.0'
         classpath 'org.ajoberstar:gradle-git:1.7.2'
         classpath 'com.bmuschko:gradle-docker-plugin:3.2.1'
         classpath 'gradle.plugin.org.openrepose:gradle-linkchecker-plugin:1.0.0'
+        classpath 'gradle.plugin.io.github.http-builder-ng:http-plugin:0.1.1'
     }
 }
 
 apply plugin: 'org.sonarqube'
 apply plugin: 'nebula.gradle-git-scm'
-apply plugin: 'org.hidetake.ssh'
 
 ext {
     reposeCodename = "Falco"
@@ -39,37 +38,6 @@ ext {
 }
 
 task('buildAll', description: 'Builds all the sub-projects.', group: 'release')
-
-task('publishToPackageRepo', group: 'publishing', description: 'Publishes the debian and rpm packages to the package repo.',
-        dependsOn: [':repose-aggregator:artifacts:cli-utils:buildDeb',
-                    ':repose-aggregator:artifacts:cli-utils:buildRpm',
-                    ':repose-aggregator:artifacts:experimental-filter-bundle:buildDeb',
-                    ':repose-aggregator:artifacts:experimental-filter-bundle:buildRpm',
-                    ':repose-aggregator:artifacts:extensions-filter-bundle:buildDeb',
-                    ':repose-aggregator:artifacts:extensions-filter-bundle:buildRpm',
-                    ':repose-aggregator:artifacts:filter-bundle:buildDeb',
-                    ':repose-aggregator:artifacts:filter-bundle:buildRpm',
-                    ':repose-aggregator:artifacts:valve:buildDeb',
-                    ':repose-aggregator:artifacts:valve:buildRpm',
-                    ':buildAll',
-        ]) {
-    doLast {
-        ssh.run {
-            session(remotes.packageRepo) {
-                put from: tasks.getByPath(':repose-aggregator:artifacts:cli-utils:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:cli-utils:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:experimental-filter-bundle:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:experimental-filter-bundle:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:extensions-filter-bundle:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:extensions-filter-bundle:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:valve:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:valve:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
-            }
-        }
-    }
-}
 
 task('tagVersion', description: 'Tag the repository with the current version.', group: 'release', dependsOn: [buildAll]) {
     doLast {
@@ -84,7 +52,13 @@ task('exportVersion', description: 'Write the current build version out to a pro
     }
 }
 
-task('release', description: 'Release the project and publish to all repos.', group: 'release', dependsOn: [exportVersion, tagVersion/*, publishToPackageRepo*/])
+// Note: This task dependsOn :repose-aggregator:artifacts:publishToPackageRepo.
+// Note: Due to Gradle build phase constraints, the dependency was declared in the artifacts project rather than here.
+// Note: Specifically, this project must be be configured before the individual artifact projects which in turn must
+// Note: be configured before the parent artifacts project.
+// Note: If the dependency was placed here, we end up with circular configuration-phase dependencies which Gradle
+// Note: ultimately runs in the wrong order.
+task('release', description: 'Release the project and publish to all repos.', group: 'release', dependsOn: [exportVersion, tagVersion])
 
 allprojects {
     group = 'org.openrepose'
@@ -476,22 +450,5 @@ project.ext.versionProperties.load(new FileInputStream("$rootDir/versions.proper
 sonarqube {
     properties {
         property "sonar.dynamicAnalysis", "reuseReports"
-    }
-}
-
-remotes {
-    packageRepo {
-        user = 'repose-publish'
-        host = 'nexus.openrepose.org'
-        def repoKey = new File("${System.properties['user.home']}/.ssh/repo_key")
-        if (repoKey.exists()) {
-            identity = file(repoKey)
-        } else {
-            identity = file("${System.properties['user.home']}/.ssh/id_rsa")
-        }
-        def systemKnownHosts = new File("/etc/ssh/ssh_known_hosts")
-        if (systemKnownHosts.exists()) {
-            knownHosts = file(systemKnownHosts)
-        }
     }
 }
