@@ -33,14 +33,15 @@ task('publishToPackageRepo', type: HttpTask, group: 'publishing') {
     description 'Publishes the DEB and RPM packages to the package repository'
     dependsOn configurations.debBundle, configurations.rpmBundle, tasks.getByPath(':buildAll')
 
-    if (!project.hasProperty('nexus.openrepose.username')) {
-        throw new GradleException('The "nexus.openrepose.username" property is required')
-    }
-    if (!project.hasProperty('nexus.openrepose.password')) {
-        throw new GradleException('The "nexus.openrepose.password" property is required')
-    }
 
     config {
+        if (!project.hasProperty('nexus.openrepose.username')) {
+            throw new GradleException('The "nexus.openrepose.username" property is required')
+        }
+        if (!project.hasProperty('nexus.openrepose.password')) {
+            throw new GradleException('The "nexus.openrepose.password" property is required')
+        }
+
         request.uri = 'https://nexus.openrepose.org'
         request.auth.basic getProperty('nexus.openrepose.username') as String, getProperty('nexus.openrepose.password') as String
         request.contentType = ContentTypes.BINARY[0]
