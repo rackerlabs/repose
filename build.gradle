@@ -400,7 +400,9 @@ subprojects {
         publications {
             nebula(MavenPublication) {
                 if(project.hasProperty('release')) {
-                    artifact source: signArchives.singleSignature, extension: 'asc'
+                    signArchives.signatures.each {
+                        artifact source: it, extension: 'asc'
+                    }
                 }
 
                 //when we include the signature it tries to switch the packaging in the pom to pom,
