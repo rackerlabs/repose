@@ -1,5 +1,9 @@
 = Release Notes
 
+== In Progress
+* https://repose.atlassian.net/browse/REP-7391[REP-7391] - Updated dependencies:
+** Jetty: 9.4.8.v20171121 → 9.4.14.v20181114
+
 == 9.0.0.0 (2019-01-31)
 <<ver-9-upgrade-notes.adoc#, Upgrade Notes>>
 

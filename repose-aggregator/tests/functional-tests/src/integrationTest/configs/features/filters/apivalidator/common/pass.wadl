@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<application
-        xmlns="http://wadl.dev.java.net/2009/02"
-        >
-
-    <grammars>
-    </grammars>
+<application xmlns="http://wadl.dev.java.net/2009/02">
     <resources base="http://localhost:${targetPort}/">
         <resource path="resource">
             <method name="GET" id="getContainer">

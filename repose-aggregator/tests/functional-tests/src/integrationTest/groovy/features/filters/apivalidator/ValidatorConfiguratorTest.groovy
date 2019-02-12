@@ -61,7 +61,7 @@ class ValidatorConfiguratorTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
 
         when: "a request is made using the api validator"
-        def resp = deproxy.makeRequest([url: reposeEndpoint + "/test", method: "get", headers: ['X-Roles': 'test_user']])
+        def resp = deproxy.makeRequest([url: reposeEndpoint + "/test", method: "GET", headers: ['X-Roles': 'test_user']])
         def List<String> wadlError;
         wadlError = reposeLogSearch.searchByString(errorMessage)
 
@@ -80,7 +80,7 @@ class ValidatorConfiguratorTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
 
         when: "a request is made using the api validator"
-        def resp = deproxy.makeRequest([url: reposeEndpoint + "/test", method: "get", headers: ['X-Roles': 'test_user']])
+        def resp = deproxy.makeRequest([url: reposeEndpoint + "/test", method: "GET", headers: ['X-Roles': 'test_user']])
         def List<String> wadlError;
         wadlError = reposeLogSearch.searchByString(errorMessage)
 
@@ -96,7 +96,7 @@ class ValidatorConfiguratorTest extends ReposeValveTest {
 
         when: "repose start"
         repose.start()
-        MessageChain mc = deproxy.makeRequest([url: reposeEndpoint + "/test", method: "get", headers: ['x-roles': 'default']])
+        MessageChain mc = deproxy.makeRequest([url: reposeEndpoint + "/test", method: "GET", headers: ['x-roles': 'default']])
 
         then:
         reposeLogSearch.searchByString("Assertion failed for schema type 'ValidatorConfiguration'. Dot output files must be unique").size() > 0
@@ -111,7 +111,7 @@ class ValidatorConfiguratorTest extends ReposeValveTest {
 
         when: "repose start"
         repose.start()
-        MessageChain mc = deproxy.makeRequest([url: reposeEndpoint + "/test", method: "get", headers: ['x-roles': 'default']])
+        MessageChain mc = deproxy.makeRequest([url: reposeEndpoint + "/test", method: "GET", headers: ['x-roles': 'default']])
 
         then:
         reposeLogSearch.searchByString("Assertion failed for schema type 'ValidatorConfiguration'. Validator names must be unique.").size() > 0
@@ -126,7 +126,7 @@ class ValidatorConfiguratorTest extends ReposeValveTest {
 
         when: "repose start"
         repose.start()
-        MessageChain mc = deproxy.makeRequest([url: reposeEndpoint + "/test", method: "get", headers: ['x-roles': 'default']])
+        MessageChain mc = deproxy.makeRequest([url: reposeEndpoint + "/test", method: "GET", headers: ['x-roles': 'default']])
 
         then:
         reposeLogSearch.searchByString("Assertion failed for schema type 'ValidatorConfiguration'. Only one default validator may be defined.").size() > 0

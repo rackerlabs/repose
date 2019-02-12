@@ -46,15 +46,15 @@ org.apache.commons                                  commons-lang3             3.
 org.apache.httpcomponents                           httpclient                4.4.1            Apache License Version 2.0  http://hc.apache.org/httpcomponents-client-4.4.x/index.html
 org.apache.httpcomponents                           httpcore                  4.4.1            Apache License Version 2.0  http://hc.apache.org/httpcomponents-core-4.4.x/index.html
 org.apache.jena                                     jena-iri                  1.1.1            Apache License Version 2.0  http://jena.apache.org/
-org.apache.logging.log4j                            log4j-api                 2.9.0              Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
-org.apache.logging.log4j                            log4j-core                2.9.0              Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
-org.apache.logging.log4j                            log4j-flume-ng            2.9.0              Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
-org.apache.logging.log4j                            log4j-iostreams           2.9.0              Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
-org.apache.logging.log4j                            log4j-jul                 2.9.0              Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
-org.apache.logging.log4j                            log4j-slf4j-impl          2.9.0              Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
+org.apache.logging.log4j                            log4j-api                 2.9.0            Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
+org.apache.logging.log4j                            log4j-core                2.9.0            Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
+org.apache.logging.log4j                            log4j-flume-ng            2.9.0            Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
+org.apache.logging.log4j                            log4j-iostreams           2.9.0            Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
+org.apache.logging.log4j                            log4j-jul                 2.9.0            Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
+org.apache.logging.log4j                            log4j-slf4j-impl          2.9.0            Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
 org.codehaus.groovy                                 groovy-all                2.4.3            Apache License Version 2.0  https://github.com/apache/groovy
-org.eclipse.jetty                                   jetty-server              9.4.8.v20171121  Apache License Version 2.0  http://www.eclipse.org/jetty/licenses.php
-org.eclipse.jetty                                   jetty-servlet             9.4.8.v20171121  Apache License Version 2.0  http://www.eclipse.org/jetty/licenses.php
+org.eclipse.jetty                                   jetty-server              9.4.14.v20181114 Apache License Version 2.0  http://www.eclipse.org/jetty/licenses.php
+org.eclipse.jetty                                   jetty-servlet             9.4.14.v20181114 Apache License Version 2.0  http://www.eclipse.org/jetty/licenses.php
 org.gnieh                                           diffson_2.11              2.0.1            Apache License Version 2.0  https://github.com/gnieh/diffson
 org.joda                                            joda-convert              1.8.1            Apache License Version 2.0  http://www.joda.org/joda-convert/
 org.jruby                                           jruby-complete            1.7.24           EPL 1.0, GPL 2 and LGPL 2.1 https://github.com/jruby/jruby

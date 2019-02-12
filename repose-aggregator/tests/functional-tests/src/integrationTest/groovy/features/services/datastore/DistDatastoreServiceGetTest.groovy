@@ -28,6 +28,8 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import scaffold.category.Services
 
+import static javax.servlet.http.HttpServletResponse.*
+
 @Category(Services)
 class DistDatastoreServiceGetTest extends ReposeValveTest {
 
@@ -38,9 +40,7 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
     def DD_HEADERS = ['X-TTL': '10']
     def KEY
     def DD_PATH = "/powerapi/dist-datastore/objects/"
-    def KEY_TOO_LARGE = objectSerializer.writeObject(RandomStringUtils.random(2097139, ('A'..'Z').join().toCharArray()))
     static def distDatastoreEndpoint
-
 
     def setupSpec() {
         deproxy = new Deproxy()
@@ -52,8 +52,8 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
         params += [
-                'datastorePort1': dataStorePort1,
-                'datastorePort2': dataStorePort2
+            'datastorePort1': dataStorePort1,
+            'datastorePort2': dataStorePort2
         ]
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/services/datastore/", params)
@@ -71,12 +71,11 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest([method: 'GET', url: DD_URI, headers: DD_HEADERS])
 
         then:
-        mc.receivedResponse.code == '404'
+        mc.receivedResponse.code as Integer == SC_NOT_FOUND
         mc.receivedResponse.body.toString().contains("Cache key specified is invalid")
     }
 
     def "GET of invalid key fails with 404 NOT FOUND"() {
-
         given:
         def badKey = "////////" + UUID.randomUUID().toString()
 
@@ -84,28 +83,30 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest([method: 'GET', url: distDatastoreEndpoint, path: DD_PATH + badKey, headers: DD_HEADERS])
 
         then:
-        mc.receivedResponse.code == '404'
+        mc.receivedResponse.code as Integer == SC_NOT_FOUND
     }
 
-    def "GET with a really large key returns a 413"() {
+    def "GET with a really large key returns a 414"() {
+        given:
+        def tooLargeKey = RandomStringUtils.random(2097139, ('A'..'Z') as char[])
+
         when: "I attempt to get the value from cache"
-        MessageChain mc = deproxy.makeRequest([method: 'GET', url: distDatastoreEndpoint, path: DD_PATH + KEY_TOO_LARGE, headers: DD_HEADERS])
+        MessageChain mc = deproxy.makeRequest([method: 'GET', url: distDatastoreEndpoint, path: DD_PATH + tooLargeKey, headers: DD_HEADERS])
 
         then:
-        mc.receivedResponse.code == '431'
+        mc.receivedResponse.code as Integer == SC_REQUEST_URI_TOO_LONG
     }
 
     def "GET of key after time to live has expired should return a 404"() {
-
-        def body = objectSerializer.writeObject('foo')
         given:
+        def body = objectSerializer.writeObject('foo')
         MessageChain mc = deproxy.makeRequest([method: 'PUT', url: DD_URI + KEY, headers: ['X-TTL': '2'], requestBody: body])
 
         when:
         mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: DD_HEADERS])
 
         then:
-        mc.receivedResponse.code == '200'
+        mc.receivedResponse.code as Integer == SC_OK
         mc.receivedResponse.body == body
 
         when: "I wait long enough for the TTL of the item to expire"
@@ -115,8 +116,6 @@ class DistDatastoreServiceGetTest extends ReposeValveTest {
         mc = deproxy.makeRequest([method: 'GET', url: DD_URI + KEY, headers: DD_HEADERS])
 
         then:
-        mc.receivedResponse.code == '404'
+        mc.receivedResponse.code as Integer == SC_NOT_FOUND
     }
-
-
 }
