@@ -19,16 +19,21 @@ buildscript {
         classpath 'com.netflix.nebula:nebula-publishing-plugin:5.1.5'
         classpath 'com.netflix.nebula:gradle-git-scm-plugin:3.0.1'
         classpath 'com.netflix.nebula:gradle-ospackage-plugin:4.5.1'
-        classpath 'org.hidetake:gradle-ssh-plugin:2.9.0'
         classpath 'org.ajoberstar:gradle-git:1.7.2'
         classpath 'com.bmuschko:gradle-docker-plugin:3.2.1'
         classpath 'gradle.plugin.org.openrepose:gradle-linkchecker-plugin:1.0.0'
+        classpath 'gradle.plugin.io.github.http-builder-ng:http-plugin:0.1.1'
     }
 }
 
+import groovyx.net.http.ContentTypes
+import io.github.httpbuilderng.http.HttpTask
+
+import static groovyx.net.http.NativeHandlers.Encoders
+
 apply plugin: 'org.sonarqube'
 apply plugin: 'nebula.gradle-git-scm'
-apply plugin: 'org.hidetake.ssh'
+apply plugin: 'io.github.http-builder-ng.http-plugin'
 
 ext {
     reposeCodename = "Falco"
@@ -38,38 +43,26 @@ ext {
     scalaMajDotMin = "$scalaMajor.$scalaMinor"
 }
 
-task('buildAll', description: 'Builds all the sub-projects.', group: 'release')
-
-task('publishToPackageRepo', group: 'publishing', description: 'Publishes the debian and rpm packages to the package repo.',
-        dependsOn: [':repose-aggregator:artifacts:cli-utils:buildDeb',
-                    ':repose-aggregator:artifacts:cli-utils:buildRpm',
-                    ':repose-aggregator:artifacts:experimental-filter-bundle:buildDeb',
-                    ':repose-aggregator:artifacts:experimental-filter-bundle:buildRpm',
-                    ':repose-aggregator:artifacts:extensions-filter-bundle:buildDeb',
-                    ':repose-aggregator:artifacts:extensions-filter-bundle:buildRpm',
-                    ':repose-aggregator:artifacts:filter-bundle:buildDeb',
-                    ':repose-aggregator:artifacts:filter-bundle:buildRpm',
-                    ':repose-aggregator:artifacts:valve:buildDeb',
-                    ':repose-aggregator:artifacts:valve:buildRpm',
-                    ':buildAll',
-        ]) {
-    doLast {
-        ssh.run {
-            session(remotes.packageRepo) {
-                put from: tasks.getByPath(':repose-aggregator:artifacts:cli-utils:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:cli-utils:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:experimental-filter-bundle:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:experimental-filter-bundle:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:extensions-filter-bundle:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:extensions-filter-bundle:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:filter-bundle:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:valve:buildDeb').outputs.files, into: '/home/repose-dev/RELEASES'
-                put from: tasks.getByPath(':repose-aggregator:artifacts:valve:buildRpm').outputs.files, into: '/home/repose-dev/RELEASES'
-            }
-        }
-    }
+configurations {
+    debBundle
+    rpmBundle
 }
+
+dependencies {
+    debBundle project(path: ':repose-aggregator:artifacts:cli-utils', configuration: 'deb')
+    debBundle project(path: ':repose-aggregator:artifacts:valve', configuration: 'deb')
+    debBundle project(path: ':repose-aggregator:artifacts:filter-bundle', configuration: 'deb')
+    debBundle project(path: ':repose-aggregator:artifacts:extensions-filter-bundle', configuration: 'deb')
+    debBundle project(path: ':repose-aggregator:artifacts:experimental-filter-bundle', configuration: 'deb')
+
+    rpmBundle project(path: ':repose-aggregator:artifacts:cli-utils', configuration: 'rpm')
+    rpmBundle project(path: ':repose-aggregator:artifacts:valve', configuration: 'rpm')
+    rpmBundle project(path: ':repose-aggregator:artifacts:filter-bundle', configuration: 'rpm')
+    rpmBundle project(path: ':repose-aggregator:artifacts:extensions-filter-bundle', configuration: 'rpm')
+    rpmBundle project(path: ':repose-aggregator:artifacts:experimental-filter-bundle', configuration: 'rpm')
+}
+
+task('buildAll', description: 'Builds all the sub-projects.', group: 'release')
 
 task('tagVersion', description: 'Tag the repository with the current version.', group: 'release', dependsOn: [buildAll]) {
     doLast {
@@ -84,7 +77,55 @@ task('exportVersion', description: 'Write the current build version out to a pro
     }
 }
 
-task('release', description: 'Release the project and publish to all repos.', group: 'release', dependsOn: [exportVersion, tagVersion/*, publishToPackageRepo*/])
+task('publishToPackageRepo', type: HttpTask, group: 'publishing') {
+    description 'Publishes the DEB and RPM packages to the package repository'
+    dependsOn configurations.debBundle, configurations.rpmBundle, buildAll
+
+    config {
+        if (!project.hasProperty('nexus.openrepose.username')) {
+            throw new GradleException('The "nexus.openrepose.username" property is required')
+        }
+        if (!project.hasProperty('nexus.openrepose.password')) {
+            throw new GradleException('The "nexus.openrepose.password" property is required')
+        }
+
+        request.uri = 'https://nexus.openrepose.org'
+        request.auth.basic getProperty('nexus.openrepose.username') as String, getProperty('nexus.openrepose.password') as String
+        request.contentType = ContentTypes.BINARY[0]
+        request.encoder ContentTypes.BINARY[0], Encoders.&binary
+
+        // The requests are configured here (inside of the config closure) so that they are evaluated and
+        // configured during the execution build phase rather than the configuration build phase.
+        // This allows us to dynamically create requests to upload files that are not determined until after the
+        // configuration phase for certain projects without having to dictate evaluation order between the projects.
+
+        // PUT the rpm packages in the Nexus Yum repository
+        configurations.rpmBundle.files.each { rpmFile ->
+            put {
+                request.uri.path = "/repository/el/${rpmFile.name}"
+                request.body = rpmFile.bytes
+
+                response.success {
+                    logger.lifecycle 'Successfully uploaded {}', rpmFile.name
+                }
+            }
+        }
+
+        // POST the deb packages in the Nexus APT repository
+        configurations.debBundle.files.each { debFile ->
+            post {
+                request.uri.path = "/repository/debian/"
+                request.body = debFile.bytes
+
+                response.success {
+                    logger.lifecycle 'Successfully uploaded {}', debFile.name
+                }
+            }
+        }
+    }
+}
+
+task('release', description: 'Release the project and publish to all repos.', group: 'release', dependsOn: [exportVersion, tagVersion, publishToPackageRepo])
 
 allprojects {
     group = 'org.openrepose'
@@ -478,22 +519,5 @@ project.ext.versionProperties.load(new FileInputStream("$rootDir/versions.proper
 sonarqube {
     properties {
         property "sonar.dynamicAnalysis", "reuseReports"
-    }
-}
-
-remotes {
-    packageRepo {
-        user = 'repose-publish'
-        host = 'nexus.openrepose.org'
-        def repoKey = new File("${System.properties['user.home']}/.ssh/repo_key")
-        if (repoKey.exists()) {
-            identity = file(repoKey)
-        } else {
-            identity = file("${System.properties['user.home']}/.ssh/id_rsa")
-        }
-        def systemKnownHosts = new File("/etc/ssh/ssh_known_hosts")
-        if (systemKnownHosts.exists()) {
-            knownHosts = file(systemKnownHosts)
-        }
     }
 }
