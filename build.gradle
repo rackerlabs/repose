@@ -399,7 +399,12 @@ subprojects {
             assemblyEnabled = false
         }
         suppressionFile = file("${rootDir}/OWASP-Suppression.xml")
+
+        // Configures the dependencyCheck plugin to fail the build if any vulnerability with a CVSS score over the configured value is found
+        failBuildOnCVSS = 5
     }
+
+    check.dependsOn dependencyCheckAnalyze
 
     jar {
         manifest {
