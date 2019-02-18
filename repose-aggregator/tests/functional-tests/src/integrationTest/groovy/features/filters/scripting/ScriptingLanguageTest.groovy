@@ -70,6 +70,6 @@ class ScriptingLanguageTest extends ReposeValveTest {
 
         where:
         //language << ["scala"]
-        language << ["python", "ruby", "groovy", "javascript", "lua"]
+        language << ["python", "groovy", "javascript", "lua"]
     }
 }

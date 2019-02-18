@@ -50,8 +50,6 @@
             <xs:enumeration value="luaj"/>
             <xs:enumeration value="python"/>
             <xs:enumeration value="jython"/>
-            <xs:enumeration value="ruby"/>
-            <xs:enumeration value="jruby"/>
             <xs:enumeration value="javascript"/>
             <xs:enumeration value="groovy"/>
             <!--<xs:enumeration value="scala"/>-->
