@@ -4,18 +4,6 @@ apply plugin: 'nebula.ospackage'
 configurations {
     deb
     rpm
-
-    // This forces the usage of specific versions of Jackson libraries.
-    // These dependencies have known security issues.
-    // These dependencies should be removed as soon as possible, once the api-checker library has been updated to use
-    // a newer version of Jackson.
-    earlib {
-        resolutionStrategy {
-            force 'com.fasterxml.jackson.core:jackson-databind:2.8.10'
-            force 'com.fasterxml.jackson.core:jackson-core:2.8.10'
-            force 'com.fasterxml.jackson.core:jackson-annotations:2.8.10'
-        }
-    }
 }
 
 dependencies {
