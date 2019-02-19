@@ -404,8 +404,6 @@ subprojects {
         failBuildOnCVSS = 0
     }
 
-    check.dependsOn dependencyCheckAnalyze
-
     jar {
         manifest {
             attributes(
