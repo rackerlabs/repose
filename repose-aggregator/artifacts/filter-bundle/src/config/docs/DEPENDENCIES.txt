@@ -17,9 +17,9 @@ outlined in CONTRIBUTORS.txt.
 
 Group                                               Name                      Version          Licenses                    Source
 --------------------------------------------------  ------------------------  ---------------  --------------------------  ----------------------------------------------------------------------------------
-com.fasterxml.jackson.core                          jackson-annotations       2.9.8            Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
-com.fasterxml.jackson.core                          jackson-core              2.9.8            Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
-com.fasterxml.jackson.core                          jackson-databind          2.9.8            Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
+com.fasterxml.jackson.core                          jackson-annotations       2.8.10            Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
+com.fasterxml.jackson.core                          jackson-core              2.8.10            Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
+com.fasterxml.jackson.core                          jackson-databind          2.8.10            Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
 com.github.jknack                                   handlebars                2.0.0            Apache License Version 2.0  https://github.com/jknack/handlebars.java
 com.google.guava                                    guava                     27.0.1-jre       Apache License Version 2.0  https://github.com/google/guava
 com.jayway.jsonpath                                 json-path                 2.2.0            Apache License Version 2.0  https://github.com/jayway/JsonPath
