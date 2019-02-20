@@ -17,8 +17,8 @@ outlined in CONTRIBUTORS.txt.
 
 Group                                               Name                      Version          Licenses                    Source
 --------------------------------------------------  ------------------------  ---------------  --------------------------  ----------------------------------------------------------------------------------
-com.fasterxml.jackson.core                          jackson-core              2.8.10            Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
-com.fasterxml.jackson.core                          jackson-databind          2.8.10            Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
+com.fasterxml.jackson.core                          jackson-core              2.9.8            Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
+com.fasterxml.jackson.core                          jackson-databind          2.9.8            Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
 commons-codec                                       commons-codec             1.10             Apache License Version 2.0  http://commons.apache.org/proper/commons-codec/
 commons-io                                          commons-io                2.4              Apache License Version 2.0  http://commons.apache.org/proper/commons-io/
 commons-pool                                        commons-pool              1.6              Apache License Version 2.0  http://commons.apache.org/proper/commons-pool/
