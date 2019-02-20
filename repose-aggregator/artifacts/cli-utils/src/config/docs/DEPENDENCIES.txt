@@ -24,8 +24,8 @@ commons-io                                          commons-io                2.
 commons-pool                                        commons-pool              1.6              Apache License Version 2.0  http://commons.apache.org/proper/commons-pool/
 com.typesafe.scala-logging                          scala-logging-slf4j_2.11  2.1.2            Apache License Version 2.0  https://github.com/typesafehub/scala-logging
 io.dropwizard.metrics                               metrics-core              3.2.0            Apache License Version 2.0  https://github.com/dropwizard/metrics/blob/v3.2.0/LICENSE
-org.apache.commons                                  commons-lang3             3.3.2            Apache License Version 2.0  http://projects.apache.org/projects/commons_lang.html
+org.apache.commons                                  commons-lang3             3.8.1            Apache License Version 2.0  http://projects.apache.org/projects/commons_lang.html
 org.apache.httpcomponents                           httpclient                4.4.1            Apache License Version 2.0  http://hc.apache.org/httpcomponents-client-4.4.x/index.html
 org.jvnet.jaxb2_commons                             jaxb2-basics-runtime      0.6.5            CDDL v1.1 and GPL v2        https://jaxb.java.net/
-org.scala-lang                                      scala-library             2.11.7           Scala Specific License      http://www.scala-lang.org/license.html
+org.scala-lang                                      scala-library             2.11.12          Scala Specific License      http://www.scala-lang.org/license.html
 org.slf4j                                           slf4j-api                 1.7.22           MIT License                 http://slf4j.org/license.html
