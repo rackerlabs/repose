@@ -57,6 +57,14 @@ stage("Performance Test") {
     // builds the Repose artifacts for performance test jobs to use
     build("repose-gradle-package")
 
-    // starts the list of performance test jobs in parallel
-    parallel(jobsToRun)
+    try {
+        // starts the list of performance test jobs in parallel
+        parallel(jobsToRun)
+    } catch (t) {
+        try {
+            slackSend(color: 'danger', message: "One or more performance test has failed to run during build <${BUILD_URL}|${BUILD_TAG}>")
+        } finally {
+            throw t
+        }
+    }
 }
