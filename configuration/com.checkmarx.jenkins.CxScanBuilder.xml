@@ -1,8 +1,7 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<com.checkmarx.jenkins.CxScanBuilder_-DescriptorImpl plugin="checkmarx@8.5.0">
+<?xml version='1.1' encoding='UTF-8'?>
+<com.checkmarx.jenkins.CxScanBuilder_-DescriptorImpl plugin="checkmarx@8.70.1-SNAPSHOT">
   <serverUrl>https://codescan.seceng.rackspace.net</serverUrl>
-  <username>ci-user</username>
-  <password>{AQAAABAAAAAQjJTTlIKvIwwofx06PhP8c/TKttxsWSVD1QTfFbLWTKg=}</password>
+  <credentialsId>checkmarx-ci</credentialsId>
   <prohibitProjectCreation>true</prohibitProjectCreation>
   <hideResults>false</hideResults>
   <enableCertificateValidation>true</enableCertificateValidation>
