@@ -91,16 +91,12 @@ public class CacheRequest {
         return remoteBehavior;
     }
 
-    @SuppressWarnings("squid:RedundantThrowsDeclarationCheck")
-    //We're defining the contract here, so the extra explicitness is warranted
     public static CacheRequest marshallCacheRequest(HttpServletRequest request) throws MalformedCacheRequestException {
         final String cacheKey = getCacheKey(request);
 
         return new CacheRequest(cacheKey, -1, null, getRequestedRemoteBehavior(request));
     }
 
-    @SuppressWarnings("squid:RedundantThrowsDeclarationCheck")
-    //We're defining the contract here, so the extra explicitness is warranted
     public static CacheRequest marshallCacheRequestWithPayload(HttpServletRequest request) throws MalformedCacheRequestException {
         final String cacheKey = getCacheKey(request);
 

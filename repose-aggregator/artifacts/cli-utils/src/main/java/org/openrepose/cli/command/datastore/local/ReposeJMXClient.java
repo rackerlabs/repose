@@ -31,9 +31,6 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
 
-@SuppressWarnings("squid:S2095")
-// Fixing this would involve updating ReposeLocalCacheMBean to extend Closeable and making the cascading changes to
-// close jmxc, but how on Earth would we test it since cli-utils doesn't seem to be used?  Suppressing this for now.
 public class ReposeJMXClient implements ReposeLocalCacheMBean {
 
     private static final String hostname = NetUtilities.bestGuessHostname();

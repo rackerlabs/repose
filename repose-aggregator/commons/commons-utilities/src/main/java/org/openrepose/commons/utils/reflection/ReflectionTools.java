@@ -35,9 +35,7 @@ public final class ReflectionTools {
         }
     }
 
-    @SuppressWarnings("squid:S2095")
     public static <T> Constructor<T> getConstructor(Class<T> clazz, Class<?>[] parameters) throws NoSuchMethodException {
-        // false positive on S2095; this is not a stream that needs to be closed
         return Arrays.stream((Constructor<T>[]) clazz.getConstructors())
                 .filter(constructor -> parametersMatch(constructor.getParameterTypes(), parameters))
                 .findFirst()

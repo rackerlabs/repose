@@ -38,7 +38,6 @@ public class CommandDriver {
         this.args = Arrays.copyOf(args, args.length);
     }
 
-    @SuppressWarnings({"squid:S106", "PMD.SystemPrintln", "squid:S1147"})
     public static void main(String[] args) {
         final CommandResult result = new CommandDriver(new RootCommandLine(), args).go();
 

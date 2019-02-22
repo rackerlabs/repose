@@ -19,9 +19,7 @@
  */
 package org.openrepose.commons.utils.pooling;
 
-@SuppressWarnings({"squid:S1609", "squid:RedundantThrowsDeclarationCheck"})
 public interface ResourceContext<R, T> {
     // intent of interface isn't super clear, so don't mark it as a @FunctionalInterface
-    //We're defining the contract here, so the extra explicitness is warranted
     T perform(R resource) throws ResourceContextException;
 }

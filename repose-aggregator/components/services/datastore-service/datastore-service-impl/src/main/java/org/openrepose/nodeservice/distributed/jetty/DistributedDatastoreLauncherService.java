@@ -99,10 +99,7 @@ public class DistributedDatastoreLauncherService {
         this.healthCheckServiceProxy = healthCheckService.register();
     }
 
-    @SuppressWarnings("squid:S3398")
     private void startDistributedDatastore() {
-        // Sonar wants this method in the inner-class since that's the only place it's called, but it makes sense to
-        // leave it at this level alongside the stopDistributedDatastore() method
 
         isRunning = true; //Note that we're alive now
 

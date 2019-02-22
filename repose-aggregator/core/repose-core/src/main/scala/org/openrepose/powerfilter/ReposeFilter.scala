@@ -148,7 +148,6 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
 
           // Ensure the request URI is a valid URI
           // This object is only being created to ensure its validity.
-          // So it is safe to suppress warning squid:S1848
           new URI(wrappedRequest.getRequestURI)
 
           if (tracingHeaderConfig.forall(_.isEnabled)) {

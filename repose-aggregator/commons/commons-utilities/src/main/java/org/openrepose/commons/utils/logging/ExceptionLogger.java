@@ -26,7 +26,6 @@ import org.slf4j.Logger;
  * The ExceptionLogger is a simple wrapper for the java.util.logging.Logger designed to
  * add a number of 'nice' features and syntax enhancements to the logging metaphor.
  */
-@SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
 public class ExceptionLogger {
     private final Logger loggerRef;
 

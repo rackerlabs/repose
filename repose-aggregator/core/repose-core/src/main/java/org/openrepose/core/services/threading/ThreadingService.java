@@ -19,7 +19,6 @@
  */
 package org.openrepose.core.services.threading;
 
-@SuppressWarnings("squid:S1609")
 public interface ThreadingService {
     // doesn't make sense to be a @FunctionalInterface
     Thread newThread(Runnable r, String name);

@@ -57,7 +57,6 @@ public class ResponseCaptureFilter implements Filter {
         LOG.info("Start {}", this.getClass().getName());
     }
 
-    @SuppressWarnings("squid:S00112")
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {

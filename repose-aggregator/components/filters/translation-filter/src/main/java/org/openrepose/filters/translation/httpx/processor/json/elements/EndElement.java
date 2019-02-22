@@ -25,7 +25,6 @@ import org.xml.sax.SAXException;
 
 public class EndElement extends BaseElement implements Element {
 
-    @SuppressWarnings("squid:S1172")
     //Do not remove the name string from the list of parameters.
     //Apparently it's needed for however translation is handling json stuff
     public EndElement(String element, String name) {

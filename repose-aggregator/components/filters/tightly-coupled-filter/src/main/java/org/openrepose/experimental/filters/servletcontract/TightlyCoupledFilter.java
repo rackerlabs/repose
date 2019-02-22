@@ -42,7 +42,6 @@ public class TightlyCoupledFilter implements Filter {
     }
 
     @Override
-    @SuppressWarnings("squid:S00112")
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
 
@@ -73,7 +72,6 @@ public class TightlyCoupledFilter implements Filter {
         // verify that the content is not empty.
         if (content.isEmpty()) {
             // This RuntimeException is only being thrown for testing.
-            // So it is safe to suppress warning squid:S00112
             throw new RuntimeException("Content is empty");
         }
 

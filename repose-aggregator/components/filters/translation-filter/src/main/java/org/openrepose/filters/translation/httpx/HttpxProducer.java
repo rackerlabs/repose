@@ -67,7 +67,6 @@ public class HttpxProducer {
         return result;
     }
 
-    @SuppressWarnings("squid:S2254")
     public RequestInformation getRequestInformation() {
         if (requestInformation == null) {
             requestInformation = OBJECT_FACTORY.createRequestInformation();
@@ -93,9 +92,6 @@ public class HttpxProducer {
             info.setServerPort(request.getServerPort());
             info.setServletPath(StringUtils.defaultIfEmpty(request.getServletPath(), ""));
 
-            // [squid:S2254] The Session ID is only made available to the Repose user as part of an XML payload
-            //               used during translation. Furthermore, the Session ID is read-only, and will not be
-            //               modified by the translation filter.
             info.setSessionId(StringUtils.defaultIfEmpty(request.getRequestedSessionId(), ""));
 
             requestInformation.setInformational(info);

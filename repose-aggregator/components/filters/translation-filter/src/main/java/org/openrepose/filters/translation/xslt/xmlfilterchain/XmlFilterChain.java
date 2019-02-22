@@ -45,7 +45,6 @@ public class XmlFilterChain {
         return filters;
     }
 
-    @SuppressWarnings("squid:RedundantThrowsDeclarationCheck") //We're defining the contract here, so the extra explicitness is warranted
     public void executeChain(InputStream in, OutputStream output, List<XsltParameter> inputs, List<XsltParameter<? extends OutputStream>> outputs) throws XsltException {
         if (in == null || output == null) {
             return;
