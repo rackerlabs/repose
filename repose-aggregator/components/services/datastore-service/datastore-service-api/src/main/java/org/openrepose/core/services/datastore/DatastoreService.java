@@ -29,8 +29,6 @@ import java.net.InetSocketAddress;
 /**
  * DatastoreService - service that manages the lifecycle and configuration of {@link Datastore}s
  */
-//We're defining the contract here, so the extra explicitness is warranted
-@SuppressWarnings("squid:RedundantThrowsDeclarationCheck")
 public interface DatastoreService {
 
     /**

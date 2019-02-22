@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit;
  * <p/>
  * A Datastore is used to store and retrieve data.
  */
-@SuppressWarnings("squid:RedundantThrowsDeclarationCheck") //We're defining the contract here, so the extra explicitness is warranted
 public interface Datastore {
 
     /**

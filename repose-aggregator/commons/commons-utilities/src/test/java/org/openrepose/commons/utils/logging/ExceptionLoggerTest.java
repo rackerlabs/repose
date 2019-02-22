@@ -40,7 +40,6 @@ import static org.mockito.Mockito.verify;
 public class ExceptionLoggerTest {
     private static final String TEST_MESSAGE = "test message";
 
-    @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
     public static class WhenCreatingNewExceptionsWithoutCause {
         private Logger loggerRef;
         private ExceptionLogger exceptionLogger;
@@ -77,7 +76,6 @@ public class ExceptionLoggerTest {
         }
     }
 
-    @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
     public static class WhenCreatingNewExceptionsWithCause {
         private Logger loggerRef;
         private Throwable cause;

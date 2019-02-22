@@ -80,7 +80,6 @@ public class RequestHeaderContainer implements HeaderContainer {
 
     }
 
-    @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
     @Override
     public List<HeaderName> getHeaderNames() {
         return headerNames;

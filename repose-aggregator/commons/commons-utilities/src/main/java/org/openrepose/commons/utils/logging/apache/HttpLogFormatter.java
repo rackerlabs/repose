@@ -57,7 +57,6 @@ public class HttpLogFormatter {
         build();
     }
 
-    @SuppressWarnings("PMD.NcssMethodCount")
     public void setLogic(final LogArgumentGroupExtractor extractor, final LogArgumentFormatter formatter) {
         final String extractorEntity = extractor.getEntity();
         if (extractorEntity == null) {

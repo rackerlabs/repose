@@ -67,7 +67,6 @@ public class ResponseHeaderContainer implements HeaderContainer {
         return valueMap;
     }
 
-    @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
     @Override
     public List<HeaderName> getHeaderNames() {
         return headerNames;

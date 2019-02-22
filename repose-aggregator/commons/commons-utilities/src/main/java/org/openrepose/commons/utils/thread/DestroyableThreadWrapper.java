@@ -53,7 +53,6 @@ public class DestroyableThreadWrapper implements Destroyable {
     }
 
     @Override
-    @SuppressWarnings("squid:S2142")
     public synchronized void destroy() {
         threadLogic.destroy();
 
@@ -65,8 +64,6 @@ public class DestroyableThreadWrapper implements Destroyable {
                 try {
                     wait(WAIT_TIME);
                 } catch (InterruptedException ie) {
-                    // This InterruptedException is intentionally being consumed.
-                    // So it is safe to suppress warning squid:S2142
                     LOG.error("Caught an interrupted exception while waiting for thread death.", ie);
                     break;
                 }

@@ -15,7 +15,6 @@ buildscript {
         classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
         classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:1.0.1'
         classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.13.1'
-        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.4'
         classpath 'com.netflix.nebula:nebula-publishing-plugin:5.1.5'
         classpath 'com.netflix.nebula:gradle-git-scm-plugin:3.0.1'
         classpath 'com.netflix.nebula:gradle-ospackage-plugin:4.5.1'
@@ -31,7 +30,6 @@ import io.github.httpbuilderng.http.HttpTask
 
 import static groovyx.net.http.NativeHandlers.Encoders
 
-apply plugin: 'org.sonarqube'
 apply plugin: 'nebula.gradle-git-scm'
 apply plugin: 'io.github.http-builder-ng.http-plugin'
 
@@ -384,19 +382,6 @@ subprojects {
         }
     }
 
-    if(project.hasProperty('sonarBuild')) {
-        tasks.withType(Test) {
-            it.ignoreFailures = true
-        }
-    }
-
-    // Create an empty classes directory to satisfy Sonar
-    // This is necessary since Sonar requires class directories to exist if the Java plugin is applied, which
-    // is currently done on all sub-projects. Sub-projects without any classes, like some of those under
-    // :repose-aggregator:artifacts, will break Sonar without this line.
-    // TODO: Remove this line once future versions of the Sonar plugin support a missing classes/main/ directory.
-    file("$buildDir/classes/java/main").mkdirs()
-
     jar {
         manifest {
             attributes(
@@ -462,14 +447,6 @@ subprojects {
         sign configurations.archives
     }
 
-    sonarqube {
-        properties {
-            property "sonar.scoverage.reportPath", "$buildDir/reports/scoverage/scoverage.xml"
-            property "sonar.jacoco.reportPath", "$buildDir/jacoco/jacocoTest.exec"
-            property "sonar.jacoco.itReportPath", "$buildDir/jacoco/jacocoIntegrationTest.exec"
-        }
-    }
-
     if (project.hasProperty("minCoverageRatio")) {
         def minCoverageRatio = (project.findProperty("minCoverageRatio") ?: "0.75") as double
 
@@ -515,9 +492,3 @@ dependencyRecommendations {
 //this will let us access the a couple of the versions while still keeping a single source of truth
 project.ext.versionProperties = new Properties()
 project.ext.versionProperties.load(new FileInputStream("$rootDir/versions.properties"))
-
-sonarqube {
-    properties {
-        property "sonar.dynamicAnalysis", "reuseReports"
-    }
-}

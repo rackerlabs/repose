@@ -33,13 +33,9 @@ public class TimeReceivedHandler implements FormatterLogic {
 
     private final String dateFormat;
 
-    @SuppressWarnings("squid:S1848")
     public TimeReceivedHandler(final String dateFormat) {
         this.dateFormat = StringUtils.isEmpty(dateFormat) ? DEFAULT_DATE_FORMAT : dateFormat;
 
-        // Instantiate an object based on the format so an exception will be thrown during startup if it is not valid.
-        // This object is only being created to ensure its validity.
-        // So it is safe to suppress warning squid:S1848
         new SimpleDateFormat(dateFormat);
     }
 

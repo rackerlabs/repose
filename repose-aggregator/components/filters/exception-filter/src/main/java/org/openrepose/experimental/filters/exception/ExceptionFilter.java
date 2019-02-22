@@ -55,7 +55,6 @@ public class ExceptionFilter implements Filter {
     }
 
     @Override
-    @SuppressWarnings("squid:S00112")
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
         throws IOException, ServletException {
         LOG.warn("in the doFilter method of ExceptionFilter. About to throw something!");
@@ -63,9 +62,6 @@ public class ExceptionFilter implements Filter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         String throwErrorHeader = httpServletRequest.getHeader(THROW_ERROR_HEADER);
         if (!Boolean.parseBoolean(throwErrorHeader)) {
-            // in the default case, we just want to validate that this filter throws an exception that's caught by repose core (powerfilterchain)
-            // This RuntimeException is only being thrown for testing.
-            // So it is safe to suppress warning squid:S00112
             throw new RuntimeException("This is just a test filter! Don't use it in real life!");
         } else {
             throw new Error("This is just a test filter! Don't use it in real life!");

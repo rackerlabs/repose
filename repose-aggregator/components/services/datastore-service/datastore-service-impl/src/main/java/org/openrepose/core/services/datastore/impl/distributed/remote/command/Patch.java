@@ -52,7 +52,6 @@ public class Patch extends AbstractRemoteCommand {
 
     private final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader());
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly")
     public Patch(TimeUnit timeUnit, SerializablePatch patch, int ttl, String cacheObjectKey, InetSocketAddress remoteEndpoint, String connPoolId, boolean useHttps) {
         super(cacheObjectKey, remoteEndpoint, connPoolId, useHttps);
         this.timeUnit = timeUnit;

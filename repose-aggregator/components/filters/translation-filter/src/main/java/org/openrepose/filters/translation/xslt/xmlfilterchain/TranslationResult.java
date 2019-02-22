@@ -204,7 +204,6 @@ public class TranslationResult {
         return marshaller.unmarshallHeaders(input);
     }
 
-    @SuppressWarnings("squid:S1244")
     private void applyHeaders(final HttpServletRequestWrapper request, final HttpServletResponseWrapper response) {
         Headers headers = getHeaders();
 
@@ -218,8 +217,6 @@ public class TranslationResult {
             }
 
             for (QualityNameValuePair header : headers.getRequest().getHeader()) {
-                // This is a header quality comparison.
-                // So it is safe to suppress warning squid:S1244
                 if (header.getQuality() == 1.0) {
                     request.appendHeader(header.getName(), header.getValue());
                 } else {
@@ -234,8 +231,6 @@ public class TranslationResult {
             }
 
             for (QualityNameValuePair header : headers.getResponse().getHeader()) {
-                // This is a header quality comparison.
-                // So it is safe to suppress warning squid:S1244
                 if (header.getQuality() == 1.0) {
                     response.appendHeader(header.getName(), header.getValue());
                 } else {

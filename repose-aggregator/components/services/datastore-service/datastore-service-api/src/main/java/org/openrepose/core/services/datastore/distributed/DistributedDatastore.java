@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
  * An interface for a Distributed Datastore that extends the behavior of a Datastore.
  * Distributed datastores allow retrieval and storage of data across local and remote datastores.
  */
-@SuppressWarnings("squid:RedundantThrowsDeclarationCheck") //We're defining the contract here, so the extra explicitness is warranted
 public interface DistributedDatastore extends Datastore {
 
     /**

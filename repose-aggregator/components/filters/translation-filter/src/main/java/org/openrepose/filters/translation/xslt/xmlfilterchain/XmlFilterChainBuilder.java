@@ -85,7 +85,6 @@ public class XmlFilterChainBuilder {
         }
     }
 
-    @SuppressWarnings("squid:RedundantThrowsDeclarationCheck") //We're defining the contract here, so the extra explicitness is warranted
     public XmlFilterChain build(StyleSheetInfo... stylesheets) throws XsltException {
         try {
             List<XmlFilterReference> filters = new ArrayList<>();

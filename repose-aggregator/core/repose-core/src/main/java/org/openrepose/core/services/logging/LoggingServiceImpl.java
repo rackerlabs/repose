@@ -58,14 +58,12 @@ public class LoggingServiceImpl implements LoggingService {
     }
 
     @PostConstruct
-    @SuppressWarnings("squid:S106")
     public void init() {
         URL containerXsdURL = getClass().getResource("/META-INF/schema/container/container-configuration.xsd");
 
         configurationService.subscribeTo("container.cfg.xml", containerXsdURL, configurationListener, ContainerConfiguration.class);
         //Do some log wrapping only one time, not every time we configure
         //Wiretap Standard Out and Error to the STDOUT and STDERR loggers
-        // So it is safe to suppress warning squid:S106
         PrintStream stdErr = IoBuilder.forLogger("STDERR")
                 .setLevel(Level.WARN)
                 .filter(System.err) //Also output to standard err, but I want it in my logs!

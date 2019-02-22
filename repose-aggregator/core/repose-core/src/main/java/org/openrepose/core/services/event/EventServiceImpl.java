@@ -144,7 +144,6 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    @SuppressWarnings("squid:S134")
     public <T extends Enum> void squelch(EventListener<T, ?> el, T... events) {
         if (events == null || events.length == 0) {
             throw new IllegalArgumentException("Must unsubscribe from at least one event type");
@@ -152,8 +151,6 @@ public class EventServiceImpl implements EventService {
 
         final Set<EventListenerDescriptor> listenerSet = listenerMap.get(new ComparableClassWrapper<Enum>(events[0].getClass()));
 
-        // Suppressing warning for deeply nested blocks since the blocks are very small and the iterator-use can't
-        // really be broken up nor replaced since we want the set in the TreeMap to be updated by the potential removal.
         if (listenerSet != null) {
             final Iterator<EventListenerDescriptor> itr = listenerSet.iterator();
 

@@ -59,11 +59,7 @@ import static org.openrepose.core.services.datastore.impl.distributed.MalformedC
 /**
  * Holds most of the work for running a distributed datastore.
  * Exposes the ClusterView and the ACL for update.
- * <p>
- * There's no reason we need this class serializable, and we don't want to imply we support it.
- * So, I'm suppressing the non-serializable fields warning instead of marking them transient.
  */
-@SuppressWarnings("squid:S1948")
 public class DistributedDatastoreServlet extends HttpServlet {
 
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServlet.class);
@@ -146,21 +142,13 @@ public class DistributedDatastoreServlet extends HttpServlet {
         }
     }
 
-    @SuppressWarnings("squid:S1989")
     @Override
     protected void doTrace(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // This servlet is only allowed to communicate with configured Repose instances,
-        // so there is no chance of exposing sensitive information.
-        // So it is safe to suppress warning squid:S1989
         resp.sendError(SC_METHOD_NOT_ALLOWED);
     }
 
-    @SuppressWarnings("squid:S1989")
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        // This servlet is only allowed to communicate with configured Repose instances,
-        // so there is no chance of exposing sensitive information.
-        // So it is safe to suppress warning squid:S1989
         try {
             CacheRequest cacheGet = CacheRequest.marshallCacheRequest(req);
             final Serializable value = localDatastore.get(cacheGet.getCacheKey());
@@ -194,12 +182,8 @@ public class DistributedDatastoreServlet extends HttpServlet {
         }
     }
 
-    @SuppressWarnings("squid:S1989")
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        // This servlet is only allowed to communicate with configured Repose instances,
-        // so there is no chance of exposing sensitive information.
-        // So it is safe to suppress warning squid:S1989
         try {
             final CacheRequest cachePut = CacheRequest.marshallCacheRequestWithPayload(req);
             localDatastore.put(cachePut.getCacheKey(), objectSerializer.readObject(cachePut.getPayload()), cachePut.getTtlInSeconds(), TimeUnit.SECONDS);
@@ -215,12 +199,8 @@ public class DistributedDatastoreServlet extends HttpServlet {
         }
     }
 
-    @SuppressWarnings("squid:S1989")
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        // This servlet is only allowed to communicate with configured Repose instances,
-        // so there is no chance of exposing sensitive information.
-        // So it is safe to suppress warning squid:S1989
         try {
             final CacheRequest cacheDelete = CacheRequest.marshallCacheRequest(req);
             localDatastore.remove(cacheDelete.getCacheKey());
@@ -237,11 +217,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
         }
     }
 
-    @SuppressWarnings("squid:S1989")
     private void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        // This servlet is only allowed to communicate with configured Repose instances,
-        // so there is no chance of exposing sensitive information.
-        // So it is safe to suppress warning squid:S1989
         try {
             final CacheRequest cachePatch = CacheRequest.marshallCacheRequestWithPayload(req);
             Serializable value = localDatastore.patch(cachePatch.getCacheKey(), (Patch) objectSerializer.readObject(cachePatch.getPayload()), cachePatch.getTtlInSeconds(), TimeUnit.SECONDS);

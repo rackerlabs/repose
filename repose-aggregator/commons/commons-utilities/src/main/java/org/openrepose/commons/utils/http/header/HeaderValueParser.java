@@ -33,7 +33,6 @@ public class HeaderValueParser {
         this.rawHeaderValue = rawValue;
     }
 
-    @SuppressWarnings("squid:RedundantThrowsDeclarationCheck") //We're defining the contract here, so the extra explicitness is warranted
     public HeaderValue parse() throws MalformedHeaderValueException {
         final Map<String, String> parameters = new HashMap<>();
         final String[] parameterSplit = rawHeaderValue.split(";");
@@ -70,7 +69,6 @@ public class HeaderValueParser {
         return sb.toString();
     }
 
-    @SuppressWarnings("squid:RedundantThrowsDeclarationCheck") //We're defining the contract here, so the extra explicitness is warranted
     private void parseParameter(Map<String, String> parameters, String unparsedParameter) throws MalformedHeaderValueException {
         final String[] keyValueSplit = unparsedParameter.split("=");
 

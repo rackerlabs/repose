@@ -107,7 +107,6 @@ public class LogArgumentGroupExtractor {
         return variable + variableArgumentSeparator + StringUtils.join(arguments, " ");
     }
 
-    @SuppressWarnings("squid:S1067") //This is an equals method comparing the fields, so the large number of logical operators makes sense.
     @Override
     public boolean equals(Object o) {
         boolean result = false;

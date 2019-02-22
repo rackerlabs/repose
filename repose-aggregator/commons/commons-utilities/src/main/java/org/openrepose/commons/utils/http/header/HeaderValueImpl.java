@@ -84,11 +84,8 @@ public class HeaderValueImpl implements HeaderValue {
         return qualityFactor;
     }
 
-    @SuppressWarnings("squid:S1244")
     private static Map<String, String> qualityFactorToParameterMap(double qualityFactor) {
         final Map<String, String> parameters = new HashMap<>();
-        // This is a direct comparison to a known value.
-        // So it is safe to suppress warning squid:S1244
         if (qualityFactor != DEFAULT_QUALITY) {
             parameters.put(QUALITY_FACTOR_PARAM_NAME, String.valueOf(qualityFactor));
         }
@@ -141,13 +138,10 @@ public class HeaderValueImpl implements HeaderValue {
     }
 
     @Override
-    @SuppressWarnings("squid:S1244")
     public int compareTo(HeaderValue that) {
         int comparasionValue = 1;
 
         if (that != null) {
-            // This is a header quality comparison.
-            // So it is safe to suppress warning squid:S1244
             if (this.getQualityFactor() != that.getQualityFactor()) {
                 comparasionValue = this.getQualityFactor() > that.getQualityFactor() ? 1 : -1;
             } else {

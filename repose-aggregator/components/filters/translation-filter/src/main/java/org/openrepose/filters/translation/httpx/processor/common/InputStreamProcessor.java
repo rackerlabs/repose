@@ -22,7 +22,6 @@ package org.openrepose.filters.translation.httpx.processor.common;
 import java.io.InputStream;
 
 @FunctionalInterface
-@SuppressWarnings("squid:RedundantThrowsDeclarationCheck") //We're defining the contract here, so the extra explicitness is warranted
 public interface InputStreamProcessor {
 
     InputStream process(InputStream sourceStream) throws PreProcessorException;
