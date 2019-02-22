@@ -34,5 +34,5 @@ The reason is that when downloading a plugin from the Jenkins plugin repository,
 [NOTE]
 ====
 When setting up Jenkins, it may be necessary to reconfigure the Checkmarx user credentials.
-This can be done by simply plugging the credentials into the global Checkmarx plugin configuration in Jenkins.
+This can be done by adding new username/password credentials through Jenkins' credentials management system with the ID `checkmarx-ci`.
 ====
