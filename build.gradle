@@ -398,7 +398,7 @@ subprojects {
         analyzers {
             assemblyEnabled = false
         }
-        suppressionFile = file("${rootDir}/OWASP-Suppression.xml")
+        suppressionFile = file("${rootDir}/repose-aggregator/src/config/dependency-check/OWASP-Suppression.xml")
 
         // Configures the dependencyCheck plugin to fail the build if any vulnerability is found
         failBuildOnCVSS = 0
