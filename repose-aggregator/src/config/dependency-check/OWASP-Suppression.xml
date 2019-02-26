@@ -18,13 +18,6 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: jetty-util-6.1.26.jar
-   ]]></notes>
-        <gav regex="true">^org\.mortbay\.jetty:jetty-util:.*$</gav>
-        <cve>CVE-2011-4461</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
    file name: commons-collections-3.2.1.jar
    ]]></notes>
         <gav regex="true">^commons-collections:commons-collections:.*$</gav>
