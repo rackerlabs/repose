@@ -3,6 +3,8 @@
     <suppress>
         <notes><![CDATA[
       file name: echo-filter.jar (project :repose-aggregator:components:filters:echo-filter)
+      NOTE: This is simply a case of mistaken identity.
+      The echo-filter used for internal testing has the same name as a known vulnerable filter.
       ]]></notes>
         <gav regex="true">^org\.openrepose:echo-filter:.*$</gav>
         <cpe>cpe:/a:echo_project:echo</cpe>
