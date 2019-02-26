@@ -15,3 +15,7 @@ publishing {
         }
     }
 }
+
+dependencyCheck {
+    skip = true
+}

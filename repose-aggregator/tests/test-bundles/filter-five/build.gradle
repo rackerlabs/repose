@@ -1,9 +1,14 @@
 dependencies {
     compile project(':repose-aggregator:tests:test-bundles:classloader-dependency-two')
     compile "org.scala-lang:scala-library"
+    compile "org.scala-lang:scala-reflect" // Forces the version used by scala-logging.
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
 
     compileOnly 'javax.servlet:javax.servlet-api'
     compileOnly 'javax.inject:javax.inject'
     compileOnly 'org.apache.commons:commons-lang3'
+}
+
+dependencyCheck {
+    skip = true
 }

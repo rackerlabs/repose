@@ -10,3 +10,7 @@ dependencies {
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
 }
+
+dependencyCheck {
+    skip = true
+}

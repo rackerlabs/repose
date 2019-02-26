@@ -4,6 +4,7 @@ dependencies {
     compile "org.scala-lang:scala-library"
     compile "org.slf4j:slf4j-api"
     compile "commons-pool:commons-pool"
+    compile "org.scala-lang:scala-reflect" // Forces the version used by scala-logging.
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "commons-io:commons-io"
     compile "commons-codec:commons-codec"
@@ -32,6 +33,7 @@ dependencies {
     testCompile "org.apache.logging.log4j:log4j-core"
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', classifier: 'tests'
     testCompile "org.springframework:spring-test"
+    testCompile "org.springframework:spring-web"
     testCompile "org.slf4j:jcl-over-slf4j"
 }
 

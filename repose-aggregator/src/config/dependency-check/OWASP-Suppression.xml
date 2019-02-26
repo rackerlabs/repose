@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.2.xsd">
+    <suppress>
+        <notes><![CDATA[
+      file name: echo-filter.jar (project :repose-aggregator:components:filters:echo-filter)
+      ]]></notes>
+        <gav regex="true">^org\.openrepose:echo-filter:.*$</gav>
+        <cpe>cpe:/a:echo_project:echo</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-6.1.26.jar
+   ]]></notes>
+        <gav regex="true">^org\.mortbay\.jetty:jetty:.*$</gav>
+        <cve>CVE-2011-4461</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-util-6.1.26.jar
+   ]]></notes>
+        <gav regex="true">^org\.mortbay\.jetty:jetty-util:.*$</gav>
+        <cve>CVE-2011-4461</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: commons-collections-3.2.1.jar
+   ]]></notes>
+        <gav regex="true">^commons-collections:commons-collections:.*$</gav>
+        <cve>CVE-2015-6420</cve>
+        <cve>CVE-2017-15708</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: netty-3.9.4.Final.jar
+   ]]></notes>
+        <gav regex="true">^io\.netty:netty:.*$</gav>
+        <cve>CVE-2015-2156</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: xz-1.0.jar
+   ]]></notes>
+        <gav regex="true">^org\.tukaani:xz:.*$</gav>
+        <cve>CVE-2015-4035</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jython-standalone-2.7.1.jar (shaded: com.google.guava:guava:22.0-android)
+   ]]></notes>
+        <gav regex="true">^com\.google\.guava:guava:.*$</gav>
+        <cve>CVE-2018-10237</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: xalan-2.7.1.jar
+   ]]></notes>
+        <gav regex="true">^xalan:xalan:.*$</gav>
+        <cve>CVE-2014-0107</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: btf-1.0.jar
+   ]]></notes>
+        <gav regex="true">^com\.github\.fge:btf:.*$</gav>
+        <cve>CVE-2015-3367</cve>
+    </suppress>
+</suppressions>

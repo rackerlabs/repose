@@ -4,6 +4,7 @@ dependencies {
     compile project(":repose-aggregator:commons:commons-utilities")
     compile "org.scala-lang:scala-library"
     compile "org.springframework:spring-beans"
+    compile "org.scala-lang:scala-reflect" // Forces the version used by scala-logging.
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
 
     compileOnly "javax.inject:javax.inject"

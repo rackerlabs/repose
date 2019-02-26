@@ -1,3 +1,7 @@
 dependencies {
     compile "org.scala-lang:scala-library"
 }
+
+dependencyCheck {
+    skip = true
+}

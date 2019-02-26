@@ -7,6 +7,7 @@ dependencies {
     compile "commons-io:commons-io"
     compile "org.slf4j:slf4j-api"
     compile "org.scala-lang:scala-library"
+    compile "org.scala-lang:scala-reflect" // Forces the version used by scala-logging.
     compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
     compile "io.dropwizard.metrics:metrics-core"
     compile "xalan:xalan"
@@ -22,6 +23,7 @@ dependencies {
     testCompile "org.mockito:mockito-core"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.springframework:spring-test"
+    testCompile "org.springframework:spring-web"
     testCompile "org.slf4j:jcl-over-slf4j"
     testCompile "org.xmlunit:xmlunit-matchers"
 }

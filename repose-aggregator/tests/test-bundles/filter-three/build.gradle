@@ -3,3 +3,7 @@ dependencies {
     compileOnly 'javax.inject:javax.inject'
     compile "org.scala-lang:scala-library"
 }
+
+dependencyCheck {
+    skip = true
+}

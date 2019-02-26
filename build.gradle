@@ -22,6 +22,7 @@ buildscript {
         classpath 'com.bmuschko:gradle-docker-plugin:3.2.1'
         classpath 'gradle.plugin.org.openrepose:gradle-linkchecker-plugin:1.0.0'
         classpath 'gradle.plugin.io.github.http-builder-ng:http-plugin:0.1.1'
+        classpath 'org.owasp:dependency-check-gradle:4.0.2'
     }
 }
 
@@ -164,6 +165,7 @@ subprojects {
     apply plugin: 'nebula.maven-publish'
     apply plugin: 'signing'
     apply plugin: 'org.scoverage'
+    apply plugin: 'org.owasp.dependencycheck'
 
     dependencies {
         jaxb "com.sun.xml.bind:jaxb-xjc"
@@ -380,6 +382,26 @@ subprojects {
         if (project.hasProperty('javaArguments')) {
             systemProperty 'javaArguments', project.getProperty('javaArguments')
         }
+    }
+
+    dependencyCheck {
+        scanConfigurations = [
+            'compile',
+            'implementation',
+            'compileOnly',
+            'compileClasspath',
+            'runtime',
+            'runtimeOnly',
+            'runtimeClasspath',
+            'default',
+        ]
+        analyzers {
+            assemblyEnabled = false
+        }
+        suppressionFile = file("${rootDir}/repose-aggregator/src/config/dependency-check/OWASP-Suppression.xml")
+
+        // Configures the dependencyCheck plugin to fail the build if any vulnerability is found
+        failBuildOnCVSS = 0
     }
 
     jar {

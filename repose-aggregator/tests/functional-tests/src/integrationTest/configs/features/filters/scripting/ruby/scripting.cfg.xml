@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
-           language="ruby">
-    $request.addHeader("language", "ruby")
-    $response.addHeader("ya", "hoo")
-    $filterChain.doFilter($request, $response)
-</scripting>
