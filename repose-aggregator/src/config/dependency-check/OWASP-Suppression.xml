@@ -52,11 +52,4 @@
         <gav regex="true">^xalan:xalan:.*$</gav>
         <cve>CVE-2014-0107</cve>
     </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: btf-1.0.jar
-   ]]></notes>
-        <gav regex="true">^com\.github\.fge:btf:.*$</gav>
-        <cve>CVE-2015-3367</cve>
-    </suppress>
 </suppressions>
