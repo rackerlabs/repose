@@ -64,6 +64,7 @@ org.openrepose                                      http-delegation           4.
 org.python                                          jython-standalone         2.7.1            Jython Specific License     http://www.jython.org/license.html
 org.scala-lang.modules                              scala-xml_2.11            1.0.5            Scala Specific License      http://www.scala-lang.org/license.html
 org.scala-lang                                      scala-library             2.11.12          Scala Specific License      http://www.scala-lang.org/license.html
+org.scala-lang                                      scala-reflect             2.11.12          Scala Specific License      http://www.scala-lang.org/license.html
 org.slf4j                                           jcl-over-slf4j            1.7.7            MIT License                 http://slf4j.org/license.html
 org.slf4j                                           slf4j-api                 1.7.22           MIT License                 http://slf4j.org/license.html
 org.springframework                                 spring-beans              4.3.21.RELEASE   Apache License Version 2.0  https://github.com/spring-projects/spring-framework
