@@ -19,7 +19,7 @@
  */
 package org.openrepose.commons.utils.classloader
 
-import java.io.{File, FileInputStream, FileOutputStream, IOException}
+import java.io._
 import java.net.{URL, URLClassLoader}
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{FileVisitResult, Files, Path, SimpleFileVisitor}
@@ -27,7 +27,6 @@ import java.util.zip.{ZipFile, ZipInputStream}
 
 import com.oracle.javaee6.{ApplicationType, FilterType, ObjectFactory, WebFragmentType}
 import javax.xml.bind.JAXBContext
-import org.apache.commons.io.FileUtils.checksumCRC32
 import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
 import org.openrepose.commons.config.resource.impl.BufferedURLConfigurationResource
 import org.slf4j.LoggerFactory
@@ -133,7 +132,7 @@ class EarClassProvider(earFile: File, val outputDir: File) {
       }
 
       //Make sure it's actually a zip file, so we can fail with some kind of exception
-      new ZipFile(earFile)
+      new ZipFile(earFile).close()
 
       val zis = new ZipInputStream(new FileInputStream(earFile))
 
@@ -143,23 +142,26 @@ class EarClassProvider(earFile: File, val outputDir: File) {
         if (entry.isDirectory) {
           entryFile.mkdir()
         } else {
-          val ofs = new FileOutputStream(entryFile)
+          val entryFileOut = new FileOutputStream(entryFile, true)
           try {
+            val entryFileChannel = entryFileOut.getChannel
+
             log.trace("Obtaining file lock on: {}", entryFile)
-            val lock = ofs.getChannel.lock()
-            try {
-              if (!entryFile.exists() || entry.getCrc != checksumCRC32(entryFile)) {
-                log.trace("Unpacking: {}", entryFile)
-                Stream.continually(zis.read(buffer)).takeWhile(_ != -1).foreach(count => ofs.write(buffer, 0, count))
-              } else {
-                log.trace("File already exists in a valid condition. Skipping: {}", entryFile)
-              }
-            } finally {
-              log.trace("Releasing file lock on: {}", entryFile)
-              lock.release()
+            entryFileChannel.lock()
+
+            if (entry.getSize != entryFile.length) {
+              log.trace("Unpacking: {}", entryFile)
+              // Clear the current contents of the file
+              entryFileChannel.truncate(0)
+              // Write the zip entry contents to the file
+              Stream.continually(zis.read(buffer)).takeWhile(_ != -1).foreach(count => entryFileOut.write(buffer, 0, count))
+            } else {
+              log.trace("File already exists in a valid condition. Skipping: {}", entryFile)
             }
           } finally {
-            ofs.close()
+            log.trace("Releasing file lock on: {}", entryFile)
+            // Closing the file also closes the channel and releases the file lock
+            entryFileOut.close()
           }
         }
       }
