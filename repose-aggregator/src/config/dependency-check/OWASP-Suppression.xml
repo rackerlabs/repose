@@ -33,11 +33,4 @@
         <gav regex="true">^com\.google\.guava:guava:.*$</gav>
         <cve>CVE-2018-10237</cve>
     </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: xalan-2.7.1.jar
-   ]]></notes>
-        <gav regex="true">^xalan:xalan:.*$</gav>
-        <cve>CVE-2014-0107</cve>
-    </suppress>
 </suppressions>

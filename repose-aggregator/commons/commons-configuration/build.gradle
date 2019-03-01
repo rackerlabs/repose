@@ -2,7 +2,7 @@ dependencies {
     compile project(':repose-aggregator:commons:commons-utilities')
     compile project(':repose-aggregator:core:repose-core-api')
     compile "xerces:xerces-xsd11"
-    compile "xalan:xalan:2.7.1"
+    compile "xalan:xalan"
     compile "org.slf4j:slf4j-api"
     compile "commons-io:commons-io"
     compile "com.google.guava:guava" // Forces the version used by jtwig-core
