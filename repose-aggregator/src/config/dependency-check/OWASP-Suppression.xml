@@ -10,8 +10,8 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: jetty-6.1.26.jar
-   ]]></notes>
+            file name: jetty-6.1.26.jar
+        ]]></notes>
         <gav regex="true">^org\.mortbay\.jetty:jetty:.*$</gav>
         <cve>CVE-2011-4461</cve>
     </suppress>
