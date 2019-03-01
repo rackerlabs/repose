@@ -26,8 +26,10 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: jython-standalone-2.7.1.jar (shaded: com.google.guava:guava:22.0-android)
-   ]]></notes>
+            file name: jython-standalone-2.7.1.jar (shaded: com.google.guava:guava:22.0-android)
+            NOTE: This is being fixed under issue https://bugs.jython.org/issue2728
+            This is currently only potentially exposed if the Scripting filter is used with Python to deserialize certain data types.
+        ]]></notes>
         <gav regex="true">^com\.google\.guava:guava:.*$</gav>
         <cve>CVE-2018-10237</cve>
     </suppress>
