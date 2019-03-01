@@ -2,11 +2,10 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.2.xsd">
     <suppress>
         <notes><![CDATA[
-      file name: echo-filter.jar (project :repose-aggregator:components:filters:echo-filter)
-      NOTE: This is simply a case of mistaken identity.
-      The echo-filter used for internal testing has the same name as a known vulnerable filter.
-      ]]></notes>
-        <gav regex="true">^org\.openrepose:echo-filter:.*$</gav>
+            file name: echo-filter.jar (project :repose-aggregator:components:filters:echo-filter)
+            NOTE: This is simply a case of mistaken identity.
+            The echo-filter used for internal testing has the same name as a known vulnerable filter.
+        ]]></notes>
         <cpe>cpe:/a:echo_project:echo</cpe>
     </suppress>
     <suppress>
@@ -33,8 +32,10 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: xz-1.0.jar
-   ]]></notes>
+            file name: xz-1.0.jar
+            NOTE: This is simply a case of mistaken identity.
+            The Java version of this library is not afflicted with this particular vulnerability.
+        ]]></notes>
         <gav regex="true">^org\.tukaani:xz:.*$</gav>
         <cve>CVE-2015-4035</cve>
     </suppress>
