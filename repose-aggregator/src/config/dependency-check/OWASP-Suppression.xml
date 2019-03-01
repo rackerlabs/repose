@@ -17,21 +17,6 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: commons-collections-3.2.1.jar
-   ]]></notes>
-        <gav regex="true">^commons-collections:commons-collections:.*$</gav>
-        <cve>CVE-2015-6420</cve>
-        <cve>CVE-2017-15708</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: netty-3.9.4.Final.jar
-   ]]></notes>
-        <gav regex="true">^io\.netty:netty:.*$</gav>
-        <cve>CVE-2015-2156</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
             file name: xz-1.0.jar
             NOTE: This is simply a case of mistaken identity.
             The Java version of this library is not afflicted with this particular vulnerability.
