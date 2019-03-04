@@ -10,19 +10,23 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-            file name: jetty-6.1.26.jar
-        ]]></notes>
-        <gav regex="true">^org\.mortbay\.jetty:jetty:.*$</gav>
-        <cve>CVE-2011-4461</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
             file name: xz-1.0.jar
             NOTE: This is simply a case of mistaken identity.
             The Java version of this library is not afflicted with this particular vulnerability.
         ]]></notes>
         <gav regex="true">^org\.tukaani:xz:.*$</gav>
         <cve>CVE-2015-4035</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: jetty-6.1.26.jar
+            NOTE: There is a transitive dependency with a known vulnerability exists, but it is not exposed.
+            The Log4J Flume Appender is an event driven Flume Source that is supported by the Highly Efficient Record Processor (HERP) filter to send event data to a remote Flume Agent.
+            The Log4J Flume Appender is not pollable even though it depends on the flume-ng-sdk which does support that type of source.
+            Therefore the transitive dependency on an old Jetty version with a known vulnerability that is used to support polling does not expose the potential DOS attack vector in this instance.
+        ]]></notes>
+        <gav regex="true">^org\.mortbay\.jetty:jetty:.*$</gav>
+        <cve>CVE-2011-4461</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
