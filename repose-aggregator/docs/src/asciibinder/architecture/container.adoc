@@ -46,12 +46,12 @@ To be more specific, the deployment process is comprised of the following steps:
 Since each artifact is extracted to a directory named the hash of said artifact, deployment directory names are consistent and predictable.
 As a result, there will be only one copy of the extracted contents of each artifact, and therefore, disk space usage should also be predictable.
 
-If an artifact file exists on disk prior to the deployment process, the checksum of the artifact file will be compared to the checksum of the artifact to be deployed.
-If the checksums match, deployment of the artifact in question will be skipped.
-If the checksums do not match, the artifact will be deployed, overwriting the existing artifact file.
+If an artifact file exists on disk prior to the deployment process, the byte count of the artifact file will be compared to the byte count of the artifact to be deployed.
+If the byte counts match, deployment of the artifact in question will be skipped.
+If the byte counts do not match, the artifact will be deployed, overwriting the existing artifact file.
 To prevent contention during the deployment process, a platform-dependent lock will be acquired on the artifact file.
 The lock should prevent other processes from accessing the artifact file while it is being processed.
-Ultimately, the checksum and locking strategy should ensure valid deployments while preventing unnecessary writes to disk and file contention when multiple *Repose* processes are running concurrently.
+Ultimately, the byte count check and locking strategy should ensure valid deployments while preventing unnecessary writes to disk and file contention when multiple *Repose* processes are running concurrently.
 
 The `auto-clean` feature may be used to delete deployment directories when *Repose* shuts down.
 This feature helps manage disk space usage, and remove the contents of artifacts which are no longer in use.
