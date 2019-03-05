@@ -32,6 +32,7 @@
 * [.enhancement-tag]#Enhancement# | [.breaking-tag]#Breaking Change# | https://repose.atlassian.net/browse/REP-3589[REP-3589] - Rewrote the <<../services/http-client.adoc#, HTTP Client Service>>.
 ** Redesigned the <<../services/http-client.adoc#, HTTP Client Service>> API.
 ** Moved the `chunked-encoding` configuration from the <<../services/http-client.adoc#configuration, HTTP Client Service configuration>> to the <<../architecture/system-model.adoc#configuration, System Model configuration>>.
+** Removed the `http.connection.max-status-line-garbage` configuration attribute.
 ** Updated HTTP Components dependencies:
 *** `httpclient`:  4.5.3 → 4.5.6
 *** `httpcore`: 4.4.6 → 4.4.10
