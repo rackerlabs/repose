@@ -8,6 +8,7 @@ dependencies {
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
     compile "io.gatling:jsonpath_$scalaMajDotMin"
     compile "org.scala-lang.modules:scala-xml_$scalaMajDotMin"
+    compile "xalan:xalan" // Forces the version used by wadl-tools.
     compile "com.rackspace.cloud.api:wadl-tools_$scalaMajDotMin"
     compile "net.sf.saxon:Saxon-EE"
 
