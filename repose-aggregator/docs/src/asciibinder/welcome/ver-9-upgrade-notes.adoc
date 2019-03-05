@@ -105,6 +105,8 @@
 == HTTP Client/Connection Pool Service
 . If setting the `chunked-encoding` attribute, it will no longer be set in <<../services/http-client.adoc#configuration, HTTP Client Service configuration>> but instead will be set in the <<../architecture/system-model.adoc#configuration, System Model configuration>>.
 .. Deprecated configuration values have been removed; change `0` to `false` and `1` to `true`.
+. The `http.connection.max-status-line-garbage` configuration attribute has been removed from the schema, and thus must be removed from configuration instances if present.
+  This attribute has never affected the processing performed by *Repose*, and so it should be safe to remove in all cases.
 
 == Rackspace Auth User, SAML Policy Translation, and Attribute Mapping Policy Validation Filters
 . Consult with identity for where these filters now live.
