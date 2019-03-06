@@ -22,8 +22,8 @@ package features.core.proxy
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
-import org.rackspace.deproxy.HeaderCollection
 import org.rackspace.deproxy.MessageChain
+import org.rackspace.deproxy.Request
 import scaffold.category.Core
 import spock.lang.Unroll
 
@@ -66,19 +66,21 @@ class ChunkedAutoTest extends ReposeValveTest {
         )
 
         and: "the client and origin request headers are captured"
-        HeaderCollection clientRequestHeaders = messageChain.sentRequest.headers
-        HeaderCollection originRequestHeaders = messageChain.handlings[0].request.headers
+        Request clientRequest = messageChain.sentRequest
+        Request originRequest = messageChain.handlings[0].request
 
         then: "the client request meets expectations"
-        clientRequestHeaders.contains(TRANSFER_ENCODING) == (body && chunked)
-        clientRequestHeaders.contains(CONTENT_LENGTH) == (body && !chunked)
+        clientRequest.headers.contains(TRANSFER_ENCODING) == (body && chunked)
+        clientRequest.headers.contains(CONTENT_LENGTH) == (body && !chunked)
+        clientRequest.body == (body ?: "")
 
         and: "the origin request meets expectations"
-        originRequestHeaders.contains(CONTENT_TYPE)
-        originRequestHeaders.contains(TRANSFER_ENCODING) == hasTransferEncoding
-        originRequestHeaders[TRANSFER_ENCODING]?.equalsIgnoreCase("chunked") as boolean == hasTransferEncoding
-        originRequestHeaders.contains(CONTENT_LENGTH) == hasContentLength
-        originRequestHeaders[CONTENT_LENGTH] == (hasContentLength ? TEST_BODY.length() as String : null)
+        originRequest.headers.contains(CONTENT_TYPE)
+        originRequest.headers.contains(TRANSFER_ENCODING) == hasTransferEncoding
+        originRequest.headers[TRANSFER_ENCODING]?.equalsIgnoreCase("chunked") as boolean == hasTransferEncoding
+        originRequest.headers.contains(CONTENT_LENGTH) == hasContentLength
+        originRequest.headers[CONTENT_LENGTH] == (hasContentLength ? TEST_BODY.length() as String : null)
+        new String(originRequest.body) == (BODY_METHODS.contains(method) ? (body ?: "") : "")
 
         where:
         [method, body, chunked] << [BODY_METHODS + NO_BODY_METHODS, [TEST_BODY, null], [true, false]].combinations()
