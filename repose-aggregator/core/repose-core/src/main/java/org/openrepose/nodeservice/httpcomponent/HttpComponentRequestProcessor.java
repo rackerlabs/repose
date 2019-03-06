@@ -20,6 +20,7 @@
 package org.openrepose.nodeservice.httpcomponent;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
@@ -34,6 +35,8 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PushbackInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
@@ -85,7 +88,13 @@ public class HttpComponentRequestProcessor {
         final RequestBuilder requestBuilder = RequestBuilder.create(servletRequest.getMethod())
             .setUri(getUri(servletRequest, target));
         if (!NO_ENTITY_METHODS.contains(servletRequest.getMethod())) {
-            requestBuilder.setEntity(getEntity(servletRequest, chunkedEncoding));
+            byte[] bytes = new byte[8];
+            PushbackInputStream pushbackInputStream = new PushbackInputStream(servletRequest.getInputStream(), 8);
+            int bytesRead = pushbackInputStream.read(bytes, 0, 8);
+            pushbackInputStream.unread(ArrayUtils.subarray(bytes, 0, bytesRead));
+            if (bytesRead != -1) {
+                requestBuilder.setEntity(getEntity(pushbackInputStream, chunkedEncoding, servletRequest.getHeader(TRANSFER_ENCODING)));
+            }
         }
         final HttpUriRequest clientRequest = requestBuilder.build();
         setHeaders(servletRequest, clientRequest, target, rewriteHostHeader);
@@ -162,17 +171,17 @@ public class HttpComponentRequestProcessor {
      * todo: did not contain it.
      * todo: Instead, we rely on setting the Content-Type header to convey the Content-Type.
      */
-    private static HttpEntity getEntity(HttpServletRequest servletRequest, ChunkedEncoding chunkedEncoding) throws IOException {
-        HttpEntity httpEntity = new InputStreamEntity(servletRequest.getInputStream(), -1);
+    private static HttpEntity getEntity(InputStream requestBody, ChunkedEncoding chunkedEncoding, String originalEncoding) throws IOException {
+        HttpEntity httpEntity = new InputStreamEntity(requestBody, -1);
         switch (chunkedEncoding) {
             case TRUE:
                 break;
             case AUTO:
-                if (StringUtils.equalsIgnoreCase(servletRequest.getHeader(TRANSFER_ENCODING), CHUNK_CODING)) {
+                if (StringUtils.equalsIgnoreCase(originalEncoding, CHUNK_CODING)) {
                     break;
                 }
             case FALSE:
-                httpEntity = new ByteArrayEntity(IOUtils.toByteArray(servletRequest.getInputStream()));
+                httpEntity = new ByteArrayEntity(IOUtils.toByteArray(requestBody));
                 break;
             default:
                 LOG.warn("Invalid chunked encoding value -- using chunked encoding");

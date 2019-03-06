@@ -82,6 +82,8 @@ class NextVersionTimebombTest extends FunSpec with Matchers with TestFilterBundl
        * 10. Turn off legacy case-insensitive methods in Jetty. (REP-7598)
        *     a. ReposeJettyServer
        *
+       * 11. Drop the verification of specific methods from HttpComponentRequestProcessor unless the spec says otherwise.
+       *
        */
     }
   }
