@@ -31,7 +31,7 @@ import static org.springframework.http.HttpHeaders.*
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE
 
 @Category(Core)
-class ChunkedAutoTest extends ReposeValveTest {
+class ChunkedTrueTest extends ReposeValveTest {
 
     private static final String TEST_BODY = "Test body string"
 
@@ -50,7 +50,7 @@ class ChunkedAutoTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/proxy", params)
-        repose.configurationProvider.applyConfigs("features/core/proxy/chunkedauto", params)
+        repose.configurationProvider.applyConfigs("features/core/proxy/chunkedtrue", params)
         repose.start()
     }
 
@@ -77,16 +77,14 @@ class ChunkedAutoTest extends ReposeValveTest {
         originRequestHeaders.contains(CONTENT_TYPE)
         originRequestHeaders.contains(TRANSFER_ENCODING) == hasTransferEncoding
         originRequestHeaders[TRANSFER_ENCODING]?.equalsIgnoreCase("chunked") as boolean == hasTransferEncoding
-        originRequestHeaders.contains(CONTENT_LENGTH) == hasContentLength
-        originRequestHeaders[CONTENT_LENGTH] == (hasContentLength ? TEST_BODY.length() as String : null)
+        !originRequestHeaders.contains(CONTENT_LENGTH)
 
         where:
         [method, body, chunked] << [BODY_METHODS + NO_BODY_METHODS, [TEST_BODY, null], [true, false]].combinations()
-        hasTransferEncoding = BODY_METHODS.contains(method) && body && chunked
-        hasContentLength = BODY_METHODS.contains(method) && body && !chunked
+        hasTransferEncoding = BODY_METHODS.contains(method) && body
 
         // Generated wording for the test name
         clientRequestBodyDescription = body ? "has a ${chunked ? "chunked" : "non-chunked"} body" : "does not have a body"
-        originRequestBodyDescription = (BODY_METHODS.contains(method) && body) ? "have a ${chunked ? "chunked" : "non-chunked"} body" : "not have a body"
+        originRequestBodyDescription = hasTransferEncoding ? "have a chunked body" : "not have a body"
     }
 }
