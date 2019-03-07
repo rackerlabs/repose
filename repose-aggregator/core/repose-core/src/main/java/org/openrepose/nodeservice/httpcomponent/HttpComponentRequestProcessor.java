@@ -20,7 +20,7 @@
 package org.openrepose.nodeservice.httpcomponent;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
@@ -89,8 +89,8 @@ public class HttpComponentRequestProcessor {
             .setUri(getUri(servletRequest, target));
         if (!NO_ENTITY_METHODS.contains(servletRequest.getMethod())) {
             byte[] bytes = new byte[8];
-            PushbackInputStream pushbackInputStream = new PushbackInputStream(servletRequest.getInputStream(), 8);
-            int bytesRead = pushbackInputStream.read(bytes, 0, 8);
+            PushbackInputStream pushbackInputStream = new PushbackInputStream(servletRequest.getInputStream(), bytes.length);
+            int bytesRead = pushbackInputStream.read(bytes, 0, bytes.length);
             pushbackInputStream.unread(ArrayUtils.subarray(bytes, 0, bytesRead));
             if (bytesRead != -1) {
                 requestBuilder.setEntity(getEntity(pushbackInputStream, chunkedEncoding, servletRequest.getHeader(TRANSFER_ENCODING)));
