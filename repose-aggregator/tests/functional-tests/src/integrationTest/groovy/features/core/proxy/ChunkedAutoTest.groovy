@@ -56,11 +56,18 @@ class ChunkedAutoTest extends ReposeValveTest {
 
     @Unroll
     def "when the client #method request #clientRequestBodyDescription, then the origin request should #originRequestBodyDescription"() {
+        given:
+        Map<String, String> clientRequestTransferEncoding = (body != null && chunked) ? [(TRANSFER_ENCODING): "chunked"] : [:]
+
         when: "the client makes a request to Repose"
+        // Note: While Deproxy will add the Transfer-Encoding in some cases, it is explicitly set as a header
+        // Note: here to address the case where the body is the empty string. When the body is the empty string,
+        // Note: Deproxy does not set the Transfer-Encoding header for us, so we do it ourselves.
+        // Note: Generally, we rely on Deproxy to set the Content-Length and/or Transfer-Encoding headers.
         MessageChain messageChain = deproxy.makeRequest(
             url: reposeEndpoint,
             method: method,
-            headers: [(CONTENT_TYPE): TEXT_PLAIN_VALUE],
+            headers: [(CONTENT_TYPE): TEXT_PLAIN_VALUE] + clientRequestTransferEncoding,
             requestBody: body,
             chunked: chunked
         )
@@ -70,7 +77,7 @@ class ChunkedAutoTest extends ReposeValveTest {
         Request originRequest = messageChain.handlings[0].request
 
         then: "the client request meets expectations"
-        clientRequest.headers.contains(TRANSFER_ENCODING) == (body && chunked)
+        clientRequest.headers.contains(TRANSFER_ENCODING) == (body != null && chunked)
         clientRequest.headers.contains(CONTENT_LENGTH) == (body && !chunked)
         clientRequest.body == (body ?: "")
 
@@ -83,7 +90,7 @@ class ChunkedAutoTest extends ReposeValveTest {
         new String(originRequest.body) == (BODY_METHODS.contains(method) ? (body ?: "") : "")
 
         where:
-        [method, body, chunked] << [BODY_METHODS + NO_BODY_METHODS, [TEST_BODY, null], [true, false]].combinations()
+        [method, body, chunked] << [BODY_METHODS + NO_BODY_METHODS, [TEST_BODY, "", null], [true, false]].combinations()
         hasTransferEncoding = BODY_METHODS.contains(method) && body && chunked
         hasContentLength = BODY_METHODS.contains(method) && body && !chunked
 
