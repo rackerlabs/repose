@@ -90,7 +90,7 @@ class RemoteDatastoreServiceTest extends Specification {
         reposeLogSearch.cleanLog()
 
         def type = client ? "client" : "datastore"
-        def params = testProperties.getDefaultTemplateParams() + [datastorePort: datastorePort]
+        def params = testProperties.getDefaultTemplateParams() + [datastorePort: datastorePort, subName: subName]
         reposeValveLauncher.configurationProvider.cleanConfigDirectory()
         reposeValveLauncher.configurationProvider.applyConfigs("common", params)
         reposeValveLauncher.configurationProvider.applyConfigs("features/services/datastore/remote", params)
