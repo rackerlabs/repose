@@ -121,7 +121,7 @@ class CompressionHeaderTest extends ReposeValveTest {
         encoding   | unzippedContent | zippedContent | responseCode | handlings
         "gzip"     | content         | falseZip      | '400'        | 0
         "x-gzip"   | content         | falseZip      | '400'        | 0
-        "deflate"  | content         | falseZip      | '502'        | 0
+        "deflate"  | content         | falseZip      | '500'        | 0
         "identity" | content         | falseZip      | '200'        | 1
     }
 
@@ -142,7 +142,7 @@ class CompressionHeaderTest extends ReposeValveTest {
         encoding   | unzippedContent | zippedContent | responseCode | handlings
         "gzip"     | content         | content       | '400'        | 0
         "x-gzip"   | content         | content       | '400'        | 0
-        "deflate"  | content         | content       | '502'        | 0
+        "deflate"  | content         | content       | '500'        | 0
         "identity" | content         | content       | '200'        | 1
     }
 

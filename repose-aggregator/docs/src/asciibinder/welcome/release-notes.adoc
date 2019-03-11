@@ -1,9 +1,10 @@
 = Release Notes
 
 == In Progress
-* https://repose.atlassian.net/browse/REP-7391[REP-7391] - Updated dependencies:
+* [.bug-tag]#Bug Fix# | https://repose.atlassian.net/browse/REP-7608[REP-7608] - Fixed bug where *Repose* was acting like it was sending content when the body was empty and chunked encoding was on.
+* [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7391[REP-7391] - Updated dependencies:
 ** Jetty: 9.4.8.v20171121 → 9.4.14.v20181114
-* https://repose.atlassian.net/browse/REP-7150[REP-7150] - Added OWASP security dependency checking to the build.
+* [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7150[REP-7150] - Added OWASP security dependency checking to the build.
 ** Updated dependencies:
 *** Akka: 2.3.12 → 2.4.20
 *** Apache Commons: 3.3.2 → 3.8.1
@@ -20,7 +21,7 @@
 == 9.0.0.0 (2019-01-31)
 <<ver-9-upgrade-notes.adoc#, Upgrade Notes>>
 
-* [.bug-tag]#Bug Fix# |  https://repose.atlassian.net/browse/REP-7310[REP-7310] - Fixing the `IllegalArgumentException` thrown by the <<../filters/herp.adoc#, HERP Filter>> when incorrectly attempting to decode query parameters.
+* [.bug-tag]#Bug Fix# | https://repose.atlassian.net/browse/REP-7310[REP-7310] - Fixing the `IllegalArgumentException` thrown by the <<../filters/herp.adoc#, HERP Filter>> when incorrectly attempting to decode query parameters.
 * [.bug-tag]#Bug Fix# | https://repose.atlassian.net/browse/REP-7387[REP-7387] - The <<../filters/ip-user.adoc#, IP User>> filter now returns a `400` when the X-Forwarded-For header contains a bad value.
 * [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7386[REP-7386] - Added support for the `upgrade_account` account-level permission in the <<../filters/valkyrie-authorization.adoc#, Valkyrie Authorization Filter>>.
 * [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7519[REP-7519] - Added support for proxies to the <<../services/http-client.adoc#, HTTP Client Service>>.

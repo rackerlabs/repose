@@ -31,7 +31,7 @@ import static org.springframework.http.HttpHeaders.*
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE
 
 @Category(Core)
-class ChunkedAutoTest extends ReposeValveTest {
+class ChunkedFalseTest extends ReposeValveTest {
 
     private static final String TEST_BODY = "Test body string"
 
@@ -50,7 +50,7 @@ class ChunkedAutoTest extends ReposeValveTest {
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/proxy", params)
-        repose.configurationProvider.applyConfigs("features/core/proxy/chunkedauto", params)
+        repose.configurationProvider.applyConfigs("features/core/proxy/chunkedfalse", params)
         repose.start()
     }
 
@@ -83,19 +83,17 @@ class ChunkedAutoTest extends ReposeValveTest {
 
         and: "the origin request meets expectations"
         originRequest.headers.contains(CONTENT_TYPE)
-        originRequest.headers.contains(TRANSFER_ENCODING) == hasTransferEncoding
-        originRequest.headers[TRANSFER_ENCODING]?.equalsIgnoreCase("chunked") as boolean == hasTransferEncoding
+        !originRequest.headers.contains(TRANSFER_ENCODING)
         originRequest.headers.contains(CONTENT_LENGTH) == hasContentLength
         originRequest.headers[CONTENT_LENGTH] == (hasContentLength ? TEST_BODY.length() as String : null)
         new String(originRequest.body) == (BODY_METHODS.contains(method) ? (body ?: "") : "")
 
         where:
         [method, body, chunked] << [BODY_METHODS + NO_BODY_METHODS, [TEST_BODY, "", null], [true, false]].combinations()
-        hasTransferEncoding = BODY_METHODS.contains(method) && body && chunked
-        hasContentLength = BODY_METHODS.contains(method) && body && !chunked
+        hasContentLength = BODY_METHODS.contains(method) && body
 
         // Generated wording for the test name
         clientRequestBodyDescription = body ? "has a ${chunked ? "chunked" : "non-chunked"} body" : "does not have a body"
-        originRequestBodyDescription = (BODY_METHODS.contains(method) && body) ? "have a ${chunked ? "chunked" : "non-chunked"} body" : "not have a body"
+        originRequestBodyDescription = hasContentLength ? "have a non-chunked body" : "not have a body"
     }
 }

@@ -264,4 +264,32 @@ public class HttpComponentRequestProcessorTest {
 
         assertThat(clientRequest.getEntity().getContentLength(), equalTo((long) servletRequestContent.length()));
     }
+
+    @Test(expected = ClassCastException.class)
+    public void shouldNotSetEntityOnDeleteWithoutBody() throws Exception {
+        request.setMethod(HttpDelete.METHOD_NAME);
+        request.addHeader(TRANSFER_ENCODING, CHUNK_CODING);
+
+        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) HttpComponentRequestProcessor.process(
+            request,
+            URI.create("http://www.openrepose.org"),
+            true,
+            ChunkedEncoding.TRUE);
+    }
+
+    @Test
+    public void shouldSetEntityOnDeleteWithBody() throws Exception {
+        String servletRequestContent = "Hello world!";
+        request.setMethod(HttpDelete.METHOD_NAME);
+        request.setContent(servletRequestContent.getBytes(StandardCharsets.ISO_8859_1));
+        request.addHeader(TRANSFER_ENCODING, CHUNK_CODING);
+
+        HttpEntityEnclosingRequest clientRequest = (HttpEntityEnclosingRequest) HttpComponentRequestProcessor.process(
+            request,
+            URI.create("http://www.openrepose.org"),
+            true,
+            ChunkedEncoding.TRUE);
+
+        assertThat(clientRequest.getEntity().getContentLength(), lessThan(0L));
+    }
 }
