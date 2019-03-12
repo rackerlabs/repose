@@ -136,39 +136,41 @@ class EarClassProvider(earFile: File, val outputDir: File) {
       new ZipFile(earFile).close()
 
       val earInputStream = new ZipInputStream(new FileInputStream(earFile))
+      try {
+        Stream.continually(earInputStream.getNextEntry).takeWhile(_ != null).foreach { entry =>
+          val entryFile = new File(outputDir, entry.getName)
+          if (entry.isDirectory) {
+            entryFile.mkdir()
+          } else {
+            // Creates the file if it does not already exist
+            val randomAccessEntryFile = new RandomAccessFile(entryFile, "rw")
+            try {
+              val entryFileChannel = randomAccessEntryFile.getChannel
 
-      Stream.continually(earInputStream.getNextEntry).takeWhile(_ != null).foreach { entry =>
-        val entryFile = new File(outputDir, entry.getName)
-        if (entry.isDirectory) {
-          entryFile.mkdir()
-        } else {
-          // Creates the file if it does not already exist
-          val randomAccessEntryFile = new RandomAccessFile(entryFile, "rw")
-          try {
-            val entryFileChannel = randomAccessEntryFile.getChannel
+              log.trace("Obtaining file lock on: {}", entryFile)
+              entryFileChannel.lock()
 
-            log.trace("Obtaining file lock on: {}", entryFile)
-            entryFileChannel.lock()
-
-            if (entry.getCrc != checksumCRC32(randomAccessEntryFile)) {
-              log.trace("Unpacking: {}", entryFile)
-              // Clear the current contents of the file
-              entryFileChannel.truncate(0)
-              // Write the zip entry contents to the file
-              actionOnRead(earInputStream.read(_), randomAccessEntryFile.write(_, _, _))
-              // Force the contents to be written to disk
-              entryFileChannel.force(false)
-            } else {
-              log.trace("File already exists in a valid condition. Skipping: {}", entryFile)
+              if (entry.getCrc != checksumCRC32(randomAccessEntryFile)) {
+                log.trace("Unpacking: {}", entryFile)
+                // Clear the current contents of the file
+                entryFileChannel.truncate(0)
+                // Write the zip entry contents to the file
+                actionOnRead(earInputStream.read(_), randomAccessEntryFile.write(_, _, _))
+                // Force the contents to be written to disk
+                entryFileChannel.force(false)
+              } else {
+                log.trace("File already exists in a valid condition. Skipping: {}", entryFile)
+              }
+            } finally {
+              log.trace("Releasing file lock on: {}", entryFile)
+              // Closing the file also closes the channel and releases the file lock
+              randomAccessEntryFile.close()
             }
-          } finally {
-            log.trace("Releasing file lock on: {}", entryFile)
-            // Closing the file also closes the channel and releases the file lock
-            randomAccessEntryFile.close()
           }
         }
+      } finally {
+        earInputStream.close()
       }
-      earInputStream.close()
     } catch {
       case e: Exception =>
         log.warn("Error during ear extraction! Partial extraction at {}", outputDir.getAbsolutePath)
