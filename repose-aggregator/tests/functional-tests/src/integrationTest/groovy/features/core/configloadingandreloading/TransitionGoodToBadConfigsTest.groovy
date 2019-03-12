@@ -27,6 +27,8 @@ import scaffold.category.Core
 import spock.lang.Shared
 import spock.lang.Unroll
 
+import java.util.concurrent.TimeUnit
+
 @Category(Core)
 class TransitionGoodToBadConfigsTest extends ReposeValveTest {
 
@@ -70,27 +72,32 @@ class TransitionGoodToBadConfigsTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs(
                 "features/core/configloadingandreloading/${componentLabel}-bad",
                 params)
-        sleep 15000
+        reposeLogSearch.awaitByString(
+            "Configuration update error. Reason: Parsed object from XML does not match the expected configuration class. " +
+                "Expected: ${errorMessageBit}",
+            1,
+            15,
+            TimeUnit.SECONDS,
+        )
 
         then: "Repose should still return #expectedResponseCode"
         deproxy.makeRequest(url: reposeEndpoint).receivedResponse.code == "200"
 
         where:
-        componentLabel << [
-            "system-model",
-            "container",
-            "rate-limiting",
-            "versioning",
-            "translation",
-            "keystone-v2",
-            "dist-datastore",
-            "uri-user",
-            "header-user",
-            "ip-user",
-            "validator",
-            "metrics",
-            "connectionPooling",
-        ]
+        componentLabel      | errorMessageBit
+        "system-model"      | "org.openrepose.core.systemmodel.config.SystemModel"
+        "container"         | "org.openrepose.core.container.config.ContainerConfiguration"
+        "rate-limiting"     | "org.openrepose.core.services.ratelimit.config.RateLimitingConfiguration"
+        "versioning"        | "org.openrepose.filters.versioning.config.ServiceVersionMappingList"
+        "translation"       | "org.openrepose.filters.translation.config.TranslationConfig"
+        "keystone-v2"       | "org.openrepose.filters.keystonev2.config.KeystoneV2AuthenticationConfig"
+        "dist-datastore"    | "org.openrepose.core.services.datastore.distributed.config.DistributedDatastoreConfiguration"
+        "uri-user"          | "org.openrepose.filters.uriuser.config.UriUserConfig"
+        "header-user"       | "org.openrepose.filters.headeruser.config.HeaderUserConfig"
+        "ip-user"           | "org.openrepose.filters.ipuser.config.IpUserConfig"
+        "validator"         | "org.openrepose.filters.apivalidator.config.ValidatorConfiguration"
+        "metrics"           | "org.openrepose.core.services.reporting.metrics.config.MetricsConfiguration"
+        "connectionPooling" | "org.openrepose.core.services.httpclient.config.HttpConnectionPoolsConfig"
     }
 
     def cleanup() {

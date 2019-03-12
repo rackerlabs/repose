@@ -99,7 +99,7 @@ class TransitionBadToGoodConfigsTest extends ReposeValveTest {
         repose.start(killOthersBeforeStarting: false, waitOnJmxAfterStarting: false)
         reposeLogSearch.awaitByString(
             "Configuration update error. Reason: Parsed object from XML does not match the expected configuration class. " +
-                "Expected: org.openrepose.core.systemmodel.config.SystemModel",
+                "Expected: ${errorMessageBit}",
             1,
             35,
             TimeUnit.SECONDS,
@@ -121,10 +121,10 @@ class TransitionBadToGoodConfigsTest extends ReposeValveTest {
 
 
         where:
-        componentLabel | _
-        "system-model" | _
+        componentLabel | errorMessageBit
+        "system-model" | "org.openrepose.core.systemmodel.config.SystemModel"
         // TODO: This is a known bug that can be tracked at: https://repose.atlassian.net/browse/REP-7505
-        // "container"    | _
+        // "container"    | "org.openrepose.core.container.config.ContainerConfiguration"
     }
 
     def cleanup() {
