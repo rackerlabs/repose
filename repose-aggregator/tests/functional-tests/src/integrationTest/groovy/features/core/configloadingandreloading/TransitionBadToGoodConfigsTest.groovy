@@ -27,6 +27,8 @@ import scaffold.category.Core
 import spock.lang.Shared
 import spock.lang.Unroll
 
+import java.util.concurrent.TimeUnit
+
 @Category(Core)
 class TransitionBadToGoodConfigsTest extends ReposeValveTest {
 
@@ -94,10 +96,14 @@ class TransitionBadToGoodConfigsTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-bad", params)
 
         and: "start repose"
-        repose.start(killOthersBeforeStarting: false,
-            waitOnJmxAfterStarting: false)
-        sleep 35000
-
+        repose.start(killOthersBeforeStarting: false, waitOnJmxAfterStarting: false)
+        reposeLogSearch.awaitByString(
+            "Configuration update error. Reason: Parsed object from XML does not match the expected configuration class. " +
+                "Expected: org.openrepose.core.systemmodel.config.SystemModel",
+            1,
+            35,
+            TimeUnit.SECONDS,
+        )
 
         when: "starting Repose with bad configs should lead to a connection exception"
         deproxy.makeRequest(url: reposeEndpoint)
