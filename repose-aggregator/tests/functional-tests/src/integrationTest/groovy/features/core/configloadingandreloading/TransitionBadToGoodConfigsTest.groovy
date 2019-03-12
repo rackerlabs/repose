@@ -108,7 +108,7 @@ class TransitionBadToGoodConfigsTest extends ReposeValveTest {
 
         when: "the configs are changed to good ones and we wait for Repose to pick up the change"
         repose.configurationProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-good", params)
-        sleep 35000
+        repose.waitForDesiredResponseCodeFromUrl(reposeEndpoint, [200])
 
         then: "Repose should start returning 200's"
         deproxy.makeRequest(url: reposeEndpoint).receivedResponse.code == "200"
