@@ -17,6 +17,7 @@
 *** Jython: 2.7.0 → 2.7.1
 *** Scala Reflect: Undetermined → 2.11.12
 *** Spring: 4.1.4.RELEASE → 4.3.21.RELEASE
+* https://repose.atlassian.net/browse/REP-7663[REP-7663] - Fixed a file contention issue between Repose processes in the EAR unpacking logic.
 
 == 9.0.0.0 (2019-01-31)
 <<ver-9-upgrade-notes.adoc#, Upgrade Notes>>

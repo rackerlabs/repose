@@ -19,15 +19,14 @@
  */
 package org.openrepose.commons.utils.classloader
 
-import java.io.{File, FileInputStream, FileOutputStream, IOException}
+import java.io._
 import java.net.{URL, URLClassLoader}
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{FileVisitResult, Files, Path, SimpleFileVisitor}
-import java.util.zip.{ZipFile, ZipInputStream}
+import java.util.zip.{CRC32, ZipFile, ZipInputStream}
 
 import com.oracle.javaee6.{ApplicationType, FilterType, ObjectFactory, WebFragmentType}
 import javax.xml.bind.JAXBContext
-import org.apache.commons.io.FileUtils.checksumCRC32
 import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser
 import org.openrepose.commons.config.resource.impl.BufferedURLConfigurationResource
 import org.slf4j.LoggerFactory
@@ -40,9 +39,10 @@ object EarClassProvider {
 }
 
 class EarClassProvider(earFile: File, val outputDir: File) {
+
   /**
-   * Calls unpack, and gets you a new classloader for all the items in this ear file
-   */
+    * Calls unpack, and gets you a new classloader for all the items in this ear file
+    */
   private lazy val computeClassLoader: ClassLoader = {
     unpack()
 
@@ -82,8 +82,8 @@ class EarClassProvider(earFile: File, val outputDir: File) {
       name <- Option(a.getApplicationName)
       value <- Option(name.getValue) if !value.trim.isEmpty
     } yield {
-        value
-      }
+      value
+    }
     val appName = optionName getOrElse (throw new EarProcessingException(s"Unable to parse Application Name from ear file ${earFile.getName}!"))
 
     //Load the WebFragment data out of the ear file
@@ -132,42 +132,63 @@ class EarClassProvider(earFile: File, val outputDir: File) {
         outputDir.mkdir()
       }
 
-      //Make sure it's actually a zip file, so we can fail with some kind of exception
-      new ZipFile(earFile)
+      // Verify that the EAR is a valid ZIP file, throw an exception if not
+      new ZipFile(earFile).close()
 
-      val zis = new ZipInputStream(new FileInputStream(earFile))
-
-      val buffer = new Array[Byte](1024)
-      Stream.continually(zis.getNextEntry).takeWhile(_ != null) foreach { entry =>
-        val entryFile = new File(outputDir, entry.getName)
-        if (entry.isDirectory) {
-          entryFile.mkdir()
-        } else {
-          val ofs = new FileOutputStream(entryFile)
-          try {
-            log.trace("Obtaining file lock on: {}", entryFile)
-            val lock = ofs.getChannel.lock()
+      val earInputStream = new ZipInputStream(new FileInputStream(earFile))
+      try {
+        Stream.continually(earInputStream.getNextEntry).takeWhile(_ != null).foreach { entry =>
+          val entryFile = new File(outputDir, entry.getName)
+          if (entry.isDirectory) {
+            entryFile.mkdir()
+          } else {
+            // Creates the file if it does not already exist
+            val randomAccessEntryFile = new RandomAccessFile(entryFile, "rw")
             try {
-              if (!entryFile.exists() || entry.getCrc != checksumCRC32(entryFile)) {
+              val entryFileChannel = randomAccessEntryFile.getChannel
+
+              log.trace("Obtaining file lock on: {}", entryFile)
+              entryFileChannel.lock()
+
+              if (entry.getCrc != checksumCRC32(randomAccessEntryFile)) {
                 log.trace("Unpacking: {}", entryFile)
-                Stream.continually(zis.read(buffer)).takeWhile(_ != -1).foreach(count => ofs.write(buffer, 0, count))
+                // Clear the current contents of the file
+                entryFileChannel.truncate(0)
+                // Write the zip entry contents to the file
+                actionOnRead(earInputStream.read(_), randomAccessEntryFile.write(_, _, _))
+                // Force the contents to be written to disk
+                entryFileChannel.force(false)
               } else {
                 log.trace("File already exists in a valid condition. Skipping: {}", entryFile)
               }
             } finally {
               log.trace("Releasing file lock on: {}", entryFile)
-              lock.release()
+              // Closing the file also closes the channel and releases the file lock
+              randomAccessEntryFile.close()
             }
-          } finally {
-            ofs.close()
           }
         }
+      } finally {
+        earInputStream.close()
       }
-      zis.close()
     } catch {
       case e: Exception =>
         log.warn("Error during ear extraction! Partial extraction at {}", outputDir.getAbsolutePath)
         throw new EarProcessingException("Unable to fully extract file", e);
     }
+  }
+
+  private def checksumCRC32(file: RandomAccessFile): Long = {
+    val crc = new CRC32()
+    actionOnRead(file.read(_), crc.update(_, _, _))
+    crc.getValue
+  }
+
+  private def actionOnRead(read: Array[Byte] => Integer, action: (Array[Byte], Integer, Integer) => Unit): Unit = {
+    val bufferSize = 2048
+    val buffer = new Array[Byte](bufferSize)
+    Stream.continually(read(buffer))
+      .takeWhile(_ != -1)
+      .foreach(action(buffer, 0, _))
   }
 }
