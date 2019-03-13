@@ -1,51 +1,52 @@
 = Delegation Response Processor (DeRP) Filter
 
-include::./_includes/in-progress.adoc[]
+The Delegation Response Processor (DeRP) filter rejects any request containing the `X-Delegated` header.
+The content of the response will match is determined by the content of the `X-Delegated` header.
+
+This filter is part of the <<../recipes/delegation.adoc#, delegation recipe>>.
 
 == General filter information
-* *Name:* ???
-* *Default Configuration:* ???.cfg.xml
-* *Released:* v?.?.?.?
+* *Name:* derp
+* *Default Configuration:* No configuration
+* *Released:* v7.0.0.1
 * *Bundle:* repose-filter-bundle
 
 == Prerequisites & Postconditions
 === Required Request Headers
-???.
+This filter does not require any request headers.
+
+However, the following headers are used during processing:
+
+* `X-Delegated` - Conveys delegation information.
+  If present, this filter will reject the request.
+  If absent, this filter will forward the request to the next component.
 
 === Required Preceding Filters
-???.
+This  filter does not require any preceding filters.
+
+However, it is expected that filters which support delegation (i.e., write a delegation header to the request) will precede this filter.
+If no filter which supports delegation precedes this filter, this filter will forward all requests to the next component without modification.
+
+Additionally, the <<herp.adoc#, HERP filter>> may precede this filter as part of the <<../recipes/delegation.adoc#, delegation recipe>>.
 
 === Request Headers Created
-???.
+This filter does not create/modify any request headers.
 
 === Request Body Changes
-???.
+This filter does not modify the request body.
 
 === Recommended Follow-On (Succeeding) Filters
-???.
+This filter is not strictly required by any other filters.
+
+When delegation is used, this filter will terminate the processing chain preventing succeeding filters from running.
 
 === Response Body Changes
-???.
+This filter does not modify the response body.
 
 === Response Headers Created
-???.
+This filter does not create/modify any response headers.
 
 === Response Status Codes
-???.
-
-== Examples
-=== Shows how to ???
-This configuration will ???.
-
-[source,xml]
-.???.cfg.xml
-----
-<??? xmlns="http://docs.openrepose.org/repose/???/v1.0">
-    <???> <!--1-->
-    </???>
-</???>
-----
-<1> Specifies ???.
-
-== Additional Information
-*Remove this section if not needed.*
+This filter will only modify the response status code when rejecting a delegated request (i.e., if the request contains a delegation header).
+The response status code will be set to status code associated with the highest quality delegation value, or `500` if the delegation request header exists but is not parsable.
+The response reason phrase will be set to the message associated with the highest quality delegation value.
