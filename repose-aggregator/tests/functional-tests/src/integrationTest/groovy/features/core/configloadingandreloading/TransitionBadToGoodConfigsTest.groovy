@@ -27,6 +27,8 @@ import scaffold.category.Core
 import spock.lang.Shared
 import spock.lang.Unroll
 
+import java.util.concurrent.TimeUnit
+
 @Category(Core)
 class TransitionBadToGoodConfigsTest extends ReposeValveTest {
 
@@ -64,7 +66,6 @@ class TransitionBadToGoodConfigsTest extends ReposeValveTest {
 
         when: "the configs are changed to good ones and we wait for Repose to pick up the change"
         repose.configurationProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-good", params)
-        sleep 15000
         repose.waitForNon500FromUrl(reposeEndpoint, 120)
 
         then: "Repose should start returning #expectedResponseCode"
@@ -95,10 +96,14 @@ class TransitionBadToGoodConfigsTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-bad", params)
 
         and: "start repose"
-        repose.start(killOthersBeforeStarting: false,
-            waitOnJmxAfterStarting: false)
-        sleep 35000
-
+        repose.start(killOthersBeforeStarting: false, waitOnJmxAfterStarting: false)
+        reposeLogSearch.awaitByString(
+            "Configuration update error. Reason: Parsed object from XML does not match the expected configuration class. " +
+                "Expected: ${errorMessageBit}",
+            1,
+            35,
+            TimeUnit.SECONDS,
+        )
 
         when: "starting Repose with bad configs should lead to a connection exception"
         deproxy.makeRequest(url: reposeEndpoint)
@@ -109,17 +114,17 @@ class TransitionBadToGoodConfigsTest extends ReposeValveTest {
 
         when: "the configs are changed to good ones and we wait for Repose to pick up the change"
         repose.configurationProvider.applyConfigs("features/core/configloadingandreloading/${componentLabel}-good", params)
-        sleep 35000
+        repose.waitForDesiredResponseCodeFromUrl(reposeEndpoint, [200])
 
         then: "Repose should start returning 200's"
         deproxy.makeRequest(url: reposeEndpoint).receivedResponse.code == "200"
 
 
         where:
-        componentLabel | _
-        "system-model" | _
+        componentLabel | errorMessageBit
+        "system-model" | "org.openrepose.core.systemmodel.config.SystemModel"
         // TODO: This is a known bug that can be tracked at: https://repose.atlassian.net/browse/REP-7505
-        // "container"    | _
+        // "container"    | "org.openrepose.core.container.config.ContainerConfiguration"
     }
 
     def cleanup() {
