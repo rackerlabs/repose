@@ -27,6 +27,8 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import scaffold.category.Identity
 
+import java.util.concurrent.TimeUnit
+
 /**
  B-48277
  Use the Identity Atom Feed to Clear Deleted, Disabled, and Revoked Tokens from Cache
@@ -119,6 +121,10 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         fakeAtomFeed = new features.filters.keystonev2.AtomFeedResponseSimulator(atomPort)
         atomEndpoint = deproxy.addEndpoint(atomPort, 'atom service', null, fakeAtomFeed.handler)
 
+        // Ensure logs from one test in this class don't interfere with subsequent tests
+        // Note that this actually truncates the repose log file between tests, which can make debugging a bit harder
+        reposeLogSearch.cleanLog()
+
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/filters/keystonev2/common", params)
@@ -182,10 +188,13 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         fakeAtomFeed.hasEntry = true
         atomEndpoint.defaultHandler = fakeAtomFeed.handler
 
-
-
-        and: "we sleep for 11 seconds so that repose can check the atom feed"
-        sleep(15000)
+        and: "we wait for repose to process the atom feed entry"
+        reposeLogSearch.awaitByString(
+            "KeystoneV2Filter - Processing atom feed entry",
+            1,
+            11,
+            TimeUnit.SECONDS
+        )
 
         and: "I send a GET request to REPOSE with the same X-Auth-Token header"
         mc = deproxy.makeRequest(
@@ -235,8 +244,13 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         fakeAtomFeed.hasEntry = true
         atomEndpoint.defaultHandler = fakeAtomFeed.userUpdateHandler(fakeIdentityV2Service.client_userid.toString())
 
-        and: "we sleep for 15 seconds so that repose can check the atom feed"
-        sleep(15000)
+        and: "we wait for repose to process the atom feed entry"
+        reposeLogSearch.awaitByString(
+            "KeystoneV2Filter - Processing atom feed entry",
+            1,
+            15,
+            TimeUnit.SECONDS
+        )
 
         and: "I send a GET request to REPOSE with the same X-Auth-Token header"
         mc = deproxy.makeRequest(
@@ -297,8 +311,13 @@ class InvalidateCacheUsingAtomFeedTest extends ReposeValveTest {
         fakeAtomFeed.hasEntry = true
         atomEndpoint.defaultHandler = fakeAtomFeed.trrEventHandler(fakeIdentityV2Service.client_userid.toString())
 
-        and: "we sleep for 15 seconds so that repose can check the atom feed"
-        sleep(15000)
+        and: "we wait for repose to process the atom feed entry"
+        reposeLogSearch.awaitByString(
+            "KeystoneV2Filter - Processing atom feed entry",
+            1,
+            15,
+            TimeUnit.SECONDS
+        )
 
         and: "I send a GET request to REPOSE with the same X-Auth-Token header"
         mc = deproxy.makeRequest(
