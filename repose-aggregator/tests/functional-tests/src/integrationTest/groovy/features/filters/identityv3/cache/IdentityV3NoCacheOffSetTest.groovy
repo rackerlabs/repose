@@ -124,7 +124,7 @@ class IdentityV3NoCacheOffSetTest extends ReposeValveTest {
 
         DateTime maxTokenExpiration = initialBurstLastValidationCall.plusMillis(tokenTimeout)
         while (maxTokenExpiration.isAfterNow()) {
-            sleep 500
+            sleep 100
         }
 
         userTokens.eachWithIndex { token, index ->

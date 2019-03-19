@@ -63,7 +63,7 @@ class ApiValidatorDelegatingWAuthDelegatingTest extends ReposeValveTest {
     }
 
     def setup() {
-        sleep 500
+        waitForHttpClientRequestCacheToClear()
         fakeIdentityService.resetHandlers()
     }
 

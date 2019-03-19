@@ -96,7 +96,8 @@ class TenantedNonDelegableNoGroupsTest extends ReposeValveTest {
                     new Response(groupResponseCode)
             }
         }
-        sleep(500)
+
+        waitForHttpClientRequestCacheToClear()
 
         when:
         "User passes a request through repose with request tenant: $requestTenant, response tenant: $responseTenant"

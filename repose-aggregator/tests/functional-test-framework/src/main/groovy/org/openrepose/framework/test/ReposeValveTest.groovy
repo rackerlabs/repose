@@ -127,6 +127,16 @@ abstract class ReposeValveTest extends Specification {
 
     }
 
+    def waitForHttpClientRequestCacheToClear(long timeoutMilliseconds = 500) {
+        // Some tests reuse a single repose process across multiple test methods.
+        // In these tests, the repose http client will cache requests from one test
+        // method into the next test method.
+        //
+        // Each test _may_ have a different setting for the Repose client cache,
+        // but this is typically only 500ms.
+        sleep timeoutMilliseconds
+    }
+
     // Helper methods to minimize refactoring in all test classes
     def getReposeEndpoint() {
         return properties.getReposeEndpoint()

@@ -53,7 +53,7 @@ class IdentityV3AdminTokenTest extends ReposeValveTest {
     }
 
     def setup() {
-        sleep 500
+        waitForHttpClientRequestCacheToClear()
         fakeIdentityV3Service.resetHandlers()
     }
 

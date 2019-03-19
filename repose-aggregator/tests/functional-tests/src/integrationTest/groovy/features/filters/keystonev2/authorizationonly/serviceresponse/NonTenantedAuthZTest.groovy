@@ -62,6 +62,7 @@ class NonTenantedAuthZTest extends ReposeValveTest {
             client_userid = "456"
             service_admin_role = role
         }
+        waitForHttpClientRequestCacheToClear()
 
         def reqHeaders =
                 [
@@ -69,7 +70,6 @@ class NonTenantedAuthZTest extends ReposeValveTest {
                         'X-Auth-Token': fakeIdentityV2Service.client_token
                 ]
         when: "User passes a request through repose with role #role"
-        sleep(500) // Sleep force miss Akka service client cache since the response body is variable
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/servers/serrrrrrrr", method: 'GET',
                 headers: reqHeaders)
 

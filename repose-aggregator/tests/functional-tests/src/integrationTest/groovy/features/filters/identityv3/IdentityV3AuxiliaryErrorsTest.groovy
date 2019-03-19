@@ -59,7 +59,7 @@ class IdentityV3AuxiliaryErrorsTest extends ReposeValveTest {
     }
 
     def setup() {
-        sleep 500
+        waitForHttpClientRequestCacheToClear()
         fakeIdentityV3Service.resetHandlers()
     }
 
