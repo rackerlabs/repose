@@ -28,6 +28,8 @@ import org.rackspace.deproxy.Response
 import scaffold.category.Filters
 import spock.lang.Unroll
 
+import java.util.concurrent.TimeUnit
+
 /**
  * Functional test for the URI Normalization filter
  */
@@ -44,7 +46,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    static def params
+    static Map params
 
     @Unroll("URI Normalization of queryParameters should #behaviorExpected")
     def "query parameter normalization"() {
@@ -112,10 +114,16 @@ class UriNormalizationFilterTest extends ReposeValveTest {
 
     @Unroll("URI Normalization of queryParameters #behaviorExpected")
     def "When target is empty in uri filter"() {
-
-        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/emtpyuritarget", params, /*sleepTime*/ 25)
-
         given:
+        reposeLogSearch.cleanLog()
+        applyConfigsOnlyFirstTime("features/filters/uriNormalization/emtpyuritarget", params, {
+            reposeLogSearch.awaitByString(
+                "Configuration Updated: org.openrepose.filters.urinormalization.config.UriNormalizationConfig",
+                1,
+                25,
+                TimeUnit.SECONDS
+            )
+        })
         def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
 
         when: "A request is made to REPOSE"
@@ -136,11 +144,16 @@ class UriNormalizationFilterTest extends ReposeValveTest {
 
     @Unroll("URI Normalization of queryParameters #behaviorExpected")
     def "When http method doesn't match the uri filter"() {
-
-        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/withmedia", params, /*sleepTime*/ 25)
-
-
-        given:
+        given: "The repose configs are applied"
+        reposeLogSearch.cleanLog()
+        applyConfigsOnlyFirstTime("features/filters/uriNormalization/withmedia", params, {
+            reposeLogSearch.awaitByString(
+                "Configuration Updated: org.openrepose.filters.urinormalization.config.UriNormalizationConfig",
+                1,
+                25,
+                TimeUnit.SECONDS
+            )
+        })
         def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
 
         when: "A request is made to REPOSE"
@@ -166,11 +179,16 @@ class UriNormalizationFilterTest extends ReposeValveTest {
 
     @Unroll("URI Normalization of queryParameters #behaviorExpected")
     def "When uri-regex is not specified"() {
-
-        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/noregexwithmedia", params, /*sleepTime*/ 25)
-
-
         given:
+        reposeLogSearch.cleanLog()
+        applyConfigsOnlyFirstTime("features/filters/uriNormalization/noregexwithmedia", params, {
+            reposeLogSearch.awaitByString(
+                "Configuration Updated: org.openrepose.filters.urinormalization.config.UriNormalizationConfig",
+                1,
+                25,
+                TimeUnit.SECONDS
+            )
+        })
         def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
 
         when: "A request is made to REPOSE"
@@ -191,11 +209,16 @@ class UriNormalizationFilterTest extends ReposeValveTest {
 
     @Unroll("URI Normalization of queryParameters #behaviorExpected")
     def "When uri filter does not have uri-regex and htt-methods"() {
-
-        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/nohttpmethodswithmedia", params, /*sleepTime*/ 25)
-
-
         given:
+        reposeLogSearch.cleanLog()
+        applyConfigsOnlyFirstTime("features/filters/uriNormalization/nohttpmethodswithmedia", params, {
+            reposeLogSearch.awaitByString(
+                "Configuration Updated: org.openrepose.filters.urinormalization.config.UriNormalizationConfig",
+                1,
+                25,
+                TimeUnit.SECONDS
+            )
+        })
         def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
 
         when: "A request is made to REPOSE"
@@ -216,10 +239,16 @@ class UriNormalizationFilterTest extends ReposeValveTest {
 
     @Unroll("URI Normalization of queryParameters #behaviorExpected")
     def "When no uri filters exist"() {
-
-        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/onlymediavariant", params, /*sleepTime*/ 25)
-
         given:
+        reposeLogSearch.cleanLog()
+        applyConfigsOnlyFirstTime("features/filters/uriNormalization/onlymediavariant", params, {
+            reposeLogSearch.awaitByString(
+                "Configuration Updated: org.openrepose.filters.urinormalization.config.UriNormalizationConfig",
+                1,
+                25,
+                TimeUnit.SECONDS
+            )
+        })
         def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
 
         when: "A request is made to REPOSE"
@@ -241,7 +270,14 @@ class UriNormalizationFilterTest extends ReposeValveTest {
     def "When no media-variants config in the filter should not throw NPE"() {
         setup:
         reposeLogSearch.cleanLog()
-        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/mediavariantoptional", params, /*sleepTime*/ 25)
+        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/mediavariantoptional", params)
+        reposeLogSearch.awaitByString(
+            "Configuration Updated: org.openrepose.filters.urinormalization.config.UriNormalizationConfig",
+            1,
+            25,
+            TimeUnit.SECONDS
+        )
+
 
         def path = "/no_media_variant/?filter_me=true&a=1&a=4&a=2&r=1241.212&n=test&a=Add+Space";
 
@@ -294,6 +330,22 @@ class UriNormalizationFilterTest extends ReposeValveTest {
         mc.receivedResponse.headers.findAll("location").size() == 1
         mc.receivedResponse.headers['location'] == "$reposeEndpoint/blah?a=b,c,d"
         mc.receivedResponse.headers.findAll("via").size() == 1
+    }
+
+    // This is a hack to avoid applying configs more than once, which saves on waiting time.
+    //
+    // Some test methods in this class with multiple iterations test against the same repose config file.
+    // On the first iteration of a test method, the config file is reloaded and tests wait for repose to
+    // reload. Since the config file is static, there's no point reapplying and waiting again. So we've
+    // got this helper to only apply configs and wait on the first iteration.
+    static def appliedConfigs = []
+    def applyConfigsOnlyFirstTime(String path, Map params, Closure closure) {
+        if (path in appliedConfigs) {
+            return
+        }
+        appliedConfigs.add(path)
+        repose.configurationProvider.applyConfigs(path, params)
+        closure()
     }
 
 }
