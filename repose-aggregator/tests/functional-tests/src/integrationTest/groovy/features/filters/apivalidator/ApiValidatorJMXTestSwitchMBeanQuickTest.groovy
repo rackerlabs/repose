@@ -26,6 +26,8 @@ import org.spockframework.runtime.SpockAssertionError
 import scaffold.category.XmlParsing
 import spock.util.concurrent.PollingConditions
 
+import java.util.concurrent.TimeUnit
+
 /**
  * This is running the same test as the ApiValidatorJMXTestSwitchMBeanTest, but I'm using the short
  * circuit method instead, so hopefully it'll be more stable, and maybe pass
@@ -146,8 +148,13 @@ class ApiValidatorJMXTestSwitchMBeanQuickTest extends ReposeValveTest {
 
 
         when: "I update the Repose API Validator filter with 2 new validators"
-        repose.configurationProvider.applyConfigs("features/filters/apivalidator/jmxupdate", params, /*sleepTime*/ 25)
-
+        repose.configurationProvider.applyConfigs("features/filters/apivalidator/jmxupdate", params)
+        reposeLogSearch.awaitByString(
+            "Configuration Updated: org.openrepose.filters.apivalidator.config.ValidatorConfiguration",
+            1,
+            25,
+            TimeUnit.SECONDS
+        )
 
         then: "Repose has 2 validator MBeans, and they are not the same beans as before the update"
         def loopCount = 0

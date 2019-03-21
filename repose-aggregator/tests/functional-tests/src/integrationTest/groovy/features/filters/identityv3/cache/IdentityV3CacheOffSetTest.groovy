@@ -122,7 +122,7 @@ class IdentityV3CacheOffSetTest extends ReposeValveTest {
         DateTime maximumTokenExpiration = lastTokenValidation.plusMillis(tokenTimeout + cacheOffset)
         //wait until max token expiration is reached
         while (maximumTokenExpiration.isAfterNow()) {
-            sleep 200
+            sleep 100
         }
 
         clientThreads = new ArrayList<Thread>()

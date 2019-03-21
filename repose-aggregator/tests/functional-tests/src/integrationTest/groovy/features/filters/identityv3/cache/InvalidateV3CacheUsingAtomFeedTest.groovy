@@ -29,6 +29,8 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import scaffold.category.Filters
 
+import java.util.concurrent.TimeUnit
+
 @Category(Filters)
 class InvalidateV3CacheUsingAtomFeedTest extends ReposeValveTest {
     Endpoint originEndpoint
@@ -43,6 +45,8 @@ class InvalidateV3CacheUsingAtomFeedTest extends ReposeValveTest {
         int atomPort = properties.atomPort
         fakeAtomFeed = new AtomFeedResponseSimulator(atomPort)
         atomEndpoint = deproxy.addEndpoint(atomPort, 'atom service', null, fakeAtomFeed.handler)
+
+        reposeLogSearch.cleanLog()
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
@@ -96,8 +100,13 @@ class InvalidateV3CacheUsingAtomFeedTest extends ReposeValveTest {
         fakeAtomFeed.hasEntry = true
         atomEndpoint.defaultHandler = fakeAtomFeed.handler
 
-        and: "we sleep for 11 seconds so that repose can check the atom feed"
-        sleep(11_000)
+        and: "we wait for repose to process the atom feed entry"
+        reposeLogSearch.awaitByString(
+            "OpenStackIdentityV3Filter - Processing atom feed entry",
+            1,
+            11,
+            TimeUnit.SECONDS
+        )
 
         and: "I send a GET request to REPOSE with the same X-Subject-Token header"
         mc = deproxy.makeRequest(
@@ -147,8 +156,13 @@ class InvalidateV3CacheUsingAtomFeedTest extends ReposeValveTest {
         fakeAtomFeed.hasEntry = true
         atomEndpoint.defaultHandler = fakeAtomFeed.userUpdateHandler(fakeIdentityV3Service.client_userid.toString())
 
-        and: "we sleep for 11 seconds so that repose can check the atom feed"
-        sleep(11_000)
+        and: "we wait for repose to process the atom feed entry"
+        reposeLogSearch.awaitByString(
+            "OpenStackIdentityV3Filter - Processing atom feed entry",
+            1,
+            11,
+            TimeUnit.SECONDS
+        )
 
         and: "I send a GET request to REPOSE with the same X-Subject-Token header"
         mc = deproxy.makeRequest(
@@ -198,8 +212,13 @@ class InvalidateV3CacheUsingAtomFeedTest extends ReposeValveTest {
         fakeAtomFeed.hasEntry = true
         atomEndpoint.defaultHandler = fakeAtomFeed.trrEventHandler(fakeIdentityV3Service.client_userid.toString())
 
-        and: "we sleep for 11 seconds so that repose can check the atom feed"
-        sleep(11_000)
+        and: "we wait for repose to process the atom feed entry"
+        reposeLogSearch.awaitByString(
+            "OpenStackIdentityV3Filter - Processing atom feed entry",
+            1,
+            11,
+            TimeUnit.SECONDS
+        )
 
         and: "I send a GET request to REPOSE with the same X-Subject-Token header"
         mc = deproxy.makeRequest(
