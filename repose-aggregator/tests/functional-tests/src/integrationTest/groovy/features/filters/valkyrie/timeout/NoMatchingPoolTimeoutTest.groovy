@@ -27,6 +27,8 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import scaffold.category.Filters
 
+import java.util.concurrent.TimeUnit
+
 /**
  * Created by jennyvo on 11/10/15.
  *  when connection pool id in config valkyrie not matched connection pool config
@@ -104,7 +106,7 @@ class NoMatchingPoolTimeoutTest extends ReposeValveTest {
 
     def "HTTP client using connection pool test - connection time out is reached"() {
         given: "A device ID with a particular permission level defined in Valkyrie"
-
+        reposeLogSearch.cleanLog()
         fakeIdentityService.with {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
@@ -128,8 +130,7 @@ class NoMatchingPoolTimeoutTest extends ReposeValveTest {
         then: "check response"
         mc.receivedResponse.code == "502"//HttpServletResponse.SC_GATEWAY_TIMEOUT
         mc.handlings.size() == 0
-        sleep(1000)
-        reposeLogSearch.searchByString("Unable to communicate with Valkyrie: Read timed out").size() > 0
+        reposeLogSearch.awaitByString("Unable to communicate with Valkyrie: Read timed out", 1, 1, TimeUnit.SECONDS)
         reposeLogSearch.searchByString("NullPointerException").size() == 0
     }
 

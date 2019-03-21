@@ -24,6 +24,8 @@ import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import scaffold.category.Core
 
+import java.util.concurrent.TimeUnit
+
 /**
  * D-15183 Ensure passwords are not logged when in DEBUG mode and config files are updated.
  */
@@ -45,15 +47,20 @@ class PasswordLogging extends ReposeValveTest {
     def "identity passwords in auth configs are not logged in plaintext"() {
 
         given: "Repose configs are updated"
-        repose.configurationProvider.applyConfigs("features/core/security/after", params, /*sleepTime*/ 25)
+        repose.configurationProvider.applyConfigs("features/core/security/after", params)
 
-        when: "I search for DEBUG logs for the configuration updated log entry"
-        List<String> logs = reposeLogSearch.searchByString("Configuration Updated")
+        when: "I wait for the configuration to be updated"
+        reposeLogSearch.awaitByString(
+            "Configuration Updated: org.openrepose.filters.keystonev2.config.KeystoneV2AuthenticationConfig",
+            1,
+            25,
+            TimeUnit.SECONDS
+        )
 
         then: "passwords in the DEBUG log are not logged in plaintext"
-        logs.size() == 1
-        //keystone v2v2 doesn't log any config change with details org.openrepose.filters.keystonev2.config.KeystoneV2Config@5dd9c0b2
-        //logs[0].contains("password=*******") == true
+        // Check the specific username/password in the keystone filter
+        reposeLogSearch.searchByString("admin_username").size() == 0
+        reposeLogSearch.searchByString("password-for-password-logging-test").size() == 0
     }
 
 

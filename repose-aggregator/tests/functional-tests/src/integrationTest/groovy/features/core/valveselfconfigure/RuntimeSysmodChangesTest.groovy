@@ -26,6 +26,8 @@ import org.rackspace.deproxy.Deproxy
 import scaffold.category.Core
 import spock.lang.Shared
 
+import java.util.concurrent.TimeUnit
+
 @Category(Core)
 class RuntimeSysmodChangesTest extends ReposeValveTest {
 
@@ -35,11 +37,6 @@ class RuntimeSysmodChangesTest extends ReposeValveTest {
     int port2
     @Shared
     int port3
-
-    //This must be longer than the 15 second hard coded Poller timeout
-    //TODO: eventually replace this with a JMX trigger to force a configuration update.
-    @Shared
-    int sleep_duration = 35000
 
     def setupSpec() {
 
@@ -100,9 +97,10 @@ class RuntimeSysmodChangesTest extends ReposeValveTest {
                 'node1port' : port1,
                 'node2port' : port2,
         ]
+        reposeLogSearch.cleanLog()
         repose.configurationProvider.applyConfigs('features/core/valveselfconfigure/two-nodes', params)
         println("Change config to two-nodes")
-        sleep(sleep_duration)
+        reposeLogSearch.awaitByString("Configuration Updated: SystemModel", 1, 35, TimeUnit.SECONDS)
         repose.waitForNon500FromUrl("http://localhost:${port1}")
         repose.waitForNon500FromUrl("http://localhost:${port2}")
         then:
@@ -134,9 +132,10 @@ class RuntimeSysmodChangesTest extends ReposeValveTest {
                 'proto'     : 'http',
                 'sysmodPort': port2,
         ]
+        reposeLogSearch.cleanLog()
         repose.configurationProvider.applyConfigs('features/core/valveselfconfigure/single-node-with-proto', params)
         println("changed configs to single-node-with-proto")
-        sleep(sleep_duration)
+        reposeLogSearch.awaitByString("Configuration Updated: SystemModel", 1, 35, TimeUnit.SECONDS)
         repose.waitForNon500FromUrl("http://localhost:${port2}")
         then:
         1 == 1
@@ -171,9 +170,10 @@ class RuntimeSysmodChangesTest extends ReposeValveTest {
                 'node2port' : port2,
                 'node3port' : port3,
         ]
+        reposeLogSearch.cleanLog()
         repose.configurationProvider.applyConfigs('features/core/valveselfconfigure/three-nodes', params)
         println("changed to three-nodes config")
-        sleep(sleep_duration)
+        reposeLogSearch.awaitByString("Configuration Updated: SystemModel", 1, 35, TimeUnit.SECONDS)
         repose.waitForNon500FromUrl("http://localhost:${port1}")
         repose.waitForNon500FromUrl("http://localhost:${port2}")
         then:
@@ -209,9 +209,10 @@ class RuntimeSysmodChangesTest extends ReposeValveTest {
                 'node2port' : port2,
                 'node3port' : port3,
         ]
+        reposeLogSearch.cleanLog()
         repose.configurationProvider.applyConfigs('features/core/valveselfconfigure/three-nodes', params)
         println("changed to three-nodes config again, but a different hostname")
-        sleep(sleep_duration)
+        reposeLogSearch.awaitByString("Configuration Updated: SystemModel", 1, 35, TimeUnit.SECONDS)
         repose.waitForNon500FromUrl("http://localhost:${port2}")
         repose.waitForNon500FromUrl("http://localhost:${port3}")
         then:

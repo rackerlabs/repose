@@ -20,11 +20,14 @@
 package features.core.powerfilter
 
 import org.junit.experimental.categories.Category
+import org.linkedin.util.clock.SystemClock
 import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockGraphite
 import org.rackspace.deproxy.Deproxy
 import scaffold.category.Core
+
+import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
 @Category(Core)
 class GraphiteTest extends ReposeValveTest {
@@ -67,12 +70,13 @@ class GraphiteTest extends ReposeValveTest {
         def mc1 = deproxy.makeRequest(url: reposeEndpoint + "/endpoint")
         def mc2 = deproxy.makeRequest(url: reposeEndpoint + "/endpoint")
         def mc3 = deproxy.makeRequest(url: reposeEndpoint + "/cluster")
-        sleep(2000)
 
         then:
         mc1.receivedResponse.code == "200"
         mc2.receivedResponse.code == "200"
         mc3.receivedResponse.code == "200"
-        lastCount == 3
+        waitForCondition(new SystemClock(), '2s', '250', {
+            lastCount == 3
+        })
     }
 }

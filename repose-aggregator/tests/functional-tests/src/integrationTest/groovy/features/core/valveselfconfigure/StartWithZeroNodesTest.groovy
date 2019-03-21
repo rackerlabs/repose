@@ -25,14 +25,13 @@ import org.rackspace.deproxy.Deproxy
 import scaffold.category.Core
 import spock.lang.Shared
 
+import java.util.concurrent.TimeUnit
+
 @Category(Core)
 class StartWithZeroNodesTest extends ReposeValveTest {
 
     @Shared
     int port
-
-    @Shared
-    int sleep_duration = 35000
 
     def setupSpec() {
 
@@ -51,21 +50,22 @@ class StartWithZeroNodesTest extends ReposeValveTest {
         repose.configurationProvider.applyConfigs("common", params)
         repose.configurationProvider.applyConfigs("features/core/valveselfconfigure/container-no-port", params)
         repose.configurationProvider.applyConfigs("features/core/valveselfconfigure/zero-nodes", params)
-        repose.start(killOthersBeforeStarting: false,
-                waitOnJmxAfterStarting: false)
-        sleep(sleep_duration)
+        repose.start(killOthersBeforeStarting: false, waitOnJmxAfterStarting: false)
+        reposeLogSearch.awaitByString(
+            "Configuration update error. Reason: Parsed object from XML does not match the expected " +
+                "configuration class. Expected: org.openrepose.core.systemmodel.config.SystemModel",
+            1,
+            35,
+            TimeUnit.SECONDS
+        )
     }
 
     def "when we start with zero nodes in the system model, then switch to a system model with one  localhost node"() {
-
-        def mc
 
         when: "Repose first starts up with zero nodes"
         deproxy.makeRequest(url: "http://localhost:${port}")
         then: "it should not connect"
         thrown(ConnectException)
-
-
 
         when: "change the configs while it's running - add a single localhost node"
         def params = properties.getDefaultTemplateParams()
@@ -74,14 +74,19 @@ class StartWithZeroNodesTest extends ReposeValveTest {
                 'port': port,
         ]
         repose.configurationProvider.applyConfigs('features/core/valveselfconfigure/one-node', params)
-        sleep(sleep_duration)
+        // note: this seems to be logged multiple times
+        reposeLogSearch.awaitByString(
+            "Configuration Updated: SystemModel",
+            3,
+            35,
+            TimeUnit.SECONDS
+        )
+
         then:
         1 == 1
 
-
-
         when: "Repose reloads the configs"
-        mc = deproxy.makeRequest(url: "http://localhost:${port}")
+        def mc = deproxy.makeRequest(url: "http://localhost:${port}")
         then: "the first node should be available"
         mc.receivedResponse.code == "200"
         mc.handlings.size() == 1
