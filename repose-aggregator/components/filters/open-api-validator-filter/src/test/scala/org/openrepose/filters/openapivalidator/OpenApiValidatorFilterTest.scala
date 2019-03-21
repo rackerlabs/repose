@@ -228,12 +228,17 @@ class OpenApiValidatorFilterTest
       servletResponse.getStatus shouldEqual HttpServletResponse.SC_INTERNAL_SERVER_ERROR
     }
 
-    it("should throw an exception if the validation library throws an exception") {
+    it("should respond with a 500 if the validation library throws an exception") {
+      val exceptionMessage = "some test message"
       when(validator.validateRequest(any[Request]))
-        .thenThrow(new RuntimeException())
+        .thenThrow(new RuntimeException(exceptionMessage))
 
-      a[RuntimeException] should be thrownBy openApiValidatorFilter.doWork(servletRequest, servletResponse, filterChain)
+      openApiValidatorFilter.doWork(servletRequest, servletResponse, filterChain)
+
       verify(validator).validateRequest(any[Request])
+      filterChain.getRequest shouldBe null
+      servletResponse.getStatus shouldEqual HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+      servletResponse.getErrorMessage shouldBe exceptionMessage
     }
   }
 

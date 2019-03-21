@@ -82,7 +82,9 @@ class OpenApiValidatorFilter @Inject()(@Value(ReposeSpringProperties.CORE.CONFIG
         logger.error("Failed to convert the servlet request to a validation request", e)
         httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
       case Failure(e) =>
-        throw e
+        val statusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR
+        logger.error("Failed to validate request -- rejecting with status code: '{}' for reason '{}'", statusCode.toString, e.getMessage, e)
+        httpResponse.sendError(statusCode, e.getMessage)
     }
   }
 
