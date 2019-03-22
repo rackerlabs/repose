@@ -97,7 +97,7 @@
         <filter-class>org.openrepose.filters.mergeheader.MergeHeaderFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>open-api-validator</filter-name>
+        <filter-name>openapi-validator</filter-name>
         <filter-class>org.openrepose.filters.openapivalidator.OpenApiValidatorFilter</filter-class>
     </filter>
     <filter>

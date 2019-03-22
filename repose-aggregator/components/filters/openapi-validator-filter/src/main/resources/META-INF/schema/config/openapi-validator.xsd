@@ -27,7 +27,7 @@
            elementFormDefault="qualified">
 
     <!-- Elements -->
-    <xs:element name="open-api-validator" type="OpenApiValidatorConfig"/>
+    <xs:element name="openapi-validator" type="OpenApiValidatorConfig"/>
 
     <!-- Types -->
     <xs:complexType name="OpenApiValidatorConfig">

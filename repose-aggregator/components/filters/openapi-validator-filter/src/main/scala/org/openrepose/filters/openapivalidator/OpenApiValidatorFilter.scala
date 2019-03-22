@@ -49,8 +49,8 @@ class OpenApiValidatorFilter @Inject()(@Value(ReposeSpringProperties.CORE.CONFIG
                                        configurationService: ConfigurationService)
   extends AbstractConfiguredFilter[OpenApiValidatorConfig](configurationService) with StrictLogging {
 
-  override final val DEFAULT_CONFIG: String = "open-api-validator.cfg.xml"
-  override final val SCHEMA_LOCATION: String = "/META-INF/schema/config/open-api-validator.xsd"
+  override final val DEFAULT_CONFIG: String = "openapi-validator.cfg.xml"
+  override final val SCHEMA_LOCATION: String = "/META-INF/schema/config/openapi-validator.xsd"
 
   private[openapivalidator] var validator: OpenApiInteractionValidator = _
 

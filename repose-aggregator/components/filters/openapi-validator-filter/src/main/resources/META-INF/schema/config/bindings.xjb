@@ -23,7 +23,7 @@
 <bindings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/jaxb"
           version="2.0"
           xsi:schemaLocation="http://java.sun.com/xml/ns/jaxb http://java.sun.com/xml/ns/jaxb/bindingschema_2_0.xsd"
-          schemaLocation="open-api-validator.xsd">
+          schemaLocation="openapi-validator.xsd">
 
     <schemaBindings>
         <package name="org.openrepose.filters.openapivalidator.config"/>
