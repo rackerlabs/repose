@@ -27,8 +27,6 @@ import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import scaffold.category.Identity
 
-import java.util.concurrent.TimeUnit
-
 /**
  * Created by jennyvo on 1/22/16.
  *  identity using authenticated feed
@@ -50,8 +48,6 @@ class InvalidateCacheUsingAuthenticationFeedTest extends ReposeValveTest {
         int atomPort2 = properties.atomPort2
         fakeAtomFeed = new features.filters.keystonev2.AtomFeedResponseSimulator(atomPort2)
         atomEndpoint = deproxy.addEndpoint(atomPort2, 'atom service', null, fakeAtomFeed.handler)
-
-        reposeLogSearch.cleanLog()
 
         def params = properties.defaultTemplateParams
         repose.configurationProvider.applyConfigs("common", params)
@@ -80,13 +76,7 @@ class InvalidateCacheUsingAuthenticationFeedTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         //some waiting time to establish connection to atom service
-        reposeLogSearch.awaitByString(
-            "org.openrepose.nodeservice.atomfeed.impl.auth.OpenStackIdentityV2AuthenticatedRequestFactory - " +
-                "Successfully fetched and parsed token from identity service",
-            1,
-            5,
-            TimeUnit.SECONDS
-        )
+        sleep(5000)
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
         mc.receivedResponse.code == '200'
@@ -122,13 +112,8 @@ class InvalidateCacheUsingAuthenticationFeedTest extends ReposeValveTest {
         fakeAtomFeed.hasEntry = true
         atomEndpoint.defaultHandler = fakeAtomFeed.handler
 
-        and: "we wait for repose to process the atom feed entry"
-        reposeLogSearch.awaitByString(
-            "KeystoneV2Filter - Processing atom feed entry",
-            1,
-            10,
-            TimeUnit.SECONDS
-        )
+        and: "we sleep for 10 seconds so that repose can check the atom feed"
+        sleep(10000)
 
         and: "I send a GET request to REPOSE with the same X-Auth-Token header"
         mc = deproxy.makeRequest(
@@ -151,13 +136,7 @@ class InvalidateCacheUsingAuthenticationFeedTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         //some waiting time to establish connection to atom service
-        reposeLogSearch.awaitByString(
-            "org.openrepose.nodeservice.atomfeed.impl.auth.OpenStackIdentityV2AuthenticatedRequestFactory - " +
-                "Successfully fetched and parsed token from identity service",
-            1,
-            5,
-            TimeUnit.SECONDS
-        )
+        sleep(5000)
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
         mc.receivedResponse.code == '200'
@@ -186,13 +165,8 @@ class InvalidateCacheUsingAuthenticationFeedTest extends ReposeValveTest {
         fakeAtomFeed.hasEntry = true
         atomEndpoint.defaultHandler = fakeAtomFeed.userUpdateHandler(fakeIdentityV2Service.client_userid.toString())
 
-        and: "we wait for repose to process the atom feed entry"
-        reposeLogSearch.awaitByString(
-            "KeystoneV2Filter - Processing atom feed entry",
-            1,
-            10,
-            TimeUnit.SECONDS
-        )
+        and: "we sleep for 10 seconds so that repose can check the atom feed"
+        sleep(10000)
 
         and: "I send a GET request to REPOSE with the same X-Auth-Token header"
         mc = deproxy.makeRequest(
@@ -217,13 +191,7 @@ class InvalidateCacheUsingAuthenticationFeedTest extends ReposeValveTest {
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint, method: 'GET', headers: ['X-Auth-Token': fakeIdentityV2Service.client_token])
 
         //some waiting time to establish connection to atom service
-        reposeLogSearch.awaitByString(
-            "org.openrepose.nodeservice.atomfeed.impl.auth.OpenStackIdentityV2AuthenticatedRequestFactory - " +
-                "Successfully fetched and parsed token from identity service",
-            1,
-            5,
-            TimeUnit.SECONDS
-        )
+        sleep(5000)
 
         then: "REPOSE should validate the token and then pass the request to the origin service"
         mc.receivedResponse.code == '200'
@@ -261,13 +229,8 @@ class InvalidateCacheUsingAuthenticationFeedTest extends ReposeValveTest {
         fakeAtomFeed.hasEntry = true
         atomEndpoint.defaultHandler = fakeAtomFeed.trrEventHandler(fakeIdentityV2Service.client_userid.toString())
 
-        and: "we wait for repose to process the atom feed entry"
-        reposeLogSearch.awaitByString(
-            "KeystoneV2Filter - Processing atom feed entry",
-            1,
-            10,
-            TimeUnit.SECONDS
-        )
+        and: "we sleep for 10 seconds so that repose can check the atom feed"
+        sleep(10000)
 
         and: "I send a GET request to REPOSE with the same X-Auth-Token header"
         mc = deproxy.makeRequest(
