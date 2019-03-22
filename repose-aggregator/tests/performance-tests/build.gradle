@@ -16,6 +16,7 @@ dependencies {
 
 license {
     exclude "**/*.json"
+    exclude "**/*.yaml"
     exclude "**/saml*.xml"
     exclude "**/*.xsl"
 }
