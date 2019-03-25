@@ -1,0 +1,126 @@
+= OpenAPI Validator Filter
+
+The OpenAPI Validator Filter validates requests against a configured https://github.com/OAI/OpenAPI-Specification[OpenAPI Document].
+
+The OpenAPI document describes an API, detailing how to make requests and what form the responses will take.
+If a request fails validation against the OpenAPI document, this filter will reject the request.
+For example, if the OpenAPI document requires a query parameter for a particular operation and the request for that operation is missing the query parameter, this filter will discontinue processing of the request and send an error response.
+
+== General filter information
+* *Name:* openapi-validator
+* *Default Configuration:* openapi-validator.cfg.xml
+* *Released:* TBA
+* *Bundle:* repose-filter-bundle
+* link:../schemas/openapi-validator.xsd[Schema]
+
+== Prerequisites & Postconditions
+=== Required Request Headers
+Vary based on configuration.
+
+This filter itself does not require any request headers, however the configured OpenAPI document may.
+
+=== Required Preceding Filters
+This filter has no dependency on any other filter.
+
+=== Request Headers Created
+This filter does not create/modify any request headers.
+
+=== Request Body Changes
+This filter does not modify the request body.
+
+=== Recommended Follow-On (Succeeding) Filters
+This filter is not a dependency of any other filter.
+
+=== Response Body Changes
+This filter does not modify the response body.
+
+=== Response Headers Created
+This filter does not create/modify any response headers.
+
+=== Response Status Codes
+[cols="2", options="header,autowidth"]
+.Status Codes
+|===
+| Status Code
+| Reasons
+
+| `400`
+a| * The OpenAPI document does not specify a request body, but the request contains a body.
+   * The OpenAPI document requires a request body, but the request does not contain a body.
+   * The OpenAPI document specifies a security scheme, but the request does not contain data required by that scheme.
+   * The OpenAPI document specifies a security scheme, but the request does not meet the requirements of that scheme.
+   * The OpenAPI document requires a request header, but the request does not contain that header.
+   * The OpenAPI document requires a query parameter, but the request does not contain that query parameter.
+   * The OpenAPI document requires a parameter, but the request does not contain that parameter.
+   * The OpenAPI document requires a parameter with a value from an enumerated set, but the parameter value from the request does not exist in the set.
+   * The OpenAPI document requires a single parameter value, but the request contains multiple parameter values.
+   * The OpenAPI document requires a maximum number of parameter values, but the request parameter contains more values than that number.
+   * The OpenAPI document requires a minimum number of parameter values, but the request parameter contains fewer values than that number.
+   * The OpenAPI document requires a parameter with only unique values, but the request parameter contains duplicate values.
+   * The request contains a `Content-Type` header with an invalid value.
+   * The request contains an `Accept` header with an invalid value.
+   * The OpenAPI document requires JSON content, but the request contains invalid JSON content.
+
+| `404`
+a| * The OpenAPI document does not contain a path matching the path of the request.
+
+| `405`
+a| * The OpenAPI document does not contain an operation matching the method of the request.
+
+| `406`
+a| * The OpenAPI document does not contain a response content mapping for the media type(s) specified by the `Accept` header of the request.
+
+| `415`
+a| * The OpenAPI document does not contain a request content mapping for the media type(s) specified by the `Content-Type` header of the request.
+
+| `500`
+a| * An error occurs while attempting to read the request.
+   * An unexpected error occurs while this filter is processing.
+   * An unknown error occurs while validating schema from the OpenAPI document against the request.
+|===
+
+== Examples
+=== OpenAPI Request Validation
+This configuration will validate inbound requests against an OpenAPI document.
+
+[source, xml]
+.openapi-validator.cfg.xml
+----
+<openapi-validator xmlns="http://docs.openrepose.org/repose/openapivalidator/v1.0"
+                   href="https://raw.githubusercontent.com/OAI/OpenAPI-Specification/3.0.2/examples/v3.0/petstore.yaml"/> <!--1-->
+----
+<1> A URL which specifies where the OpenAPI document to use for validation is located and how to access it.  +
+    This reference can be either local or remote, absolute or relative. +
+    If relative, this reference will be resolved as a file in the *Repose* configuration root directory. +
+    Scheme (e.g., `http:`, `file:`) support is determined by the JVM running this filter.
+
+== Additional Information
+This filter is backed by the https://bitbucket.org/atlassian/swagger-request-validator[Swagger Request Validator] library.
+As such, only validations supported by that library are supported by this filter.
+
+=== Validation Failure Priority
+If a request fails validation due to more than one issue, the issue with the highest priority will be used to set the response status code and reason.
+
+The following list provides all request validation issues handled by this filter in priority order (i.e., issues higher on the list will be used over issues lower on the list):
+
+. Path missing
+. Method not allowed
+. Unexpected body
+. Missing body
+. Missing security
+. Invalid security
+. Missing header
+. Missing query
+. Missing parameter
+. Invalid enum parameter
+. Invalid parameter collection
+. Invalid parameter collection format
+. Parameter collection contains too many items
+. Parameter collection contains too few items
+. Parameter collection contains duplicate items
+. Invalid content type
+. Content type not allowed
+. Invalid accept type
+. Accept type not allowed
+. Invalid JSON content
+. Unknown schema validation problem
