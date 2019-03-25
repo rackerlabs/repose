@@ -37,7 +37,7 @@ class ReposeValveLauncher extends ReposeLauncher {
     String reposeJar
     String configDir
 
-    def clock = new SystemClock()
+    def clock = SystemClock.INSTANCE
 
     def reposeEndpoint
     int reposePort

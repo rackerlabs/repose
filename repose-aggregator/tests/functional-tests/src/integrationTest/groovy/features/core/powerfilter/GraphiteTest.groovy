@@ -75,7 +75,7 @@ class GraphiteTest extends ReposeValveTest {
         mc1.receivedResponse.code == "200"
         mc2.receivedResponse.code == "200"
         mc3.receivedResponse.code == "200"
-        waitForCondition(new SystemClock(), '2s', '250', {
+        waitForCondition(repose.clock, '2s', '250', {
             lastCount == 3
         })
     }
