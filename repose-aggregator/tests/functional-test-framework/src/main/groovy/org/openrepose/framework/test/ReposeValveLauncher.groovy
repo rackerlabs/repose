@@ -47,8 +47,8 @@ class ReposeValveLauncher extends ReposeLauncher {
     def debugPort = null
     def classPaths = []
     def additionalEnvironment = [:]
-    def xmx = "1536M"
-    def xms = "1024M"
+    def xmx = "1024M"
+    def xms = "512M"
 
     ReposeConfigurationProvider configurationProvider
 
