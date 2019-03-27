@@ -298,6 +298,11 @@ The scripting filter configuration may look like the following:</p>
 </div>
 </div>
 </li>
+<li>
+<p>The <a href="../architecture/filter-chain.html">Filter Chain</a> now determines whether or not a filter should run based on the current state of the request rather than the state of the request when it was initially received.
+If you are applying a condition to filter activation (e.g., using the <a href="../architecture/filter-chain.html#uri-regex">uri-regex attribute</a>) and you modify some part of the request (e.g., the URL) in one of your filters, you may be impacted by this change.
+For more details, see <a href="../architecture/filter-chain.html#filter-activation-determination">filter activation determination</a>.</p>
+</li>
 </ol>
 </div>
 </div>

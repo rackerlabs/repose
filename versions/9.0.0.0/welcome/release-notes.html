@@ -205,7 +205,7 @@
 <div class="ulist">
 <ul>
 <li>
-<p><span class="bug-tag">Bug Fix</span> |  <a href="https://repose.atlassian.net/browse/REP-7310">REP-7310</a> - Fixing the <code>IllegalArgumentException</code> thrown by the <a href="../filters/herp.html">HERP Filter</a> when incorrectly attempting to decode query parameters.</p>
+<p><span class="bug-tag">Bug Fix</span> | <a href="https://repose.atlassian.net/browse/REP-7310">REP-7310</a> - Fixing the <code>IllegalArgumentException</code> thrown by the <a href="../filters/herp.html">HERP Filter</a> when incorrectly attempting to decode query parameters.</p>
 </li>
 <li>
 <p><span class="bug-tag">Bug Fix</span> | <a href="https://repose.atlassian.net/browse/REP-7387">REP-7387</a> - The <a href="../filters/ip-user.html">IP User</a> filter now returns a <code>400</code> when the X-Forwarded-For header contains a bad value.</p>
@@ -305,6 +305,9 @@ As a result, <strong>Repose</strong> will reject requests with an unsupported HT
 </li>
 <li>
 <p>The <a href="../filters/scripting.html">Scripting Filter</a> has been moved from the <code>repose-experimental-filter-bundle</code> to the <code>repose-filter-bundle</code>.</p>
+</li>
+<li>
+<p><a href="../architecture/filter-chain.html#filter-activation-determination">Filter activation</a> has been made more dynamic.</p>
 </li>
 <li>
 <p>Headers are no longer automatically split.</p>
