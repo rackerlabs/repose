@@ -47,8 +47,9 @@ class ReposeValveLauncher extends ReposeLauncher {
     def debugPort = null
     def classPaths = []
     def additionalEnvironment = [:]
-    def xmx = "1024M"
-    def xms = "512M"
+
+    static def DEFAULT_REPOSE_XMX = "1024M"
+    static def DEFAULT_REPOSE_XMS = "512M"
 
     ReposeConfigurationProvider configurationProvider
 
@@ -89,16 +90,12 @@ class ReposeValveLauncher extends ReposeLauncher {
         if (params.containsKey("waitOnJmxAfterStarting")) {
             waitOnJmxAfterStarting = params.waitOnJmxAfterStarting
         }
-        if (params.containsKey("reposeXmx")) {
-            xmx = params.reposeXmx
-        }
-        if (params.containsKey("reposeXms")) {
-            xms = params.reposeXms
-        }
 
         String nodeId = params.get('nodeId', "")
 
-        start(killOthersBeforeStarting, waitOnJmxAfterStarting, nodeId)
+        def reposeXmx = params.get('reposeXmx', DEFAULT_REPOSE_XMX)
+        def reposeXms = params.get('reposeXms', DEFAULT_REPOSE_XMS)
+        start(killOthersBeforeStarting, waitOnJmxAfterStarting, nodeId, reposeXmx, reposeXms)
     }
 
     /**
@@ -106,7 +103,7 @@ class ReposeValveLauncher extends ReposeLauncher {
      * @param killOthersBeforeStarting
      * @param waitOnJmxAfterStarting
      */
-    void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting, String nodeId) {
+    void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting, String nodeId, String xmx = DEFAULT_REPOSE_XMX, String xms = DEFAULT_REPOSE_XMS) {
 
         File jarFile = new File(reposeJar)
         if (!jarFile.exists() || !jarFile.isFile()) {
