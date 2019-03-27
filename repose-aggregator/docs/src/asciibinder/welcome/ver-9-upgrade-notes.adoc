@@ -76,6 +76,9 @@
     }
 ]]></scripting>
 ----
+. The <<../architecture/filter-chain.adoc#, Filter Chain>> now determines whether or not a filter should run based on the current state of the request rather than the state of the request when it was initially received.
+  If you are applying a condition to filter activation (e.g., using the <<../architecture/filter-chain.adoc#uri-regex, uri-regex attribute>>) and you modify some part of the request (e.g., the URL) in one of your filters, you may be impacted by this change.
+  For more details, see <<../architecture/filter-chain.adoc#filter-activation-determination, filter activation determination>>.
 
 == System Model Configuration
 . Support for multi-cluster deployments has been removed.

@@ -51,6 +51,7 @@
 * [.enhancement-tag]#Enhancement# | [.breaking-tag]#Breaking Change# | https://repose.atlassian.net/browse/REP-7231[REP-7231] - Switching over to new filter, filter chain, and servlet classes.
 ** Many unused and deprecated classes have been removed.
 ** The <<../filters/scripting.adoc#, Scripting Filter>> has been moved from the `repose-experimental-filter-bundle` to the `repose-filter-bundle`.
+** <<../architecture/filter-chain.adoc#filter-activation-determination, Filter activation>> has been made more dynamic.
 ** Headers are no longer automatically split.
 ** Headers with an empty value are now supported and will not be removed from requests/responses.
 *** When querying rate limits via the the <<../filters/rate-limiting.adoc#, Rate Limiting Filter>>, an `Accept` header with an empty value will now result in a `406` response rather than a response of the default `Content-Type: application/json`.
