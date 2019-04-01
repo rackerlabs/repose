@@ -48,6 +48,9 @@ class ReposeValveLauncher extends ReposeLauncher {
     def classPaths = []
     def additionalEnvironment = [:]
 
+    static def DEFAULT_REPOSE_XMX = "1024M"
+    static def DEFAULT_REPOSE_XMS = "512M"
+
     ReposeConfigurationProvider configurationProvider
 
     ReposeValveLauncher(ReposeConfigurationProvider configurationProvider,
@@ -90,7 +93,9 @@ class ReposeValveLauncher extends ReposeLauncher {
 
         String nodeId = params.get('nodeId', "")
 
-        start(killOthersBeforeStarting, waitOnJmxAfterStarting, nodeId)
+        def reposeXmx = params.get('reposeXmx', DEFAULT_REPOSE_XMX)
+        def reposeXms = params.get('reposeXms', DEFAULT_REPOSE_XMS)
+        start(killOthersBeforeStarting, waitOnJmxAfterStarting, nodeId, reposeXmx, reposeXms)
     }
 
     /**
@@ -98,7 +103,7 @@ class ReposeValveLauncher extends ReposeLauncher {
      * @param killOthersBeforeStarting
      * @param waitOnJmxAfterStarting
      */
-    void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting, String nodeId) {
+    void start(boolean killOthersBeforeStarting, boolean waitOnJmxAfterStarting, String nodeId, String xmx = DEFAULT_REPOSE_XMX, String xms = DEFAULT_REPOSE_XMS) {
 
         File jarFile = new File(reposeJar)
         if (!jarFile.exists() || !jarFile.isFile()) {
@@ -156,7 +161,7 @@ class ReposeValveLauncher extends ReposeLauncher {
         //TODO: possibly add a -Dlog4j.configurationFile to the guy so that we can load a different log4j config for early logging
 
         //Prepended the JUL logging manager from log4j2 so I can capture JUL logs, which are things in the JVM (like JMX)
-        def cmd = "java -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager -Xmx1536M -Xms1024M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof $classPath $debugProps $jmxprops $jacocoProps $javaArgs -jar $reposeJar -c $configDir"
+        def cmd = "java -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager -Xmx${xmx} -Xms${xms} -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/dump-${debugPort}.hprof $classPath $debugProps $jmxprops $jacocoProps $javaArgs -jar $reposeJar -c $configDir"
         println("Starting repose: $cmd")
 
         def th = new Thread({
