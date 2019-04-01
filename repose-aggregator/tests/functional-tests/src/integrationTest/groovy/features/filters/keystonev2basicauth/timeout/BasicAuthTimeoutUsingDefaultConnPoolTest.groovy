@@ -30,6 +30,7 @@ import scaffold.category.Identity
 
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.HttpHeaders
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by jennyvo on 11/9/15.
@@ -93,6 +94,7 @@ class BasicAuthTimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
 
     def "timeout test, auth response time out is greater than socket connection time out"() {
         given: "the HTTP Basic authentication header containing the User Name and API Key"
+        reposeLogSearch.cleanLog()
         def headers = [
                 (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
         ]
@@ -107,8 +109,7 @@ class BasicAuthTimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
         then: "Request should not be passed from repose"
         mc.receivedResponse.code == "500"//HttpServletResponse.SC_GATEWAY_TIMEOUT
         mc.handlings.size() == 0
-        sleep(1000)
-        reposeLogSearch.searchByString("I/O error: Read timed out").size() > 0
+        reposeLogSearch.awaitByString("I/O error: Read timed out", 1, 1, TimeUnit.SECONDS)
         reposeLogSearch.searchByString("NullPointerException").size() == 0
     }
 }

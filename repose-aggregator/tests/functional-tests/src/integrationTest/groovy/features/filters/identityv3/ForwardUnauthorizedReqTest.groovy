@@ -61,7 +61,7 @@ class ForwardUnauthorizedReqTest extends ReposeValveTest {
     }
 
     def setup() {
-        sleep(500)
+        waitForHttpClientRequestCacheToClear()
         fakeIdentityV3Service.resetHandlers()
     }
 

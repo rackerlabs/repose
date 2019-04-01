@@ -28,6 +28,8 @@ import org.rackspace.deproxy.Response
 import scaffold.category.Filters
 import spock.lang.Unroll
 
+import java.util.concurrent.TimeUnit
+
 /**
  * Functional test for the URI Normalization filter
  */
@@ -44,7 +46,7 @@ class UriNormalizationFilterTest extends ReposeValveTest {
         repose.waitForNon500FromUrl(reposeEndpoint)
     }
 
-    static def params
+    static Map params
 
     @Unroll("URI Normalization of queryParameters should #behaviorExpected")
     def "query parameter normalization"() {
@@ -112,10 +114,15 @@ class UriNormalizationFilterTest extends ReposeValveTest {
 
     @Unroll("URI Normalization of queryParameters #behaviorExpected")
     def "When target is empty in uri filter"() {
-
-        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/emtpyuritarget", params, /*sleepTime*/ 25)
-
         given:
+        reposeLogSearch.cleanLog()
+        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/emtpyuritarget", params)
+        reposeLogSearch.awaitByString(
+            "Configuration Updated: org.openrepose.filters.urinormalization.config.UriNormalizationConfig",
+            1,
+            25,
+            TimeUnit.SECONDS
+        )
         def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
 
         when: "A request is made to REPOSE"
@@ -135,42 +142,17 @@ class UriNormalizationFilterTest extends ReposeValveTest {
     }
 
     @Unroll("URI Normalization of queryParameters #behaviorExpected")
-    def "When http method doesn't match the uri filter"() {
-
-        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/withmedia", params, /*sleepTime*/ 25)
-
-
-        given:
-        def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
-
-        when: "A request is made to REPOSE"
-        MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + path, method: method)
-
-        then: "Request is forwarded to origin service"
-        mc.handlings.size() == 1
-        def Handling handling = mc.handlings.get(0)
-
-        then: "Request sent to origin service matches expected query parameter list"
-        handling.request.path.endsWith(qpAfterRepose)
-
-
-        where:
-        method | matchingUriRegex               | qpBeforeRepose                                             | qpAfterRepose                                              | behaviorExpected
-        "POST" | "uri_normalization_with_media" | "filter_me=true&a=1&a=4&a=2&r=1241.212&n=test&a=Add+Space" | "filter_me=true&a=1&a=4&a=2&r=1241.212&n=test&a=Add+Space" | "Should not filter or alphabetize any query parameters"
-        "GET"  | "uri_normalization_with_media" | "a=3&b=4&a=4&A=0&c=6&d=7"                                  | "A=0&a=3&a=4&b=4&c=6"                                      | "Should allow whitelisted query parameters"
-        "GET"  | "uri_normalization_with_media" | "a=3&b=4&a=4&A=0&c=6&d=7&B=8&b=9"                          | "A=0&B=8&a=3&a=4&b=4&c=6"                                  | "Should allow whitelisted query parameters up to multiplicity coun"
-        "GET"  | "uri_normalization_with_media" | "a=3&b=4&a=4&A=0&c=6&C=8&c=10&C=9&c=11"                    | "A=0&a=3&a=4&b=4&c=6&c=10"                                 | "Should allow whitelisted case sensitive query parameters up to multiplicity count"
-
-
-    }
-
-    @Unroll("URI Normalization of queryParameters #behaviorExpected")
     def "When uri-regex is not specified"() {
-
-        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/noregexwithmedia", params, /*sleepTime*/ 25)
-
-
         given:
+        reposeLogSearch.cleanLog()
+        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/noregexwithmedia", params)
+        reposeLogSearch.awaitByString(
+            "Configuration Updated: org.openrepose.filters.urinormalization.config.UriNormalizationConfig",
+            1,
+            25,
+            TimeUnit.SECONDS
+        )
+
         def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
 
         when: "A request is made to REPOSE"
@@ -191,11 +173,15 @@ class UriNormalizationFilterTest extends ReposeValveTest {
 
     @Unroll("URI Normalization of queryParameters #behaviorExpected")
     def "When uri filter does not have uri-regex and htt-methods"() {
-
-        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/nohttpmethodswithmedia", params, /*sleepTime*/ 25)
-
-
         given:
+        reposeLogSearch.cleanLog()
+        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/nohttpmethodswithmedia", params)
+        reposeLogSearch.awaitByString(
+            "Configuration Updated: org.openrepose.filters.urinormalization.config.UriNormalizationConfig",
+            1,
+            25,
+            TimeUnit.SECONDS
+        )
         def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
 
         when: "A request is made to REPOSE"
@@ -216,10 +202,15 @@ class UriNormalizationFilterTest extends ReposeValveTest {
 
     @Unroll("URI Normalization of queryParameters #behaviorExpected")
     def "When no uri filters exist"() {
-
-        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/onlymediavariant", params, /*sleepTime*/ 25)
-
         given:
+        reposeLogSearch.cleanLog()
+        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/onlymediavariant", params)
+        reposeLogSearch.awaitByString(
+            "Configuration Updated: org.openrepose.filters.urinormalization.config.UriNormalizationConfig",
+            1,
+            25,
+            TimeUnit.SECONDS
+        )
         def path = "/" + matchingUriRegex + "/?" + qpBeforeRepose;
 
         when: "A request is made to REPOSE"
@@ -241,7 +232,14 @@ class UriNormalizationFilterTest extends ReposeValveTest {
     def "When no media-variants config in the filter should not throw NPE"() {
         setup:
         reposeLogSearch.cleanLog()
-        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/mediavariantoptional", params, /*sleepTime*/ 25)
+        repose.configurationProvider.applyConfigs("features/filters/uriNormalization/mediavariantoptional", params)
+        reposeLogSearch.awaitByString(
+            "Configuration Updated: org.openrepose.filters.urinormalization.config.UriNormalizationConfig",
+            1,
+            25,
+            TimeUnit.SECONDS
+        )
+
 
         def path = "/no_media_variant/?filter_me=true&a=1&a=4&a=2&r=1241.212&n=test&a=Add+Space";
 

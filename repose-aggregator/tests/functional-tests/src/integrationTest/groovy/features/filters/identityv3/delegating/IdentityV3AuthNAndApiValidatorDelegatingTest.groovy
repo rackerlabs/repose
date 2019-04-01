@@ -59,7 +59,7 @@ class IdentityV3AuthNAndApiValidatorDelegatingTest extends ReposeValveTest {
     }
 
     def setup() {
-        sleep(500)
+        waitForHttpClientRequestCacheToClear()
         fakeIdentityV3Service.resetHandlers()
     }
 

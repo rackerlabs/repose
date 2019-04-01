@@ -3,7 +3,7 @@
 <keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
     <identity-service
             username="admin_username"
-            password="password"
+            password="password-for-password-logging-test"
             uri="http://localhost:${identityPort}"
             set-groups-in-header="true"
             set-catalog-in-header="false"

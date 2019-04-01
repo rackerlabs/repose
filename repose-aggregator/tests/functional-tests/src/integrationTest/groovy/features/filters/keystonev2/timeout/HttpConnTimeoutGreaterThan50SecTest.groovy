@@ -28,6 +28,7 @@ import org.rackspace.deproxy.MessageChain
 import scaffold.category.Identity
 
 import javax.servlet.http.HttpServletResponse
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by jennyvo on 1/5/15.
@@ -114,8 +115,12 @@ class HttpConnTimeoutGreaterThan50SecTest extends ReposeValveTest {
         then: "Request should not be passed from repose"
         mc.receivedResponse.code as Integer == HttpServletResponse.SC_GATEWAY_TIMEOUT
         mc.handlings.size() == 0
-        sleep(1000)
-        reposeLogSearch.searchByString("Failure communicating with Identity during validate token request").size() > 0
+        reposeLogSearch.awaitByString(
+            "Failure communicating with Identity during validate token request",
+            1,
+            1,
+            TimeUnit.SECONDS
+        )
         reposeLogSearch.searchByString("NullPointerException").size() == 0
     }
 }

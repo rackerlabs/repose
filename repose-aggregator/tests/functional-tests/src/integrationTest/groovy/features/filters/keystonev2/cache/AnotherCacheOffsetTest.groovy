@@ -129,7 +129,7 @@ class AnotherCacheOffsetTest extends ReposeValveTest {
 
         DateTime maxTokenExpiration = initialBurstLastValidationCall.plusMillis(tokenTimeout + cacheOffset)
         while (maxTokenExpiration.isAfterNow()) {
-            sleep 500
+            sleep 100
         }
 
         userTokens.eachWithIndex { token, index ->

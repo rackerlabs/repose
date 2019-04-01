@@ -140,7 +140,8 @@ class ValkyrieAuthorizationCacheTest extends ReposeValveTest {
 
         when: "Cache is expire"
         fakeValkyrie.resetCounts()
-        sleep(500)
+
+        waitForHttpClientRequestCacheToClear()
 
         MessageChain mc = deproxy.makeRequest(url: reposeEndpoint + "/resource/520708", method: "GET",
                 headers: [

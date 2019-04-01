@@ -127,7 +127,7 @@ class IdentityV3GroupCacheOffsetTest extends ReposeValveTest {
         DateTime maximumTokenExpiration = lastTokenValidation.plusMillis(GROUPS_TIMEOUT + CACHE_VARIANCE)
         //wait until max token expiration is reached
         while (maximumTokenExpiration.isAfterNow()) {
-            sleep 200
+            sleep 100
         }
 
         clientThreads = new ArrayList<Thread>()

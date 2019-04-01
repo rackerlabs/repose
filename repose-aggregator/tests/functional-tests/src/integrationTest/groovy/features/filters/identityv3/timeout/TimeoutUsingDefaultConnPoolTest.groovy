@@ -27,6 +27,8 @@ import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import scaffold.category.Filters
 
+import java.util.concurrent.TimeUnit
+
 /**
  * Created by jennyvo on 11/9/15.
  *  When no config pool id in keystone-v3 filter it will use default pool
@@ -113,8 +115,7 @@ class TimeoutUsingDefaultConnPoolTest extends ReposeValveTest {
         then: "Request should not be passed from repose"
         mc.receivedResponse.code == "500"//HttpServletResponse.SC_GATEWAY_TIMEOUT
         mc.handlings.size() == 0
-        sleep(1000)
-        reposeLogSearch.searchByString("OpenStack Identity service could not be reached").size() > 0
+        reposeLogSearch.awaitByString( "OpenStack Identity service could not be reached", 1, 1, TimeUnit.SECONDS)
         reposeLogSearch.searchByString("NullPointerException").size() == 0
     }
 }

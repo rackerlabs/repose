@@ -28,6 +28,8 @@ import org.rackspace.deproxy.MessageChain
 import scaffold.category.Identity
 import spock.lang.Unroll
 
+import java.util.concurrent.TimeUnit
+
 /**
  * Created by jennyvo on 1/13/15.
  */
@@ -105,7 +107,19 @@ class MultiTenantswQualityTest extends ReposeValveTest {
     @Unroll("Request Tenant: #requestTenant")
     def "With legacy xsd namespace: when user token have multi-tenant will retrieve all tenants in the header"() {
         given:
-        repose.configurationProvider.applyConfigs("features/filters/keystonev2/multitenantswquality/oldnamespace", params, /*sleepTime*/ 25)
+        // TODO: This test method belongs in a separate class.  It configures repose
+        // differently than the other test method in this class. Since the config file
+        // doesn't change after each applyConfigs call, we don't actually need the
+        // and applyConfig + log search calls every test iteration. But this can't
+        // be moved into the setupSpec either.
+        repose.configurationProvider.applyConfigs("features/filters/keystonev2/multitenantswquality/oldnamespace", params)
+        reposeLogSearch.awaitByString(
+            "Configuration Updated: org.openrepose.filters.keystonev2.config.KeystoneV2AuthenticationConfig",
+            1,
+            25,
+            TimeUnit.SECONDS
+        )
+
         fakeIdentityService.with {
             client_token = clientToken
             tokenExpiresAt = (new DateTime()).plusDays(1)

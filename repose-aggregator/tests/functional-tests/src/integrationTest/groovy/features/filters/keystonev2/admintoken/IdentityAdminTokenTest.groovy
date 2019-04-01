@@ -60,7 +60,7 @@ class IdentityAdminTokenTest extends ReposeValveTest {
     }
 
     def setup() {
-        sleep 500
+        waitForHttpClientRequestCacheToClear()
         fakeIdentityV2Service.resetHandlers()
         fakeIdentityV2Service.resetCounts()
     }

@@ -30,6 +30,7 @@ import scaffold.category.Identity
 
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.core.HttpHeaders
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by jennyvo on 11/9/15.
@@ -45,7 +46,6 @@ class BasicAuthTimeoutUsingConnPoolTest extends ReposeValveTest {
 
     def setupSpec() {
         deproxy = new Deproxy()
-        reposeLogSearch.cleanLog()
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.cleanConfigDirectory()
@@ -68,7 +68,7 @@ class BasicAuthTimeoutUsingConnPoolTest extends ReposeValveTest {
             client_apikey = UUID.randomUUID().toString()
             client_token = UUID.randomUUID().toString()
         }
-        reposeLogSearch = new ReposeLogSearch(properties.getLogFile())
+        reposeLogSearch.cleanLog()
     }
 
     def "timeout test, auth response time out is less than socket connection time out"() {
@@ -76,9 +76,9 @@ class BasicAuthTimeoutUsingConnPoolTest extends ReposeValveTest {
         def headers = [
                 (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
         ]
-        "Delay 19 sec"
+        "Delay 18 sec"
         fakeIdentityService.with {
-            sleeptime = 19000
+            sleeptime = 18000
         }
 
         when: "the request does have an HTTP Basic authentication header with UserName/ApiKey"
@@ -100,7 +100,7 @@ class BasicAuthTimeoutUsingConnPoolTest extends ReposeValveTest {
         def headers = [
                 (HttpHeaders.AUTHORIZATION): 'Basic ' + Base64.encodeBase64URLSafeString((fakeIdentityService.client_username + ":" + fakeIdentityService.client_apikey).bytes)
         ]
-        "Delay 19 sec"
+        "Delay 22 sec"
         fakeIdentityService.with {
             sleeptime = 22000
         }
@@ -111,8 +111,7 @@ class BasicAuthTimeoutUsingConnPoolTest extends ReposeValveTest {
         then: "Request should not be passed from repose"
         mc.receivedResponse.code == "500"//HttpServletResponse.SC_GATEWAY_TIMEOUT
         mc.handlings.size() == 0
-        sleep(1000)
-        reposeLogSearch.searchByString("I/O error: Read timed out").size() > 0
+        reposeLogSearch.awaitByString("I/O error: Read timed out", 1, 1, TimeUnit.SECONDS)
         reposeLogSearch.searchByString("NullPointerException").size() == 0
     }
 }

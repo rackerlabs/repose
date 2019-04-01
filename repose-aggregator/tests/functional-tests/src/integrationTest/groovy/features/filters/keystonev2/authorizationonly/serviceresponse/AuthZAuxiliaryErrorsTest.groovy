@@ -58,7 +58,7 @@ class AuthZAuxiliaryErrorsTest extends ReposeValveTest {
     }
 
     def setup() {
-        sleep 500
+        waitForHttpClientRequestCacheToClear()
         reposeLogSearch.cleanLog()
         fakeIdentityV2Service.resetHandlers()
     }

@@ -143,7 +143,8 @@ class KeystoneV2ApplyRcnRolesDisabledTest extends ReposeValveTest {
 
         and: "the admin token has already been requested (either here or in a prior test)"
         deproxy.makeRequest(url: reposeEndpoint + "/test/ignored", headers: ['X-Auth-Token': UUID.randomUUID().toString()])
-        sleep(600) // Akka cache, 500 ms + padding
+
+        waitForHttpClientRequestCacheToClear()
 
         and: "the admin token will have to be requested again (and will be done only once in this message chain)"
         mockIdentity.validateTokenHandler = { unused1, unused2, unused3 ->
