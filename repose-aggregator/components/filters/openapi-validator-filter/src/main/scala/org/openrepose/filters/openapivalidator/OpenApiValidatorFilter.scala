@@ -83,7 +83,7 @@ class OpenApiValidatorFilter @Inject()(@Value(ReposeSpringProperties.CORE.CONFIG
         httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage)
       case Failure(e) =>
         val statusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR
-        logger.error("Failed to validate request -- rejecting with status code: '{}' for reason '{}'", statusCode.toString, e.getMessage, e)
+        logger.error("An unexpected issue arose while validating the request -- rejecting with status code: '{}' for reason '{}'", statusCode.toString, e.getMessage, e)
         httpResponse.sendError(statusCode, e.getMessage)
     }
   }
