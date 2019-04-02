@@ -173,8 +173,8 @@ class OpenApiValidatorFilterTest
       inputStreamToString(filterChain.getRequest.getInputStream, StandardCharsets.ISO_8859_1.name) shouldBe body
     }
 
-    OpenApiValidatorFilter.ValidationIssues.foreach { case (issueKey, issue) =>
-      it(s"should respond with a ${issue.statusCode} when a $issueKey message is reported") {
+    OpenApiValidatorFilter.ValidationIssues.foreach { case (issueKey, statusCode) =>
+      it(s"should respond with a $statusCode when a $issueKey message is reported") {
         val message = ValidationReportScala.Message.create(issueKey, "test message")
         when(validator.validateRequest(any[Request]))
           .thenReturn(ValidationReportScala.singleton(message))
@@ -183,23 +183,24 @@ class OpenApiValidatorFilterTest
 
         verify(validator).validateRequest(any[Request])
         filterChain.getRequest shouldBe null
-        servletResponse.getStatus shouldEqual issue.statusCode
+        servletResponse.getStatus shouldEqual statusCode
         servletResponse.getErrorMessage shouldBe message.getMessage
       }
     }
 
     OpenApiValidatorFilter.ValidationIssues.toSeq.take(4).combinations(2).flatMap(_.permutations).foreach { issuePairPermutation =>
-      val (firstIssueKey, firstIssue) = issuePairPermutation(0)
-      val (secondIssueKey, secondIssue) = issuePairPermutation(1)
+      val (firstIssueKey, firstIssueStatusCode) = issuePairPermutation(0)
+      val (secondIssueKey, secondIssueStatusCode) = issuePairPermutation(1)
+      val issueKeys = OpenApiValidatorFilter.ValidationIssues.keys.toSeq
 
       it(s"should report the highest priority validation issue between $firstIssueKey and $secondIssueKey") {
         val firstMessage = ValidationReportScala.Message.create(firstIssueKey, "first issue")
         val secondMessage = ValidationReportScala.Message.create(secondIssueKey, "second issue")
         val (expectedStatus, expectedMessage) =
-          if (firstIssue.priority < secondIssue.priority) {
-            (firstIssue.statusCode, firstMessage.getMessage)
+          if (issueKeys.indexOf(firstIssueKey) < issueKeys.indexOf(secondIssueKey)) {
+            (firstIssueStatusCode, firstMessage.getMessage)
           } else {
-            (secondIssue.statusCode, secondMessage.getMessage)
+            (secondIssueStatusCode, secondMessage.getMessage)
           }
 
         when(validator.validateRequest(any[Request]))

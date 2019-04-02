@@ -39,6 +39,7 @@ import org.openrepose.filters.openapivalidator.config.OpenApiValidatorConfig
 import org.springframework.beans.factory.annotation.Value
 
 import scala.collection.JavaConverters._
+import scala.collection.immutable.ListMap
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -72,8 +73,8 @@ class OpenApiValidatorFilter @Inject()(@Value(ReposeSpringProperties.CORE.CONFIG
       case Success(validationReport) =>
         getPriorityValidationFailure(validationReport) match {
           case Some(validationFailure) =>
-            logger.debug("Failed to validate request -- rejecting with status code: '{}' for reason: '{}'", validationFailure.issue.statusCode.toString, validationFailure.message)
-            httpResponse.sendError(validationFailure.issue.statusCode, validationFailure.message.getMessage)
+            logger.debug("Failed to validate request -- rejecting with status code: '{}' for reason: '{}'", validationFailure.statusCode.toString, validationFailure.message)
+            httpResponse.sendError(validationFailure.statusCode, validationFailure.message.getMessage)
           case None =>
             logger.trace("Successfully validated request -- continuing processing")
             chain.doFilter(bufferingHttpServletRequest, httpResponse)
@@ -126,38 +127,40 @@ class OpenApiValidatorFilter @Inject()(@Value(ReposeSpringProperties.CORE.CONFIG
 object OpenApiValidatorFilter {
 
   // A mapping from Message keys defined by the validation library to data defining how we will handle those Messages.
+  // This mapping is prioritized with higher priority issues being listed before lower priority issues.
+  // In the case of multiple validation issues for a single request, the highest priority issue will be used to
+  // craft a response.
+  // Note that since this Map is ordered, lookups are not performed in constant time.
   // Note that the path and method checks necessarily occur before all other checks since they are required
   // to resolve the API Operation in the OpenAPI document.
   // If either one fails, no further checks will be performed.
   // As such, the validation order will be (path -> method -> everything else).
-  // For that reason, path and method issues are given the highest and second highest priorities respectively.
-  final val ValidationIssues: Map[String, ValidationIssue] = Map(
-    "validation.request.path.missing" -> ValidationIssue(HttpServletResponse.SC_NOT_FOUND, -2),
-    "validation.request.operation.notAllowed" -> ValidationIssue(HttpServletResponse.SC_METHOD_NOT_ALLOWED, -1),
-    "validation.request.body.unexpected" -> ValidationIssue(HttpServletResponse.SC_BAD_REQUEST, 0),
-    "validation.request.body.missing" -> ValidationIssue(HttpServletResponse.SC_BAD_REQUEST, 1),
-    "validation.request.security.missing" -> ValidationIssue(HttpServletResponse.SC_BAD_REQUEST, 2),
-    "validation.request.security.invalid" -> ValidationIssue(HttpServletResponse.SC_BAD_REQUEST, 3),
-    "validation.request.parameter.header.missing" -> ValidationIssue(HttpServletResponse.SC_BAD_REQUEST, 4),
-    "validation.request.parameter.query.missing" -> ValidationIssue(HttpServletResponse.SC_BAD_REQUEST, 5),
-    "validation.request.parameter.missing" -> ValidationIssue(HttpServletResponse.SC_BAD_REQUEST, 6),
-    "validation.request.parameter.enum.invalid" -> ValidationIssue(HttpServletResponse.SC_BAD_REQUEST, 7),
-    "validation.request.parameter.collection.invalid" -> ValidationIssue(HttpServletResponse.SC_BAD_REQUEST, 8),
-    "validation.request.parameter.collection.invalidFormat" -> ValidationIssue(HttpServletResponse.SC_BAD_REQUEST, 9),
-    "validation.request.parameter.collection.tooManyItems" -> ValidationIssue(HttpServletResponse.SC_BAD_REQUEST, 10),
-    "validation.request.parameter.collection.tooFewItems" -> ValidationIssue(HttpServletResponse.SC_BAD_REQUEST, 11),
-    "validation.request.parameter.collection.duplicateItems" -> ValidationIssue(HttpServletResponse.SC_BAD_REQUEST, 12),
-    "validation.request.contentType.invalid" -> ValidationIssue(HttpServletResponse.SC_BAD_REQUEST, 13),
-    "validation.request.contentType.notAllowed" -> ValidationIssue(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, 14),
-    "validation.request.accept.invalid" -> ValidationIssue(HttpServletResponse.SC_BAD_REQUEST, 15),
-    "validation.request.accept.notAllowed" -> ValidationIssue(HttpServletResponse.SC_NOT_ACCEPTABLE, 16),
-    "validation.schema.invalidJson" -> ValidationIssue(HttpServletResponse.SC_BAD_REQUEST, 17),
-    "validation.schema.unknownError" -> ValidationIssue(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 18)
+  // For that reason, path and method issues are given the highest priorities.
+  final val ValidationIssues: Map[String, Int] = ListMap(
+    "validation.request.path.missing" -> HttpServletResponse.SC_NOT_FOUND,
+    "validation.request.operation.notAllowed" -> HttpServletResponse.SC_METHOD_NOT_ALLOWED,
+    "validation.request.body.unexpected" -> HttpServletResponse.SC_BAD_REQUEST,
+    "validation.request.body.missing" -> HttpServletResponse.SC_BAD_REQUEST,
+    "validation.request.security.missing" -> HttpServletResponse.SC_BAD_REQUEST,
+    "validation.request.security.invalid" -> HttpServletResponse.SC_BAD_REQUEST,
+    "validation.request.parameter.header.missing" -> HttpServletResponse.SC_BAD_REQUEST,
+    "validation.request.parameter.query.missing" -> HttpServletResponse.SC_BAD_REQUEST,
+    "validation.request.parameter.missing" -> HttpServletResponse.SC_BAD_REQUEST,
+    "validation.request.parameter.enum.invalid" -> HttpServletResponse.SC_BAD_REQUEST,
+    "validation.request.parameter.collection.invalid" -> HttpServletResponse.SC_BAD_REQUEST,
+    "validation.request.parameter.collection.invalidFormat" -> HttpServletResponse.SC_BAD_REQUEST,
+    "validation.request.parameter.collection.tooManyItems" -> HttpServletResponse.SC_BAD_REQUEST,
+    "validation.request.parameter.collection.tooFewItems" -> HttpServletResponse.SC_BAD_REQUEST,
+    "validation.request.parameter.collection.duplicateItems" -> HttpServletResponse.SC_BAD_REQUEST,
+    "validation.request.contentType.invalid" -> HttpServletResponse.SC_BAD_REQUEST,
+    "validation.request.contentType.notAllowed" -> HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
+    "validation.request.accept.invalid" -> HttpServletResponse.SC_BAD_REQUEST,
+    "validation.request.accept.notAllowed" -> HttpServletResponse.SC_NOT_ACCEPTABLE,
+    "validation.schema.invalidJson" -> HttpServletResponse.SC_BAD_REQUEST,
+    "validation.schema.unknownError" -> HttpServletResponse.SC_INTERNAL_SERVER_ERROR
   )
 
-  case class ValidationIssue(statusCode: Int, priority: Int)
-
-  case class ValidationFailure(issue: ValidationIssue, message: ValidationReport.Message)
+  case class ValidationFailure(statusCode: Int, message: ValidationReport.Message)
 
   /**
     * @param httpServletRequest an [[HttpServletRequest]]
@@ -196,10 +199,13 @@ object OpenApiValidatorFilter {
     * @return the highest priority [[ValidationFailure]] if one exists, otherwise [[None]]
     */
   private def getPriorityValidationFailure(validationReport: ValidationReport): Option[ValidationFailure] = {
-    validationReport.getMessages.asScala
+    val errorMessages = validationReport.getMessages.asScala
       .filter(message => message.getLevel == ValidationReport.Level.ERROR)
-      .flatMap(message => ValidationIssues.get(message.getKey).map(issue => ValidationFailure(issue, message)))
-      .sortBy(issue => issue.issue.priority)
-      .headOption
+      .map(message => message.getKey -> message)
+      .toMap
+
+    ValidationIssues
+      .find({ case (issueKey, _) => errorMessages.contains(issueKey) })
+      .map({ case (issueKey, statusCode) => ValidationFailure(statusCode, errorMessages(issueKey)) })
   }
 }
