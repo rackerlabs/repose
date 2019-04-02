@@ -24,11 +24,10 @@ import java.nio.charset.{IllegalCharsetNameException, StandardCharsets, Unsuppor
 import java.util
 import java.util.{Collections, Optional}
 
-import com.atlassian.oai.validator.model.Request
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.atlassian.oai.validator.model.{Request, SimpleRequest}
 import javax.servlet.http.HttpServletRequest
 import org.openrepose.commons.utils.http.normal.{QueryParameter, QueryParameterCollection}
-import org.openrepose.filters.openapivalidator.HttpServletOAIRequest._
+import org.openrepose.filters.openapivalidator.HttpServletValidatorRequest._
 
 import scala.collection.JavaConverters._
 import scala.io.Source
@@ -37,8 +36,8 @@ import scala.io.Source
   * A wrapper that exposes an underlying [[HttpServletRequest]] as a [[Request]]
   * usable by an [[com.atlassian.oai.validator.OpenApiInteractionValidator]].
   */
-class HttpServletOAIRequest(httpServletRequest: HttpServletRequest)
-  extends Request with StrictLogging {
+class HttpServletValidatorRequest(httpServletRequest: HttpServletRequest)
+  extends Request {
 
   private lazy val encoding: String = {
     Option(httpServletRequest.getCharacterEncoding)
@@ -60,18 +59,14 @@ class HttpServletOAIRequest(httpServletRequest: HttpServletRequest)
       .getOrElse(Seq.empty)
   }
 
-  // Header values are not split on commas.
-  // Splitting is an option when using the `SimpleRequest.Builder`, however doing so many not preserve the semantics
-  // of the split value.
-  // On the other hand, if we do not split, the validator may be unable to recognize multiple values and may
-  // treat them as a single value instead.
-  // For the moment, if splitting is necessary, the `SplitHeaderFilter` may be used.
-  // Additionally, header name lookups should be case-insensitive.
-  // This is achieved by simply lower-casing header names since there is no requirement to preserve casing.
-  private lazy val headers: Map[String, Seq[String]] = {
-    httpServletRequest.getHeaderNames.asScala.map(_.toLowerCase).map { headerName =>
-      headerName -> httpServletRequest.getHeaders(headerName).asScala.toSeq
-    }.toMap
+  // Leverages the SimpleRequest.Builder to perform additional header processing like value splitting on commas
+  // and constructing a key-case-insensitive Map.
+  private lazy val headers: util.Map[String, util.Collection[String]] = {
+    val requestBuilder = SimpleRequest.Builder.get("/")
+    httpServletRequest.getHeaderNames.asScala.foreach { headerName =>
+      requestBuilder.withHeader(headerName, Collections.list(httpServletRequest.getHeaders(headerName)))
+    }
+    requestBuilder.build.getHeaders
   }
 
   override def getPath: String = {
@@ -118,20 +113,16 @@ class HttpServletOAIRequest(httpServletRequest: HttpServletRequest)
 
   override def getHeaders: util.Map[String, util.Collection[String]] = {
     headers
-      .mapValues(_.asJavaCollection)
-      .asJava
   }
 
   override def getHeaderValues(name: String): util.Collection[String] = {
-    headers
-      .getOrElse(name.toLowerCase, Seq.empty)
-      .asJava
+    headers.getOrDefault(name, util.Collections.emptyList[String])
   }
 }
 
-object HttpServletOAIRequest {
+object HttpServletValidatorRequest {
   def apply(httpServletRequest: HttpServletRequest): Request = {
-    new HttpServletOAIRequest(httpServletRequest)
+    new HttpServletValidatorRequest(httpServletRequest)
   }
 
   case class RequestConversionException(message: String, cause: Throwable) extends RuntimeException(message, cause)

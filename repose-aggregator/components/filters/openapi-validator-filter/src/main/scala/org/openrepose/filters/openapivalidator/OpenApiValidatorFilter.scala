@@ -33,7 +33,7 @@ import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.AbstractConfiguredFilter
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.spring.ReposeSpringProperties
-import org.openrepose.filters.openapivalidator.HttpServletOAIRequest.RequestConversionException
+import org.openrepose.filters.openapivalidator.HttpServletValidatorRequest.RequestConversionException
 import org.openrepose.filters.openapivalidator.OpenApiValidatorFilter._
 import org.openrepose.filters.openapivalidator.config.OpenApiValidatorConfig
 import org.springframework.beans.factory.annotation.Value
@@ -61,7 +61,7 @@ class OpenApiValidatorFilter @Inject()(@Value(ReposeSpringProperties.CORE.CONFIG
     bufferingHttpServletRequest.getInputStream.mark(Integer.MAX_VALUE)
 
     logger.trace("Wrapping the servlet request in a validation library request")
-    val validationRequest = HttpServletOAIRequest(bufferingHttpServletRequest)
+    val validationRequest = HttpServletValidatorRequest(bufferingHttpServletRequest)
 
     logger.trace("Validating request")
     val tryValidationReport = Try(validator.validateRequest(validationRequest))

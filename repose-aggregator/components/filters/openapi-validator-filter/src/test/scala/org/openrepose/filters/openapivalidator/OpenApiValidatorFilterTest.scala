@@ -34,7 +34,7 @@ import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.filters.openapivalidator.HttpServletOAIRequest.RequestConversionException
+import org.openrepose.filters.openapivalidator.HttpServletValidatorRequest.RequestConversionException
 import org.openrepose.filters.openapivalidator.OpenApiValidatorFilterTest._
 import org.openrepose.filters.openapivalidator.config.OpenApiValidatorConfig
 import org.scalatest.junit.JUnitRunner
