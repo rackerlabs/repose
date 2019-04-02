@@ -83,6 +83,17 @@ class OpenApiValidatorFilterTest
       filterChain.getRequest should not be null
     }
 
+    it("should pass on a request with an unknown validation issue") {
+      val message = ValidationReportScala.Message.create("unknown.key", "test message")
+      when(validator.validateRequest(any[Request]))
+        .thenReturn(ValidationReportScala.singleton(message))
+
+      openApiValidatorFilter.doWork(servletRequest, servletResponse, filterChain)
+
+      verify(validator).validateRequest(any[Request])
+      filterChain.getRequest should not be null
+    }
+
     it("should wrap the request input stream if mark is not supported") {
       when(validator.validateRequest(any[Request]))
         .thenAnswer((request: Request) => {
