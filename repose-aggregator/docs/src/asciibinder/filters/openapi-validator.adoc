@@ -9,7 +9,7 @@ For example, if the OpenAPI document requires a query parameter for a particular
 == General filter information
 * *Name:* openapi-validator
 * *Default Configuration:* openapi-validator.cfg.xml
-* *Released:* TBA
+* *Released:* 9.0.1.0
 * *Bundle:* repose-filter-bundle
 * link:../schemas/openapi-validator.xsd[Schema]
 
