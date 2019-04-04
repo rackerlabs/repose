@@ -177,23 +177,14 @@ object OpenApiValidatorFilter {
   }
 
   /**
-    * Maps all Error-level Messages to Issues, sorts the Issues by priority, and returns the highest priority Issue,
-    * if one is present.
+    * Finds the highest priority Error-level Message from a [[ValidationReport]].
     *
     * Note that a report may contain Messages for more than one failed check.
     *
-    * Note that we have chosen to ignore unknown issues (i.e., remove issues that are not present in our issue map).
-    * In doing so, we are effectively only supporting issues that we have mapped out ourselves.
-    * As a result, the behavior of this filter should be knowable without requiring intimate knowledge
-    * of the underlying validation library.
-    * Additionally, the underlying validation library can be upgraded while the behavior of this filter
-    * remains relatively stable (since any new issues would not necessarily need to be accounted for
-    * at the time of the upgrade).
-    * Furthermore, this approach provides a way to add functionality iteratively.
-    * For example, if this filter fails to map an attribute of the servlet request to a request
-    * for validation, the request is passed rather than rejected.
-    * In that case, rejection would be inappropriate since the request may satisfy the required
-    * criterion, our mapping simply does not provide the information necessary to make an accurate determination.
+    * Note that we unknown issues (i.e., issues that are not present in our issue map) will cause
+    * a general-purpose [[ValidationFailure]] to be returned.
+    * In this way, we are failing for any validation error in the report.
+    * The validation library is considered the source of truth for what validations are supported.
     *
     * @param validationReport a [[ValidationReport]]
     * @return the highest priority [[ValidationFailure]] if one exists, otherwise [[None]]
@@ -204,8 +195,13 @@ object OpenApiValidatorFilter {
       .map(message => message.getKey -> message)
       .toMap
 
-    ValidationIssues
-      .find({ case (issueKey, _) => errorMessages.contains(issueKey) })
-      .map({ case (issueKey, statusCode) => ValidationFailure(statusCode, errorMessages(issueKey)) })
+    if (errorMessages.isEmpty) {
+      None
+    } else {
+      ValidationIssues
+        .find({ case (issueKey, _) => errorMessages.contains(issueKey) })
+        .orElse(Some(errorMessages.keys.head, HttpServletResponse.SC_BAD_REQUEST))
+        .map({ case (issueKey, statusCode) => ValidationFailure(statusCode, errorMessages(issueKey)) })
+    }
   }
 }

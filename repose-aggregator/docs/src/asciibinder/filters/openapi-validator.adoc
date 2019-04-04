@@ -60,6 +60,7 @@ a| * The OpenAPI document does not specify a request body, but the request conta
    * The request contains a `Content-Type` header with an invalid value.
    * The request contains an `Accept` header with an invalid value.
    * The OpenAPI document requires JSON content, but the request contains invalid JSON content.
+   * A validation failure that is not explicitly expected has occurred.
 
 | `404`
 a| * The OpenAPI document does not contain a path matching the path of the request.
@@ -96,7 +97,7 @@ This configuration will validate inbound requests against an OpenAPI document.
 
 == Additional Information
 This filter is backed by the https://bitbucket.org/atlassian/swagger-request-validator[Swagger Request Validator] library.
-As such, only validations supported by that library are supported by this filter.
+As such, the validations supported by this filter are exactly those supported by that library.
 
 === Validation Failure Priority
 If a request fails validation due to more than one issue, the issue with the highest priority will be used to set the response status code and reason.
@@ -124,3 +125,4 @@ The following list provides all request validation issues handled by this filter
 . Accept type not allowed
 . Invalid JSON content
 . Unknown schema validation problem
+. Any other validation failure

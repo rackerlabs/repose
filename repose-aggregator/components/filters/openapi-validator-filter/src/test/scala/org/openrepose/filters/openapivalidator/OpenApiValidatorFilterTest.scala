@@ -83,17 +83,6 @@ class OpenApiValidatorFilterTest
       filterChain.getRequest should not be null
     }
 
-    it("should pass on a request with an unknown validation issue") {
-      val message = ValidationReportScala.Message.create("unknown.key", "test message")
-      when(validator.validateRequest(any[Request]))
-        .thenReturn(ValidationReportScala.singleton(message))
-
-      openApiValidatorFilter.doWork(servletRequest, servletResponse, filterChain)
-
-      verify(validator).validateRequest(any[Request])
-      filterChain.getRequest should not be null
-    }
-
     it("should wrap the request input stream if mark is not supported") {
       when(validator.validateRequest(any[Request]))
         .thenAnswer((request: Request) => {
@@ -227,6 +216,19 @@ class OpenApiValidatorFilterTest
         servletResponse.getStatus shouldEqual expectedStatus
         servletResponse.getErrorMessage shouldBe expectedMessage
       }
+    }
+
+    it("should respond with a 400 on a request with an unknown validation issue") {
+      val message = ValidationReportScala.Message.create("unknown.key", "test message")
+      when(validator.validateRequest(any[Request]))
+        .thenReturn(ValidationReportScala.singleton(message))
+
+      openApiValidatorFilter.doWork(servletRequest, servletResponse, filterChain)
+
+      verify(validator).validateRequest(any[Request])
+      filterChain.getRequest shouldBe null
+      servletResponse.getStatus shouldEqual HttpServletResponse.SC_BAD_REQUEST
+      servletResponse.getErrorMessage shouldBe message.getMessage
     }
 
     it("should respond with a 500 if a servlet request cannot be converted to a validation request") {
