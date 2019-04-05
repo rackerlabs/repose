@@ -181,7 +181,7 @@ object OpenApiValidatorFilter {
     *
     * Note that a report may contain Messages for more than one failed check.
     *
-    * Note that we unknown issues (i.e., issues that are not present in our issue map) will cause
+    * Note that unknown issues (i.e., issues that are not present in our issue map) will cause
     * a general-purpose [[ValidationFailure]] to be returned.
     * In this way, we are failing for any validation error in the report.
     * The validation library is considered the source of truth for what validations are supported.
