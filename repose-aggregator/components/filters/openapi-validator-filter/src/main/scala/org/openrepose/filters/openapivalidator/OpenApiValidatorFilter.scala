@@ -90,9 +90,24 @@ class OpenApiValidatorFilter @Inject()(@Value(ReposeSpringProperties.CORE.CONFIG
   }
 
   override def doConfigurationUpdated(newConfiguration: OpenApiValidatorConfig): OpenApiValidatorConfig = {
+    // Setting the current thread's context ClassLoader to the ClassLoader that loaded this class.
+    // This is a hack to get the OpenAPIParser's ServiceLoader to load the Swagger v2 parser.
+    // Without this hack, we cannot support Swagger v2 documents.
+    //
+    // Part of the issue is that this code is executed on the Thread created by the ConfigurationService,
+    // and the executing Thread's context ClassLoader is what the ServiceLoader uses to load a resource
+    // which defines services.
+    // Well, the ConfigurationService Thread does not have a context ClassLoader set, so the system ClassLoader
+    // is used instead, but due to the way filters are loaded, the system ClassLoader cannot access the same
+    // resources as the ClassLoader used to load this filter.
+    val contextClassLoader = Thread.currentThread.getContextClassLoader
+    Thread.currentThread.setContextClassLoader(classOf[OpenApiValidatorFilter].getClassLoader)
+
     validator = OpenApiInteractionValidator
       .createFor(resolveHref(newConfiguration.getHref))
       .build()
+
+    Thread.currentThread.setContextClassLoader(contextClassLoader)
 
     newConfiguration
   }
