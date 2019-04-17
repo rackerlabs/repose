@@ -23,8 +23,6 @@ import lombok.Data;
 
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 @XmlRootElement(name = "system-model")
 @XmlAccessorType(XmlAccessType.FIELD)
