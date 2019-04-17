@@ -98,7 +98,7 @@ Let's break that command down and take a closer look at what it is doing:
 +
 <1> This tells Docker to build an image.
 <2> This option is used by the Dockerfile to know what version of *Repose* to install.
-    See our http://www.openrepose.org/versions/latest/release-notes.html[Release Notes] page for a list of available versions.
+    See our http://www.openrepose.org/versions/latest/welcome/release-notes.html[Release Notes] page for a list of available versions.
 <3> This option defines the tag to apply to the image.
     It is in `repository:tag` format.
 <4> The last parameter is the path to the `docker build` context.
