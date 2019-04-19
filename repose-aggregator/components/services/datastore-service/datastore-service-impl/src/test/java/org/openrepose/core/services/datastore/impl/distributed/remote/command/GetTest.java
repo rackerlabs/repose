@@ -21,8 +21,6 @@ package org.openrepose.core.services.datastore.impl.distributed.remote.command;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.http.ServiceClientResponse;
 import org.openrepose.commons.utils.io.ObjectSerializer;
 import org.openrepose.core.services.datastore.DatastoreOperationException;
@@ -39,47 +37,40 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(Enclosed.class)
 public class GetTest {
     //Since we're serializing objects here for the dist datastore, we must have the dist datastore objects in our classpath
     static final ObjectSerializer objectSerializer = new ObjectSerializer(GetTest.class.getClassLoader());
 
-    public static class WhenCreatingHttpRequestBase {
+    @Test
+    public void shouldTargetCorrectDeletionUrl() throws UnknownHostException {
+        final Get getCommand = new Get("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null, false);
 
-        @Test
-        public void shouldTargetCorrectDeletionUrl() throws UnknownHostException {
-            final Get getCommand = new Get("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null, false);
-
-            Assert.assertEquals("Get command must target expected URL", "http://127.0.0.1:1000" + CacheRequest.CACHE_URI_PATH + "object-key", getCommand.getUrl());
-        }
+        Assert.assertEquals("Get command must target expected URL", "http://127.0.0.1:1000" + CacheRequest.CACHE_URI_PATH + "object-key", getCommand.getUrl());
     }
 
-    public static class WhenProcessingResponse {
+    @Test
+    public void shouldReturnTrueOnSuccess() throws Exception {
+        final Get getCommand = new Get("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null, false);
 
-        @Test
-        public void shouldReturnTrueOnSuccess() throws Exception {
-            final Get getCommand = new Get("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null, false);
+        // RemoteBehavior.ALLOW_FORWARDING
+        final ServiceClientResponse response = mock(ServiceClientResponse.class);
+        final String responseData = "Response Data";
 
-            // RemoteBehavior.ALLOW_FORWARDING
-            final ServiceClientResponse response = mock(ServiceClientResponse.class);
-            final String responseData = "Response Data";
+        ByteArrayInputStream bt = new ByteArrayInputStream(objectSerializer.writeObject(responseData));
 
-            ByteArrayInputStream bt = new ByteArrayInputStream(objectSerializer.writeObject(responseData));
+        when(response.getData()).thenReturn(bt);
+        when(response.getStatus()).thenReturn(200);
 
-            when(response.getData()).thenReturn(bt);
-            when(response.getStatus()).thenReturn(200);
+        assertThat((String) getCommand.handleResponse(response), equalTo(responseData));
+    }
 
-            assertThat((String) getCommand.handleResponse(response), equalTo(responseData));
-        }
+    @Test(expected = DatastoreOperationException.class)
+    public void shouldThrowExeptionOnUnauthorized() throws Exception {
+        final Get getCommand = new Get("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null, false);
 
-        @Test(expected = DatastoreOperationException.class)
-        public void shouldThrowExeptionOnUnauthorized() throws Exception {
-            final Get getCommand = new Get("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000), null, false);
+        final ServiceClientResponse response = mock(ServiceClientResponse.class);
+        when(response.getStatus()).thenReturn(HttpServletResponse.SC_UNAUTHORIZED);
 
-            final ServiceClientResponse response = mock(ServiceClientResponse.class);
-            when(response.getStatus()).thenReturn(HttpServletResponse.SC_UNAUTHORIZED);
-
-            getCommand.handleResponse(response);
-        }
+        getCommand.handleResponse(response);
     }
 }

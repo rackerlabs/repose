@@ -21,8 +21,6 @@ package org.openrepose.commons.config.manager;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.thread.KeyedStackLock;
 
 import java.util.ArrayList;
@@ -38,52 +36,49 @@ import static org.junit.Assert.assertThat;
  * Date: 7/6/11
  * Time: 1:32 PM
  */
-@RunWith(Enclosed.class)
 public class LockedConfigurationUpdaterTest {
-    public static class WhenLockingOperations {
-        private KeyedStackLock updateLock;
-        private Object updateKey1, updateKey2;
-        private List<String> configProperties;
+    private KeyedStackLock updateLock;
+    private Object updateKey1, updateKey2;
+    private List<String> configProperties;
 
-        @Before
-        public void setup() {
-            updateLock = new KeyedStackLock();
-            updateKey1 = new Object();
-            updateKey2 = new Object();
-            configProperties = new ArrayList<>();
-        }
+    @Before
+    public void setup() {
+        updateLock = new KeyedStackLock();
+        updateKey1 = new Object();
+        updateKey2 = new Object();
+        configProperties = new ArrayList<>();
+    }
 
-        @Test
-        public void shouldLockWhenUsingUniqueKeys() throws InterruptedException {
-            final SampleConfigObject config = new SampleConfigObject(configProperties);
-            final TestConfigUpdater updater2 = new TestConfigUpdater(updateLock, updateKey2, "prop2", 0, null, false);
-            Thread t2 = new Thread(() -> updater2.configurationUpdated(config));
+    @Test
+    public void shouldLockWhenUsingUniqueKeys() throws InterruptedException {
+        final SampleConfigObject config = new SampleConfigObject(configProperties);
+        final TestConfigUpdater updater2 = new TestConfigUpdater(updateLock, updateKey2, "prop2", 0, null, false);
+        Thread t2 = new Thread(() -> updater2.configurationUpdated(config));
 
-            final TestConfigUpdater updater1 = new TestConfigUpdater(updateLock, updateKey1, "prop1", 10, t2, false);
-            Thread t1 = new Thread(() -> updater1.configurationUpdated(config));
+        final TestConfigUpdater updater1 = new TestConfigUpdater(updateLock, updateKey1, "prop1", 10, t2, false);
+        Thread t1 = new Thread(() -> updater1.configurationUpdated(config));
 
-            t1.start();
+        t1.start();
 
-            t1.join();
-            t2.join();
+        t1.join();
+        t2.join();
 
-            assertThat(configProperties, contains("prop1", "prop2"));
-        }
+        assertThat(configProperties, contains("prop1", "prop2"));
+    }
 
-        @Test
-        public void shouldNotLockWhenUsingSharedKeys() throws InterruptedException {
-            final SampleConfigObject config = new SampleConfigObject(configProperties);
-            final TestConfigUpdater updater2 = new TestConfigUpdater(updateLock, updateKey1, "prop2", 0, null, true);
-            Thread t2 = new Thread(() -> updater2.configurationUpdated(config));
+    @Test
+    public void shouldNotLockWhenUsingSharedKeys() throws InterruptedException {
+        final SampleConfigObject config = new SampleConfigObject(configProperties);
+        final TestConfigUpdater updater2 = new TestConfigUpdater(updateLock, updateKey1, "prop2", 0, null, true);
+        Thread t2 = new Thread(() -> updater2.configurationUpdated(config));
 
-            final TestConfigUpdater updater1 = new TestConfigUpdater(updateLock, updateKey1, "prop1", 0, t2, true);
-            Thread t1 = new Thread(() -> updater1.configurationUpdated(config));
+        final TestConfigUpdater updater1 = new TestConfigUpdater(updateLock, updateKey1, "prop1", 0, t2, true);
+        Thread t1 = new Thread(() -> updater1.configurationUpdated(config));
 
-            t1.start();
-            t1.join();
+        t1.start();
+        t1.join();
 
-            assertThat(configProperties, contains("prop2", "prop1"));
-        }
+        assertThat(configProperties, contains("prop2", "prop1"));
     }
 
     private static class TestConfigUpdater extends LockedConfigurationUpdater<SampleConfigObject> {

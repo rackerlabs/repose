@@ -20,8 +20,6 @@
 package org.openrepose.commons.config.resource.impl;
 
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 import org.openrepose.commons.config.resource.ConfigurationResource;
 
 import java.net.MalformedURLException;
@@ -29,20 +27,16 @@ import java.net.URL;
 
 import static org.junit.Assert.assertEquals;
 
-@RunWith(Enclosed.class)
 public class BufferedURLConfigurationResourceTest {
 
-    public static class WhenUsingBufferedURLConfigurationResource {
+    @Test
+    public void shouldReturnName() throws MalformedURLException {
+        String urlString = "file:/META-INF/test/test.properties";
 
-        @Test
-        public void shouldReturnName() throws MalformedURLException {
-            String urlString = "file:/META-INF/test/test.properties";
+        URL url = new URL(urlString);
 
-            URL url = new URL(urlString);
+        ConfigurationResource configResource = new BufferedURLConfigurationResource(url);
 
-            ConfigurationResource configResource = new BufferedURLConfigurationResource(url);
-
-            assertEquals(urlString, configResource.name());
-        }
+        assertEquals(urlString, configResource.name());
     }
 }

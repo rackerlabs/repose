@@ -21,8 +21,6 @@ package org.openrepose.core.services.deploy;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
 import java.io.File;
 
@@ -30,34 +28,30 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
-@RunWith(Enclosed.class)
 public class EarFilenameFilterTest {
 
-    public static class WhenLocatingEarFile {
+    private File dir = new File("/usr/share/repose/filters");
+    private EarFilenameFilter earFilenameFilter;
 
-        protected File dir = new File("/usr/share/repose/filters");
-        protected EarFilenameFilter earFilenameFilter;
+    @Before
+    public void setUp() {
 
-        @Before
-        public void setUp() {
+        earFilenameFilter = (EarFilenameFilter) EarFilenameFilter.getInstance();
+    }
 
-            earFilenameFilter = (EarFilenameFilter) EarFilenameFilter.getInstance();
-        }
+    @Test
+    public void shouldReturnTrueForValidEarName() {
 
-        @Test
-        public void shouldReturnTrueForValidEarName() {
+        assertTrue(earFilenameFilter.accept(dir, "filter-bundle.ear"));
+    }
 
-            assertTrue(earFilenameFilter.accept(dir, "filter-bundle.ear"));
-        }
+    @Test
+    public void shouldReturnFalseForInvalidEarName() {
+        assertFalse(earFilenameFilter.accept(dir, "filter-bunder"));
+    }
 
-        @Test
-        public void shouldReturnFalseForInvalidEarName() {
-            assertFalse(earFilenameFilter.accept(dir, "filter-bunder"));
-        }
-
-        @Test
-        public void shouldReturnFalseForEmptyEarName() {
-            assertFalse(earFilenameFilter.accept(dir, ""));
-        }
+    @Test
+    public void shouldReturnFalseForEmptyEarName() {
+        assertFalse(earFilenameFilter.accept(dir, ""));
     }
 }

@@ -20,8 +20,6 @@
 package org.openrepose.core.filter;
 
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 import org.openrepose.core.services.event.PowerFilterEvent;
 
 import static org.junit.Assert.assertEquals;
@@ -29,13 +27,10 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author fran
  */
-@RunWith(Enclosed.class)
 public class PowerFilterEventTest {
-    public static class WhenUsingPowerFilterEvent {
-        @Test
-        public void shouldBeUsable() {
-            PowerFilterEvent filterEvent = PowerFilterEvent.POWER_FILTER_CONFIGURED;
-            assertEquals(PowerFilterEvent.POWER_FILTER_CONFIGURED, filterEvent);
-        }
+    @Test
+    public void shouldBeUsable() {
+        PowerFilterEvent filterEvent = PowerFilterEvent.POWER_FILTER_CONFIGURED;
+        assertEquals(PowerFilterEvent.POWER_FILTER_CONFIGURED, filterEvent);
     }
 }

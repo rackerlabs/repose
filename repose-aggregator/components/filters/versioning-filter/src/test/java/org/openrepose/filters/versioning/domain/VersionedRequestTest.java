@@ -21,10 +21,7 @@ package org.openrepose.filters.versioning.domain;
 
 import org.apache.http.HttpHeaders;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.http.media.MediaType;
 import org.openrepose.commons.utils.http.media.MimeType;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
@@ -37,171 +34,154 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(Enclosed.class)
 public class VersionedRequestTest {
 
-    @Ignore
-    public static class TestParent {
+    List<MediaType> mediaRangeList;
+    ServiceVersionMapping mapping;
 
-        List<MediaType> mediaRangeList;
-        ServiceVersionMapping mapping;
+    @Before
+    public void standUp() {
+        mediaRangeList = new LinkedList<>();
+        mediaRangeList.add(new MediaType("", MimeType.UNKNOWN, -1));
 
-        @Before
-        public void standUp() {
-            mediaRangeList = new LinkedList<>();
-            mediaRangeList.add(new MediaType("", MimeType.UNKNOWN, -1));
-
-            mapping = new ServiceVersionMapping();
-            mapping.setId("v1.0");
-        }
+        mapping = new ServiceVersionMapping();
+        mapping.setId("v1.0");
     }
 
-    public static class WhenIdentifyingVersionsInRequestUris extends TestParent {
+    @Test
+    public void shouldIdentifyVersion() {
+        final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
+        when(request.getRequestURI()).thenReturn("/v1.0/resource");
 
-        @Test
-        public void shouldIdentifyVersion() {
-            final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
-            when(request.getRequestURI()).thenReturn("/v1.0/resource");
+        final VersionedRequest versionedRequest = new VersionedRequest(request, mapping);
 
-            final VersionedRequest versionedRequest = new VersionedRequest(request, mapping);
-
-            assertTrue(versionedRequest.requestBelongsToVersionMapping());
-        }
-
-        @Test
-        public void shouldIdentifyVersionWithTrailingSlash() {
-            final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
-            when(request.getRequestURI()).thenReturn("/v1.0/resource/");
-
-            final VersionedRequest versionedRequest = new VersionedRequest(request, mapping);
-
-            assertTrue(versionedRequest.requestBelongsToVersionMapping());
-        }
-
-        @Test
-        public void shouldNotMatchPartialVersionMatches() {
-            final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
-            when(request.getRequestURI()).thenReturn("/v1.01/resource/");
-
-            final VersionedRequest versionedRequest = new VersionedRequest(request, mapping);
-
-            assertFalse(versionedRequest.requestBelongsToVersionMapping());
-        }
+        assertTrue(versionedRequest.requestBelongsToVersionMapping());
     }
 
-    public static class WhenGeneratingInternalMappings extends TestParent {
+    @Test
+    public void shouldIdentifyVersionWithTrailingSlash() {
+        final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
+        when(request.getRequestURI()).thenReturn("/v1.0/resource/");
 
-        @Test(expected = IllegalArgumentException.class)
-        public void shouldNotAcceptUriWithoutRoot() {
-            final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
-            when(request.getRequestURI()).thenReturn("a/requested/resource");
+        final VersionedRequest versionedRequest = new VersionedRequest(request, mapping);
 
-            new VersionedRequest(request, mapping).asInternalURI();
-        }
-
-        @Test
-        public void shouldHandleFuzzedRequests() {
-            final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
-            when(request.getRequestURI()).thenReturn("/v1.0a/requested/resource");
-
-            final String expected = "/v1.0a/requested/resource";
-
-            assertEquals("Formatting internal URI must match " + expected, expected, new VersionedRequest(request, mapping).asInternalURI());
-        }
-
-        @Test
-        public void shouldHandleNonVersionedRequests() {
-            final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
-            when(request.getRequestURI()).thenReturn("/a/requested/resource");
-
-            final String expected = "/a/requested/resource";
-
-            assertEquals("Formatting internal URI must match " + expected, expected, new VersionedRequest(request, mapping).asInternalURI());
-        }
-
-        @Test
-        public void shouldHandleVersionedRequestsWithContextRoot() {
-            final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
-            when(request.getRequestURI()).thenReturn("/context/v1.0/a/requested/resource");
-
-            final String expected = "/context/a/requested/resource";
-
-            assertEquals("Formatting internal URI must match " + expected, expected, new VersionedRequest(request, mapping).asInternalURI());
-        }
-
-        @Test
-        public void shouldNotRewriteVersionedUri() {
-            final String expected = "/_v1.0/a/requested/resource";
-            final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
-            when(request.getRequestURI()).thenReturn(expected);
-
-            final VersionedRequest versionedRequest = new VersionedRequest(request, mapping);
-
-            assertEquals("Formatting internal URI must match " + expected, expected, versionedRequest.asInternalURI());
-        }
-
-        @Test
-        public void shouldHandleVersionedRequests() {
-            final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
-            when(request.getRequestURI()).thenReturn("/v1.0/a/requested/resource");
-
-            final String expected = "/a/requested/resource";
-
-            assertEquals("Formatting internal URI must match " + expected, expected, new VersionedRequest(request, mapping).asInternalURI());
-        }
-
-        @Test
-        public void shouldBuildAccurateURLs() {
-            final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
-            when(request.getRequestURI()).thenReturn("/a/requested/resource");
-            when(request.getScheme()).thenReturn("http");
-            when(request.getHeader(HttpHeaders.HOST)).thenReturn("localhost");
-
-            final String expected = "http://localhost/a/requested/resource";
-
-            assertEquals("Formatting internal URI must match " + expected, expected, new VersionedRequest(request, mapping).asInternalURL());
-        }
+        assertTrue(versionedRequest.requestBelongsToVersionMapping());
     }
 
-    public static class WhenGeneratingExternalMappings extends TestParent {
+    @Test
+    public void shouldNotMatchPartialVersionMatches() {
+        final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
+        when(request.getRequestURI()).thenReturn("/v1.01/resource/");
 
-        @Test
-        public void shouldHandleExternalRequestsWithContextRoot() {
-            final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
-            when(request.getRequestURI()).thenReturn("/v1.0/a/requested/resource");
-            when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/a/requested/resource"));
+        final VersionedRequest versionedRequest = new VersionedRequest(request, mapping);
 
-            final String expected = "http://localhost/v1.0/a/requested/resource";
-
-            assertEquals("Formatting internal URI must match " + expected, expected, new VersionedRequest(request, mapping).asExternalURL());
-        }
+        assertFalse(versionedRequest.requestBelongsToVersionMapping());
     }
 
-    public static class WhenTestingExternalMappings extends TestParent {
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotAcceptUriWithoutRoot() {
+        final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
+        when(request.getRequestURI()).thenReturn("a/requested/resource");
 
-        @Test
-        public void shouldMatch() {
-            final HttpServletRequestWrapper versionOne = mock(HttpServletRequestWrapper.class);
-            final HttpServletRequestWrapper versionOneWithResource = mock(HttpServletRequestWrapper.class);
-            final HttpServletRequestWrapper versionTwo = mock(HttpServletRequestWrapper.class);
-            when(versionOne.getRequestURI()).thenReturn("/v1.0");
-            when(versionOneWithResource.getRequestURI()).thenReturn("/v1.0/some/resource");
-            when(versionTwo.getRequestURI()).thenReturn("/v2.0/some/resource");
+        new VersionedRequest(request, mapping).asInternalURI();
+    }
 
-            assertTrue(new VersionedRequest(versionOne, mapping).requestBelongsToVersionMapping());
-            assertTrue(new VersionedRequest(versionOneWithResource, mapping).requestBelongsToVersionMapping());
-            assertFalse(new VersionedRequest(versionTwo, mapping).requestBelongsToVersionMapping());
-        }
+    @Test
+    public void shouldHandleFuzzedRequests() {
+        final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
+        when(request.getRequestURI()).thenReturn("/v1.0a/requested/resource");
 
-        @Test
-        public void shouldIdentifyOwningVersions() {
-            final HttpServletRequestWrapper versionOne = mock(HttpServletRequestWrapper.class);
-            final HttpServletRequestWrapper versionTwo = mock(HttpServletRequestWrapper.class);
-            when(versionOne.getRequestURI()).thenReturn("/v1.0/some/resource");
-            when(versionTwo.getRequestURI()).thenReturn("/v2.0/some/resource");
+        final String expected = "/v1.0a/requested/resource";
 
-            assertTrue(new VersionedRequest(versionOne, mapping).requestBelongsToVersionMapping());
-            assertFalse(new VersionedRequest(versionTwo, mapping).requestBelongsToVersionMapping());
-        }
+        assertEquals("Formatting internal URI must match " + expected, expected, new VersionedRequest(request, mapping).asInternalURI());
+    }
+
+    @Test
+    public void shouldHandleNonVersionedRequests() {
+        final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
+        when(request.getRequestURI()).thenReturn("/a/requested/resource");
+
+        final String expected = "/a/requested/resource";
+
+        assertEquals("Formatting internal URI must match " + expected, expected, new VersionedRequest(request, mapping).asInternalURI());
+    }
+
+    @Test
+    public void shouldHandleVersionedRequestsWithContextRoot() {
+        final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
+        when(request.getRequestURI()).thenReturn("/context/v1.0/a/requested/resource");
+
+        final String expected = "/context/a/requested/resource";
+
+        assertEquals("Formatting internal URI must match " + expected, expected, new VersionedRequest(request, mapping).asInternalURI());
+    }
+
+    @Test
+    public void shouldNotRewriteVersionedUri() {
+        final String expected = "/_v1.0/a/requested/resource";
+        final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
+        when(request.getRequestURI()).thenReturn(expected);
+
+        final VersionedRequest versionedRequest = new VersionedRequest(request, mapping);
+
+        assertEquals("Formatting internal URI must match " + expected, expected, versionedRequest.asInternalURI());
+    }
+
+    @Test
+    public void shouldHandleVersionedRequests() {
+        final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
+        when(request.getRequestURI()).thenReturn("/v1.0/a/requested/resource");
+
+        final String expected = "/a/requested/resource";
+
+        assertEquals("Formatting internal URI must match " + expected, expected, new VersionedRequest(request, mapping).asInternalURI());
+    }
+
+    @Test
+    public void shouldBuildAccurateURLs() {
+        final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
+        when(request.getRequestURI()).thenReturn("/a/requested/resource");
+        when(request.getScheme()).thenReturn("http");
+        when(request.getHeader(HttpHeaders.HOST)).thenReturn("localhost");
+
+        final String expected = "http://localhost/a/requested/resource";
+
+        assertEquals("Formatting internal URI must match " + expected, expected, new VersionedRequest(request, mapping).asInternalURL());
+    }
+
+    @Test
+    public void shouldHandleExternalRequestsWithContextRoot() {
+        final HttpServletRequestWrapper request = mock(HttpServletRequestWrapper.class);
+        when(request.getRequestURI()).thenReturn("/v1.0/a/requested/resource");
+        when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/a/requested/resource"));
+
+        final String expected = "http://localhost/v1.0/a/requested/resource";
+
+        assertEquals("Formatting internal URI must match " + expected, expected, new VersionedRequest(request, mapping).asExternalURL());
+    }
+
+    @Test
+    public void shouldMatch() {
+        final HttpServletRequestWrapper versionOne = mock(HttpServletRequestWrapper.class);
+        final HttpServletRequestWrapper versionOneWithResource = mock(HttpServletRequestWrapper.class);
+        final HttpServletRequestWrapper versionTwo = mock(HttpServletRequestWrapper.class);
+        when(versionOne.getRequestURI()).thenReturn("/v1.0");
+        when(versionOneWithResource.getRequestURI()).thenReturn("/v1.0/some/resource");
+        when(versionTwo.getRequestURI()).thenReturn("/v2.0/some/resource");
+
+        assertTrue(new VersionedRequest(versionOne, mapping).requestBelongsToVersionMapping());
+        assertTrue(new VersionedRequest(versionOneWithResource, mapping).requestBelongsToVersionMapping());
+        assertFalse(new VersionedRequest(versionTwo, mapping).requestBelongsToVersionMapping());
+    }
+
+    @Test
+    public void shouldIdentifyOwningVersions() {
+        final HttpServletRequestWrapper versionOne = mock(HttpServletRequestWrapper.class);
+        final HttpServletRequestWrapper versionTwo = mock(HttpServletRequestWrapper.class);
+        when(versionOne.getRequestURI()).thenReturn("/v1.0/some/resource");
+        when(versionTwo.getRequestURI()).thenReturn("/v2.0/some/resource");
+
+        assertTrue(new VersionedRequest(versionOne, mapping).requestBelongsToVersionMapping());
+        assertFalse(new VersionedRequest(versionTwo, mapping).requestBelongsToVersionMapping());
     }
 }
