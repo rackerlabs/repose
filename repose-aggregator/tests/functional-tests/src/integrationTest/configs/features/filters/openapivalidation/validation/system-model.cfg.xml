@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+    <nodes>
+        <node id="node1" hostname="localhost" http-port="${reposePort}"/>
+    </nodes>
+
+    <filters>
+        <filter name="openapi-validator" uri-regex="/v2/json(/.*)?" configuration="openapi-validator-v2-json.cfg.xml"/>
+        <filter name="openapi-validator" uri-regex="/v2/yaml(/.*)?" configuration="openapi-validator-v2-yaml.cfg.xml"/>
+
+        <filter name="openapi-validator" uri-regex="/v3/json(/.*)?" configuration="openapi-validator-v3-json.cfg.xml"/>
+        <filter name="openapi-validator" uri-regex="/v3/yaml(/.*)?" configuration="openapi-validator-v3-yaml.cfg.xml"/>
+        <filter name="openapi-validator" uri-regex="/v3/absolute(/.*)?" configuration="openapi-validator-v3-absolute.cfg.xml"/>
+        <filter name="openapi-validator" uri-regex="/v3/absoluteFile(/.*)?" configuration="openapi-validator-v3-absolute-file.cfg.xml"/>
+        <filter name="openapi-validator" uri-regex="/v3/validations(/.*)?" configuration="openapi-validator-v3-validations.cfg.xml"/>
+    </filters>
+
+    <destinations>
+        <endpoint id="endpoint1" protocol="http" port="${targetPort}" default="true"/>
+    </destinations>
+</system-model>

@@ -1,0 +1,73 @@
+openapi: 3.0.0
+info:
+  title: Test Validations
+  version: 1.0.0
+servers:
+  - url: /v3/validations
+paths:
+  /path:
+    get:
+      responses:
+        '200':
+          description: A 200 response
+  /query:
+    get:
+      parameters:
+        - name: int
+          in: query
+          description: A required query parameter with an integer value
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: A 200 response
+  /method:
+    get:
+      responses:
+        '200':
+          description: A 200 response
+  /header:
+    get:
+      parameters:
+        - name: x-int-header
+          in: header
+          description: A required header with an integer value
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: A 200 response
+  /accept:
+    get:
+      responses:
+        '200':
+          description: A 200 response
+          content:
+            application/json: {}
+  /contentType:
+    post:
+      requestBody:
+        content:
+          application/json: {}
+      responses:
+        '200':
+          description: A 200 response
+  /requestBody:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - testKey
+              properties:
+                testKey:
+                  type: string
+      responses:
+        '200':
+          description: A 200 response

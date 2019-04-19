@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<openapi-validator xmlns="http://docs.openrepose.org/repose/openapivalidator/v1.0"
+                   href="${repose.config.directory}/v3/absolute.yaml"/>
