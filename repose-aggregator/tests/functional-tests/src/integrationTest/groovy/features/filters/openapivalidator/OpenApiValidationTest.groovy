@@ -230,6 +230,32 @@ class OpenApiValidationTest extends ReposeValveTest {
         verifyHandlings(messageChain)
     }
 
+    @Unroll
+    def "when configured to validate multiple components of the request, should #description according to priority"() {
+        when:
+        MessageChain messageChain = deproxy.makeRequest(
+            method: 'POST',
+            url: reposeEndpoint + "/v3/validations/multiple" + queryString,
+            headers: ['Content-Type': 'application/json', 'Content-Length': body.length()] + headers,
+            requestBody: body
+        )
+
+        then:
+        messageChain.receivedResponse.code as Integer == expectedResponseStatus
+        messageChain.receivedResponse.message =~ expectedReasonFragment
+        verifyHandlings(messageChain)
+
+        where:
+        headers                | queryString | body || expectedResponseStatus | expectedReasonFragment | description
+        [:]                    | '?int=32'   | '{}' || 400                    | 'Header'               | 'reject a request without a required header'
+        ['x-int-header': '32'] | ''          | '{}' || 400                    | 'Query parameter'      | 'reject a request without a required query parameter'
+        ['x-int-header': '32'] | '?int=32'   | ''   || 400                    | 'request body'         | 'reject a request without a required body'
+        [:]                    | ''          | '{}' || 400                    | 'Header'               | 'reject a request without a required header and query parameter'
+        [:]                    | '?int=32'   | ''   || 400                    | 'request body'         | 'reject a request without a required header and body'
+        ['x-int-header': '32'] | ''          | ''   || 400                    | 'request body'         | 'reject a request without a required query parameter and body'
+        ['x-int-header': '32'] | '?int=32'   | '{}' || 200                    | 'OK'                   | 'pass a request satisfying all criteria'
+    }
+
     static void verifyHandlings(MessageChain messageChain) {
         int statusCode = messageChain.receivedResponse.code as Integer
         if (200 <= statusCode && statusCode < 300) {

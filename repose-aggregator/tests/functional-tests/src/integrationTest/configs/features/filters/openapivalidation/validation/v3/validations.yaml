@@ -71,3 +71,27 @@ paths:
       responses:
         '200':
           description: A 200 response
+  /multiple:
+    post:
+      parameters:
+        - name: x-int-header
+          in: header
+          description: A required header with an integer value
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: int
+          in: query
+          description: A required query parameter with an integer value
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json: {}
+      responses:
+        '200':
+          description: A 200 response
