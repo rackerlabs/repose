@@ -37,9 +37,7 @@ import static org.junit.Assert.*;
 public class ValidatorInfoTest {
 
     private final List<String> roles = new ArrayList<>();
-    private final String wadl = "default.wadl";
     private final String name = "testName";
-    private Config config;
     private ValidatorInfo instance;
     private ValidatorInfo instance2;
 
@@ -51,7 +49,7 @@ public class ValidatorInfoTest {
 
     @Before
     public void setup() {
-        this.config = new Config();
+        Config config = new Config();
         config.setResultHandler(getHandlers());
         config.setUseSaxonEEValidation(false);
         config.setCheckWellFormed(true);
@@ -59,7 +57,7 @@ public class ValidatorInfoTest {
         config.setCheckElements(true);
         roles.add("someRole");
         roles.add("someRole2");
-        URL resource = this.getClass().getClassLoader().getResource(wadl);
+        URL resource = this.getClass().getClassLoader().getResource("default.wadl");
 
         this.instance = new ValidatorInfo(roles, resource.toExternalForm(), config, null);
         this.instance2 = new ValidatorInfo(roles, resource.toExternalForm(), config, name);

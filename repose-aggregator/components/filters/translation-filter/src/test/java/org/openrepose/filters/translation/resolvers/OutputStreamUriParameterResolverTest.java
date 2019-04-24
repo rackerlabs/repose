@@ -38,14 +38,13 @@ public class OutputStreamUriParameterResolverTest {
     private OutputStreamUriParameterResolver resolver;
     private OutputURIResolver parent;
     private OutputStream output;
-    private Result result;
 
     @Before
     public void setUp() throws TransformerException {
         parent = mock(OutputURIResolver.class);
         output = mock(OutputStream.class);
         resolver = new OutputStreamUriParameterResolver(parent);
-        result = mock(Result.class);
+        Result result = mock(Result.class);
         when(parent.resolve(anyString(), anyString())).thenReturn(result);
 
     }

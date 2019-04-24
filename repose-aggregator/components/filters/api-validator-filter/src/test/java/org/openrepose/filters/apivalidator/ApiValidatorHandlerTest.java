@@ -42,13 +42,11 @@ public class ApiValidatorHandlerTest {
     private ValidatorInfo role2ValidatorInfo;
     private Validator defaultValidator;
     private Validator role1Validator;
-    private Validator role2Validator;
     private ApiValidatorHandler instance;
     private FilterChain chain;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
     private ValidatorInfo nullValidatorInfo;
-    private ValidatorInfo blowupValidatorInfo;
     private Validator blowupValidator;
 
     @Before
@@ -65,7 +63,7 @@ public class ApiValidatorHandlerTest {
         role1ValidatorInfo = new ValidatorInfo(Arrays.asList("role1"), "role1wadl", null, null);
         role1ValidatorInfo.setValidator(role1Validator);
 
-        role2Validator = mock(Validator.class);
+        Validator role2Validator = mock(Validator.class);
         role2ValidatorInfo = new ValidatorInfo(Arrays.asList("role2"), "role2wadl", null, null);
         role2ValidatorInfo.setValidator(role2Validator);
 
@@ -75,7 +73,7 @@ public class ApiValidatorHandlerTest {
 
         blowupValidator = mock(Validator.class);
         when(blowupValidator.validate(any(HttpServletRequestWrapper.class), eq(response), eq(chain))).thenThrow(new ValidatorException("Test", new RuntimeException("Test")));
-        blowupValidatorInfo = new ValidatorInfo(Arrays.asList("blowupValidator"), "blowupWadl", null, null);
+        ValidatorInfo blowupValidatorInfo = new ValidatorInfo(Arrays.asList("blowupValidator"), "blowupWadl", null, null);
         blowupValidatorInfo.setValidator(blowupValidator);
 
         List<ValidatorInfo> validators = new ArrayList<>();

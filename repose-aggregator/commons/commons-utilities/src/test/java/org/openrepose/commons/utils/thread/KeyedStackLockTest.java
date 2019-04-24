@@ -31,35 +31,8 @@ import static org.junit.Assert.assertTrue;
  */
 public class KeyedStackLockTest {
 
-    public static void assertThreads(String msg, KeyedStackLockTestThread... threads) throws InterruptedException {
-        for (KeyedStackLockTestThread t : threads) {
-            if (!t.started()) {
-                t.exec();
-            }
-        }
-
-        int iterations = 0;
-
-        while (!threadsFinished(threads) && ++iterations < 50) {
-            Thread.sleep(10);
-        }
-
-        for (KeyedStackLockTestThread t : threads) {
-            assertTrue(msg, t.passed());
-        }
-    }
-
-    public static boolean threadsFinished(KeyedStackLockTestThread... threads) {
-        for (KeyedStackLockTestThread t : threads) {
-            if (!t.finished()) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static final Object KEY_A = new Object(), KEY_B = new Object();
+    private static final Object KEY_A = new Object();
+    private static final Object KEY_B = new Object();
     private KeyedStackLock lock;
 
     @Before
@@ -148,5 +121,33 @@ public class KeyedStackLockTest {
     public void shouldPassWithSameKey() throws Exception {
         assertThreads("Should pass multiple threads using the same key",
                 new TurnKeyLockingThread(lock, KEY_A), new TurnKeyLockingThread(lock, KEY_A));
+    }
+
+    private static void assertThreads(String msg, KeyedStackLockTestThread... threads) throws InterruptedException {
+        for (KeyedStackLockTestThread t : threads) {
+            if (!t.started()) {
+                t.exec();
+            }
+        }
+
+        int iterations = 0;
+
+        while (!threadsFinished(threads) && ++iterations < 50) {
+            Thread.sleep(10);
+        }
+
+        for (KeyedStackLockTestThread t : threads) {
+            assertTrue(msg, t.passed());
+        }
+    }
+
+    private static boolean threadsFinished(KeyedStackLockTestThread... threads) {
+        for (KeyedStackLockTestThread t : threads) {
+            if (!t.finished()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

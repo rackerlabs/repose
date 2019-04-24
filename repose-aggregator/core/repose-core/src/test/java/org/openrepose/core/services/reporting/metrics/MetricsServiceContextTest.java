@@ -28,7 +28,6 @@ import org.openrepose.core.services.healthcheck.HealthCheckService;
 import org.openrepose.core.services.healthcheck.HealthCheckServiceProxy;
 import org.openrepose.core.services.healthcheck.Severity;
 
-import javax.servlet.ServletContextEvent;
 import java.io.IOException;
 
 import static org.mockito.Mockito.*;
@@ -43,7 +42,6 @@ public class MetricsServiceContextTest {
     private ConfigurationService configurationService;
     private HealthCheckService healthCheckService;
     private HealthCheckServiceProxy healthCheckServiceProxy;
-    private ServletContextEvent sce;
 
     @Before
     public void setUp() {
@@ -52,7 +50,6 @@ public class MetricsServiceContextTest {
         healthCheckServiceProxy = mock(HealthCheckServiceProxy.class);
         when(healthCheckService.register()).thenReturn(healthCheckServiceProxy);
         metricsService = new MetricsServiceImpl(configurationService, healthCheckService);
-        sce = mock(ServletContextEvent.class);
     }
 
     @Test

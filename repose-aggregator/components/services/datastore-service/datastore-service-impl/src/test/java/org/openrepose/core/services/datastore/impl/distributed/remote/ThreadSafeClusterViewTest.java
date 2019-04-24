@@ -40,15 +40,13 @@ public class ThreadSafeClusterViewTest {
     private List<Integer> servicePorts;
     private List<ClusterMember> clusterMembers;
     private ClusterMember clusterMember;
-    private InetSocketAddress inetSocketAddress;
-    private int i;
     private NetworkInterfaceProvider networkInterfaceProvider;
 
     @Before
     public void setUp() throws Exception {
         servicePorts = mock(List.class);
-        i = 1;
-        inetSocketAddress = new InetSocketAddress(i);
+        int i = 1;
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(i);
         clusterMember = new ClusterMember(inetSocketAddress, i);
         clusterMembers = new LinkedList<>();
         clusterMembers.add(clusterMember);

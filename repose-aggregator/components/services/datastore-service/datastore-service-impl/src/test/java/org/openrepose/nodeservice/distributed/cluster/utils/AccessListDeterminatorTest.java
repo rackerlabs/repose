@@ -41,23 +41,18 @@ public class AccessListDeterminatorTest {
 
     private SystemModel sysConfig;
     private DistributedDatastoreConfiguration ddConfig;
-    private Node node1, node2;
-    private NodeList nodeList;
-    private HostAccessControlList hacl;
-    private boolean isAllowed;
-    private HostAccessControl ctrl;
 
     @Before
     public void setUp() {
+        NodeList nodeList = new NodeList();
 
-        node1 = new Node();
+        Node node1 = new Node();
         node1.setHttpPort(8888);
         node1.setHostname("127.0.0.1");
         node1.setId("node1");
-        nodeList = new NodeList();
         nodeList.getNode().add(node1);
 
-        node2 = new Node();
+        Node node2 = new Node();
         node2.setHttpPort(8889);
         node2.setHostname("127.0.0.1");
         node2.setId("node2");
@@ -67,13 +62,11 @@ public class AccessListDeterminatorTest {
         sysConfig.setFilters(new FilterList());
         sysConfig.setNodes(nodeList);
 
-        isAllowed = false;
-
-        ctrl = new HostAccessControl();
+        HostAccessControl ctrl = new HostAccessControl();
         ctrl.setHost("127.0.0.1");
 
-        hacl = new HostAccessControlList();
-        hacl.setAllowAll(isAllowed);
+        HostAccessControlList hacl = new HostAccessControlList();
+        hacl.setAllowAll(false);
         hacl.getAllow().add(ctrl);
 
         ddConfig = new DistributedDatastoreConfiguration();

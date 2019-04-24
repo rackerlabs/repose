@@ -37,11 +37,10 @@ import static org.mockito.Mockito.when;
  */
 public class InputStreamUriParameterTest {
     private InputStreamUriParameter inputStreamUriParameter;
-    private InputStream inputStreamReference;
 
     @Before
     public void setup() {
-        inputStreamReference = mock(InputStream.class);
+        InputStream inputStreamReference = mock(InputStream.class);
         when(inputStreamReference.toString()).thenReturn("streamRef");
 
         inputStreamUriParameter = new InputStreamUriParameter(inputStreamReference);

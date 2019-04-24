@@ -37,24 +37,18 @@ public class ClusterMemberDeterminatorTest {
 
     private SystemModel sysConfig;
     private DistributedDatastoreConfiguration ddConfig;
-    private Node node1, node2;
-    private NodeList nodeList;
-    private HostAccessControlList hacl;
-    private boolean isAllowed;
-    private HostAccessControl ctrl;
-    private PortConfiguration portConfig;
-    private Port node1Port, node2Port;
 
     @Before
     public void setUp() {
-        node1 = new Node();
+        NodeList nodeList = new NodeList();
+
+        Node node1 = new Node();
         node1.setHttpPort(8888);
         node1.setHostname("127.0.0.1");
         node1.setId("node1");
-        nodeList = new NodeList();
         nodeList.getNode().add(node1);
 
-        node2 = new Node();
+        Node node2 = new Node();
         node2.setHttpPort(8889);
         node2.setHostname("127.0.0.1");
         node2.setId("node2");
@@ -64,24 +58,22 @@ public class ClusterMemberDeterminatorTest {
         sysConfig.setFilters(new FilterList());
         sysConfig.setNodes(nodeList);
 
-        node1Port = new Port();
+        Port node1Port = new Port();
         node1Port.setPort(9999);
 
-        node2Port = new Port();
+        Port node2Port = new Port();
         node2Port.setNode("node2");
         node2Port.setPort(3333);
 
-        portConfig = new PortConfiguration();
+        PortConfiguration portConfig = new PortConfiguration();
         portConfig.getPort().add(node1Port);
         portConfig.getPort().add(node2Port);
 
-        isAllowed = false;
-
-        ctrl = new HostAccessControl();
+        HostAccessControl ctrl = new HostAccessControl();
         ctrl.setHost("127.0.0.1");
 
-        hacl = new HostAccessControlList();
-        hacl.setAllowAll(isAllowed);
+        HostAccessControlList hacl = new HostAccessControlList();
+        hacl.setAllowAll(false);
         hacl.getAllow().add(ctrl);
 
         ddConfig = new DistributedDatastoreConfiguration();
