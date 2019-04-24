@@ -1,0 +1,21 @@
+dependencies {
+    compile project(":repose-aggregator:core:repose-core-api")
+    compile project(":repose-aggregator:commons:commons-utilities")
+    compile "org.scala-lang:scala-library"
+    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
+    compile "org.springframework:spring-beans"
+    compile "com.atlassian.oai:swagger-request-validator-core"
+
+    compileOnly "javax.servlet:javax.servlet-api"
+    compileOnly "javax.inject:javax.inject"
+
+    testCompile "junit:junit"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
+    testCompile "org.mockito:mockito-core"
+    testCompile "org.springframework:spring-web"
+    testCompile "org.springframework:spring-test"
+}
+
+license {
+    excludes(["**/*.yaml", "**/*.json"])
+}

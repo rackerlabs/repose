@@ -97,6 +97,10 @@
         <filter-class>org.openrepose.filters.mergeheader.MergeHeaderFilter</filter-class>
     </filter>
     <filter>
+        <filter-name>openapi-validator</filter-name>
+        <filter-class>org.openrepose.filters.openapivalidator.OpenApiValidatorFilter</filter-class>
+    </filter>
+    <filter>
         <filter-name>openstack-identity-v3</filter-name>
         <filter-class>org.openrepose.filters.openstackidentityv3.OpenStackIdentityV3Filter</filter-class>
     </filter>

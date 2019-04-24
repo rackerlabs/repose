@@ -155,6 +155,8 @@ Topics:
     File: keystone-v2-basic-auth.adoc
   - Name: Merge Header Filter
     File: merge-header.adoc
+  - Name: OpenAPI Validatort Filter
+    File: openapi-validator.adoc
   - Name: Openstack Identity v3 Filter
     File: openstack-identity-v3.adoc
   - Name: Rate Limiting Filter

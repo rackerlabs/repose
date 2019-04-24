@@ -37,4 +37,24 @@
         <gav regex="true">^com\.google\.guava:guava:.*$</gav>
         <cve>CVE-2018-10237</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: json-patch-1.6.jar
+            NOTE: The dependency which includes this issue is a transitive dependency inherited from com.atlassian.oai:swagger-request-validator-core.
+            The issue in question appears to be in a different JSON patching library written in Go and used by OpenShift.
+            In other words, this appears to be a case of mistaken identity.
+        ]]></notes>
+        <gav regex="true">^com\.github\.fge:json-patch:.*$</gav>
+        <cve>CVE-2018-14632</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: slf4j-ext-1.6.3.jar
+            NOTE: The dependency which includes this issue is a transitive dependency inherited from com.atlassian.oai:swagger-request-validator-core.
+            The issue in question is in the constructor of the EventData class, which is never invoked by Repose or any of its transitive dependencies.
+            As such, this issue is inaccessible to Repose users.
+        ]]></notes>
+        <gav regex="true">^org\.slf4j:slf4j-ext:.*$</gav>
+        <cve>CVE-2018-8088</cve>
+    </suppress>
 </suppressions>

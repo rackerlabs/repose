@@ -68,6 +68,9 @@ Authorizes requests based on data about the user making the request.
 == <<merge-header.adoc#,Merge Header Filter>>
 Merges multiple header lines with the same name into a single header line with multiple comma-separated values.
 
+== <<openapi-validator.adoc#,OpenAPI Validator Filter>>
+Validates requests against a configured https://github.com/OAI/OpenAPI-Specification[OpenAPI Document].
+
 == <<openstack-identity-v3.adoc#,Openstack Identity v3 Filter>>
 Authenticates, authorizes, and enriches requests using data from an OpenStack Identity v3 service.
 
