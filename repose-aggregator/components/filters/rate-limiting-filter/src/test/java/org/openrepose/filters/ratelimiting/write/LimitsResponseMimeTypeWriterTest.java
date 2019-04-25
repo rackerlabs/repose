@@ -19,9 +19,8 @@
  */
 package org.openrepose.filters.ratelimiting.write;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 import org.openrepose.filters.ratelimiting.util.LimitsEntityStreamTransformer;
 import org.springframework.http.MediaType;
 
@@ -31,38 +30,36 @@ import java.io.OutputStream;
 
 import static org.mockito.Mockito.*;
 
-@RunWith(Enclosed.class)
 public class LimitsResponseMimeTypeWriterTest {
 
-    public static class WhenWriting {
-        private final LimitsResponseMimeTypeWriter writer;
-        private final byte[] readableContents = {42};
-        private final OutputStream out;
-        private final LimitsEntityStreamTransformer transformer;
+    private LimitsResponseMimeTypeWriter writer;
+    private byte[] readableContents = {42};
+    private OutputStream out;
+    private LimitsEntityStreamTransformer transformer;
 
-        public WhenWriting() throws IOException {
-            transformer = mock(LimitsEntityStreamTransformer.class);
-            out = mock(OutputStream.class);
-            final InputStream in = mock(InputStream.class);
-            this.writer = new LimitsResponseMimeTypeWriter(transformer);
+    @Before
+    public void setUp() throws IOException {
+        transformer = mock(LimitsEntityStreamTransformer.class);
+        out = mock(OutputStream.class);
+        final InputStream in = mock(InputStream.class);
+        this.writer = new LimitsResponseMimeTypeWriter(transformer);
 
-            doNothing().when(transformer).streamAsJson(in, out);
-            doNothing().when(out).write(readableContents);
-        }
+        doNothing().when(transformer).streamAsJson(in, out);
+        doNothing().when(out).write(readableContents);
+    }
 
-        @Test
-        public void shouldChooseXmlPath() throws IOException {
-            writer.writeLimitsResponse(readableContents, MediaType.APPLICATION_XML, out);
+    @Test
+    public void shouldChooseXmlPath() throws IOException {
+        writer.writeLimitsResponse(readableContents, MediaType.APPLICATION_XML, out);
 
-            verify(out, times(1)).write(readableContents);
-        }
+        verify(out, times(1)).write(readableContents);
+    }
 
-        @Test
-        public void shouldChooseJsonPath() throws IOException {
-            writer.writeLimitsResponse(readableContents, MediaType.APPLICATION_JSON, out);
+    @Test
+    public void shouldChooseJsonPath() throws IOException {
+        writer.writeLimitsResponse(readableContents, MediaType.APPLICATION_JSON, out);
 
-            verify(transformer, times(1)).streamAsJson(any(InputStream.class), any(OutputStream.class));
-        }
+        verify(transformer, times(1)).streamAsJson(any(InputStream.class), any(OutputStream.class));
     }
 
 }

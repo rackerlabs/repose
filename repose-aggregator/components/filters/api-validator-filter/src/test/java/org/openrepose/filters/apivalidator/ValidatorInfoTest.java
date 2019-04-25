@@ -26,96 +26,86 @@ import com.rackspace.com.papi.components.checker.handler.ResultHandler;
 import com.rackspace.com.papi.components.checker.handler.ServletResultHandler;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
-@RunWith(Enclosed.class)
 public class ValidatorInfoTest {
 
-    public static class WhenLoadingValidators {
+    private final List<String> roles = new ArrayList<>();
+    private final String name = "testName";
+    private ValidatorInfo instance;
+    private ValidatorInfo instance2;
 
-        private final List<String> roles = new ArrayList<>();
-        private final String wadl = "default.wadl";
-        private final String name = "testName";
-        private Config config;
-        private ValidatorInfo instance;
-        private ValidatorInfo instance2;
+    private DispatchResultHandler getHandlers() {
+        List<ResultHandler> handlers = new ArrayList<>();
+        handlers.add(new ServletResultHandler());
+        return new DispatchResultHandler(scala.collection.JavaConversions.asScalaBuffer(handlers).toList());
+    }
 
-        private DispatchResultHandler getHandlers() {
-            List<ResultHandler> handlers = new ArrayList<>();
-            handlers.add(new ServletResultHandler());
-            return new DispatchResultHandler(scala.collection.JavaConversions.asScalaBuffer(handlers).toList());
-        }
+    @Before
+    public void setup() {
+        Config config = new Config();
+        config.setResultHandler(getHandlers());
+        config.setUseSaxonEEValidation(false);
+        config.setCheckWellFormed(true);
+        config.setCheckXSDGrammar(true);
+        config.setCheckElements(true);
+        roles.add("someRole");
+        roles.add("someRole2");
+        URL resource = this.getClass().getClassLoader().getResource("default.wadl");
 
-        @Before
-        public void setup() {
-            this.config = new Config();
-            config.setResultHandler(getHandlers());
-            config.setUseSaxonEEValidation(false);
-            config.setCheckWellFormed(true);
-            config.setCheckXSDGrammar(true);
-            config.setCheckElements(true);
-            roles.add("someRole");
-            roles.add("someRole2");
-            URL resource = this.getClass().getClassLoader().getResource(wadl);
+        this.instance = new ValidatorInfo(roles, resource.toExternalForm(), config, null);
+        this.instance2 = new ValidatorInfo(roles, resource.toExternalForm(), config, name);
+    }
 
-            this.instance = new ValidatorInfo(roles, resource.toExternalForm(), config, null);
-            this.instance2 = new ValidatorInfo(roles, resource.toExternalForm(), config, name);
-        }
+    @Test
+    public void shouldCreateValidatorOnce() {
+        Validator validator = instance.getValidator();
+        assertNotNull(validator);
+        Validator validator1 = instance.getValidator();
+        assertNotNull(validator1);
 
-        @Test
-        public void shouldCreateValidatorOnce() {
-            Validator validator = instance.getValidator();
-            assertNotNull(validator);
-            Validator validator1 = instance.getValidator();
-            assertNotNull(validator1);
+        assertThat("Should return exact same validator on each call to getValidator", validator1, sameInstance(validator));
 
-            assertThat("Should return exact same validator on each call to getValidator", validator1, sameInstance(validator));
+        instance.clearValidator();
+        Validator validator2 = instance.getValidator();
+        assertNotNull(validator2);
+        assertThat("Validator2 should be a new instance after clearing", validator2, not(sameInstance(validator)));
+    }
 
-            instance.clearValidator();
-            Validator validator2 = instance.getValidator();
-            assertNotNull(validator2);
-            assertThat("Validator2 should be a new instance after clearing", validator2, not(sameInstance(validator)));
-        }
+    @Test
+    public void shouldGenerateValidatorNameWhenPassedNull() {
+        assertEquals(instance.getName(), instance.getNameFromRoles(instance.getRoles()));
+    }
 
-        @Test
-        public void shouldGenerateValidatorNameWhenPassedNull() {
-            assertEquals(instance.getName(), instance.getNameFromRoles(instance.getRoles()));
-        }
+    @Test
+    public void shouldGenerateValidatorNameWhenProvided() {
+        assertEquals(instance2.getName(), name);
+    }
 
-        @Test
-        public void shouldGenerateValidatorNameWhenProvided() {
-            assertEquals(instance2.getName(), name);
-        }
-
-        @Test
-        public void shouldNotHaveForbiddenCharsInValidatorName() {
-            roles.add("role/with/slashes");
-            roles.add("role,with,commas");
-            roles.add("role=with=equals");
-            roles.add("role:with:colons");
-            roles.add("role*with*asterisks");
-            roles.add("role?with?question?marks");
-            roles.add("role with spaces");
-            roles.add("role\u00A0with\u00A0non-breaking\u00A0spaces");
-            String goodName = instance.getNameFromRoles(roles);
-            assertThat(goodName, not(containsString("/")));
-            assertThat(goodName, not(containsString(",")));
-            assertThat(goodName, not(containsString("=")));
-            assertThat(goodName, not(containsString(":")));
-            assertThat(goodName, not(containsString("*")));
-            assertThat(goodName, not(containsString("?")));
-            assertThat(goodName, not(containsString(" ")));
-            assertThat(goodName, not(containsString("\u00A0")));
-        }
+    @Test
+    public void shouldNotHaveForbiddenCharsInValidatorName() {
+        roles.add("role/with/slashes");
+        roles.add("role,with,commas");
+        roles.add("role=with=equals");
+        roles.add("role:with:colons");
+        roles.add("role*with*asterisks");
+        roles.add("role?with?question?marks");
+        roles.add("role with spaces");
+        roles.add("role\u00A0with\u00A0non-breaking\u00A0spaces");
+        String goodName = instance.getNameFromRoles(roles);
+        assertThat(goodName, not(containsString("/")));
+        assertThat(goodName, not(containsString(",")));
+        assertThat(goodName, not(containsString("=")));
+        assertThat(goodName, not(containsString(":")));
+        assertThat(goodName, not(containsString("*")));
+        assertThat(goodName, not(containsString("?")));
+        assertThat(goodName, not(containsString(" ")));
+        assertThat(goodName, not(containsString("\u00A0")));
     }
 }

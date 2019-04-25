@@ -23,8 +23,6 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.core.services.datastore.impl.DatastoreServiceImpl;
@@ -38,71 +36,67 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
-@RunWith(Enclosed.class)
 public class ReposeLocalCacheTest {
 
-    public static class TestParent {
+    MetricsService metricsService = mock(MetricsService.class);
+    MetricRegistry metricRegistry = mock(MetricRegistry.class);
+    Timer timer = mock(Timer.class);
+    Timer.Context timerContext = mock(Timer.Context.class);
 
-        MetricsService metricsService = mock(MetricsService.class);
-        MetricRegistry metricRegistry = mock(MetricRegistry.class);
-        Timer timer = mock(Timer.class);
-        Timer.Context timerContext = mock(Timer.Context.class);
+    String tenantId, token, userId;
+    ReposeLocalCache reposeLocalCacheMock;
+    ReposeLocalCache reposeLocalCacheReal;
+    DatastoreService datastoreService;
+    Datastore datastore;
 
-        String tenantId, token, userId;
-        ReposeLocalCache reposeLocalCacheMock;
-        ReposeLocalCache reposeLocalCacheReal;
-        DatastoreService datastoreService;
-        Datastore datastore;
+    @Before
+    public void setUp() {
+        tenantId = "tenantId";
+        token = "token";
+        userId = "userId";
+        reposeLocalCacheMock = mock(ReposeLocalCache.class);
 
-        @Before
-        public void setUp() {
-            tenantId = "tenantId";
-            token = "token";
-            userId = "userId";
-            reposeLocalCacheMock = mock(ReposeLocalCache.class);
+        reset(metricsService);
+        reset(metricRegistry);
+        reset(timer);
+        reset(timerContext);
 
-            reset(metricsService);
-            reset(metricRegistry);
-            reset(timer);
-            reset(timerContext);
+        when(metricsService.getRegistry()).thenReturn(metricRegistry);
+        when(metricRegistry.timer(anyString())).thenReturn(timer);
+        when(timer.time()).thenReturn(timerContext);
 
-            when(metricsService.getRegistry()).thenReturn(metricRegistry);
-            when(metricRegistry.timer(anyString())).thenReturn(timer);
-            when(timer.time()).thenReturn(timerContext);
+        datastoreService = new DatastoreServiceImpl(Optional.of(metricsService));
+    }
 
-            datastoreService = new DatastoreServiceImpl(Optional.of(metricsService));
-        }
+    @Test
+    public void shouldReturnBooleanWhenRemovingTokensAndRoles() {
+        assertThat(reposeLocalCacheMock.removeTokenAndRoles(tenantId, token), is(instanceOf(Boolean.class)));
+    }
 
-        @Test
-        public void shouldReturnBooleanWhenRemovingTokensAndRoles() {
-            assertThat(reposeLocalCacheMock.removeTokenAndRoles(tenantId, token), is(instanceOf(Boolean.class)));
-        }
+    @Test
+    public void shouldReturnBooleanWhenRemovingGroups() {
+        assertThat(reposeLocalCacheMock.removeGroups(tenantId, token), is(instanceOf(Boolean.class)));
+    }
 
-        @Test
-        public void shouldReturnBooleanWhenRemovingGroups() {
-            assertThat(reposeLocalCacheMock.removeGroups(tenantId, token), is(instanceOf(Boolean.class)));
-        }
+    @Test
+    public void shouldReturnBooleanWhenRemovingLimits() {
+        assertThat(reposeLocalCacheMock.removeLimits(userId), is(instanceOf(Boolean.class)));
+    }
 
-        @Test
-        public void shouldReturnBooleanWhenRemovingLimits() {
-            assertThat(reposeLocalCacheMock.removeLimits(userId), is(instanceOf(Boolean.class)));
-        }
+    @Test
+    public void shouldRemoveCacheData() {
+        reposeLocalCacheReal = new ReposeLocalCache(datastoreService);
 
-        @Test
-        public void shouldRemoveCacheData() {
-            reposeLocalCacheReal = new ReposeLocalCache(datastoreService);
+        final String key = "my element";
+        String value = "1, 2, 3";
 
-            final String key = "my element";
-            String value = "1, 2, 3";
+        datastore = datastoreService.getDefaultDatastore();
+        datastore.put(key, value);
 
-            datastore = datastoreService.getDefaultDatastore();
-            datastore.put(key, value);
+        assertNotNull(datastoreService.getDefaultDatastore().get(key));
 
-            assertNotNull(datastoreService.getDefaultDatastore().get(key));
+        reposeLocalCacheReal.removeAllCacheData();
 
-            reposeLocalCacheReal.removeAllCacheData();
-
-            assertNull(datastoreService.getDefaultDatastore().get(key));
-        }
+        assertNull(datastoreService.getDefaultDatastore().get(key));
     }
 }

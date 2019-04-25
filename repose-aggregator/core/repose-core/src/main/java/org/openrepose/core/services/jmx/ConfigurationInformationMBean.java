@@ -22,7 +22,6 @@ package org.openrepose.core.services.jmx;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.OpenDataException;
 import java.util.List;
-import java.util.Map;
 
 public interface ConfigurationInformationMBean {
 

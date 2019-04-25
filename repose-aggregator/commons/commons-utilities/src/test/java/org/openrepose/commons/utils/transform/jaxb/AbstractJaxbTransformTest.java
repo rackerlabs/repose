@@ -21,8 +21,6 @@ package org.openrepose.commons.utils.transform.jaxb;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.pooling.ResourceConstructionException;
 
 import javax.xml.bind.JAXBContext;
@@ -38,42 +36,39 @@ import static org.mockito.Mockito.when;
  * Date: Apr 25, 2011
  * Time: 6:03:36 PM
  */
-@RunWith(Enclosed.class)
 public class AbstractJaxbTransformTest {
-    public static class WhenCreatingNewInstances {
-        private AbstractJaxbTransform jaxbTransform;
-        private JAXBContext jaxbContext;
+    private AbstractJaxbTransform jaxbTransform;
+    private JAXBContext jaxbContext;
 
-        @Before
-        public void setup() {
-            jaxbContext = mock(JAXBContext.class);
+    @Before
+    public void setup() {
+        jaxbContext = mock(JAXBContext.class);
 
-            jaxbTransform = new SampleJaxbTransform(jaxbContext);
-        }
+        jaxbTransform = new SampleJaxbTransform(jaxbContext);
+    }
 
-        @Test
-        public void shouldReturnNonNullForMarshallerPool() {
-            assertNotNull(jaxbTransform.getMarshallerPool());
-        }
+    @Test
+    public void shouldReturnNonNullForMarshallerPool() {
+        assertNotNull(jaxbTransform.getMarshallerPool());
+    }
 
-        @Test(expected = ResourceConstructionException.class)
-        public void shouldThrowExceptionIfCanNotCreateMarshallerPool() throws Exception {
-            when(jaxbContext.createMarshaller()).thenThrow(new JAXBException("test"));
+    @Test(expected = ResourceConstructionException.class)
+    public void shouldThrowExceptionIfCanNotCreateMarshallerPool() throws Exception {
+        when(jaxbContext.createMarshaller()).thenThrow(new JAXBException("test"));
 
-            jaxbTransform.getMarshallerPool().borrowObject();
-        }
+        jaxbTransform.getMarshallerPool().borrowObject();
+    }
 
-        @Test
-        public void shouldReturnNonNullForUnmarshallerPool() {
-            assertNotNull(jaxbTransform.getUnmarshallerPool());
-        }
+    @Test
+    public void shouldReturnNonNullForUnmarshallerPool() {
+        assertNotNull(jaxbTransform.getUnmarshallerPool());
+    }
 
-        @Test(expected = ResourceConstructionException.class)
-        public void shouldThrowExceptionIfCanNotCreateUnmarshallerPool() throws Exception {
-            when(jaxbContext.createUnmarshaller()).thenThrow(new JAXBException("test"));
+    @Test(expected = ResourceConstructionException.class)
+    public void shouldThrowExceptionIfCanNotCreateUnmarshallerPool() throws Exception {
+        when(jaxbContext.createUnmarshaller()).thenThrow(new JAXBException("test"));
 
-            jaxbTransform.getUnmarshallerPool().borrowObject();
-        }
+        jaxbTransform.getUnmarshallerPool().borrowObject();
     }
 
     static class SampleJaxbTransform extends AbstractJaxbTransform {

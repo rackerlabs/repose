@@ -21,11 +21,14 @@ package org.openrepose.nodeservice.distributed.cluster.utils;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 import org.openrepose.core.services.datastore.DatastoreAccessControl;
-import org.openrepose.core.services.datastore.distributed.config.*;
-import org.openrepose.core.systemmodel.config.*;
+import org.openrepose.core.services.datastore.distributed.config.DistributedDatastoreConfiguration;
+import org.openrepose.core.services.datastore.distributed.config.HostAccessControl;
+import org.openrepose.core.services.datastore.distributed.config.HostAccessControlList;
+import org.openrepose.core.systemmodel.config.FilterList;
+import org.openrepose.core.systemmodel.config.Node;
+import org.openrepose.core.systemmodel.config.NodeList;
+import org.openrepose.core.systemmodel.config.SystemModel;
 
 import java.net.InetAddress;
 import java.util.List;
@@ -34,69 +37,58 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
-@RunWith(Enclosed.class)
 public class AccessListDeterminatorTest {
 
-    public static class WhenTestingAccessListDeterminator {
+    private SystemModel sysConfig;
+    private DistributedDatastoreConfiguration ddConfig;
 
-        private SystemModel sysConfig;
-        private DistributedDatastoreConfiguration ddConfig;
-        private Node node1, node2;
-        private NodeList nodeList;
-        private HostAccessControlList hacl;
-        private boolean isAllowed;
-        private HostAccessControl ctrl;
+    @Before
+    public void setUp() {
+        NodeList nodeList = new NodeList();
 
-        @Before
-        public void setUp() {
+        Node node1 = new Node();
+        node1.setHttpPort(8888);
+        node1.setHostname("127.0.0.1");
+        node1.setId("node1");
+        nodeList.getNode().add(node1);
 
-            node1 = new Node();
-            node1.setHttpPort(8888);
-            node1.setHostname("127.0.0.1");
-            node1.setId("node1");
-            nodeList = new NodeList();
-            nodeList.getNode().add(node1);
+        Node node2 = new Node();
+        node2.setHttpPort(8889);
+        node2.setHostname("127.0.0.1");
+        node2.setId("node2");
+        nodeList.getNode().add(node2);
 
-            node2 = new Node();
-            node2.setHttpPort(8889);
-            node2.setHostname("127.0.0.1");
-            node2.setId("node2");
-            nodeList.getNode().add(node2);
+        sysConfig = new SystemModel();
+        sysConfig.setFilters(new FilterList());
+        sysConfig.setNodes(nodeList);
 
-            sysConfig = new SystemModel();
-            sysConfig.setFilters(new FilterList());
-            sysConfig.setNodes(nodeList);
+        HostAccessControl ctrl = new HostAccessControl();
+        ctrl.setHost("127.0.0.1");
 
-            isAllowed = false;
+        HostAccessControlList hacl = new HostAccessControlList();
+        hacl.setAllowAll(false);
+        hacl.getAllow().add(ctrl);
 
-            ctrl = new HostAccessControl();
-            ctrl.setHost("127.0.0.1");
+        ddConfig = new DistributedDatastoreConfiguration();
+        ddConfig.setAllowedHosts(hacl);
 
-            hacl = new HostAccessControlList();
-            hacl.setAllowAll(isAllowed);
-            hacl.getAllow().add(ctrl);
+    }
 
-            ddConfig = new DistributedDatastoreConfiguration();
-            ddConfig.setAllowedHosts(hacl);
+    @Test
+    public void shouldGetClusterMembers() {
 
-        }
+        List<InetAddress> clusterMembers = AccessListDeterminator.getClusterMembers(sysConfig);
 
-        @Test
-        public void shouldGetClusterMembers() {
+        assertThat("Should have two cluster members", clusterMembers.size(), equalTo(2));
+    }
 
-            List<InetAddress> clusterMembers = AccessListDeterminator.getClusterMembers(sysConfig);
+    @Test
+    public void shouldGetAccessList() {
 
-            assertThat("Should have two cluster members", clusterMembers.size(), equalTo(2));
-        }
+        List<InetAddress> clusterMembers = AccessListDeterminator.getClusterMembers(sysConfig);
 
-        @Test
-        public void shouldGetAccessList() {
+        DatastoreAccessControl allowedHosts = AccessListDeterminator.getAccessList(ddConfig, clusterMembers);
 
-            List<InetAddress> clusterMembers = AccessListDeterminator.getClusterMembers(sysConfig);
-
-            DatastoreAccessControl allowedHosts = AccessListDeterminator.getAccessList(ddConfig, clusterMembers);
-
-            assertFalse("Should not allow all", allowedHosts.shouldAllowAll());
-        }
+        assertFalse("Should not allow all", allowedHosts.shouldAllowAll());
     }
 }

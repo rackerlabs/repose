@@ -20,8 +20,6 @@
 package org.openrepose.filters.ratelimiting;
 
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 import org.openrepose.commons.utils.http.CommonHttpHeader;
 import org.openrepose.filters.ratelimiting.log.LimitLogger;
 
@@ -31,45 +29,42 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(Enclosed.class)
 public class LimitLoggerTest {
 
-    public static class WhenSanitizing {
-        final HttpServletRequest mockedRequest = mock(HttpServletRequest.class);
+    final HttpServletRequest mockedRequest = mock(HttpServletRequest.class);
 
-        @Test
-        public void shouldReturnUsername() {
-            final LimitLogger logger = new LimitLogger("some_username", mockedRequest);
-            when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN)).thenReturn(null);
+    @Test
+    public void shouldReturnUsername() {
+        final LimitLogger logger = new LimitLogger("some_username", mockedRequest);
+        when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN)).thenReturn(null);
 
-            final String userId = logger.getSanitizedUserIdentification();
+        final String userId = logger.getSanitizedUserIdentification();
 
-            assertEquals(userId, "some_username");
-        }
+        assertEquals(userId, "some_username");
+    }
 
-        @Test
-        public void shouldReturnXForwardedFor() {
-            final LimitLogger logger = new LimitLogger("some_username", mockedRequest);
+    @Test
+    public void shouldReturnXForwardedFor() {
+        final LimitLogger logger = new LimitLogger("some_username", mockedRequest);
 
-            when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN)).thenReturn("some_username");
-            when(mockedRequest.getHeader(CommonHttpHeader.X_FORWARDED_FOR)).thenReturn("x-forwarded-for-value");
+        when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN)).thenReturn("some_username");
+        when(mockedRequest.getHeader(CommonHttpHeader.X_FORWARDED_FOR)).thenReturn("x-forwarded-for-value");
 
-            final String userId = logger.getSanitizedUserIdentification();
+        final String userId = logger.getSanitizedUserIdentification();
 
-            assertEquals(userId, "x-forwarded-for-value");
-        }
+        assertEquals(userId, "x-forwarded-for-value");
+    }
 
-        @Test
-        public void shouldReturnRequestRemoteHost() {
-            final LimitLogger logger = new LimitLogger("some_username", mockedRequest);
+    @Test
+    public void shouldReturnRequestRemoteHost() {
+        final LimitLogger logger = new LimitLogger("some_username", mockedRequest);
 
-            when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN)).thenReturn("some_username");
-            when(mockedRequest.getHeader(CommonHttpHeader.X_FORWARDED_FOR)).thenReturn(null);
-            when(mockedRequest.getRemoteHost()).thenReturn("remote-host-value");
+        when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN)).thenReturn("some_username");
+        when(mockedRequest.getHeader(CommonHttpHeader.X_FORWARDED_FOR)).thenReturn(null);
+        when(mockedRequest.getRemoteHost()).thenReturn("remote-host-value");
 
-            final String userId = logger.getSanitizedUserIdentification();
+        final String userId = logger.getSanitizedUserIdentification();
 
-            assertEquals(userId, "remote-host-value");
-        }
+        assertEquals(userId, "remote-host-value");
     }
 }

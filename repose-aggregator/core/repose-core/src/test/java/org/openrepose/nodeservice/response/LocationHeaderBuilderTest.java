@@ -21,8 +21,6 @@ package org.openrepose.nodeservice.response;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,139 +29,136 @@ import java.net.MalformedURLException;
 import static javax.ws.rs.core.HttpHeaders.LOCATION;
 import static org.mockito.Mockito.*;
 
-@RunWith(Enclosed.class)
 public class LocationHeaderBuilderTest {
 
-    public static class WhenRewritingLocationHeaders {
-        private HttpServletRequest originalRequest;
-        private HttpServletResponse response;
+    private HttpServletRequest originalRequest;
+    private HttpServletResponse response;
 
-        @Before
-        public void setUp() {
-            originalRequest = mock(HttpServletRequest.class);
-            response = mock(HttpServletResponse.class);
+    @Before
+    public void setUp() {
+        originalRequest = mock(HttpServletRequest.class);
+        response = mock(HttpServletResponse.class);
 
-            when(originalRequest.getScheme()).thenReturn("http");
-        }
+        when(originalRequest.getScheme()).thenReturn("http");
+    }
 
-        @Test
-        public void shouldRemoveRootPath() throws MalformedURLException {
-            // original request http://myhost.com:8080/test
-            when(originalRequest.getServerName()).thenReturn("myhost.com");
-            when(originalRequest.getServerPort()).thenReturn(8080);
-            when(originalRequest.getContextPath()).thenReturn("");
+    @Test
+    public void shouldRemoveRootPath() throws MalformedURLException {
+        // original request http://myhost.com:8080/test
+        when(originalRequest.getServerName()).thenReturn("myhost.com");
+        when(originalRequest.getServerPort()).thenReturn(8080);
+        when(originalRequest.getContextPath()).thenReturn("");
 
-            // destination http://otherhost.com/mocks/test
-            final String destUri = "http://otherhost.com/mocks/test";
-            final String requestedContext = "";
-            final String rootPath = "/mocks";
+        // destination http://otherhost.com/mocks/test
+        final String destUri = "http://otherhost.com/mocks/test";
+        final String requestedContext = "";
+        final String rootPath = "/mocks";
 
-            when(response.getHeader(eq(LOCATION))).thenReturn("http://myhost.com:8080/mocks/test");
+        when(response.getHeader(eq(LOCATION))).thenReturn("http://myhost.com:8080/mocks/test");
 
-            LocationHeaderBuilder.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
+        LocationHeaderBuilder.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
 
-            final String expected = "http://myhost.com:8080/test";
-            verify(response).setHeader(eq(LOCATION), eq(expected));
-        }
+        final String expected = "http://myhost.com:8080/test";
+        verify(response).setHeader(eq(LOCATION), eq(expected));
+    }
 
-        @Test
-        public void shouldRemoveRootPath2() throws MalformedURLException {
-            // original request http://myhost.com:8080/test
-            when(originalRequest.getServerName()).thenReturn("myhost.com");
-            when(originalRequest.getServerPort()).thenReturn(8080);
-            when(originalRequest.getContextPath()).thenReturn("");
+    @Test
+    public void shouldRemoveRootPath2() throws MalformedURLException {
+        // original request http://myhost.com:8080/test
+        when(originalRequest.getServerName()).thenReturn("myhost.com");
+        when(originalRequest.getServerPort()).thenReturn(8080);
+        when(originalRequest.getContextPath()).thenReturn("");
 
-            // destination http://otherhost.com/mocks/test
-            final String destUri = "http://otherhost.com/mocks/test";
-            final String requestedContext = "";
-            final String rootPath = "/mocks";
+        // destination http://otherhost.com/mocks/test
+        final String destUri = "http://otherhost.com/mocks/test";
+        final String requestedContext = "";
+        final String rootPath = "/mocks";
 
-            when(response.getHeader(eq(LOCATION))).thenReturn("http://otherhost.com/mocks/test");
+        when(response.getHeader(eq(LOCATION))).thenReturn("http://otherhost.com/mocks/test");
 
-            LocationHeaderBuilder.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
+        LocationHeaderBuilder.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
 
-            final String expected = "http://myhost.com:8080/test";
-            verify(response).setHeader(eq(LOCATION), eq(expected));
-        }
+        final String expected = "http://myhost.com:8080/test";
+        verify(response).setHeader(eq(LOCATION), eq(expected));
+    }
 
-        @Test
-        public void shouldRemoveRootPathAndAddVersion() throws MalformedURLException {
-            // original request http://myhost.com:8080/v1/test
-            when(originalRequest.getServerName()).thenReturn("myhost.com");
-            when(originalRequest.getServerPort()).thenReturn(8080);
-            when(originalRequest.getContextPath()).thenReturn("");
+    @Test
+    public void shouldRemoveRootPathAndAddVersion() throws MalformedURLException {
+        // original request http://myhost.com:8080/v1/test
+        when(originalRequest.getServerName()).thenReturn("myhost.com");
+        when(originalRequest.getServerPort()).thenReturn(8080);
+        when(originalRequest.getContextPath()).thenReturn("");
 
-            // destination http://otherhost.com/mocks/test
-            final String destUri = "http://otherhost.com/mocks/test";
-            final String requestedContext = "v1";
-            final String rootPath = "/mocks";
+        // destination http://otherhost.com/mocks/test
+        final String destUri = "http://otherhost.com/mocks/test";
+        final String requestedContext = "v1";
+        final String rootPath = "/mocks";
 
-            when(response.getHeader(eq(LOCATION))).thenReturn("http://otherhost.com/mocks/test");
+        when(response.getHeader(eq(LOCATION))).thenReturn("http://otherhost.com/mocks/test");
 
-            LocationHeaderBuilder.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
+        LocationHeaderBuilder.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
 
-            final String expected = "http://myhost.com:8080/v1/test";
-            verify(response).setHeader(eq(LOCATION), eq(expected));
-        }
+        final String expected = "http://myhost.com:8080/v1/test";
+        verify(response).setHeader(eq(LOCATION), eq(expected));
+    }
 
-        @Test
-        public void shouldRemoveRootPathWithoutPort80() throws MalformedURLException {
-            // original request http://myhost.com/test
-            when(originalRequest.getServerName()).thenReturn("myhost.com");
-            when(originalRequest.getServerPort()).thenReturn(80);
-            when(originalRequest.getContextPath()).thenReturn("");
+    @Test
+    public void shouldRemoveRootPathWithoutPort80() throws MalformedURLException {
+        // original request http://myhost.com/test
+        when(originalRequest.getServerName()).thenReturn("myhost.com");
+        when(originalRequest.getServerPort()).thenReturn(80);
+        when(originalRequest.getContextPath()).thenReturn("");
 
-            // destination http://otherhost.com/mocks/test
-            final String destUri = "http://otherhost.com/mocks/test";
-            final String requestedContext = "";
-            final String rootPath = "/mocks";
+        // destination http://otherhost.com/mocks/test
+        final String destUri = "http://otherhost.com/mocks/test";
+        final String requestedContext = "";
+        final String rootPath = "/mocks";
 
-            when(response.getHeader(eq(LOCATION))).thenReturn("http://myhost.com/mocks/test");
+        when(response.getHeader(eq(LOCATION))).thenReturn("http://myhost.com/mocks/test");
 
-            LocationHeaderBuilder.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
+        LocationHeaderBuilder.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
 
-            final String expected = "http://myhost.com/test";
-            verify(response).setHeader(eq(LOCATION), eq(expected));
-        }
+        final String expected = "http://myhost.com/test";
+        verify(response).setHeader(eq(LOCATION), eq(expected));
+    }
 
-        @Test
-        public void shouldRemoveRootPathWithoutPort80_2() throws MalformedURLException {
-            // original request http://myhost.com/test
-            when(originalRequest.getServerName()).thenReturn("myhost.com");
-            when(originalRequest.getServerPort()).thenReturn(80);
-            when(originalRequest.getContextPath()).thenReturn("");
+    @Test
+    public void shouldRemoveRootPathWithoutPort80_2() throws MalformedURLException {
+        // original request http://myhost.com/test
+        when(originalRequest.getServerName()).thenReturn("myhost.com");
+        when(originalRequest.getServerPort()).thenReturn(80);
+        when(originalRequest.getContextPath()).thenReturn("");
 
-            // destination http://otherhost.com/mocks/test
-            final String destUri = "http://otherhost.com/mocks/test";
-            final String requestedContext = "";
-            final String rootPath = "/mocks";
+        // destination http://otherhost.com/mocks/test
+        final String destUri = "http://otherhost.com/mocks/test";
+        final String requestedContext = "";
+        final String rootPath = "/mocks";
 
-            when(response.getHeader(eq(LOCATION))).thenReturn("http://otherhost.com/mocks/test");
+        when(response.getHeader(eq(LOCATION))).thenReturn("http://otherhost.com/mocks/test");
 
-            LocationHeaderBuilder.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
+        LocationHeaderBuilder.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
 
-            final String expected = "http://myhost.com/test";
-            verify(response).setHeader(eq(LOCATION), eq(expected));
-        }
+        final String expected = "http://myhost.com/test";
+        verify(response).setHeader(eq(LOCATION), eq(expected));
+    }
 
-        @Test
-        public void shouldKeepQueryPart() throws MalformedURLException {
-            // original request http://myhost.com/test?param=value
-            when(originalRequest.getServerName()).thenReturn("myhost.com");
-            when(originalRequest.getServerPort()).thenReturn(80);
-            when(originalRequest.getContextPath()).thenReturn("");
+    @Test
+    public void shouldKeepQueryPart() throws MalformedURLException {
+        // original request http://myhost.com/test?param=value
+        when(originalRequest.getServerName()).thenReturn("myhost.com");
+        when(originalRequest.getServerPort()).thenReturn(80);
+        when(originalRequest.getContextPath()).thenReturn("");
 
-            // destination http://otherhost.com/mocks/test?param=value
-            final String destUri = "http://otherhost.com/mocks/test?param=value";
-            final String requestedContext = "";
-            final String rootPath = "/mocks";
+        // destination http://otherhost.com/mocks/test?param=value
+        final String destUri = "http://otherhost.com/mocks/test?param=value";
+        final String requestedContext = "";
+        final String rootPath = "/mocks";
 
-            when(response.getHeader(eq(LOCATION))).thenReturn("http://otherhost.com/mocks/test?param=value");
+        when(response.getHeader(eq(LOCATION))).thenReturn("http://otherhost.com/mocks/test?param=value");
 
-            LocationHeaderBuilder.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
+        LocationHeaderBuilder.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
 
-            final String expected = "http://myhost.com/test?param=value";
-            verify(response).setHeader(eq(LOCATION), eq(expected));
-        }
+        final String expected = "http://myhost.com/test?param=value";
+        verify(response).setHeader(eq(LOCATION), eq(expected));
     }
 }

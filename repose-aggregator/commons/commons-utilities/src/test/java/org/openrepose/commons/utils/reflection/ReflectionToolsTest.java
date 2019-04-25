@@ -21,8 +21,6 @@ package org.openrepose.commons.utils.reflection;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
 import java.lang.reflect.Constructor;
 
@@ -35,100 +33,93 @@ import static org.junit.Assert.*;
  * Date: May 2, 2011
  * Time: 12:05:41 PM
  */
-@RunWith(Enclosed.class)
 public class ReflectionToolsTest {
-    public static class WhenConstructingObjectsViaReflection {
 
-        @Test
-        public void shouldCorrectlyMatchParamterLists() {
-            assertEquals("A Magical String", ReflectionTools.construct(String.class, "A Magical String"));
-        }
+    private Constructor<SimpleClass> simpleClassConstructor;
 
-        @Test
-        public void shouldSupportEmptyConstructors() {
-            assertEquals("", ReflectionTools.construct(String.class));
-        }
-
-        @Test
-        public void shouldCorrectlyMatchParamterListsWithNull() {
-            Exception ex = ReflectionTools.construct(Exception.class, null, null);
-
-            assertNotNull("should not be null", ex);
-
-            assertNull("should not have message", ex.getMessage());
-            assertNull("should not have cause", ex.getCause());
-        }
-
-        @Test
-        public void shouldConstructWithoutParameters() throws Exception {
-            assertNotNull(ReflectionTools.construct(String.class));
-        }
-
-        @Test(expected = ReflectionException.class)
-        public void shouldThrowExceptionIfConstructorIsNotFound() throws NoSuchMethodException {
-            ReflectionTools.construct(SimpleClass.class, 42, "won't work");
-        }
+    @Before
+    public void setup() {
+        simpleClassConstructor = null;
     }
 
-    public static class WhenGettingConstructors {
-        private Constructor<SimpleClass> simpleClassConstructor;
-
-        @Before
-        public void setup() {
-            simpleClassConstructor = null;
-        }
-
-        @Test
-        public void shouldReturnConstructorsWithMatchingSignature() throws NoSuchMethodException {
-            Class<?>[] typeArray = {String.class, Integer.class};
-
-            simpleClassConstructor = ReflectionTools.getConstructor(SimpleClass.class, typeArray);
-
-            assertThat(simpleClassConstructor.toString(), containsString("SimpleClass(java.lang.String,java.lang.Integer)"));
-        }
-
-        @Test(expected = NoSuchMethodException.class)
-        public void shouldThrowExceptionIfConstructorIsNotFound() throws NoSuchMethodException {
-            Class<?>[] typeArray = {Integer.class, String.class};
-
-            ReflectionTools.getConstructor(SimpleClass.class, typeArray);
-        }
-
-        @Test
-        public void shouldSupportEmptyParams() throws NoSuchMethodException {
-            Class<?>[] typeArray = new Class<?>[0];
-
-            simpleClassConstructor = ReflectionTools.getConstructor(SimpleClass.class, typeArray);
-
-            assertThat(simpleClassConstructor.toString(), containsString("SimpleClass()"));
-        }
+    @Test
+    public void shouldCorrectlyMatchParamterLists() {
+        assertEquals("A Magical String", ReflectionTools.construct(String.class, "A Magical String"));
     }
 
-    public static class WhenConvertingObjectParamListToClassArray {
-        @Test
-        public void shouldReturnArrayOfAssociatedClasses() {
-            Integer i = 42;
-            String s = "string";
-            Double d = 101.5;
-            Class[] actual;
+    @Test
+    public void shouldSupportEmptyConstructors() {
+        assertEquals("", ReflectionTools.construct(String.class));
+    }
 
-            actual = ReflectionTools.toClassArray(i, s, d, null);
+    @Test
+    public void shouldCorrectlyMatchParamterListsWithNull() {
+        Exception ex = ReflectionTools.construct(Exception.class, null, null);
 
-            assertEquals("integer", Integer.class, actual[0]);
-            assertEquals("string", String.class, actual[1]);
-            assertEquals("double", Double.class, actual[2]);
-            assertNull("null", actual[3]);
-        }
+        assertNotNull("should not be null", ex);
 
-        @Test
-        public void shouldNotFailOnNullReferences() {
-            Class[] actual;
-            Object obj = null;
+        assertNull("should not have message", ex.getMessage());
+        assertNull("should not have cause", ex.getCause());
+    }
 
-            actual = ReflectionTools.toClassArray(obj);
+    @Test
+    public void shouldConstructWithoutParameters() throws Exception {
+        assertNotNull(ReflectionTools.construct(String.class));
+    }
 
-            assertNull(actual[0]);
-        }
+    @Test(expected = ReflectionException.class)
+    public void whenConstructingObjectsViaReflectionShouldThrowExceptionIfConstructorIsNotFound() throws NoSuchMethodException {
+        ReflectionTools.construct(SimpleClass.class, 42, "won't work");
+    }
+
+    @Test
+    public void shouldReturnConstructorsWithMatchingSignature() throws NoSuchMethodException {
+        Class<?>[] typeArray = {String.class, Integer.class};
+
+        simpleClassConstructor = ReflectionTools.getConstructor(SimpleClass.class, typeArray);
+
+        assertThat(simpleClassConstructor.toString(), containsString("SimpleClass(java.lang.String,java.lang.Integer)"));
+    }
+
+    @Test(expected = NoSuchMethodException.class)
+    public void whenGettingConstructorsShouldThrowExceptionIfConstructorIsNotFound() throws NoSuchMethodException {
+        Class<?>[] typeArray = {Integer.class, String.class};
+
+        ReflectionTools.getConstructor(SimpleClass.class, typeArray);
+    }
+
+    @Test
+    public void shouldSupportEmptyParams() throws NoSuchMethodException {
+        Class<?>[] typeArray = new Class<?>[0];
+
+        simpleClassConstructor = ReflectionTools.getConstructor(SimpleClass.class, typeArray);
+
+        assertThat(simpleClassConstructor.toString(), containsString("SimpleClass()"));
+    }
+
+    @Test
+    public void shouldReturnArrayOfAssociatedClasses() {
+        Integer i = 42;
+        String s = "string";
+        Double d = 101.5;
+        Class[] actual;
+
+        actual = ReflectionTools.toClassArray(i, s, d, null);
+
+        assertEquals("integer", Integer.class, actual[0]);
+        assertEquals("string", String.class, actual[1]);
+        assertEquals("double", Double.class, actual[2]);
+        assertNull("null", actual[3]);
+    }
+
+    @Test
+    public void shouldNotFailOnNullReferences() {
+        Class[] actual;
+        Object obj = null;
+
+        actual = ReflectionTools.toClassArray(obj);
+
+        assertNull(actual[0]);
     }
 
     static class SimpleClass {

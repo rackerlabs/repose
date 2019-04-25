@@ -22,8 +22,6 @@ package org.openrepose.commons.utils.transform.xslt;
 import org.apache.commons.pool.ObjectPool;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
@@ -34,26 +32,22 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(Enclosed.class)
 public class XsltTransformConstructionTest {
 
-    public static class TestParent {
+    private XsltTransformConstruction xsltTransformConstruction;
+    private Templates templates;
+    private Transformer transformer;
 
-        XsltTransformConstruction xsltTransformConstruction;
-        Templates templates;
-        Transformer transformer;
+    @Before
+    public void setUp() throws Exception {
+        xsltTransformConstruction = new XsltTransformConstruction();
+        transformer = mock(Transformer.class);
+        templates = mock(Templates.class);
+    }
 
-        @Before
-        public void setUp() throws Exception {
-            xsltTransformConstruction = new XsltTransformConstruction();
-            transformer = mock(Transformer.class);
-            templates = mock(Templates.class);
-        }
-
-        @Test
-        public void shouldReturnTypePool() throws Exception {
-            when(templates.newTransformer()).thenReturn(transformer);
-            assertThat(xsltTransformConstruction.generateXsltResourcePool(templates), is(instanceOf(ObjectPool.class)));
-        }
+    @Test
+    public void shouldReturnTypePool() throws Exception {
+        when(templates.newTransformer()).thenReturn(transformer);
+        assertThat(xsltTransformConstruction.generateXsltResourcePool(templates), is(instanceOf(ObjectPool.class)));
     }
 }

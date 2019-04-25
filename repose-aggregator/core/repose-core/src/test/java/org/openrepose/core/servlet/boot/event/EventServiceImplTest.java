@@ -21,192 +21,177 @@ package org.openrepose.core.servlet.boot.event;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
-import org.openrepose.core.services.event.EventServiceImpl;
 import org.openrepose.core.services.event.EventDispatcher;
 import org.openrepose.core.services.event.EventListener;
 import org.openrepose.core.services.event.EventService;
+import org.openrepose.core.services.event.EventServiceImpl;
 
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
 
-@RunWith(Enclosed.class)
 public class EventServiceImplTest {
 
-    public static class WhenAddingEventListeners {
+    private EventService manager;
+    private boolean eventFiredTracker;
 
-        private EventService manager;
-        private boolean eventFiredTracker;
-
-        @Before
-        public void standUp() {
-            eventFiredTracker = false;
-            manager = new EventServiceImpl();
-        }
-
-        @Test
-        public void shouldRegisterListeners() throws Exception {
-            final String expected = "expected";
-
-            manager.listen(e -> {
-                assertEquals("Event payload must match expected value", expected, e.payload());
-                eventFiredTracker = true;
-            }, TestEvent.ONE);
-
-            manager.newEvent(TestEvent.ONE, expected);
-            manager.nextDispatcher().dispatch();
-
-            assertTrue("Event must be fired", eventFiredTracker);
-        }
-
-        @Test
-        public void shouldUpdateListener() throws Exception {
-            final String expected = "expected";
-
-            final EventListener<TestEvent, String> listener = e -> {
-                if (e.type() == TestEvent.ONE) {
-                    assertTrue("Event must be fired", eventFiredTracker);
-                }
-
-                if (e.type() == TestEvent.TWO) {
-                    assertEquals("Event payload must match expected value", expected, e.payload());
-                    eventFiredTracker = true;
-                }
-            };
-
-            manager.listen(listener, TestEvent.ONE);
-            manager.listen(e -> {}, TestEvent.class);
-
-            manager.listen(listener, TestEvent.TWO);
-
-            manager.newEvent(TestEvent.TWO, expected);
-            manager.nextDispatcher().dispatch();
-
-            manager.newEvent(TestEvent.ONE, expected);
-            manager.nextDispatcher().dispatch();
-        }
-
-        @Test
-        public void shouldSquelchIndividualEventsOnListener() throws Exception {
-            final String expectedOne = "expectedOne", expectedTwo = "expectedTwo";
-
-            final EventListener<TestEvent, String> listener = e -> {
-                switch (e.type()) {
-                    case ONE:
-                        if (eventFiredTracker) {
-                            fail("Must not call squelched events");
-                        }
-
-                        assertEquals("Event payload must match expected value", expectedOne, e.payload());
-                        eventFiredTracker = true;
-                        break;
-
-                    case TWO:
-                        assertEquals("Event payload must match expected value", expectedTwo, e.payload());
-                        break;
-
-                    case THREE:
-                        fail("Must not call squelched events");
-                        break;
-                }
-            };
-
-            manager.listen(listener, TestEvent.class);
-
-            manager.newEvent(TestEvent.ONE, expectedOne);
-            manager.nextDispatcher().dispatch();
-
-            manager.squelch(listener, TestEvent.ONE, TestEvent.THREE);
-
-            manager.newEvent(TestEvent.ONE, expectedTwo);
-            manager.nextDispatcher().dispatch();
-
-            manager.newEvent(TestEvent.TWO, expectedTwo);
-            manager.nextDispatcher().dispatch();
-
-            manager.newEvent(TestEvent.THREE, expectedTwo);
-            manager.nextDispatcher().dispatch();
-
-            assertTrue("Event must be fired", eventFiredTracker);
-        }
-
-        @Test
-        public void shouldSquelchEventsForListeners() throws Exception {
-            final EventListener<TestEvent, String> myListener = e -> eventFiredTracker = true;
-
-            manager.listen(myListener, TestEvent.class);
-
-            manager.newEvent(TestEvent.ONE, "");
-            manager.nextDispatcher().dispatch();
-
-            assertTrue("Event must be fired", eventFiredTracker);
-
-            eventFiredTracker = false;
-
-            manager.squelch(myListener, TestEvent.class);
-
-            manager.newEvent(TestEvent.ONE, "");
-            manager.nextDispatcher().dispatch();
-
-            assertFalse("Event must not be fired once squelched", eventFiredTracker);
-        }
-
-        @Test
-        public void shouldNotFailWhenRemovingNonExistentListener() {
-            manager.squelch(null, TestEvent.ONE);
-        }
-
-        public enum TestEvent {
-            ONE, TWO, THREE
-        }
+    @Before
+    public void standUp() {
+        eventFiredTracker = false;
+        manager = new EventServiceImpl();
     }
 
-    public static class WhenHandlingMulithreadedManagement {
-        private EventService manager;
+    @Test
+    public void shouldRegisterListeners() throws Exception {
+        final String expected = "expected";
 
-        @Before
-        public void standUp() {
-            manager = new EventServiceImpl();
-        }
+        manager.listen(e -> {
+            assertEquals("Event payload must match expected value", expected, e.payload());
+            eventFiredTracker = true;
+        }, TestEvent.ONE);
 
-        @Test
-        public void shouldBlockWhenNoEventsAreAvailable() throws InterruptedException {
-            final TestEvent sentEvent = TestEvent.EVENT_OCCURRED;
-            final AtomicReference<Enum> receivedEvent = new AtomicReference<>();
-            final AtomicReference<Exception> listenerException = new AtomicReference<>();
+        manager.newEvent(TestEvent.ONE, expected);
+        manager.nextDispatcher().dispatch();
 
-            final Thread listener = new Thread(() -> {
-                try {
-                    final EventDispatcher dispatcher = manager.nextDispatcher();
-                    receivedEvent.set(dispatcher.getEvent().type());
-                } catch (Exception ex) {
-                    listenerException.set(ex);
-                }
-            }, "Testing thread");
+        assertTrue("Event must be fired", eventFiredTracker);
+    }
 
-            listener.start();
+    @Test
+    public void shouldUpdateListener() throws Exception {
+        final String expected = "expected";
 
-            for (int i = 0; listener.getState() == Thread.State.RUNNABLE && i < 5; i++) {
-                Thread.sleep(500);
+        final EventListener<TestEvent, String> listener = e -> {
+            if (e.type() == TestEvent.ONE) {
+                assertTrue("Event must be fired", eventFiredTracker);
             }
 
-            assertEquals("Dispatcher thread must be waiting for further assertions to be valid", Thread.State.WAITING, listener.getState());
-
-            manager.newEvent(sentEvent, "");
-
-            for (int i = 0; listener.getState() != Thread.State.TERMINATED && i < 5; i++) {
-                Thread.sleep(500);
+            if (e.type() == TestEvent.TWO) {
+                assertEquals("Event payload must match expected value", expected, e.payload());
+                eventFiredTracker = true;
             }
+        };
 
-            assertEquals("Dispatcher thread must exit successfully", Thread.State.TERMINATED, listener.getState());
-            assertNull("Exception caught in listener thread.", listenerException.get());
-            assertEquals("Event type received by listener did not match.", sentEvent, receivedEvent.get());
+        manager.listen(listener, TestEvent.ONE);
+        manager.listen(e -> {}, TestEvent.class);
+
+        manager.listen(listener, TestEvent.TWO);
+
+        manager.newEvent(TestEvent.TWO, expected);
+        manager.nextDispatcher().dispatch();
+
+        manager.newEvent(TestEvent.ONE, expected);
+        manager.nextDispatcher().dispatch();
+    }
+
+    @Test
+    public void shouldSquelchIndividualEventsOnListener() throws Exception {
+        final String expectedOne = "expectedOne", expectedTwo = "expectedTwo";
+
+        final EventListener<TestEvent, String> listener = e -> {
+            switch (e.type()) {
+                case ONE:
+                    if (eventFiredTracker) {
+                        fail("Must not call squelched events");
+                    }
+
+                    assertEquals("Event payload must match expected value", expectedOne, e.payload());
+                    eventFiredTracker = true;
+                    break;
+
+                case TWO:
+                    assertEquals("Event payload must match expected value", expectedTwo, e.payload());
+                    break;
+
+                case THREE:
+                    fail("Must not call squelched events");
+                    break;
+            }
+        };
+
+        manager.listen(listener, TestEvent.class);
+
+        manager.newEvent(TestEvent.ONE, expectedOne);
+        manager.nextDispatcher().dispatch();
+
+        manager.squelch(listener, TestEvent.ONE, TestEvent.THREE);
+
+        manager.newEvent(TestEvent.ONE, expectedTwo);
+        manager.nextDispatcher().dispatch();
+
+        manager.newEvent(TestEvent.TWO, expectedTwo);
+        manager.nextDispatcher().dispatch();
+
+        manager.newEvent(TestEvent.THREE, expectedTwo);
+        manager.nextDispatcher().dispatch();
+
+        assertTrue("Event must be fired", eventFiredTracker);
+    }
+
+    @Test
+    public void shouldSquelchEventsForListeners() throws Exception {
+        final EventListener<TestEvent, String> myListener = e -> eventFiredTracker = true;
+
+        manager.listen(myListener, TestEvent.class);
+
+        manager.newEvent(TestEvent.ONE, "");
+        manager.nextDispatcher().dispatch();
+
+        assertTrue("Event must be fired", eventFiredTracker);
+
+        eventFiredTracker = false;
+
+        manager.squelch(myListener, TestEvent.class);
+
+        manager.newEvent(TestEvent.ONE, "");
+        manager.nextDispatcher().dispatch();
+
+        assertFalse("Event must not be fired once squelched", eventFiredTracker);
+    }
+
+    @Test
+    public void shouldNotFailWhenRemovingNonExistentListener() {
+        manager.squelch(null, TestEvent.ONE);
+    }
+
+    public enum TestEvent {
+        ONE, TWO, THREE
+    }
+
+    @Test
+    public void shouldBlockWhenNoEventsAreAvailable() throws InterruptedException {
+        final OtherTestEvent sentEvent = OtherTestEvent.EVENT_OCCURRED;
+        final AtomicReference<Enum> receivedEvent = new AtomicReference<>();
+        final AtomicReference<Exception> listenerException = new AtomicReference<>();
+
+        final Thread listener = new Thread(() -> {
+            try {
+                final EventDispatcher dispatcher = manager.nextDispatcher();
+                receivedEvent.set(dispatcher.getEvent().type());
+            } catch (Exception ex) {
+                listenerException.set(ex);
+            }
+        }, "Testing thread");
+
+        listener.start();
+
+        for (int i = 0; listener.getState() == Thread.State.RUNNABLE && i < 5; i++) {
+            Thread.sleep(500);
         }
 
-        public enum TestEvent {
-            EVENT_OCCURRED
+        assertEquals("Dispatcher thread must be waiting for further assertions to be valid", Thread.State.WAITING, listener.getState());
+
+        manager.newEvent(sentEvent, "");
+
+        for (int i = 0; listener.getState() != Thread.State.TERMINATED && i < 5; i++) {
+            Thread.sleep(500);
         }
+
+        assertEquals("Dispatcher thread must exit successfully", Thread.State.TERMINATED, listener.getState());
+        assertNull("Exception caught in listener thread.", listenerException.get());
+        assertEquals("Event type received by listener did not match.", sentEvent, receivedEvent.get());
+    }
+
+    public enum OtherTestEvent {
+        EVENT_OCCURRED
     }
 }

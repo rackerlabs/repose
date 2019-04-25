@@ -19,9 +19,8 @@
  */
 package org.openrepose.commons.config.parser.properties;
 
-import org.junit.*;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
+import org.junit.Before;
+import org.junit.Test;
 import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.openrepose.commons.config.resource.ResourceResolutionException;
 
@@ -34,57 +33,37 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(Enclosed.class)
 public class PropertiesFileConfigurationParserTest {
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
+    private PropertiesFileConfigurationParser instance;
+    private ConfigurationResource cr;
+    private ConfigurationResource badCr;
+    private Properties props;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        instance = new PropertiesFileConfigurationParser();
+
+        props = new Properties();
+        props.setProperty("key", "value");
+        props.setProperty("key2", "some other value");
+        props.store(out, "TEST");
+        cr = mock(ConfigurationResource.class);
+        when(cr.newInputStream()).thenReturn(new ByteArrayInputStream(out.toByteArray()));
+        badCr = mock(ConfigurationResource.class);
+        when(badCr.newInputStream()).thenThrow(new IOException());
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @Test
+    public void shouldReturnValidPropertiesFile() {
+        Properties actual = instance.read(cr);
+        assertEquals("Should get properties file", props, actual);
     }
 
-    public static class WhenReadingPropertiesFile {
-
-        private PropertiesFileConfigurationParser instance;
-        private ConfigurationResource cr;
-        private ConfigurationResource badCr;
-        private Properties props;
-
-        @Before
-        public void setUp() throws IOException {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            instance = new PropertiesFileConfigurationParser();
-
-            props = new Properties();
-            props.setProperty("key", "value");
-            props.setProperty("key2", "some other value");
-            props.store(out, "TEST");
-            cr = mock(ConfigurationResource.class);
-            when(cr.newInputStream()).thenReturn(new ByteArrayInputStream(out.toByteArray()));
-            badCr = mock(ConfigurationResource.class);
-            when(badCr.newInputStream()).thenThrow(new IOException());
-        }
-
-        @Test
-        public void shouldReturnValidPropertiesFile() {
-            Properties actual = instance.read(cr);
-            assertEquals("Should get properties file", props, actual);
-        }
-
-        @Test(expected = ResourceResolutionException.class)
-        public void testRead() {
-            instance.read(badCr);
-        }
+    @Test(expected = ResourceResolutionException.class)
+    public void testRead() {
+        instance.read(badCr);
     }
 
 }
