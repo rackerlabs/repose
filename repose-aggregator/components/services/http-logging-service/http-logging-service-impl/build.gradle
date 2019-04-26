@@ -1,0 +1,7 @@
+dependencies {
+    compile project(":repose-aggregator:components:services:http-logging-service:http-logging-service-api")
+    compile "org.scala-lang:scala-library"
+
+    testCompile "junit:junit"
+    testCompile "org.scalatest:scalatest_$scalaMajDotMin"
+}
