@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<http-logging xmlns="http://docs.openrepose.org/repose/http-logging/v1.0">
+    <message log-to="request-counter">
+        Request handled!
+    </message>
+
+    <message log-to="plain-access-log" format="plain">
+        <![CDATA[
+            TODO
+            https://en.wikipedia.org/wiki/Common_Log_Format
+            127.0.0.1 user-identifier frank [10/Oct/2000:13:55:36 -0700] "GET /apache_pb.gif HTTP/1.0" 200 2326
+        ]]>
+    </message>
+
+    <message log-to="json-access-log" format="json" condense-whitespace="true">
+        <![CDATA[
+            TODO
+            https://en.wikipedia.org/wiki/Common_Log_Format
+        ]]>
+    </message>
+</http-logging>
