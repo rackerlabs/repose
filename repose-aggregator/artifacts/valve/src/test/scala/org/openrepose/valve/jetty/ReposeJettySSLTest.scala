@@ -17,13 +17,13 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.valve
+package org.openrepose.valve.jetty
 
 import java.io.{File, IOException}
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
-import javax.net.ssl.{SSLContext, SSLHandshakeException}
 
+import javax.net.ssl.{SSLContext, SSLHandshakeException}
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.conn.ssl.{NoopHostnameVerifier, SSLConnectionSocketFactory, TrustSelfSignedStrategy}
 import org.apache.http.impl.client.HttpClients
@@ -31,6 +31,7 @@ import org.apache.http.ssl.SSLContexts
 import org.junit.runner.RunWith
 import org.openrepose.core.container.config.{SslCipherConfiguration, SslConfiguration, SslProtocolConfiguration}
 import org.openrepose.core.spring.CoreSpringProvider
+import org.openrepose.valve.SpringContextResetter
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterAll, FunSpec, Matchers}
 

@@ -17,17 +17,17 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.valve
+package org.openrepose.valve.jetty
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-
 import org.eclipse.jetty.http.HttpHeader
-import org.eclipse.jetty.server.{Request, ServerConnector}
+import org.eclipse.jetty.server.Request
 import org.junit.runner.RunWith
 import org.mockito.Mockito.{verify, verifyZeroInteractions}
 import org.openrepose.core.container.config.SslConfiguration
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
-import org.openrepose.valve.ReposeJettyServer.ServerInitializationException
+import org.openrepose.valve.jetty.ReposeJettyServer.ServerInitializationException
+import org.openrepose.valve.SpringContextResetter
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}

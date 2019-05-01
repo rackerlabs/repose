@@ -33,10 +33,9 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.spring.CoreSpringProvider
 import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService
-import org.openrepose.valve.ReposeJettyServer
+import org.openrepose.valve.jetty.ReposeJettyServer
 import org.openrepose.valve.jmx.{ValvePortMXBean, ValvePortMXBeanImpl}
 import org.springframework.beans.factory.DisposableBean
-
 
 /**
  * A singleton that's spring aware because of the services it needs to use.
