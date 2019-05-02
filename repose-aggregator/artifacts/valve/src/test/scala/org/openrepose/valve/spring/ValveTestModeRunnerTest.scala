@@ -60,7 +60,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with StrictLogging {
   def withRunner(configRoot: String = "/config/root",
                  insecure: Boolean = false,
                  testMode: Boolean = true)(f: ValveRunner => Unit) = {
-    val runner = new ValveRunner(fakeConfigService)
+    val runner = new ValveRunner(fakeConfigService, null, null)
     val runnerTask = Future {
       runner.run(configRoot, insecure, testMode)
     }
@@ -104,7 +104,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with StrictLogging {
   }
 
   it("still has a blocking run method") {
-    val runner = new ValveRunner(fakeConfigService)
+    val runner = new ValveRunner(fakeConfigService, null, null)
 
     val future = Future {
       runner.run("/root", false)
@@ -398,7 +398,7 @@ class ValveTestModeRunnerTest extends FunSpec with Matchers with StrictLogging {
 
   describe("Error states") {
     it("if no local nodes are detected, it shuts down valve!") {
-      val runner = new ValveRunner(fakeConfigService)
+      val runner = new ValveRunner(fakeConfigService, null, null)
       val runnerTask = Future {
         runner.run("/config/root", false)
       }

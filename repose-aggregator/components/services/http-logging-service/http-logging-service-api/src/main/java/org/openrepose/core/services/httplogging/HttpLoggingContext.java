@@ -17,14 +17,24 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.httplogging
+package org.openrepose.core.services.httplogging;
 
-import javax.inject.Named
+import lombok.Data;
 
-@Named
-class HttpLoggingServiceImpl extends HttpLoggingService {
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-  override def open(): HttpLoggingContext = ???
-
-  override def close(httpLoggingContext: HttpLoggingContext): Unit = ???
+/**
+ * A container for all of the state associated with an HTTP interaction that
+ * may be used by the {@link HttpLoggingService} to render messages.
+ * <p>
+ * This class is intentionally mutable to keep interactions simple.
+ * Additionally, standard setters are used rather than "fluent" setters to
+ * indicate mutability and keep the behavior of methods clear.
+ */
+@Data
+public class HttpLoggingContext {
+    private HttpServletRequest inboundRequest;
+    private HttpServletRequest outboundRequest;
+    private HttpServletResponse outboundResponse;
 }

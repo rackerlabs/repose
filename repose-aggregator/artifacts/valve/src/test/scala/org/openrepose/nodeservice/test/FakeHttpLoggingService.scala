@@ -17,14 +17,15 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.httplogging
+package org.openrepose.nodeservice.test
 
 import javax.inject.Named
+import org.openrepose.core.services.httplogging.{HttpLoggingContext, HttpLoggingService}
 
 @Named
-class HttpLoggingServiceImpl extends HttpLoggingService {
+class FakeHttpLoggingService extends HttpLoggingService {
 
   override def open(): HttpLoggingContext = ???
 
-  override def close(httpLoggingContext: HttpLoggingContext): Unit = ???
+  override def close(interactionId: HttpLoggingContext): Unit = ???
 }

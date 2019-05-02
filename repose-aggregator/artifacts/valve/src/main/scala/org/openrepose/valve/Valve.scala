@@ -20,9 +20,9 @@
 package org.openrepose.valve
 
 import java.io.File
-import javax.net.ssl.SSLContext
 
 import com.typesafe.config.Config
+import javax.net.ssl.SSLContext
 import org.openrepose.core.spring.CoreSpringProvider
 import org.openrepose.valve.spring.ValveRunner
 import org.slf4j.LoggerFactory
@@ -127,9 +127,8 @@ class Valve {
 
         //Set up all the valve context, it's lazy, so it won't get instantiated until here as well.
         valveContext.setParent(coreContext)
-        valveContext.scan("org.openrepose.valve.spring") //TODO: config file?
+        valveContext.scan("org.openrepose.valve") //TODO: config file?
         valveContext.refresh()
-
 
         //Get dat bean
         val valveRunner: ValveRunner = valveContext.getBean[ValveRunner](classOf[ValveRunner])

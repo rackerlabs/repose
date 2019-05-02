@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory
 
 import scala.concurrent.{Await, Future}
 
-
 @RunWith(classOf[JUnitRunner])
 class ValveRunnerTest extends FunSpec with Matchers {
   val log = LoggerFactory.getLogger(this.getClass)
@@ -44,7 +43,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
   import scala.concurrent.duration._
 
   def withRunner(configRoot: String = "/config/root", insecure: Boolean = false)(f: ValveRunner => Unit) = {
-    val runner = new ValveRunner(fakeConfigService)
+    val runner = new ValveRunner(fakeConfigService, null, null)
     val runnerTask = Future {
       runner.run(configRoot, insecure)
     }
@@ -73,7 +72,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
   }
 
   it("has a blocking run method") {
-    val runner = new ValveRunner(fakeConfigService)
+    val runner = new ValveRunner(fakeConfigService, null, null)
 
     val future = Future {
       runner.run("/root", false)
@@ -290,7 +289,7 @@ class ValveRunnerTest extends FunSpec with Matchers {
 
   describe("Error states") {
     it("if no local nodes are detected, it shuts down valve!") {
-      val runner = new ValveRunner(fakeConfigService)
+      val runner = new ValveRunner(fakeConfigService, null, null)
       val runnerTask = Future {
         runner.run("/config/root", false)
       }

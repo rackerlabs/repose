@@ -21,13 +21,13 @@ package org.openrepose.valve.jetty
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.eclipse.jetty.http.HttpHeader
-import org.eclipse.jetty.server.Request
+import org.eclipse.jetty.server.{HttpChannel, Request, RequestLog}
 import org.junit.runner.RunWith
 import org.mockito.Mockito.{verify, verifyZeroInteractions}
 import org.openrepose.core.container.config.SslConfiguration
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
-import org.openrepose.valve.jetty.ReposeJettyServer.ServerInitializationException
 import org.openrepose.valve.SpringContextResetter
+import org.openrepose.valve.jetty.ReposeJettyServer.ServerInitializationException
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
@@ -61,7 +61,9 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
       httpPort,
       None,
       None,
-      None
+      None,
+      null,
+      null
     )
 
     //Cannot verify too much, really can just prove that I have one connector
@@ -77,7 +79,9 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
       None,
       httpsPort,
       sslConfig,
-      None
+      None,
+      null,
+      null
     )
 
     //Cannot verify too much, really can just prove that I have one connector
@@ -93,7 +97,9 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
       httpPort,
       httpsPort,
       sslConfig,
-      None
+      None,
+      null,
+      null
     )
 
     //Cannot verify too much, really can just prove that I have two connectors
@@ -107,7 +113,9 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
       httpPort,
       None,
       None,
-      idleTimeout
+      idleTimeout,
+      null,
+      null
     )
 
     //Cannot verify too much, really can just prove that I have one connector
@@ -124,7 +132,9 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
         None,
         httpsPort,
         None,
-        None
+        None,
+        null,
+        null
       )
     }
   }
@@ -137,7 +147,9 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
         None,
         None,
         None,
-        None
+        None,
+        null,
+        null
       )
     }
   }
@@ -152,7 +164,9 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
       httpPort,
       httpsPort,
       sslConfig,
-      idleTimeout
+      idleTimeout,
+      null,
+      null
     )
 
     repose.server.getErrorHandler.handle("some-target", baseRequest, request, response)
@@ -162,6 +176,46 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
     verify(response).setHeader(HttpHeader.CACHE_CONTROL.asString(), repose.server.getErrorHandler.getCacheControl)
   }
 
+  it("creates a Jetty server listening on an HTTP port with a registered HttpChannel listener and RequestLog") {
+    val httpChannelListener = mock[HttpChannel.Listener]
+    val requestLog = mock[RequestLog]
+    val repose = new ReposeJettyServer(
+      nodeContext,
+      "node",
+      httpPort,
+      None,
+      None,
+      None,
+      httpChannelListener,
+      requestLog
+    )
+
+    repose.server.getConnectors should have size 1
+    repose.server.getConnectors.head.getBeans(classOf[HttpChannel.Listener]) should have size 1
+    repose.server.getConnectors.head.getBean(classOf[HttpChannel.Listener]) shouldBe httpChannelListener
+    repose.server.getRequestLog shouldBe requestLog
+  }
+
+  it("creates a Jetty server listening on an HTTPS port with a registered HttpChannel listener and RequestLog") {
+    val httpChannelListener = mock[HttpChannel.Listener]
+    val requestLog = mock[RequestLog]
+    val repose = new ReposeJettyServer(
+      nodeContext,
+      "node",
+      None,
+      httpsPort,
+      sslConfig,
+      None,
+      httpChannelListener,
+      requestLog
+    )
+
+    repose.server.getConnectors should have size 1
+    repose.server.getConnectors.head.getBeans(classOf[HttpChannel.Listener]) should have size 1
+    repose.server.getConnectors.head.getBean(classOf[HttpChannel.Listener]) shouldBe httpChannelListener
+    repose.server.getRequestLog shouldBe requestLog
+  }
+
   it("Can terminate a server, shutting down the node's entire context") {
     val server = new ReposeJettyServer(
       nodeContext,
@@ -169,7 +223,9 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
       httpPort,
       None,
       None,
-      None
+      None,
+      null,
+      null
     )
 
     server.start()
@@ -192,7 +248,9 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
       httpPort,
       None,
       None,
-      None
+      None,
+      null,
+      null
     )
 
     server.start()
@@ -223,7 +281,9 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
       httpPort,
       None,
       None,
-      None
+      None,
+      null,
+      null
     )
     println(s"app context active: ${server.appContext.isActive}")
 
@@ -245,7 +305,9 @@ class ReposeJettyServerTest extends FunSpec with Matchers with MockitoSugar {
       Some(8080),
       None,
       None,
-      None
+      None,
+      null,
+      null
     )
     import ReposeSpringProperties.CORE._
     import ReposeSpringProperties.NODE._

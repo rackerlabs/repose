@@ -24,4 +24,22 @@ package org.openrepose.core.services.httplogging;
  */
 public interface HttpLoggingService {
 
+    /**
+     * Opens a new HTTP interaction context.
+     *
+     * @return an empty {@link HttpLoggingContext}
+     */
+    HttpLoggingContext open();
+
+    /**
+     * Renders all configured messages using the state from the provided
+     * {@link HttpLoggingContext} and sends those messages to their
+     * corresponding loggers.
+     *
+     * All processing will be performed asynchronously to avoid adding
+     * overhead to the response time.
+     *
+     * @param interactionId an identifier for the HTTP interaction
+     */
+    void close(HttpLoggingContext interactionId);
 }

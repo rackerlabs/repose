@@ -56,6 +56,8 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
                         val httpsPort: Option[Int],
                         sslConfig: Option[SslConfiguration],
                         idleTimeout: Option[Long],
+                        httpChannelListener: HttpChannel.Listener,
+                        requestLog: RequestLog,
                         testMode: Boolean = false) {
 
   import ReposeJettyServer._
@@ -167,6 +169,9 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
     } else {
       connectors foreach { connector =>
         idleTimeout foreach connector.setIdleTimeout
+
+        // Wire in the bridge to the HTTP Logging Service (to open contexts)
+        connector.addBean(httpChannelListener)
       }
     }
 
@@ -197,6 +202,9 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
       }
     })
 
+    // Wire in the bridge to the HTTP Logging Service (to close contexts)
+    s.setRequestLog(requestLog)
+
     (httpConnector, httpsConnector, s)
   }
   private var isShutdown = false
@@ -223,7 +231,7 @@ class ReposeJettyServer(val nodeContext: AbstractApplicationContext,
     */
   def restart(): ReposeJettyServer = {
     shutdown()
-    new ReposeJettyServer(nodeContext, nodeId, httpPort, httpsPort, sslConfig, idleTimeout, testMode)
+    new ReposeJettyServer(nodeContext, nodeId, httpPort, httpsPort, sslConfig, idleTimeout, httpChannelListener, requestLog, testMode)
   }
 
   /**

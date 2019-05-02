@@ -172,7 +172,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       None,
       httpsPort,
       sslConfig(excludedProtocols = List("TLSv1")),
-      None
+      None,
+      null,
+      null
     )
     repose.start()
     try {
@@ -192,7 +194,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       None,
       httpsPort,
       sslConfig(includedProtocols = List("TLSv1.1", "TLSv1.2")),
-      None
+      None,
+      null,
+      null
     )
     repose.start()
     try {
@@ -213,7 +217,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       None,
       httpsPort,
       sslConfig(excludedCiphers = List(defaultEnabledCiphers.head)),
-      None
+      None,
+      null,
+      null
     )
     repose.start()
     try {
@@ -232,7 +238,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       None,
       httpsPort,
       sslConfig(includedCiphers = List(defaultEnabledCiphers.head)),
-      None
+      None,
+      null,
+      null
     )
     repose.start()
     try {
@@ -251,7 +259,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       None,
       httpsPort,
       sslConfig(includedProtocols = List("TLSv1"), tlsRenegotiation = false),
-      None
+      None,
+      null,
+      null
     )
     repose.start()
 
@@ -271,7 +281,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       None,
       httpsPort,
       sslConfig(includedProtocols = List("TLSv1"), tlsRenegotiation = true),
-      None
+      None,
+      null,
+      null
     )
     repose.start()
 
@@ -291,7 +303,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       None,
       httpsPort,
       sslConfig(excludedCiphers = List(".*TLS.*128.*")),
-      None
+      None,
+      null,
+      null
     )
     repose.start()
     try {
@@ -313,7 +327,9 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       None,
       httpsPort,
       sslConfig(includedCiphers = List(".*TLS.*128.*")),
-      None
+      None,
+      null,
+      null
     )
     repose.start()
     try {
