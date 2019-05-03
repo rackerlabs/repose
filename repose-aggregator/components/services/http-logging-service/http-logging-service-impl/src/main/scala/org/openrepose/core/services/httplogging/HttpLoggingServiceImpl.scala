@@ -19,12 +19,77 @@
  */
 package org.openrepose.core.services.httplogging
 
-import javax.inject.Named
+import com.typesafe.scalalogging.slf4j.StrictLogging
+import javax.annotation.{PostConstruct, PreDestroy}
+import javax.inject.{Inject, Named}
+import org.jtwig.JtwigModel
+import org.jtwig.environment.EnvironmentConfigurationBuilder
+import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.httplogging.HttpLoggingServiceImpl._
+import org.openrepose.core.services.httplogging.config.HttpLoggingConfig
 
 @Named
-class HttpLoggingServiceImpl extends HttpLoggingService {
+class HttpLoggingServiceImpl @Inject()(configurationService: ConfigurationService)
+  extends HttpLoggingService with StrictLogging {
 
-  override def open(): HttpLoggingContext = ???
+  private var configuration: HttpLoggingConfig = _
 
-  override def close(httpLoggingContext: HttpLoggingContext): Unit = ???
+  @PostConstruct
+  def init(): Unit = {
+    logger.trace("Initializing HTTP Logging Service")
+
+    val defaultConfigSchemaUrl = classOf[HttpLoggingServiceImpl].getResource(DefaultConfigSchema)
+    configurationService.subscribeTo(
+      DefaultConfig,
+      defaultConfigSchemaUrl,
+      ConfigurationListener,
+      classOf[HttpLoggingConfig])
+
+    logger.trace("Initialized HTTP Logging Service")
+  }
+
+  @PreDestroy
+  def destroy(): Unit = {
+    logger.trace("Destroying HTTP Logging Service")
+
+    configurationService.unsubscribeFrom(DefaultConfig, ConfigurationListener)
+
+    logger.trace("Destroyed HTTP Logging Service")
+  }
+
+  override def open(): HttpLoggingContext = {
+    val context = new HttpLoggingContext()
+    logger.trace("Opened a new HTTP logging context {}", s"${context.hashCode()}")
+    context
+  }
+
+  override def close(httpLoggingContext: HttpLoggingContext): Unit = {
+    ???
+  }
+
+  private object ConfigurationListener extends UpdateListener[HttpLoggingConfig] {
+    private var initialized: Boolean = false
+
+    override def configurationUpdated(configurationObject: HttpLoggingConfig): Unit = {
+      logger.trace("Updating HTTP Logging Service configuration")
+
+      configuration = configurationObject
+      initialized = true
+
+      logger.trace("Updated HTTP Logging Service configuration")
+    }
+
+    override def isInitialized: Boolean = {
+      initialized
+    }
+  }
+
+}
+
+object HttpLoggingServiceImpl {
+  final val ServiceName: String = "http-logging-service"
+  final val DefaultConfig: String = "http-logging.cfg.xml"
+  final val DefaultConfigSchema: String = "/META-INF/schema/config/http-logging.xsd"
+
 }
