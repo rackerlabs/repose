@@ -57,4 +57,15 @@
         <gav regex="true">^org\.slf4j:slf4j-ext:.*$</gav>
         <cve>CVE-2018-8088</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: jetty-(servlet|security|server|http|util)-9.4.14.v20181114.jar
+            NOTE: This vulnerability is only exposed if the DefaultServlet or ResourceHandler are used with indexing/listing enabled.
+            Since Repose doesn't use these normally default classes, this issue does not effect Repose users.
+        ]]></notes>
+        <gav regex="true">^org\.eclipse\.jetty:jetty-(?:servlet|security|server|http|util):.*$</gav>
+        <cve>CVE-2019-10241</cve>
+        <cve>CVE-2019-10246</cve>
+        <cve>CVE-2019-10247</cve>
+    </suppress>
 </suppressions>
