@@ -77,22 +77,6 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-
-                <xs:attribute name="condense-whitespace" type="xs:boolean" use="optional" default="false">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                                Whether or not to condense whitespace in this message.
-                            </html:p>
-                            <html:p>
-                                If true, leading and trailing whitespace will be removed and repeating whitespace
-                                will be replaced with a single space.
-                                If false, the whitespace in this message will not be changed.
-                                If not provided, defaults to false.
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
