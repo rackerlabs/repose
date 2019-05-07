@@ -22,18 +22,21 @@ package org.openrepose.core.services.httplogging
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
-import org.jtwig.JtwigModel
-import org.jtwig.environment.EnvironmentConfigurationBuilder
-import org.openrepose.commons.config.manager.UpdateListener
+import org.jtwig.{JtwigModel, JtwigTemplate}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.httplogging.HttpLoggingServiceImpl._
+import org.openrepose.core.services.httplogging.HttpLoggingConfigListener.Template
 import org.openrepose.core.services.httplogging.config.HttpLoggingConfig
 
+import scala.collection.JavaConverters._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
 @Named
-class HttpLoggingServiceImpl @Inject()(configurationService: ConfigurationService)
+class HttpLoggingServiceImpl @Inject()(configurationService: ConfigurationService,
+                                       httpLoggingConfigListener: HttpLoggingConfigListener)
   extends HttpLoggingService with StrictLogging {
 
-  private var configuration: HttpLoggingConfig = _
+  import HttpLoggingServiceImpl._
 
   @PostConstruct
   def init(): Unit = {
@@ -43,7 +46,7 @@ class HttpLoggingServiceImpl @Inject()(configurationService: ConfigurationServic
     configurationService.subscribeTo(
       DefaultConfig,
       defaultConfigSchemaUrl,
-      ConfigurationListener,
+      httpLoggingConfigListener,
       classOf[HttpLoggingConfig])
 
     logger.trace("Initialized HTTP Logging Service")
@@ -53,7 +56,7 @@ class HttpLoggingServiceImpl @Inject()(configurationService: ConfigurationServic
   def destroy(): Unit = {
     logger.trace("Destroying HTTP Logging Service")
 
-    configurationService.unsubscribeFrom(DefaultConfig, ConfigurationListener)
+    configurationService.unsubscribeFrom(DefaultConfig, httpLoggingConfigListener)
 
     logger.trace("Destroyed HTTP Logging Service")
   }
@@ -65,31 +68,32 @@ class HttpLoggingServiceImpl @Inject()(configurationService: ConfigurationServic
   }
 
   override def close(httpLoggingContext: HttpLoggingContext): Unit = {
-    ???
-  }
-
-  private object ConfigurationListener extends UpdateListener[HttpLoggingConfig] {
-    private var initialized: Boolean = false
-
-    override def configurationUpdated(configurationObject: HttpLoggingConfig): Unit = {
-      logger.trace("Updating HTTP Logging Service configuration")
-
-      configuration = configurationObject
-      initialized = true
-
-      logger.trace("Updated HTTP Logging Service configuration")
-    }
-
-    override def isInitialized: Boolean = {
-      initialized
+    logger.trace("Closing the HTTP logging context {}", s"${httpLoggingContext.hashCode()}")
+    httpLoggingConfigListener.currentTemplates.foreach { template =>
+      Future {
+        val contextMap = HttpLoggingContextMap.from(httpLoggingContext)
+        val renderedMessage = renderTemplate(template, contextMap)
+        template.logger.info(renderedMessage)
+        logger.trace(
+          "Logged message {} for HTTP logging context {}",
+          s"${template.message.hashCode()}",
+          s"${httpLoggingContext.hashCode()}"
+        )
+      }
     }
   }
-
 }
 
 object HttpLoggingServiceImpl {
-  final val ServiceName: String = "http-logging-service"
   final val DefaultConfig: String = "http-logging.cfg.xml"
-  final val DefaultConfigSchema: String = "/META-INF/schema/config/http-logging.xsd"
 
+  private final val DefaultConfigSchema: String = "/META-INF/schema/config/http-logging.xsd"
+
+  private def renderTemplate(template: Template, context: Map[String, AnyRef]): String = {
+    val model = JtwigModel.newModel(context.asJava)
+
+    JtwigTemplate
+      .inlineTemplate(template.message.getValue, template.envConf)
+      .render(model)
+  }
 }

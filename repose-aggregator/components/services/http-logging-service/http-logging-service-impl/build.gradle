@@ -7,8 +7,11 @@ dependencies {
     compile "org.scala-lang:scala-library"
 
     compileOnly "javax.inject:javax.inject"
+    compileOnly "javax.servlet:javax.servlet-api"
 
     testCompile "junit:junit"
+    testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
     testCompile "org.mockito:mockito-core"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
+    testCompile "org.springframework:spring-test"
 }

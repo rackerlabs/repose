@@ -21,25 +21,42 @@ package org.openrepose.core.services.httplogging
 
 import java.net.URL
 
+import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+import org.jtwig.environment.EnvironmentConfigurationBuilder
 import org.junit.runner.RunWith
-import org.mockito.Matchers.{any, eq => isEq}
-import org.mockito.Mockito.verify
-import org.openrepose.commons.config.manager.UpdateListener
+import org.mockito.Matchers.{any, same, eq => isEq}
+import org.mockito.Mockito.{verify, when}
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.httplogging.HttpLoggingConfigListener.Template
+import org.openrepose.core.services.httplogging.HttpLoggingConfigListenerTest.createMessage
 import org.openrepose.core.services.httplogging.config.HttpLoggingConfig
+import org.scalatest.concurrent.Eventually
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
+import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+import org.slf4j.Logger
+import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 
 @RunWith(classOf[JUnitRunner])
-class HttpLoggingServiceImplTest extends FunSpec with BeforeAndAfterEach with MockitoSugar with Matchers {
+class HttpLoggingServiceImplTest extends FunSpec with BeforeAndAfterEach with MockitoSugar with Matchers with Eventually {
 
+  import HttpLoggingServiceImplTest._
+
+  // Giving tests which use eventually a little more time to run than the default PatienceConfig
+  implicit override val patienceConfig: PatienceConfig =
+    PatienceConfig(timeout = scaled(Span(1, Seconds)), interval = scaled(Span(100, Millis)))
+
+  var logger: Logger = _
   var configurationService: ConfigurationService = _
+  var configListener: HttpLoggingConfigListener = _
   var httpLoggingService: HttpLoggingServiceImpl = _
 
   override def beforeEach(): Unit = {
+    logger = mock[Logger]
     configurationService = mock[ConfigurationService]
-    httpLoggingService = new HttpLoggingServiceImpl(configurationService)
+    configListener = mock[HttpLoggingConfigListener]
+    httpLoggingService = new HttpLoggingServiceImpl(configurationService, configListener)
   }
 
   describe("init") {
@@ -49,7 +66,7 @@ class HttpLoggingServiceImplTest extends FunSpec with BeforeAndAfterEach with Mo
       verify(configurationService).subscribeTo(
         isEq(HttpLoggingServiceImpl.DefaultConfig),
         any[URL],
-        any[UpdateListener[HttpLoggingConfig]],
+        same(configListener),
         any[Class[HttpLoggingConfig]]
       )
     }
@@ -61,7 +78,7 @@ class HttpLoggingServiceImplTest extends FunSpec with BeforeAndAfterEach with Mo
 
       verify(configurationService).unsubscribeFrom(
         isEq(HttpLoggingServiceImpl.DefaultConfig),
-        any[UpdateListener[HttpLoggingConfig]]
+        same(configListener)
       )
     }
   }
@@ -73,5 +90,56 @@ class HttpLoggingServiceImplTest extends FunSpec with BeforeAndAfterEach with Mo
       httpLoggingContext should not be null
       httpLoggingContext shouldBe an[HttpLoggingContext]
     }
+  }
+
+  describe("close") {
+    it("should log messages to the configured logger") {
+      val message = "Request handled!"
+
+      when(configListener.currentTemplates)
+        .thenReturn(List(
+          Template(
+            createMessage("unused", message),
+            EnvironmentConfigurationBuilder.configuration().build(),
+            logger
+          )
+        ))
+
+      httpLoggingService.close(minimalLoggingContext())
+
+      eventually {
+        verify(logger).info(message)
+      }
+    }
+
+    it("should log configured messages using values from the context being closed") {
+      val message = "Method: {{ inboundRequestMethod }}"
+
+      when(configListener.currentTemplates)
+        .thenReturn(List(
+          Template(
+            createMessage("unused", message),
+            EnvironmentConfigurationBuilder.configuration().build(),
+            logger
+          )
+        ))
+
+      httpLoggingService.close(minimalLoggingContext())
+
+      eventually {
+        verify(logger).info("Method: GET")
+      }
+    }
+  }
+}
+
+object HttpLoggingServiceImplTest {
+  def minimalLoggingContext(request: HttpServletRequest = new MockHttpServletRequest("GET", "/"),
+                            response: HttpServletResponse = new MockHttpServletResponse()): HttpLoggingContext = {
+    val httpLoggingContext = new HttpLoggingContext()
+    httpLoggingContext.setInboundRequest(request)
+    httpLoggingContext.setOutboundRequest(request)
+    httpLoggingContext.setOutboundResponse(response)
+    httpLoggingContext
   }
 }
