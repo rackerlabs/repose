@@ -19,10 +19,14 @@
  */
 package org.openrepose.core.services.httplogging;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A container for all of the state associated with an HTTP interaction that
@@ -31,10 +35,18 @@ import javax.servlet.http.HttpServletResponse;
  * This class is intentionally mutable to keep interactions simple.
  * Additionally, standard setters are used rather than "fluent" setters to
  * indicate mutability and keep the behavior of methods clear.
+ * <p>
+ * This class should only be constructed by the {@link HttpLoggingService}.
+ * By only allowing the {@link HttpLoggingService} to construct this class,
+ * stronger assertions can be made about the tracking and integrity of any
+ * instances. For that reason, constructor access is limited to the package.
  */
 @Data
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class HttpLoggingContext {
     private HttpServletRequest inboundRequest;
     private HttpServletRequest outboundRequest;
     private HttpServletResponse outboundResponse;
+
+    private final Map<String, Object> extensions = new HashMap<>();
 }
