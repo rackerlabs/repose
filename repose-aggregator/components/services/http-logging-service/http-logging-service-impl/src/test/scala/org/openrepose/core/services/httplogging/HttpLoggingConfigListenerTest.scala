@@ -58,25 +58,7 @@ class HttpLoggingConfigListenerTest extends FunSpec with BeforeAndAfterEach with
         )
       ))
 
-      httpLoggingConfigListener.currentTemplates should have size 2
-    }
-
-    Map(
-      Format.PLAIN -> "none",
-      Format.JSON -> "javascript"
-    ).foreach { case (format, escapeEngineName) =>
-      it(s"should preconfigure environment configurations for each message with the $escapeEngineName escape engine") {
-        httpLoggingConfigListener.configurationUpdated(createConfig(
-          createMessage(
-            "my.logger.name",
-            "{ \"my\": \"message\" }",
-            format
-          )
-        ))
-
-        httpLoggingConfigListener.currentTemplates should have size 1
-        httpLoggingConfigListener.currentTemplates.head.envConf.getEscapeConfiguration.getInitialEngine shouldBe escapeEngineName
-      }
+      httpLoggingConfigListener.loggableTemplates should have size 2
     }
 
     it("should prefetch the configured logger for each message") {
@@ -91,7 +73,7 @@ class HttpLoggingConfigListenerTest extends FunSpec with BeforeAndAfterEach with
         )
       ))
 
-      httpLoggingConfigListener.currentTemplates.map(_.logger.getName) should contain only("this.logger.name", "that.logger.name")
+      httpLoggingConfigListener.loggableTemplates.map(_.logger.getName) should contain only("this.logger.name", "that.logger.name")
     }
   }
 }

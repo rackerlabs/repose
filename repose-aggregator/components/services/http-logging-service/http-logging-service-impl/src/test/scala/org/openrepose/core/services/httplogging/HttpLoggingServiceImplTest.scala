@@ -22,13 +22,11 @@ package org.openrepose.core.services.httplogging
 import java.net.URL
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import org.jtwig.environment.EnvironmentConfigurationBuilder
+import org.jtwig.JtwigTemplate
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, same, eq => isEq}
 import org.mockito.Mockito.{verify, when}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.httplogging.HttpLoggingConfigListener.Template
-import org.openrepose.core.services.httplogging.HttpLoggingConfigListenerTest.createMessage
 import org.openrepose.core.services.httplogging.config.HttpLoggingConfig
 import org.scalatest.concurrent.Eventually
 import org.scalatest.junit.JUnitRunner
@@ -96,11 +94,10 @@ class HttpLoggingServiceImplTest extends FunSpec with BeforeAndAfterEach with Mo
     it("should log messages to the configured logger") {
       val message = "Request handled!"
 
-      when(configListener.currentTemplates)
+      when(configListener.loggableTemplates)
         .thenReturn(List(
-          Template(
-            createMessage("unused", message),
-            EnvironmentConfigurationBuilder.configuration().build(),
+          LoggableTemplate(
+            JtwigTemplate.inlineTemplate(message),
             logger
           )
         ))
@@ -115,11 +112,10 @@ class HttpLoggingServiceImplTest extends FunSpec with BeforeAndAfterEach with Mo
     it("should log configured messages using values from the context being closed") {
       val message = "Method: {{ inboundRequestMethod }}"
 
-      when(configListener.currentTemplates)
+      when(configListener.loggableTemplates)
         .thenReturn(List(
-          Template(
-            createMessage("unused", message),
-            EnvironmentConfigurationBuilder.configuration().build(),
+          LoggableTemplate(
+            JtwigTemplate.inlineTemplate(message),
             logger
           )
         ))

@@ -19,34 +19,48 @@
  */
 package org.openrepose.core.services.httplogging
 
+import com.fasterxml.jackson.core.JsonParseException
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.inject.Named
 import org.jtwig.environment.{EnvironmentConfiguration, EnvironmentConfigurationBuilder}
+import org.jtwig.value.Undefined
+import org.jtwig.value.convert.string.{DefaultStringConverter, StringConverter}
+import org.jtwig.{JtwigModel, JtwigTemplate}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.httplogging.config.{Format, HttpLoggingConfig, Message}
-import org.slf4j.{Logger, LoggerFactory}
+import org.openrepose.core.services.httplogging.jtwig.HttpLoggingEnvironmentConfiguration
+import org.slf4j.LoggerFactory
+import play.api.libs.json.Json
 
 import scala.collection.JavaConverters._
+import scala.util.{Success, Try}
 
+/**
+  * Handles configuration for the [[HttpLoggingService]].
+  */
 @Named
 class HttpLoggingConfigListener extends UpdateListener[HttpLoggingConfig] with StrictLogging {
 
   import HttpLoggingConfigListener._
 
   private var initialized: Boolean = false
-  private var templates: List[Template] = List.empty
+  private var templates: List[LoggableTemplate] = List.empty
 
   override def configurationUpdated(configurationObject: HttpLoggingConfig): Unit = {
     logger.trace("Updating HTTP Logging Service configuration")
 
     templates = configurationObject.getMessage.asScala
       .toList
-      .map { message =>
-        val logger = LoggerFactory.getLogger(message.getLogTo)
-        val envConf = (setInitialEscapeEngine(message.getFormat)(_))
-          .apply(defaultEnvConfBuilder)
-          .build()
-        Template(message, envConf, logger)
+      .flatMap { message =>
+        Option(HttpLoggingEnvironmentConfiguration(message.getFormat))
+          .filter(
+            validateFormat(message, _)
+              .recover { case e: JsonParseException =>
+                logger.warn("Unable to validate JSON for {}", message, e)
+              }
+              .isSuccess)
+          .map(JtwigTemplate.inlineTemplate(message.getValue, _))
+          .map(LoggableTemplate(_, LoggerFactory.getLogger(message.getLogTo)))
       }
 
     initialized = true
@@ -58,46 +72,40 @@ class HttpLoggingConfigListener extends UpdateListener[HttpLoggingConfig] with S
     initialized
   }
 
-  def currentTemplates: List[Template] = {
+  def loggableTemplates: List[LoggableTemplate] = {
     templates
   }
 }
 
-object HttpLoggingConfigListener {
+object HttpLoggingConfigListener extends StrictLogging {
+  private final val JsonValidationStringConverter: StringConverter = new DefaultStringConverter {
+    override def convert(input: Any): String = input match {
+      case Undefined.UNDEFINED => "123"
+      case _ => super.convert(input)
+    }
+  }
 
-  case class Template(message: Message, envConf: EnvironmentConfiguration, logger: Logger)
-
-  private final val StartCodeTag: String = "{;"
-  private final val EndCodeTag: String = ";}"
-  private final val JsonEscapeEngineName: String = "javascript"
-  private final val NoopEscapeEngineName: String = "none"
-  private final val EscapeEnginesByFormat: Map[Format, String] = Map(
-    Format.JSON -> JsonEscapeEngineName
-  )
-
-  private def defaultEnvConfBuilder: EnvironmentConfigurationBuilder = {
+  private final def jsonValidationEnvConf(envConf: EnvironmentConfiguration): EnvironmentConfiguration = {
     // @formatter:off
-    EnvironmentConfigurationBuilder
-      .configuration()
-        .parser()
-          .syntax()
-            .withStartCode(StartCodeTag).withEndCode(EndCodeTag)
-          .and()
+    new EnvironmentConfigurationBuilder(envConf)
+        .value()
+          .withStringConverter(JsonValidationStringConverter)
         .and()
-        .render()
-          .withStrictMode(true)
-        .and()
+      .build()
     // @formatter:on
   }
 
-  private def setInitialEscapeEngine(format: Format)(envConfBuilder: EnvironmentConfigurationBuilder): EnvironmentConfigurationBuilder = {
-    val initialEscapeEngine = EscapeEnginesByFormat.getOrElse(format, NoopEscapeEngineName)
-
-    // @formatter:off
-    envConfBuilder
-      .escape()
-        .withInitialEngine(initialEscapeEngine)
-      .and()
-    // @formatter:on
+  private def validateFormat(message: Message, envConf: EnvironmentConfiguration): Try[Unit] = {
+    message.getFormat match {
+      case Format.JSON =>
+        Try {
+          val emptyModel = JtwigModel.newModel()
+          val template = JtwigTemplate.inlineTemplate(message.getValue, jsonValidationEnvConf(envConf))
+          val rendering = template.render(emptyModel)
+          Json.parse(rendering)
+        }
+      case _ =>
+        Success(Unit)
+    }
   }
 }

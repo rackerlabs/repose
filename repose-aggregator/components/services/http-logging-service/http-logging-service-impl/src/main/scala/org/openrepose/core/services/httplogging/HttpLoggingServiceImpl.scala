@@ -22,15 +22,17 @@ package org.openrepose.core.services.httplogging
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
-import org.jtwig.{JtwigModel, JtwigTemplate}
+import org.jtwig.JtwigModel
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.httplogging.HttpLoggingConfigListener.Template
 import org.openrepose.core.services.httplogging.config.HttpLoggingConfig
 
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+/**
+  * See [[HttpLoggingService]] for details.
+  */
 @Named
 class HttpLoggingServiceImpl @Inject()(configurationService: ConfigurationService,
                                        httpLoggingConfigListener: HttpLoggingConfigListener)
@@ -62,23 +64,25 @@ class HttpLoggingServiceImpl @Inject()(configurationService: ConfigurationServic
   }
 
   override def open(): HttpLoggingContext = {
-    val context = new HttpLoggingContext()
-    logger.trace("Opened a new HTTP logging context {}", s"${context.hashCode()}")
-    context
+    val httpLoggingContext = new HttpLoggingContext()
+    logger.trace("Opened a new HTTP logging context {}", s"${httpLoggingContext.hashCode()}")
+    httpLoggingContext
   }
 
   override def close(httpLoggingContext: HttpLoggingContext): Unit = {
     logger.trace("Closing the HTTP logging context {}", s"${httpLoggingContext.hashCode()}")
-    httpLoggingConfigListener.currentTemplates.foreach { template =>
+    httpLoggingConfigListener.loggableTemplates.foreach { loggableTemplate =>
       Future {
-        val contextMap = HttpLoggingContextMap.from(httpLoggingContext)
-        val renderedMessage = renderTemplate(template, contextMap)
-        template.logger.info(renderedMessage)
-        logger.trace(
-          "Logged message {} for HTTP logging context {}",
-          s"${template.message.hashCode()}",
-          s"${httpLoggingContext.hashCode()}"
-        )
+        try {
+          val contextMap = HttpLoggingContextMap.from(httpLoggingContext)
+          val model = JtwigModel.newModel(contextMap.asJava)
+          val message = loggableTemplate.template.render(model)
+          loggableTemplate.logger.info(message)
+          logger.trace("Logged {} for HTTP logging context {}", loggableTemplate, s"${httpLoggingContext.hashCode()}")
+        } catch {
+          case t: Throwable =>
+            logger.warn("Failed to log {} for HTTP logging context {}", loggableTemplate, s"${httpLoggingContext.hashCode()}", t)
+        }
       }
     }
   }
@@ -86,14 +90,5 @@ class HttpLoggingServiceImpl @Inject()(configurationService: ConfigurationServic
 
 object HttpLoggingServiceImpl {
   final val DefaultConfig: String = "http-logging.cfg.xml"
-
-  private final val DefaultConfigSchema: String = "/META-INF/schema/config/http-logging.xsd"
-
-  private def renderTemplate(template: Template, context: Map[String, AnyRef]): String = {
-    val model = JtwigModel.newModel(context.asJava)
-
-    JtwigTemplate
-      .inlineTemplate(template.message.getValue, template.envConf)
-      .render(model)
-  }
+  final val DefaultConfigSchema: String = "/META-INF/schema/config/http-logging.xsd"
 }
