@@ -1,5 +1,6 @@
 dependencies {
     compile project(':repose-aggregator:components:services:http-client-service:http-client-service-api')
+    compile project(':repose-aggregator:components:services:http-logging-service:http-logging-service-api')
     compile project(':repose-aggregator:components:services:uri-redaction-service:uri-redaction-service-api')
     compile "org.scala-lang:scala-library"
     compile "org.slf4j:slf4j-api"

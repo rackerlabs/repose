@@ -41,9 +41,7 @@ class HttpLoggingServiceRequestLog @Inject()(httpLoggingService: HttpLoggingServ
   extends RequestLog with StrictLogging {
 
   override def log(request: Request, response: Response): Unit = {
-    Option {
-      request.getAttribute(CommonRequestAttributes.HTTP_LOGGING_CONTEXT)
-    } match {
+    Option(request.getAttribute(CommonRequestAttributes.HTTP_LOGGING_CONTEXT)) match {
       case Some(loggingContext: HttpLoggingContext) =>
         loggingContext.setOutboundResponse(response)
         logger.trace("Added the outbound response {} to the HTTP Logging Service context {}", response, s"${loggingContext.hashCode()}")
@@ -51,9 +49,9 @@ class HttpLoggingServiceRequestLog @Inject()(httpLoggingService: HttpLoggingServ
         httpLoggingService.close(loggingContext)
         logger.trace("Closed the HTTP Logging Service context {} for {}", s"${loggingContext.hashCode()}", request)
       case Some(_) =>
-        logger.error("Could not close the HTTP Logging Service context -- context from the request is invalid")
+        logger.warn("Could not close the HTTP Logging Service context -- context from the request is invalid")
       case None =>
-        logger.error("Could not close the HTTP Logging Service context -- context from the request is missing")
+        logger.warn("Could not close the HTTP Logging Service context -- context from the request is missing")
     }
   }
 }

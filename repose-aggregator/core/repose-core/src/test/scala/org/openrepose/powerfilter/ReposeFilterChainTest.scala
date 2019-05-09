@@ -33,9 +33,11 @@ import org.apache.logging.log4j.{Level, LogManager}
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, anyLong, same, eq => meq}
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.{never, verify, when}
+import org.openrepose.commons.utils.http.CommonRequestAttributes
 import org.openrepose.commons.utils.http.PowerApiHeader.TRACE_REQUEST
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
+import org.openrepose.core.services.httplogging.HttpLoggingContext
 import org.openrepose.core.systemmodel.config.{Filter => FilterConfig}
 import org.openrepose.powerfilter.ReposeFilterLoader.FilterContext
 import org.scalatest.LoneElement._
@@ -55,6 +57,7 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
   var originalChain: FilterChain = _
   var timer: Timer = _
   var metricsRegistry: MetricRegistry = _
+  var loggingContext: HttpLoggingContext = _
   var tracer: MockTracer = _
   var mockRequest: MockHttpServletRequest = _
   var mockResponse: MockHttpServletResponse = _
@@ -69,6 +72,7 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
     timer = mock[Timer]
     metricsRegistry = mock[MetricRegistry]
     when(metricsRegistry.timer(any[String])).thenReturn(timer)
+    loggingContext = mock[HttpLoggingContext]
     tracer = new MockTracer()
     mockRequest = new MockHttpServletRequest("GET", "http://foo.com/bar")
     mockResponse = new MockHttpServletResponse
@@ -309,6 +313,49 @@ class ReposeFilterChainTest extends FunSpec with Matchers with MockitoSugar with
 
       val messageList = listAppender.getEvents.asScala.map(_.getMessage.getFormattedMessage)
       messageList.find(_.startsWith("Filter foo spent")) should not be empty
+    }
+
+    it("should update the request in the HTTP logging context") {
+      mockRequest.setAttribute(CommonRequestAttributes.HTTP_LOGGING_CONTEXT, loggingContext)
+
+      val filterChain = new ReposeFilterChain(
+        List.empty,
+        originalChain,
+        None,
+        Option(metricsRegistry),
+        tracer)
+
+      filterChain.doFilter(mockRequest, mockResponse)
+
+      verify(loggingContext).setOutboundRequest(any[HttpServletRequest])
+    }
+
+    it("should not update the request in the HTTP logging context if the context is invalid") {
+      mockRequest.setAttribute(CommonRequestAttributes.HTTP_LOGGING_CONTEXT, "not-a-context")
+
+      val filterChain = new ReposeFilterChain(
+        List.empty,
+        originalChain,
+        None,
+        Option(metricsRegistry),
+        tracer)
+
+      filterChain.doFilter(mockRequest, mockResponse)
+
+      verify(loggingContext, never).setOutboundRequest(any[HttpServletRequest])
+    }
+
+    it("should not update the request in the HTTP logging context if the context is missing") {
+      val filterChain = new ReposeFilterChain(
+        List.empty,
+        originalChain,
+        None,
+        Option(metricsRegistry),
+        tracer)
+
+      filterChain.doFilter(mockRequest, mockResponse)
+
+      verify(loggingContext, never).setOutboundRequest(any[HttpServletRequest])
     }
 
     it("should return a 500 when an exception occurs") {
