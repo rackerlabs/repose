@@ -30,12 +30,11 @@ import io.opentracing.Tracer
 import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
-import org.openrepose.commons.utils.http.CommonRequestAttributes
 import org.openrepose.commons.utils.http.PowerApiHeader.TRACE_REQUEST
 import org.openrepose.commons.utils.io.{BufferedServletInputStream, RawInputStreamReader}
+import org.openrepose.commons.utils.logging.HttpLoggingContextHelper
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{PASSTHROUGH, READONLY}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
-import org.openrepose.core.services.httplogging.HttpLoggingContext
 import org.openrepose.powerfilter.ReposeFilterChain._
 import org.openrepose.powerfilter.ReposeFilterLoader.FilterContext
 import org.openrepose.powerfilter.intrafilterlogging.{RequestLog, ResponseLog}
@@ -136,14 +135,9 @@ class ReposeFilterChain(val filterChain: List[FilterContext],
   }
 
   def updateLoggingContext(requestProcess: (HttpServletRequest, HttpServletResponse) => Unit): (HttpServletRequest, HttpServletResponse) => Unit = (request, response) => {
-    Option(request.getAttribute(CommonRequestAttributes.HTTP_LOGGING_CONTEXT)) match {
-      case Some(loggingContext: HttpLoggingContext) =>
-        loggingContext.setOutboundRequest(request)
-        logger.trace("Updated the outbound request to {} on the HTTP Logging Service context {}", request, s"${loggingContext.hashCode()}")
-      case Some(_) =>
-        logger.warn("Could not update the outbound request on the HTTP Logging Service context -- context from the request is invalid")
-      case None =>
-        logger.warn("Could not update the outbound request on the HTTP Logging Service context -- context from the request is missing")
+    Option(HttpLoggingContextHelper.extractFromRequest(request)).foreach { loggingContext =>
+      loggingContext.setOutboundRequest(request)
+      logger.trace("Updated the outbound request to {} on the HTTP Logging Service context {}", request, s"${loggingContext.hashCode()}")
     }
 
     requestProcess(request, response)

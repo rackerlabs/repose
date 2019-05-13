@@ -21,7 +21,7 @@ package org.openrepose.valve.jetty
 
 import org.eclipse.jetty.server.{Request, Response}
 import org.junit.runner.RunWith
-import org.mockito.Matchers.any
+import org.mockito.Matchers.{any, anyLong}
 import org.mockito.Mockito.{never, verify, when}
 import org.openrepose.commons.utils.http.CommonRequestAttributes
 import org.openrepose.core.services.httplogging.{HttpLoggingContext, HttpLoggingService}
@@ -52,6 +52,35 @@ class HttpLoggingServiceRequestLogTest extends FunSpec with BeforeAndAfterEach w
       httpLoggingServiceRequestLog.log(request, response)
 
       verify(loggingContext).setOutboundResponse(response)
+    }
+
+    it("should add the reason phrase to the context from the request") {
+      val request = mock[Request]
+      val response = mock[Response]
+      val loggingContext = mock[HttpLoggingContext]
+      val reasonPhrase = "Test reason"
+
+      when(response.getReason)
+        .thenReturn(reasonPhrase)
+      when(request.getAttribute(CommonRequestAttributes.HTTP_LOGGING_CONTEXT))
+        .thenReturn(loggingContext, Nil: _*)
+
+      httpLoggingServiceRequestLog.log(request, response)
+
+      verify(loggingContext).setOutboundResponseReasonPhrase(reasonPhrase)
+    }
+
+    it("should add the time request completed to the context from the request") {
+      val request = mock[Request]
+      val response = mock[Response]
+      val loggingContext = mock[HttpLoggingContext]
+
+      when(request.getAttribute(CommonRequestAttributes.HTTP_LOGGING_CONTEXT))
+        .thenReturn(loggingContext, Nil: _*)
+
+      httpLoggingServiceRequestLog.log(request, response)
+
+      verify(loggingContext).setTimeRequestCompleted(anyLong)
     }
 
     it("should close the context from the request") {

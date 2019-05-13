@@ -22,8 +22,8 @@ package org.openrepose.valve.jetty
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.inject.{Inject, Named}
 import org.eclipse.jetty.server.{Request, RequestLog, Response}
-import org.openrepose.commons.utils.http.CommonRequestAttributes
-import org.openrepose.core.services.httplogging.{HttpLoggingContext, HttpLoggingService}
+import org.openrepose.commons.utils.logging.HttpLoggingContextHelper
+import org.openrepose.core.services.httplogging.HttpLoggingService
 
 /**
   * Closes a context with the [[HttpLoggingService]] for every request received
@@ -41,17 +41,14 @@ class HttpLoggingServiceRequestLog @Inject()(httpLoggingService: HttpLoggingServ
   extends RequestLog with StrictLogging {
 
   override def log(request: Request, response: Response): Unit = {
-    Option(request.getAttribute(CommonRequestAttributes.HTTP_LOGGING_CONTEXT)) match {
-      case Some(loggingContext: HttpLoggingContext) =>
-        loggingContext.setOutboundResponse(response)
-        logger.trace("Added the outbound response {} to the HTTP Logging Service context {}", response, s"${loggingContext.hashCode()}")
+    Option(HttpLoggingContextHelper.extractFromRequest(request)).foreach { loggingContext =>
+      loggingContext.setTimeRequestCompleted(System.currentTimeMillis)
+      loggingContext.setOutboundResponse(response)
+      loggingContext.setOutboundResponseReasonPhrase(response.getReason)
+      logger.trace("Added the outbound response {} to the HTTP Logging Service context {}", response, s"${loggingContext.hashCode()}")
 
-        httpLoggingService.close(loggingContext)
-        logger.trace("Closed the HTTP Logging Service context {} for {}", s"${loggingContext.hashCode()}", request)
-      case Some(_) =>
-        logger.warn("Could not close the HTTP Logging Service context -- context from the request is invalid")
-      case None =>
-        logger.warn("Could not close the HTTP Logging Service context -- context from the request is missing")
+      httpLoggingService.close(loggingContext)
+      logger.trace("Closed the HTTP Logging Service context {} for {}", s"${loggingContext.hashCode()}", request)
     }
   }
 }

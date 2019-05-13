@@ -58,6 +58,18 @@ class HttpLoggingServiceChannelListenerTest extends FunSpec with BeforeAndAfterE
       httpLoggingServiceChannelListener.onRequestBegin(request)
 
       verify(httpLoggingContext).setInboundRequest(request)
+      verify(httpLoggingContext).setOutboundRequest(request)
+    }
+
+    it("should add the time received to the logging context") {
+      val request = mock[Request]
+      val timestamp = 1234567890L
+
+      when(request.getTimeStamp).thenReturn(timestamp)
+
+      httpLoggingServiceChannelListener.onRequestBegin(request)
+
+      verify(httpLoggingContext).setTimeRequestReceived(timestamp)
     }
 
     it("should add the logging context to the request as an attribute") {

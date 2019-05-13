@@ -47,6 +47,10 @@ public class HttpLoggingContext {
     private HttpServletRequest inboundRequest;
     private HttpServletRequest outboundRequest;
     private HttpServletResponse outboundResponse;
+    private String outboundResponseReasonPhrase;
+    private long timeRequestReceived;
+    private long timeRequestCompleted;
+    private long timeInOriginService;
 
     private final Map<String, Object> extensions = new HashMap<>();
 }

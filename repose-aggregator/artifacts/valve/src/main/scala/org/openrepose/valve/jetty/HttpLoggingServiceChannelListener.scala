@@ -45,7 +45,11 @@ class HttpLoggingServiceChannelListener @Inject()(httpLoggingService: HttpLoggin
     logger.trace("Opened an HTTP Logging Service context {} for {}", s"${loggingContext.hashCode()}", request)
 
     loggingContext.setInboundRequest(request)
-    logger.trace("Added the inbound request {} to the HTTP Logging Service context {}", request, s"${loggingContext.hashCode()}")
+    loggingContext.setOutboundRequest(request)
+    logger.trace("Added the request {} to the HTTP Logging Service context {}", request, s"${loggingContext.hashCode()}")
+
+    loggingContext.setTimeRequestReceived(request.getTimeStamp)
+    logger.trace("Added the time received to the HTTP Logging Service context {}", s"${loggingContext.hashCode()}")
 
     request.setAttribute(CommonRequestAttributes.HTTP_LOGGING_CONTEXT, loggingContext)
     logger.trace("Added the HTTP Logging Service context {} to the request as an attribute", s"${loggingContext.hashCode()}")
