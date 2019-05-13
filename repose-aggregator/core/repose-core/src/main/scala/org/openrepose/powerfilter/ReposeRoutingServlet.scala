@@ -20,6 +20,7 @@
 package org.openrepose.powerfilter
 
 import java.net.{MalformedURLException, URL}
+import java.time.Duration
 import java.util.Optional
 import java.util.concurrent.TimeUnit
 
@@ -226,7 +227,7 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
 
   def updateLoggingContext(request: HttpServletRequest, timeElapsed: Long): Unit = {
     Option(HttpLoggingContextHelper.extractFromRequest(request)).foreach { loggingContext =>
-      loggingContext.setTimeInOriginService(timeElapsed)
+      loggingContext.setTimeInOriginService(Duration.ofMillis(timeElapsed))
       logger.trace("Added the time elapsed to the HTTP Logging Service context {}", s"${loggingContext.hashCode()}")
     }
   }

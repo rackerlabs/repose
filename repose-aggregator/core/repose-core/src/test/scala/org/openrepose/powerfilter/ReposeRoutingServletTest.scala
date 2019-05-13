@@ -21,6 +21,7 @@ package org.openrepose.powerfilter
 
 import java.io.IOException
 import java.net.{URI, URL}
+import java.time.Duration
 import java.util.Optional
 
 import com.codahale.metrics.MetricRegistry
@@ -431,7 +432,7 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
 
       reposeRoutingServlet.updateLoggingContext(request, timeElapsed)
 
-      verify(loggingContext).setTimeInOriginService(timeElapsed)
+      verify(loggingContext).setTimeInOriginService(Duration.ofMillis(timeElapsed))
     }
 
     it("should not update the logging context if the context from the request is missing") {

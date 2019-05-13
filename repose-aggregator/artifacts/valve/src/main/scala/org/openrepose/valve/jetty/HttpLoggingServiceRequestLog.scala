@@ -19,6 +19,8 @@
  */
 package org.openrepose.valve.jetty
 
+import java.time.Instant
+
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.inject.{Inject, Named}
 import org.eclipse.jetty.server.{Request, RequestLog, Response}
@@ -42,7 +44,7 @@ class HttpLoggingServiceRequestLog @Inject()(httpLoggingService: HttpLoggingServ
 
   override def log(request: Request, response: Response): Unit = {
     Option(HttpLoggingContextHelper.extractFromRequest(request)).foreach { loggingContext =>
-      loggingContext.setTimeRequestCompleted(System.currentTimeMillis)
+      loggingContext.setTimeRequestCompleted(Instant.now)
       loggingContext.setOutboundResponse(response)
       loggingContext.setOutboundResponseReasonPhrase(response.getReason)
       logger.trace("Added the outbound response {} to the HTTP Logging Service context {}", response, s"${loggingContext.hashCode()}")

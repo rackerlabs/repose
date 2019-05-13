@@ -25,6 +25,8 @@ import lombok.RequiredArgsConstructor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,9 +50,9 @@ public class HttpLoggingContext {
     private HttpServletRequest outboundRequest;
     private HttpServletResponse outboundResponse;
     private String outboundResponseReasonPhrase;
-    private long timeRequestReceived;
-    private long timeRequestCompleted;
-    private long timeInOriginService;
+    private Instant timeRequestReceived;
+    private Instant timeRequestCompleted;
+    private Duration timeInOriginService;
 
     private final Map<String, Object> extensions = new HashMap<>();
 }

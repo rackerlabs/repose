@@ -19,6 +19,8 @@
  */
 package org.openrepose.valve.jetty
 
+import java.time.Instant
+
 import org.eclipse.jetty.server.Request
 import org.junit.runner.RunWith
 import org.mockito.Mockito.{verify, when}
@@ -69,7 +71,7 @@ class HttpLoggingServiceChannelListenerTest extends FunSpec with BeforeAndAfterE
 
       httpLoggingServiceChannelListener.onRequestBegin(request)
 
-      verify(httpLoggingContext).setTimeRequestReceived(timestamp)
+      verify(httpLoggingContext).setTimeRequestReceived(Instant.ofEpochMilli(timestamp))
     }
 
     it("should add the logging context to the request as an attribute") {

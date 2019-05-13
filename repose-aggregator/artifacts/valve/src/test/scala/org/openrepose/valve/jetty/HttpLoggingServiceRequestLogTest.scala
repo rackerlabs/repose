@@ -19,9 +19,11 @@
  */
 package org.openrepose.valve.jetty
 
+import java.time.Instant
+
 import org.eclipse.jetty.server.{Request, Response}
 import org.junit.runner.RunWith
-import org.mockito.Matchers.{any, anyLong}
+import org.mockito.Matchers.any
 import org.mockito.Mockito.{never, verify, when}
 import org.openrepose.commons.utils.http.CommonRequestAttributes
 import org.openrepose.core.services.httplogging.{HttpLoggingContext, HttpLoggingService}
@@ -80,7 +82,7 @@ class HttpLoggingServiceRequestLogTest extends FunSpec with BeforeAndAfterEach w
 
       httpLoggingServiceRequestLog.log(request, response)
 
-      verify(loggingContext).setTimeRequestCompleted(anyLong)
+      verify(loggingContext).setTimeRequestCompleted(any[Instant])
     }
 
     it("should close the context from the request") {

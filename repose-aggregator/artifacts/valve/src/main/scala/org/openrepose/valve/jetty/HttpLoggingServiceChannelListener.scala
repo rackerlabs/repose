@@ -19,6 +19,8 @@
  */
 package org.openrepose.valve.jetty
 
+import java.time.Instant
+
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.inject.{Inject, Named}
 import org.eclipse.jetty.server.{HttpChannel, Request}
@@ -48,7 +50,7 @@ class HttpLoggingServiceChannelListener @Inject()(httpLoggingService: HttpLoggin
     loggingContext.setOutboundRequest(request)
     logger.trace("Added the request {} to the HTTP Logging Service context {}", request, s"${loggingContext.hashCode()}")
 
-    loggingContext.setTimeRequestReceived(request.getTimeStamp)
+    loggingContext.setTimeRequestReceived(Instant.ofEpochMilli(request.getTimeStamp))
     logger.trace("Added the time received to the HTTP Logging Service context {}", s"${loggingContext.hashCode()}")
 
     request.setAttribute(CommonRequestAttributes.HTTP_LOGGING_CONTEXT, loggingContext)
