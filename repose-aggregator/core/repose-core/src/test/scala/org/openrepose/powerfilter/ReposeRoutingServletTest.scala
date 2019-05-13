@@ -42,6 +42,7 @@ import org.openrepose.commons.utils.io.stream.ReadLimitReachedException
 import org.openrepose.commons.utils.servlet.http.RouteDestination
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
+import org.openrepose.core.services.httplogging.HttpLoggingContext
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.systemmodel.config._
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService
@@ -417,6 +418,36 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
       reposeRoutingServlet.postProxyMetrics(timeElapsed, response, destination, targetUrl)
 
       verify(metricRegistry, atLeastOnce()).meter(contains(".Response"))
+    }
+  }
+
+  describe("updateLoggingContext") {
+    it("should add the time taken by the origin service to the context from the request") {
+      val timeElapsed = 1234L
+      val request = new MockHttpServletRequest()
+      val loggingContext = mock[HttpLoggingContext]
+
+      request.setAttribute(CommonRequestAttributes.HTTP_LOGGING_CONTEXT, loggingContext)
+
+      reposeRoutingServlet.updateLoggingContext(request, timeElapsed)
+
+      verify(loggingContext).setTimeInOriginService(timeElapsed)
+    }
+
+    it("should not update the logging context if the context from the request is missing") {
+      val timeElapsed = 1234L
+      val request = new MockHttpServletRequest()
+
+      noException should be thrownBy reposeRoutingServlet.updateLoggingContext(request, timeElapsed)
+    }
+
+    it("should not update the logging context if the context from the request is invalid") {
+      val timeElapsed = 1234L
+      val request = new MockHttpServletRequest()
+
+      request.setAttribute(CommonRequestAttributes.HTTP_LOGGING_CONTEXT, "not-a-context")
+
+      noException should be thrownBy reposeRoutingServlet.updateLoggingContext(request, timeElapsed)
     }
   }
 

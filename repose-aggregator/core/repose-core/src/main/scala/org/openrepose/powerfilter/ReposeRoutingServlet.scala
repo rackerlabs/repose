@@ -34,6 +34,7 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.StringUriUtilities
 import org.openrepose.commons.utils.http.{CommonHttpHeader, CommonRequestAttributes}
 import org.openrepose.commons.utils.io.stream.ReadLimitReachedException
+import org.openrepose.commons.utils.logging.HttpLoggingContextHelper
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestUtil, HttpServletRequestWrapper, RouteDestination}
 import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.services.config.ConfigurationService
@@ -135,7 +136,9 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
             val startTime = System.currentTimeMillis
             proxyRequest(target, wrappedReq, resp).map { _ =>
               val stopTime = System.currentTimeMillis
-              postProxyMetrics(stopTime - startTime, resp, destination, target.url)
+              val timeElapsed = stopTime - startTime
+              postProxyMetrics(timeElapsed, resp, destination, target.url)
+              updateLoggingContext(wrappedReq, timeElapsed)
 
               // Fix the Location header on the response
               fixLocationHeader(
@@ -218,6 +221,13 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
     val servletResponseStatus = servletResponse.getStatus
     metricsService.foreach { metSer =>
       markResponseCodeHelper(metSer.getRegistry, servletResponseStatus, timeElapsed, endpoint)
+    }
+  }
+
+  def updateLoggingContext(request: HttpServletRequest, timeElapsed: Long): Unit = {
+    Option(HttpLoggingContextHelper.extractFromRequest(request)).foreach { loggingContext =>
+      loggingContext.setTimeInOriginService(timeElapsed)
+      logger.trace("Added the time elapsed to the HTTP Logging Service context {}", s"${loggingContext.hashCode()}")
     }
   }
 
