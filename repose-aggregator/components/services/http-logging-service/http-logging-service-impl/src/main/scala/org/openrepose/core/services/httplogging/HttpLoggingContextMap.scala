@@ -36,48 +36,40 @@ import scala.util.Try
   */
 object HttpLoggingContextMap {
 
-  private final type Mapping = (String, Any)
-
-  // Handles exceptions thrown by mappings.
-  // Doing so enables a map to be created with values generated in a predetermined, but unreliable, manner.
-  private final implicit def optionalMapping(mapping: => Mapping): Option[Mapping] = {
-    Try(mapping)
-      .toOption
-      .filter(Function.tupled((_, value) => Option(value).isDefined))
-  }
+  // TODO: Are these the right keys? Use the single-character style keys?
+  // TODO: Response (from origin) protocol
+  private final val Generators: Map[String, HttpLoggingContext => Any] = Map(
+    "inboundRequestProtocol" -> (_.getInboundRequest.getProtocol),
+    "outboundRequestProtocol" -> (_.getOutboundRequest.getProtocol),
+    "inboundRequestMethod" -> (_.getInboundRequest.getMethod),
+    "outboundRequestMethod" -> (_.getOutboundRequest.getMethod),
+    "inboundRequestPath" -> (_.getInboundRequest.getRequestURI),
+    "outboundRequestPath" -> (_.getOutboundRequest.getRequestURI),
+    "inboundRequestQueryString" -> (_.getInboundRequest.getQueryString),
+    "outboundRequestQueryString" -> (_.getOutboundRequest.getQueryString),
+    "inboundRequestUrl" -> (_.getInboundRequest.getRequestURL),
+    "outboundRequestUrl" -> (_.getOutboundRequest.getRequestURL),
+    "inboundRequestHeaders" -> (ctx => headerMap(ctx.getInboundRequest)),
+    "outboundRequestHeaders" -> (ctx => headerMap(ctx.getOutboundRequest)),
+    "outboundResponseHeaders" -> (ctx => headerMap(ctx.getOutboundResponse)),
+    "outboundResponseStatusCode" -> (_.getOutboundResponse.getStatus),
+    "outboundResponseReasonPhrase" -> (_.getOutboundResponseReasonPhrase),
+    "timeRequestReceived" -> (_.getTimeRequestReceived),
+    "timeToHandleRequest" -> (ctx => Duration.between(ctx.getTimeRequestReceived, ctx.getTimeRequestCompleted)),
+    "timeInOriginService" -> (_.getTimeInOriginService),
+    "localIpAddress" -> (_.getInboundRequest.getLocalAddr),
+    "remoteIpAddress" -> (_.getInboundRequest.getRemoteAddr),
+    "remoteHost" -> (_.getInboundRequest.getRemoteHost),
+    "traceId" -> (ctx => TracingHeaderHelper.getTraceGuid(ctx.getOutboundRequest.getHeader(CommonHttpHeader.TRACE_GUID))),
+    "extensions" -> (_.getExtensions)
+  )
 
   def from(httpLoggingContext: HttpLoggingContext): Map[String, AnyRef] = {
-    val mappings: Seq[Option[Mapping]] = Seq(
-      "inboundRequestProtocol" -> httpLoggingContext.getInboundRequest.getProtocol,
-      "outboundRequestProtocol" -> httpLoggingContext.getOutboundRequest.getProtocol,
-      "inboundRequestMethod" -> httpLoggingContext.getInboundRequest.getMethod,
-      "outboundRequestMethod" -> httpLoggingContext.getOutboundRequest.getMethod,
-      "inboundRequestPath" -> httpLoggingContext.getInboundRequest.getRequestURI,
-      "outboundRequestPath" -> httpLoggingContext.getOutboundRequest.getRequestURI,
-      "inboundRequestQueryString" -> httpLoggingContext.getInboundRequest.getQueryString,
-      "outboundRequestQueryString" -> httpLoggingContext.getOutboundRequest.getQueryString,
-      "inboundRequestUrl" -> httpLoggingContext.getInboundRequest.getRequestURL,
-      "outboundRequestUrl" -> httpLoggingContext.getOutboundRequest.getRequestURL,
-      "inboundRequestHeaders" -> headerMap(httpLoggingContext.getInboundRequest),
-      "outboundRequestHeaders" -> headerMap(httpLoggingContext.getOutboundRequest),
-      "outboundResponseHeaders" -> headerMap(httpLoggingContext.getOutboundResponse),
-      "outboundResponseStatusCode" -> httpLoggingContext.getOutboundResponse.getStatus,
-      "outboundResponseReasonPhrase" -> httpLoggingContext.getOutboundResponseReasonPhrase,
-      "timeRequestReceived" -> httpLoggingContext.getTimeRequestReceived,
-      "timeToHandleRequest" -> Duration.between(httpLoggingContext.getTimeRequestReceived, httpLoggingContext.getTimeRequestCompleted),
-      "timeInOriginService" -> httpLoggingContext.getTimeInOriginService,
-      "localIpAddress" -> httpLoggingContext.getInboundRequest.getLocalAddr,
-      "remoteIpAddress" -> httpLoggingContext.getInboundRequest.getRemoteAddr,
-      "remoteHost" -> httpLoggingContext.getInboundRequest.getRemoteHost,
-      "traceId" -> TracingHeaderHelper.getTraceGuid(httpLoggingContext.getOutboundRequest.getHeader(CommonHttpHeader.TRACE_GUID)),
-      "extensions" -> httpLoggingContext.getExtensions
-    )
-
-    // Removes mappings where a value could not be generated, then restructures the data.
-    mappings
-      .flatten
-      .toMap
-      .mapValues(_.asInstanceOf[AnyRef])
+    // Removes mappings where a value could not be generated.
+    Generators
+      .mapValues(generator => Try(generator(httpLoggingContext)))
+      .mapValues(tryValue => tryValue.map(Option.apply).getOrElse(None))
+      .collect({ case (key, Some(value: AnyRef)) => key -> value })
   }
 
   private def headerMap(request: HttpServletRequest): util.Map[String, _ <: util.List[String]] = {
