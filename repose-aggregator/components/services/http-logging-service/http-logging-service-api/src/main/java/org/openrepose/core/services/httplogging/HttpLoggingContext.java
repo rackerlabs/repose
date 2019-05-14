@@ -49,6 +49,7 @@ public class HttpLoggingContext {
     private HttpServletRequest inboundRequest;
     private HttpServletRequest outboundRequest;
     private HttpServletResponse outboundResponse;
+    private String inboundResponseProtocol;
     private String outboundResponseReasonPhrase;
     private Instant timeRequestReceived;
     private Instant timeRequestCompleted;

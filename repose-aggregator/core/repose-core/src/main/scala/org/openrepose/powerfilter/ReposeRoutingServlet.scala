@@ -30,6 +30,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 import org.apache.commons.lang3.exception.ExceptionUtils
+import org.apache.http.client.methods.{CloseableHttpResponse, HttpUriRequest}
 import org.apache.http.client.utils.URIBuilder
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.StringUriUtilities
@@ -135,11 +136,13 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
             // Forward the request to the origin server (wrapping metrics around the action)
             preProxyMetrics(destination)
             val startTime = System.currentTimeMillis
-            proxyRequest(target, wrappedReq, resp).map { _ =>
+            processRequest(target, wrappedReq).flatMap(proxyRequest).map { clientResponse =>
+              processResponse(clientResponse, resp)
+
               val stopTime = System.currentTimeMillis
               val timeElapsed = stopTime - startTime
               postProxyMetrics(timeElapsed, resp, destination, target.url)
-              updateLoggingContext(wrappedReq, timeElapsed)
+              updateLoggingContext(wrappedReq, clientResponse, timeElapsed)
 
               // Fix the Location header on the response
               fixLocationHeader(
@@ -225,31 +228,38 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
     }
   }
 
-  def updateLoggingContext(request: HttpServletRequest, timeElapsed: Long): Unit = {
+  def updateLoggingContext(request: HttpServletRequest, clientResponse: CloseableHttpResponse, timeElapsed: Long): Unit = {
     Option(HttpLoggingContextHelper.extractFromRequest(request)).foreach { loggingContext =>
+      loggingContext.setInboundResponseProtocol(clientResponse.getProtocolVersion.toString)
+      logger.trace("Added the inbound response protocol to the HTTP Logging Service context {}", s"${loggingContext.hashCode()}")
+
       loggingContext.setTimeInOriginService(Duration.ofMillis(timeElapsed))
       logger.trace("Added the time elapsed to the HTTP Logging Service context {}", s"${loggingContext.hashCode()}")
     }
   }
 
-  def proxyRequest(target: Target, servletRequest: HttpServletRequest, servletResponse: HttpServletResponse): Try[Unit] = Try {
+  def processRequest(target: Target, servletRequest: HttpServletRequest): Try[HttpUriRequest] = Try {
     // Translate the servlet request to an HTTP client request
-    val processedClientRequest = HttpComponentRequestProcessor.process(
+    HttpComponentRequestProcessor.process(
       servletRequest,
       target.url.toURI,
       rewriteHostHeader,
       target.chunkedEncoding)
+  }
 
+  def proxyRequest(clientRequest: HttpUriRequest): Try[CloseableHttpResponse] = Try {
     // Execute the HTTP client request
-    logger.debug("Forwarding the request to: {}", processedClientRequest.getURI)
+    logger.debug("Forwarding the request to: {}", clientRequest.getURI)
     val cacheContext = CachingHttpClientContext.create()
       .setUseCache(false)
-    val clientResponse = try {
-      httpClient.execute(processedClientRequest, cacheContext)
+    try {
+      httpClient.execute(clientRequest, cacheContext)
     } catch {
       case e: Throwable => throw OriginServiceCommunicationException(e)
     }
+  }
 
+  def processResponse(clientResponse: CloseableHttpResponse, servletResponse: HttpServletResponse): Try[Unit] = Try {
     // Translate the HTTP client response to a servlet response
     HttpComponentResponseProcessor.process(clientResponse, servletResponse)
   }

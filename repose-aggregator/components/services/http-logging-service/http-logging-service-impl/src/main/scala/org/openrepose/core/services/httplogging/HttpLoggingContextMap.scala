@@ -37,10 +37,10 @@ import scala.util.Try
 object HttpLoggingContextMap {
 
   // TODO: Are these the right keys? Use the single-character style keys?
-  // TODO: Response (from origin) protocol
   private final val Generators: Map[String, HttpLoggingContext => Any] = Map(
     "inboundRequestProtocol" -> (_.getInboundRequest.getProtocol),
     "outboundRequestProtocol" -> (_.getOutboundRequest.getProtocol),
+    "inboundResponseProtocol" -> (_.getInboundResponseProtocol),
     "inboundRequestMethod" -> (_.getInboundRequest.getMethod),
     "outboundRequestMethod" -> (_.getOutboundRequest.getMethod),
     "inboundRequestPath" -> (_.getInboundRequest.getRequestURI),
