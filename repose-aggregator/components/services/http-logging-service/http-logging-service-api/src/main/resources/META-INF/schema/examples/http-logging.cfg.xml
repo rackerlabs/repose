@@ -6,17 +6,17 @@
     </message>
 
     <message log-to="plain-access-log" format="plain">
-        <![CDATA[
-            TODO
-            https://en.wikipedia.org/wiki/Common_Log_Format
-            127.0.0.1 user-identifier frank [10/Oct/2000:13:55:36 -0700] "GET /apache_pb.gif HTTP/1.0" 200 2326
-        ]]>
+        {{ remoteIpAddress }} - {{ default(first(outboundRequestHeaders['x-user-id']), '-') }} [{{ timeRequestReceived }}] "{{ inboundRequestMethod }} {{ inboundRequestPath }} {{ inboundRequestProtocol }}" {{ outboundResponseStatusCode }} {{ default(first(outboundResponseHeaders['content-length']), '-') }}
     </message>
 
     <message log-to="json-access-log" format="json">
-        <![CDATA[
-            TODO
-            https://en.wikipedia.org/wiki/Common_Log_Format
-        ]]>
+<![CDATA[{
+    "remoteIpAddress": "{{ remoteIpAddress }}",
+    "userId": {; if (defined(outboundRequestHeaders['x-user-id'])) ;}"{{ first(outboundRequestHeaders['x-user-id']) }}"{; else ;}null{; endif ;},
+    "timeRequestReceived": "{{ timeRequestReceived }}",
+    "requestLine": "{{ inboundRequestMethod }} {{ inboundRequestPath }} {{ inboundRequestProtocol }}",
+    "responseStatusCode": {{ outboundResponseStatusCode }},
+    "responseSize": {; if (defined(outboundRequestHeaders['content-length'])) ;}"{{ first(outboundRequestHeaders['content-length']) }}"{; else ;}null{; endif ;}
+}]]>
     </message>
 </http-logging>
