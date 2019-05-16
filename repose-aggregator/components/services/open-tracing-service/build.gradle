@@ -8,6 +8,7 @@ dependencies {
     compile "org.springframework:spring-beans"
     compile "io.opentracing:opentracing-api"
     compile "io.opentracing:opentracing-util"
+    compile 'com.squareup.okhttp3:okhttp' // Forces the version used by jaeger-core.
     compile 'org.apache.thrift:libthrift' // Forces the version used by jaeger-core.
     compile "io.jaegertracing:jaeger-core"
 
