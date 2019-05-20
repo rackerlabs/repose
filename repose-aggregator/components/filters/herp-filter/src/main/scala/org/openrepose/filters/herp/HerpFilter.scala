@@ -50,6 +50,10 @@ import scala.collection.JavaConverters._
 import scala.util.Try
 import scala.util.matching.Regex
 
+/**
+  * @deprecated in favor of the HTTP Logging Service
+  */
+@Deprecated
 @Named
 class HerpFilter @Inject()(configurationService: ConfigurationService,
                            @Value(ReposeSpringProperties.NODE.NODE_ID) nodeId: String)

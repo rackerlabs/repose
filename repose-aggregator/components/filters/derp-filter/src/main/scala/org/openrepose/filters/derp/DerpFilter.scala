@@ -30,12 +30,15 @@ import scala.collection.JavaConverters._
 import scala.util.{Failure, Success}
 
 /**
- * The sole purpose of this filter is to reject any request with a header indicating that the request has been
- * delegated.
- *
- * This filter is header quality aware; the delegation header with the highest quality will be used to formulate a
- * response.
- */
+  * The sole purpose of this filter is to reject any request with a header indicating that the request has been
+  * delegated.
+  *
+  * This filter is header quality aware; the delegation header with the highest quality will be used to formulate a
+  * response.
+  *
+  * @deprecated in favor of the HTTP Logging Service
+  */
+@Deprecated
 class DerpFilter extends Filter with HttpDelegationManager with StrictLogging {
 
   override def init(filterConfig: FilterConfig): Unit = {

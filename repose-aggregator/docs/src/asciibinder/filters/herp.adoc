@@ -1,5 +1,11 @@
 = Highly Efficient Record Processor (HERP) Filter
 
+[WARNING]
+====
+This filter is considered deprecated and will be removed in a future version.
+Consider using the <<../services/http-logging.adoc#,HTTP Logging Service>> instead.
+====
+
 The Highly Efficient Record Processor (HERP) filter logs an event for each API request.
 These logs provide information regarding the processing of each request.
 The logs can be inspected to view the usage of a service and to perform auditing.
