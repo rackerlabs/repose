@@ -93,12 +93,11 @@ class CullingWFlexibleDeviceOptionsRemoveTest extends ReposeValveTest {
             defaultHandler: jsonResp
         )
 
-        def slurper = new JsonSlurper()
-        def result = slurper.parseText(mc.receivedResponse.body as String)
-
         then: "check response"
         mc.handlings.size() == 1
         mc.receivedResponse.code == responseCode
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(mc.receivedResponse.body as String)
         result.values.size == size
         result.metadata.count == size
 
