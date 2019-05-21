@@ -201,6 +201,8 @@ Topics:
     File: health-check.adoc
   - Name: HTTP Client Service
     File: http-client.adoc
+  - Name: HTTP Logging Service
+    File: http-logging.adoc
   - Name: Logging Service
     File: logging.adoc
   - Name: Metrics Service
