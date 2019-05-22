@@ -50,7 +50,6 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="local/default"/>
             <xs:enumeration value="distributed/hash-ring"/>
-            <xs:enumeration value="distributed/remote"/>
         </xs:restriction>
     </xs:simpleType>
 

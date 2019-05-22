@@ -4,7 +4,6 @@
 
 * Local datastore (name: local/default)
 * Distributed datastore (name: distributed/hash-ring)
-* Remote datastore (name: distributed/remote)
 
 The local datastore is enabled by default.
 The others are enabled by including the appropriate service into your <<../architecture/system-model.adoc#,System Model>> configuration.
@@ -204,65 +203,3 @@ Luckily this can be mitigated by increasing the open file limit for the user run
 === JMX Reporting
 Currently *Repose* instances do not report Distributed Datastore information to JMX.
 This is something that has been done in the past, but an upgrade to the metrics library used has made this capability incompatible with the current codebase.
-
-== Remote Datastore
-=== Configuration
-* *Default Configuration:* remote-datastore.cfg.xml
-* *Released:* v8.5.1.0
-* link:../schemas/remote-datastore.xsd[Schema]
-
-At times, *Repose* instances may need to share information between nodes that are unaware of each other.
-An example of this is a dynamic containerized environment like OpenShift or other 12-Factor environment.
-
-The Remote Datastore Service allows dynamic isolated *Repose* instances to use a single static *Repose* instance's object store.
-The Remote Datastore Service communicates to the configured host through the configured port.
-If the Remote Datastore Service is unable to communicate with the configured object store, it will fall back on the local datastore temporarily.
-The Remote Datastore Service will return to using the configured object store as soon as it becomes reachable again.
-
-The static *Repose* instance is simply configured as a single node cluster with the distributed datastore service enabled.
-The distributed datastore is typically configured with <<../recipes/client-authentication.adoc#, SSL/TLS Client Authentication>> so that all clients must properly authenticate before a session is established.
-Then all of the dynamic clients are configured with a remote datastore and the <<http-client.adoc#,HTTP Client Service>> configured to provide the proper authentication.
-
-The Remote Datastore service can be enabled in the dynamic clients by adding it to the services list of the <<../architecture/system-model.adoc#,System Model>> like this:
-[source,xml]
-.system-model.cfg.xml (partial)
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
-  ...
-  <services>
-    <service name="remote-datastore"/>
-  </services>
-  ...
-</system-model>
-----
-
-The following is a basic sample configuration.
-[source,xml]
-.remote-datastore.cfg.xml
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<remote-datastore host="remote.example.com"
-                  port="8080"/>
-----
-
-==== Full Configuration
-[source,xml]
-.remote-datastore.cfg.xml
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<remote-datastore host="remote.example.com" <!--1-->
-                  port="8080" <!--2-->
-                  useHTTPS="true" <!--3-->
-                  connection-pool-id="remote-datastore"/> <!--4-->
-----
-<1> Defines the host providing the remote datastore.
-<2> Defines the port on which the remote datastore is listening (1-65535).
-<3> Defines if the remote datastore is expecting a secure connection request. +
-    Default: `true`
-<4> Http Connection Pool ID to use when connecting to the Remote Datastore.
-
-[NOTE]
-====
-Refer to the <<http-client.adoc#,HTTP Client Service>> and <<../recipes/client-authentication.adoc#, SSL/TLS Client Authentication>> documentation for properly securing the connection pool used to connect to the Remote Datastore.
-====

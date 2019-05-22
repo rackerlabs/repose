@@ -87,22 +87,6 @@ public interface DatastoreService {
             throws DatastoreServiceException;
 
     /**
-     * Create and return a remote datastore using the provided configuration.  The created
-     * datastore can be retrieved by the same name provided using getDatastore(datastoreName)
-     *
-     * @param datastoreName    unique name for this Datastore
-     * @param proxyService     Proxy Service for making remote calls
-     * @param encodingProvider Encoding Provider
-     * @param target           the IP Socket Address of the Datastore
-     * @param connPoolId       the name of the pool to borrow a connection from
-     * @param useHttps         indicates if SSL/TLS should be used
-     * @return the newly created Datastore
-     * @throws DatastoreServiceException if the datastore creation fails
-     */
-    DistributedDatastore createRemoteDatastore(String datastoreName, RequestProxyService proxyService, EncodingProvider encodingProvider, InetSocketAddress target, String connPoolId, boolean useHttps)
-            throws DatastoreServiceException;
-
-    /**
      * Shutdown all datastores
      */
     void shutdown();
