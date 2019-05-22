@@ -19,8 +19,6 @@
  */
 package org.openrepose.core.services.datastore.impl;
 
-import org.openrepose.commons.utils.encoding.EncodingProvider;
-import org.openrepose.core.services.RequestProxyService;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreManager;
 import org.openrepose.core.services.datastore.DatastoreService;
@@ -29,13 +27,11 @@ import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
 import org.openrepose.core.services.datastore.impl.distributed.HashRingDatastoreManager;
 import org.openrepose.core.services.datastore.impl.ehcache.EHCacheDatastoreManager;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
-import org.openrepose.core.services.datastore.impl.remote.RemoteDatastoreManager;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -104,13 +100,6 @@ public class DatastoreServiceImpl implements DatastoreService {
     @Override
     public DistributedDatastore createDistributedDatastore(String datastoreName, ClusterConfiguration configuration, String connPoolId, boolean useHttps) {
         DatastoreManager manager = new HashRingDatastoreManager(configuration, localDatastoreManager.getDatastore(), connPoolId, useHttps);
-        distributedManagers.put(datastoreName, manager);
-        return (DistributedDatastore) manager.getDatastore();
-    }
-
-    @Override
-    public DistributedDatastore createRemoteDatastore(String datastoreName, RequestProxyService proxyService, EncodingProvider encodingProvider, InetSocketAddress target, String connPoolId, boolean useHttps) {
-        DatastoreManager manager = new RemoteDatastoreManager(proxyService, encodingProvider, localDatastoreManager.getDatastore(), target, connPoolId, useHttps);
         distributedManagers.put(datastoreName, manager);
         return (DistributedDatastore) manager.getDatastore();
     }
