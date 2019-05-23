@@ -75,6 +75,18 @@ class HttpLoggingConfigListenerTest extends FunSpec with BeforeAndAfterEach with
 
       httpLoggingConfigListener.loggableTemplates.map(_.logger.getName) should contain only("this.logger.name", "that.logger.name")
     }
+
+    it("should not remove a message if it fails to validate") {
+      httpLoggingConfigListener.configurationUpdated(createConfig(
+        createMessage(
+          "this.logger.name",
+          "{ \"this\": message }",
+          Format.JSON
+        )
+      ))
+
+      httpLoggingConfigListener.loggableTemplates should have size 1
+    }
   }
 }
 

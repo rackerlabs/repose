@@ -19,10 +19,11 @@
  */
 package org.openrepose.core.services.httplogging
 
-import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.core.JsonProcessingException
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.inject.Named
 import org.jtwig.environment.{EnvironmentConfiguration, EnvironmentConfigurationBuilder}
+import org.jtwig.exceptions.JtwigException
 import org.jtwig.value.Undefined
 import org.jtwig.value.convert.string.{DefaultStringConverter, StringConverter}
 import org.jtwig.{JtwigModel, JtwigTemplate}
@@ -51,16 +52,19 @@ class HttpLoggingConfigListener extends UpdateListener[HttpLoggingConfig] with S
 
     templates = configurationObject.getMessage.asScala
       .toList
-      .flatMap { message =>
-        Option(HttpLoggingEnvironmentConfiguration(message.getFormat))
-          .filter(
-            validateFormat(message, _)
-              .recover { case e: JsonParseException =>
-                logger.warn("Unable to validate JSON for {}", message, e)
-              }
-              .isSuccess)
-          .map(JtwigTemplate.inlineTemplate(message.getValue, _))
-          .map(LoggableTemplate(_, LoggerFactory.getLogger(message.getLogTo)))
+      .map { message =>
+        val envConf = HttpLoggingEnvironmentConfiguration(message.getFormat)
+
+        validateFormat(message, envConf).recover {
+          case e: JtwigException =>
+            // This type of Exception is known to be caused by our test data not matching the format of real data
+            logger.warn("Unable to validate {} for {}", message.getFormat, message, e)
+          case e: JsonProcessingException =>
+            logger.warn("Failed to validate {} for {}", message.getFormat, message, e)
+        }
+
+        val template = JtwigTemplate.inlineTemplate(message.getValue, envConf)
+        LoggableTemplate(template, LoggerFactory.getLogger(message.getLogTo))
       }
 
     initialized = true
