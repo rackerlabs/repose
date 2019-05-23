@@ -102,7 +102,7 @@ class LoggingServiceTest extends ReposeValveTest {
         messageChain.handlings.size() == 1
 
         and: "The common-log should have been logged"
-        reposeLogSearch.awaitByString("INFO  common-log - 127.0.0.1 $userId \\[\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}Z\\] \"$method $path HTTP/1.1\" $code ${response.length()}")
+        reposeLogSearch.awaitByString("INFO  common-log - 127.0.0.1 - $userId \\[\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}Z\\] \"$method $path HTTP/1.1\" $code ${response.length()}")
 
         where:
         method   | code
