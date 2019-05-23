@@ -28,22 +28,16 @@ import org.mockito.Matchers.{any, same, eq => isEq}
 import org.mockito.Mockito.{verify, when}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.httplogging.config.HttpLoggingConfig
-import org.scalatest.concurrent.Eventually
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.slf4j.Logger
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 
 @RunWith(classOf[JUnitRunner])
-class HttpLoggingServiceImplTest extends FunSpec with BeforeAndAfterEach with MockitoSugar with Matchers with Eventually {
+class HttpLoggingServiceImplTest extends FunSpec with BeforeAndAfterEach with MockitoSugar with Matchers {
 
   import HttpLoggingServiceImplTest._
-
-  // Giving tests which use eventually a little more time to run than the default PatienceConfig
-  implicit override val patienceConfig: PatienceConfig =
-    PatienceConfig(timeout = scaled(Span(1, Seconds)), interval = scaled(Span(100, Millis)))
 
   var logger: Logger = _
   var configurationService: ConfigurationService = _
@@ -104,9 +98,7 @@ class HttpLoggingServiceImplTest extends FunSpec with BeforeAndAfterEach with Mo
 
       httpLoggingService.close(minimalLoggingContext())
 
-      eventually {
-        verify(logger).info(message)
-      }
+      verify(logger).info(message)
     }
 
     it("should log configured messages using values from the context being closed") {
@@ -122,9 +114,7 @@ class HttpLoggingServiceImplTest extends FunSpec with BeforeAndAfterEach with Mo
 
       httpLoggingService.close(minimalLoggingContext())
 
-      eventually {
-        verify(logger).info("Method: GET")
-      }
+      verify(logger).info("Method: GET")
     }
   }
 }

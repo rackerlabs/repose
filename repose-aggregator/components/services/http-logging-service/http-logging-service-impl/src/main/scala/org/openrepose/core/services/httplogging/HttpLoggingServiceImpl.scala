@@ -27,8 +27,6 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.httplogging.config.HttpLoggingConfig
 
 import scala.collection.JavaConverters._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 /**
   * See [[HttpLoggingService]] for details.
@@ -72,17 +70,15 @@ class HttpLoggingServiceImpl @Inject()(configurationService: ConfigurationServic
   override def close(httpLoggingContext: HttpLoggingContext): Unit = {
     logger.trace("Closing the HTTP logging context {}", s"${httpLoggingContext.hashCode()}")
     httpLoggingConfigListener.loggableTemplates.foreach { loggableTemplate =>
-      Future {
-        try {
-          val contextMap = HttpLoggingContextMap.from(httpLoggingContext)
-          val model = JtwigModel.newModel(contextMap.asJava)
-          val message = loggableTemplate.template.render(model)
-          loggableTemplate.logger.info(message)
-          logger.trace("Logged {} for HTTP logging context {}", loggableTemplate, s"${httpLoggingContext.hashCode()}")
-        } catch {
-          case t: Throwable =>
-            logger.warn("Failed to log {} for HTTP logging context {}", loggableTemplate, s"${httpLoggingContext.hashCode()}", t)
-        }
+      try {
+        val contextMap = HttpLoggingContextMap.from(httpLoggingContext)
+        val model = JtwigModel.newModel(contextMap.asJava)
+        val message = loggableTemplate.template.render(model)
+        loggableTemplate.logger.info(message)
+        logger.trace("Logged {} for HTTP logging context {}", loggableTemplate, s"${httpLoggingContext.hashCode()}")
+      } catch {
+        case t: Throwable =>
+          logger.warn("Failed to log {} for HTTP logging context {}", loggableTemplate, s"${httpLoggingContext.hashCode()}", t)
       }
     }
   }
