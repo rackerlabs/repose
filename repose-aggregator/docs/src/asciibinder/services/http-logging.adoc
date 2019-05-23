@@ -37,7 +37,9 @@ This configuration sets every available setting explicitly for the sake of detai
 <2> Specifies the name of the logger to which messages should be logged.
     See <<../architecture/logging.adoc#, Logging>> for more information.
 <3> Specifies the format of the content.
-    The format determines if and how to validate the content and how to escape values populated by the templating engine.
+    The format determines if and how to validate the content and how to escape values populated by the templating engine. +
+    *Supported values*: `plain`, `json` +
+    *Default*: `plain`
 
 === Common Log Format (CLF)
 
