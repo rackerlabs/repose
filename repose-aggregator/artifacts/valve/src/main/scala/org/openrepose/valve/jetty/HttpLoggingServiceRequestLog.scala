@@ -46,7 +46,15 @@ class HttpLoggingServiceRequestLog @Inject()(httpLoggingService: HttpLoggingServ
     Option(HttpLoggingContextHelper.extractFromRequest(request)).foreach { loggingContext =>
       loggingContext.setTimeRequestCompleted(Instant.now)
       loggingContext.setOutboundResponse(response)
-      loggingContext.setOutboundResponseReasonPhrase(response.getReason)
+      loggingContext.setOutboundResponseStatusCode(response.getCommittedMetaData.getStatus)
+      loggingContext.setOutboundResponseReasonPhrase(response.getCommittedMetaData.getReason)
+      loggingContext.setOutboundResponseBytesWritten(response.getHttpChannel.getBytesWritten)
+
+      val responseContentLength = response.getCommittedMetaData.getContentLength
+      if (responseContentLength != Long.MinValue && responseContentLength != -1) {
+        loggingContext.setOutboundResponseContentLength(responseContentLength)
+      }
+
       logger.trace("Added the outbound response {} to the HTTP Logging Service context {}", response, s"${loggingContext.hashCode()}")
 
       httpLoggingService.close(loggingContext)

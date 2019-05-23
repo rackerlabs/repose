@@ -2,7 +2,7 @@
 
 <http-logging xmlns="http://docs.openrepose.org/repose/http-logging/v1.0">
     <message log-to="default-static">Static Value</message>
-    <message log-to="common-log" format="plain">{{ remoteIpAddress }} - {{ default(first(outboundRequestHeaders['x-user-id']), '-') }} [{{ timeRequestReceived }}] "{{ inboundRequestMethod }} {{ inboundRequestPath }} {{ inboundRequestProtocol }}" {{ outboundResponseStatusCode }} {{ default(first(outboundResponseHeaders['content-length']), '-') }}</message>
+    <message log-to="common-log" format="plain">{{ remoteIpAddress }} - {{ default(first(outboundRequestHeaders['x-user-id']), '-') }} [{{ timeRequestReceived }}] "{{ inboundRequestMethod }} {{ inboundRequestPath }} {{ inboundRequestProtocol }}" {{ outboundResponseStatusCode }} {{ default(outboundResponseContentLength, '-') }}</message>
     <message log-to="json-access-log" format="json">
 <![CDATA[{
     "remoteIpAddress": "{{ remoteIpAddress }}",
@@ -10,7 +10,7 @@
     "timeRequestReceived": "{{ timeRequestReceived }}",
     "requestLine": "{{ inboundRequestMethod }} {{ inboundRequestPath }} {{ inboundRequestProtocol }}",
     "responseStatusCode": {{ outboundResponseStatusCode }},
-    "responseSize": {; if (defined(outboundRequestHeaders['content-length'])) ;}"{{ first(outboundRequestHeaders['content-length']) }}"{; else ;}null{; endif ;}
+    "responseContentLength": {; if (defined(outboundResponseContentLength)) ;}{{ outboundResponseContentLength }}{; else ;}null{; endif ;}
 }]]>
     </message>
 </http-logging>

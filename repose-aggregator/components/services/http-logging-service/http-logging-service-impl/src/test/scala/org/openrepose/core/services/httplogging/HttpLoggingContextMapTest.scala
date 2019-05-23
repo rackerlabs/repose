@@ -123,16 +123,5 @@ class HttpLoggingContextMapTest extends FunSpec with Matchers {
 
       mapWithoutDuration should not contain key("timeInOriginService")
     }
-
-    it("should provide values of primitive types") {
-      val context = new HttpLoggingContext()
-      val response = new MockHttpServletResponse()
-      context.setOutboundResponse(response)
-
-      val contextMap = HttpLoggingContextMap.from(context)
-
-      contextMap should contain key "outboundResponseStatusCode"
-      contextMap("outboundResponseStatusCode") shouldBe response.getStatus
-    }
   }
 }

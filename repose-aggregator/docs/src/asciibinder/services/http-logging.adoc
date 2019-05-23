@@ -51,7 +51,7 @@ This template shows how some variables can be accessed, and makes use of some JT
 ----
 <http-logging xmlns="http://docs.openrepose.org/repose/http-logging/v1.0">
     <message log-to="common-log" format="plain">
-        {{ remoteIpAddress }} - {{ default(first(outboundRequestHeaders['x-user-id']), '-') }} [{{ timeRequestReceived }}] "{{ inboundRequestMethod }} {{ inboundRequestPath }} {{ inboundRequestProtocol }}" {{ outboundResponseStatusCode }} {{ default(first(outboundResponseHeaders['content-length']), '-') }}
+        {{ remoteIpAddress }} - {{ default(first(outboundRequestHeaders['x-user-id']), '-') }} [{{ timeRequestReceived }}] "{{ inboundRequestMethod }} {{ inboundRequestPath }} {{ inboundRequestProtocol }}" {{ outboundResponseStatusCode }} {{ default(outboundResponseContentLength, '-') }}
     </message>
 </http-logging>
 ----
@@ -73,7 +73,7 @@ If desired, the same mechanism could be used to omit a field rather than renderi
     "timeRequestReceived": "{{ timeRequestReceived }}",
     "requestLine": "{{ inboundRequestMethod }} {{ inboundRequestPath }} {{ inboundRequestProtocol }}",
     "responseStatusCode": {{ outboundResponseStatusCode }},
-    "responseSize": {; if (defined(outboundRequestHeaders['content-length'])) ;}"{{ first(outboundRequestHeaders['content-length']) }}"{; else ;}null{; endif ;}
+    "responseContentLength": {; if (defined(outboundResponseContentLength)) ;}{{ outboundResponseContentLength }}{; else ;}null{; endif ;}
 }]]>
     </message>
 </http-logging>
@@ -229,6 +229,16 @@ For example, for a response with the status line `HTTP/1.1 200 OK`, this value w
 | String
 | The reason phrase of the outbound response.
 For example, for a response with the status line `HTTP/1.1 200 OK`, this value would be `OK`.
+
+| outboundResponseContentLength
+| Integer
+| The size of the outbound response body in bytes.
+This value is taken from the `Content-Length` header of the response.
+For example, for a response with the header line `Content-Length: 1234`, this value would be `1234`.
+
+| outboundResponseBytesWritten
+| Integer
+| The number of bytes of the outbound response body written.
 
 | timeRequestReceived
 | https://docs.oracle.com/javase/8/docs/api/java/time/Instant.html[Instant]

@@ -50,7 +50,10 @@ public class HttpLoggingContext {
     private HttpServletRequest outboundRequest;
     private HttpServletResponse outboundResponse;
     private String inboundResponseProtocol;
+    private Integer outboundResponseStatusCode;
     private String outboundResponseReasonPhrase;
+    private Long outboundResponseContentLength;
+    private Long outboundResponseBytesWritten;
     private Instant timeRequestReceived;
     private Instant timeRequestCompleted;
     private Duration timeInOriginService;

@@ -6,7 +6,7 @@
     </message>
 
     <message log-to="plain-access-log" format="plain">
-        {{ remoteIpAddress }} - {{ default(first(outboundRequestHeaders['x-user-id']), '-') }} [{{ timeRequestReceived }}] "{{ inboundRequestMethod }} {{ inboundRequestPath }} {{ inboundRequestProtocol }}" {{ outboundResponseStatusCode }} {{ default(first(outboundResponseHeaders['content-length']), '-') }}
+        {{ remoteIpAddress }} - {{ default(first(outboundRequestHeaders['x-user-id']), '-') }} [{{ timeRequestReceived }}] "{{ inboundRequestMethod }} {{ inboundRequestPath }} {{ inboundRequestProtocol }}" {{ outboundResponseStatusCode }} {{ default(outboundResponseContentLength, '-') }}
     </message>
 
     <message log-to="json-access-log" format="json">
@@ -16,7 +16,7 @@
     "timeRequestReceived": "{{ timeRequestReceived }}",
     "requestLine": "{{ inboundRequestMethod }} {{ inboundRequestPath }} {{ inboundRequestProtocol }}",
     "responseStatusCode": {{ outboundResponseStatusCode }},
-    "responseSize": {; if (defined(outboundRequestHeaders['content-length'])) ;}"{{ first(outboundRequestHeaders['content-length']) }}"{; else ;}null{; endif ;}
+    "responseContentLength": {; if (defined(outboundResponseContentLength)) ;}{{ outboundResponseContentLength }}{; else ;}null{; endif ;}
 }]]>
     </message>
 </http-logging>
