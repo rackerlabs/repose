@@ -207,4 +207,46 @@ class LoggingServiceTest extends ReposeValveTest {
         and: "The error-log should have been logged"
         reposeLogSearch.awaitByString("INFO  error-log - outboundResponseStatusCode=525 - outboundResponseReasonPhrase=Supercalifragilisticexpialidocious")
     }
+
+    def "Should log the protocol"() {
+        given:
+        // todo: implement this
+
+        throw new UnsupportedOperationException("Not yet implemented")
+    }
+
+    def "Should log the headers"() {
+        given:
+        // todo: implement this
+
+        throw new UnsupportedOperationException("Not yet implemented")
+    }
+
+    def "Should log the IP"() {
+        given:
+        // todo: implement this
+
+        throw new UnsupportedOperationException("Not yet implemented")
+    }
+
+    def "Should log the host"() {
+        given:
+        // todo: implement this
+
+        throw new UnsupportedOperationException("Not yet implemented")
+    }
+
+    def "Should log the extensions"() {
+        given:
+        // todo: implement this
+
+        throw new UnsupportedOperationException("Not yet implemented")
+    }
+
+    def "Should log valid/escaped JSON"() {
+        given:
+        // todo: implement this
+
+        throw new UnsupportedOperationException("Not yet implemented")
+    }
 }
