@@ -3,6 +3,14 @@
 <http-logging xmlns="http://docs.openrepose.org/repose/http-logging/v1.0">
     <message log-to="default-static">Static Value</message>
     <message log-to="common-log" format="plain">{{ remoteIpAddress }} - {{ default(first(outboundRequestHeaders['x-user-id']), '-') }} [{{ timeRequestReceived }}] "{{ inboundRequestMethod }} {{ inboundRequestPath }} {{ inboundRequestProtocol }}" {{ outboundResponseStatusCode }} {{ default(outboundResponseContentLength, '-') }}</message>
+    <message log-to="written-log">outboundResponseBytesWritten={{ outboundResponseBytesWritten }}</message>
+    <message log-to="method-log">inboundRequestMethod={{ inboundRequestMethod }} - outboundRequestMethod={{ outboundRequestMethod }}</message>
+    <message log-to="path-log">inboundRequestPath={{ inboundRequestPath }} - outboundRequestPath={{ outboundRequestPath }}</message>
+    <message log-to="query-log">inboundRequestQueryString={{ inboundRequestQueryString }} - outboundRequestQueryString={{ outboundRequestQueryString }}</message>
+    <message log-to="url-log">inboundRequestUrl={{ inboundRequestUrl }} - outboundRequestUrl={{ outboundRequestUrl }}</message>
+    <message log-to="time-log">timeToHandleRequest={{ timeToHandleRequest }} - timeInOriginService={{ timeInOriginService }}</message>
+    <message log-to="trace-log">traceId={{ traceId }}</message>
+    <message log-to="error-log">outboundResponseStatusCode={{ outboundResponseStatusCode }} - outboundResponseReasonPhrase={{ outboundResponseReasonPhrase }}</message>
     <message log-to="json-access-log" format="json">
 <![CDATA[{
     "remoteIpAddress": "{{ remoteIpAddress }}",

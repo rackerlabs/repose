@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="groovy">
+    request.addHeader("X-Scripting-Filter", request.requestURI)
+    def templateVariable = request.requestURI.tokenize('/')[1]
+    switch (templateVariable) {
+        case "method":
+            request.method = "OPTIONS"
+            break
+        case "path":
+            request.requestURI = "/modifyMe/changed"
+            break
+        case "query":
+            request.queryString = "query=changed"
+            break
+        case "url":
+            request.serverName = "new.url.com"
+            break
+        case "headers":
+            //inboundRequestHeaders
+            //outboundRequestHeaders
+            //outboundResponseHeaders
+            break
+        case "time":
+            Thread.sleep(1000)
+            break
+        case "error":
+            response.sendError(525, "Supercalifragilisticexpialidocious", true)
+            break
+        default:
+            request.addHeader("X-Unknown", "UnknownModificationElement=$templateVariable")
+    }
+    if(!templateVariable.equals("error")) {
+        filterChain.doFilter(request, response)
+    }
+</scripting>
