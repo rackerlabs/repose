@@ -30,6 +30,7 @@ import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.SC_OK
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.USER_ID
+import static org.openrepose.commons.utils.string.Base64Helper.base64EncodeUtf8
 
 @Category(Services)
 class LoggingServiceTest extends ReposeValveTest {
@@ -101,6 +102,9 @@ class LoggingServiceTest extends ReposeValveTest {
         and: "The common-log should have been logged"
         reposeLogSearch.awaitByString("INFO  common-log - 127.0.0.1 - $userId \\[\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}Z\\] \"$method $path HTTP/1.1\" $code ${response.length()}")
 
+        and: "The written-log should have been logged"
+        reposeLogSearch.awaitByString("INFO  written-log - outboundResponseBytesWritten=${response.length()}")
+
         where:
         method   | code
         "GET"    | 461
@@ -109,5 +113,98 @@ class LoggingServiceTest extends ReposeValveTest {
         "PATCH"  | 464
         "DELETE" | 465
         "TRACE"  | 466
+    }
+
+    @Unroll
+    def "Should log the #element"() {
+        given:
+        def path = "/modifyMe/$element"
+        def query = "?query=orig"
+
+        when: "Request is sent through repose"
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint,
+            path: path + query
+        )
+
+        then: "Repose should return the code"
+        messageChain.receivedResponse.code as Integer == SC_OK
+
+        and: "The request should have reached the origin service"
+        messageChain.handlings.size() == 1
+
+        and: "The #element-log should have been logged"
+        reposeLogSearch.awaitByString(message)
+
+        where:
+        element  | message
+        "method" | "INFO  method-log - inboundRequestMethod=GET - outboundRequestMethod=OPTIONS"
+        "path"   | "INFO  path-log - inboundRequestPath=/modifyMe/path - outboundRequestPath=/modifyMe/changed"
+        "query"  | "INFO  query-log - inboundRequestQueryString=query=orig - outboundRequestQueryString=query=changed"
+        "url"    | "INFO  url-log - inboundRequestUrl=$reposeEndpoint/modifyMe/url - outboundRequestUrl=http://new.url.com:\\d+/modifyMe/url"
+    }
+
+
+    def "Should log the time"() {
+        when: "Request is sent through repose"
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint,
+            path: "/modifyMe/time/",
+            defaultHandler: { request ->
+                Thread.sleep(1000)
+                new Response(SC_OK)
+            }
+        )
+
+        then: "Repose should return the code"
+        messageChain.receivedResponse.code as Integer == SC_OK
+
+        and: "The request should have reached the origin service"
+        messageChain.handlings.size() == 1
+
+        and: "The time-log should have been logged"
+        reposeLogSearch.awaitByString("INFO  time-log - timeToHandleRequest=PT2.\\d+S - timeInOriginService=PT1.\\d+S")
+    }
+
+    def "Should log the traceId"() {
+        given:
+        def traceId = UUID.randomUUID().toString()
+
+        when: "Request is sent through repose"
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint,
+            headers: [
+                'X-Trans-Id': base64EncodeUtf8("""{"requestId":"$traceId","origin":null}""")
+            ]
+        )
+
+        then: "Repose should return the code"
+        messageChain.receivedResponse.code as Integer == SC_OK
+
+        and: "The request should have reached the origin service"
+        messageChain.handlings.size() == 1
+
+        and: "The trace-log should have been logged"
+        reposeLogSearch.awaitByString("INFO  trace-log - traceId=$traceId")
+    }
+
+    def "Should log the error"() {
+        when: "Request is sent through repose"
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint,
+            path: "/modifyMe/error/",
+            headers: [
+                'X-Trace-Request': 'true'
+            ]
+        )
+
+        then: "Repose should return the code"
+        messageChain.receivedResponse.code as Integer == 525
+
+        and: "The request should NOT have reached the origin service"
+        messageChain.handlings.size() == 0
+
+        and: "The error-log should have been logged"
+        reposeLogSearch.awaitByString("INFO  error-log - outboundResponseStatusCode=525 - outboundResponseReasonPhrase=Supercalifragilisticexpialidocious")
     }
 }
