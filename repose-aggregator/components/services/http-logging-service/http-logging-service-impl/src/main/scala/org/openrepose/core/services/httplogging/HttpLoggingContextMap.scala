@@ -30,13 +30,16 @@ import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 import scala.util.Try
 
+// TODO: This utility is not strictly necessary. Since JTwig allows access to
+// TODO: Java objects via the selection operator, we could pass the context
+// TODO: object itself into the template. That would help remove some redundancy
+// TODO: but may or may not improve user experience.
 /**
   * Converts an [[HttpLoggingContext]] into a [[Map]] for use by the templating
   * engine.
   */
 object HttpLoggingContextMap {
 
-  // TODO: Are these the right keys? Use the single-character style keys?
   private final val Generators: Map[String, HttpLoggingContext => Any] = Map(
     "inboundRequestProtocol" -> (_.getInboundRequest.getProtocol),
     "outboundRequestProtocol" -> (_.getOutboundRequest.getProtocol),
