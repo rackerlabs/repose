@@ -43,6 +43,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest,
   import HttpServletRequestWrapper._
 
   private var status = RequestBodyStatus.Available
+  private var method: String = originalRequest.getMethod
   private var scheme: String = originalRequest.getScheme
   private var serverName: String = originalRequest.getServerName
   private var serverPort: Int = originalRequest.getServerPort
@@ -182,6 +183,10 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest,
   override def getServerPort: Int = serverPort
 
   def setServerPort(port: Int): Unit = this.serverPort = port
+
+  override def getMethod: String = method
+
+  def setMethod(method: String): Unit = this.method = method
 
   override def getScheme: String = scheme
 

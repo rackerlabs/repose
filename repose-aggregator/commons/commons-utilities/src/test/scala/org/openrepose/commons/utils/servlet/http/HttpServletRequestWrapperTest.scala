@@ -1221,6 +1221,14 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfterEach with
     }
   }
 
+  describe("setMethod") {
+    it("should allow the method to be set") {
+      wrappedRequest.setMethod("OPTIONS")
+
+      wrappedRequest.getMethod shouldBe "OPTIONS"
+    }
+  }
+
   describe("setScheme") {
     it("should allow the scheme to be set") {
       wrappedRequest.setScheme("ftp")
