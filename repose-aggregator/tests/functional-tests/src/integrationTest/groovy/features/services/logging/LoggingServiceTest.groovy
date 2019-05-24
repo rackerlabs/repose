@@ -46,10 +46,10 @@ class LoggingServiceTest extends ReposeValveTest {
         waitUntilReadyToServiceRequests()
     }
 
-//    @Before
-//    def setup() {
-//        reposeLogSearch.cleanLog()
-//    }
+    @Before
+    def setup() {
+        reposeLogSearch.cleanLog()
+    }
 
     def "Should log a static message"() {
         when: "Request is sent through repose"
@@ -72,7 +72,6 @@ class LoggingServiceTest extends ReposeValveTest {
         given:
         def userId = "UserId"
         def path = "/"
-        //def code = SC_OK
         def response = "<!DOCTYPE html><html><head><title>title</title></head><body></body></html>"
 
         when: "Request is sent through repose"
@@ -81,18 +80,16 @@ class LoggingServiceTest extends ReposeValveTest {
             path: path,
             method: method,
             headers: [
-                (USER_ID): userId,
-                'X-Trace-Request': 'true'
+                (USER_ID): userId
             ],
             defaultHandler: {
-                return new Response(code,
+                return new Response(
+                    code,
                     null,
-                    [
-                        (USER_ID): userId
-                    ],
+                    null,
                     response
                 )
-            }
+            },
         )
 
         then: "Repose should return the code"
