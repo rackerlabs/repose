@@ -36,9 +36,6 @@ public interface HttpLoggingService {
      * {@link HttpLoggingContext} and sends those messages to their
      * corresponding loggers.
      *
-     * All processing will be performed asynchronously to avoid adding
-     * overhead to the response time.
-     *
      * @param interactionId an identifier for the HTTP interaction
      */
     void close(HttpLoggingContext interactionId);
