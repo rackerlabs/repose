@@ -51,6 +51,8 @@ Topics:
     File: container.adoc
   - Name: Filter Chain
     File: filter-chain.adoc
+  - Name: Logging
+    File: logging.adoc
   - Name: Packages
     File: packages.adoc
   - Name: Servlet Specification

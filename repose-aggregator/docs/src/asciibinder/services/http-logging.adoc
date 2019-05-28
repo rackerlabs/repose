@@ -291,6 +291,13 @@ The outbound qualifier denotes the point at which an HTTP message is sent by *Re
 An inbound request and an outbound response define the interaction with an end-user while an outbound request and inbound response define the interaction with the origin service.
 ====
 
+[NOTE]
+====
+Whitespace in templates is preserved.
+However, it is possible to modify whitespace when rendering a template by leverage http://jtwig.org/documentation/reference/syntax/code-islands#whitespace-control[Jtwig whitespace control] and the http://jtwig.org/documentation/reference/functions#trim[Jtwig trim function].
+Those mechanisms should help in cases where it is desirable to include whitespace for configuration formatting that is not desired in the rendered message.
+====
+
 === For Developers
 
 This service introduces the concept of an HTTP logging context.
