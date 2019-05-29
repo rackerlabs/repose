@@ -58,13 +58,13 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
     private final ConfiguredRatelimit defaultConfig = new ConfiguredRatelimit();
     private MockHttpServletRequest mockedRequest;
     private HttpServletResponseWrapper mockedResponse;
-    private DistributedDatastore datastore;
+    private Datastore datastore;
     private EventService eventService;
 
 
     @Before
     public void setup() {
-        datastore = mock(DistributedDatastore.class);
+        datastore = mock(Datastore.class);
         eventService = mock(EventService.class);
         final DatastoreService service = mock(DatastoreService.class);
 

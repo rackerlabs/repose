@@ -21,7 +21,6 @@ package org.openrepose.cli;
 
 import org.openrepose.cli.command.AbstractCommandList;
 import org.openrepose.cli.command.Command;
-import org.openrepose.cli.command.datastore.distributed.DistributedDatastoreCommandList;
 import org.openrepose.cli.command.datastore.local.LocalDatastoreCommandList;
 
 /**
@@ -32,7 +31,6 @@ public class RootCommandLine extends AbstractCommandList {
     @Override
     public Command[] availableCommands() {
         return new Command[]{
-                new DistributedDatastoreCommandList(),
                 new LocalDatastoreCommandList()
         };
     }

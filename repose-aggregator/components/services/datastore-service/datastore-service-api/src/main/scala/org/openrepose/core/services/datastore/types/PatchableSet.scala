@@ -19,8 +19,7 @@
  */
 package org.openrepose.core.services.datastore.types
 
-import org.openrepose.core.services.datastore.Patchable
-import org.openrepose.core.services.datastore.distributed.SerializablePatch
+import org.openrepose.core.services.datastore.{Patch, Patchable}
 
 import scala.collection.mutable
 
@@ -37,7 +36,7 @@ class PatchableSet[A] extends mutable.HashSet[A]
   }
 }
 
-case class SetPatch[A](patchValue: A) extends SerializablePatch[PatchableSet[A]] {
+case class SetPatch[A](patchValue: A) extends Patch[PatchableSet[A]] {
   override def newFromPatch(): PatchableSet[A] = PatchableSet(patchValue)
 }
 

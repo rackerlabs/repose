@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.ratelimiting;
 
-import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
+import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.event.EventService;
 import org.openrepose.core.services.ratelimit.RateLimitingService;
 import org.openrepose.core.services.ratelimit.RateLimitingServiceFactory;
@@ -37,7 +37,7 @@ public abstract class RateLimitingTestSupport {
     public static final String DEFAULT_URI = "/v1.0/*", DEFAULT_USER_ROLE = "group", DEFAULT_URI_REGEX = "/v1.0/([^/]*)/.*", DEFAULT_LIMIT_GROUP_ID = "testing-group";
     public static final String MULTI_METHOD_URI = "/v2.0/*", MULTI_METHOD_URI_REGEX = "/v2.0/([^/]*)/.*", MULTI_METHOD_LIMIT_GROUP_ID = "multi-group";
 
-    public static RateLimitingHandler createHandler(RateLimitingConfiguration configurationObject, EventService eventService, DistributedDatastore datastore) {
+    public static RateLimitingHandler createHandler(RateLimitingConfiguration configurationObject, EventService eventService, Datastore datastore) {
         RateLimitCache rateLimitCache = new ManagedRateLimitCache(datastore);
         RateLimitingService rateLimitingService = RateLimitingServiceFactory.createRateLimitingService(rateLimitCache, configurationObject);
         Optional<Pattern> describeLimitsUriRegex = configurationObject.getRequestEndpoint() != null ?

@@ -28,11 +28,13 @@ import org.openrepose.framework.test.mocks.MockIdentityService
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import scaffold.category.Core
+import spock.lang.Ignore
 
 /**
  * Specific tests for admin token
  */
 @Category(Core)
+@Ignore("Use the Hazelcast Datastore once it supports OpenTracing")
 class TracingDistDatastoreTest extends ReposeValveTest {
 
     final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())

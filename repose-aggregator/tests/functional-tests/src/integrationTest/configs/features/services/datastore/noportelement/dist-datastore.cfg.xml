@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'>
-    <allowed-hosts allow-all="true"/>
-    <port-config>
-    </port-config>
-</distributed-datastore>
