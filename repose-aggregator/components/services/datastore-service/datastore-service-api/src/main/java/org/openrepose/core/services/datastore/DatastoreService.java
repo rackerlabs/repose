@@ -19,13 +19,6 @@
  */
 package org.openrepose.core.services.datastore;
 
-import org.openrepose.commons.utils.encoding.EncodingProvider;
-import org.openrepose.core.services.RequestProxyService;
-import org.openrepose.core.services.datastore.distributed.ClusterConfiguration;
-import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
-
-import java.net.InetSocketAddress;
-
 /**
  * DatastoreService - service that manages the lifecycle and configuration of {@link Datastore}s
  */
@@ -48,10 +41,10 @@ public interface DatastoreService {
     /**
      * Get the distributed datastore managed by the service.
      *
-     * @return the default Distributed Datastore
+     * @return the default distributed Datastore
      * @throws DatastoreUnavailableException if no distributed datastore exists
      */
-    DistributedDatastore getDistributedDatastore() throws DatastoreUnavailableException;
+    Datastore getDistributedDatastore() throws DatastoreUnavailableException;
 
     /**
      * Shutdown the datastore associated with the datastore name

@@ -5,9 +5,6 @@ dependencies {
     compile project(":repose-aggregator:components:services:rate-limiting-service")
     compile project(":repose-aggregator:components:services:datastore-service:datastore-service-api")
     compile "org.slf4j:slf4j-api"
-    compile "org.eclipse.jetty:jetty-server"
-    compile "org.eclipse.jetty:jetty-servlet"
-    compile "org.springframework:spring-beans"
     compile "net.sf.ehcache:ehcache-core"
     compile "io.opentracing:opentracing-api"
     // TODO: Add this dependency. Beware! Doing so pulls in a transitive "ehcache" artifact

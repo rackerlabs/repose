@@ -22,9 +22,6 @@ package org.openrepose.core.services.datastore.impl;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreManager;
 import org.openrepose.core.services.datastore.DatastoreService;
-import org.openrepose.core.services.datastore.distributed.ClusterConfiguration;
-import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
-import org.openrepose.core.services.datastore.impl.distributed.HashRingDatastoreManager;
 import org.openrepose.core.services.datastore.impl.ehcache.EHCacheDatastoreManager;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.slf4j.LoggerFactory;
@@ -71,9 +68,9 @@ public class DatastoreServiceImpl implements DatastoreService {
     }
 
     @Override
-    public DistributedDatastore getDistributedDatastore() {
+    public Datastore getDistributedDatastore() {
         if (!distributedManagers.isEmpty()) {
-            return (DistributedDatastore) distributedManagers.values().iterator().next().getDatastore();
+            return distributedManagers.values().iterator().next().getDatastore();
         }
         return null;
     }
@@ -90,18 +87,6 @@ public class DatastoreServiceImpl implements DatastoreService {
                 LOG.warn("Failed to shutdown datastore " + datastoreName + " with exception " + e.getMessage(), e);
             }
         }
-    }
-
-    @Override
-    public DistributedDatastore createDatastore(String datastoreName, ClusterConfiguration configuration) {
-        return createDistributedDatastore(datastoreName, configuration, null, false);
-    }
-
-    @Override
-    public DistributedDatastore createDistributedDatastore(String datastoreName, ClusterConfiguration configuration, String connPoolId, boolean useHttps) {
-        DatastoreManager manager = new HashRingDatastoreManager(configuration, localDatastoreManager.getDatastore(), connPoolId, useHttps);
-        distributedManagers.put(datastoreName, manager);
-        return (DistributedDatastore) manager.getDatastore();
     }
 
     @Override
