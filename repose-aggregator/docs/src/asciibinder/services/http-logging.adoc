@@ -282,6 +282,12 @@ Using this map in a template will require coordination between the template auth
 This variable serves as an extension point which allows third-party developers to inject arbitrary data into this service.
 |===
 
+[IMPORTANT]
+====
+If a the value of a variable cannot be resolved, the variable will be left undefined.
+When rendering a template, an undefined variable has specific semantics which are detailed in the http://jtwig.org/documentation/reference[JTwig reference documentation].
+====
+
 [NOTE]
 ====
 A distinction is made between inbound and outbound requests and responses.
