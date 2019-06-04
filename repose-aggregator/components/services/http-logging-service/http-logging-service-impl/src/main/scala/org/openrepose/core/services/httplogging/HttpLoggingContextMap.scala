@@ -23,7 +23,7 @@ import java.time.Duration
 import java.util
 
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import org.openrepose.commons.utils.http.CommonHttpHeader
+import org.openrepose.commons.utils.http.{CommonHttpHeader, OpenStackServiceHeader}
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
 
 import scala.collection.JavaConverters._
@@ -59,6 +59,10 @@ object HttpLoggingContextMap {
     "outboundResponseReasonPhrase" -> (_.getOutboundResponseReasonPhrase),
     "outboundResponseContentLength" -> (_.getOutboundResponseContentLength),
     "outboundResponseBytesWritten" -> (_.getOutboundResponseBytesWritten),
+    "userId" -> (_.getOutboundRequest.getHeader(OpenStackServiceHeader.USER_ID)),
+    "userName" -> (_.getOutboundRequest.getHeader(OpenStackServiceHeader.USER_NAME)),
+    "impersonatorUserId" -> (_.getOutboundRequest.getHeader(OpenStackServiceHeader.IMPERSONATOR_ID)),
+    "impersonatorUserName" -> (_.getOutboundRequest.getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME)),
     "timeRequestReceived" -> (_.getTimeRequestReceived),
     "timeToHandleRequest" -> (ctx => Duration.between(ctx.getTimeRequestReceived, ctx.getTimeRequestCompleted)),
     "timeInOriginService" -> (_.getTimeInOriginService),

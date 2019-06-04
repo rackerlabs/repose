@@ -240,6 +240,30 @@ For example, for a response with the header line `Content-Length: 1234`, this va
 | Integer
 | The number of bytes of the outbound response body written.
 
+| userId
+| String
+| The identifier which uniquely identifies a user.
+This value is taken from the `X-User-Id` header of the outbound request.
+For example, given the header `X-User-Id: 1234`, the value of this variable would be `1234`.
+
+| userName
+| String
+| The name of a user, which is not necessarily unique.
+This value is taken from the `X-User-Name` header of the outbound request.
+For example, given the header `X-User-Name: IAmAUser`, the value of this variable would be `IAmAUser`.
+
+| impersonatorUserId
+| String
+| The identifier which uniquely identifies the impersonator user.
+This value is taken from the `X-Impersonator-Id` header of the outbound request.
+For example, given the header `X-Impersonator-Id: 4321`, the value of this variable would be `4321`.
+
+| impersonatorUserName
+| String
+| The name of the impersonator user, which is not necessarily unique.
+This value is taken from the `X-Impersonator-Name` header of the outbound request.
+For example, given the header `X-Impersonator-Name: IAmAnImpersonator`, the value of this variable would be `IAmAnImpersonator`.
+
 | timeRequestReceived
 | https://docs.oracle.com/javase/8/docs/api/java/time/Instant.html[Instant]
 | The time at which the inbound request was received.
