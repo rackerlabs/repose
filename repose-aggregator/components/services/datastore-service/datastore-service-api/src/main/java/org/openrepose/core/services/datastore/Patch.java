@@ -25,6 +25,6 @@ package org.openrepose.core.services.datastore;
  * T - this is the abstraction of the data that gets stored in the datastore
  */
 @FunctionalInterface
-public interface Patch<T> {
+public interface Patch<T extends Patchable> {
     T newFromPatch();
 }
