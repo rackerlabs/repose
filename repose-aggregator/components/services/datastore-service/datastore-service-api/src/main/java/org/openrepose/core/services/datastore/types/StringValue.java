@@ -21,8 +21,6 @@ package org.openrepose.core.services.datastore.types;
 
 import org.openrepose.core.services.datastore.Patchable;
 
-import java.io.Serializable;
-
 /**
  * A simple patchable implementation that works with strings.
  * <p/>
@@ -31,7 +29,7 @@ import java.io.Serializable;
  * Date: 1/27/14
  * Time: 10:47 AM
  */
-public class StringValue implements Patchable<StringValue, StringValue.Patch>, Serializable {
+public class StringValue implements Patchable<StringValue, StringValue.Patch> {
     private String value;
 
     public StringValue(String value) {

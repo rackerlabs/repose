@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentMap;
  * Date: 1/28/14
  * Time: 9:33 AM
  */
-public class UserRateLimit implements Serializable, Patchable<UserRateLimit, UserRateLimit.Patch> {
+public class UserRateLimit implements Patchable<UserRateLimit, UserRateLimit.Patch> {
 
     private final Pair<ConfiguredRatelimit, CachedRateLimit> leastRemainingLimit;
 

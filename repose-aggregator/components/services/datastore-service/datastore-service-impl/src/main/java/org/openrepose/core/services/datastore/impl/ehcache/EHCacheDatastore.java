@@ -74,22 +74,22 @@ public class EHCacheDatastore implements Datastore {
     }
 
     @Override
-    public Serializable patch(String key, Patch patch) {
+    public <T extends Patchable<T, P>, P extends Patch<T>> T patch(String key, P patch) {
         return patch(key, patch, -1, TimeUnit.MINUTES);
     }
 
     @Override
-    public Serializable patch(String key, Patch patch, int ttl, TimeUnit timeUnit) {
-        Serializable potentialNewValue = (Serializable) patch.newFromPatch();
+    public <T extends Patchable<T, P>, P extends Patch<T>> T patch(String key, P patch, int ttl, TimeUnit timeUnit) {
+        T potentialNewValue = patch.newFromPatch();
         Element element = new Element(key, potentialNewValue);
         Element currentElement = ehCacheInstance.putIfAbsent(element);
-        Serializable returnValue;
+        T returnValue;
 
         if (currentElement == null) {
             returnValue = SerializationUtils.clone(potentialNewValue);
             currentElement = element;
         } else {
-            returnValue = (Serializable) ((Patchable) currentElement.getValue()).applyPatch(patch);
+            returnValue = ((T) currentElement.getValue()).applyPatch(patch);
         }
 
         //todo: setting ttl can die once we move to tti
