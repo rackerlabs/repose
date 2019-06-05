@@ -23,8 +23,7 @@ com.fasterxml.jackson.core                          jackson-core                
 com.fasterxml.jackson.core                          jackson-databind                2.9.8             Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
 com.github.jknack                                   handlebars                      2.0.0             Apache License Version 2.0  https://github.com/jknack/handlebars.java
 com.google.guava                                    guava                           27.0.1-jre        Apache License Version 2.0  https://github.com/google/guava
-com.jayway.jsonpath                                 json-path                       2.2.0             Apache License Version 2.0  https://github.com/jayway/JsonPath
-com.josephpconley                                   play-jsonpath_2.11              2.5.0             MIT License                 https://github.com/josephpconley/play-jsonpath
+com.jayway.jsonpath                                 json-path                       2.4.0             Apache License Version 2.0  https://github.com/jayway/JsonPath
 commons-codec                                       commons-codec                   1.10              Apache License Version 2.0  http://commons.apache.org/proper/commons-codec/
 commons-io                                          commons-io                      2.4               Apache License Version 2.0  http://commons.apache.org/proper/commons-io/
 commons-pool                                        commons-pool                    1.6               Apache License Version 2.0  http://commons.apache.org/proper/commons-pool/

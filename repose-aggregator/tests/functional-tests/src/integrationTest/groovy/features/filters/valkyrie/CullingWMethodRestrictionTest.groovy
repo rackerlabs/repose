@@ -139,13 +139,12 @@ class CullingWMethodRestrictionTest extends ReposeValveTest {
                 ],
                 defaultHandler: jsonResp
         )
-        def body = new String(mc.receivedResponse.body)
-        def slurper = new JsonSlurper()
-        def result = slurper.parseText(body)
 
         then: "check response"
         mc.receivedResponse.code == responseCode
         mc.handlings.size() == 1
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(mc.receivedResponse.body as String)
         result.values.size == size
         result.metadata.count == size
 
@@ -194,13 +193,11 @@ class CullingWMethodRestrictionTest extends ReposeValveTest {
                 defaultHandler: jsonResp
         )
 
-        def body = new String(mc.receivedResponse.body)
-        def slurper = new JsonSlurper()
-        def result = slurper.parseText(body)
-
         then: "check response"
         mc.receivedResponse.code == responseCode
         mc.handlings.size() == 1
+        def slurper = new JsonSlurper()
+        def result = slurper.parseText(mc.receivedResponse.body as String)
         result.values.size == size
         result.metadata.count == size
 

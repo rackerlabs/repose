@@ -21,15 +21,14 @@ package org.openrepose.filters.valkyrieauthorization
 
 import java.io.ByteArrayInputStream
 import java.net.URL
+import java.util
 import java.util.concurrent.TimeUnit
 import java.util.regex.PatternSyntaxException
 
 import com.fasterxml.jackson.core.JsonParseException
-import com.josephpconley.jsonpath.JSONPath
+import com.jayway.jsonpath.{DocumentContext, InvalidJsonException, JsonPath, PathNotFoundException}
 import com.rackspace.httpdelegation.HttpDelegationManager
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import io.gatling.jsonpath.AST.{Field, PathToken, RootNode}
-import io.gatling.jsonpath.Parser
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
@@ -397,33 +396,9 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
   def cullResponse(response: HttpServletResponseWrapper, potentialUserPermissions: ValkyrieResult,
                    matchingResources: Seq[Resource]): Unit = {
 
-    def getJsPathFromString(jsonPath: String): JsPath = {
-      val pathTokens: List[PathToken] = (new Parser).compile(jsonPath).getOrElse({
-        throw MalformedJsonPathException(s"Unable to parse JsonPath: $jsonPath")
-      })
-      pathTokens.foldLeft(new JsPath) { (path, token) =>
-        token match {
-          case RootNode => path
-          case Field(name) => path \ name
-        }
-      }
-    }
-
-    def cullJsonArray(jsonArray: Seq[JsValue], devicePath: DevicePath, devicePermissions: DeviceToPermissions): Seq[JsValue] = {
-      def extractDeviceIdFieldValue(jsValue: JsValue): Try[String] = {
-        Try(JSONPath.query(devicePath.getPath, jsValue)) match {
-          case Success(value) => value match {
-            case jsValue: JsNumber =>
-              Success(jsValue.value.toString())
-            case jsValue: JsString =>
-              Success(jsValue.value)
-            case _ =>
-              Failure(InvalidJsonTypeException(s"Invalid JSON type in: ${devicePath.getPath}"))
-          }
-          case Failure(e) =>
-            Failure(InvalidJsonPathException(s"Invalid path specified for device id: ${devicePath.getPath}", e))
-        }
-      }
+    def cullJsonArray(jsonDoc: DocumentContext, pathTriplet: PathTriplet, devicePermissions: DeviceToPermissions): Unit = {
+      val collectionPath = pathTriplet.getPathToCollection
+      val devicePath = pathTriplet.getPathToDeviceId
 
       def parseDeviceId(fieldValue: String): Try[String] = {
         Try {
@@ -434,17 +409,17 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
             throw NonMatchingRegexException(s"Regex: ${devicePath.getRegex.getValue} did not match $fieldValue")
           }
         } recoverWith {
+          case npe: NullPointerException => Failure(InvalidJsonTypeException(s"Invalid JSON type in: ${devicePath.getPath}", npe))
           case pse: PatternSyntaxException => Failure(MalformedRegexException("Unable to parse regex for device id", pse))
           case ioobe: IndexOutOfBoundsException => Failure(InvalidCaptureGroupException("Bad capture group specified", ioobe))
         }
       }
 
-      jsonArray filter { value =>
-        extractDeviceIdFieldValue(value) flatMap { deviceIdFieldValue =>
-          parseDeviceId(deviceIdFieldValue)
-        } map { deviceId =>
-          devicePermissions.keySet.contains(deviceId.toInt)
-        } recover {
+      def processDeviceId(deviceIdValue: String): Boolean = {
+        parseDeviceId(deviceIdValue)
+          .map { deviceId =>
+            devicePermissions.keySet.contains(deviceId.toInt)
+          } recover {
           case e@(_: InvalidJsonTypeException | _: NonMatchingRegexException) =>
             configuration.getCollectionResources.getDeviceIdMismatchAction match {
               case KEEP => true
@@ -453,20 +428,37 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
             }
         } get
       }
-    }
 
-    def updateItemCount(json: JsObject, pathToItemCount: String, newCount: Int): JsObject = {
-      Option(pathToItemCount) match {
-        case Some(path) =>
-          Try(JSONPath.query(path, json)) match {
-            case Success(v) =>
-              val countTransform: Reads[JsObject] = getJsPathFromString(path).json.update(__.read[JsNumber].map { _ => new JsNumber(newCount) })
-              json.transform(countTransform).getOrElse {
-                throw TransformException("Unable to transform json while updating the count.")
-              }
-            case Failure(e) => throw InvalidJsonPathException(s"Invalid path specified for item count: $path", e)
+      Try(jsonDoc.read[util.List[String]](
+        // Full path from root ($); all partial/relative paths are expanded/merged.
+        s"$collectionPath[*]${devicePath.getPath.replaceFirst("^\\$", "")}"
+      )) map(_.asScala.map(processDeviceId)) match {
+        case Success(keepRemoveSeq: Seq[Boolean]) =>
+          if (keepRemoveSeq.isEmpty) {
+            throw InvalidJsonPathException(s"Invalid path specified for device id: ${devicePath.getPath}")
           }
-        case None => json
+
+          // Remove the items from the JSON Document.
+          keepRemoveSeq
+            .zipWithIndex
+            .filter { case (keepRemove, _) => !keepRemove }
+            // Go from back to front so the indices don't change.
+            .reverse.foreach {
+            case (_, idx) =>
+              jsonDoc.delete(s"$collectionPath[$idx]")
+          }
+          // Check to see if the Item Count Path exists.
+          val pathToItemCount = pathTriplet.getPathToItemCount
+          try {
+            jsonDoc.read(pathToItemCount)
+          } catch {
+            case pnfe: PathNotFoundException =>
+              throw InvalidJsonPathException(s"Invalid path specified for count: $pathToItemCount", pnfe)
+          }
+          // Update the count.
+          jsonDoc.set(pathToItemCount, keepRemoveSeq.count(keepRemove => keepRemove))
+        case Failure(e) =>
+          throw InvalidJsonPathException(s"Invalid path specified for collection: $collectionPath", e)
       }
     }
 
@@ -475,29 +467,16 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
         if (!configuration.isEnableBypassAccountAdmin || !roles.contains(AccountAdmin)) {
           if (matchingResources.nonEmpty) {
             val input: String = Source.fromInputStream(response.getOutputStreamAsInputStream, response.getCharacterEncoding).getLines() mkString ""
-            val initialJson: JsValue = Try(Json.parse(input))
-              .recover({ case jpe: JsonParseException => throw UnexpectedJsonException("Response contained improper json.", jpe) })
+            val jsonDoc: DocumentContext = Try(JsonPath.parse(input))
+              .recover({ case jpe: InvalidJsonException => throw UnexpectedJsonException("Response contained improper json.", jpe) })
               .get
-            val finalJson = matchingResources.foldLeft(initialJson) { (resourceJson, resource) =>
-              resource.getCollection.asScala.foldLeft(resourceJson) { (collectionJson, collection) =>
-                val array: Seq[JsValue] = Try(JSONPath.query(collection.getJson.getPathToCollection, collectionJson).as[Seq[JsValue]])
-                  .recover({ case e: Exception if e.getMessage.equals("Bad JSONPath query Couldn't find field") =>
-                    throw InvalidJsonPathException(s"Invalid path specified for collection: ${collection.getJson.getPathToCollection}", e) })
-                  .get
-
-                val culledArray: Seq[JsValue] = cullJsonArray(array, collection.getJson.getPathToDeviceId, devicePermissions)
-
-                //these are a little complicated, look here for details: https://www.playframework.com/documentation/2.2.x/ScalaJsonTransformers
-                val arrayTransform: Reads[JsObject] = getJsPathFromString(collection.getJson.getPathToCollection).json.update(__.read[JsArray].map { _ => new JsArray(culledArray) })
-                val transformedJson = collectionJson.transform(arrayTransform).getOrElse({
-                  throw TransformException("Unable to transform json while culling list.")
-                })
-
-                updateItemCount(transformedJson, collection.getJson.getPathToItemCount, culledArray.size)
+            matchingResources.foreach { resource =>
+              resource.getCollection.asScala.foreach { collection =>
+                cullJsonArray(jsonDoc, collection.getJson, devicePermissions)
               }
             }
             // Replace the existing output with the modified output
-            response.setOutput(new ByteArrayInputStream(finalJson.toString().getBytes(response.getCharacterEncoding)))
+            response.setOutput(new ByteArrayInputStream(jsonDoc.jsonString().getBytes(response.getCharacterEncoding)))
           }
         }
       case _ =>
