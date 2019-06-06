@@ -353,7 +353,7 @@ Notably, this service does not manage:
 
 Management of those facets is left to developers intent on interacting with the logging system supported by this service.
 
-There many be instances when it is desired to add data to the logging context that is not part of the predefined data set.
+There may be instances when it is desired to add data to the logging context that is not part of the predefined data set.
 For this reason, the logging context supports extension data.
 Extension data can be accessed and modified via the `extensions` field of the logging context.
 Extension data is not validated by this service; it is passed as a map directly to the templating engine.
