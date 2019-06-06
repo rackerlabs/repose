@@ -19,26 +19,43 @@
  */
 package features.services.logging
 
+import org.apache.http.HttpResponse
+import org.apache.http.ProtocolVersion
+import org.apache.http.client.HttpClient
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.client.methods.HttpUriRequest
+import org.apache.http.impl.client.HttpClients
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.server.CustomizableSocketServerConnector
 import org.rackspace.deproxy.Deproxy
+import org.rackspace.deproxy.Endpoint
+import org.rackspace.deproxy.MessageChain
 import org.rackspace.deproxy.Response
 import scaffold.category.Services
+import spock.lang.Shared
 import spock.lang.Unroll
 
 import static javax.servlet.http.HttpServletResponse.SC_OK
 import static org.openrepose.commons.utils.http.OpenStackServiceHeader.USER_ID
 import static org.openrepose.commons.utils.string.Base64Helper.base64EncodeUtf8
+import static org.rackspace.deproxy.Deproxy.REQUEST_ID_HEADER_NAME
 
 @Category(Services)
 class LoggingServiceTest extends ReposeValveTest {
 
+    @Shared
+    CustomizableSocketServerConnector socketServerConnector
+
     @BeforeClass
     def setupSpec() {
         deproxy = new Deproxy()
-        deproxy.addEndpoint(properties.targetPort)
+        Endpoint originService = deproxy.addEndpoint(name: 'origin service', connectorFactory: { Endpoint endpoint ->
+            new CustomizableSocketServerConnector(endpoint, properties.targetPort)
+        })
+        socketServerConnector = originService.serverConnector as CustomizableSocketServerConnector
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
@@ -49,7 +66,7 @@ class LoggingServiceTest extends ReposeValveTest {
 
     @Before
     def setup() {
-        reposeLogSearch.cleanLog()
+        //reposeLogSearch.cleanLog()
     }
 
     def "Should log a static message"() {
@@ -124,7 +141,7 @@ class LoggingServiceTest extends ReposeValveTest {
         when: "Request is sent through repose"
         def messageChain = deproxy.makeRequest(
             url: reposeEndpoint,
-            path: path + query
+            path: path + query,
         )
 
         then: "Repose should return the code"
@@ -153,7 +170,7 @@ class LoggingServiceTest extends ReposeValveTest {
             defaultHandler: { request ->
                 Thread.sleep(1000)
                 new Response(SC_OK)
-            }
+            },
         )
 
         then: "Repose should return the code"
@@ -175,7 +192,7 @@ class LoggingServiceTest extends ReposeValveTest {
             url: reposeEndpoint,
             headers: [
                 'X-Trans-Id': base64EncodeUtf8("""{"requestId":"$traceId","origin":null}""")
-            ]
+            ],
         )
 
         then: "Repose should return the code"
@@ -193,9 +210,6 @@ class LoggingServiceTest extends ReposeValveTest {
         def messageChain = deproxy.makeRequest(
             url: reposeEndpoint,
             path: "/modifyMe/error/",
-            headers: [
-                'X-Trace-Request': 'true'
-            ]
         )
 
         then: "Repose should return the code"
@@ -208,45 +222,129 @@ class LoggingServiceTest extends ReposeValveTest {
         reposeLogSearch.awaitByString("INFO  error-log - outboundResponseStatusCode=525 - outboundResponseReasonPhrase=Supercalifragilisticexpialidocious")
     }
 
-    def "Should log the protocol"() {
-        given:
-        // todo: implement this
+    static def PROTOCOLS = [
+        new ProtocolVersion("HTTP", 1, 0),
+        new ProtocolVersion("HTTP", 1, 1),
+    ]
 
-        throw new UnsupportedOperationException("Not yet implemented")
+    @Unroll
+    def "Should log the protocols (#clientProtocol : #outboundProtocol : #originProtocol)"() {
+        given: "the client will make a(n) #clientProtocol request"
+        HttpClient client = HttpClients.createDefault()
+        HttpUriRequest request = new HttpGet(reposeEndpoint + "/modifyMe/protocol/")
+        request.setProtocolVersion(clientProtocol)
+
+        and: "the origin service will return a(n) #originProtocol response"
+        socketServerConnector.httpProtocol = originProtocol
+
+        and: "Deproxy will track the request to the origin service"
+        MessageChain messageChain = new MessageChain()
+        String requestId = UUID.randomUUID().toString()
+        deproxy.addMessageChain(requestId, messageChain)
+        request.addHeader(REQUEST_ID_HEADER_NAME, requestId)
+        request.addHeader("X-Protocol-Outbound", outboundProtocol.toString())
+
+        when:
+        HttpResponse response = client.execute(request)
+
+        then: "Repose should return the code"
+        response.statusLine.statusCode == SC_OK
+
+        and: "The request should have reached the origin service"
+        messageChain.handlings.size() == 1
+
+        and: "The protocol-log should have been logged"
+        reposeLogSearch.awaitByString("INFO  protocol-log - inboundRequestProtocol=${clientProtocol.toString()} - outboundRequestProtocol=${outboundProtocol.toString()} - inboundResponseProtocol=${originProtocol.toString()}")
+
+        where:
+        [clientProtocol, outboundProtocol, originProtocol] << [PROTOCOLS, PROTOCOLS, PROTOCOLS].combinations()
     }
 
     def "Should log the headers"() {
-        given:
-        // todo: implement this
+        when: "Request is sent through repose"
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint,
+            path: "/modifyMe/headers/",
+            headers: [
+                'X-Inbound-Request-Hdr': 'Inbound-Request-Val'
+            ],
+        )
 
-        throw new UnsupportedOperationException("Not yet implemented")
+        then: "Repose should return the code"
+        messageChain.receivedResponse.code as Integer == SC_OK
+
+        and: "The request should have reached the origin service"
+        messageChain.handlings.size() == 1
+
+        and: "The error-log should have been logged"
+        reposeLogSearch.awaitByString("INFO  headers-log - inboundRequestHeaders=Inbound-Request-Val - outboundRequestHeaders=Outbound-Request-Val - outboundResponseHeaders=Outbound-Response-Val")
     }
 
-    def "Should log the IP"() {
-        given:
-        // todo: implement this
+    def "Should log the local IP"() {
+        when: "Request is sent through repose"
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint,
+        )
 
-        throw new UnsupportedOperationException("Not yet implemented")
+        then: "Repose should return an OK (200)"
+        messageChain.receivedResponse.code as Integer == SC_OK
+
+        and: "The request should have reached the origin service"
+        messageChain.handlings.size() == 1
+
+        and: "The escaped JSON should have been logged"
+        reposeLogSearch.awaitByString(""""localIpAddress": "${InetAddress.loopbackAddress.hostAddress}",""")
     }
 
     def "Should log the host"() {
-        given:
-        // todo: implement this
+        when: "Request is sent through repose"
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint,
+            path: "/leaveMe/alone/",
+        )
 
-        throw new UnsupportedOperationException("Not yet implemented")
+        then: "Repose should return an OK (200)"
+        messageChain.receivedResponse.code as Integer == SC_OK
+
+        and: "The request should have reached the origin service"
+        messageChain.handlings.size() == 1
+
+        and: "The escaped JSON should have been logged"
+        reposeLogSearch.awaitByString(""""remoteHost": "${InetAddress.loopbackAddress.hostAddress}",""")
     }
 
     def "Should log the extensions"() {
-        given:
-        // todo: implement this
+        when: "Request is sent through repose"
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint,
+            path: "/modifyMe/extensions/",
+        )
 
-        throw new UnsupportedOperationException("Not yet implemented")
+        then: "Repose should return the code"
+        messageChain.receivedResponse.code as Integer == SC_OK
+
+        and: "The request should have reached the origin service"
+        messageChain.handlings.size() == 1
+
+        and: "The extensions-log should have been logged"
+        reposeLogSearch.awaitByString("INFO  extensions-log - extensions=This is the value.")
     }
 
     def "Should log valid/escaped JSON"() {
-        given:
-        // todo: implement this
+        when: "Request is sent through repose"
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint,
+            path: "/leaveMe/alone/",
+        )
 
-        throw new UnsupportedOperationException("Not yet implemented")
+        then: "Repose should return an OK (200)"
+        messageChain.receivedResponse.code as Integer == SC_OK
+
+        and: "The request should have reached the origin service"
+        messageChain.handlings.size() == 1
+
+        and: "The escaped JSON should have been logged"
+        // NOTE: Double escaping of the backslash is required since awaitByString is passed a RegEx.
+        reposeLogSearch.awaitByString(""""requestLine": "GET \\\\/leaveMe\\\\/alone\\\\/ HTTP\\\\/1.1",""")
     }
 }
