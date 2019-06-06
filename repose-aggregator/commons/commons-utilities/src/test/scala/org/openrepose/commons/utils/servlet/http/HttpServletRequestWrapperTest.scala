@@ -22,9 +22,9 @@ package org.openrepose.commons.utils.servlet.http
 import java.io.{BufferedReader, ByteArrayInputStream, IOException}
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util
+
 import javax.servlet.ServletInputStream
 import javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
-
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper
 import org.scalatest.junit.JUnitRunner
@@ -1218,6 +1218,14 @@ class HttpServletRequestWrapperTest extends FunSpec with BeforeAndAfterEach with
       wrappedRequest.setRequestURI("/foo")
 
       wrappedRequest.getRequestURL.toString shouldBe "http://localhost/foo"
+    }
+  }
+
+  describe("setProtocol") {
+    it("should allow the protocol to be set") {
+      wrappedRequest.setProtocol("SomethingCrazy/0.0")
+
+      wrappedRequest.getProtocol shouldBe "SomethingCrazy/0.0"
     }
   }
 

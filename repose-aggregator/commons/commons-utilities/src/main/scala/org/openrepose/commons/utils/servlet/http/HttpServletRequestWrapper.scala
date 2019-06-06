@@ -46,6 +46,7 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest,
   private var method: String = originalRequest.getMethod
   private var scheme: String = originalRequest.getScheme
   private var serverName: String = originalRequest.getServerName
+  private var protocol: String = originalRequest.getProtocol
   private var serverPort: Int = originalRequest.getServerPort
   private var requestUri: String = originalRequest.getRequestURI
   private var queryString: String = originalRequest.getQueryString
@@ -178,7 +179,9 @@ class HttpServletRequestWrapper(originalRequest: HttpServletRequest,
     requestUri = uri
   }
 
-  // todo: getProtocol?
+  override def getProtocol: String = protocol
+
+  def setProtocol(protocol: String): Unit = this.protocol = protocol
 
   override def getServerPort: Int = serverPort
 
