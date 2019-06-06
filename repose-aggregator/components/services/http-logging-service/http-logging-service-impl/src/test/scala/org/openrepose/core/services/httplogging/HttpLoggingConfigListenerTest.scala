@@ -20,6 +20,7 @@
 package org.openrepose.core.services.httplogging
 
 import org.junit.runner.RunWith
+import org.openrepose.core.services.httplogging.HttpLoggingConfigListenerTest._
 import org.openrepose.core.services.httplogging.config.{Format, HttpLoggingConfig, Message}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
@@ -28,8 +29,6 @@ import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
 class HttpLoggingConfigListenerTest extends FunSpec with BeforeAndAfterEach with Matchers {
-
-  import HttpLoggingConfigListenerTest._
 
   var httpLoggingConfigListener: HttpLoggingConfigListener = _
 

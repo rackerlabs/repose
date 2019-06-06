@@ -24,9 +24,11 @@ import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
 import org.jtwig.JtwigModel
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.httplogging.HttpLoggingServiceImpl._
 import org.openrepose.core.services.httplogging.config.HttpLoggingConfig
 
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 /**
   * See [[HttpLoggingService]] for details.
@@ -35,8 +37,6 @@ import scala.collection.JavaConverters._
 class HttpLoggingServiceImpl @Inject()(configurationService: ConfigurationService,
                                        httpLoggingConfigListener: HttpLoggingConfigListener)
   extends HttpLoggingService with StrictLogging {
-
-  import HttpLoggingServiceImpl._
 
   @PostConstruct
   def init(): Unit = {
@@ -70,13 +70,13 @@ class HttpLoggingServiceImpl @Inject()(configurationService: ConfigurationServic
   override def close(httpLoggingContext: HttpLoggingContext): Unit = {
     logger.trace("Closing the HTTP logging context {}", s"${httpLoggingContext.hashCode()}")
     httpLoggingConfigListener.loggableTemplates.foreach { loggableTemplate =>
-      try {
+      Try {
         val contextMap = HttpLoggingContextMap.from(httpLoggingContext)
         val model = JtwigModel.newModel(contextMap.asJava)
         val message = loggableTemplate.template.render(model)
         loggableTemplate.logger.info(message)
         logger.trace("Logged {} for HTTP logging context {}", loggableTemplate, s"${httpLoggingContext.hashCode()}")
-      } catch {
+      }.recover {
         case t: Throwable =>
           logger.warn("Failed to log {} for HTTP logging context {}", loggableTemplate, s"${httpLoggingContext.hashCode()}", t)
       }

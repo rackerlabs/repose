@@ -28,6 +28,7 @@ import org.jtwig.value.Undefined
 import org.jtwig.value.convert.string.{DefaultStringConverter, StringConverter}
 import org.jtwig.{JtwigModel, JtwigTemplate}
 import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.core.services.httplogging.HttpLoggingConfigListener._
 import org.openrepose.core.services.httplogging.config.{Format, HttpLoggingConfig, Message}
 import org.openrepose.core.services.httplogging.jtwig.HttpLoggingEnvironmentConfiguration
 import org.slf4j.LoggerFactory
@@ -41,8 +42,6 @@ import scala.util.{Success, Try}
   */
 @Named
 class HttpLoggingConfigListener extends UpdateListener[HttpLoggingConfig] with StrictLogging {
-
-  import HttpLoggingConfigListener._
 
   private var initialized: Boolean = false
   private var templates: List[LoggableTemplate] = List.empty
@@ -81,7 +80,7 @@ class HttpLoggingConfigListener extends UpdateListener[HttpLoggingConfig] with S
   }
 }
 
-object HttpLoggingConfigListener extends StrictLogging {
+object HttpLoggingConfigListener {
   private final val JsonValidationStringConverter: StringConverter = new DefaultStringConverter {
     override def convert(input: Any): String = input match {
       case Undefined.UNDEFINED => "123"
@@ -89,7 +88,7 @@ object HttpLoggingConfigListener extends StrictLogging {
     }
   }
 
-  private final def jsonValidationEnvConf(envConf: EnvironmentConfiguration): EnvironmentConfiguration = {
+  private def jsonValidationEnvConf(envConf: EnvironmentConfiguration): EnvironmentConfiguration = {
     // @formatter:off
     new EnvironmentConfigurationBuilder(envConf)
         .value()

@@ -27,6 +27,7 @@ import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, same, eq => isEq}
 import org.mockito.Mockito.{verify, when}
 import org.openrepose.core.services.config.ConfigurationService
+import org.openrepose.core.services.httplogging.HttpLoggingServiceImplTest._
 import org.openrepose.core.services.httplogging.config.HttpLoggingConfig
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -36,8 +37,6 @@ import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResp
 
 @RunWith(classOf[JUnitRunner])
 class HttpLoggingServiceImplTest extends FunSpec with BeforeAndAfterEach with MockitoSugar with Matchers {
-
-  import HttpLoggingServiceImplTest._
 
   var logger: Logger = _
   var configurationService: ConfigurationService = _
