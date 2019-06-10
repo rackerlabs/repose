@@ -38,8 +38,9 @@ import scaffold.category.Services
 import spock.lang.Shared
 import spock.lang.Unroll
 
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
 import static javax.servlet.http.HttpServletResponse.SC_OK
-import static org.openrepose.commons.utils.http.OpenStackServiceHeader.USER_ID
+import static org.openrepose.commons.utils.http.OpenStackServiceHeader.*
 import static org.openrepose.commons.utils.string.Base64Helper.base64EncodeUtf8
 import static org.rackspace.deproxy.Deproxy.REQUEST_ID_HEADER_NAME
 
@@ -66,7 +67,7 @@ class LoggingServiceTest extends ReposeValveTest {
 
     @Before
     def setup() {
-        //reposeLogSearch.cleanLog()
+        reposeLogSearch.cleanLog()
     }
 
     def "Should log a static message"() {
@@ -222,6 +223,21 @@ class LoggingServiceTest extends ReposeValveTest {
         reposeLogSearch.awaitByString("INFO  error-log - outboundResponseStatusCode=525 - outboundResponseReasonPhrase=Supercalifragilisticexpialidocious")
     }
 
+    def "Should log an error even if Jetty rejects the request"() {
+        HttpClient client = HttpClients.createDefault()
+        HttpUriRequest request = new HttpGet(reposeEndpoint)
+        request.setProtocolVersion(new ProtocolVersion("BOGUS", 0, 0))
+
+        when: "Request is sent through repose"
+        HttpResponse response = client.execute(request)
+
+        then: "Jetty should reject it"
+        response.statusLine.statusCode == SC_BAD_REQUEST
+
+        and: "The error-log should have been logged"
+        reposeLogSearch.awaitByString("INFO  error-log - outboundResponseStatusCode=$SC_BAD_REQUEST - outboundResponseReasonPhrase=Supercalifragilisticexpialidocious")
+    }
+
     static def PROTOCOLS = [
         new ProtocolVersion("HTTP", 1, 0),
         new ProtocolVersion("HTTP", 1, 1),
@@ -280,6 +296,34 @@ class LoggingServiceTest extends ReposeValveTest {
         reposeLogSearch.awaitByString("INFO  headers-log - inboundRequestHeaders=Inbound-Request-Val - outboundRequestHeaders=Outbound-Request-Val - outboundResponseHeaders=Outbound-Response-Val")
     }
 
+    def "Should log the user/impersonator ID/name"() {
+        given:
+        def userId = UUID.randomUUID().toString()
+        def userName = UUID.randomUUID().toString()
+        def impersonatorUserId = UUID.randomUUID().toString()
+        def impersonatorUserName = UUID.randomUUID().toString()
+
+        when: "Request is sent through repose"
+        def messageChain = deproxy.makeRequest(
+            url: reposeEndpoint,
+            headers: [
+                (USER_ID): userId,
+                (USER_NAME): userName,
+                (IMPERSONATOR_ID): impersonatorUserId,
+                (IMPERSONATOR_NAME): impersonatorUserName,
+            ],
+        )
+
+        then: "Repose should return an OK (200)"
+        messageChain.receivedResponse.code as Integer == SC_OK
+
+        and: "The request should have reached the origin service"
+        messageChain.handlings.size() == 1
+
+        and: "The escaped JSON should have been logged"
+        reposeLogSearch.awaitByString("INFO  user-log - userId=$userId - userName=$userName - impersonatorUserId=$impersonatorUserId - impersonatorUserName=$impersonatorUserName")
+    }
+
     def "Should log the local IP"() {
         when: "Request is sent through repose"
         def messageChain = deproxy.makeRequest(
@@ -300,7 +344,6 @@ class LoggingServiceTest extends ReposeValveTest {
         when: "Request is sent through repose"
         def messageChain = deproxy.makeRequest(
             url: reposeEndpoint,
-            path: "/leaveMe/alone/",
         )
 
         then: "Repose should return an OK (200)"

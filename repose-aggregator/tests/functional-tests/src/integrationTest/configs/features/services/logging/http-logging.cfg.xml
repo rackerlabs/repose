@@ -14,6 +14,7 @@
     <message log-to="protocol-log">inboundRequestProtocol={{ inboundRequestProtocol }} - outboundRequestProtocol={{ outboundRequestProtocol }} - inboundResponseProtocol={{ inboundResponseProtocol }}</message>
     <!-- NOTE: All HTTP Header keys are toLowerCase()'d before being added to their respective Map, so all references here need to be lower case. -->
     <message log-to="headers-log">inboundRequestHeaders={{ default(first(inboundRequestHeaders['x-inbound-request-hdr']), '-') }} - outboundRequestHeaders={{ default(first(outboundRequestHeaders['x-outbound-request-hdr']), '-') }} - outboundResponseHeaders={{ default(first(outboundResponseHeaders['x-outbound-response-hdr']), '-') }}</message>
+    <message log-to="user-log">userId={{ userId }} - userName={{ userName }} - impersonatorUserId={{ impersonatorUserId }} - impersonatorUserName={{ impersonatorUserName }}</message>
     <!-- NOTE: The keys in the HTTP Logging Context's Extensions Map are case sensitive!!! -->
     <message log-to="extensions-log">extensions={{ default(extensions['Logging-Context-Extension'], '-') }}</message>
     <message log-to="json-access-log" format="json">
