@@ -60,7 +60,8 @@ class LoggingServiceTest extends ReposeValveTest {
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/services/logging", params)
+        repose.configurationProvider.applyConfigs("features/services/logging/common", params)
+        repose.configurationProvider.applyConfigs("features/services/logging/good", params)
         repose.start()
         waitUntilReadyToServiceRequests()
     }

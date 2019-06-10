@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<http-logging xmlns="http://docs.openrepose.org/repose/http-logging/v1.0">
+    <message log-to="json-access-log" format="json">
+<![CDATA[{
+    "remoteIpAddress": "{{ remoteIpAddress }}",
+]]>
+    </message>
+</http-logging>
