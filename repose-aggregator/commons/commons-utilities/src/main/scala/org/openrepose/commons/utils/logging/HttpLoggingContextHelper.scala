@@ -35,10 +35,10 @@ object HttpLoggingContextHelper extends StrictLogging {
       case Some(context: HttpLoggingContext) =>
         context
       case Some(_) =>
-        logger.warn("Could not close the HTTP Logging Service context -- context from request {} is invalid", request)
+        logger.warn("Could not obtain the HTTP Logging Service context -- context from request {} is invalid", request)
         null
       case None =>
-        logger.warn("Could not close the HTTP Logging Service context -- context from request {} is missing", request)
+        logger.warn("Could not obtain the HTTP Logging Service context -- context from request {} is missing", request)
         null
     }
   }
