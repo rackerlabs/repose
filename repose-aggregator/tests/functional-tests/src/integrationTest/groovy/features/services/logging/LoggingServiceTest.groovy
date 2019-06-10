@@ -226,7 +226,7 @@ class LoggingServiceTest extends ReposeValveTest {
     def "Should log an error even if Jetty rejects the request"() {
         HttpClient client = HttpClients.createDefault()
         HttpUriRequest request = new HttpGet(reposeEndpoint)
-        request.setProtocolVersion(new ProtocolVersion("BOGUS", 0, 0))
+        request.setProtocolVersion(new ProtocolVersion("HTTP", 0, 0))
 
         when: "Request is sent through repose"
         HttpResponse response = client.execute(request)
@@ -235,7 +235,7 @@ class LoggingServiceTest extends ReposeValveTest {
         response.statusLine.statusCode == SC_BAD_REQUEST
 
         and: "The error-log should have been logged"
-        reposeLogSearch.awaitByString("INFO  error-log - outboundResponseStatusCode=$SC_BAD_REQUEST - outboundResponseReasonPhrase=Supercalifragilisticexpialidocious")
+        reposeLogSearch.awaitByString("INFO  error-log - outboundResponseStatusCode=$SC_BAD_REQUEST - outboundResponseReasonPhrase=Unknown Version")
     }
 
     static def PROTOCOLS = [

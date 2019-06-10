@@ -43,6 +43,14 @@ class HttpLoggingServiceChannelListener @Inject()(httpLoggingService: HttpLoggin
   extends HttpChannel.Listener with StrictLogging {
 
   override def onRequestBegin(request: Request): Unit = {
+    openLoggingContext(request)
+  }
+
+  override def onRequestFailure(request: Request, failure: Throwable): Unit = {
+    openLoggingContext(request)
+  }
+
+  private def openLoggingContext(request: Request): Unit = {
     val loggingContext = httpLoggingService.open()
     logger.trace("Opened an HTTP Logging Service context {} for {}", s"${loggingContext.hashCode()}", request)
 
