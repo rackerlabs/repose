@@ -19,6 +19,8 @@
  */
 package org.openrepose.core.services.datastore;
 
+import com.hazelcast.config.Config;
+
 /**
  * DatastoreService - service that manages the lifecycle and configuration of {@link Datastore}s
  */
@@ -54,30 +56,13 @@ public interface DatastoreService {
     void destroyDatastore(String datastoreName);
 
     /**
-     * Create and return a distributed datastore using the provided configuration.  The created
-     * datastore can be retrieved by the same name provided using getDatastore(datastoreName)
+     * Create and return a Hazelcast Datastore using the provided configuration.
      *
      * @param datastoreName unique name for this Datastore
-     * @param configuration Configuration for the entire Cluster
+     * @param configuration configuration for Hazelcast
      * @return the newly created Datastore
-     * @throws DatastoreServiceException if the datastore creation fails
      */
-    DistributedDatastore createDatastore(String datastoreName, ClusterConfiguration configuration)
-            throws DatastoreServiceException;
-
-    /**
-     * Create and return a distributed datastore using the provided configuration.  The created
-     * datastore can be retrieved by the same name provided using getDatastore(datastoreName)
-     *
-     * @param datastoreName unique name for this Datastore
-     * @param configuration Configuration for the entire Cluster
-     * @param connPoolId    the name of the pool to borrow a connection from
-     * @param useHttps      indicates if SSL/TLS should be used
-     * @return the newly created Datastore
-     * @throws DatastoreServiceException if the datastore creation fails
-     */
-    DistributedDatastore createDistributedDatastore(String datastoreName, ClusterConfiguration configuration, String connPoolId, boolean useHttps)
-            throws DatastoreServiceException;
+    Datastore createHazelcastDatastore(String datastoreName, Config configuration);
 
     /**
      * Shutdown all datastores

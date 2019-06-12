@@ -148,7 +148,7 @@ class SystemModelConfigTest extends Specification {
                     'node'('id': 'node1', 'hostname': 'localhost', 'http-port': '8080')
                 }
                 'services'() {
-                    'service'('name': 'dist-datastore')
+                    'service'('name': 'hazelcast-datastore')
                 }
                 'destinations'() {
                     int counter = 0;

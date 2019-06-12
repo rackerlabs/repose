@@ -19,6 +19,7 @@ Group                                               Name                      Ve
 --------------------------------------------------  ------------------------  ---------------  --------------------------  ----------------------------------------------------------------------------------
 com.fasterxml.jackson.core                          jackson-core              2.9.8            Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
 com.fasterxml.jackson.core                          jackson-databind          2.9.8            Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
+com.hazelcast                                       hazelcast                 3.12             Apache License Version 2.0  https://github.com/hazelcast/hazelcast
 commons-codec                                       commons-codec             1.10             Apache License Version 2.0  http://commons.apache.org/proper/commons-codec/
 commons-io                                          commons-io                2.4              Apache License Version 2.0  http://commons.apache.org/proper/commons-io/
 commons-pool                                        commons-pool              1.6              Apache License Version 2.0  http://commons.apache.org/proper/commons-pool/

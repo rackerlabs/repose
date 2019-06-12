@@ -49,7 +49,7 @@
 
         <xs:restriction base="xs:string">
             <xs:enumeration value="local/default"/>
-            <xs:enumeration value="distributed/hash-ring"/>
+            <xs:enumeration value="hazelcast"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -98,7 +98,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="datastore" type="rl:DatastoreType" use="optional" default="distributed/hash-ring">
+        <xs:attribute name="datastore" type="rl:DatastoreType" use="optional" default="hazelcast">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Name of datastore to use for storing rate limiting information.
