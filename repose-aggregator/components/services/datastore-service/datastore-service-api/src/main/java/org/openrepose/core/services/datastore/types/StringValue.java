@@ -30,7 +30,7 @@ import org.openrepose.core.services.datastore.Patchable;
  * Time: 10:47 AM
  */
 public class StringValue implements Patchable<StringValue, StringValue.Patch> {
-    private String value;
+    private final String value;
 
     public StringValue(String value) {
         this.value = value;
@@ -44,9 +44,7 @@ public class StringValue implements Patchable<StringValue, StringValue.Patch> {
      */
     @Override
     public StringValue applyPatch(Patch patch) {
-        String originalValue = value;
-        value = value + patch.newFromPatch().getValue();
-        return new StringValue(originalValue + patch.newFromPatch().getValue());
+        return new StringValue(value + patch.newFromPatch().getValue());
     }
 
     public String getValue() {

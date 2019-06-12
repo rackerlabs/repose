@@ -93,8 +93,7 @@ public class ManagedRateLimitCacheTest {
     @Test
     public void updateLimit_usesReturnedValues_toPopulateResultObject() throws Exception {
         long now = System.currentTimeMillis();
-        CachedRateLimit cachedRateLimit = new CachedRateLimit(defaultConfig);
-        cachedRateLimit.logHit();
+        CachedRateLimit cachedRateLimit = new CachedRateLimit(defaultConfig, 1);
         HashMap<String, CachedRateLimit> limitMap = new HashMap<>();
         limitMap.put("testKey", cachedRateLimit);
         UserRateLimit returnedLimit = spy(new UserRateLimit(limitMap));

@@ -21,27 +21,29 @@ package org.openrepose.core.services.datastore.types
 
 import org.openrepose.core.services.datastore.{Patch, Patchable}
 
-import scala.collection.mutable
+import scala.collection.immutable
 
 /**
   * Created by adrian on 1/21/16.
   */
-class PatchableSet[A] extends mutable.HashSet[A]
+class PatchableSet[A](xs: A*) extends immutable.Set[A]
   with Patchable[PatchableSet[A], SetPatch[A]] {
+
+  private final val set = immutable.Set(xs: _*)
+
+  override def contains(elem: A): Boolean = set.contains(elem)
+
+  override def +(elem: A): Set[A] = set + elem
+
+  override def -(elem: A): Set[A] = set - elem
+
+  override def iterator: Iterator[A] = set.iterator
+
   override def applyPatch(patch: SetPatch[A]): PatchableSet[A] = {
-    val returnedSet = PatchableSet(this.toList: _*)
-    this.add(patch.patchValue)
-    returnedSet.add(patch.patchValue)
-    returnedSet
+    new PatchableSet((set + patch.patchValue).toSeq: _*)
   }
 }
 
 case class SetPatch[A](patchValue: A) extends Patch[PatchableSet[A]] {
-  override def newFromPatch(): PatchableSet[A] = PatchableSet(patchValue)
-}
-
-object PatchableSet {
-  def apply[A](xs: A*): PatchableSet[A] = new PatchableSet[A] ++= xs
-
-  def empty[A]: PatchableSet[A] = new PatchableSet[A]
+  override def newFromPatch(): PatchableSet[A] = new PatchableSet(patchValue)
 }

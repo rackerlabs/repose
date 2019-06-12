@@ -23,13 +23,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.openrepose.core.services.datastore.Patchable;
 import org.openrepose.core.services.ratelimit.config.ConfiguredRatelimit;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -40,25 +34,24 @@ import java.util.concurrent.ConcurrentMap;
 public class UserRateLimit implements Patchable<UserRateLimit, UserRateLimit.Patch> {
 
     private final Pair<ConfiguredRatelimit, CachedRateLimit> leastRemainingLimit;
-
-    private ConcurrentHashMap<String, CachedRateLimit> limitMap = new ConcurrentHashMap<>();
+    private final Map<String, CachedRateLimit> limitMap;
 
     public UserRateLimit() {
-        this.limitMap = new ConcurrentHashMap<>();
+        this.limitMap = Collections.emptyMap();
         this.leastRemainingLimit = null;
     }
 
     public UserRateLimit(Map<String, CachedRateLimit> limitMap) {
-        this.limitMap = new ConcurrentHashMap<>(limitMap);
+        this.limitMap = Collections.unmodifiableMap(new HashMap<>(limitMap));
         this.leastRemainingLimit = null;
     }
 
     private UserRateLimit(Map<String, CachedRateLimit> limitMap, Pair<ConfiguredRatelimit, CachedRateLimit> lowestLimit) {
-        this.limitMap = new ConcurrentHashMap<>(limitMap);
+        this.limitMap = Collections.unmodifiableMap(new HashMap<>(limitMap));
         this.leastRemainingLimit = lowestLimit;
     }
 
-    public ConcurrentMap<String, CachedRateLimit> getLimitMap() {
+    public Map<String, CachedRateLimit> getLimitMap() {
         return limitMap;
     }
 
@@ -72,7 +65,7 @@ public class UserRateLimit implements Patchable<UserRateLimit, UserRateLimit.Pat
         Pair<ConfiguredRatelimit, CachedRateLimit> lowestLimit = null;
 
         for (Pair<String, ConfiguredRatelimit> limitEntry : patch.getLimitMap()) {
-            CachedRateLimit rateLimit = adjustLimit(limitEntry);
+            CachedRateLimit rateLimit = getUpdatedLimit(limitEntry);
             returnLimits.put(limitEntry.getKey(), rateLimit);
             if (lowestLimit == null || (rateLimit.maxAmount() - rateLimit.amount() < lowestLimit.getValue().maxAmount() - lowestLimit.getValue().amount())) {
                 lowestLimit = Pair.of(limitEntry.getValue(), rateLimit);
@@ -85,35 +78,21 @@ public class UserRateLimit implements Patchable<UserRateLimit, UserRateLimit.Pat
         return new UserRateLimit(returnLimits, lowestLimit);
     }
 
-    private CachedRateLimit adjustLimit(Pair<String, ConfiguredRatelimit> limitEntry) {
-        CachedRateLimit returnRateLimit;
-
-        while (true) {
-            CachedRateLimit newRateLimit = new CachedRateLimit(limitEntry.getValue(), 1);
-            CachedRateLimit oldRateLimit = limitMap.putIfAbsent(limitEntry.getKey(), newRateLimit);
-
-            if (oldRateLimit == null) {
-                return newRateLimit;
-            }
-
-            if ((System.currentTimeMillis() - oldRateLimit.timestamp()) > oldRateLimit.unit()) {
-                returnRateLimit = newRateLimit;
-            } else {
-                returnRateLimit = new CachedRateLimit(limitEntry.getValue(), oldRateLimit.amount() + 1, oldRateLimit.timestamp());
-            }
-
-            if (limitMap.replace(limitEntry.getKey(), oldRateLimit, returnRateLimit)) {
-                return returnRateLimit;
-            }
+    private CachedRateLimit getUpdatedLimit(Pair<String, ConfiguredRatelimit> limitEntry) {
+        CachedRateLimit oldRateLimit = limitMap.get(limitEntry.getKey());
+        if (oldRateLimit == null || (System.currentTimeMillis() - oldRateLimit.timestamp()) > oldRateLimit.unit()) {
+            return new CachedRateLimit(limitEntry.getValue(), 1);
+        } else {
+            return new CachedRateLimit(limitEntry.getValue(), oldRateLimit.amount() + 1, oldRateLimit.timestamp());
         }
     }
 
     public static class Patch implements org.openrepose.core.services.datastore.Patch<UserRateLimit> {
 
-        private List<Pair<String, ConfiguredRatelimit>> limitMap;
+        private final List<Pair<String, ConfiguredRatelimit>> limitMap;
 
         public Patch(List<Pair<String, ConfiguredRatelimit>> patchMap) {
-            this.limitMap = new ArrayList<>(patchMap);
+            this.limitMap = Collections.unmodifiableList(new ArrayList<>(patchMap));
         }
 
         @Override
