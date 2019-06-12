@@ -81,9 +81,9 @@ class LoggingServiceBadTemplateTest extends ReposeValveTest {
         reposeLogSearch.awaitByString("$message to validate JSON")
 
         where:
-        message | configs
-        "Failed"| "bad"
-        "Unable"| "good"
+        message  | configs
+        "Failed" | "bad"
+        "Unable" | "good"
     }
 
     def "Should start and run without a configuration"() {
