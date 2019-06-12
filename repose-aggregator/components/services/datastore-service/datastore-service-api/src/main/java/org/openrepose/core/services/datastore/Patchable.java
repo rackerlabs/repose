@@ -27,5 +27,15 @@ package org.openrepose.core.services.datastore;
  */
 @FunctionalInterface
 public interface Patchable<T extends Patchable<T, P>, P extends Patch<T>> {
+
+    /**
+     * Applies a {@link Patch} to a {@link Patchable}.
+     * Doing so should modify the state of the {@link Patchable}.
+     * To avoid concurrency issues, the modified {@link Patchable} should be a
+     * new, immutable instance.
+     *
+     * @param in a {@link Patch} that can be applied to the {@link Patchable} of type {@code T}
+     * @return a new, immutable {@link Patchable} of type {@code T} containing patched data
+     */
     T applyPatch(P in);
 }

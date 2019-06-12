@@ -32,9 +32,8 @@ public class CachedRateLimit implements Serializable {
     private final int maxCount;
     private final long unit;
     private final String configId;
-
-    private int count;
-    private long timestamp;
+    private final int count;
+    private final long timestamp;
 
     public CachedRateLimit(ConfiguredRatelimit cfg) {
         this.maxCount = cfg.getValue();
@@ -76,26 +75,14 @@ public class CachedRateLimit implements Serializable {
     }
 
     public long timestamp() {
-        vacuum();
-
         return timestamp;
     }
 
     public int amount() {
-        vacuum();
-
         return count;
     }
 
-    public void logHit() {
-        vacuum();
-
-        ++count;
-    }
-
     public long getSoonestRequestTime() {
-        vacuum();
-
         if (count < maxCount) {
             return System.currentTimeMillis();
         } else {
@@ -104,17 +91,6 @@ public class CachedRateLimit implements Serializable {
     }
 
     public long getNextExpirationTime() {
-        vacuum();
-
         return timestamp + unit;
-    }
-
-    private void vacuum() {
-        final long now = System.currentTimeMillis();
-
-        if (now > timestamp + unit) {
-            count = 0;
-            timestamp = now;
-        }
     }
 }

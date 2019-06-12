@@ -78,30 +78,36 @@ public class EHCacheDatastore implements Datastore {
 
     @Override
     public <T extends Patchable<T, P>, P extends Patch<T>> T patch(String key, P patch, int ttl, TimeUnit timeUnit) {
-        T potentialNewValue = patch.newFromPatch();
-        Element element = new Element(key, potentialNewValue);
-        Element currentElement = ehCacheInstance.putIfAbsent(element);
-        T returnValue;
+        final T newValue = patch.newFromPatch();
+        final Element newElement = new Element(key, newValue);
 
-        if (currentElement == null) {
-            returnValue = SerializationUtils.clone(potentialNewValue);
-            currentElement = element;
-        } else {
-            returnValue = ((T) currentElement.getValue()).applyPatch(patch);
+        T returnValue = newValue;
+        Element returnElement = newElement;
+
+        Element oldElement;
+        while ((oldElement = ehCacheInstance.putIfAbsent(newElement)) != null) {
+            T patchedValue = ((T) oldElement.getObjectValue()).applyPatch(patch);
+            Element patchedElement = new Element(key, patchedValue);
+
+            if (ehCacheInstance.replace(oldElement, patchedElement)) {
+                returnValue = patchedValue;
+                returnElement = patchedElement;
+                break;
+            }
         }
 
         //todo: setting ttl can die once we move to tti
         if (ttl == 0) {
-            currentElement.setTimeToLive(0);
-            currentElement.setTimeToIdle(0);
+            returnElement.setTimeToLive(0);
+            returnElement.setTimeToIdle(0);
         } else if (ttl > 0) {
             int convertedTtl = (int) TimeUnit.SECONDS.convert(ttl, timeUnit);
-            int currentLifeSpan = (int) TimeUnit.SECONDS.convert(System.currentTimeMillis() - currentElement.getCreationTime(), TimeUnit.MILLISECONDS);
-            if ((currentLifeSpan + convertedTtl) > currentElement.getTimeToLive()) {
-                currentElement.setTimeToLive(currentLifeSpan + convertedTtl);
+            int currentLifeSpan = (int) TimeUnit.SECONDS.convert(System.currentTimeMillis() - returnElement.getCreationTime(), TimeUnit.MILLISECONDS);
+            if ((currentLifeSpan + convertedTtl) > returnElement.getTimeToLive()) {
+                returnElement.setTimeToLive(currentLifeSpan + convertedTtl);
             }
-            if (convertedTtl > currentElement.getTimeToIdle()) {
-                currentElement.setTimeToIdle(convertedTtl);
+            if (convertedTtl > returnElement.getTimeToIdle()) {
+                returnElement.setTimeToIdle(convertedTtl);
             }
         }
 

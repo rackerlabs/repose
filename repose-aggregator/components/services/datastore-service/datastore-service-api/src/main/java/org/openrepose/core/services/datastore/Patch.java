@@ -26,5 +26,14 @@ package org.openrepose.core.services.datastore;
  */
 @FunctionalInterface
 public interface Patch<T extends Patchable> {
+
+    /**
+     * Constructs a new {@link Patchable} using information specific
+     * to this {@link Patch}.
+     * To avoid concurrency issues, the new {@link Patchable} should be a
+     * new, immutable instance.
+     *
+     * @return a new, immutable {@link Patchable} of type {@code T}
+     */
     T newFromPatch();
 }
