@@ -1,6 +1,8 @@
 dependencies {
     compile project(":repose-aggregator:commons:commons-utilities")
     compile project(":repose-aggregator:core:repose-core-api")
+    compile "org.scala-lang:scala-library"
+    compile "com.hazelcast:hazelcast"
 
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"

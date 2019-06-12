@@ -19,10 +19,11 @@
  */
 package org.openrepose.core.services.datastore.impl;
 
+import com.hazelcast.config.Config;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreManager;
 import org.openrepose.core.services.datastore.DatastoreService;
-import org.openrepose.core.services.datastore.DatastoreServiceException;
+import org.openrepose.core.services.datastore.hazelcast.HazelcastDatastoreManager;
 import org.openrepose.core.services.datastore.impl.ehcache.EHCacheDatastoreManager;
 import org.openrepose.core.services.reporting.metrics.MetricsService;
 import org.slf4j.LoggerFactory;
@@ -88,6 +89,15 @@ public class DatastoreServiceImpl implements DatastoreService {
                 LOG.warn("Failed to shutdown datastore " + datastoreName + " with exception " + e.getMessage(), e);
             }
         }
+    }
+
+    @Override
+    public Datastore createHazelcastDatastore(String datastoreName, Config configuration) {
+        DatastoreManager manager = new HazelcastDatastoreManager(configuration);
+        if (manager.isDistributed()) {
+            distributedManagers.put(datastoreName, manager);
+        }
+        return manager.getDatastore();
     }
 
     @Override
