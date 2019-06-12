@@ -32,7 +32,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.openrepose.core.services.datastore.types.StringValue;
 
-import java.io.Serializable;
 import java.util.UUID;
 
 import static java.util.concurrent.TimeUnit.DAYS;
@@ -75,7 +74,7 @@ public class EHCacheDatastoreTest {
     @Test
     public void get_getsNullElement() {
         final String key = "doesn't exist";
-        Serializable element = datastore.get(key);
+        Object element = datastore.get(key);
         assertNull(element);
     }
 
@@ -86,7 +85,7 @@ public class EHCacheDatastoreTest {
 
         datastore.put(key, value);
 
-        Serializable element = datastore.get(key);
+        Object element = datastore.get(key);
         assertNotNull(element);
         assertThat((String) element, equalTo(value));
     }
@@ -99,7 +98,7 @@ public class EHCacheDatastoreTest {
         datastore.put(key, value);
         datastore.remove(key);
 
-        Serializable element = datastore.get(key);
+        Object element = datastore.get(key);
         assertNull(element);
     }
 
@@ -111,7 +110,7 @@ public class EHCacheDatastoreTest {
 
         datastore.put(key, value, ttl, SECONDS);
 
-        Serializable element = datastore.get(key);
+        Object element = datastore.get(key);
         assertNotNull(element);
         assertThat((String) element, equalTo(value));
 
@@ -131,7 +130,7 @@ public class EHCacheDatastoreTest {
         datastore.put(key1, value);
         datastore.put(key2, value);
 
-        Serializable element = datastore.get(key1);
+        Object element = datastore.get(key1);
         assertNotNull(element);
         element = datastore.get(key2);
         assertNotNull(element);

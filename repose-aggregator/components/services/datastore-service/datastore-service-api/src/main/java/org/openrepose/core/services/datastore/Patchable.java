@@ -19,8 +19,6 @@
  */
 package org.openrepose.core.services.datastore;
 
-import java.io.Serializable;
-
 /**
  * An interface for a Patchable (of T, P).
  * <p/>
@@ -28,6 +26,6 @@ import java.io.Serializable;
  * P - type variable of patchable object
  */
 @FunctionalInterface
-public interface Patchable<T extends Patchable<T, P>, P extends Patch<T>> extends Serializable {
+public interface Patchable<T extends Patchable<T, P>, P extends Patch<T>> {
     T applyPatch(P in);
 }
