@@ -21,12 +21,10 @@ package org.openrepose.core.services.datastore.impl.ehcache;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import org.apache.commons.lang3.SerializationUtils;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.Patch;
 import org.openrepose.core.services.datastore.Patchable;
 
-import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
 public class EHCacheDatastore implements Datastore {
@@ -49,22 +47,22 @@ public class EHCacheDatastore implements Datastore {
     }
 
     @Override
-    public Serializable get(String key) {
+    public Object get(String key) {
         Element element = ehCacheInstance.get(key);
         if (element != null) {
-            return element.getValue();
+            return element.getObjectValue();
         } else {
             return null;
         }
     }
 
     @Override
-    public void put(String key, Serializable value) {
+    public void put(String key, Object value) {
         ehCacheInstance.put(new Element(key, value));
     }
 
     @Override
-    public void put(String key, Serializable value, int ttl, TimeUnit timeUnit) {
+    public void put(String key, Object value, int ttl, TimeUnit timeUnit) {
         // todo: does not allow for eternal caching (need to either setEternal(true) or set ttl and tti to 0
         Element putMe = new Element(key, value);
         putMe.setTimeToLive((int) TimeUnit.SECONDS.convert(ttl, timeUnit));
