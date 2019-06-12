@@ -60,7 +60,7 @@ public class SystemModelInterrogator {
      * @param serviceName the desired service name
      * @return the service object
      */
-    public Optional<Service> getService(SystemModel systemModel, String serviceName) {
+    public static Optional<Service> getService(SystemModel systemModel, String serviceName) {
         return Optional.ofNullable(systemModel.getServices())
             .map(ServicesList::getService)
             .orElseGet(Collections::emptyList)
@@ -79,7 +79,7 @@ public class SystemModelInterrogator {
      * @param systemModel the system model to inspect
      * @return the default destination
      */
-    public Optional<Destination> getDefaultDestination(SystemModel systemModel) {
+    public static Optional<Destination> getDefaultDestination(SystemModel systemModel) {
         return systemModel.getDestinations().getEndpoint().stream()
             .filter(Destination::isDefault)
             .findAny();
