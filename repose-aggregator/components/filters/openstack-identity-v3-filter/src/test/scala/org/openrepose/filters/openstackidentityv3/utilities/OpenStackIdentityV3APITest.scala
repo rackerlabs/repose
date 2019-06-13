@@ -433,7 +433,7 @@ class OpenStackIdentityV3APITest extends FunSpec with BeforeAndAfterEach with Ma
     }
 
     it("should return a Success for cached groups") {
-      when(mockDatastore.get(anyString)).thenReturn(List("").asInstanceOf[Serializable], Nil: _*)
+      when(mockDatastore.get(anyString)).thenReturn(List(""), Nil: _*)
 
       identityV3API invokePrivate getGroups("test-user-id", "test-token", None, false) shouldBe a[Success[_]]
       identityV3API.invokePrivate(getGroups("test-user-id", "test-token", None, false)).get shouldBe a[List[_]]

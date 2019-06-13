@@ -23,7 +23,6 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.Patch;
-import org.openrepose.core.services.datastore.Patchable;
 
 import java.util.concurrent.TimeUnit;
 
@@ -63,21 +62,19 @@ public class EHCacheDatastore implements Datastore {
 
     @Override
     public void put(String key, Object value, int ttl, TimeUnit timeUnit) {
-        // todo: does not allow for eternal caching (need to either setEternal(true) or set ttl and tti to 0
         Element putMe = new Element(key, value);
         putMe.setTimeToLive((int) TimeUnit.SECONDS.convert(ttl, timeUnit));
-        //todo: switch to time to idle instead of time to live?
 
         ehCacheInstance.put(putMe);
     }
 
     @Override
-    public <T extends Patchable<T, P>, P extends Patch<T>> T patch(String key, P patch) {
+    public <T> T patch(String key, Patch<T> patch) {
         return patch(key, patch, -1, TimeUnit.MINUTES);
     }
 
     @Override
-    public <T extends Patchable<T, P>, P extends Patch<T>> T patch(String key, P patch, int ttl, TimeUnit timeUnit) {
+    public <T> T patch(String key, Patch<T> patch, int ttl, TimeUnit timeUnit) {
         final T newValue = patch.newFromPatch();
         final Element newElement = new Element(key, newValue);
 
@@ -86,7 +83,7 @@ public class EHCacheDatastore implements Datastore {
 
         Element oldElement;
         while ((oldElement = ehCacheInstance.putIfAbsent(newElement)) != null) {
-            T patchedValue = ((T) oldElement.getObjectValue()).applyPatch(patch);
+            T patchedValue = patch.applyPatch((T) oldElement.getObjectValue());
             Element patchedElement = new Element(key, patchedValue);
 
             if (ehCacheInstance.replace(oldElement, patchedElement)) {
@@ -96,19 +93,9 @@ public class EHCacheDatastore implements Datastore {
             }
         }
 
-        //todo: setting ttl can die once we move to tti
-        if (ttl == 0) {
-            returnElement.setTimeToLive(0);
-            returnElement.setTimeToIdle(0);
-        } else if (ttl > 0) {
+        if (ttl >= 0) {
             int convertedTtl = (int) TimeUnit.SECONDS.convert(ttl, timeUnit);
-            int currentLifeSpan = (int) TimeUnit.SECONDS.convert(System.currentTimeMillis() - returnElement.getCreationTime(), TimeUnit.MILLISECONDS);
-            if ((currentLifeSpan + convertedTtl) > returnElement.getTimeToLive()) {
-                returnElement.setTimeToLive(currentLifeSpan + convertedTtl);
-            }
-            if (convertedTtl > returnElement.getTimeToIdle()) {
-                returnElement.setTimeToIdle(convertedTtl);
-            }
+            returnElement.setTimeToLive(convertedTtl);
         }
 
         return returnValue;

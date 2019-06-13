@@ -22,18 +22,27 @@ package org.openrepose.core.services.datastore;
 /**
  * An interface for a Patch (of T).
  * <p/>
- * T - this is the abstraction of the data that gets stored in the datastore
+ * T - the type of data that gets stored in the datastore
  */
-@FunctionalInterface
-public interface Patch<T extends Patchable> {
+public interface Patch<T> {
 
     /**
-     * Constructs a new {@link Patchable} using information specific
-     * to this {@link Patch}.
-     * To avoid concurrency issues, the new {@link Patchable} should be a
-     * new, immutable instance.
+     * Constructs a new object of type {@code T} using data specific to this
+     * {@link Patch}.
+     * To avoid concurrency issues, the returned object should be a new,
+     * immutable instance.
      *
-     * @return a new, immutable {@link Patchable} of type {@code T}
+     * @return a new, immutable object of type {@code T}
      */
     T newFromPatch();
+
+    /**
+     * Applies a change to an object of type {@code T}.
+     * To avoid concurrency issues, the returned object should be a new,
+     * immutable instance.
+     *
+     * @param currentValue an object of type {@code T} to be patched
+     * @return a new, immutable object of type {@code T} with the patch applied
+     */
+    T applyPatch(T currentValue);
 }

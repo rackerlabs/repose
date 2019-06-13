@@ -28,7 +28,6 @@ import org.mockito.Matchers.{any => mockitoAny, eq => mockitoEq, _}
 import org.mockito.Mockito
 import org.mockito.Mockito._
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.datastore.types.PatchableSet
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
@@ -218,7 +217,7 @@ with BeforeAndAfterEach {
 
     List("USER", "TRR_USER").foreach { resourceType =>
       it(s"removes the User to Token cache along with the token cache on a $resourceType event") {
-        when(mockDatastore.get(s"$USER_ID_KEY_PREFIX$userId")).thenReturn(PatchableSet(tokenOne, tokenTwo), null)
+        when(mockDatastore.get(s"$USER_ID_KEY_PREFIX$userId")).thenReturn(Set(tokenOne, tokenTwo), null)
         // This was taken from: https://github.com/rackerlabs/standard-usage-schemas/blob/master/message_samples/identity/xml/cloudidentity-user-trr_user-delete-v1-response.xml
         filter.CacheInvalidationFeedListener.onNewAtomEntry(
           s"""<?xml version="1.0" encoding="UTF-8"?>

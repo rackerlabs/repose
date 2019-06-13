@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
 import com.hazelcast.core.HazelcastInstance
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.core.services.datastore.hazelcast.HazelcastDatastore._
-import org.openrepose.core.services.datastore.{Datastore, DatastoreOperationException, Patch, Patchable}
+import org.openrepose.core.services.datastore.{Datastore, DatastoreOperationException, Patch}
 
 import scala.language.implicitConversions
 import scala.util.control.NonFatal
@@ -57,14 +57,14 @@ class HazelcastDatastore(hazelcast: HazelcastInstance)
     data.set(key, value, ttl, timeUnit)
   }
 
-  override def patch[T <: Patchable[T, P], P <: Patch[T]](key: String, patch: P): T = {
+  override def patch[T](key: String, patch: Patch[T]): T = {
     // We call through two reasons:
     // 1. To reduce redundancy.
     // 2. To explicitly disable TTL, since otherwise Hazelcast will update the entry's access time but keep the existing TTL.
-    this.patch[T, P](key, patch, DisabledTtl, TimeUnit.MILLISECONDS)
+    this.patch[T](key, patch, DisabledTtl, TimeUnit.MILLISECONDS)
   }
 
-  override def patch[T <: Patchable[T, P], P <: Patch[T]](key: String, patch: P, ttl: Int, timeUnit: TimeUnit): T = wrapExceptions {
+  override def patch[T](key: String, patch: Patch[T], ttl: Int, timeUnit: TimeUnit): T = wrapExceptions {
     logger.trace("Patching data for {}", key)
 
     // Ensures that Hazelcast's serialization service can load the necessary class.
@@ -80,9 +80,12 @@ class HazelcastDatastore(hazelcast: HazelcastInstance)
     try {
       val newValue = Option(data.get(key))
         .map(_.asInstanceOf[T])
-        .map(_.applyPatch(patch))
+        .map(patch.applyPatch)
         .getOrElse(patch.newFromPatch)
-      data.set(key, newValue, ttl, timeUnit)
+      // Casting to an Object is safe since the interface for this class is a
+      // Java interface, meaning that the generic must be a sub-type of Object.
+      // The cast to an Object is for interoperability between Scala and Java.
+      data.set(key, newValue.asInstanceOf[Object], ttl, timeUnit)
       newValue
     } finally {
       data.unlock(key)

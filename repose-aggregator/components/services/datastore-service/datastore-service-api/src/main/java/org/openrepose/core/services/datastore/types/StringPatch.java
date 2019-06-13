@@ -17,25 +17,29 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.datastore;
+package org.openrepose.core.services.datastore.types;
+
+import org.openrepose.core.services.datastore.Patch;
 
 /**
- * An interface for a Patchable (of T, P).
- * <p/>
- * T - type variable of element
- * P - type variable of patchable object
+ * A patch for {@link String} objects that appends its value on
+ * application.
  */
-@FunctionalInterface
-public interface Patchable<T extends Patchable<T, P>, P extends Patch<T>> {
+public class StringPatch implements Patch<String> {
 
-    /**
-     * Applies a {@link Patch} to a {@link Patchable}.
-     * Doing so should modify the state of the {@link Patchable}.
-     * To avoid concurrency issues, the modified {@link Patchable} should be a
-     * new, immutable instance.
-     *
-     * @param in a {@link Patch} that can be applied to the {@link Patchable} of type {@code T}
-     * @return a new, immutable {@link Patchable} of type {@code T} containing patched data
-     */
-    T applyPatch(P in);
+    private final String value;
+
+    public StringPatch(String value) {
+        this.value = value;
+    }
+
+    @Override
+    public String newFromPatch() {
+        return value;
+    }
+
+    @Override
+    public String applyPatch(String currentValue) {
+        return currentValue + value;
+    }
 }

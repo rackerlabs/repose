@@ -27,7 +27,7 @@ import org.mockito.Matchers.{any, anyLong, anyObject, anyString, eq => isEq}
 import org.mockito.{ArgumentCaptor, Mockito}
 import org.mockito.Mockito.{verify, when}
 import org.openrepose.core.services.datastore.DatastoreOperationException
-import org.openrepose.core.services.datastore.types.StringValue
+import org.openrepose.core.services.datastore.types.StringPatch
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
@@ -126,71 +126,71 @@ class HazelcastDatastoreTest
   describe("patch") {
     it("should store and return a new value if a value does not already exist") {
       val patchValue = "value"
-      val patch = new StringValue.Patch(patchValue)
+      val patch = new StringPatch(patchValue)
 
-      val returnValue = hazelcastDatastore.patch[StringValue, StringValue.Patch](TestKey, patch)
+      val returnValue = hazelcastDatastore.patch(TestKey, patch)
 
       val inOrder = Mockito.inOrder(dataMap)
       inOrder.verify(dataMap).lock(TestKey)
       inOrder.verify(dataMap).set(isEq(TestKey), isEq(returnValue), isEq(-1L), any[TimeUnit])
       inOrder.verify(dataMap).unlock(TestKey)
 
-      returnValue.asInstanceOf[StringValue].getValue shouldEqual patchValue
+      returnValue shouldEqual patchValue
     }
 
     it("should store and return a new value if a value does not already exist (TTL)") {
       val patchValue = "value"
-      val patch = new StringValue.Patch(patchValue)
+      val patch = new StringPatch(patchValue)
       val ttl = 10
       val timeUnit = TimeUnit.MINUTES
 
-      val returnValue = hazelcastDatastore.patch[StringValue, StringValue.Patch](TestKey, patch, ttl, timeUnit)
+      val returnValue = hazelcastDatastore.patch(TestKey, patch, ttl, timeUnit)
 
       val inOrder = Mockito.inOrder(dataMap)
       inOrder.verify(dataMap).lock(TestKey)
       inOrder.verify(dataMap).set(isEq(TestKey), isEq(returnValue), isEq(ttl.toLong), isEq(timeUnit))
       inOrder.verify(dataMap).unlock(TestKey)
 
-      returnValue.asInstanceOf[StringValue].getValue shouldEqual patchValue
+      returnValue shouldEqual patchValue
     }
 
     it("should store and return a patched value if a value already exists") {
       val patchValue = "123"
-      val patch = new StringValue.Patch(patchValue)
-      val startingValue = new StringValue("abc")
+      val patch = new StringPatch(patchValue)
+      val startingValue = "abc"
 
       when(dataMap.get(TestKey))
         .thenReturn(startingValue, Nil: _*)
 
-      val returnValue = hazelcastDatastore.patch[StringValue, StringValue.Patch](TestKey, patch)
+      val returnValue = hazelcastDatastore.patch(TestKey, patch)
 
       val inOrder = Mockito.inOrder(dataMap)
       inOrder.verify(dataMap).lock(TestKey)
       inOrder.verify(dataMap).set(isEq(TestKey), isEq(returnValue), isEq(-1L), any[TimeUnit])
       inOrder.verify(dataMap).unlock(TestKey)
 
-      returnValue.asInstanceOf[StringValue].getValue shouldEqual startingValue.applyPatch(patch).getValue
+      returnValue shouldEqual patch.applyPatch(startingValue)
     }
 
     it("should store and return a patched value if a value already exists (TTL)") {
-      val stringValueCaptor = ArgumentCaptor.forClass(classOf[StringValue])
+      val stringValueCaptor = ArgumentCaptor.forClass(classOf[StringPatch])
       val patchValue = "123"
-      val patch = new StringValue.Patch(patchValue)
+      val patch = new StringPatch(patchValue)
       val ttl = 10
       val timeUnit = TimeUnit.MINUTES
-      val startingValue = new StringValue("abc")
+      val startingValue = "abc"
 
       when(dataMap.get(TestKey))
         .thenReturn(startingValue, Nil: _*)
 
-      val returnValue = hazelcastDatastore.patch[StringValue, StringValue.Patch](TestKey, patch, ttl, timeUnit)
+      val returnValue = hazelcastDatastore.patch(TestKey, patch, ttl, timeUnit)
 
       val inOrder = Mockito.inOrder(dataMap)
       inOrder.verify(dataMap).lock(TestKey)
       inOrder.verify(dataMap).set(isEq(TestKey), isEq(returnValue), isEq(ttl.toLong), isEq(timeUnit))
       inOrder.verify(dataMap).unlock(TestKey)
 
-      returnValue.asInstanceOf[StringValue].getValue shouldEqual startingValue.applyPatch(patch).getValue
+      returnValue shouldEqual patch.applyPatch(startingValue)
     }
 
     it("should lock and unlock the map key even if an exception occurs") {
@@ -200,7 +200,7 @@ class HazelcastDatastoreTest
         .thenThrow(new RuntimeException())
 
       a[DatastoreOperationException] should be thrownBy
-        hazelcastDatastore.patch[StringValue, StringValue.Patch](TestKey, new StringValue.Patch(patchValue))
+        hazelcastDatastore.patch(TestKey, new StringPatch(patchValue))
 
       verify(dataMap).lock(TestKey)
       verify(dataMap).unlock(TestKey)
@@ -208,20 +208,20 @@ class HazelcastDatastoreTest
 
     it("should throw a DatastoreOperationException if the operation fails") {
       val patchValue = "value"
-      val patch = new StringValue.Patch(patchValue)
+      val patch = new StringPatch(patchValue)
 
       when(dataMap.set(anyString, anyObject, anyLong, any[TimeUnit]))
         .thenThrow(new RuntimeException("Failure!"))
 
       a[DatastoreOperationException] should be thrownBy
-        hazelcastDatastore.patch[StringValue, StringValue.Patch](TestKey, patch)
+        hazelcastDatastore.patch(TestKey, patch)
 
       verify(dataMap).set(isEq(TestKey), anyObject, isEq(-1L), any[TimeUnit])
     }
 
     it("should throw a DatastoreOperationException if the operation fails (TTL)") {
       val patchValue = "value"
-      val patch = new StringValue.Patch(patchValue)
+      val patch = new StringPatch(patchValue)
       val ttl = 10
       val timeUnit = TimeUnit.MINUTES
 
@@ -229,7 +229,7 @@ class HazelcastDatastoreTest
         .thenThrow(new RuntimeException("Failure!"))
 
       a[DatastoreOperationException] should be thrownBy
-        hazelcastDatastore.patch[StringValue, StringValue.Patch](TestKey, patch, ttl, timeUnit)
+        hazelcastDatastore.patch(TestKey, patch, ttl, timeUnit)
 
       verify(dataMap).set(isEq(TestKey), anyObject, isEq(ttl.toLong), isEq(timeUnit))
     }
