@@ -75,7 +75,7 @@ public interface Datastore {
      * @return the patched and stored value
      * @throws DatastoreOperationException if an exception occurs when attempting to store the value
      */
-    <T extends Patchable<T, P>, P extends Patch<T>> T patch(String key, P patch) throws DatastoreOperationException;
+    <T> T patch(String key, Patch<T> patch) throws DatastoreOperationException;
 
     /**
      * Patch (update) an element in the datastore for a duration of time not to exceed the TimeUnit and duration
@@ -91,7 +91,7 @@ public interface Datastore {
      * @return the patched and stored value
      * @throws DatastoreOperationException if an exception occurs when attempting to store the value
      */
-    <T extends Patchable<T, P>, P extends Patch<T>> T patch(String key, P patch, int ttl, TimeUnit timeUnit) throws DatastoreOperationException;
+    <T> T patch(String key, Patch<T> patch, int ttl, TimeUnit timeUnit) throws DatastoreOperationException;
 
     /**
      * Removes a value from the Datastore.

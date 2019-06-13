@@ -23,39 +23,24 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
-/**
-  * Created by adrian on 1/22/16.
-  */
 @RunWith(classOf[JUnitRunner])
-class KeystoneV2FilterCacheInvalidationTest extends FunSpec
-  with Matchers {
+class SetPatchTest
+  extends FunSpec with Matchers {
 
-  describe("Patch") {
+  describe("newFromPatch") {
     it("returns a new set with just the initialized value") {
-      val set = SetPatch("butts").newFromPatch()
+      val set = new SetPatch("butts").newFromPatch()
       set.size shouldBe 1
       set should contain("butts")
     }
   }
 
-  describe("PatchableSet Companion object") {
-    it("should return an empty set") {
-      PatchableSet.empty.isEmpty shouldBe true
-    }
-
-    it("should return a set with all the provided items") {
-      val set = PatchableSet(1, 2, 3, 4, 5, 1)
-      set.size shouldBe 5
-      set should contain allOf(1, 2, 3, 4, 5)
-    }
-  }
-
-  describe("PatchableSet") {
-    it("should add the value from a patch to its set") {
-      val originalSet = PatchableSet.empty[Int]
-      val patchedSet = originalSet.applyPatch(SetPatch(5))
-      originalSet should contain(5)
-      patchedSet should contain(5)
+  describe("applyPatch") {
+    it("should add the value from a patch to a set") {
+      val originalSet = Set(1)
+      val patchedSet = new SetPatch(5).applyPatch(originalSet)
+      originalSet should contain only 1
+      patchedSet should contain only(1, 5)
       originalSet should not be theSameInstanceAs(patchedSet)
     }
   }

@@ -20,18 +20,11 @@
 package org.openrepose.core.services.ratelimit.cache;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.openrepose.core.services.datastore.Patchable;
 import org.openrepose.core.services.ratelimit.config.ConfiguredRatelimit;
 
 import java.util.*;
 
-/**
- * Created with IntelliJ IDEA.
- * User: adrian
- * Date: 1/28/14
- * Time: 9:33 AM
- */
-public class UserRateLimit implements Patchable<UserRateLimit, UserRateLimit.Patch> {
+public class UserRateLimit {
 
     private final Pair<ConfiguredRatelimit, CachedRateLimit> leastRemainingLimit;
     private final Map<String, CachedRateLimit> limitMap;
@@ -59,51 +52,48 @@ public class UserRateLimit implements Patchable<UserRateLimit, UserRateLimit.Pat
         return leastRemainingLimit;
     }
 
-    @Override
-    public UserRateLimit applyPatch(Patch patch) {
-        HashMap<String, CachedRateLimit> returnLimits = new HashMap<>();
-        Pair<ConfiguredRatelimit, CachedRateLimit> lowestLimit = null;
-
-        for (Pair<String, ConfiguredRatelimit> limitEntry : patch.getLimitMap()) {
-            CachedRateLimit rateLimit = getUpdatedLimit(limitEntry);
-            returnLimits.put(limitEntry.getKey(), rateLimit);
-            if (lowestLimit == null || (rateLimit.maxAmount() - rateLimit.amount() < lowestLimit.getValue().maxAmount() - lowestLimit.getValue().amount())) {
-                lowestLimit = Pair.of(limitEntry.getValue(), rateLimit);
-            }
-            if (rateLimit.amount() > rateLimit.maxAmount()) {
-                break;
-            }
-        }
-
-        return new UserRateLimit(returnLimits, lowestLimit);
-    }
-
-    private CachedRateLimit getUpdatedLimit(Pair<String, ConfiguredRatelimit> limitEntry) {
-        CachedRateLimit oldRateLimit = limitMap.get(limitEntry.getKey());
-        if (oldRateLimit == null || (System.currentTimeMillis() - oldRateLimit.timestamp()) > oldRateLimit.unit()) {
-            return new CachedRateLimit(limitEntry.getValue(), 1);
-        } else {
-            return new CachedRateLimit(limitEntry.getValue(), oldRateLimit.amount() + 1, oldRateLimit.timestamp());
-        }
-    }
-
     public static class Patch implements org.openrepose.core.services.datastore.Patch<UserRateLimit> {
 
-        private final List<Pair<String, ConfiguredRatelimit>> limitMap;
+        private final List<Pair<String, ConfiguredRatelimit>> applicableLimits;
 
         public Patch(List<Pair<String, ConfiguredRatelimit>> patchMap) {
-            this.limitMap = Collections.unmodifiableList(new ArrayList<>(patchMap));
+            this.applicableLimits = Collections.unmodifiableList(new ArrayList<>(patchMap));
         }
 
         @Override
         public UserRateLimit newFromPatch() {
             UserRateLimit newUserLimit = new UserRateLimit();
 
-            return newUserLimit.applyPatch(this);
+            return applyPatch(newUserLimit);
         }
 
-        public List<Pair<String, ConfiguredRatelimit>> getLimitMap() {
-            return limitMap;
+        @Override
+        public UserRateLimit applyPatch(UserRateLimit currentValue) {
+            HashMap<String, CachedRateLimit> returnLimits = new HashMap<>();
+            Pair<ConfiguredRatelimit, CachedRateLimit> lowestLimit = null;
+
+            Map<String, CachedRateLimit> currentLimits = currentValue.getLimitMap();
+            for (Pair<String, ConfiguredRatelimit> applicableLimit : applicableLimits) {
+                CachedRateLimit rateLimit = getUpdatedLimit(currentLimits, applicableLimit);
+                returnLimits.put(applicableLimit.getKey(), rateLimit);
+                if (lowestLimit == null || (rateLimit.maxAmount() - rateLimit.amount() < lowestLimit.getValue().maxAmount() - lowestLimit.getValue().amount())) {
+                    lowestLimit = Pair.of(applicableLimit.getValue(), rateLimit);
+                }
+                if (rateLimit.amount() > rateLimit.maxAmount()) {
+                    break;
+                }
+            }
+
+            return new UserRateLimit(returnLimits, lowestLimit);
+        }
+
+        private CachedRateLimit getUpdatedLimit(Map<String, CachedRateLimit> currentLimits, Pair<String, ConfiguredRatelimit> limitEntry) {
+            CachedRateLimit oldRateLimit = currentLimits.get(limitEntry.getKey());
+            if (oldRateLimit == null || (System.currentTimeMillis() - oldRateLimit.timestamp()) > oldRateLimit.unit()) {
+                return new CachedRateLimit(limitEntry.getValue(), 1);
+            } else {
+                return new CachedRateLimit(limitEntry.getValue(), oldRateLimit.amount() + 1, oldRateLimit.timestamp());
+            }
         }
     }
 }

@@ -19,31 +19,17 @@
  */
 package org.openrepose.core.services.datastore.types
 
-import org.openrepose.core.services.datastore.{Patch, Patchable}
+import org.openrepose.core.services.datastore.Patch
 
-import scala.collection.immutable
+import scala.collection.immutable.Set
 
-/**
-  * Created by adrian on 1/21/16.
-  */
-class PatchableSet[A](xs: A*) extends immutable.Set[A]
-  with Patchable[PatchableSet[A], SetPatch[A]] {
+class SetPatch[A](elems: A*) extends Patch[Set[A]] {
 
-  private final val set = immutable.Set(xs: _*)
-
-  override def contains(elem: A): Boolean = set.contains(elem)
-
-  override def +(elem: A): Set[A] = set + elem
-
-  override def -(elem: A): Set[A] = set - elem
-
-  override def iterator: Iterator[A] = set.iterator
-
-  override def applyPatch(patch: SetPatch[A]): PatchableSet[A] = {
-    new PatchableSet((set + patch.patchValue).toSeq: _*)
+  override def newFromPatch(): Set[A] = {
+    Set(elems: _*)
   }
-}
 
-case class SetPatch[A](patchValue: A) extends Patch[PatchableSet[A]] {
-  override def newFromPatch(): PatchableSet[A] = new PatchableSet(patchValue)
+  override def applyPatch(currentValue: Set[A]): Set[A] = {
+    currentValue ++ elems
+  }
 }

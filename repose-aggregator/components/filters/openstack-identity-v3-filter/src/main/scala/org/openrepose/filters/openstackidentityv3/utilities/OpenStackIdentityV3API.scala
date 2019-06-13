@@ -33,7 +33,7 @@ import org.apache.http.util.EntityUtils
 import org.joda.time.DateTime
 import org.openrepose.commons.utils.http.{CommonHttpHeader, HttpDate}
 import org.openrepose.core.services.datastore.Datastore
-import org.openrepose.core.services.datastore.types.{PatchableSet, SetPatch}
+import org.openrepose.core.services.datastore.types.SetPatch
 import org.openrepose.core.services.httpclient.{CachingHttpClientContext, HttpClientServiceClient}
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config
 import org.openrepose.filters.openstackidentityv3.objects._
@@ -221,7 +221,7 @@ class OpenStackIdentityV3API(config: OpenstackIdentityV3Config, datastore: Datas
                 val ttl = if (offsetConfiguredTtl < 1) identityTtl else math.max(math.min(offsetConfiguredTtl, identityTtl), 1)
                 logger.debug(s"Caching token '$subjectToken' with TTL set to: ${ttl} seconds")
                 subjectTokenObject.userId foreach { userId =>
-                  datastore.patch[PatchableSet[String], SetPatch[String]](getUserIdKey(userId), SetPatch(subjectToken), ttl, TimeUnit.SECONDS)
+                  datastore.patch(getUserIdKey(userId), new SetPatch(subjectToken), ttl, TimeUnit.SECONDS)
                 }
                 datastore.put(getTokenKey(subjectToken), subjectTokenObject, ttl, TimeUnit.SECONDS)
 
