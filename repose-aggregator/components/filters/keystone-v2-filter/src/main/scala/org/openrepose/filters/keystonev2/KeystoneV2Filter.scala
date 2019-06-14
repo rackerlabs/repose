@@ -33,6 +33,7 @@ import org.apache.http.client.utils.DateUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.json.JsonHeaderHelper
+import org.openrepose.commons.utils.logging.HttpLoggingContextHelper
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.commons.utils.string.Base64Helper
@@ -371,11 +372,23 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
       }
     }
 
+    def populateLoggingContext(token: ValidToken): Unit = {
+      Option(HttpLoggingContextHelper.extractFromRequest(request)).foreach { loggingContext =>
+        loggingContext.setUserId(token.userId)
+        token.username.foreach(loggingContext.setUserName)
+        token.impersonatorId.foreach(loggingContext.setImpersonatorId)
+        token.impersonatorName.foreach(loggingContext.setImpersonatorName)
+        logger.trace("Updated Identity user data on the HTTP Logging Service context {}", s"${loggingContext.hashCode()}")
+      }
+    }
+
     /**
       * BEGIN PROCESSING
       */
     getAuthToken flatMap { authToken =>
       validateToken(authToken) flatMap { validToken =>
+        populateLoggingContext(validToken)
+
         lazy val endpoints = getEndpoints(authToken) // Prevents making call if its not needed
         val tenantToRolesMap = buildTenantToRolesMap(validToken)
         val authResult = KeystoneV2Authorization.doAuthorization(configuration, request, tenantToRolesMap, endpoints)

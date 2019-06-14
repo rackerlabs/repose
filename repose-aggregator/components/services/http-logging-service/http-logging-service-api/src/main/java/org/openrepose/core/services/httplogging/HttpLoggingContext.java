@@ -57,6 +57,10 @@ public class HttpLoggingContext {
     private Instant timeRequestReceived;
     private Instant timeRequestCompleted;
     private Duration timeInOriginService;
+    private String userId;
+    private String userName;
+    private String impersonatorId;
+    private String impersonatorName;
 
     private final Map<String, Object> extensions = new HashMap<>();
 }
