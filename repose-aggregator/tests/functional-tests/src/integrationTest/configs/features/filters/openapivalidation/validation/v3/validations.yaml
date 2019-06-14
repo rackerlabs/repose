@@ -41,6 +41,166 @@ paths:
       responses:
         '200':
           description: A 200 response
+  /rax-roles/multi/a:
+    get:
+      x-rax-roles:
+        - admin
+        - roleGET
+      responses:
+        '200':
+          description: A 200 response
+    put:
+      x-rax-roles:
+        - rolePUT
+        - admin
+      responses:
+        '200':
+          description: A 200 response
+    post:
+      x-rax-roles:
+        - admin
+        - rolePOST
+      responses:
+        '200':
+          description: A 200 response
+    delete:
+      x-rax-roles:
+        - roleDELETE
+        - admin
+      responses:
+        '200':
+          description: A 200 response
+  /rax-roles/multi/b:
+    get:
+      x-rax-roles:
+        - nimda
+        - roleGOOD
+      responses:
+        '200':
+          description: A 200 response
+    put:
+      x-rax-roles:
+        - nimda
+        - roleGOOD
+      responses:
+        '200':
+          description: A 200 response
+    post:
+      x-rax-roles:
+        - nimda
+        - roleGOOD
+      responses:
+        '200':
+          description: A 200 response
+    delete:
+      x-rax-roles:
+        - nimda
+        - roleGOOD
+      responses:
+        '200':
+          description: A 200 response
+  /rax-roles/dash/a:
+    get:
+      x-rax-roles:
+        - This-Is-A-Role
+        - role-GET
+      responses:
+        '200':
+          description: A 200 response
+    put:
+      x-rax-roles:
+        - role-PUT
+      responses:
+        '200':
+          description: A 200 response
+    post:
+      x-rax-roles:
+        - role-POST
+      responses:
+        '200':
+          description: A 200 response
+    delete:
+      x-rax-roles:
+        - role-DELETE
+      responses:
+        '200':
+          description: A 200 response
+  /rax-roles/dash/b:
+    get:
+      x-rax-roles:
+        - role-GOOD
+      responses:
+        '200':
+          description: A 200 response
+    put:
+      x-rax-roles:
+        - role-GOOD
+      responses:
+        '200':
+          description: A 200 response
+    post:
+      x-rax-roles:
+        - role-GOOD
+      responses:
+        '200':
+          description: A 200 response
+    delete:
+      x-rax-roles:
+        - role-GOOD
+      responses:
+        '200':
+          description: A 200 response
+  /rax-roles/space/a:
+    get:
+      x-rax-roles:
+        - This Is A Role
+        - role GET
+      responses:
+        '200':
+          description: A 200 response
+    put:
+      x-rax-roles:
+        - role PUT
+      responses:
+        '200':
+          description: A 200 response
+    post:
+      x-rax-roles:
+        - role POST
+      responses:
+        '200':
+          description: A 200 response
+    delete:
+      x-rax-roles:
+        - role DELETE
+      responses:
+        '200':
+          description: A 200 response
+  /rax-roles/space/b:
+    get:
+      x-rax-roles:
+        - role GOOD
+      responses:
+        '200':
+          description: A 200 response
+    put:
+      x-rax-roles:
+        - role GOOD
+      responses:
+        '200':
+          description: A 200 response
+    post:
+      x-rax-roles:
+        - role GOOD
+      responses:
+        '200':
+          description: A 200 response
+    delete:
+      x-rax-roles:
+        - role GOOD
+      responses:
+        '200':
+          description: A 200 response
   /accept:
     get:
       responses:
