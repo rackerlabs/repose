@@ -1,8 +1,7 @@
 dependencies {
     compile project(":repose-aggregator:core:repose-core-api")
-    compile project(":repose-aggregator:commons:commons-utilities")
+    compile project(":repose-aggregator:commons:commons-configuration")
     compile project(":repose-aggregator:components:services:health-check-service:health-check-service-api")
-    compile project(":repose-aggregator:components:services:rate-limiting-service")
     compile project(":repose-aggregator:components:services:datastore-service:datastore-service-api")
     compile "org.scala-lang:scala-library"
     compile "org.scala-lang:scala-reflect" // Forces the version used by scala-logging.
@@ -23,18 +22,12 @@ dependencies {
     compileOnly "javax.inject:javax.inject"
     compileOnly "javax.servlet:javax.servlet-api"
 
-    testCompile project(":repose-aggregator:commons:commons-test")
-    testCompile project(":repose-aggregator:commons:commons-configuration")
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.mockito:mockito-core"
     testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.hamcrest:hamcrest-library"
-    testCompile "org.springframework:spring-test"
     testCompile "io.opentracing:opentracing-mock"
-    testCompile "org.apache.logging.log4j:log4j-core"
-    testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', classifier: 'tests'
-    testCompile "org.apache.logging.log4j:log4j-slf4j-impl"
     testCompile "org.slf4j:jcl-over-slf4j"
 }
 
@@ -42,16 +35,3 @@ dependencies {
 // This can be removed when Java code no longer calls into Scala code or all source is migrated to the same language.
 sourceSets.main.scala.srcDir "src/main/java"
 sourceSets.main.java.srcDirs = []
-
-jacocoTestCoverageVerification {
-    violationRules {
-        rules.forEach { rule ->
-            rule.limits.forEach { limit ->
-                if (limit.counter == 'INSTRUCTION' && limit.value == 'COVEREDRATIO') {
-                    // todo: set to the current coverage -- need more coverage, but we don't want the build to fail for the baseline
-                    limit.minimum = 0.34
-                }
-            }
-        }
-    }
-}
