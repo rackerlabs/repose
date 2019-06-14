@@ -29,6 +29,7 @@ import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.ReposeValveTest
+import org.openrepose.framework.test.mocks.MockIdentityV2Service
 import org.openrepose.framework.test.server.CustomizableSocketServerConnector
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.Endpoint
@@ -38,25 +39,36 @@ import scaffold.category.Services
 import spock.lang.Shared
 import spock.lang.Unroll
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
-import static javax.servlet.http.HttpServletResponse.SC_OK
-import static org.openrepose.commons.utils.http.OpenStackServiceHeader.*
+import static javax.servlet.http.HttpServletResponse.*
+import static org.openrepose.commons.utils.http.OpenStackServiceHeader.USER_ID
 import static org.openrepose.commons.utils.string.Base64Helper.base64EncodeUtf8
 import static org.rackspace.deproxy.Deproxy.REQUEST_ID_HEADER_NAME
 
 @Category(Services)
 class LoggingServiceTest extends ReposeValveTest {
-
+    def static identityEndpoint
+    @Shared
+    MockIdentityV2Service fakeIdentityV2Service
     @Shared
     CustomizableSocketServerConnector socketServerConnector
 
     @BeforeClass
     def setupSpec() {
         deproxy = new Deproxy()
-        Endpoint originService = deproxy.addEndpoint(name: 'origin service', connectorFactory: { Endpoint endpoint ->
-            new CustomizableSocketServerConnector(endpoint, properties.targetPort)
-        })
+        Endpoint originService = deproxy.addEndpoint(
+            name: 'origin service',
+            connectorFactory: { Endpoint endpoint ->
+                new CustomizableSocketServerConnector(endpoint, properties.targetPort)
+            })
         socketServerConnector = originService.serverConnector as CustomizableSocketServerConnector
+
+        fakeIdentityV2Service = new MockIdentityV2Service(properties.identityPort, properties.targetPort)
+        identityEndpoint = deproxy.addEndpoint(
+            properties.identityPort,
+            'identity service',
+            null,
+            fakeIdentityV2Service.handler
+        )
 
         def params = properties.getDefaultTemplateParams()
         repose.configurationProvider.applyConfigs("common", params)
@@ -68,6 +80,7 @@ class LoggingServiceTest extends ReposeValveTest {
 
     @Before
     def setup() {
+        fakeIdentityV2Service.resetDefaultParameters()
         reposeLogSearch.cleanLog()
     }
 
@@ -297,32 +310,36 @@ class LoggingServiceTest extends ReposeValveTest {
         reposeLogSearch.awaitByString("INFO  headers-log - inboundRequestHeaders=Inbound-Request-Val - outboundRequestHeaders=Outbound-Request-Val - outboundResponseHeaders=Outbound-Response-Val")
     }
 
-    def "Should log the user/impersonator ID/name"() {
-        given:
-        def userId = UUID.randomUUID().toString()
-        def userName = UUID.randomUUID().toString()
-        def impersonatorUserId = UUID.randomUUID().toString()
-        def impersonatorUserName = UUID.randomUUID().toString()
+    @Unroll
+    def "Should log the user/impersonator ID/name when code is #code"() {
+        given: "Mock Identity with a random Tenant ID"
+        fakeIdentityV2Service.with {
+            client_token = UUID.randomUUID().toString()
+            client_tenantid = UUID.randomUUID().toString()
+            client_userid = UUID.randomUUID().toString()
+            client_username = UUID.randomUUID().toString()
+            impersonate_id = UUID.randomUUID().toString()
+            impersonate_name = UUID.randomUUID().toString()
+        }
 
-        when: "Request is sent through repose"
-        def messageChain = deproxy.makeRequest(
-            url: reposeEndpoint,
+        when: "User sends a request to Repose with the wrong Tenant ID"
+        MessageChain mc = deproxy.makeRequest(
+            url: "$reposeEndpoint/authMe/",
+            method: 'GET',
             headers: [
-                (USER_ID): userId,
-                (USER_NAME): userName,
-                (IMPERSONATOR_ID): impersonatorUserId,
-                (IMPERSONATOR_NAME): impersonatorUserName,
-            ],
+                'X-Auth-Token'     : fakeIdentityV2Service.client_token,
+                'X-Expected-Tenant': (code == SC_OK ? fakeIdentityV2Service.client_tenantid : UUID.randomUUID().toString())
+            ]
         )
 
-        then: "Repose should return an OK (200)"
-        messageChain.receivedResponse.code as Integer == SC_OK
+        then: "the Request should fail"
+        mc.receivedResponse.code as Integer == code
 
-        and: "The request should have reached the origin service"
-        messageChain.handlings.size() == 1
+        and: "the appropriate message logged"
+        reposeLogSearch.awaitByString("INFO  user-log - userId=${fakeIdentityV2Service.client_userid} - userName=${fakeIdentityV2Service.client_username} - impersonatorUserId=${fakeIdentityV2Service.impersonate_id} - impersonatorUserName=${fakeIdentityV2Service.impersonate_name}")
 
-        and: "The escaped JSON should have been logged"
-        reposeLogSearch.awaitByString("INFO  user-log - userId=$userId - userName=$userName - impersonatorUserId=$impersonatorUserId - impersonatorUserName=$impersonatorUserName")
+        where:
+        code << [SC_OK, SC_UNAUTHORIZED]
     }
 
     def "Should log the local IP"() {
