@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+    <cache>
+        <timeouts>
+            <token>600000</token>
+            <group>600000</group>
+        </timeouts>
+    </cache>
+    <identity-service uri="http://localhost:${identityPort}"/>
+    <tenant-handling>
+        <validate-tenant>
+            <header-extraction-name>X-Expected-Tenant</header-extraction-name>
+        </validate-tenant>
+    </tenant-handling>
+</keystone-v2>

@@ -7,6 +7,9 @@
         <filter name="scripting">
             <uri regex="^/modifyMe/[^/]+/?"/>
         </filter>
+        <filter name="keystone-v2">
+            <uri regex="^/authMe/?"/>
+        </filter>
     </filters>
     <destinations>
         <endpoint id="service" protocol="http" root-path="/" port="${targetPort}" default="true"/>
