@@ -109,7 +109,7 @@
                     </html:p>
                     <html:ul>
                         <html:li>local/default</html:li>
-                        <html:li>distributed/hash-ring (requires dist-datastore filter)</html:li>
+                        <html:li>hazelcast</html:li>
                     </html:ul>
                 </xs:documentation>
             </xs:annotation>
