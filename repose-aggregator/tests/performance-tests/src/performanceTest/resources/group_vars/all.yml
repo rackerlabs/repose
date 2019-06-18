@@ -45,6 +45,7 @@
       port: 2003,
     },
   },
+  telegraf_install_version: "1.10.4",
   telegraf_influxdb_urls: [
     "udp://influxdb.performance.openrepose.org:8089",
   ],
