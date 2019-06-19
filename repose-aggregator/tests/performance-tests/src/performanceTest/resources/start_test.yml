@@ -49,6 +49,7 @@
   vars_files:
     - test_vars/{{ perf_test }}.yml
   roles:
+    # NOTE: This needs to be installed by the Puppet class repose_jenkins::performance_slave
     - juliendufresne.telegraf
     - jmxtrans
 
