@@ -45,7 +45,7 @@
       port: 2003,
     },
   },
-  telegraf_install_version: "1.10.4-1",
+  telegraf_install_url: "https://dl.influxdata.com/telegraf/releases/telegraf_1.10.4-1_amd64.deb",
   telegraf_influxdb_urls: [
     "udp://influxdb.performance.openrepose.org:8089",
   ],
