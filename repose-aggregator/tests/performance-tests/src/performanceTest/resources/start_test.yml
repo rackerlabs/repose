@@ -49,7 +49,7 @@
   vars_files:
     - test_vars/{{ perf_test }}.yml
   roles:
-    - rossmcdonald.telegraf
+    - juliendufresne.telegraf
     - jmxtrans
 
 - hosts: test_agent
