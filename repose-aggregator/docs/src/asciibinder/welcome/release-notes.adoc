@@ -21,6 +21,7 @@
 * [.new-tag]#New# | https://repose.atlassian.net/browse/REP-7600[REP-7600] - Added the <<../filters/openapi-validator.adoc#, OpenApi Validator Filter>>.
 * [.bug-tag]#Bug Fix# | https://repose.atlassian.net/browse/REP-7608[REP-7608] - Fixed bug where *Repose* was acting like it was sending content when the body was empty and chunked encoding was on.
 * [.bug-tag]#Bug Fix# | https://repose.atlassian.net/browse/REP-7663[REP-7663] - Fixed a file contention issue between Repose processes in the EAR unpacking logic.
+* [.new-tag]#New# | https://repose.atlassian.net/browse/REP-7600[REP-7600] | https://repose.atlassian.net/browse/REP-7789[REP-7789] - Added the <<../filters/openapi-validator.adoc#, OpenApi Validator Filter>> which provides *Swagger/OpenApi* api validation support.
 * [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7391[REP-7391] - Updated dependencies:
 ** Jetty: 9.4.8.v20171121 → 9.4.14.v20181114
 * [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7150[REP-7150] - Added OWASP security dependency checking to the build.
