@@ -51,6 +51,8 @@ Topics:
     File: container.adoc
   - Name: Filter Chain
     File: filter-chain.adoc
+  - Name: Logging
+    File: logging.adoc
   - Name: Packages
     File: packages.adoc
   - Name: Servlet Specification
@@ -201,6 +203,8 @@ Topics:
     File: health-check.adoc
   - Name: HTTP Client Service
     File: http-client.adoc
+  - Name: HTTP Logging Service
+    File: http-logging.adoc
   - Name: Logging Service
     File: logging.adoc
   - Name: Metrics Service

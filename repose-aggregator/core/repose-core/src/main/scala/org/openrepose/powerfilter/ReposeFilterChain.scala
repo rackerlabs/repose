@@ -32,6 +32,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.{FilterChain, ServletRequest, ServletResponse}
 import org.openrepose.commons.utils.http.PowerApiHeader.TRACE_REQUEST
 import org.openrepose.commons.utils.io.{BufferedServletInputStream, RawInputStreamReader}
+import org.openrepose.commons.utils.logging.HttpLoggingContextHelper
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{PASSTHROUGH, READONLY}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.powerfilter.ReposeFilterChain._
@@ -72,6 +73,7 @@ class ReposeFilterChain(val filterChain: List[FilterContext],
         logger.debug("End of the filter chain reached")
         (doIntrafilterLogging("origin")(_))
           .compose(doMetrics("origin"))
+          .compose(updateLoggingContext)
           .apply(originalChain.doFilter(_, _))
           .apply(request, response)
       case head :: tail if head.shouldRun(request) =>
@@ -79,6 +81,7 @@ class ReposeFilterChain(val filterChain: List[FilterContext],
         logger.debug("Entering filter: {}", filterName)
         (doIntrafilterLogging(filterName)(_))
           .compose(doMetrics(filterName))
+          .compose(updateLoggingContext)
           .apply(head.filter.doFilter(_, _, new ReposeFilterChain(tail, originalChain, None, optMetricRegistry, tracer)))
           .apply(request, response)
       case head :: tail =>
@@ -129,6 +132,15 @@ class ReposeFilterChain(val filterChain: List[FilterContext],
     optMetricRegistry.foreach(_.timer(MetricRegistry.name(FilterProcessingMetric, filter)).update(elapsedTime, TimeUnit.MILLISECONDS))
 
     FilterTimingLog.trace("Filter {} spent {}ms processing", filter, elapsedTime)
+  }
+
+  def updateLoggingContext(requestProcess: (HttpServletRequest, HttpServletResponse) => Unit): (HttpServletRequest, HttpServletResponse) => Unit = (request, response) => {
+    Option(HttpLoggingContextHelper.extractFromRequest(request)).foreach { loggingContext =>
+      loggingContext.setOutboundRequest(request)
+      logger.trace("Updated the outbound request to {} on the HTTP Logging Service context {}", request, s"${loggingContext.hashCode()}")
+    }
+
+    requestProcess(request, response)
   }
 }
 

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="groovy">
+    import static org.openrepose.commons.utils.http.CommonRequestAttributes.HTTP_LOGGING_CONTEXT
+    import org.openrepose.core.services.httplogging.HttpLoggingContext
+
+    request.addHeader("X-Scripting-Filter", request.requestURI)
+    def templateVariable = request.requestURI.tokenize('/')[1]
+    switch (templateVariable) {
+        case "method":
+            request.method = "OPTIONS"
+            break
+        case "path":
+            request.requestURI = "/modifyMe/changed"
+            break
+        case "query":
+            request.queryString = "query=changed"
+            break
+        case "url":
+            request.serverName = "new.url.com"
+            break
+        case "time":
+            Thread.sleep(1000)
+            break
+        case "error":
+            response.sendError(525, "Supercalifragilisticexpialidocious", true)
+            break
+        case "protocol":
+            def hdrVal = request.getHeader("X-Protocol-Outbound")
+            if(hdrVal != null) {
+                request.protocol = hdrVal
+            }
+            break
+        case "headers":
+            request.addHeader("X-Outbound-Request-Hdr", "Outbound-Request-Val")
+            break
+        case "extensions":
+            def httpLoggingContext = request.getAttribute(HTTP_LOGGING_CONTEXT) as HttpLoggingContext
+            // NOTE: The keys in the HTTP Logging Context's Extensions Map are case sensitive!!!
+            httpLoggingContext.getExtensions().put("Logging-Context-Extension", "This is the value.")
+        default:
+            request.addHeader("X-Unknown", "UnknownModificationElement=$templateVariable")
+    }
+    if(!templateVariable.equals("error")) {
+        filterChain.doFilter(request, response)
+    }
+    if(templateVariable.equals("headers")) {
+        response.addHeader("X-Outbound-Response-Hdr", "Outbound-Response-Val")
+    }
+</scripting>

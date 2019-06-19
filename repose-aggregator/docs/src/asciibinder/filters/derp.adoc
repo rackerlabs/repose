@@ -1,5 +1,11 @@
 = Delegation Response Processor (DeRP) Filter
 
+[WARNING]
+====
+This filter is considered deprecated and will be removed in a future version.
+Consider using the <<../services/http-logging.adoc#,HTTP Logging Service>> instead.
+====
+
 The Delegation Response Processor (DeRP) filter rejects any request containing the `X-Delegated` header.
 The content of the response will match is determined by the content of the `X-Delegated` header.
 

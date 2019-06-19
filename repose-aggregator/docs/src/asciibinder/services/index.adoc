@@ -15,6 +15,9 @@ Enables the local *Repose* node or an entire cluster to store various types of d
 The HTTP client service manages the HTTP clients used for all outbound communication.
 Outbound connection properties can be configured with this service.
 
+== <<http-logging.adoc#,HTTP Logging Service>>
+Enables logging of operator-configurable messages for every HTTP interaction.
+
 == <<logging.adoc#,Logging Service>>
 Enables user configuration of the logging library used by *Repose*.
 

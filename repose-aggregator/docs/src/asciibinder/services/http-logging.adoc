@@ -1,0 +1,360 @@
+= HTTP Logging Service
+
+The HTTP Logging Service enables logging of operator-configurable messages for every HTTP interaction.
+
+Usage of this service is just a matter of configuring messages.
+Messages tell this service what to log and where to log it.
+Messages include a template to define what should be written to a log.
+Templates will be populated and rendered using data relevant to each HTTP interaction.
+
+This service can be used for auditing all interactions with an API.
+
+== Configuration
+
+* *Default Configuration:* http-logging.cfg.xml
+* *Released:* TBD
+* link:../schemas/http-logging.xsd[Schema]
+
+=== Full Configuration
+
+This configuration sets every available setting explicitly for the sake of detailing the available settings.
+
+[source,xml]
+.http-logging.cfg.xml
+----
+<http-logging xmlns="http://docs.openrepose.org/repose/http-logging/v1.0">
+    <message <!--1-->
+        log-to="plain-access-log" <!--2-->
+        format="plain"> <!--3-->
+        Request handled!
+    </message>
+</http-logging>
+----
+<1> Declares a message to be logged for every HTTP interaction.
+    The value of this element serves as the content of the message.
+    The value will be processed as a template.
+    See <<Templating>> for more information.
+<2> Specifies the name of the logger to which messages should be logged.
+    See <<../architecture/logging.adoc#, Logging>> for more information.
+<3> Specifies the format of the content.
+    The format determines if and how to validate the content and how to escape values populated by the templating engine. +
+    *Supported values*: `plain`, `json` +
+    *Default*: `plain`
+
+=== Common Log Format (CLF)
+
+This configuration includes a content template that conforms to the https://www.w3.org/Daemon/User/Config/Logging.html#common-logfile-format[Common Log Format].
+This template shows how some variables can be accessed, and makes use of some JTwig functions.
+
+[source,xml]
+.http-logging.cfg.xml
+----
+<http-logging xmlns="http://docs.openrepose.org/repose/http-logging/v1.0">
+    <message log-to="common-log" format="plain">
+        {{ remoteIpAddress }} - {{ default(first(outboundRequestHeaders['x-user-id']), '-') }} [{{ timeRequestReceived }}] "{{ inboundRequestMethod }} {{ inboundRequestPath }} {{ inboundRequestProtocol }}" {{ outboundResponseStatusCode }} {{ default(outboundResponseContentLength, '-') }}
+    </message>
+</http-logging>
+----
+
+=== JSON Format
+
+This configuration includes a content template that contains much of the same data as the <<Common Log Format (CLF)>> formatted in JSON.
+Rather than rendering `-` for an undefined value, this template uses JTwig's conditional control flow mechanism to render `null`.
+If desired, the same mechanism could be used to omit a field rather than rendering a `null` value for that field.
+
+[source,xml]
+.http-logging.cfg.xml
+----
+<http-logging xmlns="http://docs.openrepose.org/repose/http-logging/v1.0">
+    <message log-to="json-access-log" format="json">
+<![CDATA[{
+    "remoteIpAddress": "{{ remoteIpAddress }}",
+    "userId": {; if (defined(outboundRequestHeaders['x-user-id'])) ;}"{{ first(outboundRequestHeaders['x-user-id']) }}"{; else ;}null{; endif ;},
+    "timeRequestReceived": "{{ timeRequestReceived }}",
+    "requestLine": "{{ inboundRequestMethod }} {{ inboundRequestPath }} {{ inboundRequestProtocol }}",
+    "responseStatusCode": {{ outboundResponseStatusCode }},
+    "responseContentLength": {; if (defined(outboundResponseContentLength)) ;}{{ outboundResponseContentLength }}{; else ;}null{; endif ;}
+}]]>
+    </message>
+</http-logging>
+----
+
+== Additional Information
+
+=== Templating
+
+In order for this service to adapt to a myriad of potential use-cases, content templates are supported.
+These templates are rendered using the http://jtwig.org[JTwig templating engine].
+For details on how to write a JTwig template, please refer to the http://jtwig.org/documentation/reference[JTwig reference documentation].
+
+[IMPORTANT]
+====
+For compatibility reasons, this service uses different delimiters than JTwig for http://jtwig.org/documentation/reference/syntax/code-islands#control-flow[control flow code islands].
+The following table shows the difference:
+
+[cols="h,2*", options="header,autowidth"]
+.Template Delimiters
+|===
+|
+| JTwig Default
+| HTTP Logging Service
+
+| Code
+| `{% code %}`
+| `{; code ;}`
+|===
+====
+
+The following table details every variable available for use in a content template.
+
+[cols="3*", options="header,autowidth"]
+.Template Variables
+|===
+| Name
+| Data Type
+| Value
+
+| inboundRequestProtocol
+| String
+| The name and version of the inbound request protocol.
+For example, for a request with the request line `GET / HTTP/1.1`, this value would be `HTTP/1.1`.
+Note that the name of the protocol will always be `HTTP`, but the version may vary.
+
+| outboundRequestProtocol
+| String
+| The name and version of the outbound request protocol.
+For example, for a request with the request line `GET / HTTP/1.1`, this value would be `HTTP/1.1`.
+Note that the name of the protocol will always be `HTTP`, but the version may vary.
+
+| inboundResponseProtocol
+| String
+| The name and version of the inbound response protocol.
+For example, for a response with the status line `HTTP/1.1 200 OK`, this value would be `HTTP/1.1`.
+Note that the name of the protocol will always be `HTTP`, but the version may vary.
+
+| inboundRequestMethod
+| String
+| The HTTP method of the inbound request.
+For example, for a request with the request line `GET / HTTP/1.1`, this value would be `GET`.
+
+| outboundRequestMethod
+| String
+| The HTTP method of the outbound request.
+For example, for a request with the request line `GET / HTTP/1.1`, this value would be `GET`.
+
+| inboundRequestPath
+| String
+| The path portion of the inbound request URL.
+For example, for a request with the request line `GET /some/path HTTP/1.1`, this value would be `/some/path`.
+
+| outboundRequestPath
+| String
+| The path portion of the outbound request URL.
+For example, for a request with the request line `GET /some/path HTTP/1.1`, this value would be `/some/path`.
+
+| inboundRequestQueryString
+| String
+| The query portion of the inbound request URL.
+For example, for a request with the request line `GET /path?when=now&what=it HTTP/1.1`, this value would be `when=now&what=it`.
+
+| outboundRequestQueryString
+| String
+| The query portion of the outbound request URL.
+For example, for a request with the request line `GET /path?when=now&what=it HTTP/1.1`, this value would be `when=now&what=it`.
+
+| inboundRequestUrl
+| String
+| The full inbound request URL minus the query portion.
+For example, for a request with the request line `GET /path?when=now HTTP/1.1` and the header `Host: example.com`, this value would be `http://example.com/path`.
+
+| outboundRequestUrl
+| String
+| The full outbound request URL minus the query portion.
+For example, for a request with the request line `GET /path?when=now HTTP/1.1` and the header `Host: example.com`, this value would be `http://example.com/path`.
+
+| inboundRequestHeaders
+| Map<String, List<String>>
+a| The headers on the inbound request.
+The keys in this map are the header names while the values are lists of corresponding header values.
+The keys (i.e., header names) are case-sensitive and will only contain lowercase letters.
+Headers with multiple values spanning multiple lines will have a value list with one item for each line.
+For example, given the header lines:
+```
+Test-Header: foo, bar
+Test-Header: baz
+```
+The value of this variable would be:
+```
+{ "test-header": ["foo, bar", "baz"] }
+```
+
+| outboundRequestHeaders
+| Map<String, List<String>>
+a| The headers on the outbound request.
+The keys in this map are the header names while the values are lists of corresponding header values.
+The keys (i.e., header names) are case-sensitive and will only contain lowercase letters.
+Headers with multiple values spanning multiple lines will have a value list with one item for each line.
+For example, given the header lines:
+```
+Test-Header: foo, bar
+Test-Header: baz
+```
+The value of this variable would be:
+```
+{ "test-header": ["foo, bar", "baz"] }
+```
+
+| outboundResponseHeaders
+| Map<String, List<String>>
+a| The headers on the outbound response.
+The keys in this map are the header names while the values are lists of corresponding header values.
+The keys (i.e., header names) are case-sensitive and will only contain lowercase letters.
+Headers with multiple values spanning multiple lines will have a value list with one item for each line.
+For example, given the header lines:
+```
+Test-Header: foo, bar
+Test-Header: baz
+```
+The value of this variable would be:
+```
+{ "test-header": ["foo, bar", "baz"] }
+```
+
+| outboundResponseStatusCode
+| Integer
+| The status code of the outbound response.
+For example, for a response with the status line `HTTP/1.1 200 OK`, this value would be `200`.
+
+| outboundResponseReasonPhrase
+| String
+| The reason phrase of the outbound response.
+For example, for a response with the status line `HTTP/1.1 200 OK`, this value would be `OK`.
+
+| outboundResponseContentLength
+| Integer
+| The size of the outbound response body in bytes.
+This value is taken from the `Content-Length` header of the response.
+For example, for a response with the header line `Content-Length: 1234`, this value would be `1234`.
+
+| outboundResponseBytesWritten
+| Integer
+| The number of bytes of the outbound response body written.
+
+| userId
+| String
+| The identifier which uniquely identifies a user.
+This value is taken from the `X-User-Id` header of the outbound request.
+For example, given the header `X-User-Id: 1234`, the value of this variable would be `1234`.
+
+| userName
+| String
+| The name of a user, which is not necessarily unique.
+This value is taken from the `X-User-Name` header of the outbound request.
+For example, given the header `X-User-Name: IAmAUser`, the value of this variable would be `IAmAUser`.
+
+| impersonatorUserId
+| String
+| The identifier which uniquely identifies the impersonator user.
+This value is taken from the `X-Impersonator-Id` header of the outbound request.
+For example, given the header `X-Impersonator-Id: 4321`, the value of this variable would be `4321`.
+
+| impersonatorUserName
+| String
+| The name of the impersonator user, which is not necessarily unique.
+This value is taken from the `X-Impersonator-Name` header of the outbound request.
+For example, given the header `X-Impersonator-Name: IAmAnImpersonator`, the value of this variable would be `IAmAnImpersonator`.
+
+| timeRequestReceived
+| https://docs.oracle.com/javase/8/docs/api/java/time/Instant.html[Instant]
+| The time at which the inbound request was received.
+Evaluating this variable in an expression (i.e., `{{ timeRequestReceived }}`) will result in the value of https://docs.oracle.com/javase/8/docs/api/java/time/Instant.html#toString--[Instant.toString] being rendered.
+
+| timeToHandleRequest
+| https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html[Duration]
+| The amount of time between receiving an inbound request and sending an outbound response.
+Evaluating this variable in an expression (i.e., `{{ timeToHandleRequest }}`) will result in the value of https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html#toString--[Duration.toString] being rendered.
+This value can be rendered as the amount of time in milliseconds by calling the https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html#toMillis--[Duration.toMillis] method (i.e., `{{ timeToHandleRequest.toMillis }}`).
+
+| timeInOriginService
+| https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html[Duration]
+| The amount of time between sending an outbound request to the origin service and receiving an inbound response.
+Evaluating this variable in an expression (i.e., `{{ timeInOriginService }}`) will result in the value of https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html#toString--[Duration.toString] being rendered.
+This value can be rendered as the amount of time in milliseconds by calling the https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html#toMillis--[Duration.toMillis] method (i.e., `{{ timeToHandleRequest.toMillis }}`).
+
+| localIpAddress
+| String
+| The Internet Protocol (IP) address of the interface on which the inbound request was received.
+
+| remoteIpAddress
+| String
+| The Internet Protocol (IP) address of the client or last proxy that sent the inbound request.
+
+| remoteHost
+| String
+| The fully qualified name of the client or the last proxy that sent the inbound request.
+
+| traceId
+| String
+| The ID associated with the inbound request used for tracing purposes.
+This value will match the value from the decoded `X-Trans-Id` header.
+
+| extensions
+| Map<String, Object>
+| Extension data that does not correspond to any of the other defined variables.
+The data types of the values of this map are unknown.
+Using this map in a template will require coordination between the template author and the developer that added the desired mapping.
+This variable serves as an extension point which allows third-party developers to inject arbitrary data into this service.
+|===
+
+[IMPORTANT]
+====
+If a the value of a variable cannot be resolved, the variable will be left undefined.
+When rendering a template, an undefined variable has specific semantics which are detailed in the http://jtwig.org/documentation/reference[JTwig reference documentation].
+====
+
+[NOTE]
+====
+A distinction is made between inbound and outbound requests and responses.
+This distinction allows template authors to retrieve data associated with a request or response at a particular point during the processing of the HTTP interaction.
+The inbound qualifier denotes the point at which an HTTP message is received by *Repose*.
+The outbound qualifier denotes the point at which an HTTP message is sent by *Repose*.
+An inbound request and an outbound response define the interaction with an end-user while an outbound request and inbound response define the interaction with the origin service.
+====
+
+[NOTE]
+====
+Whitespace in templates is preserved.
+However, it is possible to modify whitespace when rendering a template by leveraging http://jtwig.org/documentation/reference/syntax/code-islands#whitespace-control[Jtwig whitespace control] and the http://jtwig.org/documentation/reference/functions#trim[Jtwig trim function].
+Whitespace can also be modified when a log message is being written using the https://logging.apache.org/log4j/log4j-2.1/manual/layouts.html#PatternLayout[Log4J2 Pattern Layout replace pattern].
+Those mechanisms should help in cases where it is desirable to include whitespace for configuration formatting that is not desired in the rendered message.
+====
+
+=== For Developers
+
+This service introduces the concept of an HTTP logging context.
+An HTTP logging context is a container for data related to an individual HTTP interaction.
+An HTTP interaction is the exchange of an HTTP request and response.
+
+While this service provides the means to open and close a logging context, it does not do so automatically.
+Logging contexts are opened and closed by code which uses this service and is hooked into the container lifecycle.
+While it is possible to create a new logging context at any time using this service, it is not the expected usage.
+Rather, the logging context created when a new request is received is expected to be used.
+That logging context will be passed around in a request attribute with the key `org.openrepose.core.services.httplogging.context`.
+
+To be clear, this service only manages:
+
+* Configuration of logging parameters to answer the questions of what to log and where to log it.
+* Handling the processing of the logging context (i.e., rendering messages and sending those messages to the logging system) which answers the question of how to log.
+
+Notably, this service does not manage:
+
+* The lifecycle of the logging context for an HTTP interaction which answers the question of when to log.
+* Collection of data related to an HTTP interaction which assists in answering the question of what to log.
+** However, this service does provide the logging context interface to be used for data collection.
+
+Management of those facets is left to developers intent on interacting with the logging system supported by this service.
+
+There may be instances when it is desired to add data to the logging context that is not part of the predefined data set.
+For this reason, the logging context supports extension data.
+Extension data can be accessed and modified via the `extensions` field of the logging context.
+Extension data is not validated by this service; it is passed as a map directly to the templating engine.

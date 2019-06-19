@@ -21,12 +21,13 @@ package org.openrepose.powerfilter
 
 import java.io.IOException
 import java.net.{URI, URL}
+import java.time.Duration
 import java.util.Optional
 
 import com.codahale.metrics.MetricRegistry
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
-import org.apache.http.HttpVersion
+import org.apache.http.{HttpVersion, ProtocolVersion}
 import org.apache.http.client.methods.{CloseableHttpResponse, HttpUriRequest}
 import org.apache.http.message.BasicHttpResponse
 import org.apache.http.protocol.HttpContext
@@ -42,6 +43,7 @@ import org.openrepose.commons.utils.io.stream.ReadLimitReachedException
 import org.openrepose.commons.utils.servlet.http.RouteDestination
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
+import org.openrepose.core.services.httplogging.HttpLoggingContext
 import org.openrepose.core.services.reporting.metrics.MetricsService
 import org.openrepose.core.systemmodel.config._
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService
@@ -417,6 +419,55 @@ class ReposeRoutingServletTest extends FunSpec with BeforeAndAfterEach with Mock
       reposeRoutingServlet.postProxyMetrics(timeElapsed, response, destination, targetUrl)
 
       verify(metricRegistry, atLeastOnce()).meter(contains(".Response"))
+    }
+  }
+
+  describe("updateLoggingContext") {
+    it("should add the response protocol to the context from the request") {
+      val request = new MockHttpServletRequest()
+      val response = mock[CloseableHttpResponse]
+      val loggingContext = mock[HttpLoggingContext]
+
+      when(response.getProtocolVersion).thenReturn(HttpVersion.HTTP_1_1)
+
+      request.setAttribute(CommonRequestAttributes.HTTP_LOGGING_CONTEXT, loggingContext)
+
+      reposeRoutingServlet.updateLoggingContext(request, response, 0L)
+
+      verify(loggingContext).setInboundResponseProtocol(HttpVersion.HTTP_1_1.toString)
+    }
+
+    it("should add the time taken by the origin service to the context from the request") {
+      val timeElapsed = 1234L
+      val request = new MockHttpServletRequest()
+      val response = mock[CloseableHttpResponse]
+      val loggingContext = mock[HttpLoggingContext]
+
+      when(response.getProtocolVersion).thenReturn(HttpVersion.HTTP_1_1)
+
+      request.setAttribute(CommonRequestAttributes.HTTP_LOGGING_CONTEXT, loggingContext)
+
+      reposeRoutingServlet.updateLoggingContext(request, response, timeElapsed)
+
+      verify(loggingContext).setTimeInOriginService(Duration.ofMillis(timeElapsed))
+    }
+
+    it("should not update the logging context if the context from the request is missing") {
+      val timeElapsed = 1234L
+      val request = new MockHttpServletRequest()
+      val response = mock[CloseableHttpResponse]
+
+      noException should be thrownBy reposeRoutingServlet.updateLoggingContext(request, response, timeElapsed)
+    }
+
+    it("should not update the logging context if the context from the request is invalid") {
+      val timeElapsed = 1234L
+      val request = new MockHttpServletRequest()
+      val response = mock[CloseableHttpResponse]
+
+      request.setAttribute(CommonRequestAttributes.HTTP_LOGGING_CONTEXT, "not-a-context")
+
+      noException should be thrownBy reposeRoutingServlet.updateLoggingContext(request, response, timeElapsed)
     }
   }
 

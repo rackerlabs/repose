@@ -1,6 +1,7 @@
 = Release Notes
 
 == In Progress
+* [.new-tag]#New# | https://repose.atlassian.net/browse/REP-7786[REP-7786] - Added the <<../services/http-logging.adoc#, HTTP Logging Service>>.
 * [.bug-tag]#Bug Fix# | https://repose.atlassian.net/browse/REP-7608[REP-7608] - Fixed bug where *Repose* was acting like it was sending content when the body was empty and chunked encoding was on.
 * [.bug-tag]#Bug Fix# | https://repose.atlassian.net/browse/REP-7663[REP-7663] - Fixed a file contention issue between Repose processes in the EAR unpacking logic.
 * [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7391[REP-7391] - Updated dependencies:

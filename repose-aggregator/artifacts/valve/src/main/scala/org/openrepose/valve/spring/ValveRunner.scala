@@ -23,27 +23,28 @@ import java.lang.management.ManagementFactory
 import java.net.{InetAddress, NetworkInterface, UnknownHostException}
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicReference
-import javax.inject.{Inject, Named}
-import javax.management.{InstanceNotFoundException, ObjectName}
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
+import javax.inject.{Inject, Named}
+import javax.management.{InstanceNotFoundException, ObjectName}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.ContainerConfiguration
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.spring.CoreSpringProvider
 import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService
-import org.openrepose.valve.ReposeJettyServer
+import org.openrepose.valve.jetty.{HttpLoggingServiceChannelListener, HttpLoggingServiceRequestLog, ReposeJettyServer}
 import org.openrepose.valve.jmx.{ValvePortMXBean, ValvePortMXBeanImpl}
 import org.springframework.beans.factory.DisposableBean
-
 
 /**
  * A singleton that's spring aware because of the services it needs to use.
  */
 @Named
 class ValveRunner @Inject()(
-                             configService: ConfigurationService
+                             configService: ConfigurationService,
+                             httpLoggingServiceChannelListener: HttpLoggingServiceChannelListener,
+                             httpLoggingServiceRequestLog: HttpLoggingServiceRequestLog
                              ) extends DisposableBean with StrictLogging {
 
   private val systemModelXsdURL = getClass.getResource("/META-INF/schema/system-model/system-model.xsd")
@@ -208,7 +209,7 @@ class ValveRunner @Inject()(
               val deploymentConfiguration = containerConfigurationService.getDeploymentConfiguration
               val sslConfig = Option(deploymentConfiguration.getSslConfiguration)
               val idleTimeout = Option(deploymentConfiguration.getIdleTimeout)
-              val node = new ReposeJettyServer(nodeContext, n.nodeId, n.httpPort, n.httpsPort, sslConfig, idleTimeout, testMode)
+              val node = new ReposeJettyServer(nodeContext, n.nodeId, n.httpPort, n.httpsPort, sslConfig, idleTimeout, httpLoggingServiceChannelListener, httpLoggingServiceRequestLog, testMode)
               try {
                 node.start()
                 //Update the MX bean with port info

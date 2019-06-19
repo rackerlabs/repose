@@ -23,6 +23,7 @@ public class CommonRequestAttributes {
     public static final String DESTINATIONS = "org.openrepose.destinations";
     public static final String QUERY_PARAMS = "http://openrepose.org/queryParams";
     public static final String REQUEST_URL = "http://openrepose.org/requestUrl";
+    public static final String HTTP_LOGGING_CONTEXT = "org.openrepose.core.services.httplogging.context";
 
     private CommonRequestAttributes() {
         // Prevent construction of this utility class.

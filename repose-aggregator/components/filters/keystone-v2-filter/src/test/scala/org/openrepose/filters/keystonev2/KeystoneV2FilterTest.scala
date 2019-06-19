@@ -52,6 +52,7 @@ import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.types.SetPatch
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.httpclient.{CachingHttpClientContext, HttpClientService, HttpClientServiceClient}
+import org.openrepose.core.services.httplogging.HttpLoggingContext
 import org.openrepose.core.systemmodel.config.{SystemModel, TracingHeaderConfig}
 import org.openrepose.filters.keystonev2.KeystoneRequestHandler._
 import org.openrepose.filters.keystonev2.KeystoneV2Common._
@@ -2676,8 +2677,10 @@ with HttpDelegationManager {
     filter.SystemModelConfigListener.configurationUpdated(mockSystemModel)
 
     it("forwards the user information in the x-pp-user, x-user-name, and x-user-id headers") {
+      val loggingContext = mock[HttpLoggingContext]
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
+      request.setAttribute(CommonRequestAttributes.HTTP_LOGGING_CONTEXT, loggingContext)
 
       //Pretend like the admin token is cached all the time
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
@@ -2720,6 +2723,8 @@ with HttpDelegationManager {
       filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(PowerApiHeader.USER) shouldBe "testuser"
       filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.USER_NAME) shouldBe "testuser"
       filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.USER_ID) shouldBe "123"
+      verify(loggingContext).setUserId("123")
+      verify(loggingContext).setUserName("testuser")
     }
 
     it("forwards the user's roles information in the x-roles header") {
@@ -2841,8 +2846,10 @@ with HttpDelegationManager {
     }
 
     it("forwards the user's impersonator information in the x-impersonator-id, x-impersonator-name, and x-impersonator roles headers") {
+      val loggingContext = mock[HttpLoggingContext]
       val request = new MockHttpServletRequest()
       request.addHeader(CommonHttpHeader.AUTH_TOKEN, VALID_TOKEN)
+      request.setAttribute(CommonRequestAttributes.HTTP_LOGGING_CONTEXT, loggingContext)
 
       //Pretend like the admin token is cached all the time
       when(mockDatastore.get(ADMIN_TOKEN_KEY)).thenReturn("glibglob", Nil: _*)
@@ -2886,6 +2893,8 @@ with HttpDelegationManager {
       filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_NAME) shouldBe "rick"
       filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_ROLES) should include("Racker")
       filterChain.getRequest.asInstanceOf[HttpServletRequest].getHeader(OpenStackServiceHeader.IMPERSONATOR_ROLES) should include("object-store:admin")
+      verify(loggingContext).setImpersonatorId("567")
+      verify(loggingContext).setImpersonatorName("rick")
     }
 
     it("forwards the user's domain ID information in the x-domain-id header") {
