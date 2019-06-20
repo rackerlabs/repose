@@ -17,7 +17,7 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.commons.config.parser.jaxb;
+package org.openrepose.commons.config.parser.common;
 
 import org.apache.commons.io.IOUtils;
 import org.jtwig.JtwigModel;
@@ -26,21 +26,20 @@ import org.jtwig.environment.EnvironmentConfiguration;
 import org.jtwig.environment.EnvironmentConfigurationBuilder;
 import org.openrepose.commons.config.resource.ConfigurationResource;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
-public class TemplatingJaxbConfigurationParser<T> extends JaxbConfigurationParser<T> {
+public class TemplatingConfigurationParser<T> implements ConfigurationParser<T> {
 
     private static final String START_OUTPUT_TAG = "{$";
     private static final String END_OUTPUT_TAG = "$}";
     private static final String START_COMMENT_TAG = "{!";
     private static final String END_COMMENT_TAG = "!}";
+
+    // @formatter:off
     private static final EnvironmentConfiguration ENV_CONF = EnvironmentConfigurationBuilder
         .configuration()
             .parser()
@@ -53,18 +52,22 @@ public class TemplatingJaxbConfigurationParser<T> extends JaxbConfigurationParse
                 .withStrictMode(true)
             .and()
         .build();
+    // @formatter:on
 
-    public TemplatingJaxbConfigurationParser(Class<T> configurationClass, JAXBContext jaxbContext, URL xsdStreamSource) {
-        super(configurationClass, jaxbContext, xsdStreamSource);
+    private final ConfigurationParser<T> parser;
+
+    public TemplatingConfigurationParser(ConfigurationParser<T> parser) {
+        this.parser = parser;
     }
 
-    public TemplatingJaxbConfigurationParser(Class<T> configurationClass, URL xsdStreamSource, ClassLoader loader) throws JAXBException {
-        super(configurationClass, xsdStreamSource, loader);
+    @Override
+    public Class<T> configurationClass() {
+        return parser.configurationClass();
     }
 
     @Override
     public T read(ConfigurationResource cr) {
-        return super.read(new ConfigurationResource() {
+        return parser.read(new ConfigurationResource() {
             @Override
             public boolean updated() throws IOException {
                 return cr.updated();
