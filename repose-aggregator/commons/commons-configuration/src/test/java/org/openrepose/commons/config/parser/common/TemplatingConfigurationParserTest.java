@@ -17,89 +17,93 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.commons.config.parser.jaxb;
+package org.openrepose.commons.config.parser.common;
 
+import org.apache.commons.io.IOUtils;
+import org.jtwig.exceptions.ResolveValueException;
+import org.junit.Before;
 import org.junit.Test;
-import org.openrepose.commons.config.parser.common.ConfigurationParser;
+import org.mockito.stubbing.Answer;
 import org.openrepose.commons.config.resource.ConfigurationResource;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TemplatingJaxbConfigurationParserTest {
+public class TemplatingConfigurationParserTest {
     private static final String TEST_USER_ENV_VAR = "TEST_USER";
     private static final String TEST_USER_NAME = "World";
 
+    private ConfigurationParser<String> baseParser = (ConfigurationParser<String>) mock(ConfigurationParser.class);
+    private TemplatingConfigurationParser<String> templatingParser = new TemplatingConfigurationParser<>(baseParser);
+
+    @Before
+    public void setup() {
+        baseParser = (ConfigurationParser<String>) mock(ConfigurationParser.class);
+        templatingParser = new TemplatingConfigurationParser<>(baseParser);
+
+        when(baseParser.read(any(ConfigurationResource.class)))
+            .thenAnswer((Answer<String>) invocation -> {
+                Object[] args = invocation.getArguments();
+                ConfigurationResource resource = (ConfigurationResource) args[0];
+                return IOUtils.toString(resource.newInputStream());
+            });
+    }
+
     @Test
-    public void shouldTemplateEnvironmentVariableInConfigurationResource() throws JAXBException, IOException {
+    public void shouldReturnTheConfigurationClassOfTheBaseParser() {
+        when(baseParser.configurationClass()).thenReturn(String.class);
+
+        assertEquals(baseParser.configurationClass(), templatingParser.configurationClass());
+    }
+
+    @Test
+    public void shouldTemplateEnvironmentVariableInConfigurationResource() throws IOException {
         assumeTrue(
             "The " + TEST_USER_ENV_VAR + " environment variable must be set to" + TEST_USER_NAME + " for this test",
             TEST_USER_NAME.equals(System.getenv(TEST_USER_ENV_VAR))
         );
 
-        final JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
-        ConfigurationParser<Element> parser = new TemplatingJaxbConfigurationParser<>(Element.class, jaxbContext, null);
-
         ConfigurationResource cfgResource = mock(ConfigurationResource.class);
-        ByteArrayInputStream cfgStream = new ByteArrayInputStream(createConfig(createHelloMsg("{$(" + TEST_USER_ENV_VAR + ")$}")).getBytes());
+        ByteArrayInputStream cfgStream = new ByteArrayInputStream(createHelloMsg("{$(" + TEST_USER_ENV_VAR + ")$}").getBytes());
         when(cfgResource.newInputStream()).thenReturn(cfgStream);
 
-        Element element = parser.read(cfgResource);
+        String result = templatingParser.read(cfgResource);
 
-        assertNotNull(element);
-        assertEquals(createHelloMsg(TEST_USER_NAME), element.hello);
+        assertEquals(createHelloMsg(TEST_USER_NAME), result);
     }
 
     @Test
-    public void shouldRemoveTemplateCommentInConfigurationResource() throws JAXBException, IOException {
-        final JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
-        ConfigurationParser<Element> parser = new TemplatingJaxbConfigurationParser<>(Element.class, jaxbContext, null);
-
+    public void shouldRemoveTemplateCommentInConfigurationResource() throws IOException {
         ConfigurationResource cfgResource = mock(ConfigurationResource.class);
-        ByteArrayInputStream cfgStream = new ByteArrayInputStream(createConfig(createHelloMsg("{!COMMENT!}")).getBytes());
+        ByteArrayInputStream cfgStream = new ByteArrayInputStream(createHelloMsg("{!COMMENT!}").getBytes());
         when(cfgResource.newInputStream()).thenReturn(cfgStream);
 
-        Element element = parser.read(cfgResource);
+        String result = templatingParser.read(cfgResource);
 
-        assertNotNull(element);
-        assertEquals(createHelloMsg(""), element.hello);
+        assertEquals(createHelloMsg(""), result);
     }
 
-    @Test(expected = ClassCastException.class)
-    public void shouldThrowExceptionWhenMissingEnvironmentVariable() throws JAXBException, IOException {
+    @Test(expected = ResolveValueException.class)
+    public void shouldThrowExceptionWhenMissingEnvironmentVariable() throws IOException {
         assumeTrue(
             "The NOT_A_VAR environment variable must NOT be set for this test",
             System.getenv("NOT_A_VAR") == null
         );
 
-        final JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
-        ConfigurationParser<Element> parser = new TemplatingJaxbConfigurationParser<>(Element.class, jaxbContext, null);
-
         ConfigurationResource cfgResource = mock(ConfigurationResource.class);
-        ByteArrayInputStream cfgStream = new ByteArrayInputStream(createConfig(createHelloMsg("{$(NOT_A_VAR)$}")).getBytes());
+        ByteArrayInputStream cfgStream = new ByteArrayInputStream(createHelloMsg("{$(NOT_A_VAR)$}").getBytes());
         when(cfgResource.newInputStream()).thenReturn(cfgStream);
 
-        parser.read(cfgResource);
+        templatingParser.read(cfgResource);
     }
 
     private static String createHelloMsg(String name) {
         return String.format("Hello %s!", name);
-    }
-
-    private static String createConfig(String helloMsg) {
-        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "\n" +
-            "<element>\n" +
-            "    <hello>" + helloMsg + "</hello>\n" +
-            "    <goodbye>See ya.</goodbye>\n" +
-            "</element>\n";
     }
 }
