@@ -19,6 +19,7 @@
  */
 package org.openrepose.core.services.datastore.hazelcast
 
+import java.io.InputStream
 import java.net.URL
 
 import com.hazelcast.config.Config
@@ -27,9 +28,9 @@ import com.hazelcast.spi.properties.GroupProperty
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Matchers.{any, same, eq => isEq}
-import org.mockito.Mockito.{never, verify, when}
-import org.openrepose.commons.config.resource.ConfigurationResourceResolver
-import org.openrepose.commons.config.resource.impl.BufferedURLConfigurationResource
+import org.mockito.Mockito._
+import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.commons.config.parser.common.ConfigurationParser
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.hazelcast.HazelcastDatastoreBootstrapTest._
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
@@ -46,7 +47,6 @@ class HazelcastDatastoreBootstrapTest
   val hazelcastConfigUrl: URL = getClass.getResource("/hazelcast/hazelcast-default.cfg.xml")
 
   var configurationService: ConfigurationService = _
-  var resourceResolver: ConfigurationResourceResolver = _
   var healthCheckService: HealthCheckService = _
   var healthCheckServiceProxy: HealthCheckServiceProxy = _
   var datastoreService: DatastoreService = _
@@ -56,14 +56,11 @@ class HazelcastDatastoreBootstrapTest
     HazelcastInstanceFactory.terminateAll()
 
     configurationService = mock[ConfigurationService]
-    resourceResolver = mock[ConfigurationResourceResolver]
     healthCheckService = mock[HealthCheckService]
     healthCheckServiceProxy = mock[HealthCheckServiceProxy]
     datastoreService = mock[DatastoreService]
 
     when(healthCheckService.register).thenReturn(healthCheckServiceProxy)
-    when(configurationService.getResourceResolver).thenReturn(resourceResolver)
-    when(resourceResolver.resolve(any[String])).thenReturn(new BufferedURLConfigurationResource(hazelcastConfigUrl))
 
     hazelcastDatastoreBootstrap = new HazelcastDatastoreBootstrap(
       configurationService,
@@ -71,113 +68,165 @@ class HazelcastDatastoreBootstrapTest
       datastoreService
     )
 
+    // Registers with the health check service to prevent NPEs when interacting with the proxy
     hazelcastDatastoreBootstrap.init()
+
+    // Reset interactions with mocks that may have occurred in init
+    reset(configurationService)
+    reset(healthCheckService)
+    reset(healthCheckServiceProxy)
+    reset(datastoreService)
   }
 
   describe("init") {
     it("should register with the health check service") {
+      hazelcastDatastoreBootstrap.init()
+
       verify(healthCheckService).register()
     }
 
     it("should subscribe to the system model with the configuration service") {
+      hazelcastDatastoreBootstrap.init()
+
       verify(configurationService).subscribeTo(
         isEq("system-model.cfg.xml"),
-        same(hazelcastDatastoreBootstrap),
+        same(hazelcastDatastoreBootstrap.SystemModelConfigListener),
         any[Class[SystemModel]]
       )
     }
   }
 
-  describe("configurationUpdated") {
-    it("should enable the Hazelcast datastore if listed in the system model and is not running") {
-      hazelcastDatastoreBootstrap.configurationUpdated(systemModelWithHazelcast)
+  describe("SystemModelConfigListener") {
+    describe("configurationUpdated") {
+      it("should enable the Hazelcast datastore if listed in the system model and is not running") {
+        hazelcastDatastoreBootstrap.SystemModelConfigListener.configurationUpdated(systemModelWithHazelcast)
 
-      hazelcastDatastoreBootstrap.isInitialized shouldBe true
-      verify(datastoreService).createHazelcastDatastore(
-        isEq(HazelcastDatastoreBootstrap.DatastoreName),
-        any[Config]
-      )
-      verify(healthCheckServiceProxy).resolveIssue(isEq(HazelcastDatastoreBootstrap.NotConfiguredIssueName))
+        hazelcastDatastoreBootstrap.SystemModelConfigListener.isInitialized shouldBe true
+        verify(configurationService).subscribeTo(
+          any[String],
+          isEq("hazelcast.xml"),
+          same(hazelcastDatastoreBootstrap.HazelcastDatastoreConfigListener),
+          any[ConfigurationParser[InputStream]]
+        )
+        verify(healthCheckServiceProxy).resolveIssue(isEq(HazelcastDatastoreBootstrap.NotConfiguredIssueName))
+      }
+
+      it("should not interact with the configuration service if listed and running") {
+        when(datastoreService.getDatastore(HazelcastDatastoreBootstrap.DatastoreName))
+          .thenReturn(mock[Datastore])
+
+        hazelcastDatastoreBootstrap.SystemModelConfigListener.configurationUpdated(systemModelWithHazelcast)
+
+        hazelcastDatastoreBootstrap.SystemModelConfigListener.isInitialized shouldBe true
+        verifyZeroInteractions(configurationService)
+        verify(healthCheckServiceProxy).resolveIssue(isEq(HazelcastDatastoreBootstrap.NotConfiguredIssueName))
+      }
+
+      it("should disable the Hazelcast datastore if not listed in the system model and is running") {
+        when(datastoreService.getDatastore(HazelcastDatastoreBootstrap.DatastoreName))
+          .thenReturn(mock[Datastore])
+
+        hazelcastDatastoreBootstrap.SystemModelConfigListener.configurationUpdated(systemModelWithoutHazelcast)
+
+        hazelcastDatastoreBootstrap.SystemModelConfigListener.isInitialized shouldBe true
+        verify(configurationService).unsubscribeFrom(
+          isEq("hazelcast.xml"),
+          same(hazelcastDatastoreBootstrap.HazelcastDatastoreConfigListener)
+        )
+        verify(datastoreService).destroyDatastore(HazelcastDatastoreBootstrap.DatastoreName)
+        verify(healthCheckServiceProxy).resolveIssue(isEq(HazelcastDatastoreBootstrap.NotConfiguredIssueName))
+      }
+
+      it("should not interact with the configuration service if not listed and not running") {
+        hazelcastDatastoreBootstrap.SystemModelConfigListener.configurationUpdated(systemModelWithoutHazelcast)
+
+        hazelcastDatastoreBootstrap.SystemModelConfigListener.isInitialized shouldBe true
+        verifyZeroInteractions(configurationService)
+        verify(healthCheckServiceProxy).resolveIssue(isEq(HazelcastDatastoreBootstrap.NotConfiguredIssueName))
+      }
+
+      it("should report a health check issue when enabling the Hazelcast datastore fails") {
+        when(configurationService.subscribeTo(any[String], any[String], any[UpdateListener[InputStream]], any[ConfigurationParser[InputStream]]))
+          .thenThrow(new RuntimeException("Failed to register Hazelcast datastore"))
+
+        an[Exception] should be thrownBy hazelcastDatastoreBootstrap.SystemModelConfigListener.configurationUpdated(systemModelWithHazelcast)
+
+        verify(healthCheckServiceProxy).reportIssue(
+          isEq(HazelcastDatastoreBootstrap.NotConfiguredIssueName),
+          any[String],
+          same(Severity.BROKEN)
+        )
+        verify(healthCheckServiceProxy, never).resolveIssue(any[String])
+      }
     }
 
-    it("should not interact with the datastore service if listed and running") {
-      when(datastoreService.getDatastore(HazelcastDatastoreBootstrap.DatastoreName))
-        .thenReturn(mock[Datastore])
+    describe("isInitialized") {
+      it("should return false if the configuration has not yet been updated") {
+        hazelcastDatastoreBootstrap.SystemModelConfigListener.isInitialized shouldBe false
+      }
 
-      hazelcastDatastoreBootstrap.configurationUpdated(systemModelWithHazelcast)
+      it("should return true after the configuration has not been updated") {
+        hazelcastDatastoreBootstrap.SystemModelConfigListener.configurationUpdated(systemModelWithHazelcast)
 
-      hazelcastDatastoreBootstrap.isInitialized shouldBe true
-      verify(datastoreService, never).createHazelcastDatastore(any[String], any[Config])
-      verify(datastoreService, never).destroyDatastore(any[String])
-      verify(healthCheckServiceProxy).resolveIssue(isEq(HazelcastDatastoreBootstrap.NotConfiguredIssueName))
-    }
-
-    it("should disable the Hazelcast datastore if not listed in the system model and is running") {
-      when(datastoreService.getDatastore(HazelcastDatastoreBootstrap.DatastoreName))
-        .thenReturn(mock[Datastore])
-
-      hazelcastDatastoreBootstrap.configurationUpdated(systemModelWithoutHazelcast)
-
-      hazelcastDatastoreBootstrap.isInitialized shouldBe true
-      verify(datastoreService).destroyDatastore(HazelcastDatastoreBootstrap.DatastoreName)
-      verify(healthCheckServiceProxy).resolveIssue(isEq(HazelcastDatastoreBootstrap.NotConfiguredIssueName))
-    }
-
-    it("should not interact with the datastore service if not listed and not running") {
-      hazelcastDatastoreBootstrap.configurationUpdated(systemModelWithoutHazelcast)
-
-      hazelcastDatastoreBootstrap.isInitialized shouldBe true
-      verify(datastoreService, never).createHazelcastDatastore(any[String], any[Config])
-      verify(datastoreService, never).destroyDatastore(any[String])
-      verify(healthCheckServiceProxy).resolveIssue(isEq(HazelcastDatastoreBootstrap.NotConfiguredIssueName))
-    }
-
-    it("should report a health check issue when enabling the Hazelcast datastore fails") {
-      when(datastoreService.createHazelcastDatastore(any[String], any[Config]))
-        .thenThrow(new RuntimeException("Failed to register Hazelcast datastore"))
-
-      an[Exception] should be thrownBy hazelcastDatastoreBootstrap.configurationUpdated(systemModelWithHazelcast)
-
-      verify(healthCheckServiceProxy).reportIssue(
-        isEq(HazelcastDatastoreBootstrap.NotConfiguredIssueName),
-        any[String],
-        same(Severity.BROKEN)
-      )
-      verify(healthCheckServiceProxy, never).resolveIssue(any[String])
-    }
-
-    it("should resolve the Hazelcast configuration with the configuration service") {
-      hazelcastDatastoreBootstrap.configurationUpdated(systemModelWithHazelcast)
-
-      verify(resourceResolver).resolve("hazelcast.xml")
-    }
-
-    it("should configure Hazelcast to use the slf4j logging adapter") {
-      val configCaptor = ArgumentCaptor.forClass(classOf[Config])
-
-      hazelcastDatastoreBootstrap.configurationUpdated(systemModelWithHazelcast)
-
-      verify(datastoreService).createHazelcastDatastore(
-        isEq(HazelcastDatastoreBootstrap.DatastoreName),
-        configCaptor.capture()
-      )
-
-      val hazelcastConfig = configCaptor.getValue
-      val loggingType = hazelcastConfig.getProperty(GroupProperty.LOGGING_TYPE.getName)
-
-      loggingType shouldBe "slf4j"
+        hazelcastDatastoreBootstrap.SystemModelConfigListener.isInitialized shouldBe true
+      }
     }
   }
 
-  describe("isInitialized") {
-    it("should return false if the system model has not yet been handled") {
-      hazelcastDatastoreBootstrap.isInitialized shouldBe false
+  describe("HazelcastDatastoreConfigListener") {
+    describe("configurationUpdated") {
+      it("should create the Hazelcast datastore if not running") {
+        hazelcastDatastoreBootstrap.HazelcastDatastoreConfigListener.configurationUpdated(hazelcastConfigUrl.openStream())
+
+        hazelcastDatastoreBootstrap.HazelcastDatastoreConfigListener.isInitialized shouldBe true
+        verify(datastoreService, never).destroyDatastore(HazelcastDatastoreBootstrap.DatastoreName)
+        verify(datastoreService).createHazelcastDatastore(
+          isEq(HazelcastDatastoreBootstrap.DatastoreName),
+          any[Config]
+        )
+      }
+
+      it("should destroy then create the Hazelcast datastore if running") {
+        when(datastoreService.getDatastore(HazelcastDatastoreBootstrap.DatastoreName))
+          .thenReturn(mock[Datastore])
+
+        hazelcastDatastoreBootstrap.HazelcastDatastoreConfigListener.configurationUpdated(hazelcastConfigUrl.openStream())
+
+        hazelcastDatastoreBootstrap.HazelcastDatastoreConfigListener.isInitialized shouldBe true
+        verify(datastoreService).destroyDatastore(HazelcastDatastoreBootstrap.DatastoreName)
+        verify(datastoreService).createHazelcastDatastore(
+          isEq(HazelcastDatastoreBootstrap.DatastoreName),
+          any[Config]
+        )
+      }
+
+      it("should configure Hazelcast to use the slf4j logging adapter") {
+        val configCaptor = ArgumentCaptor.forClass(classOf[Config])
+
+        hazelcastDatastoreBootstrap.HazelcastDatastoreConfigListener.configurationUpdated(hazelcastConfigUrl.openStream())
+
+        verify(datastoreService).createHazelcastDatastore(
+          isEq(HazelcastDatastoreBootstrap.DatastoreName),
+          configCaptor.capture()
+        )
+
+        val hazelcastConfig = configCaptor.getValue
+        val loggingType = hazelcastConfig.getProperty(GroupProperty.LOGGING_TYPE.getName)
+
+        loggingType shouldBe "slf4j"
+      }
     }
 
-    it("should return true after the system model has been handled") {
-      hazelcastDatastoreBootstrap.configurationUpdated(systemModelWithHazelcast)
+    describe("isInitialized") {
+      it("should return false if the configuration has not yet been updated") {
+        hazelcastDatastoreBootstrap.HazelcastDatastoreConfigListener.isInitialized shouldBe false
+      }
 
-      hazelcastDatastoreBootstrap.isInitialized shouldBe true
+      it("should return true after the configuration has not been updated") {
+        hazelcastDatastoreBootstrap.HazelcastDatastoreConfigListener.configurationUpdated(hazelcastConfigUrl.openStream())
+
+        hazelcastDatastoreBootstrap.HazelcastDatastoreConfigListener.isInitialized shouldBe true
+      }
     }
   }
 }
