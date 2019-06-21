@@ -50,11 +50,15 @@ class HazelcastDatastoreManagerTest
   }
 
   describe("isDistributed") {
-    it("should return false if less than or equal to one Hazelcast instance is a member of the same cluster") {
+    it("should return true") {
+      hazelcastDatastoreManager.isDistributed() shouldBe true
+    }
+
+    ignore("should return false if less than or equal to one Hazelcast instance is a member of the same cluster") {
       hazelcastDatastoreManager.isDistributed shouldBe false
     }
 
-    it("should return true if more than one Hazelcast instance is a member of the same cluster") {
+    ignore("should return true if more than one Hazelcast instance is a member of the same cluster") {
       Hazelcast.newHazelcastInstance()
 
       hazelcastDatastoreManager.isDistributed shouldBe true

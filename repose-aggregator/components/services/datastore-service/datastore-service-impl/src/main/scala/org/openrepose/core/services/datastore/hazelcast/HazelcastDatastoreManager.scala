@@ -46,7 +46,12 @@ class HazelcastDatastoreManager(config: Config)
   }
 
   override def isDistributed: Boolean = {
-    hazelcast.getCluster.getMembers.size > 1
+    // TODO: For an accurate determination at some moment in time, use:
+    // TODO: hazelcast.getCluster.getMembers.size > 1
+    // TODO: Unfortunately, the Datastore service currently only checks once on creation.
+    // TODO: Since Hazelcast may not have connected this member to the cluster yet,
+    // TODO: we return true to indicate that Hazelcast data may be distributed.
+    true
   }
 
   override def destroy(): Unit = {

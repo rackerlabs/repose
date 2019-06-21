@@ -19,12 +19,16 @@
  */
 package org.openrepose.core.services.datastore.hazelcast
 
-import com.hazelcast.config.{Config, UrlXmlConfig}
+import java.io.InputStream
+
+import com.hazelcast.config.XmlConfigBuilder
 import com.hazelcast.spi.properties.GroupProperty
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import javax.annotation.PostConstruct
+import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
 import org.openrepose.commons.config.manager.UpdateListener
+import org.openrepose.commons.config.parser.common.TemplatingConfigurationParser
+import org.openrepose.commons.config.parser.inputstream.InputStreamConfigurationParser
 import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
@@ -52,9 +56,8 @@ import org.openrepose.core.systemmodel.config.SystemModel
 class HazelcastDatastoreBootstrap @Inject()(configurationService: ConfigurationService,
                                             healthCheckService: HealthCheckService,
                                             datastoreService: DatastoreService)
-  extends UpdateListener[SystemModel] with StrictLogging {
+  extends StrictLogging {
 
-  private var initialized: Boolean = false
   private var healthCheckServiceProxy: HealthCheckServiceProxy = _
 
   @PostConstruct
@@ -64,48 +67,92 @@ class HazelcastDatastoreBootstrap @Inject()(configurationService: ConfigurationS
     healthCheckServiceProxy = healthCheckService.register()
     configurationService.subscribeTo(
       SystemModelConfig,
-      this,
+      SystemModelConfigListener,
       classOf[SystemModel]
     )
   }
 
-  override def configurationUpdated(configurationObject: SystemModel): Unit = {
-    logger.trace("Inspecting system model for inclusion of the Hazelcast datastore service")
+  @PreDestroy
+  def destroy(): Unit = {
+    logger.trace("Destroying Hazelcast Datastore Bootstrap")
 
-    val isEnabled = SystemModelInterrogator.getService(configurationObject, ServiceName).isPresent
-    val isRunning = Option(datastoreService.getDatastore(DatastoreName)).isDefined
+    configurationService.unsubscribeFrom(
+      SystemModelConfig,
+      SystemModelConfigListener
+    )
+  }
 
-    if (isEnabled && !isRunning) {
-      logger.debug("Enabling the Hazelcast datastore")
+  object SystemModelConfigListener extends UpdateListener[SystemModel] {
+    private var initialized: Boolean = false
 
-      healthCheckServiceProxy.reportIssue(
-        NotConfiguredIssueName,
-        NotConfiguredMessage,
-        Severity.BROKEN
-      )
+    override def configurationUpdated(configurationObject: SystemModel): Unit = {
+      logger.trace("Inspecting system model for inclusion of the Hazelcast datastore service")
 
-      datastoreService.createHazelcastDatastore(DatastoreName, hazelcastConfig)
-    } else if (!isEnabled && isRunning) {
-      logger.debug("Disabling the Hazelcast datastore")
+      val isEnabled = SystemModelInterrogator.getService(configurationObject, ServiceName).isPresent
+      val isRunning = Option(datastoreService.getDatastore(DatastoreName)).isDefined
 
-      datastoreService.destroyDatastore(DatastoreName)
+      if (isEnabled && !isRunning) {
+        logger.debug("Enabling the Hazelcast datastore")
+
+        healthCheckServiceProxy.reportIssue(
+          NotConfiguredIssueName,
+          NotConfiguredMessage,
+          Severity.BROKEN
+        )
+
+        configurationService.subscribeTo(
+          "",
+          HazelcastConfig,
+          HazelcastDatastoreConfigListener,
+          new TemplatingConfigurationParser(new InputStreamConfigurationParser())
+        )
+      } else if (!isEnabled && isRunning) {
+        logger.debug("Disabling the Hazelcast datastore")
+
+        configurationService.unsubscribeFrom(
+          HazelcastConfig,
+          HazelcastDatastoreConfigListener
+        )
+
+        datastoreService.destroyDatastore(DatastoreName)
+      }
+
+      healthCheckServiceProxy.resolveIssue(NotConfiguredIssueName)
+      initialized = true
     }
 
-    healthCheckServiceProxy.resolveIssue(NotConfiguredIssueName)
-    initialized = true
+    override def isInitialized: Boolean = {
+      initialized
+    }
   }
 
-  override def isInitialized: Boolean = {
-    initialized
+  object HazelcastDatastoreConfigListener extends UpdateListener[InputStream] {
+    private var initialized: Boolean = false
+
+    override def configurationUpdated(in: InputStream): Unit = {
+      logger.trace("Creating Hazelcast configuration")
+
+      val isRunning = Option(datastoreService.getDatastore(DatastoreName)).isDefined
+
+      if (isRunning) {
+        datastoreService.destroyDatastore(DatastoreName)
+      }
+
+      val hazelcastConfig = new XmlConfigBuilder(in)
+        .setProperties(System.getProperties)
+        .build()
+        .setProperty(GroupProperty.LOGGING_TYPE.getName, HazelcastLoggingTypeValue)
+
+      datastoreService.createHazelcastDatastore(DatastoreName, hazelcastConfig)
+
+      initialized = true
+    }
+
+    override def isInitialized: Boolean = {
+      initialized
+    }
   }
 
-  private def hazelcastConfig: Config = {
-    logger.trace("Resolving Hazelcast configuration")
-    val resourceResolver = configurationService.getResourceResolver
-    val configUrl = resourceResolver.resolve(HazelcastConfig).name
-    new UrlXmlConfig(configUrl)
-      .setProperty(GroupProperty.LOGGING_TYPE.getName, HazelcastLoggingTypeValue)
-  }
 }
 
 object HazelcastDatastoreBootstrap {
