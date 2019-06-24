@@ -68,4 +68,13 @@
         <cve>CVE-2019-10246</cve>
         <cve>CVE-2019-10247</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: jackson-databind-2.9.9.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
+            Additionally we don't utilize any of the affected functionality.
+        ]]></notes>
+        <gav regex="true">^com\.fasterxml\.jackson\.core:jackson-databind:.*$</gav>
+        <cve>CVE-2019-12814</cve>
+    </suppress>
 </suppressions>
