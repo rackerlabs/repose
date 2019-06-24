@@ -1,7 +1,8 @@
 = Release Notes
 
-== In Progress
+== 9.0.1.0 (2019-06-24)
 * [.new-tag]#New# | https://repose.atlassian.net/browse/REP-7786[REP-7786] - Added the <<../services/http-logging.adoc#, HTTP Logging Service>>.
+* [.new-tag]#New# | https://repose.atlassian.net/browse/REP-7600[REP-7600] - Added the <<../filters/openapi-validator.adoc#, OpenApi Validator Filter>>.
 * [.bug-tag]#Bug Fix# | https://repose.atlassian.net/browse/REP-7608[REP-7608] - Fixed bug where *Repose* was acting like it was sending content when the body was empty and chunked encoding was on.
 * [.bug-tag]#Bug Fix# | https://repose.atlassian.net/browse/REP-7663[REP-7663] - Fixed a file contention issue between Repose processes in the EAR unpacking logic.
 * [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7391[REP-7391] - Updated dependencies:
@@ -22,6 +23,7 @@
 * [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7775[REP-7775] - Move completely to the Jayway JSON Path library and away from the abandoned `play-jsonpath`.
 ** Updated dependencies:
 *** Jayway JSONPath: 2.2.0 → 2.4.0
+* [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7539[REP-7539] - Updated Docker containers to use the built packages instead of depending on the package repo.
 
 == 9.0.0.0 (2019-01-31)
 <<ver-9-upgrade-notes.adoc#, Upgrade Notes>>
