@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>9.0.1.0 | Filters | Header Normalization filter</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="/_stylesheets/asciibinder.css" >
+  <link rel="stylesheet" href="/_stylesheets/repose.css" >
+  <link rel="stylesheet" href="/_stylesheets/release-note-categories.css" >
+
+   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+   <!--[if lt IE 9]>
+     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+   <![endif]-->
+
+  <link href="/_images/favicon32x32.png" rel="shortcut icon" type="text/css">
+  <!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
+  <meta content="AsciiBinder" name="application-name">
+</head>
+<body onload="selectVersion('9.0.1.0');">
+  <div class="container">
+    <p class="toggle-nav visible-xs pull-left">
+      <button class="btn btn-default btn-sm" type="button" data-toggle="offcanvas">Toggle nav</button>
+    </p>
+    <ol class="breadcrumb">
+      <li class="sitename">
+        <a class="navbar-brand" href="http://www.openrepose.org/">
+          <img alt="OpenRepose" src="/_images/repose-logo.png" align="bottom">
+        </a>
+      </li>
+      <li class="sitename">
+        <a href="../../index.html">
+          Home
+        </a>
+      </li>
+      <li class="hidden-xs active">
+        <a href="/versions/9.0.1.0/welcome/index.html">
+          Repose
+        </a>
+        <select id="version-selector" onchange="versionSelector(this);" w3-include-html="/_includes/versions.html">
+        </select>
+      </li>
+      <li class="hidden-xs active">
+        <a href="../filters/index.html">Filters</a>
+      </li>
+      
+      <li class="hidden-xs active">
+        Header Normalization filter
+      </li>
+    </ol>
+    <div class="row row-offcanvas row-offcanvas-left">
+      <div class="col-xs-8 col-sm-3 col-md-3 sidebar sidebar-offcanvas">
+        <a class="navbar-search" href="/versions/search.html">
+          <span class="glyphicon glyphicon-search"/>
+          Search
+        </a>
+        <ul class="nav nav-sidebar">
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup0">
+        <span id="tgSpan0" class="fa fa-angle-right"></span>Welcome to Repose
+      </a>
+      <ul id="topicGroup0" class="collapse  list-unstyled">
+            <li><a class="" href="../welcome/index.html">Welcome</a></li>
+            <li><a class="" href="../welcome/troubleshooting.html">Troubleshooting</a></li>
+            <li><a class="" href="../welcome/release-notes.html">Release Notes</a></li>
+            <li><a class="" href="../welcome/ver-9-upgrade-notes.html">Version 9 Upgrade Notes</a></li>
+            <li><a class="" href="../welcome/style-guide.html">Style Guide</a></li>
+            <li><a class="" href="../welcome/faq.html">FAQ</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup1">
+        <span id="tgSpan1" class="fa fa-angle-right"></span>Architecture
+      </a>
+      <ul id="topicGroup1" class="collapse  list-unstyled">
+            <li><a class="" href="../architecture/index.html">Overview</a></li>
+            <li><a class="" href="../architecture/configuration.html">Configuration</a></li>
+            <li><a class="" href="../architecture/container.html">Container</a></li>
+            <li><a class="" href="../architecture/filter-chain.html">Filter Chain</a></li>
+            <li><a class="" href="../architecture/logging.html">Logging</a></li>
+            <li><a class="" href="../architecture/packages.html">Packages</a></li>
+            <li><a class="" href="../architecture/servlet-spec.html">Servlet Specification</a></li>
+            <li><a class="" href="../architecture/system-model.html">System Model</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup2">
+        <span id="tgSpan2" class="fa fa-angle-right"></span>Recipes
+      </a>
+      <ul id="topicGroup2" class="collapse  list-unstyled">
+            <li><a class="" href="../recipes/index.html">Overview</a></li>
+            <li><a class="" href="../recipes/quick-start.html">Quick Start</a></li>
+            <li><a class="" href="../recipes/getting-started.html">Getting Started</a></li>
+            <li><a class="" href="../recipes/custom-filter-for-repose.html">Custom Filter for Repose</a></li>
+            <li><a class="" href="../recipes/docker.html">Docker</a></li>
+            <li><a class="" href="../recipes/performance-best-practices.html">Performance Best Practices</a></li>
+            <li><a class="" href="../recipes/role-based-access-control.html">Role Based Access Control</a></li>
+            <li><a class="" href="../recipes/running-valve.html">Running Valve</a></li>
+            <li><a class="" href="../recipes/valve-installation.html">Valve Installation</a></li>
+            <li><a class="" href="../recipes/echo-server.html">Echo Server</a></li>
+            <li><a class="" href="../recipes/rate-limiting.html">Rate Limiting</a></li>
+            <li><a class="" href="../recipes/multi-tenant.html">Multi Tenant Authorization</a></li>
+            <li><a class="" href="../recipes/user-access-events.html">User Access Events</a></li>
+            <li><a class="" href="../recipes/basic-authentication.html">Basic Authentication</a></li>
+            <li><a class="" href="../recipes/delegation.html">Delegation</a></li>
+            <li><a class="" href="../recipes/preventing-xml-bomb.html">Preventing XML bomb attacks</a></li>
+            <li><a class="" href="../recipes/api-event-flume.html">API Access Event Recording with Flume</a></li>
+            <li><a class="" href="../recipes/xsd-versioning.html">XSD Versioning Guidelines</a></li>
+            <li><a class="" href="../recipes/client-authentication.html">SSL/TLS Client Authentication</a></li>
+            <li><a class="" href="../recipes/functional-test-framework.html">Functional Test Framework</a></li>
+            <li><a class="" href="../recipes/header-splitting.html">Header Splitting</a></li>
+            <li><a class="" href="../recipes/reason-phrase-normalization.html">Reason Phrase Normalization</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup3">
+        <span id="tgSpan3" class="fa fa-angle-down"></span>Filters
+      </a>
+      <ul id="topicGroup3" class="collapse in list-unstyled">
+            <li><a class="" href="../filters/index.html">Overview</a></li>
+            <li><a class="" href="../filters/add-header.html">Add Header Filter</a></li>
+            <li><a class="" href="../filters/api-validator.html">API Validator Filter</a></li>
+            <li><a class="" href="../filters/body-extractor-to-header.html">Body Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/body-patcher.html">Body Patcher Filter</a></li>
+            <li><a class="" href="../filters/compression.html">Compression Filter</a></li>
+            <li><a class="" href="../filters/content-type-stripper.html">Content Type Stripper Filter</a></li>
+            <li><a class="" href="../filters/cors.html">CORS Filter</a></li>
+            <li><a class="" href="../filters/derp.html">Delegation Response Processor (DeRP) Filter</a></li>
+            <li><a class="" href="../filters/destination-router.html">Destination Router Filter</a></li>
+            <li><a class="" href="../filters/echo.html">Echo Filter</a></li>
+            <li><a class="" href="../filters/exception.html">Exception Filter</a></li>
+            <li><a class="" href="../filters/forwarded-proto.html">Forwarded Protocol Filter</a></li>
+            <li><a class=" active" href="../filters/header-normalization.html">Header Normalization filter</a></li>
+            <li><a class="" href="../filters/header-translation.html">Header Translation Filter</a></li>
+            <li><a class="" href="../filters/header-user.html">Header User Filter</a></li>
+            <li><a class="" href="../filters/herp.html">Highly Efficient Record Processor (HERP) Filter</a></li>
+            <li><a class="" href="../filters/ip-user.html">IP User Filter</a></li>
+            <li><a class="" href="../filters/iri-validator.html">IRI Validator Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2.html">Keystone v2 Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-authorization.html">Keystone v2 Authorization Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-basic-auth.html">Keystone v2 Basic Auth Filter</a></li>
+            <li><a class="" href="../filters/merge-header.html">Merge Header Filter</a></li>
+            <li><a class="" href="../filters/openapi-validator.html">OpenAPI Validatort Filter</a></li>
+            <li><a class="" href="../filters/openstack-identity-v3.html">Openstack Identity v3 Filter</a></li>
+            <li><a class="" href="../filters/rate-limiting.html">Rate Limiting Filter</a></li>
+            <li><a class="" href="../filters/regex-rbac.html">RegEx Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/scripting.html">Scripting Filter</a></li>
+            <li><a class="" href="../filters/simple-rbac.html">Simple Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/slf4j-http-logging.html">SFL4J HTTP Logging Filter</a></li>
+            <li><a class="" href="../filters/split-header.html">Split Header Filter</a></li>
+            <li><a class="" href="../filters/tenant-culling.html">Tenant Culling Filter</a></li>
+            <li><a class="" href="../filters/translation.html">Translation Filter</a></li>
+            <li><a class="" href="../filters/uri-normalization.html">URI Normalization Filter</a></li>
+            <li><a class="" href="../filters/uri-stripper.html">URI Stripper Filter</a></li>
+            <li><a class="" href="../filters/uri-user.html">URI User Filter</a></li>
+            <li><a class="" href="../filters/url-extractor-to-header.html">URL Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a></li>
+            <li><a class="" href="../filters/versioning.html">Versioning Filter</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup4">
+        <span id="tgSpan4" class="fa fa-angle-right"></span>Services
+      </a>
+      <ul id="topicGroup4" class="collapse  list-unstyled">
+            <li><a class="" href="../services/index.html">Overview</a></li>
+            <li><a class="" href="../services/atom-feed-consumption.html">Atom Feed Consumption Service</a></li>
+            <li><a class="" href="../services/datastores.html">Datastores</a></li>
+            <li><a class="" href="../services/health-check.html">Health Check Service</a></li>
+            <li><a class="" href="../services/http-client.html">HTTP Client Service</a></li>
+            <li><a class="" href="../services/http-logging.html">HTTP Logging Service</a></li>
+            <li><a class="" href="../services/logging.html">Logging Service</a></li>
+            <li><a class="" href="../services/metrics.html">Metrics Service</a></li>
+            <li><a class="" href="../services/open-tracing.html">OpenTracing Service</a></li>
+            <li><a class="" href="../services/phone-home.html">Phone Home Service</a></li>
+            <li><a class="" href="../services/uri-redaction.html">URI Redaction service</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup5">
+        <span id="tgSpan5" class="fa fa-angle-right"></span>Developer
+      </a>
+      <ul id="topicGroup5" class="collapse  list-unstyled">
+            <li><a class="" href="../developer/index.html">Overview</a></li>
+            <li><a class="" href="../developer/docker.html">Docker</a></li>
+            <li><a class="" href="../developer/performance.html">Performance Testing</a></li>
+            <li><a class="" href="../developer/functional.html">Functional Testing</a></li>
+      </ul>
+    </li>
+</ul>
+      </div>
+      <div class="col-xs-12 col-sm-9 col-md-9 main">
+        <div class="page-header">
+          <h2>Header Normalization Filter</h2>
+        </div>
+        <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Header Normalization filter removes configured headers from a request and/or response.
+Normalization is the process of modifying or standardizing content to optimize the flow of information.
+The Header Normalization filter normalizes the headers of the request by performing two separate functions.
+The filter uses blacklisting to prevent specific headers and it uses whitelisting to allow only approved headers from continuing down the filter chain.
+The headers can be matched by URI regular expression (<code>uri-regex</code>) and/or HTTP method type (<code>http-methods</code>).</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="general-filter-information"><a class="anchor" href="#general-filter-information"></a>General filter information</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Name:</strong> Header Normalization</p>
+</li>
+<li>
+<p><strong>Default Configuration:</strong> header-normalization.cfg.xml</p>
+</li>
+<li>
+<p><strong>Released:</strong> v2.0.0</p>
+</li>
+<li>
+<p><strong>Bundle:</strong> repose-filter-bundle</p>
+</li>
+<li>
+<p><a href="../schemas/header-normalization-configuration.xsd">Schema</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="prerequisites-postconditions"><a class="anchor" href="#prerequisites-postconditions"></a>Prerequisites &amp; Postconditions</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="required-request-headers"><a class="anchor" href="#required-request-headers"></a>Required Request Headers</h3>
+<div class="paragraph">
+<p>This filter does not require any request headers.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="required-preceding-filters"><a class="anchor" href="#required-preceding-filters"></a>Required Preceding Filters</h3>
+<div class="paragraph">
+<p>This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.
+However, due to the nature of this filter it is typically placed early in the filter chain.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="request-headers-created"><a class="anchor" href="#request-headers-created"></a>Request Headers Created</h3>
+<div class="paragraph">
+<p>Changes to request headers vary based on configuration.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="request-body-changes"><a class="anchor" href="#request-body-changes"></a>Request Body Changes</h3>
+<div class="paragraph">
+<p>This filter does not modify the request body.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="recommended-follow-on-succeeding-filters"><a class="anchor" href="#recommended-follow-on-succeeding-filters"></a>Recommended Follow-On (Succeeding) Filters</h3>
+<div class="paragraph">
+<p>This filter is not strictly required by any other filters.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-body-changes"><a class="anchor" href="#response-body-changes"></a>Response Body Changes</h3>
+<div class="paragraph">
+<p>This filter does not modify the response body.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-headers-created"><a class="anchor" href="#response-headers-created"></a>Response Headers Created</h3>
+<div class="paragraph">
+<p>Changes to response headers vary based on configuration.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-status-codes"><a class="anchor" href="#response-status-codes"></a>Response Status Codes</h3>
+<div class="paragraph">
+<p>This filter does not modify the response code.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="remove-all-headers-except-authentication-headers-from-incoming-requests"><a class="anchor" href="#remove-all-headers-except-authentication-headers-from-incoming-requests"></a>Remove all headers except authentication headers from incoming requests</h3>
+<div class="paragraph">
+<p>This configuration shows how to use the Whitelist feature of the Header Normalization filter.
+It will remove all other headers except those required to initiate an authentication sequence.</p>
+</div>
+<div class="listingblock">
+<div class="title">header-normalization.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;header-normalization</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">http://docs.openrepose.org/repose/header-normalization/v1.0</span><span style="color:#710">'</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;target&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+        <span style="color:#070;font-weight:bold">&lt;request&gt;</span> <i class="conum" data-value="2"></i><b>(2)</b>
+            <span style="color:#070;font-weight:bold">&lt;whitelist&gt;</span> <i class="conum" data-value="3"></i><b>(3)</b>
+                <span style="color:#070;font-weight:bold">&lt;header</span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">X-Auth-Key</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="4"></i><b>(4)</b>
+                <span style="color:#070;font-weight:bold">&lt;header</span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">X-Auth-User</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;/whitelist&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/request&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/target&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/header-normalization&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Since neither the <code>uri-regex</code> nor <code>http-methods</code> are specified, this target applies to all requests.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The following whitelist only applies to the request.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The whitelist feature enables you to specify the only HTTP headers that you want to be passed on.
+All others are removed.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Only the <code>X-Auth-Key</code> and <code>X-Auth-User</code> headers will be allowed to continue forward from the client.</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="remove-headers-from-outgoing-responses"><a class="anchor" href="#remove-headers-from-outgoing-responses"></a>Remove headers from outgoing responses</h3>
+<div class="paragraph">
+<p>This configuration shows how to use the Blacklist feature of the Header Normalization filter.
+It will remove only the specified headers from all responses.</p>
+</div>
+<div class="listingblock">
+<div class="title">header-normalization.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;header-normalization</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">http://docs.openrepose.org/repose/header-normalization/v1.0</span><span style="color:#710">'</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;target&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+        <span style="color:#070;font-weight:bold">&lt;response&gt;</span> <i class="conum" data-value="2"></i><b>(2)</b>
+            <span style="color:#070;font-weight:bold">&lt;blacklist&gt;</span> <i class="conum" data-value="3"></i><b>(3)</b>
+                <span style="color:#070;font-weight:bold">&lt;header</span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">X-User-Name</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="4"></i><b>(4)</b>
+                <span style="color:#070;font-weight:bold">&lt;header</span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">X-Tenant-Id</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;/blacklist&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/response&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/target&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/header-normalization&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Since neither the <code>uri-regex</code> nor <code>http-methods</code> are specified, this target applies to all responses.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The following blacklist only applies to the response.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The blacklist feature enables you to specify exactly which HTTP headers to discard.
+All others are left alone.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Only the <code>X-User-Name</code> and <code>X-Tenant-Id</code> headers will be removed before continuing back to the client.</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="this-is-a-full-example-showing-all-the-available-options"><a class="anchor" href="#this-is-a-full-example-showing-all-the-available-options"></a>This is a full example showing all the available options.</h3>
+<div class="paragraph">
+<p>This configuration is a more complex example.</p>
+</div>
+<div class="listingblock">
+<div class="title">header-normalization.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;header-normalization</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">http://docs.openrepose.org/repose/header-normalization/v1.0</span><span style="color:#710">'</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;target</span> <span style="color:#b48">uri-regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/servers/(.*)</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">http-methods</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">ALL</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+        <span style="color:#070;font-weight:bold">&lt;request&gt;</span>  <i class="conum" data-value="2"></i><b>(2)</b> <i class="conum" data-value="3"></i><b>(3)</b>
+            <span style="color:#070;font-weight:bold">&lt;whitelist&gt;</span>  <i class="conum" data-value="4"></i><b>(4)</b> <i class="conum" data-value="5"></i><b>(5)</b>
+                <span style="color:#070;font-weight:bold">&lt;header</span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">X-Auth-Key</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="6"></i><b>(6)</b>
+                <span style="color:#070;font-weight:bold">&lt;header</span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">X-Auth-User</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;/whitelist&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/request&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;response&gt;</span> <i class="conum" data-value="7"></i><b>(7)</b>
+            <span style="color:#070;font-weight:bold">&lt;blacklist&gt;</span> <i class="conum" data-value="8"></i><b>(8)</b>
+                <span style="color:#070;font-weight:bold">&lt;header</span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">X-User-Name</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;header</span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">X-Tenant-Id</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;/blacklist&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/response&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/target&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;target</span> <span style="color:#b48">http-methods</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">POST PUT</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span> <i class="conum" data-value="9"></i><b>(9)</b>
+        <span style="color:#070;font-weight:bold">&lt;request&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;whitelist&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;header</span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">X-Modify</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;/whitelist&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/request&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/target&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;target&gt;</span> <i class="conum" data-value="10"></i><b>(10)</b>
+        <span style="color:#070;font-weight:bold">&lt;request&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;blacklist&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;header</span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">X-PP-User</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;header</span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">X-PP-Groups</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;/blacklist&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/request&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;response&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;blacklist&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;header</span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">X-Remove-Me</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;/blacklist&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/response&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/target&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/header-normalization&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Since the <code>http-methods</code> attribute is not specified, this target applies to all HTTP methods (GET, POST, PUT, etc) that match the <code>uri-regex</code>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Even though both request and response elements are optional, at least one must be specified and both can be.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The following whitelist only applies to the request.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Even though both whitelist and blacklist elements are optional, one and only one must be specified.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>A whitelist specifies the only headers that are allowed to continue.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>The header element consists of only the required id attribute which defines the case-insensitive name of the header to remove or allow to pass.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>The following blacklist will only apply to the response.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>A blacklist specifies exactly which headers to not allow to continue.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="9"></i><b>9</b></td>
+<td>Since the <code>uri-regex</code> attribute is not specified, this target applies to all POST and PUT requests.<br>
+Valid <code>http-methods</code> are: GET, DELETE, POST, PUT, HEAD, OPTIONS, CONNECT, TRACE, and ALL</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="10"></i><b>10</b></td>
+<td>Since neither the <code>uri-regex</code> nor <code>http-methods</code> are specified, this target applies to all requests and responses that don&#8217;t match one of the previous targets.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Every target that matches will get evaluated.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="additional-information"><a class="anchor" href="#additional-information"></a>Additional Information</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="metrics"><a class="anchor" href="#metrics"></a>Metrics</h3>
+<div class="paragraph">
+<p>This component reports the following metrics to the <a href="../services/metrics.html">Metrics Service</a>:</p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Metric Type</th>
+<th class="tableblock halign-left valign-top">Metric Name</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Meter</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>org.openrepose.filters.headernormalization.HeaderNormalizationFilter.Normalization.request.&lt;request-method&gt;.&lt;target-url-pattern&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Counts the number of times a request with method <code>request-method</code> and a URL matching <code>target-url-pattern</code> is processed.
+<code>request-method</code> is the HTTP method of the request.
+<code>target-url-pattern</code> is the configured <code>uri-regex</code> that matches the request URL.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Meter</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>org.openrepose.filters.headernormalization.HeaderNormalizationFilter.Normalization.request.ACROSS ALL</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Counts the number of times a request is processed by this filter.
+This meter is the sum of all <code>org.openrepose.filters.headernormalization.HeaderNormalizationFilter.Normalization.request.&lt;request-method&gt;.&lt;target-url-pattern&gt;</code> meters.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Meter</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>org.openrepose.filters.headernormalization.HeaderNormalizationFilter.Normalization.response.&lt;request-method&gt;.&lt;target-url-pattern&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Counts the number of times a response to a request with method <code>request-method</code> and a URL matching <code>target-url-pattern</code> is processed.
+<code>request-method</code> is the HTTP method of the request.
+<code>target-url-pattern</code> is the configured <code>uri-regex</code> that matches the request URL.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Meter</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>org.openrepose.filters.headernormalization.HeaderNormalizationFilter.Normalization.response.ACROSS ALL</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Counts the number of times a response is processed by this filter.
+This meter is the sum of all <code>org.openrepose.filters.headernormalization.HeaderNormalizationFilter.Normalization.response.&lt;request-method&gt;.&lt;target-url-pattern&gt;</code> meters.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+      </div>
+    </div>
+  </div>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="/_javascripts/bootstrap-offcanvas.js" type="text/javascript"></script>
+  <script src="/_javascripts/page-loader.js" type="text/javascript"></script>
+  <script src="/_javascripts/include-html.js" type="text/javascript"></script>
+  <script>includeHTML();</script>
+  <script type="text/javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+      $("[id^='topicGroup']").on('show.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicGroup']").on('hide.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicSubGroup']").on('show.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+      $("[id^='topicSubGroup']").on('hide.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+    });
+    /*]]>*/
+  </script>
+</body>
+</html>

@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>9.0.1.0 | Recipes | Getting Started</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="/_stylesheets/asciibinder.css" >
+  <link rel="stylesheet" href="/_stylesheets/repose.css" >
+  <link rel="stylesheet" href="/_stylesheets/release-note-categories.css" >
+
+   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+   <!--[if lt IE 9]>
+     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+   <![endif]-->
+
+  <link href="/_images/favicon32x32.png" rel="shortcut icon" type="text/css">
+  <!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
+  <meta content="AsciiBinder" name="application-name">
+</head>
+<body onload="selectVersion('9.0.1.0');">
+  <div class="container">
+    <p class="toggle-nav visible-xs pull-left">
+      <button class="btn btn-default btn-sm" type="button" data-toggle="offcanvas">Toggle nav</button>
+    </p>
+    <ol class="breadcrumb">
+      <li class="sitename">
+        <a class="navbar-brand" href="http://www.openrepose.org/">
+          <img alt="OpenRepose" src="/_images/repose-logo.png" align="bottom">
+        </a>
+      </li>
+      <li class="sitename">
+        <a href="../../index.html">
+          Home
+        </a>
+      </li>
+      <li class="hidden-xs active">
+        <a href="/versions/9.0.1.0/welcome/index.html">
+          Repose
+        </a>
+        <select id="version-selector" onchange="versionSelector(this);" w3-include-html="/_includes/versions.html">
+        </select>
+      </li>
+      <li class="hidden-xs active">
+        <a href="../recipes/index.html">Recipes</a>
+      </li>
+      
+      <li class="hidden-xs active">
+        Getting Started
+      </li>
+    </ol>
+    <div class="row row-offcanvas row-offcanvas-left">
+      <div class="col-xs-8 col-sm-3 col-md-3 sidebar sidebar-offcanvas">
+        <a class="navbar-search" href="/versions/search.html">
+          <span class="glyphicon glyphicon-search"/>
+          Search
+        </a>
+        <ul class="nav nav-sidebar">
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup0">
+        <span id="tgSpan0" class="fa fa-angle-right"></span>Welcome to Repose
+      </a>
+      <ul id="topicGroup0" class="collapse  list-unstyled">
+            <li><a class="" href="../welcome/index.html">Welcome</a></li>
+            <li><a class="" href="../welcome/troubleshooting.html">Troubleshooting</a></li>
+            <li><a class="" href="../welcome/release-notes.html">Release Notes</a></li>
+            <li><a class="" href="../welcome/ver-9-upgrade-notes.html">Version 9 Upgrade Notes</a></li>
+            <li><a class="" href="../welcome/style-guide.html">Style Guide</a></li>
+            <li><a class="" href="../welcome/faq.html">FAQ</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup1">
+        <span id="tgSpan1" class="fa fa-angle-right"></span>Architecture
+      </a>
+      <ul id="topicGroup1" class="collapse  list-unstyled">
+            <li><a class="" href="../architecture/index.html">Overview</a></li>
+            <li><a class="" href="../architecture/configuration.html">Configuration</a></li>
+            <li><a class="" href="../architecture/container.html">Container</a></li>
+            <li><a class="" href="../architecture/filter-chain.html">Filter Chain</a></li>
+            <li><a class="" href="../architecture/logging.html">Logging</a></li>
+            <li><a class="" href="../architecture/packages.html">Packages</a></li>
+            <li><a class="" href="../architecture/servlet-spec.html">Servlet Specification</a></li>
+            <li><a class="" href="../architecture/system-model.html">System Model</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup2">
+        <span id="tgSpan2" class="fa fa-angle-down"></span>Recipes
+      </a>
+      <ul id="topicGroup2" class="collapse in list-unstyled">
+            <li><a class="" href="../recipes/index.html">Overview</a></li>
+            <li><a class="" href="../recipes/quick-start.html">Quick Start</a></li>
+            <li><a class=" active" href="../recipes/getting-started.html">Getting Started</a></li>
+            <li><a class="" href="../recipes/custom-filter-for-repose.html">Custom Filter for Repose</a></li>
+            <li><a class="" href="../recipes/docker.html">Docker</a></li>
+            <li><a class="" href="../recipes/performance-best-practices.html">Performance Best Practices</a></li>
+            <li><a class="" href="../recipes/role-based-access-control.html">Role Based Access Control</a></li>
+            <li><a class="" href="../recipes/running-valve.html">Running Valve</a></li>
+            <li><a class="" href="../recipes/valve-installation.html">Valve Installation</a></li>
+            <li><a class="" href="../recipes/echo-server.html">Echo Server</a></li>
+            <li><a class="" href="../recipes/rate-limiting.html">Rate Limiting</a></li>
+            <li><a class="" href="../recipes/multi-tenant.html">Multi Tenant Authorization</a></li>
+            <li><a class="" href="../recipes/user-access-events.html">User Access Events</a></li>
+            <li><a class="" href="../recipes/basic-authentication.html">Basic Authentication</a></li>
+            <li><a class="" href="../recipes/delegation.html">Delegation</a></li>
+            <li><a class="" href="../recipes/preventing-xml-bomb.html">Preventing XML bomb attacks</a></li>
+            <li><a class="" href="../recipes/api-event-flume.html">API Access Event Recording with Flume</a></li>
+            <li><a class="" href="../recipes/xsd-versioning.html">XSD Versioning Guidelines</a></li>
+            <li><a class="" href="../recipes/client-authentication.html">SSL/TLS Client Authentication</a></li>
+            <li><a class="" href="../recipes/functional-test-framework.html">Functional Test Framework</a></li>
+            <li><a class="" href="../recipes/header-splitting.html">Header Splitting</a></li>
+            <li><a class="" href="../recipes/reason-phrase-normalization.html">Reason Phrase Normalization</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup3">
+        <span id="tgSpan3" class="fa fa-angle-right"></span>Filters
+      </a>
+      <ul id="topicGroup3" class="collapse  list-unstyled">
+            <li><a class="" href="../filters/index.html">Overview</a></li>
+            <li><a class="" href="../filters/add-header.html">Add Header Filter</a></li>
+            <li><a class="" href="../filters/api-validator.html">API Validator Filter</a></li>
+            <li><a class="" href="../filters/body-extractor-to-header.html">Body Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/body-patcher.html">Body Patcher Filter</a></li>
+            <li><a class="" href="../filters/compression.html">Compression Filter</a></li>
+            <li><a class="" href="../filters/content-type-stripper.html">Content Type Stripper Filter</a></li>
+            <li><a class="" href="../filters/cors.html">CORS Filter</a></li>
+            <li><a class="" href="../filters/derp.html">Delegation Response Processor (DeRP) Filter</a></li>
+            <li><a class="" href="../filters/destination-router.html">Destination Router Filter</a></li>
+            <li><a class="" href="../filters/echo.html">Echo Filter</a></li>
+            <li><a class="" href="../filters/exception.html">Exception Filter</a></li>
+            <li><a class="" href="../filters/forwarded-proto.html">Forwarded Protocol Filter</a></li>
+            <li><a class="" href="../filters/header-normalization.html">Header Normalization filter</a></li>
+            <li><a class="" href="../filters/header-translation.html">Header Translation Filter</a></li>
+            <li><a class="" href="../filters/header-user.html">Header User Filter</a></li>
+            <li><a class="" href="../filters/herp.html">Highly Efficient Record Processor (HERP) Filter</a></li>
+            <li><a class="" href="../filters/ip-user.html">IP User Filter</a></li>
+            <li><a class="" href="../filters/iri-validator.html">IRI Validator Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2.html">Keystone v2 Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-authorization.html">Keystone v2 Authorization Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-basic-auth.html">Keystone v2 Basic Auth Filter</a></li>
+            <li><a class="" href="../filters/merge-header.html">Merge Header Filter</a></li>
+            <li><a class="" href="../filters/openapi-validator.html">OpenAPI Validatort Filter</a></li>
+            <li><a class="" href="../filters/openstack-identity-v3.html">Openstack Identity v3 Filter</a></li>
+            <li><a class="" href="../filters/rate-limiting.html">Rate Limiting Filter</a></li>
+            <li><a class="" href="../filters/regex-rbac.html">RegEx Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/scripting.html">Scripting Filter</a></li>
+            <li><a class="" href="../filters/simple-rbac.html">Simple Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/slf4j-http-logging.html">SFL4J HTTP Logging Filter</a></li>
+            <li><a class="" href="../filters/split-header.html">Split Header Filter</a></li>
+            <li><a class="" href="../filters/tenant-culling.html">Tenant Culling Filter</a></li>
+            <li><a class="" href="../filters/translation.html">Translation Filter</a></li>
+            <li><a class="" href="../filters/uri-normalization.html">URI Normalization Filter</a></li>
+            <li><a class="" href="../filters/uri-stripper.html">URI Stripper Filter</a></li>
+            <li><a class="" href="../filters/uri-user.html">URI User Filter</a></li>
+            <li><a class="" href="../filters/url-extractor-to-header.html">URL Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a></li>
+            <li><a class="" href="../filters/versioning.html">Versioning Filter</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup4">
+        <span id="tgSpan4" class="fa fa-angle-right"></span>Services
+      </a>
+      <ul id="topicGroup4" class="collapse  list-unstyled">
+            <li><a class="" href="../services/index.html">Overview</a></li>
+            <li><a class="" href="../services/atom-feed-consumption.html">Atom Feed Consumption Service</a></li>
+            <li><a class="" href="../services/datastores.html">Datastores</a></li>
+            <li><a class="" href="../services/health-check.html">Health Check Service</a></li>
+            <li><a class="" href="../services/http-client.html">HTTP Client Service</a></li>
+            <li><a class="" href="../services/http-logging.html">HTTP Logging Service</a></li>
+            <li><a class="" href="../services/logging.html">Logging Service</a></li>
+            <li><a class="" href="../services/metrics.html">Metrics Service</a></li>
+            <li><a class="" href="../services/open-tracing.html">OpenTracing Service</a></li>
+            <li><a class="" href="../services/phone-home.html">Phone Home Service</a></li>
+            <li><a class="" href="../services/uri-redaction.html">URI Redaction service</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup5">
+        <span id="tgSpan5" class="fa fa-angle-right"></span>Developer
+      </a>
+      <ul id="topicGroup5" class="collapse  list-unstyled">
+            <li><a class="" href="../developer/index.html">Overview</a></li>
+            <li><a class="" href="../developer/docker.html">Docker</a></li>
+            <li><a class="" href="../developer/performance.html">Performance Testing</a></li>
+            <li><a class="" href="../developer/functional.html">Functional Testing</a></li>
+      </ul>
+    </li>
+</ul>
+      </div>
+      <div class="col-xs-12 col-sm-9 col-md-9 main">
+        <div class="page-header">
+          <h2>Getting Started</h2>
+        </div>
+        <div class="sect1">
+<h2 id="what-is-repose"><a class="anchor" href="#what-is-repose"></a>What is Repose?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>Repose</strong> is an open-source, RESTful middleware platform that transparently integrates with your existing infrastructure.
+Technically, it is a pseudo-transparent reverse proxy.</p>
+</div>
+<div class="paragraph">
+<p><strong>Repose</strong> provides highly scalable, extensible solutions to common API processing tasks including authentication, rate limiting, access control, logging, and more.</p>
+</div>
+<div class="paragraph">
+<p>Additionally, <strong>Repose</strong> allows services to use <a href="https://en.wikipedia.org/wiki/Enterprise_Integration_Patterns">Enterprise Integration Patterns</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="how-does-repose-work"><a class="anchor" href="#how-does-repose-work"></a>How Does Repose Work?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>Repose</strong> takes incoming requests from clients and adjusts them for consumption by services by passing the requests through a series of extensible filters.
+These filters provide functionality such as authentication, authorization, rate-limiting, and request modification.
+<strong>Repose</strong> can run as a stand-alone proxy server between the client and the origin service.
+The <strong>Repose</strong> instance can be on the same host as the origin service, but it doesn&#8217;t have to be.
+This deployment method, illustrated in the following graphic, is called <a href="valve-installation.html">Valve</a>.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAAB+CAIAAABd6HTXAAAOqklEQVR42u2deWwUZR/HVaiUo6VFQMCixLMqhoYaD0BZtPGICooVa6KCIjFGjBirEi8Ug6BVi1FjVCISDq2KGiGtUK1SlIBgYzccgrTKYpsWcCnbu5bX95v3yTuZbLfdpdvd7vH5/NXZmdnZ5zff5zPPHLs96V8AAIg5TqIEAADIHQAAokru/wEAgCgHuQMAIHcAAEDuAACA3AEAALkDAAByBwBA7gAAgNwBAAC5AwAAcgcAAOQOAIDckTsAAHIHAADkDgAAyB0AAJA7AAAgdwAA5A4AAMgdAACQOwAAIHcAAEDuAADIHbkDACB3AABA7gAAgNwBAAC5AwAAcgcAQO4AAIDcAQAAuQMAQLTJPT09/aTYQi0iKz0C2aDOEJ5chUTu+mT/xhZqkcfjaWhoaG5ubm1tbW9vR9NkI5KzEXt1jjeCzxVyD7TQBw8erK2tdbvdKrdqjabJRiRnA7mTK+QeaKF37dpVUVFRVVWlWjc1NaFpshHJ2UDu5Aq5B1roLVu2lJeXq9Y1NTX19fVommxEcjaQO7lC7oEWuqioSLXeuXOny+Wqq6tD02QjkrOB3MkVcg+00AUFBRs3bty+ffv+/fv//vtvNE02IjkbyJ1cIfdAC/3xxx9/8803P//88++//47c7eTm5gZ+QZBsBFPntrY25B4/cg8yV8gduffA7s7IyCgrKyMbIc2GqbPT6UTuyB25I/cwyV0kJibm5eWRjZDK3dQ5Pz8fuSN35I7cwyR3g8PhcLlcZCPUdc7Kyoq3OiN35I7ce1PuIiUlRbUiG2Go82effYbckTtyR+5hkrshJyfH7XaTjVDX+e67746TOiN35I7cI0LuIi0traSkhGyEus5jxoyJhzojd+QeqkLDiZKSkrJ8+fJ4y8ZTTz1lb++CBQvsczXZ7bmdMWjQoHioM3JH7ozcI2Lk7nA4KisryUao6zxp0qQ4qTNyR+7IvZfl3rdv37y8vM6+bkM2erDOixcvjp86I3fkjtx7U+5jx47t+ttMZKNH6pyenh5vdUbuyB2595rc582b5/d3CMhG8HWeO3duHNYZuSN35N4Lck9LSysuLiYboZa76lxUVBSfdUbuyB25h5vs7Gyfj1qTjR6v86FDh+K2zsgduSP3SB/mkw3qDLEv98LCwmnTpo0cOTIhISEpKenss8++6aabWlpaNOvaa6/V+5x11llmSa/JILGeIP7jjz+QO9JB7objx48vX77c4XCkpqaqS6pj3nbbbT/88IPfFU+0ewbfnTds2DBlypThw4f36dNn4MCBo0ePnjBhQuj2cs/6J8blrsUeeOAB8xWMFStW1NfXV1dXFxUVTZ06taGhAbnHldyvv/56626h+qp67PTp01Vn5B5Oube1tWlopRXPO++8HTt2NDc3f/rpp/3799crixYtiii5FxQUaPVhw4Zt27ZNn1Nl1zHpiiuuQO4RIffXXnvNdOZly5aFv5rIPQLlftppp+lvHePHjRunyfPPP98eUOQeark/++yzplPYh+rWi99++23k1Pzyyy/XR9JZBZdlIk7uOvvT6Mz059bW1kDk3tH1a9asmThxYlJSksb+0oGOFuZ6jrXwmWee+fbbb2dkZAwYMEArvvLKK2ZuZmam1/dBLr74YuQeIXIXL730ktkvFRUVVmDy8/O1m/r16zdy5Eid3jmdTmt1va6Fb7311tmzZ2un6yQ9Jyfn6NGjZm57e7t2/YUXXnjqqacqLcrGpk2brHV1snjllVcOHjx4yJAhWVlZGhKaXtH1FmNP7qpSSkqKeSDH7oV9+/aZfXHLLbd49cQDBw7ob1V15cqVXt1TJwG5ubkaWes9J0+erG5o3kR7tove3VmH7cioUaO0fHJysirf2Njocxm/frA34brrrjO/lV9XV2eWKS4uNp951apVPv3z+eefT5kyRQ1U3tTGzZs3B7Lp2Jf77t27TeFUggDPg7wmn3nmGU1qH//666+1tbV6H02q1uqT1sLioYcecrvdzz33nJnUDmPkHvlyX7hwodk7f/31l3llzpw55kfMDx06tHHjxj59+qgf7tixwy53oU6lMOj03D6smzlzpibHjx9fVVUllfft21erm3GoFk78H3v27PF4PJL+9OnT9+7d63eLsSf3Xbt2Wb8b4SX9U045xVwDsfdEHQOWLFlSU1Pjs3s+9thjRr5btmyRQMeOHRuI3LvosF6Y/m6Qmq+66qpFixYdPnzYWiAQP9ibYDX//fffN+9wzz33mEz6vAX4wgsvmEuI7733no4H2srcuXMD2XTsy/3HH380pdRoqxtyV59XWTW5ePFiM3ft2rXmDQsLC62F1Y3VY+3HEmt55B75l2U0+jZz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" alt="valve diagram" width="500" height="126">
+</div>
+</div>
+<div class="paragraph">
+<p>You can decide which configuration works best for you, and you can tweak many of your configurations without having to restart <strong>Repose</strong> – it will pick up configuration changes on the fly, making it easy to configure and test.</p>
+</div>
+<div class="paragraph">
+<p><strong>Repose</strong> can be configured to use a distributed data store service where cached information is exchanged across multiple nodes.
+This makes <strong>Repose</strong> fault tolerant with proven performance.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="what-services-does-repose-provide"><a class="anchor" href="#what-services-does-repose-provide"></a>What Services Does Repose Provide?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>Repose</strong> provides a series of customizable filters that you can configure to perform a large number of API tasks.
+The full list of filters is on the <a href="../filters/index.html">Filters</a> page.
+Following are some of the most common ones:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="../filters/translation.html">Translating</a> requests and responses so that services receive them in the format that they are expecting.</p>
+</li>
+<li>
+<p><a href="../filters/rate-limiting.html">Rate limiting</a> requests and responses to control network traffic.</p>
+</li>
+<li>
+<p><a href="../filters/keystone-v2.html">Authenticating</a> requests to enhance security.</p>
+</li>
+<li>
+<p><a href="../filters/api-validator.html">Validating</a> that requests conform to XSD and WADL specifications.</p>
+</li>
+<li>
+<p><a href="../filters/slf4j-http-logging.html">Logging</a> to keep inventories of events.</p>
+</li>
+<li>
+<p><a href="../filters/header-normalization.html">Blacklisting</a> to prevent others from spoofing authentication credentials and roles.</p>
+</li>
+<li>
+<p><a href="../filters/keystone-v2.html#Cache">Caching</a> to reduce load on authentication services.</p>
+</li>
+<li>
+<p><a href="role-based-access-control.html">Role-based access control (RBAC)</a> to restrict access to authorized users.</p>
+</li>
+<li>
+<p><a href="../filters/api-validator.html">API Coverage</a> to map the state of your API.</p>
+</li>
+<li>
+<p><a href="../architecture/container.html">HTTP Client Authentication</a> for federated applications.</p>
+</li>
+<li>
+<p><a href="../architecture/container.html">SSL/TLS Termination</a> and Ciphers/Protocols inclusion/exclusion.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="who-can-use-repose"><a class="anchor" href="#who-can-use-repose"></a>Who Can Use Repose?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Anyone can use <strong>Repose</strong>!
+It is an open-source platform for the general public to consume, share, and improve.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="how-can-i-use-repose"><a class="anchor" href="#how-can-i-use-repose"></a>How Can I Use Repose?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To get <strong>Repose</strong>, log in to your server and run the <a href="#installation">Installation</a> commands for your desired environment.
+Then, configure your origin service endpoint in the <a href="../architecture/system-model.html">system model</a>, and you are ready to configure <a href="../filters/index.html">filters</a> and <a href="../services/index.html">services</a> that work for you.
+We have many sample configurations that you can use to get started.
+Or, because <strong>Repose</strong> is open source, you can <a href="custom-filter-for-repose.html">build your own</a> stacks of reusable software components.</p>
+</div>
+<div class="sect2">
+<h3 id="environment-setup"><a class="anchor" href="#environment-setup"></a>Environment Setup</h3>
+<div class="paragraph">
+<p>Installation instructions are provided for Debian package managers (e.g., APT) and RPM package managers (e.g., Yum).</p>
+</div>
+<div class="paragraph">
+<p>Certain deployment methods will handle environment setup automatically.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="installation"><a class="anchor" href="#installation"></a>Installation</h3>
+<div class="paragraph">
+<p>The recommended and most common way to run <strong>Repose</strong> is as a standalone application using the Valve installation.
+This installation allows <strong>Repose</strong> to be executed either as a Linux service (e.g., systemd) or directly from the installed JAR.</p>
+</div>
+<div class="paragraph">
+<p>The most recent addition to the <strong>Repose</strong> family is a containerized release of the Valve installation.
+This is great if you are looking to eventually run <strong>Repose</strong> with a container service or are just trying it out for the first time.</p>
+</div>
+<div class="paragraph">
+<p>While <strong>Repose</strong> can be installed manually, there are other deployment options available.
+However, these other methods do require a little more System Administration knowledge which is not covered here.
+See: <a href="#deployment">Deployment</a></p>
+</div>
+<div class="sect3">
+<h4 id="proxy-server-valve"><a class="anchor" href="#proxy-server-valve"></a>Proxy Server (Valve)</h4>
+<div class="paragraph">
+<p>This is the most common setup and is detailed on the <a href="valve-installation.html">Valve Installation</a> page.</p>
+</div>
+<div class="paragraph">
+<p>After installing it this way, consult the <a href="running-valve.html">Running Valve</a> page for details on starting and stopping <strong>Repose</strong>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="docker-container"><a class="anchor" href="#docker-container"></a>Docker Container</h4>
+<div class="paragraph">
+<p>See <a href="quick-start.html">Quick Start</a> for more details.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="deployment"><a class="anchor" href="#deployment"></a>Deployment</h3>
+<div class="paragraph">
+<p>Once you know how you&#8217;ll want to configure <strong>Repose</strong>, you may want to automate the deployment using a configuration management tool or reusable container.</p>
+</div>
+<div class="sect3">
+<h4 id="docker"><a class="anchor" href="#docker"></a>Docker</h4>
+<div class="paragraph">
+<p>Docker and <strong>Repose</strong> make a fantastic team together.
+If you are interested in using the published <strong>Repose Docker</strong> images, see our <a href="quick-start.html">Quick Start</a>.
+For more details on building a custom <strong>Repose Docker</strong> image, see our <a href="docker.html">Docker</a> recipe.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="puppet"><a class="anchor" href="#puppet"></a>Puppet</h4>
+<div class="paragraph">
+<p>There is an unsupported starter module in the GitHub repository <a href="https://github.com/rackerlabs/puppet-repose">rackerlabs/puppet-repose</a>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="chef"><a class="anchor" href="#chef"></a>Chef</h4>
+<div class="paragraph">
+<p>There is an unsupported starter cookbook in the GitHub repository <a href="https://github.com/rackerlabs/cookbook-repose">rackerlabs/cookbook-repose</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="configuration"><a class="anchor" href="#configuration"></a>Configuration</h3>
+<div class="paragraph">
+<p>If you&#8217;re ready to dive into configuration, see <a href="../architecture/configuration.html">Configuration</a> for more details.
+We also have a series of <a href="index.html">Recipes</a> that will walk you through some of our common use cases.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="performance-tuning"><a class="anchor" href="#performance-tuning"></a>Performance Tuning</h3>
+<div class="paragraph">
+<p><strong>Repose</strong> has been battle tested in production environments and in our performance testing environments.
+See <a href="performance-best-practices.html">Performance Best Practices</a> for more details.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="support"><a class="anchor" href="#support"></a>Support</h3>
+<div class="sect3">
+<h4 id="recipes"><a class="anchor" href="#recipes"></a>Recipes</h4>
+<div class="paragraph">
+<p>For further information on common configuration scenarios, visit our <a href="index.html">Recipes</a> page.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="troubleshooting"><a class="anchor" href="#troubleshooting"></a>Troubleshooting</h4>
+<div class="paragraph">
+<p>For details on common troubleshooting techniques, visit our <a href="../welcome/troubleshooting.html">Troubleshooting</a> page.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="faqs"><a class="anchor" href="#faqs"></a>FAQs</h4>
+<div class="paragraph">
+<p>For a list of frequently asked questions and answers, visit our <a href="../welcome/faq.html">FAQ</a> page.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="need-more-information-about-repose"><a class="anchor" href="#need-more-information-about-repose"></a>Need More Information About Repose?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="http://www.openrepose.org/#contact-us">Contact us</a>! We would be happy to address any questions, comments, or concerns with anything having to do with <strong>Repose</strong>!</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If you wonder what we&#8217;ve been working on lately, visit our <a href="../welcome/release-notes.html">release notes</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+      </div>
+    </div>
+  </div>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="/_javascripts/bootstrap-offcanvas.js" type="text/javascript"></script>
+  <script src="/_javascripts/page-loader.js" type="text/javascript"></script>
+  <script src="/_javascripts/include-html.js" type="text/javascript"></script>
+  <script>includeHTML();</script>
+  <script type="text/javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+      $("[id^='topicGroup']").on('show.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicGroup']").on('hide.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicSubGroup']").on('show.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+      $("[id^='topicSubGroup']").on('hide.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+    });
+    /*]]>*/
+  </script>
+</body>
+</html>

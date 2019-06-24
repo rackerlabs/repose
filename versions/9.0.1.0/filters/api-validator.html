@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>9.0.1.0 | Filters | API Validator Filter</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="/_stylesheets/asciibinder.css" >
+  <link rel="stylesheet" href="/_stylesheets/repose.css" >
+  <link rel="stylesheet" href="/_stylesheets/release-note-categories.css" >
+
+   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+   <!--[if lt IE 9]>
+     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+   <![endif]-->
+
+  <link href="/_images/favicon32x32.png" rel="shortcut icon" type="text/css">
+  <!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
+  <meta content="AsciiBinder" name="application-name">
+</head>
+<body onload="selectVersion('9.0.1.0');">
+  <div class="container">
+    <p class="toggle-nav visible-xs pull-left">
+      <button class="btn btn-default btn-sm" type="button" data-toggle="offcanvas">Toggle nav</button>
+    </p>
+    <ol class="breadcrumb">
+      <li class="sitename">
+        <a class="navbar-brand" href="http://www.openrepose.org/">
+          <img alt="OpenRepose" src="/_images/repose-logo.png" align="bottom">
+        </a>
+      </li>
+      <li class="sitename">
+        <a href="../../index.html">
+          Home
+        </a>
+      </li>
+      <li class="hidden-xs active">
+        <a href="/versions/9.0.1.0/welcome/index.html">
+          Repose
+        </a>
+        <select id="version-selector" onchange="versionSelector(this);" w3-include-html="/_includes/versions.html">
+        </select>
+      </li>
+      <li class="hidden-xs active">
+        <a href="../filters/index.html">Filters</a>
+      </li>
+      
+      <li class="hidden-xs active">
+        API Validator Filter
+      </li>
+    </ol>
+    <div class="row row-offcanvas row-offcanvas-left">
+      <div class="col-xs-8 col-sm-3 col-md-3 sidebar sidebar-offcanvas">
+        <a class="navbar-search" href="/versions/search.html">
+          <span class="glyphicon glyphicon-search"/>
+          Search
+        </a>
+        <ul class="nav nav-sidebar">
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup0">
+        <span id="tgSpan0" class="fa fa-angle-right"></span>Welcome to Repose
+      </a>
+      <ul id="topicGroup0" class="collapse  list-unstyled">
+            <li><a class="" href="../welcome/index.html">Welcome</a></li>
+            <li><a class="" href="../welcome/troubleshooting.html">Troubleshooting</a></li>
+            <li><a class="" href="../welcome/release-notes.html">Release Notes</a></li>
+            <li><a class="" href="../welcome/ver-9-upgrade-notes.html">Version 9 Upgrade Notes</a></li>
+            <li><a class="" href="../welcome/style-guide.html">Style Guide</a></li>
+            <li><a class="" href="../welcome/faq.html">FAQ</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup1">
+        <span id="tgSpan1" class="fa fa-angle-right"></span>Architecture
+      </a>
+      <ul id="topicGroup1" class="collapse  list-unstyled">
+            <li><a class="" href="../architecture/index.html">Overview</a></li>
+            <li><a class="" href="../architecture/configuration.html">Configuration</a></li>
+            <li><a class="" href="../architecture/container.html">Container</a></li>
+            <li><a class="" href="../architecture/filter-chain.html">Filter Chain</a></li>
+            <li><a class="" href="../architecture/logging.html">Logging</a></li>
+            <li><a class="" href="../architecture/packages.html">Packages</a></li>
+            <li><a class="" href="../architecture/servlet-spec.html">Servlet Specification</a></li>
+            <li><a class="" href="../architecture/system-model.html">System Model</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup2">
+        <span id="tgSpan2" class="fa fa-angle-right"></span>Recipes
+      </a>
+      <ul id="topicGroup2" class="collapse  list-unstyled">
+            <li><a class="" href="../recipes/index.html">Overview</a></li>
+            <li><a class="" href="../recipes/quick-start.html">Quick Start</a></li>
+            <li><a class="" href="../recipes/getting-started.html">Getting Started</a></li>
+            <li><a class="" href="../recipes/custom-filter-for-repose.html">Custom Filter for Repose</a></li>
+            <li><a class="" href="../recipes/docker.html">Docker</a></li>
+            <li><a class="" href="../recipes/performance-best-practices.html">Performance Best Practices</a></li>
+            <li><a class="" href="../recipes/role-based-access-control.html">Role Based Access Control</a></li>
+            <li><a class="" href="../recipes/running-valve.html">Running Valve</a></li>
+            <li><a class="" href="../recipes/valve-installation.html">Valve Installation</a></li>
+            <li><a class="" href="../recipes/echo-server.html">Echo Server</a></li>
+            <li><a class="" href="../recipes/rate-limiting.html">Rate Limiting</a></li>
+            <li><a class="" href="../recipes/multi-tenant.html">Multi Tenant Authorization</a></li>
+            <li><a class="" href="../recipes/user-access-events.html">User Access Events</a></li>
+            <li><a class="" href="../recipes/basic-authentication.html">Basic Authentication</a></li>
+            <li><a class="" href="../recipes/delegation.html">Delegation</a></li>
+            <li><a class="" href="../recipes/preventing-xml-bomb.html">Preventing XML bomb attacks</a></li>
+            <li><a class="" href="../recipes/api-event-flume.html">API Access Event Recording with Flume</a></li>
+            <li><a class="" href="../recipes/xsd-versioning.html">XSD Versioning Guidelines</a></li>
+            <li><a class="" href="../recipes/client-authentication.html">SSL/TLS Client Authentication</a></li>
+            <li><a class="" href="../recipes/functional-test-framework.html">Functional Test Framework</a></li>
+            <li><a class="" href="../recipes/header-splitting.html">Header Splitting</a></li>
+            <li><a class="" href="../recipes/reason-phrase-normalization.html">Reason Phrase Normalization</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup3">
+        <span id="tgSpan3" class="fa fa-angle-down"></span>Filters
+      </a>
+      <ul id="topicGroup3" class="collapse in list-unstyled">
+            <li><a class="" href="../filters/index.html">Overview</a></li>
+            <li><a class="" href="../filters/add-header.html">Add Header Filter</a></li>
+            <li><a class=" active" href="../filters/api-validator.html">API Validator Filter</a></li>
+            <li><a class="" href="../filters/body-extractor-to-header.html">Body Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/body-patcher.html">Body Patcher Filter</a></li>
+            <li><a class="" href="../filters/compression.html">Compression Filter</a></li>
+            <li><a class="" href="../filters/content-type-stripper.html">Content Type Stripper Filter</a></li>
+            <li><a class="" href="../filters/cors.html">CORS Filter</a></li>
+            <li><a class="" href="../filters/derp.html">Delegation Response Processor (DeRP) Filter</a></li>
+            <li><a class="" href="../filters/destination-router.html">Destination Router Filter</a></li>
+            <li><a class="" href="../filters/echo.html">Echo Filter</a></li>
+            <li><a class="" href="../filters/exception.html">Exception Filter</a></li>
+            <li><a class="" href="../filters/forwarded-proto.html">Forwarded Protocol Filter</a></li>
+            <li><a class="" href="../filters/header-normalization.html">Header Normalization filter</a></li>
+            <li><a class="" href="../filters/header-translation.html">Header Translation Filter</a></li>
+            <li><a class="" href="../filters/header-user.html">Header User Filter</a></li>
+            <li><a class="" href="../filters/herp.html">Highly Efficient Record Processor (HERP) Filter</a></li>
+            <li><a class="" href="../filters/ip-user.html">IP User Filter</a></li>
+            <li><a class="" href="../filters/iri-validator.html">IRI Validator Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2.html">Keystone v2 Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-authorization.html">Keystone v2 Authorization Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-basic-auth.html">Keystone v2 Basic Auth Filter</a></li>
+            <li><a class="" href="../filters/merge-header.html">Merge Header Filter</a></li>
+            <li><a class="" href="../filters/openapi-validator.html">OpenAPI Validatort Filter</a></li>
+            <li><a class="" href="../filters/openstack-identity-v3.html">Openstack Identity v3 Filter</a></li>
+            <li><a class="" href="../filters/rate-limiting.html">Rate Limiting Filter</a></li>
+            <li><a class="" href="../filters/regex-rbac.html">RegEx Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/scripting.html">Scripting Filter</a></li>
+            <li><a class="" href="../filters/simple-rbac.html">Simple Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/slf4j-http-logging.html">SFL4J HTTP Logging Filter</a></li>
+            <li><a class="" href="../filters/split-header.html">Split Header Filter</a></li>
+            <li><a class="" href="../filters/tenant-culling.html">Tenant Culling Filter</a></li>
+            <li><a class="" href="../filters/translation.html">Translation Filter</a></li>
+            <li><a class="" href="../filters/uri-normalization.html">URI Normalization Filter</a></li>
+            <li><a class="" href="../filters/uri-stripper.html">URI Stripper Filter</a></li>
+            <li><a class="" href="../filters/uri-user.html">URI User Filter</a></li>
+            <li><a class="" href="../filters/url-extractor-to-header.html">URL Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a></li>
+            <li><a class="" href="../filters/versioning.html">Versioning Filter</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup4">
+        <span id="tgSpan4" class="fa fa-angle-right"></span>Services
+      </a>
+      <ul id="topicGroup4" class="collapse  list-unstyled">
+            <li><a class="" href="../services/index.html">Overview</a></li>
+            <li><a class="" href="../services/atom-feed-consumption.html">Atom Feed Consumption Service</a></li>
+            <li><a class="" href="../services/datastores.html">Datastores</a></li>
+            <li><a class="" href="../services/health-check.html">Health Check Service</a></li>
+            <li><a class="" href="../services/http-client.html">HTTP Client Service</a></li>
+            <li><a class="" href="../services/http-logging.html">HTTP Logging Service</a></li>
+            <li><a class="" href="../services/logging.html">Logging Service</a></li>
+            <li><a class="" href="../services/metrics.html">Metrics Service</a></li>
+            <li><a class="" href="../services/open-tracing.html">OpenTracing Service</a></li>
+            <li><a class="" href="../services/phone-home.html">Phone Home Service</a></li>
+            <li><a class="" href="../services/uri-redaction.html">URI Redaction service</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup5">
+        <span id="tgSpan5" class="fa fa-angle-right"></span>Developer
+      </a>
+      <ul id="topicGroup5" class="collapse  list-unstyled">
+            <li><a class="" href="../developer/index.html">Overview</a></li>
+            <li><a class="" href="../developer/docker.html">Docker</a></li>
+            <li><a class="" href="../developer/performance.html">Performance Testing</a></li>
+            <li><a class="" href="../developer/functional.html">Functional Testing</a></li>
+      </ul>
+    </li>
+</ul>
+      </div>
+      <div class="col-xs-12 col-sm-9 col-md-9 main">
+        <div class="page-header">
+          <h2>API Validator Filter</h2>
+        </div>
+        <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>The API Validator filter validates all requests against a configured <a href="https://www.w3.org/Submission/wadl/">Web Application Description Language (WADL)</a> file.
+For example, if a request to the origin service is missing the tenant ID in the URI, but the origin service requires the tenant ID to be there, then the request will be rejected before it reaches the origin service.
+The API Validator filter can also be configured to validate the content of the request body against an <a href="https://www.w3.org/standards/techs/xmlschema">XML Schema Definition (XSD)</a> or <a href="http://json-schema.org/">JSON Schema</a> referenced as a grammar in the WADL.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>A working knowledge of WADL&#8217;s and XSD&#8217;s/JSON Schemas will make the configuration of this filter much easier.
+Therefore, it is recommended that you read up on these subjects before attempting to use this filter.
+A good tutorial on XSD 1.1, including a comparison of XSD 1.1 and XSD 1.0, is located at:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="http://www.xfront.com/xml-schema-1-1/">XML Schema 1.1 Tutorial</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Most of the ideas described in this conference session are implemented in this filter:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="http://www.balisage.net/Proceedings/vol8/html/Williams01/BalisageVol8-Williams01.html">Using XProc, XSLT 2.0, and XSD 1.1 to validate RESTful services</a></p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="general-filter-information"><a class="anchor" href="#general-filter-information"></a>General filter information</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Name:</strong> api-validator</p>
+</li>
+<li>
+<p><strong>Default Configuration:</strong> validator.cfg.xml</p>
+</li>
+<li>
+<p><strong>Released:</strong> v2.1.6</p>
+</li>
+<li>
+<p><strong>Bundle:</strong> repose-extensions-filter-bundle</p>
+</li>
+<li>
+<p><a href="../schemas/validator-configuration.xsd">Schema</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="prerequisites-postconditions"><a class="anchor" href="#prerequisites-postconditions"></a>Prerequisites &amp; Postconditions</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="required-request-headers"><a class="anchor" href="#required-request-headers"></a>Required Request Headers</h3>
+<div class="paragraph">
+<p>This filter does not require any request headers.</p>
+</div>
+<div class="paragraph">
+<p>However, the configuration can require specific headers and/or values be present in order to successfully exit this filter.
+The most common use of a request header by this filter is for <a href="../recipes/role-based-access-control.html">Role-Based Access Control (RBAC)</a> using the <code>X-Roles</code>, <code>X-Tenant-Id</code>, and/or <code>X-Map-Roles</code> headers populated by either the <a href="../filters/keystone-v2.html">Keystone v2 filter</a> or the <a href="../filters/keystone-v2-authorization.html">Keystone v2 Authorization filter</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="required-preceding-filters"><a class="anchor" href="#required-preceding-filters"></a>Required Preceding Filters</h3>
+<div class="paragraph">
+<p>This filter has no dependencies on other filters and can be placed wherever it is needed in the filter chain.</p>
+</div>
+<div class="paragraph">
+<p>However, due to the nature of this filter it is typically placed early in the filter chain immediately after any authentication filters.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="request-headers-created"><a class="anchor" href="#request-headers-created"></a>Request Headers Created</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>X-Relevant-Roles</code> - Lists the values of the <code>X-Roles</code> header which match a <code>rax:roles</code> value from the WADL for the resource being requested.
+In other words, <code>X-Relevant-Roles</code> are the user roles which granted access to the resource.
+This header is only added to the request if <code>enable-rax-roles</code> is configured to be true.</p>
+</li>
+<li>
+<p><code>X-Delegated</code> - Provides details about the failure being delegated by this filter.
+This is mainly intended for use by the <a href="herp.html">Highly Efficient Record Processor (HERP) filter</a> and <a href="derp.html">Delegation Response Processor (DeRP) filter</a> for internal delegation processing within <strong>Repose</strong>.
+However, it can be exposed to the origin service under certain configurations.
+This header is only added if delegation is enabled.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="request-body-changes"><a class="anchor" href="#request-body-changes"></a>Request Body Changes</h3>
+<div class="paragraph">
+<p>This filter does not modify the request body.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="recommended-follow-on-succeeding-filters"><a class="anchor" href="#recommended-follow-on-succeeding-filters"></a>Recommended Follow-On (Succeeding) Filters</h3>
+<div class="paragraph">
+<p>This filter is not strictly required by any other filters.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-body-changes"><a class="anchor" href="#response-body-changes"></a>Response Body Changes</h3>
+<div class="paragraph">
+<p>This filter does not modify the response body.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-headers-created"><a class="anchor" href="#response-headers-created"></a>Response Headers Created</h3>
+<div class="paragraph">
+<p>This filter does not create/modify any response headers.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-status-codes"><a class="anchor" href="#response-status-codes"></a>Response Status Codes</h3>
+<table class="tableblock frame-all grid-all fit-content">
+<caption class="title">Table 1. Status Codes</caption>
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Status Code</th>
+<th class="tableblock halign-left valign-top">Reasons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>400</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The body of a request fails to validate.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>401</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A requested resource or method requires a specific <code>X-Authenticated-By</code> request header value that was not found.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>403</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A requested resource or method requires a specific <code>X-Roles</code> request header value that was not found.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>404</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The filter determined that the URI is invalid.</p>
+<p class="tableblock">  When <code>mask-rax-roles-403</code> attribute is enabled (i.e., <code>true</code>), this could also indicate the supplied <code>X-Roles</code> request header value did not have access to the URI.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>405</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The URI is valid, but the Method is not appropriate for the URI.</p>
+<p class="tableblock">  When <code>mask-rax-roles-403</code> attribute is enabled (i.e., <code>true</code>), this could also indicate the supplied <code>X-Roles</code> request header value had access to the URI, but not the requested Method.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Through the use of the <code>rax:code</code> WADL extension, any of these default codes can be overridden to any value.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="basic-example"><a class="anchor" href="#basic-example"></a>Basic Example</h3>
+<div class="paragraph">
+<p>This configuration is the most basic example of this filter&#8217;s configuration.</p>
+</div>
+<div class="listingblock">
+<div class="title">validator.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;validators</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/validator/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;validator</span> <span style="color:#b48">role</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">default</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="1"></i><b>(1)</b>
+               <span style="color:#b48">default</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="2"></i><b>(2)</b>
+               <span style="color:#b48">wadl</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">file:///path/to/wadl/file.wadl</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="3"></i><b>(3)</b>
+    <span style="color:#070;font-weight:bold">/&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/validators&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>role</code> attribute is deprecated, but is currently required and doesn&#8217;t have a default value.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <code>default</code> attribute is deprecated.<br>
+Default: <code>false</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>This is the fully qualified URI for where the WADL file can be located.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Even though multiple <code>validator</code> element definitions and the <code>role</code> and <code>default</code> attributes on each are deprecated, the easiest way to future proof new configurations is to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>define a single <code>validator</code> as this will eventually become the root element</p>
+</li>
+<li>
+<p>define that <code>validator</code> element with:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>a <code>role</code> attribute with the value of <code>default</code></p>
+</li>
+<li>
+<p>a <code>default</code> attribute with the value of <code>true</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="all-the-features-of-a-validator-element"><a class="anchor" href="#all-the-features-of-a-validator-element"></a>All the features of a <code>validator</code> element</h3>
+<div class="paragraph">
+<p>This configuration expands the basic example in order to show off all of the features of this element.</p>
+</div>
+<div class="listingblock">
+<div class="title">validator.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;validators</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/validator/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;validator</span> <span style="color:#b48">role</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">default</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="1"></i><b>(1)</b>
+               <span style="color:#b48">default</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="2"></i><b>(2)</b>
+               <span style="color:#b48">wadl</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">file:///path/to/wadl/file.wadl</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="3"></i><b>(3)</b>
+               <span style="color:#b48">enable-api-coverage</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="4"></i><b>(4)</b>
+               <span style="color:#b48">dot-output</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/tmp/default.dot</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="5"></i><b>(5)</b>
+               <span style="color:#b48">check-well-formed</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="6"></i><b>(6)</b>
+               <span style="color:#b48">check-grammars</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="7"></i><b>(7)</b>
+               <span style="color:#b48">check-elements</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="8"></i><b>(8)</b>
+               <span style="color:#b48">check-plain-params</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="9"></i><b>(9)</b>
+               <span style="color:#b48">do-xsd-grammar-transform</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="10"></i><b>(10)</b>
+               <span style="color:#b48">enable-pre-process-extension</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="11"></i><b>(11)</b>
+               <span style="color:#b48">remove-dups</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="12"></i><b>(12)</b>
+               <span style="color:#b48">xpath-version</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">2</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="13"></i><b>(13)</b>
+               <span style="color:#b48">xsl-engine</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">XalanC</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="14"></i><b>(14)</b>
+               <span style="color:#b48">xsd-engine</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">Xerces</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="15"></i><b>(15)</b>
+               <span style="color:#b48">enable-ignore-xsd-extension</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="16"></i><b>(16)</b>
+               <span style="color:#b48">join-xpath-checks</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="17"></i><b>(17)</b>
+               <span style="color:#b48">validator-name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">testName</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="18"></i><b>(18)</b>
+               <span style="color:#b48">check-headers</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="19"></i><b>(19)</b>
+               <span style="color:#b48">enable-rax-roles</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="20"></i><b>(20)</b>
+               <span style="color:#b48">mask-rax-roles-403</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="21"></i><b>(21)</b>
+               <span style="color:#b48">validate-checker</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="22"></i><b>(22)</b>
+    <span style="color:#070;font-weight:bold">/&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/validators&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>List of roles from which at least one role must match a role in the request for this validator to be applied.
+Triggers off of <code>X-Roles</code> header.<br>
+<strong>DEPRECATED:</strong> Roles defined outside of the WADL will not be supported in <strong>Repose</strong> 9 and this attribute will not be available.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>If the api-validator config <code>multi-match</code> is set to <code>true</code> then the default validator will be the first validator to process the incoming request.
+If multi-match is set to <code>false</code> and if no validator is matched to the users' roles, then the filter will use the default validator.<br>
+Default: <code>false</code><br>
+<strong>DEPRECATED:</strong> Multiple validators will not be supported in <strong>Repose</strong> 9 and this attribute will not be available.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Location of the WADL to associate with this validator.
+If not specified, then the wadl needs to be embedded within the validator element.
+Can be located within the file system or pointed to a remote file.
+Can use absolute or relative path.<br>
+<strong>DEPRECATED:</strong> This attribute is currently optional, but will be <strong>required</strong> in <strong>Repose</strong> 9.
+Currently both a WADL file and embedded WADL can not be defined.
+Currently at least a WADL file or embedded WADL must be defined.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>If set to <code>true</code>, this validator will record, via JMX, the number of times each state in the generated state machine (the mechanism underlying api validation) is accessed.
+These values may be used to determine api usage and coverage.<br>
+Default: <code>false</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>The DOT output file for this validator.
+DOT is a plain text graph description language that is a simple way of describing graphs that both humans and applications can use.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Check that the request body is well-formed XML or JSON that conforms to the XML or JSON syntax rules.<br>
+Default: <code>false</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>If set to <code>true</code> and the WADL references an XSD or JSON grammar(s), then the incoming request body will be validated against the grammar(s).<br>
+Default: <code>false</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>If set to <code>true</code> and the WADL request representation contains an element the filter will check the root element of a request.<br>
+Default: <code>false</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="9"></i><b>9</b></td>
+<td>If set to <code>true</code> and the WADL has plain parameters defined, then the filter will check the plain parameters.<br>
+Default: <code>false</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="10"></i><b>10</b></td>
+<td>Allow XSD grammar transform.
+Transform the XML after validation, to fill in things like default values.<br>
+Default: <code>false</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="11"></i><b>11</b></td>
+<td>If set to <code>true</code> allows the filter to perform a transform before xsd validation takes place.
+The transformation rules can be defined in the WADL via the Rackspace WADL extension: <code>rax:preprocess</code><br>
+Default: <code>true</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="12"></i><b>12</b></td>
+<td>Analyzes the state machine generated from the WADL and makes sure that there aren&#8217;t any duplicate nodes in the machine.<br>
+Default: <code>true</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="13"></i><b>13</b></td>
+<td>XPath version used in the WADL.
+Can be 1 or 2.<br>
+Default: <code>1</code><br>
+<strong>NOTE:</strong> <em>IF</em> 1 is set, <em>THEN</em> the Xalan implementation will be used; <em>ELSE IF</em> 2, <em>THEN</em> Saxon will be used.<br>
+<strong>NOTE:</strong> XPath 2 with schema awareness requires a Saxon license.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="14"></i><b>14</b></td>
+<td>Indicates the XSL engine to use from the possible list of:<br>
+<strong>&deg; Xalan</strong> - Standard Java XSL engine<br>
+<strong>&deg; XalanC</strong> - compiles XSL into byte code and is a very efficient 1.0 engine<br>
+<strong>&deg; SaxonHE</strong> - Implements v2.0 of the XSL language, but gives a license error when attempting a transform.<br>
+<strong>&deg; SaxonEE</strong> - Implements v2.0 of the XSL language, and allows transforms.<br>
+Default: <code>XalanC</code><br>
+<strong>NOTE:</strong> Even though Saxon is an XSL 2.0 engine, most 1.0 XSLs should work fine.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="15"></i><b>15</b></td>
+<td>Indicates the XSD engine to use for validation from the possible list of:<br>
+<strong>&deg; Xerces</strong><br>
+<strong>&deg; SaxonEE</strong><br>
+Default: <code>Xerces</code><br>
+<strong>NOTE:</strong> The SaxonEE validator requires a license.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="16"></i><b>16</b></td>
+<td>Enables the use of the rax:ignoreXSD extension in WADL files to exclude some representations from validation against the XSD.<br>
+Default: <code>true</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="17"></i><b>17</b></td>
+<td>This is an optimization where the well formed check and multiple XPath checks can be merged into a single check.<br>
+Default: <code>true</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="18"></i><b>18</b></td>
+<td>Sets the name for this validator.
+The name is used as the MBean name when connecting to <strong>Repose</strong> via JMX.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="19"></i><b>19</b></td>
+<td>If set to true and the WADL defines required headers then the filter will check that those required headers are present.<br>
+Default: <code>false</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="20"></i><b>20</b></td>
+<td>Enables use of the <code>rax:roles</code> extension in WADL files for determining resource access.<br>
+Default: <code>false</code><br>
+<strong>NOTE:</strong> <em>IF</em> <code>true</code>, <em>THEN</em> <code>rax:roles</code> defined in the supplied WADL files will be used to determine resource access.<br>
+<strong>NOTE:</strong> <em>IF</em> <code>true</code>, <em>THEN</em> <code>check-headers</code> will also be enabled regardless of it&#8217;s setting.<br>
+<strong>NOTE:</strong> Roles are allowed to have spaces in the names through the use of an embedded Non-Breaking Space (NBSP).
+Simply input a non-breaking space, in the place where the role name should have a space.
+The easiest way to do this is to use the entity <code>&amp;#xA0;</code>, but you can also input non-breaking spaces directly into the WADL.
+See the following for more information: <a href="https://en.wikipedia.org/wiki/Non-breaking_space#Keyboard_entry_methods" class="bare">https://en.wikipedia.org/wiki/Non-breaking_space#Keyboard_entry_methods</a></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="21"></i><b>21</b></td>
+<td>Mask <code>rax-roles</code> with <code>404</code> and <code>405</code> errors.
+By default <code>rax-roles</code> responds with a <code>403</code> if there is a role mismatch.
+If this is set to <code>true</code>, then the response will be <code>404</code> if no methods are accessible or <code>405</code> if some methods are available.<br>
+Default: <code>false</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="22"></i><b>22</b></td>
+<td>If set to <code>true</code>, then the validity of the generated state machine is checked (e.g., no dead-end paths, there is a single start state, no orphaned nodes, etc.).<br>
+Default: <code>true</code></td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="enable-delegation"><a class="anchor" href="#enable-delegation"></a>Enable Delegation</h3>
+<div class="paragraph">
+<p>To place this filter in <a href="../recipes/delegation.html">Delegation</a> mode, add the <code>delegating</code> element to the filter configuration with an optional <code>quality</code> attribute that determines the delegating priority.</p>
+</div>
+<div class="listingblock">
+<div class="title">validator.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;validators</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/validator/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;validator</span> <span style="color:#b48">role</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">default</span><span style="color:#710">&quot;</span></span>
+               <span style="color:#b48">default</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span>
+               <span style="color:#b48">wadl</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">file:///path/to/wadl/file.wadl</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;delegating</span> <span style="color:#b48">quality</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">0.3</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>  <i class="conum" data-value="1"></i><b>(1)</b> <i class="conum" data-value="2"></i><b>(2)</b>
+<span style="color:#070;font-weight:bold">&lt;/validators&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>If this element is present, then delegation is enabled.
+Delegation will cause this filter to pass requests it would ordinarily reject along with a header detailing why it would have rejected the request.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Indicates the quality that will be added to any output headers.
+When setting up a chain of delegating filters the highest quality number will be the one that is eventually output.<br>
+Default: <code>0.3</code></td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="deprecated-multi-validator-definition"><a class="anchor" href="#deprecated-multi-validator-definition"></a>Deprecated Multi-Validator Definition</h3>
+<div class="paragraph">
+<p>This configuration shows the deprecated, but currently legal, multi-validator definition as well as an embedded WADL which is also deprecated.</p>
+</div>
+<div class="listingblock">
+<div class="title">validator.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;validators</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/validator/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;validator</span> <span style="color:#b48">role</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">default</span><span style="color:#710">&quot;</span></span>
+               <span style="color:#b48">default</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span>
+               <span style="color:#b48">wadl</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">file:///path/to/wadl/file.wadl</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;validator</span> <span style="color:#b48">role</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">embedded</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="1"></i><b>(1)</b>
+               <span style="color:#b48">default</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="2"></i><b>(2)</b>
+               <span style="color:#b48">check-well-formed</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span>
+               <span style="color:#b48">check-grammars</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span>
+               <span style="color:#b48">check-elements</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span>
+               <span style="color:#b48">check-headers</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;application</span> <span style="color:#b48">xmlns:xsi</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://www.w3.org/2001/XMLSchema-instance</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="3"></i><b>(3)</b>
+                     <span style="color:#b48">xmlns:xs</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://www.w3.org/2001/XMLSchema</span><span style="color:#710">&quot;</span></span>
+                     <span style="color:#b48">xmlns:test</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://test.openrespose/test/v1.1</span><span style="color:#710">&quot;</span></span>
+                     <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://wadl.dev.java.net/2009/02</span><span style="color:#710">&quot;</span></span>
+                     <span style="color:#b48">xsi:schemaLocation</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://test.openrespose/test/v1.1 test.xsd</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;grammars&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;include</span> <span style="color:#b48">href</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">test.xsd</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;/grammars&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;resources</span> <span style="color:#b48">base</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://localhost:8088/</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;resource</span> <span style="color:#b48">path</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/wadl/group1</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+                    <span style="color:#070;font-weight:bold">&lt;resource</span> <span style="color:#b48">path</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/resource1</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+                        <span style="color:#070;font-weight:bold">&lt;resource</span> <span style="color:#b48">path</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">{id}</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+                            <span style="color:#070;font-weight:bold">&lt;param</span> <span style="color:#b48">xmlns:xs</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://www.w3.org/2001/XMLSchema</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">type</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">xs:string</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">style</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#606">template</span><span style="color:#710">&quot;</span></span>
+                                   <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">id</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+                            <span style="color:#070;font-weight:bold">&lt;method</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">PUT</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">putContainer</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+                                <span style="color:#070;font-weight:bold">&lt;response&gt;</span>
+                                    <span style="color:#070;font-weight:bold">&lt;representation</span> <span style="color:#b48">mediaType</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">application/xml</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+                                <span style="color:#070;font-weight:bold">&lt;/response&gt;</span>
+                            <span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+                            <span style="color:#070;font-weight:bold">&lt;method</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">DELETE</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">deleteContainer</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+                            <span style="color:#070;font-weight:bold">&lt;method</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">GET</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">getContainer</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+                                <span style="color:#070;font-weight:bold">&lt;request&gt;</span>
+                                    <span style="color:#070;font-weight:bold">&lt;param</span> <span style="color:#b48">xmlns:xs</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://www.w3.org/2001/XMLSchema</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">type</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">xs:string</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">style</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#606">query</span><span style="color:#710">&quot;</span></span>
+                                           <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">search</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+                                <span style="color:#070;font-weight:bold">&lt;/request&gt;</span>
+                                <span style="color:#070;font-weight:bold">&lt;response&gt;</span>
+                                    <span style="color:#070;font-weight:bold">&lt;representation</span> <span style="color:#b48">mediaType</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">application/xml</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+                                <span style="color:#070;font-weight:bold">&lt;/response&gt;</span>
+                            <span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+                            <span style="color:#070;font-weight:bold">&lt;resource</span> <span style="color:#b48">path</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">{item}</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+                                <span style="color:#070;font-weight:bold">&lt;param</span> <span style="color:#b48">xmlns:xs</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://www.w3.org/2001/XMLSchema</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">type</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">test:UUID</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">style</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#606">template</span><span style="color:#710">&quot;</span></span>
+                                       <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">item</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+                                <span style="color:#070;font-weight:bold">&lt;method</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">PUT</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">putItem</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+                                    <span style="color:#070;font-weight:bold">&lt;request&gt;</span>
+                                        <span style="color:#070;font-weight:bold">&lt;representation</span> <span style="color:#b48">mediaType</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">*/*</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+                                    <span style="color:#070;font-weight:bold">&lt;/request&gt;</span>
+                                    <span style="color:#070;font-weight:bold">&lt;response&gt;</span>
+                                        <span style="color:#070;font-weight:bold">&lt;representation</span> <span style="color:#b48">mediaType</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">*/*</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+                                    <span style="color:#070;font-weight:bold">&lt;/response&gt;</span>
+                                <span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+                                <span style="color:#070;font-weight:bold">&lt;method</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">POST</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">postItem</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+                                    <span style="color:#070;font-weight:bold">&lt;request&gt;</span>
+                                        <span style="color:#070;font-weight:bold">&lt;representation</span> <span style="color:#b48">mediaType</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">application/xml</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+                                    <span style="color:#070;font-weight:bold">&lt;/request&gt;</span>
+                                    <span style="color:#070;font-weight:bold">&lt;response&gt;</span>
+                                        <span style="color:#070;font-weight:bold">&lt;representation</span> <span style="color:#b48">mediaType</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">*/*</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+                                    <span style="color:#070;font-weight:bold">&lt;/response&gt;</span>
+                                <span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+                                <span style="color:#070;font-weight:bold">&lt;method</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">DELETE</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">deleteItem</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+                                <span style="color:#070;font-weight:bold">&lt;method</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">GET</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">getItem</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+                                    <span style="color:#070;font-weight:bold">&lt;response&gt;</span>
+                                        <span style="color:#070;font-weight:bold">&lt;representation</span> <span style="color:#b48">mediaType</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">*/*</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+                                    <span style="color:#070;font-weight:bold">&lt;/response&gt;</span>
+                                <span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+                            <span style="color:#070;font-weight:bold">&lt;/resource&gt;</span>
+                        <span style="color:#070;font-weight:bold">&lt;/resource&gt;</span>
+                    <span style="color:#070;font-weight:bold">&lt;/resource&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;/resource&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;/resources&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/application&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/validator&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/validators&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Defines the <code>roles</code> to which this validator is applied.<br>
+<strong>DEPRECATED:</strong> Roles defined outside of the WADL will not be supported in <strong>Repose</strong> 9 and this attribute will not be available.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Indicates that this is not the default validator.<br>
+<strong>DEPRECATED:</strong> Multiple validators will not be supported in <strong>Repose</strong> 9 and this attribute will not be available.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Shows how to embed a WADL into the configuration.<br>
+<strong>DEPRECATED:</strong> This element body is currently optional, but will not be supported in <strong>Repose</strong> 9.
+Currently both a WADL file and embedded WADL can not be defined.
+Currently at least a WADL file or embedded WADL must be defined.</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="additional-information"><a class="anchor" href="#additional-information"></a>Additional Information</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This filter is based on the <a href="https://github.com/rackerlabs/api-checker">API Checker</a> library.</p>
+</div>
+<div class="sect2">
+<h3 id="metrics"><a class="anchor" href="#metrics"></a>Metrics</h3>
+<div class="paragraph">
+<p>This component reports the following metrics to the <a href="../services/metrics.html">Metrics Service</a>:</p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Metric Type</th>
+<th class="tableblock halign-left valign-top">Metric Name</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Meter</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>org.openrepose.filters.apivalidator.ApiValidatorHandler.invalid-request.&lt;role&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Counts the number of times an invalid request with role <code>&lt;role&gt;</code> is rejected.
+<code>&lt;role&gt;</code> is a value pulled from the <code>X-Roles</code> header.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Meter</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>org.openrepose.filters.apivalidator.ApiValidatorHandler.invalid-request.ACROSS ALL</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Counts the number of times an invalid request is rejected.
+This meter is the sum of all <code>org.openrepose.filters.apivalidator.ApiValidatorHandler.invalid-request.&lt;role&gt;</code> meters.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+      </div>
+    </div>
+  </div>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="/_javascripts/bootstrap-offcanvas.js" type="text/javascript"></script>
+  <script src="/_javascripts/page-loader.js" type="text/javascript"></script>
+  <script src="/_javascripts/include-html.js" type="text/javascript"></script>
+  <script>includeHTML();</script>
+  <script type="text/javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+      $("[id^='topicGroup']").on('show.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicGroup']").on('hide.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicSubGroup']").on('show.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+      $("[id^='topicSubGroup']").on('hide.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+    });
+    /*]]>*/
+  </script>
+</body>
+</html>

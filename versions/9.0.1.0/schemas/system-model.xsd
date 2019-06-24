@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:mod="http://docs.openrepose.org/repose/system-model/v2.0" xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/repose/system-model/v2.0"
+           jaxb:version="2.1">
+
+    <xs:element name="system-model" type="mod:SystemModel"/>
+
+    <xs:complexType name="SystemModel">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Top level element for defining a power proxy system model</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="nodes" type="mod:NodeList" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="filters" type="mod:FilterList" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="services" type="mod:ServicesList" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="destinations" type="mod:DestinationList" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="phone-home" type="mod:PhoneHomeServiceConfig" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="tracing-header" type="mod:TracingHeaderConfig" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+
+        <xs:attribute name="rewrite-host-header" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Determines whether or not repose nodes rewrite the HOST header to
+                        contain
+                        the host and port of the origin service. If true, repose will rewrite the HOST header.
+                        If false, repose
+                        will pass whatever value is received on as the value for the HOST header.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="PhoneHomeServiceConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    If present, enables the phone home service which will collect Repose usage data and send it to a
+                    centralized data collection service.
+                    If not present, will have no effect.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="enabled" type="xs:boolean" use="required"/>
+        <xs:attribute name="collection-uri" type="xs:anyURI" use="optional" default="http://phone-home.openrepose.org"/>
+        <xs:attribute name="origin-service-id" type="xs:string" use="optional"/>
+        <xs:attribute name="contact-email" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="TracingHeaderConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Allows you to configure the tracing header. If not present, feature will be enabled by default.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="enabled" type="xs:boolean" use="optional" default="true"/>
+        <xs:attribute name="rewrite-header" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="secondary-plain-text" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Determines whether or not you'd like the uuid contained within the tracing header to be written
+                        out in plain text in the additional header x-request-id.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="NodeList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines a list of nodes</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="node" type="mod:Node" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(mod:node/@id)) = count(mod:node/@id)"
+                   xerces:message="Each node should have a unique id"
+                   saxon:message="Each node should have a unique id"/>
+    </xs:complexType>
+
+    <xs:complexType name="Node">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines a single host in the system model</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines the proxy's id which will be referenced elsewhere in different configs</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="hostname" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Hostname of the node this proxy model defines. This will be used for personality matching
+                        when the proxy is started
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="http-port" type="xs:int" use="optional" default="0">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Port number of the http service of the host. If the port is 0,
+                        then Repose will not listen to the HTTP port at all.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="https-port" type="xs:int" use="optional" default="0">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Port number of the https service of the host. If port is 0,
+                        then Repose will not listen to HTTPs port at all.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:assert vc:minVersion="1.1" test="@https-port > 0 or @http-port > 0"
+                   xerces:message="You must specify an http-port and/or an https-port"
+                   saxon:message="You must specify an http-port and/or an https-port"/>
+    </xs:complexType>
+
+    <xs:complexType name="FilterList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>List of filters that the proxy will then execute in order of definition</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="filter" type="mod:Filter" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="bypass-uri-regex" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        A regex that will be used to determine what requests will bypass the filter chain.
+                        Useful for doing health checks on the underlying origin service.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(mod:filter/@id)) = count(mod:filter/@id)"
+                   xerces:message="Filters must have ids unique within their containing filter list"
+                   saxon:message="Filters must have ids unique within their containing filter list"/>
+    </xs:complexType>
+
+    <xs:complexType name="Filter">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines a filter that can be used to process and route requests</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:choice minOccurs="0">
+            <xs:element name="methods" type="mod:Methods"/>
+            <xs:element name="header" type="mod:Header"/>
+            <xs:element name="uri" type="mod:Uri"/>
+            <xs:element name="and" type="mod:And"/>
+            <xs:element name="not" type="mod:Not"/>
+            <xs:element name="or" type="mod:Or"/>
+        </xs:choice>
+        <xs:attribute name="id" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines the filters id</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The system context specific name of the filter module to be loaded</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="configuration" type="xs:anyURI" use="optional" default="">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The system context specific name of the filter's configuration</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="uri-regex" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Deprecated: This attribute is deprecated and will be removed in future major release.
+                        Use the new Filter Criterion elements instead.
+                        Regex of what uri is allowed access.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="not(@uri-regex and (count(*) > 0))"
+                   xerces:message="Cannot define both a deprecated uri-regex attribute and any of the new conditional elements"
+                   saxon:message="Cannot define both a deprecated uri-regex attribute and any of the new conditional elements"/>
+    </xs:complexType>
+
+    <xs:complexType name="FilterCriterion" abstract="true">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines the parent of all the conditional filter processing elements.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+    </xs:complexType>
+
+    <xs:simpleType name="MethodList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A list defined as a string enumeration of HTTP method verbs as outlined in
+                    <a href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616 section 9.</a>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:list itemType="xs:string"/>
+    </xs:simpleType>
+
+    <xs:complexType name="Methods">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines the HTTP methods conditional processing element.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="mod:FilterCriterion">
+                <xs:attribute name="value" type="mod:MethodList" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                The HTTP methods that are being tested for.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Header">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines the HTTP header conditional processing element.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="mod:FilterCriterion">
+                <xs:attribute name="name" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                The case insensitive name of the header being tested for.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="value" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                The case sensitive value of the header being tested for.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Uri">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines the URI conditional processing element.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="mod:FilterCriterion">
+                <xs:attribute name="regex" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Regex defining what URI's this filter pertains too.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Not">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines the logical NOT conditional processing element.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="mod:FilterCriterion">
+                <xs:choice>
+                    <xs:element name="methods" type="mod:Methods"/>
+                    <xs:element name="header" type="mod:Header"/>
+                    <xs:element name="uri" type="mod:Uri"/>
+                    <xs:element name="and" type="mod:And"/>
+                    <xs:element name="or" type="mod:Or"/>
+                </xs:choice>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="And">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines the logical AND conditional processing element.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="mod:FilterCriterion">
+                <xs:choice minOccurs="2" maxOccurs="unbounded">
+                    <xs:element name="methods" type="mod:Methods"/>
+                    <xs:element name="header" type="mod:Header"/>
+                    <xs:element name="uri" type="mod:Uri"/>
+                    <xs:element name="not" type="mod:Not"/>
+                    <xs:element name="or" type="mod:Or"/>
+                </xs:choice>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="Or">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines the logical OR conditional processing element.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="mod:FilterCriterion">
+                <xs:choice minOccurs="2" maxOccurs="unbounded">
+                    <xs:element name="methods" type="mod:Methods"/>
+                    <xs:element name="header" type="mod:Header"/>
+                    <xs:element name="uri" type="mod:Uri"/>
+                    <xs:element name="not" type="mod:Not"/>
+                    <xs:element name="and" type="mod:And"/>
+                </xs:choice>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="ServicesList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>List of services that the proxy will then execute in order of definition</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="service" type="mod:Service" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(mod:service/@name)) = count(mod:service/@name)"
+                   xerces:message="Services must have name unique within their containing service list"
+                   saxon:message="Services must have name unique within their containing service list"/>
+    </xs:complexType>
+
+    <xs:complexType name="Service">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines a service that can be used to assist filters</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="name" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The system context specific name of the service to be used</html:p>
+                </xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="dist-datastore"/>
+                    <xs:enumeration value="remote-datastore"/>
+                    <xs:enumeration value="atom-feed-service"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="DestinationList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines a list of target destinations</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="endpoint" type="mod:Destination" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:assert vc:minVersion="1.1"
+                   test="count(mod:*[xs:boolean(@default) = true()]) eq 1"
+                   xerces:message="There should be one and only one default destination"
+                   saxon:message="There should be one and only one default destination"/>
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(mod:*/@id)) = count(mod:*/@id)"
+                   xerces:message="Destinations must have ids unique within their containing list"
+                   saxon:message="Destinations must have ids unique within their containing list"/>
+    </xs:complexType>
+
+    <xs:complexType name="Destination">
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines the endpoint's id which will be referenced elsewhere in different configs</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="default" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Declares whether or not this destination is the default destination.
+                        The default destination will be used if no other destination is selected during processing.
+                        If true, this destination is the default destination.
+                        If false, this destination is not the default destination.
+                        Defaults to false.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="protocol" use="optional" default="https">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Defines the endpoint's protocol. Current protocols permitted are http and https.
+                        Defaults to https.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="http"/>
+                    <xs:enumeration value="https"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="hostname" type="xs:string" use="optional" default="localhost">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines the endpoint's host name. Optional. If not specified, localhost is
+                        assumed.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="port" use="optional" default="0">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines the endpoint's port. Optional. If not specified (or 0), the
+                        default port associated with the protocol will be used.
+                        Otherwise, the specified port will be used.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:int">
+                    <xs:minInclusive value="0"/>
+                    <xs:maxInclusive value="65535"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="root-path" type="xs:string" use="optional" default="">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines the endpoint's base path element. This will be used in building the URI/path
+                        for connecting to the service. Any additional URI info will be appended to this.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="chunked-encoding" type="mod:ChunkedEncoding" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Determines whether or not to send chunked data when forwarding requests to
+                        a destination.
+                        Chunked data is indicated by the value of the Transfer-Encoding header being set
+                        to chunked.
+                    </html:p>
+                    <html:p>
+                        If set to true, chunked data will always be sent.
+                        If set to false, chunked data will never be sent.
+                        If set to auto, chunked data will only be sent if the original request to Repose was chunked.
+                    </html:p>
+                    <html:p>
+                        WARNING: Setting this attribute to false may cause Repose to attempt to retrieve the
+                        actual content length through reading the ServletInputStream. This will cause some performance
+                        degradation as request body is no longer always streamed through.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="ChunkedEncoding">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="true"/>
+            <xs:enumeration value="false"/>
+            <xs:enumeration value="auto"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

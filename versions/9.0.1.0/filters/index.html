@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>9.0.1.0 | Filters | Overview</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="/_stylesheets/asciibinder.css" >
+  <link rel="stylesheet" href="/_stylesheets/repose.css" >
+  <link rel="stylesheet" href="/_stylesheets/release-note-categories.css" >
+
+   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+   <!--[if lt IE 9]>
+     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+   <![endif]-->
+
+  <link href="/_images/favicon32x32.png" rel="shortcut icon" type="text/css">
+  <!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
+  <meta content="AsciiBinder" name="application-name">
+</head>
+<body onload="selectVersion('9.0.1.0');">
+  <div class="container">
+    <p class="toggle-nav visible-xs pull-left">
+      <button class="btn btn-default btn-sm" type="button" data-toggle="offcanvas">Toggle nav</button>
+    </p>
+    <ol class="breadcrumb">
+      <li class="sitename">
+        <a class="navbar-brand" href="http://www.openrepose.org/">
+          <img alt="OpenRepose" src="/_images/repose-logo.png" align="bottom">
+        </a>
+      </li>
+      <li class="sitename">
+        <a href="../../index.html">
+          Home
+        </a>
+      </li>
+      <li class="hidden-xs active">
+        <a href="/versions/9.0.1.0/welcome/index.html">
+          Repose
+        </a>
+        <select id="version-selector" onchange="versionSelector(this);" w3-include-html="/_includes/versions.html">
+        </select>
+      </li>
+      <li class="hidden-xs active">
+        <a href="../filters/index.html">Filters</a>
+      </li>
+      
+      <li class="hidden-xs active">
+        Overview
+      </li>
+    </ol>
+    <div class="row row-offcanvas row-offcanvas-left">
+      <div class="col-xs-8 col-sm-3 col-md-3 sidebar sidebar-offcanvas">
+        <a class="navbar-search" href="/versions/search.html">
+          <span class="glyphicon glyphicon-search"/>
+          Search
+        </a>
+        <ul class="nav nav-sidebar">
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup0">
+        <span id="tgSpan0" class="fa fa-angle-right"></span>Welcome to Repose
+      </a>
+      <ul id="topicGroup0" class="collapse  list-unstyled">
+            <li><a class="" href="../welcome/index.html">Welcome</a></li>
+            <li><a class="" href="../welcome/troubleshooting.html">Troubleshooting</a></li>
+            <li><a class="" href="../welcome/release-notes.html">Release Notes</a></li>
+            <li><a class="" href="../welcome/ver-9-upgrade-notes.html">Version 9 Upgrade Notes</a></li>
+            <li><a class="" href="../welcome/style-guide.html">Style Guide</a></li>
+            <li><a class="" href="../welcome/faq.html">FAQ</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup1">
+        <span id="tgSpan1" class="fa fa-angle-right"></span>Architecture
+      </a>
+      <ul id="topicGroup1" class="collapse  list-unstyled">
+            <li><a class="" href="../architecture/index.html">Overview</a></li>
+            <li><a class="" href="../architecture/configuration.html">Configuration</a></li>
+            <li><a class="" href="../architecture/container.html">Container</a></li>
+            <li><a class="" href="../architecture/filter-chain.html">Filter Chain</a></li>
+            <li><a class="" href="../architecture/logging.html">Logging</a></li>
+            <li><a class="" href="../architecture/packages.html">Packages</a></li>
+            <li><a class="" href="../architecture/servlet-spec.html">Servlet Specification</a></li>
+            <li><a class="" href="../architecture/system-model.html">System Model</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup2">
+        <span id="tgSpan2" class="fa fa-angle-right"></span>Recipes
+      </a>
+      <ul id="topicGroup2" class="collapse  list-unstyled">
+            <li><a class="" href="../recipes/index.html">Overview</a></li>
+            <li><a class="" href="../recipes/quick-start.html">Quick Start</a></li>
+            <li><a class="" href="../recipes/getting-started.html">Getting Started</a></li>
+            <li><a class="" href="../recipes/custom-filter-for-repose.html">Custom Filter for Repose</a></li>
+            <li><a class="" href="../recipes/docker.html">Docker</a></li>
+            <li><a class="" href="../recipes/performance-best-practices.html">Performance Best Practices</a></li>
+            <li><a class="" href="../recipes/role-based-access-control.html">Role Based Access Control</a></li>
+            <li><a class="" href="../recipes/running-valve.html">Running Valve</a></li>
+            <li><a class="" href="../recipes/valve-installation.html">Valve Installation</a></li>
+            <li><a class="" href="../recipes/echo-server.html">Echo Server</a></li>
+            <li><a class="" href="../recipes/rate-limiting.html">Rate Limiting</a></li>
+            <li><a class="" href="../recipes/multi-tenant.html">Multi Tenant Authorization</a></li>
+            <li><a class="" href="../recipes/user-access-events.html">User Access Events</a></li>
+            <li><a class="" href="../recipes/basic-authentication.html">Basic Authentication</a></li>
+            <li><a class="" href="../recipes/delegation.html">Delegation</a></li>
+            <li><a class="" href="../recipes/preventing-xml-bomb.html">Preventing XML bomb attacks</a></li>
+            <li><a class="" href="../recipes/api-event-flume.html">API Access Event Recording with Flume</a></li>
+            <li><a class="" href="../recipes/xsd-versioning.html">XSD Versioning Guidelines</a></li>
+            <li><a class="" href="../recipes/client-authentication.html">SSL/TLS Client Authentication</a></li>
+            <li><a class="" href="../recipes/functional-test-framework.html">Functional Test Framework</a></li>
+            <li><a class="" href="../recipes/header-splitting.html">Header Splitting</a></li>
+            <li><a class="" href="../recipes/reason-phrase-normalization.html">Reason Phrase Normalization</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup3">
+        <span id="tgSpan3" class="fa fa-angle-down"></span>Filters
+      </a>
+      <ul id="topicGroup3" class="collapse in list-unstyled">
+            <li><a class=" active" href="../filters/index.html">Overview</a></li>
+            <li><a class="" href="../filters/add-header.html">Add Header Filter</a></li>
+            <li><a class="" href="../filters/api-validator.html">API Validator Filter</a></li>
+            <li><a class="" href="../filters/body-extractor-to-header.html">Body Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/body-patcher.html">Body Patcher Filter</a></li>
+            <li><a class="" href="../filters/compression.html">Compression Filter</a></li>
+            <li><a class="" href="../filters/content-type-stripper.html">Content Type Stripper Filter</a></li>
+            <li><a class="" href="../filters/cors.html">CORS Filter</a></li>
+            <li><a class="" href="../filters/derp.html">Delegation Response Processor (DeRP) Filter</a></li>
+            <li><a class="" href="../filters/destination-router.html">Destination Router Filter</a></li>
+            <li><a class="" href="../filters/echo.html">Echo Filter</a></li>
+            <li><a class="" href="../filters/exception.html">Exception Filter</a></li>
+            <li><a class="" href="../filters/forwarded-proto.html">Forwarded Protocol Filter</a></li>
+            <li><a class="" href="../filters/header-normalization.html">Header Normalization filter</a></li>
+            <li><a class="" href="../filters/header-translation.html">Header Translation Filter</a></li>
+            <li><a class="" href="../filters/header-user.html">Header User Filter</a></li>
+            <li><a class="" href="../filters/herp.html">Highly Efficient Record Processor (HERP) Filter</a></li>
+            <li><a class="" href="../filters/ip-user.html">IP User Filter</a></li>
+            <li><a class="" href="../filters/iri-validator.html">IRI Validator Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2.html">Keystone v2 Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-authorization.html">Keystone v2 Authorization Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-basic-auth.html">Keystone v2 Basic Auth Filter</a></li>
+            <li><a class="" href="../filters/merge-header.html">Merge Header Filter</a></li>
+            <li><a class="" href="../filters/openapi-validator.html">OpenAPI Validatort Filter</a></li>
+            <li><a class="" href="../filters/openstack-identity-v3.html">Openstack Identity v3 Filter</a></li>
+            <li><a class="" href="../filters/rate-limiting.html">Rate Limiting Filter</a></li>
+            <li><a class="" href="../filters/regex-rbac.html">RegEx Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/scripting.html">Scripting Filter</a></li>
+            <li><a class="" href="../filters/simple-rbac.html">Simple Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/slf4j-http-logging.html">SFL4J HTTP Logging Filter</a></li>
+            <li><a class="" href="../filters/split-header.html">Split Header Filter</a></li>
+            <li><a class="" href="../filters/tenant-culling.html">Tenant Culling Filter</a></li>
+            <li><a class="" href="../filters/translation.html">Translation Filter</a></li>
+            <li><a class="" href="../filters/uri-normalization.html">URI Normalization Filter</a></li>
+            <li><a class="" href="../filters/uri-stripper.html">URI Stripper Filter</a></li>
+            <li><a class="" href="../filters/uri-user.html">URI User Filter</a></li>
+            <li><a class="" href="../filters/url-extractor-to-header.html">URL Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a></li>
+            <li><a class="" href="../filters/versioning.html">Versioning Filter</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup4">
+        <span id="tgSpan4" class="fa fa-angle-right"></span>Services
+      </a>
+      <ul id="topicGroup4" class="collapse  list-unstyled">
+            <li><a class="" href="../services/index.html">Overview</a></li>
+            <li><a class="" href="../services/atom-feed-consumption.html">Atom Feed Consumption Service</a></li>
+            <li><a class="" href="../services/datastores.html">Datastores</a></li>
+            <li><a class="" href="../services/health-check.html">Health Check Service</a></li>
+            <li><a class="" href="../services/http-client.html">HTTP Client Service</a></li>
+            <li><a class="" href="../services/http-logging.html">HTTP Logging Service</a></li>
+            <li><a class="" href="../services/logging.html">Logging Service</a></li>
+            <li><a class="" href="../services/metrics.html">Metrics Service</a></li>
+            <li><a class="" href="../services/open-tracing.html">OpenTracing Service</a></li>
+            <li><a class="" href="../services/phone-home.html">Phone Home Service</a></li>
+            <li><a class="" href="../services/uri-redaction.html">URI Redaction service</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup5">
+        <span id="tgSpan5" class="fa fa-angle-right"></span>Developer
+      </a>
+      <ul id="topicGroup5" class="collapse  list-unstyled">
+            <li><a class="" href="../developer/index.html">Overview</a></li>
+            <li><a class="" href="../developer/docker.html">Docker</a></li>
+            <li><a class="" href="../developer/performance.html">Performance Testing</a></li>
+            <li><a class="" href="../developer/functional.html">Functional Testing</a></li>
+      </ul>
+    </li>
+</ul>
+      </div>
+      <div class="col-xs-12 col-sm-9 col-md-9 main">
+        <div class="page-header">
+          <h2>Filters</h2>
+        </div>
+        <div id="preamble">
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>This version of the docs is a work in progress.
+If you don&#8217;t see what you are looking for check the legacy <a href="http://wiki.openrepose.org">wiki</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="add-header-filter"><a class="anchor" href="#add-header-filter"></a><a href="add-header.html">Add Header Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Enables users to add new headers and header values to a request and/or response.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="api-validator-filter"><a class="anchor" href="#api-validator-filter"></a><a href="api-validator.html">API Validator Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Validates calls to an API by checking the URI format, enforcing <a href="../recipes/role-based-access-control.html">Role-Based Access Control (RBAC)</a>, ensuring payload schema compliance, and much more.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="body-extractor-to-header-filter"><a class="anchor" href="#body-extractor-to-header-filter"></a><a href="body-extractor-to-header.html">Body Extractor to Header Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Extracts a value from the request body and puts it in a request header.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="body-patcher-filter"><a class="anchor" href="#body-patcher-filter"></a><a href="body-patcher.html">Body Patcher Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Patches request/response bodies using methods native to the content type.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="compression-filter"><a class="anchor" href="#compression-filter"></a><a href="compression.html">Compression Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>IN PROGRESS</strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="content-type-stripper-filter"><a class="anchor" href="#content-type-stripper-filter"></a><a href="content-type-stripper.html">Content Type Stripper Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Removes the <code>Content-Type</code> header when no content body is present.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cors-filter"><a class="anchor" href="#cors-filter"></a><a href="cors.html">CORS Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Enables users to add support for Cross-Origin Resource Sharing requests.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="delegation-response-processor-derp-filter"><a class="anchor" href="#delegation-response-processor-derp-filter"></a><a href="derp.html">Delegation Response Processor (DeRP) Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>IN PROGRESS</strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="destination-router-filter"><a class="anchor" href="#destination-router-filter"></a><a href="destination-router.html">Destination Router Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>IN PROGRESS</strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="echo-filter"><a class="anchor" href="#echo-filter"></a><a href="echo.html">Echo Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>IN PROGRESS</strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="exception-filter"><a class="anchor" href="#exception-filter"></a><a href="exception.html">Exception Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>IN PROGRESS</strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="forwarded-protocol-filter"><a class="anchor" href="#forwarded-protocol-filter"></a><a href="forwarded-proto.html">Forwarded Protocol Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>IN PROGRESS</strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="header-normalization-filter"><a class="anchor" href="#header-normalization-filter"></a><a href="header-normalization.html">Header Normalization filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Conditionally removes headers from a request and/or response.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="header-translation-filter"><a class="anchor" href="#header-translation-filter"></a><a href="header-translation.html">Header Translation Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>IN PROGRESS</strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="header-user-filter"><a class="anchor" href="#header-user-filter"></a><a href="header-user.html">Header User Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>IN PROGRESS</strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="highly-efficient-record-processor-herp-filter"><a class="anchor" href="#highly-efficient-record-processor-herp-filter"></a><a href="herp.html">Highly Efficient Record Processor (HERP) Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Logs a descriptive event for each API request so that usage can be audited.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="ip-user-filter"><a class="anchor" href="#ip-user-filter"></a><a href="ip-user.html">IP User Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Populates a request header with the client’s IP address.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="iri-validator-filter"><a class="anchor" href="#iri-validator-filter"></a><a href="iri-validator.html">IRI Validator Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Verifies that the request URI has been properly converted from an IRI.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="keystone-v2-filter"><a class="anchor" href="#keystone-v2-filter"></a><a href="keystone-v2.html">Keystone v2 Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Provides a mechanism for authenticating and enriching requests with data from an OpenStack Keystone v2 Identity service.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="keystone-v2-authorization-filter"><a class="anchor" href="#keystone-v2-authorization-filter"></a><a href="keystone-v2-authorization.html">Keystone v2 Authorization Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Authorizes requests based on data about the user making the request.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="keystone-v2-basic-auth-filter"><a class="anchor" href="#keystone-v2-basic-auth-filter"></a><a href="keystone-v2-basic-auth.html">Keystone v2 Basic Auth Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>IN PROGRESS</strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="merge-header-filter"><a class="anchor" href="#merge-header-filter"></a><a href="merge-header.html">Merge Header Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Merges multiple header lines with the same name into a single header line with multiple comma-separated values.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="openapi-validator-filter"><a class="anchor" href="#openapi-validator-filter"></a><a href="openapi-validator.html">OpenAPI Validator Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Validates requests against a configured <a href="https://github.com/OAI/OpenAPI-Specification">OpenAPI Document</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="openstack-identity-v3-filter"><a class="anchor" href="#openstack-identity-v3-filter"></a><a href="openstack-identity-v3.html">Openstack Identity v3 Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Authenticates, authorizes, and enriches requests using data from an OpenStack Identity v3 service.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rate-limiting-filter"><a class="anchor" href="#rate-limiting-filter"></a><a href="rate-limiting.html">Rate Limiting Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Limits the number of requests allowed through <strong>Repose</strong> to the origin service.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="regex-role-based-access-control-rbac-filter"><a class="anchor" href="#regex-role-based-access-control-rbac-filter"></a><a href="regex-rbac.html">RegEx Role Based Access Control (RBAC) Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Validates calls to an API by checking the requested URI against a series Regular Expressions to enforce <a href="../recipes/role-based-access-control.html">Role-Based Access Control (RBAC)</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="scripting-filter"><a class="anchor" href="#scripting-filter"></a><a href="scripting.html">Scripting Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Enables users to write custom filters for <strong>Repose</strong> using a variety of scripting languages.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="simple-role-based-access-control-rbac-filter"><a class="anchor" href="#simple-role-based-access-control-rbac-filter"></a><a href="simple-rbac.html">Simple Role Based Access Control (RBAC) Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Validates calls to an API by checking the URI format and HTTP method and enforcing <a href="../recipes/role-based-access-control.html">Role-Based Access Control (RBAC)</a> using a simple Domain Specific Language (DSL).</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="sfl4j-http-logging-filter"><a class="anchor" href="#sfl4j-http-logging-filter"></a><a href="slf4j-http-logging.html">SFL4J HTTP Logging Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>IN PROGRESS</strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="split-header-filter"><a class="anchor" href="#split-header-filter"></a><a href="split-header.html">Split Header Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Splits header lines with multiple values into multiple header lines each with a single value.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="tenant-culling-filter"><a class="anchor" href="#tenant-culling-filter"></a><a href="tenant-culling.html">Tenant Culling Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Winnows away the tenants that are not relevant to the current request.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="translation-filter"><a class="anchor" href="#translation-filter"></a><a href="translation.html">Translation Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>IN PROGRESS</strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="uri-normalization-filter"><a class="anchor" href="#uri-normalization-filter"></a><a href="uri-normalization.html">URI Normalization Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Normalizes the URI of HTTP messages.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="uri-stripper-filter"><a class="anchor" href="#uri-stripper-filter"></a><a href="uri-stripper.html">URI Stripper Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>IN PROGRESS</strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="uri-user-filter"><a class="anchor" href="#uri-user-filter"></a><a href="uri-user.html">URI User Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>IN PROGRESS</strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="url-extractor-to-header-filter"><a class="anchor" href="#url-extractor-to-header-filter"></a><a href="url-extractor-to-header.html">URL Extractor to Header Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>IN PROGRESS</strong></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="valkyrie-authorization-filter"><a class="anchor" href="#valkyrie-authorization-filter"></a><a href="valkyrie-authorization.html">Valkyrie Authorization Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Authorizes users with permissions from a Valkyrie service, and normalizes request and/or response data given those permissions.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="versioning-filter"><a class="anchor" href="#versioning-filter"></a><a href="versioning.html">Versioning Filter</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>IN PROGRESS</strong></p>
+</div>
+</div>
+</div>
+      </div>
+    </div>
+  </div>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="/_javascripts/bootstrap-offcanvas.js" type="text/javascript"></script>
+  <script src="/_javascripts/page-loader.js" type="text/javascript"></script>
+  <script src="/_javascripts/include-html.js" type="text/javascript"></script>
+  <script>includeHTML();</script>
+  <script type="text/javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+      $("[id^='topicGroup']").on('show.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicGroup']").on('hide.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicSubGroup']").on('show.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+      $("[id^='topicSubGroup']").on('hide.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+    });
+    /*]]>*/
+  </script>
+</body>
+</html>

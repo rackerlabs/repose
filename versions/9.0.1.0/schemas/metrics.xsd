@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:m="http://docs.openrepose.org/repose/metrics/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/repose/metrics/v1.0">
+
+    <xs:element name="metrics" type="m:MetricsConfiguration"/>
+
+    <xs:complexType name="MetricsConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>All metrics-related configuration.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="graphite" type="m:Graphite" minOccurs="0" maxOccurs="1"/>
+            <!--xs:element name="properties" type="m:Properties" minOccurs="0" maxOccurs="1"/-->
+        </xs:sequence>
+
+        <xs:attribute name="enabled" type="xs:boolean" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    Enabled: When set, dictates whether or not metrics are reported. If set to true, metrics will be
+                    reported. If set to false, metrics will not be reported. Defaults to true.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+    </xs:complexType>
+
+    <xs:complexType name="Graphite">
+        <xs:sequence>
+            <xs:element name="server" type="m:GraphiteServer" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="GraphiteServer">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The Graphite server information.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="host" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The Graphite server hostname.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="port" type="xs:integer" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The Graphite server port.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="period" type="xs:long" use="optional" default="10">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The reporting period for Repose to report to the Graphite server in seconds. Default value
+                        is 10.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="prefix" type="xs:string" use="optional" default="">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Prefix used for all metrics in Graphite. Default value is "".</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+    </xs:complexType>
+
+</xs:schema>

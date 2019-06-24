@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>9.0.1.0 | Filters | Rate Limiting Filter</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="/_stylesheets/asciibinder.css" >
+  <link rel="stylesheet" href="/_stylesheets/repose.css" >
+  <link rel="stylesheet" href="/_stylesheets/release-note-categories.css" >
+
+   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+   <!--[if lt IE 9]>
+     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+   <![endif]-->
+
+  <link href="/_images/favicon32x32.png" rel="shortcut icon" type="text/css">
+  <!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
+  <meta content="AsciiBinder" name="application-name">
+</head>
+<body onload="selectVersion('9.0.1.0');">
+  <div class="container">
+    <p class="toggle-nav visible-xs pull-left">
+      <button class="btn btn-default btn-sm" type="button" data-toggle="offcanvas">Toggle nav</button>
+    </p>
+    <ol class="breadcrumb">
+      <li class="sitename">
+        <a class="navbar-brand" href="http://www.openrepose.org/">
+          <img alt="OpenRepose" src="/_images/repose-logo.png" align="bottom">
+        </a>
+      </li>
+      <li class="sitename">
+        <a href="../../index.html">
+          Home
+        </a>
+      </li>
+      <li class="hidden-xs active">
+        <a href="/versions/9.0.1.0/welcome/index.html">
+          Repose
+        </a>
+        <select id="version-selector" onchange="versionSelector(this);" w3-include-html="/_includes/versions.html">
+        </select>
+      </li>
+      <li class="hidden-xs active">
+        <a href="../filters/index.html">Filters</a>
+      </li>
+      
+      <li class="hidden-xs active">
+        Rate Limiting Filter
+      </li>
+    </ol>
+    <div class="row row-offcanvas row-offcanvas-left">
+      <div class="col-xs-8 col-sm-3 col-md-3 sidebar sidebar-offcanvas">
+        <a class="navbar-search" href="/versions/search.html">
+          <span class="glyphicon glyphicon-search"/>
+          Search
+        </a>
+        <ul class="nav nav-sidebar">
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup0">
+        <span id="tgSpan0" class="fa fa-angle-right"></span>Welcome to Repose
+      </a>
+      <ul id="topicGroup0" class="collapse  list-unstyled">
+            <li><a class="" href="../welcome/index.html">Welcome</a></li>
+            <li><a class="" href="../welcome/troubleshooting.html">Troubleshooting</a></li>
+            <li><a class="" href="../welcome/release-notes.html">Release Notes</a></li>
+            <li><a class="" href="../welcome/ver-9-upgrade-notes.html">Version 9 Upgrade Notes</a></li>
+            <li><a class="" href="../welcome/style-guide.html">Style Guide</a></li>
+            <li><a class="" href="../welcome/faq.html">FAQ</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup1">
+        <span id="tgSpan1" class="fa fa-angle-right"></span>Architecture
+      </a>
+      <ul id="topicGroup1" class="collapse  list-unstyled">
+            <li><a class="" href="../architecture/index.html">Overview</a></li>
+            <li><a class="" href="../architecture/configuration.html">Configuration</a></li>
+            <li><a class="" href="../architecture/container.html">Container</a></li>
+            <li><a class="" href="../architecture/filter-chain.html">Filter Chain</a></li>
+            <li><a class="" href="../architecture/logging.html">Logging</a></li>
+            <li><a class="" href="../architecture/packages.html">Packages</a></li>
+            <li><a class="" href="../architecture/servlet-spec.html">Servlet Specification</a></li>
+            <li><a class="" href="../architecture/system-model.html">System Model</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup2">
+        <span id="tgSpan2" class="fa fa-angle-right"></span>Recipes
+      </a>
+      <ul id="topicGroup2" class="collapse  list-unstyled">
+            <li><a class="" href="../recipes/index.html">Overview</a></li>
+            <li><a class="" href="../recipes/quick-start.html">Quick Start</a></li>
+            <li><a class="" href="../recipes/getting-started.html">Getting Started</a></li>
+            <li><a class="" href="../recipes/custom-filter-for-repose.html">Custom Filter for Repose</a></li>
+            <li><a class="" href="../recipes/docker.html">Docker</a></li>
+            <li><a class="" href="../recipes/performance-best-practices.html">Performance Best Practices</a></li>
+            <li><a class="" href="../recipes/role-based-access-control.html">Role Based Access Control</a></li>
+            <li><a class="" href="../recipes/running-valve.html">Running Valve</a></li>
+            <li><a class="" href="../recipes/valve-installation.html">Valve Installation</a></li>
+            <li><a class="" href="../recipes/echo-server.html">Echo Server</a></li>
+            <li><a class="" href="../recipes/rate-limiting.html">Rate Limiting</a></li>
+            <li><a class="" href="../recipes/multi-tenant.html">Multi Tenant Authorization</a></li>
+            <li><a class="" href="../recipes/user-access-events.html">User Access Events</a></li>
+            <li><a class="" href="../recipes/basic-authentication.html">Basic Authentication</a></li>
+            <li><a class="" href="../recipes/delegation.html">Delegation</a></li>
+            <li><a class="" href="../recipes/preventing-xml-bomb.html">Preventing XML bomb attacks</a></li>
+            <li><a class="" href="../recipes/api-event-flume.html">API Access Event Recording with Flume</a></li>
+            <li><a class="" href="../recipes/xsd-versioning.html">XSD Versioning Guidelines</a></li>
+            <li><a class="" href="../recipes/client-authentication.html">SSL/TLS Client Authentication</a></li>
+            <li><a class="" href="../recipes/functional-test-framework.html">Functional Test Framework</a></li>
+            <li><a class="" href="../recipes/header-splitting.html">Header Splitting</a></li>
+            <li><a class="" href="../recipes/reason-phrase-normalization.html">Reason Phrase Normalization</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup3">
+        <span id="tgSpan3" class="fa fa-angle-down"></span>Filters
+      </a>
+      <ul id="topicGroup3" class="collapse in list-unstyled">
+            <li><a class="" href="../filters/index.html">Overview</a></li>
+            <li><a class="" href="../filters/add-header.html">Add Header Filter</a></li>
+            <li><a class="" href="../filters/api-validator.html">API Validator Filter</a></li>
+            <li><a class="" href="../filters/body-extractor-to-header.html">Body Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/body-patcher.html">Body Patcher Filter</a></li>
+            <li><a class="" href="../filters/compression.html">Compression Filter</a></li>
+            <li><a class="" href="../filters/content-type-stripper.html">Content Type Stripper Filter</a></li>
+            <li><a class="" href="../filters/cors.html">CORS Filter</a></li>
+            <li><a class="" href="../filters/derp.html">Delegation Response Processor (DeRP) Filter</a></li>
+            <li><a class="" href="../filters/destination-router.html">Destination Router Filter</a></li>
+            <li><a class="" href="../filters/echo.html">Echo Filter</a></li>
+            <li><a class="" href="../filters/exception.html">Exception Filter</a></li>
+            <li><a class="" href="../filters/forwarded-proto.html">Forwarded Protocol Filter</a></li>
+            <li><a class="" href="../filters/header-normalization.html">Header Normalization filter</a></li>
+            <li><a class="" href="../filters/header-translation.html">Header Translation Filter</a></li>
+            <li><a class="" href="../filters/header-user.html">Header User Filter</a></li>
+            <li><a class="" href="../filters/herp.html">Highly Efficient Record Processor (HERP) Filter</a></li>
+            <li><a class="" href="../filters/ip-user.html">IP User Filter</a></li>
+            <li><a class="" href="../filters/iri-validator.html">IRI Validator Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2.html">Keystone v2 Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-authorization.html">Keystone v2 Authorization Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-basic-auth.html">Keystone v2 Basic Auth Filter</a></li>
+            <li><a class="" href="../filters/merge-header.html">Merge Header Filter</a></li>
+            <li><a class="" href="../filters/openapi-validator.html">OpenAPI Validatort Filter</a></li>
+            <li><a class="" href="../filters/openstack-identity-v3.html">Openstack Identity v3 Filter</a></li>
+            <li><a class=" active" href="../filters/rate-limiting.html">Rate Limiting Filter</a></li>
+            <li><a class="" href="../filters/regex-rbac.html">RegEx Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/scripting.html">Scripting Filter</a></li>
+            <li><a class="" href="../filters/simple-rbac.html">Simple Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/slf4j-http-logging.html">SFL4J HTTP Logging Filter</a></li>
+            <li><a class="" href="../filters/split-header.html">Split Header Filter</a></li>
+            <li><a class="" href="../filters/tenant-culling.html">Tenant Culling Filter</a></li>
+            <li><a class="" href="../filters/translation.html">Translation Filter</a></li>
+            <li><a class="" href="../filters/uri-normalization.html">URI Normalization Filter</a></li>
+            <li><a class="" href="../filters/uri-stripper.html">URI Stripper Filter</a></li>
+            <li><a class="" href="../filters/uri-user.html">URI User Filter</a></li>
+            <li><a class="" href="../filters/url-extractor-to-header.html">URL Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a></li>
+            <li><a class="" href="../filters/versioning.html">Versioning Filter</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup4">
+        <span id="tgSpan4" class="fa fa-angle-right"></span>Services
+      </a>
+      <ul id="topicGroup4" class="collapse  list-unstyled">
+            <li><a class="" href="../services/index.html">Overview</a></li>
+            <li><a class="" href="../services/atom-feed-consumption.html">Atom Feed Consumption Service</a></li>
+            <li><a class="" href="../services/datastores.html">Datastores</a></li>
+            <li><a class="" href="../services/health-check.html">Health Check Service</a></li>
+            <li><a class="" href="../services/http-client.html">HTTP Client Service</a></li>
+            <li><a class="" href="../services/http-logging.html">HTTP Logging Service</a></li>
+            <li><a class="" href="../services/logging.html">Logging Service</a></li>
+            <li><a class="" href="../services/metrics.html">Metrics Service</a></li>
+            <li><a class="" href="../services/open-tracing.html">OpenTracing Service</a></li>
+            <li><a class="" href="../services/phone-home.html">Phone Home Service</a></li>
+            <li><a class="" href="../services/uri-redaction.html">URI Redaction service</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup5">
+        <span id="tgSpan5" class="fa fa-angle-right"></span>Developer
+      </a>
+      <ul id="topicGroup5" class="collapse  list-unstyled">
+            <li><a class="" href="../developer/index.html">Overview</a></li>
+            <li><a class="" href="../developer/docker.html">Docker</a></li>
+            <li><a class="" href="../developer/performance.html">Performance Testing</a></li>
+            <li><a class="" href="../developer/functional.html">Functional Testing</a></li>
+      </ul>
+    </li>
+</ul>
+      </div>
+      <div class="col-xs-12 col-sm-9 col-md-9 main">
+        <div class="page-header">
+          <h2>Rate Limiting Filter</h2>
+        </div>
+        <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Rate Limiting filter can be used to limit the number of requests that make it through <strong>Repose</strong> to specified resources belonging to the origin service.
+By imposing a rate limit, an operator can prevent the origin service from being flooded by requests, thereby bounding the potential for congestion or contention.</p>
+</div>
+<div class="paragraph">
+<p>Additionally, this filter can expose rate limiting data by allowing users to query rate limits.
+With accessible rate limiting data, a user can determine the number of requests they are allowed to make per period of time to various resources.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="#additional-information">Additional Information</a> for more details on how rate limiting is performed.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="general-filter-information"><a class="anchor" href="#general-filter-information"></a>General Filter Information</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Name:</strong> rate-limiting</p>
+</li>
+<li>
+<p><strong>Default Configuration:</strong> rate-limiting.cfg.xml</p>
+</li>
+<li>
+<p><strong>Released:</strong> v1.0</p>
+</li>
+<li>
+<p><strong>Bundle:</strong> repose-filter-bundle</p>
+</li>
+<li>
+<p><a href="../schemas/rate-limiting-configuration.xsd">Schema</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="prerequisites-postconditions"><a class="anchor" href="#prerequisites-postconditions"></a>Prerequisites &amp; Postconditions</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="required-request-headers"><a class="anchor" href="#required-request-headers"></a>Required Request Headers</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>X-PP-User</code> - Supplies a unique identifier for the user making the request.
+If the request matches a limit, the request count associated with this identifier will be incremented.</p>
+</li>
+<li>
+<p><strong>(Optional)</strong> <code>X-PP-Groups</code> - Supplies one or more identifier for the limit group(s) that the user belongs to.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Quality Factor</div>
+<div class="paragraph">
+<p>This filter uses the quality parameter of header values to determine the user and group(s) provided in the request.
+The value(s) with the highest quality will be used, while all other values will be ignored.
+In the case of the <code>X-PP-User</code> header, only the first of the highest quality values will be used.</p>
+</div>
+<div class="paragraph">
+<p>This is useful when an operator desires to employ multiple authentication/identity mechanisms.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="required-preceding-filters"><a class="anchor" href="#required-preceding-filters"></a>Required Preceding Filters</h3>
+<div class="paragraph">
+<p>Strictly speaking, there is not a hard requirement for any filter to precede this filter.
+However, it is <strong>strongly recommended</strong> to utilize the following filters ahead of this filter.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="uri-normalization.html">URI Normalization Filter</a> - Normalizes the URI so that limits' <code>uri-regex</code> match reliably, and capture groups work consistently.
+Normalization helps prevent cache busting that may occur due to the various possible encodings of the URI.
+In other words, normalization will lead to <code>/servers/abc/instances/123</code> and <code>/servers/abc/instances/%31%32%33</code> being handled identically.</p>
+</li>
+<li>
+<p>User Identity Filter - Populates the <code>X-PP-User</code> and <code>X-PP-Groups</code> headers described in <a href="#Required Headers">[Required Headers]</a>.
+Any of the following filters can be used to fulfill this role:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="ip-user.html">IP User Filter</a></p>
+</li>
+<li>
+<p><a href="header-user.html">Header User Filter</a></p>
+</li>
+<li>
+<p><a href="uri-user.html">URI User Filter</a></p>
+</li>
+<li>
+<p><a href="keystone-v2.html">Keystone v2 Filter</a></p>
+</li>
+<li>
+<p><a href="openstack-identity-v3.html">OpenStack Identity v3 Filter</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="request-headers-created"><a class="anchor" href="#request-headers-created"></a>Request Headers Created</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Accept</code> - Only modified if this filter is configured with a <code>request-endpoint</code>, <code>include-absolute-limits</code> is enabled, and the request was made to the <code>request-endpoint</code>.
+The value of this header will be <code>application/xml</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="request-body-changes"><a class="anchor" href="#request-body-changes"></a>Request Body Changes</h3>
+<div class="paragraph">
+<p>This filter does not modify the request body.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="recommended-follow-on-succeeding-filters"><a class="anchor" href="#recommended-follow-on-succeeding-filters"></a>Recommended Follow-On (Succeeding) Filters</h3>
+<div class="paragraph">
+<p>This filter is not strictly required by any other filters.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-body-changes"><a class="anchor" href="#response-body-changes"></a>Response Body Changes</h3>
+<div class="paragraph">
+<p>This filter will only modify the response body if this filter is configured with a <code>request-endpoint</code>.
+In that case, in response to requests made to the <code>request-endpoint</code>, this filter will populate the response body with details of the current state of limits which apply to the provided user with the provided group(s).</p>
+</div>
+<div class="paragraph">
+<p>See <a href="#querying-limits">Querying Limits</a> for more details.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-headers-created"><a class="anchor" href="#response-headers-created"></a>Response Headers Created</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Retry-After</code> - Only created if the user is rate limited.
+The value of this header will be a date after which the user can send another request without being rate limited.</p>
+</li>
+<li>
+<p><code>Content-Type</code> - Only created if this filter is configured with a <code>request-endpoint</code>, and the request was made to the <code>request-endpoint</code>.
+The value of this header will be the preferred media type provided in the <code>Accept</code> header of the request.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-status-codes"><a class="anchor" href="#response-status-codes"></a>Response Status Codes</h3>
+<table class="tableblock frame-all grid-all fit-content">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Status Code</th>
+<th class="tableblock halign-left valign-top">Reasons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>200</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>If the response to a request to the <code>request-endpoint</code> is sent successfully.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>401</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>If the <code>X-PP-User</code> header is not present on the request.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>406</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>If the <code>Accept</code> header on a request to the <code>request-endpoint</code> does not indicate that the user supports <code>application/xml</code> or <code>application/json</code>.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>413</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>If the user is rate limited and <code>overLimit-429-responseCode</code> is set to false.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>429</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>If the user is rate limited and <code>overLimit-429-responseCode</code> is set to true.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>500</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>If an unexpected issue arises.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>502</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>If there is an issue obtaining absolute limits from the origin service.</p>
+</li>
+<li>
+<p>If there is an issue committing an updated limit across nodes when using the <a href="../services/datastores.html">Distributed Datastore</a>.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>503</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>If the filter has not yet initialized.</p>
+</li>
+<li>
+<p>If a global rate limit is reached.</p>
+</li>
+<li>
+<p>If a <a href="../services/datastores.html">Distributed Datastore</a> action fails.</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="querying-limits-example"><a class="anchor" href="#querying-limits-example"></a>Querying Limits Example</h3>
+<div class="paragraph">
+<p>In this example, we have configured this filter to allow users to query their limits.
+Provided below are sample requests to give you a better idea of what that looks like.</p>
+</div>
+<div class="listingblock">
+<div class="title">rate-limiting.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;rate-limiting</span> <span style="color:#b48">datastore</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">distributed/hash-ring</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">use-capture-groups</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/rate-limiting/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;request-endpoint</span> <i class="conum" data-value="1"></i><b>(1)</b>
+        <span style="color:#b48">uri-regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/limits</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="2"></i><b>(2)</b>
+        <span style="color:#b48">include-absolute-limits</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="3"></i><b>(3)</b>
+
+    <span style="color:#070;font-weight:bold">&lt;limit-group</span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">limited</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">groups</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">BETA_Group IP_Standard</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">default</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;limit</span> <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">*</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">uri-regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/something/(.*)</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">http-methods</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">PUT</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">unit</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">MINUTE</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">value</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">10</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;limit</span> <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">*</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">uri-regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/something/(.*)</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">http-methods</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">GET</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">unit</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">MINUTE</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">value</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">10</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/limit-group&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;limit-group</span> <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">limited-all</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">groups</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">My_Group</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">default</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;limit</span> <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">*</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">uri-regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/something/(.*)</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">http-methods</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">ALL</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">unit</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">HOUR</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">value</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">10</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/limit-group&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/rate-limiting&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>By including this element, the limit query feature is enabled.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <code>uri-regex</code> attribute specifies the URI at which queries will be handled.
+All requests that match this URI regular expression will be handled as limit query requests.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The <code>include-absolute-limits</code> attribute specifies whether or not <a href="#absolute-limits">Absolute Limits</a> should be queried.</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Limit Query Request (without group)</div>
+<div class="content">
+<pre>curl http://localhost:8020/limits -H "x-pp-user: 123456" -H "accept: application/xml"</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Limit Query Response (without group)</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;limits</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openstack.org/common/api/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;rates&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;rate</span> <span style="color:#b48">regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/something/(.*)</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">*</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+           <span style="color:#070;font-weight:bold">&lt;limit</span> <span style="color:#b48">next-available</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">2012-06-22T14:39:33.832Z</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">unit</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">HOUR</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">remaining</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">10</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">value</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">10</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">verb</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">ALL</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/rate&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/rates&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/limits&gt;</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Limit Query Request (with group)</div>
+<div class="content">
+<pre>curl http://localhost:8020/limits -H "x-pp-user: 123456"  -H "x-pp-groups: IP_Standard" -H "accept: application/xml"</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Limit Query Response (with group)</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;limits</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openstack.org/common/api/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;rates&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;rate</span> <span style="color:#b48">regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/something/(.*)</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">*</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;limit</span> <span style="color:#b48">next-available</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">2012-06-22T15:38:17.956Z</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">unit</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">MINUTE</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">remaining</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">10</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">value</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">10</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">verb</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">PUT</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;limit</span> <span style="color:#b48">next-available</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">2012-06-22T15:38:17.956Z</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">unit</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">MINUTE</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">remaining</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">10</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">value</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">10</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">verb</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">GET</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/rate&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/rates&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/limits&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="full-feature-utilization-example"><a class="anchor" href="#full-feature-utilization-example"></a>Full Feature Utilization Example</h3>
+<div class="paragraph">
+<p>This configuration provides per-user limits, global limits, and an endpoint to query limit data.</p>
+</div>
+<div class="listingblock">
+<div class="title">rate-limiting.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;rate-limiting</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/rate-limiting/v1.0</span><span style="color:#710">&quot;</span></span>
+    <span style="color:#b48">overLimit-429-responseCode</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="1"></i><b>(1)</b>
+    <span style="color:#b48">datastore</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">distributed/hash-ring</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="2"></i><b>(2)</b>
+    <span style="color:#b48">datastore-warn-limit</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">1200</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="3"></i><b>(3)</b>
+    <span style="color:#b48">use-capture-groups</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span> <i class="conum" data-value="4"></i><b>(4)</b>
+
+    <span style="color:#070;font-weight:bold">&lt;request-endpoint</span> <i class="conum" data-value="5"></i><b>(5)</b>
+        <span style="color:#b48">include-absolute-limits</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="6"></i><b>(6)</b>
+        <span style="color:#b48">uri-regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/limits/?</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="7"></i><b>(7)</b>
+
+    <span style="color:#070;font-weight:bold">&lt;global-limit-group&gt;</span> <i class="conum" data-value="8"></i><b>(8)</b>
+        <span style="color:#070;font-weight:bold">&lt;limit</span>
+            <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">global-resource-per-minute</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="9"></i><b>(9)</b>
+            <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">a global resource</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="10"></i><b>(10)</b>
+            <span style="color:#b48">uri-regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/global/resource/?</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="11"></i><b>(11)</b>
+            <span style="color:#b48">http-methods</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">GET</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="12"></i><b>(12)</b>
+            <span style="color:#b48">value</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">100</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="13"></i><b>(13)</b>
+            <span style="color:#b48">unit</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">SECOND</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="14"></i><b>(14)</b>
+            <span style="color:#b48">query-param-names</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">filter</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="15"></i><b>(15)</b>
+    <span style="color:#070;font-weight:bold">&lt;/global-limit-group&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;limit-group</span> <i class="conum" data-value="16"></i><b>(16)</b>
+        <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">customer-limits</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="17"></i><b>(17)</b>
+        <span style="color:#b48">groups</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">group-one group-two</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="18"></i><b>(18)</b>
+        <span style="color:#b48">default</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span> <i class="conum" data-value="19"></i><b>(19)</b>
+
+        <span style="color:#070;font-weight:bold">&lt;limit</span>
+            <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">user-resource-one</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">users resource one</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">uri-regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/users/one/([^/]*)/?</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">http-methods</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">GET</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">unit</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">MINUTE</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">value</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">10</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="20"></i><b>(20)</b>
+
+        <span style="color:#070;font-weight:bold">&lt;limit</span>
+            <span style="color:#b48">id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">user-resource-two</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">users resource two</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">uri-regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/users/two/[^/]*/?</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">http-methods</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">POST</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">unit</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">DAY</span><span style="color:#710">&quot;</span></span>
+            <span style="color:#b48">value</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">2</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="21"></i><b>(21)</b>
+    <span style="color:#070;font-weight:bold">&lt;/limit-group&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/rate-limiting&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Specifies whether this filter should return a 413 or 429 response status code when a request is limited.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Specifies which <a href="../services/datastores.html">datastore</a> should be used.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Specifies the upper bound for the number of user-specific limits to store in the datastore before a warning is logged.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Specifies whether or not the content captured by regular expression capture groups should distinguish multiple, separate limits.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Specifies that the this filter should provide an endpoint where limit data can be queried.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Specifies that the origin service will supply absolute limits which this filter will use to enrich the response to limit data queries.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>Specifies the regular expression used (i.e., matched against the URI) to determine whether or not a request is a limit data query request.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>Specifies <a href="#global-limits">Global Limits</a>, which are applied irrespective of user.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="9"></i><b>9</b></td>
+<td>Specifies a unique ID which identifies this limit.
+No two limits may have the same ID, even if those limits are in different limit groups (including the global limit group).</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="10"></i><b>10</b></td>
+<td>Describes the request URIs for which this limit will be applied.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="11"></i><b>11</b></td>
+<td>Specifies the regular expression used (i.e., matched against the URI) to determine whether or not the limit should be applied to a request.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="12"></i><b>12</b></td>
+<td>Specifies the HTTP methods for which this limit will be applied.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="13"></i><b>13</b></td>
+<td>Specifies the number of requests to allow through this filter before a limit is hit.
+After the limit is hit, all requests will receive a 413 or 429 response until the limit resets.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="14"></i><b>14</b></td>
+<td>Specifies the unit of time after which the limit resets.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="15"></i><b>15</b></td>
+<td>Specifies query parameter names used to determine whether or not the limit should be applied to a request.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="16"></i><b>16</b></td>
+<td>Specifies group-based limits.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="17"></i><b>17</b></td>
+<td>Specifies a unique ID which identifies this limit group.
+No two limit groups may have the same ID.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="18"></i><b>18</b></td>
+<td>Specifies which user groups the limits in this limit group will be applied to.
+User groups are extracted from the <code>X-PP-Groups</code> header described in <a href="#Required Headers">[Required Headers]</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="19"></i><b>19</b></td>
+<td>Specifies whether or not this is the default limit group.
+The default limit group will be used when no other limit group matches the request.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="20"></i><b>20</b></td>
+<td>Defines a limit of ten HTTP GET requests per minute on resources located at <code>/users/one/*</code>.
+This means that a single user could make ten requests to both <code>/users/one/foo</code> and <code>/users/one/bar</code> within the span of one minute.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="21"></i><b>21</b></td>
+<td>Defines a limit of two HTTP POST requests per minute on resources located at <code>/users/two/*</code>.
+This means that a single user could make two requests between <code>/users/one/foo</code> and <code>/users/one/bar</code> within the span of one minute.</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="additional-information"><a class="anchor" href="#additional-information"></a>Additional Information</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="limit-groups"><a class="anchor" href="#limit-groups"></a>Limit Groups</h3>
+<div class="paragraph">
+<p>A limit group is just a group containing one or more limit(s).
+The motivation behind limit groups is to provide a way of applying different limits to different types of users.
+The limits that will be applied to the request are the limits in the limit group configured with a <code>group</code> that matches a value in the <code>X-PP-Groups</code> header.
+If no limit group matches the request, the default limit group will be used.</p>
+</div>
+<div class="paragraph">
+<p>When a limit in a group is reached, succeeding limits within the same limit group will never be applied.
+In other words, the most restrictive limit will prevent updates to succeeding limits.
+Preceding limits within the group will continue to apply (i.e., continue to increment).</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Only the limits in the first limit group to match the request are applied.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="limits"><a class="anchor" href="#limits"></a>Limits</h3>
+<div class="paragraph">
+<p>A limit is the number of requests per unit of time that are allowed to pass through <strong>Repose</strong>.
+Limits are applied selectively to requests matching certain criteria such as a request&#8217;s HTTP method and query parameters.
+Multiple rate limits that match the same request will all apply.
+A limit is reached when a user has sent a number of requests equal to the value of the limit within the span of one unit (configurable on the limit) of time.
+If a limit has been reached, this filter will prevent requests from passing through <strong>Repose</strong>.
+If a limit has not been reached, the request will pass through this filter.
+Limits will reset after the configured unit of time has passed.</p>
+</div>
+<div class="sect3">
+<h4 id="global-limits"><a class="anchor" href="#global-limits"></a>Global Limits</h4>
+<div class="paragraph">
+<p>Global limits are very similar to normal <a href="#limits">Limits</a>, except that they are applied to all requests, irrespective of the user making the request.
+That is, global limits can protect the end service as a whole rather than just from individual users.
+For example, if a service is known to only handle up to 500 requests per second in total, a global rate limit can be set to 500 requests per second to prevent further requests from reaching and compromising the origin service.
+Any request which breaks that limit will receive a response with status code 503.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Global limits are not currently queryable via the <code>request-endpoint</code>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="time-block-algorithm"><a class="anchor" href="#time-block-algorithm"></a>Time Block Algorithm</h3>
+<div class="paragraph">
+<p>This is the algorithm used to determine whether or not a limit has been reached.
+In this algorithm, a time unit is considered discrete and independent from other units.
+Therefore, only requests that occur during such a time unit are counted towards the limit.
+Once the end of a time unit is reached, the count toward a limit will be reset.
+This is in contrast to a leaky bucket rate limit, wherein time units are continuous.</p>
+</div>
+<div class="paragraph">
+<p>It is important to note that, with this approach, it is possible that <code>2x - 1</code> (where x is the configured limit value) requests will pass through this filter over the period of one time unit.
+If that occurs, however, fewer requests will be allowed to pass through surrounding time units.
+Which is to say that, on average, the configured rate limit of <code>x</code> will be enforced.</p>
+</div>
+<div class="paragraph">
+<p>Consider the following example.
+Five requests are allowed per minute for each time-block, but the one-minute window that lands in between the two units has seven requests.
+This shows that limits may be broken for a given window of time, however, across multiple units of time, the allowed requests average less than or equal to five requests per minute.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="data:image/png;base64,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" alt="Rate Limiting Time Block Diagram">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="querying-limits"><a class="anchor" href="#querying-limits"></a>Querying Limits</h3>
+<div class="paragraph">
+<p>This filter tracks limits by user, and consequently, requires a user be provided when querying limits.
+The exception is global limits, however, since global limits are not currently query-able, they will be omitted from this explanation.
+To query a limit, a <code>GET</code> request should be made to the <code>request-endpoint</code>.
+If no <code>request-endpoint</code> is defined, then querying limits is not possible.
+As always, requests must include the <code>X-PP-User</code> header, and may include the <code>X-PP-Groups</code> header.
+The limit details returned from the <code>request-endpoint</code> will be for the limits in the limit group that matches a provided group as they apply to the provided user.</p>
+</div>
+<div class="paragraph">
+<p>The limit details themselves will be presented in either XML or JSON format.
+If no <code>Accept</code> header is present on the request, or if the <code>Accept</code> header has no value, the JSON format will be returned as the default.
+Otherwise, the returned format will be determined based on the <code>Accept</code> header specification defined in <a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html">Section 14 of RFC 2616</a>.
+If the limit query request does not accept at least one of the supported media types, a 406 response will be returned.</p>
+</div>
+<div class="paragraph">
+<p>Take a look at the <a href="#querying-limits-example">Querying Limits Example</a> to see this feature in action!</p>
+</div>
+<div class="sect3">
+<h4 id="absolute-limits"><a class="anchor" href="#absolute-limits"></a>Absolute Limits</h4>
+<div class="paragraph">
+<p>The set of absolute limits is comprised of the set of limits defined in this filter&#8217;s configuration and the limits imposed by the origin service.
+These limits will only be returned if <code>include-absolute-limits</code> on the <code>request-endpoint</code> is set to true.
+Otherwise, only the limits defined in this filter&#8217;s configuration will be returned.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>To retrieve limits from a origin service, a request will be made through the <strong>Repose</strong> filter chain to the origin service.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="distributed-datastore"><a class="anchor" href="#distributed-datastore"></a>Distributed Datastore</h3>
+<div class="paragraph">
+<p>If this filter is configured to use the <a href="../services/datastores.html">Distributed Datastore</a>, and the Distributed Datastore service is unable to communicate with other nodes (e.g., during a rolling upgrade to <strong>Repose</strong>), then the Distributed Datastore service will fall back on the local datastore.
+Consequently, rate limits may not be tracked correctly during the transition from the Distributed Datastore to the local datastore or vice-versa.
+To be more precise, when Distributed Datastore nodes are unreachable, limit data cannot be be retrieved, and so new limits are created in the local datastore.</p>
+</div>
+</div>
+</div>
+</div>
+      </div>
+    </div>
+  </div>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="/_javascripts/bootstrap-offcanvas.js" type="text/javascript"></script>
+  <script src="/_javascripts/page-loader.js" type="text/javascript"></script>
+  <script src="/_javascripts/include-html.js" type="text/javascript"></script>
+  <script>includeHTML();</script>
+  <script type="text/javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+      $("[id^='topicGroup']").on('show.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicGroup']").on('hide.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicSubGroup']").on('show.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+      $("[id^='topicSubGroup']").on('hide.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+    });
+    /*]]>*/
+  </script>
+</body>
+</html>

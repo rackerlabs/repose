@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>9.0.1.0 | Filters | Valkyrie Authorization Filter</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="/_stylesheets/asciibinder.css" >
+  <link rel="stylesheet" href="/_stylesheets/repose.css" >
+  <link rel="stylesheet" href="/_stylesheets/release-note-categories.css" >
+
+   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+   <!--[if lt IE 9]>
+     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+   <![endif]-->
+
+  <link href="/_images/favicon32x32.png" rel="shortcut icon" type="text/css">
+  <!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
+  <meta content="AsciiBinder" name="application-name">
+</head>
+<body onload="selectVersion('9.0.1.0');">
+  <div class="container">
+    <p class="toggle-nav visible-xs pull-left">
+      <button class="btn btn-default btn-sm" type="button" data-toggle="offcanvas">Toggle nav</button>
+    </p>
+    <ol class="breadcrumb">
+      <li class="sitename">
+        <a class="navbar-brand" href="http://www.openrepose.org/">
+          <img alt="OpenRepose" src="/_images/repose-logo.png" align="bottom">
+        </a>
+      </li>
+      <li class="sitename">
+        <a href="../../index.html">
+          Home
+        </a>
+      </li>
+      <li class="hidden-xs active">
+        <a href="/versions/9.0.1.0/welcome/index.html">
+          Repose
+        </a>
+        <select id="version-selector" onchange="versionSelector(this);" w3-include-html="/_includes/versions.html">
+        </select>
+      </li>
+      <li class="hidden-xs active">
+        <a href="../filters/index.html">Filters</a>
+      </li>
+      
+      <li class="hidden-xs active">
+        Valkyrie Authorization Filter
+      </li>
+    </ol>
+    <div class="row row-offcanvas row-offcanvas-left">
+      <div class="col-xs-8 col-sm-3 col-md-3 sidebar sidebar-offcanvas">
+        <a class="navbar-search" href="/versions/search.html">
+          <span class="glyphicon glyphicon-search"/>
+          Search
+        </a>
+        <ul class="nav nav-sidebar">
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup0">
+        <span id="tgSpan0" class="fa fa-angle-right"></span>Welcome to Repose
+      </a>
+      <ul id="topicGroup0" class="collapse  list-unstyled">
+            <li><a class="" href="../welcome/index.html">Welcome</a></li>
+            <li><a class="" href="../welcome/troubleshooting.html">Troubleshooting</a></li>
+            <li><a class="" href="../welcome/release-notes.html">Release Notes</a></li>
+            <li><a class="" href="../welcome/ver-9-upgrade-notes.html">Version 9 Upgrade Notes</a></li>
+            <li><a class="" href="../welcome/style-guide.html">Style Guide</a></li>
+            <li><a class="" href="../welcome/faq.html">FAQ</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup1">
+        <span id="tgSpan1" class="fa fa-angle-right"></span>Architecture
+      </a>
+      <ul id="topicGroup1" class="collapse  list-unstyled">
+            <li><a class="" href="../architecture/index.html">Overview</a></li>
+            <li><a class="" href="../architecture/configuration.html">Configuration</a></li>
+            <li><a class="" href="../architecture/container.html">Container</a></li>
+            <li><a class="" href="../architecture/filter-chain.html">Filter Chain</a></li>
+            <li><a class="" href="../architecture/logging.html">Logging</a></li>
+            <li><a class="" href="../architecture/packages.html">Packages</a></li>
+            <li><a class="" href="../architecture/servlet-spec.html">Servlet Specification</a></li>
+            <li><a class="" href="../architecture/system-model.html">System Model</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup2">
+        <span id="tgSpan2" class="fa fa-angle-right"></span>Recipes
+      </a>
+      <ul id="topicGroup2" class="collapse  list-unstyled">
+            <li><a class="" href="../recipes/index.html">Overview</a></li>
+            <li><a class="" href="../recipes/quick-start.html">Quick Start</a></li>
+            <li><a class="" href="../recipes/getting-started.html">Getting Started</a></li>
+            <li><a class="" href="../recipes/custom-filter-for-repose.html">Custom Filter for Repose</a></li>
+            <li><a class="" href="../recipes/docker.html">Docker</a></li>
+            <li><a class="" href="../recipes/performance-best-practices.html">Performance Best Practices</a></li>
+            <li><a class="" href="../recipes/role-based-access-control.html">Role Based Access Control</a></li>
+            <li><a class="" href="../recipes/running-valve.html">Running Valve</a></li>
+            <li><a class="" href="../recipes/valve-installation.html">Valve Installation</a></li>
+            <li><a class="" href="../recipes/echo-server.html">Echo Server</a></li>
+            <li><a class="" href="../recipes/rate-limiting.html">Rate Limiting</a></li>
+            <li><a class="" href="../recipes/multi-tenant.html">Multi Tenant Authorization</a></li>
+            <li><a class="" href="../recipes/user-access-events.html">User Access Events</a></li>
+            <li><a class="" href="../recipes/basic-authentication.html">Basic Authentication</a></li>
+            <li><a class="" href="../recipes/delegation.html">Delegation</a></li>
+            <li><a class="" href="../recipes/preventing-xml-bomb.html">Preventing XML bomb attacks</a></li>
+            <li><a class="" href="../recipes/api-event-flume.html">API Access Event Recording with Flume</a></li>
+            <li><a class="" href="../recipes/xsd-versioning.html">XSD Versioning Guidelines</a></li>
+            <li><a class="" href="../recipes/client-authentication.html">SSL/TLS Client Authentication</a></li>
+            <li><a class="" href="../recipes/functional-test-framework.html">Functional Test Framework</a></li>
+            <li><a class="" href="../recipes/header-splitting.html">Header Splitting</a></li>
+            <li><a class="" href="../recipes/reason-phrase-normalization.html">Reason Phrase Normalization</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup3">
+        <span id="tgSpan3" class="fa fa-angle-down"></span>Filters
+      </a>
+      <ul id="topicGroup3" class="collapse in list-unstyled">
+            <li><a class="" href="../filters/index.html">Overview</a></li>
+            <li><a class="" href="../filters/add-header.html">Add Header Filter</a></li>
+            <li><a class="" href="../filters/api-validator.html">API Validator Filter</a></li>
+            <li><a class="" href="../filters/body-extractor-to-header.html">Body Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/body-patcher.html">Body Patcher Filter</a></li>
+            <li><a class="" href="../filters/compression.html">Compression Filter</a></li>
+            <li><a class="" href="../filters/content-type-stripper.html">Content Type Stripper Filter</a></li>
+            <li><a class="" href="../filters/cors.html">CORS Filter</a></li>
+            <li><a class="" href="../filters/derp.html">Delegation Response Processor (DeRP) Filter</a></li>
+            <li><a class="" href="../filters/destination-router.html">Destination Router Filter</a></li>
+            <li><a class="" href="../filters/echo.html">Echo Filter</a></li>
+            <li><a class="" href="../filters/exception.html">Exception Filter</a></li>
+            <li><a class="" href="../filters/forwarded-proto.html">Forwarded Protocol Filter</a></li>
+            <li><a class="" href="../filters/header-normalization.html">Header Normalization filter</a></li>
+            <li><a class="" href="../filters/header-translation.html">Header Translation Filter</a></li>
+            <li><a class="" href="../filters/header-user.html">Header User Filter</a></li>
+            <li><a class="" href="../filters/herp.html">Highly Efficient Record Processor (HERP) Filter</a></li>
+            <li><a class="" href="../filters/ip-user.html">IP User Filter</a></li>
+            <li><a class="" href="../filters/iri-validator.html">IRI Validator Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2.html">Keystone v2 Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-authorization.html">Keystone v2 Authorization Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-basic-auth.html">Keystone v2 Basic Auth Filter</a></li>
+            <li><a class="" href="../filters/merge-header.html">Merge Header Filter</a></li>
+            <li><a class="" href="../filters/openapi-validator.html">OpenAPI Validatort Filter</a></li>
+            <li><a class="" href="../filters/openstack-identity-v3.html">Openstack Identity v3 Filter</a></li>
+            <li><a class="" href="../filters/rate-limiting.html">Rate Limiting Filter</a></li>
+            <li><a class="" href="../filters/regex-rbac.html">RegEx Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/scripting.html">Scripting Filter</a></li>
+            <li><a class="" href="../filters/simple-rbac.html">Simple Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/slf4j-http-logging.html">SFL4J HTTP Logging Filter</a></li>
+            <li><a class="" href="../filters/split-header.html">Split Header Filter</a></li>
+            <li><a class="" href="../filters/tenant-culling.html">Tenant Culling Filter</a></li>
+            <li><a class="" href="../filters/translation.html">Translation Filter</a></li>
+            <li><a class="" href="../filters/uri-normalization.html">URI Normalization Filter</a></li>
+            <li><a class="" href="../filters/uri-stripper.html">URI Stripper Filter</a></li>
+            <li><a class="" href="../filters/uri-user.html">URI User Filter</a></li>
+            <li><a class="" href="../filters/url-extractor-to-header.html">URL Extractor to Header Filter</a></li>
+            <li><a class=" active" href="../filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a></li>
+            <li><a class="" href="../filters/versioning.html">Versioning Filter</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup4">
+        <span id="tgSpan4" class="fa fa-angle-right"></span>Services
+      </a>
+      <ul id="topicGroup4" class="collapse  list-unstyled">
+            <li><a class="" href="../services/index.html">Overview</a></li>
+            <li><a class="" href="../services/atom-feed-consumption.html">Atom Feed Consumption Service</a></li>
+            <li><a class="" href="../services/datastores.html">Datastores</a></li>
+            <li><a class="" href="../services/health-check.html">Health Check Service</a></li>
+            <li><a class="" href="../services/http-client.html">HTTP Client Service</a></li>
+            <li><a class="" href="../services/http-logging.html">HTTP Logging Service</a></li>
+            <li><a class="" href="../services/logging.html">Logging Service</a></li>
+            <li><a class="" href="../services/metrics.html">Metrics Service</a></li>
+            <li><a class="" href="../services/open-tracing.html">OpenTracing Service</a></li>
+            <li><a class="" href="../services/phone-home.html">Phone Home Service</a></li>
+            <li><a class="" href="../services/uri-redaction.html">URI Redaction service</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup5">
+        <span id="tgSpan5" class="fa fa-angle-right"></span>Developer
+      </a>
+      <ul id="topicGroup5" class="collapse  list-unstyled">
+            <li><a class="" href="../developer/index.html">Overview</a></li>
+            <li><a class="" href="../developer/docker.html">Docker</a></li>
+            <li><a class="" href="../developer/performance.html">Performance Testing</a></li>
+            <li><a class="" href="../developer/functional.html">Functional Testing</a></li>
+      </ul>
+    </li>
+</ul>
+      </div>
+      <div class="col-xs-12 col-sm-9 col-md-9 main">
+        <div class="page-header">
+          <h2>Valkyrie Authorization Filter</h2>
+        </div>
+        <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Valkyrie Authorization filter performs three distinct functions:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Per-Device Authorization</strong>:
+Compares the request method with the user&#8217;s device permissions to determine whether or not the requested action is allowed.</p>
+</li>
+<li>
+<p><strong>Response Collection Resource Culling</strong>:
+Values from the origin service&#8217;s response will be removed based on the user&#8217;s device permissions.
+Consequently, the user may only view items they have permission to view.</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Currently, only JSON bodies are supported.
+If you would like to request XML support, please <a href="http://www.openrepose.org/#contact-us">contact us</a>!</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p><strong>Account Permission to Role Translation</strong>:
+Takes the user&#8217;s account level permissions and translates their names into the standard <code>X-Roles</code> and <code>X-Map-Roles</code> headers allowing <a href="../recipes/role-based-access-control.html">Role-based access control (RBAC)</a> to be used on the request.
+This includes translating the user&#8217;s device permission for the device specified in the <code>X-Device-Id</code> header (when the request contains one).</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Each function is optional, and as many or as few as desired can be used.
+All functions involve making one or more call(s) to the Valkyrie service to ascertain a user&#8217;s permissions.
+The results of these calls are cached to cut down on the traffic generated by repeat requests.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="general-filter-information"><a class="anchor" href="#general-filter-information"></a>General filter information</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Name:</strong> valkyrie-authorization</p>
+</li>
+<li>
+<p><strong>Default Configuration:</strong> valkyrie-authorization.cfg.xml</p>
+</li>
+<li>
+<p><strong>Released:</strong> v7.1.0.2</p>
+</li>
+<li>
+<p><strong>Bundle:</strong> repose-filter-bundle</p>
+</li>
+<li>
+<p><a href="../schemas/valkyrie-authorization.xsd">Schema</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="prerequisites-postconditions"><a class="anchor" href="#prerequisites-postconditions"></a>Prerequisites &amp; Postconditions</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="required-request-headers"><a class="anchor" href="#required-request-headers"></a>Required Request Headers</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>X-Contact-Id</code></p>
+</li>
+<li>
+<p><code>X-Tenant-Id</code></p>
+</li>
+<li>
+<p><code>X-Device-Id</code> (Only required for per-device authorization)</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="required-preceding-filters"><a class="anchor" href="#required-preceding-filters"></a>Required Preceding Filters</h3>
+<div class="paragraph">
+<p>While there are no preceding filters that are strictly required, the following filters may be useful:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="header-normalization.html">Header Normalization filter</a> - Can be used to ensure users are not able to set their own <code>X-Device-Id</code> header (which could elevate privileges).</p>
+</li>
+<li>
+<p><a href="keystone-v2.html">Keystone v2 filter</a> - Can be used to enhance the request with the the <code>X-Contact-Id</code> and <code>X-Tenant-Id</code> headers.</p>
+</li>
+<li>
+<p><a href="url-extractor-to-header.html">URL Extractor to Header filter</a> - Can be used to capture the <code>X-Device-Id</code> header from the URL.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="request-headers-created"><a class="anchor" href="#request-headers-created"></a>Request Headers Created</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>X-Roles</code> - Only created if this filter is configured to <code>translate-permissions-to-roles</code>.
+The value of this header will be the names of the user&#8217;s permissions.</p>
+</li>
+<li>
+<p><code>X-Map-Roles</code> - Only created if this filter is configured to <code>translate-permissions-to-roles</code>.
+The value of this header will be a base 64 encoded JSON map between the presented tenant id and the user&#8217;s permissions.
+If this header already exists the new values will be added to the existing map.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="request-body-changes"><a class="anchor" href="#request-body-changes"></a>Request Body Changes</h3>
+<div class="paragraph">
+<p>This filter does not modify the request body.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="recommended-follow-on-succeeding-filters"><a class="anchor" href="#recommended-follow-on-succeeding-filters"></a>Recommended Follow-On (Succeeding) Filters</h3>
+<div class="paragraph">
+<p>This filter is not strictly required by any other filters.
+However, the following filters may be useful:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="simple-rbac.html">Simple RBAC filter</a> - Provides role-based access control to the origin service&#8217;s API, making use of the roles translated by the Valkyrie filter.</p>
+</li>
+<li>
+<p><a href="api-validator.html">API Validator filter</a> - Provides role-based access control to the origin service&#8217;s API, making use of the roles translated by the Valkyrie filter.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-body-changes"><a class="anchor" href="#response-body-changes"></a>Response Body Changes</h3>
+<div class="paragraph">
+<p>If the <code>collection-resources</code> element is configured, this filter will perform culling on the response body.
+Culling is used to restrict the data transmitted to the user from the origin service.
+Technically, culling is the removal of fields from the response body, and the updating of corresponding field counts.
+Currently, only JSON content is supported.</p>
+</div>
+<div class="paragraph">
+<p>This filter may also remove the response body if culling cannot be completed successfully.
+See the <a href="#Response status codes">[Response status codes]</a> section for more details.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-headers-created"><a class="anchor" href="#response-headers-created"></a>Response Headers Created</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Retry-After</code> - Only created if this filter is rate limited by the Valkyrie service.
+See <a href="https://tools.ietf.org/html/rfc7231#section-7.1.3">the official HTTP specification</a> for more information about this header.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-status-codes"><a class="anchor" href="#response-status-codes"></a>Response Status Codes</h3>
+<table class="tableblock frame-all grid-all fit-content">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Response Code</th>
+<th class="tableblock halign-left valign-top">Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">401</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><code>X-Contact-Id</code> or <code>X-Tenant-Id</code> are missing or blank</p>
+</li>
+<li>
+<p>The Valkyrie service returns a 401</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">403</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>The user is a non-dedicated user (unless <code>pass-non-dedicated-tenant</code> is enabled)</p>
+</li>
+<li>
+<p>The user does not have permission to take the requested action on the requested device</p>
+</li>
+<li>
+<p>The Valkyrie service returns a 403</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">404</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>When 403 masking is enabled and a 403 would be returned</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">413</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>The Valkyrie service returns a 413</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">429</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>The Valkyrie service returns a 429</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">500</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>The Valkyrie service returns a 400</p>
+</li>
+<li>
+<p><code>device-id-mismatch-action</code> is configured to fail, and a device ID cannot be parsed</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">502</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>The Valkyrie service returns a 500</p>
+</li>
+<li>
+<p>There is a problem communicating with the Valkyrie service</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">503</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>The Valkyrie service returns a 503</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For more information about specific response codes that <strong>Repose</strong> will receive from the Valkyrie service, please refer to the <a href="https://one.rackspace.com/display/IDPLAT/Valkyrie">Valkyrie documentataion</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="account-admins"><a class="anchor" href="#account-admins"></a>Account Admins</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If a user has the <code>account_admin</code> role in Valkyrie, when <code>enable-bypass-account-admin</code> is configured to be <code>true</code>, the Valkyrie filter will pass the request along regardless of whether or not the device permission check fails.
+Culling will also not be performed when configured in this manner.
+The Valkyrie filter can add the user&#8217;s permissions to the <code>X-Roles</code> header, but it is left to a subsequent filter or the origin service to validate the request.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="basic-example"><a class="anchor" href="#basic-example"></a>Basic Example</h3>
+<div class="paragraph">
+<p>This configuration will authorize users against Valkyrie.</p>
+</div>
+<div class="listingblock">
+<div class="title">valkyrie-authorization.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;valkyrie-authorization</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/valkyrie-authorization/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;valkyrie-server</span> <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://theserver:8080</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+<span style="color:#070;font-weight:bold">&lt;/valkyrie-authorization&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Specifies the URI of the Valkyrie service.</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="full-feature-utilization"><a class="anchor" href="#full-feature-utilization"></a>Full Feature Utilization</h3>
+<div class="paragraph">
+<p>This configuration will authorize non-admin users, translate permissions to roles, cull the response, and delegate any failures.</p>
+</div>
+<div class="listingblock">
+<div class="title">valkyrie-authorization.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;valkyrie-authorization</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/valkyrie-authorization/v1.0</span><span style="color:#710">&quot;</span></span>
+        <span style="color:#b48">cache-timeout-millis</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">300000</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="1"></i><b>(1)</b>
+        <span style="color:#b48">enable-masking-403s</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="2"></i><b>(2)</b>
+        <span style="color:#b48">enable-bypass-account-admin</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="3"></i><b>(3)</b>
+        <span style="color:#b48">enable-upgrade-account-permissions</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="4"></i><b>(4)</b>
+        <span style="color:#b48">connection-pool-id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">valkyrie-auth-pool</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="5"></i><b>(5)</b>
+        <span style="color:#b48">pass-non-dedicated-tenant</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span> <i class="conum" data-value="6"></i><b>(6)</b>
+
+    <span style="color:#070;font-weight:bold">&lt;delegating</span> <span style="color:#b48">quality</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">0.9</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="7"></i><b>(7)</b>
+
+    <span style="color:#070;font-weight:bold">&lt;valkyrie-server</span> <span style="color:#b48">uri</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://theserver:8080</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="8"></i><b>(8)</b>
+
+    <span style="color:#070;font-weight:bold">&lt;translate-permissions-to-roles</span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="9"></i><b>(9)</b>
+
+    <span style="color:#070;font-weight:bold">&lt;collection-resources</span> <span style="color:#b48">device-id-mismatch-action</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">fail</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span> <i class="conum" data-value="10"></i><b>(10)</b>
+        <span style="color:#070;font-weight:bold">&lt;resource&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;path-regex</span> <span style="color:#b48">http-methods</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">GET</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span> <i class="conum" data-value="11"></i><b>(11)</b>
+                /devices/.* <i class="conum" data-value="12"></i><b>(12)</b>
+            <span style="color:#070;font-weight:bold">&lt;/path-regex&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;collection&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;json&gt;</span> <i class="conum" data-value="13"></i><b>(13)</b>
+                    <span style="color:#070;font-weight:bold">&lt;path-to-collection&gt;</span>$.values<span style="color:#070;font-weight:bold">&lt;/path-to-collection&gt;</span> <i class="conum" data-value="14"></i><b>(14)</b>
+                    <span style="color:#070;font-weight:bold">&lt;path-to-device-id&gt;</span>
+                        <span style="color:#070;font-weight:bold">&lt;path&gt;</span>$.uri<span style="color:#070;font-weight:bold">&lt;/path&gt;</span> <i class="conum" data-value="15"></i><b>(15)</b>
+                        <span style="color:#070;font-weight:bold">&lt;regex</span> <span style="color:#b48">capture-group</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">1</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>http://core.rackspace.com/accounts/\d*/devices/(\d*)<span style="color:#070;font-weight:bold">&lt;/regex&gt;</span> <i class="conum" data-value="16"></i><b>(16)</b>
+                    <span style="color:#070;font-weight:bold">&lt;/path-to-device-id&gt;</span>
+                    <span style="color:#070;font-weight:bold">&lt;path-to-item-count&gt;</span>$.metadata.count<span style="color:#070;font-weight:bold">&lt;/path-to-item-count&gt;</span> <i class="conum" data-value="17"></i><b>(17)</b>
+                <span style="color:#070;font-weight:bold">&lt;/json&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;/collection&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/resource&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/collection-resources&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;pre-authorized-roles&gt;</span> <i class="conum" data-value="18"></i><b>(18)</b>
+        <span style="color:#070;font-weight:bold">&lt;role&gt;</span>admin<span style="color:#070;font-weight:bold">&lt;/role&gt;</span> <i class="conum" data-value="19"></i><b>(19)</b>
+        <span style="color:#070;font-weight:bold">&lt;role&gt;</span>openstack:admin<span style="color:#070;font-weight:bold">&lt;/role&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/pre-authorized-roles&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/valkyrie-authorization&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Specifies the time in milliseconds to cache Valkyrie service responses.<br>
+Default: <code>300000</code> (5 minutes: 5*60*1000)</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Specifies whether or not to translate 403 responses to 404 responses.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Specifies whether or not to bypass the secondary authorization call.
+If disabled (<code>false</code>), then a secondary authorization call will be made when a permission of <code>account_admin</code> is found.
+This has the potential to increase the response time.
+If enabled (<code>true</code>), then the secondary authorization call is bypassed and no culling of the origin service response will occur.<br>
+Default: <code>false</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Specifies whether or not to consider the <code>upgrade_account</code> account-level permission during authorization.<br>
+If enabled (<code>true</code>), the Valkyrie filter will take the <code>upgrade_account</code> permission into consideration during authorization.
+The <code>upgrade_account</code> permission will allow a user to <code>DELETE</code> any device on the account or to create a new device on the account.<br>
+If disabled (<code>false</code>), the Valkyrie filter will not take the <code>upgrade_account</code> permission into consideration during authorization.
+No additional actions will be authorized due to the presence of the <code>upgrade_account</code> permission.<br>
+Default: <code>false</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Specifies the connection pool to use by ID.<br>
+Default: <code>default</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Specifies whether or not to verify that the <code>X-Tenant-Id</code> header starts with <code>hybrid:</code>.
+If disabled (<code>false</code>), this filter will verify that the <code>X-Tenant-Id</code> header starts with <code>hybrid:</code> (indicating a dedicated tenant) before making a request to Valkyrie.
+If the header does not start with <code>hybrid:</code> (indicating a non-dedicated tenant), the request is immediately rejected.
+If enabled (<code>true</code>), the filter will be skipped for non-dedicated tenants allowing processing to continue.<br>
+Default: <code>false</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>Specifies whether or not to send a failing response when an invalid state is reach.
+If present, the filter will not send a failing response.
+Instead, it will add the data relating to the failure to a header and forward the request to be handled by a different filter or service.
+If not present, the filter will send a failing response when an invalid state is reached.
+See <a href="derp.html">DeRP Filter</a> and <a href="../recipes/user-access-events.html">User Access Events</a> for more details.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>Specifies the URI of the Valkyrie service.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="9"></i><b>9</b></td>
+<td>Specifies whether or not to translate Valkyrie account permissions to roles, including  the specific device permission for requests including a <code>X-Device-Id</code> header.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="10"></i><b>10</b></td>
+<td>Specifies the action to take when a null or non-matching JSON value is found where a device ID is expected.
+See the schema in <a href="#general-filter-information">General filter information</a> for available actions.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="11"></i><b>11</b></td>
+<td>Specifies which request methods this resource path should enable culling for.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="12"></i><b>12</b></td>
+<td>Specifies a regular expression.
+All resources matching this regular expression will having culling enabled.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="13"></i><b>13</b></td>
+<td>Specifies that the response body will be JSON.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="14"></i><b>14</b></td>
+<td>Specifies the path to the collection to be culled relative to the document root.
+In this case, JSONPath is used since the response body will be JSON.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="15"></i><b>15</b></td>
+<td>Specifies the path to the field containing the device ID relative to an object within the collection.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="16"></i><b>16</b></td>
+<td>Specifies a regular expression used to extract the device ID from the field specified by the path.
+Also specifies the capture group within the regular expression which captures the device ID.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="17"></i><b>17</b></td>
+<td>Specifies the path to the field containing the item count for the collection relative to the document root.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="18"></i><b>18</b></td>
+<td>Specifies a collection of pre-authorized (admin) roles.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="19"></i><b>19</b></td>
+<td>Specifies the name of a particular pre-authorized (admin) role.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>The <code>enable-bypass-account-admin</code> attribute applies to users with the role permission <code>account_admin</code> as well as requests with a <code>X-Device-Id `header value containing a device ID to which the user has `account_admin</code> device permissions.
+This could unintentionally bypass culling.
+A <code>X-Device-Id</code> header should not be added or allowed on requests to endpoints where culling is performed.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="additional-information"><a class="anchor" href="#additional-information"></a>Additional Information</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This filter utilizes Keystone to authenticate with the Valkyrie service.
+The <code>X-Auth-Token</code> header will be copied from the inbound request to <strong>Repose</strong> to the outbound request to the Valkyrie service.</p>
+</div>
+</div>
+</div>
+      </div>
+    </div>
+  </div>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="/_javascripts/bootstrap-offcanvas.js" type="text/javascript"></script>
+  <script src="/_javascripts/page-loader.js" type="text/javascript"></script>
+  <script src="/_javascripts/include-html.js" type="text/javascript"></script>
+  <script>includeHTML();</script>
+  <script type="text/javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+      $("[id^='topicGroup']").on('show.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicGroup']").on('hide.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicSubGroup']").on('show.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+      $("[id^='topicSubGroup']").on('hide.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+    });
+    /*]]>*/
+  </script>
+</body>
+</html>

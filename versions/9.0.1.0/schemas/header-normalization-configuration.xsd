@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns:hnorm="http://docs.openrepose.org/repose/header-normalization/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/header-normalization/v1.0"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+    <!-- Header Normalization Configuration -->
+    <xs:element name="header-normalization" type="hnorm:HeaderNormalizationConfig"/>
+
+    <xs:complexType name="HeaderNormalizationConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The root config type for the Header Normalization filter configuration file.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <!-- TODO for v10.0.0.0: remove the deprecated header-filters element. -->
+            <xs:element name="header-filters" type="hnorm:HeaderFilterList" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Deprecated: This element is deprecated. Simply remove it and bring the `target`'s up a level.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <!-- TODO for v10.0.0.0: the target element's min needs to be One (1). -->
+            <xs:element name="target" type="hnorm:Target" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="not(header-filters and target)"
+                   xerces:message="Cannot define the deprecated header-filters at this level along side a target"
+                   saxon:message="Cannot define the deprecated header-filters at this level along side a target"
+        />
+    </xs:complexType>
+
+    <xs:complexType name="HeaderFilterList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Contains a list of targets that are processed in the order defined. The first target that matches is
+                    the only one that modifies the Request headers.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="target" type="hnorm:Target" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Target">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines a Request target with a list of allowed and/or disallowed HTTP Headers.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:choice>
+                <!-- TODO for v10.0.0.0: remove these legacy whitelist and blacklist definitions. -->
+                <xs:element name="whitelist" type="hnorm:HttpHeaderList" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="blacklist" type="hnorm:HttpHeaderList" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:choice>
+            <xs:element name="request" type="hnorm:RequestResponse" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="response" type="hnorm:RequestResponse" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+
+        <xs:attribute name="uri-regex" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The uri regex to match against when determining whether or not to apply the filter
+                        to the request. If this attribute is null then repose assumes the filtering is
+                        performed on all requests with the specified http-methods. If uri-regex and
+                        http-methods are both null then the specified header filter is performed on all
+                        requests.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="http-methods" type="hnorm:HttpMethodList" use="optional" default="ALL">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>List of HTTP Methods this target will match on.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <!-- TODO for v10.0.0.0: remove these deprecated assertions. -->
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="not(whitelist and request)"
+                   xerces:message="Cannot define the deprecated whitelist at this level along side the new request"
+                   saxon:message="Cannot define the deprecated whitelist at this level along side the new request"
+        />
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="not(blacklist and request)"
+                   xerces:message="Cannot define the deprecated blacklist at this level along side the new request"
+                   saxon:message="Cannot define the deprecated blacklist at this level along side the new request"
+        />
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="not(whitelist and response)"
+                   xerces:message="Cannot define the deprecated whitelist at this level along side the new response"
+                   saxon:message="Cannot define the deprecated whitelist at this level along side the new response"
+        />
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="not(blacklist and response)"
+                   xerces:message="Cannot define the deprecated blacklist at this level along side the new response"
+                   saxon:message="Cannot define the deprecated blacklist at this level along side the new response"
+        />
+        <!-- TODO for v10.0.0.0: add an assertion to ensure at least one of these is defined. -->
+        <!--xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="count(*)>=1"
+                   xerces:message="Must define at lest a request or response"
+                   saxon:message="Must define at lest a request or response"
+        /-->
+    </xs:complexType>
+
+    <xs:complexType name="RequestResponse">
+        <xs:choice>
+            <!-- TODO for v10.0.0.0: remove the min/maxOccurs to ensure at least one of these is present. -->
+            <xs:element name="whitelist" type="hnorm:HttpHeaderList" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="blacklist" type="hnorm:HttpHeaderList" minOccurs="0" maxOccurs="1"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="HttpHeaderList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines a list of (dis)allowed HTTP Headers.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="header" type="hnorm:HttpHeader" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <!-- TODO for v10.0.0.0: The whitelist/blacklist element's id attribute should be removed. -->
+        <xs:attribute name="id" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Deprecated: This attribute is deprecated and will be removed in the next major release.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="HttpHeader">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines a (dis)allowed HTTP Header.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The case-insensitive name of the header to match on.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="HttpMethodList">
+        <xs:list itemType="hnorm:HttpMethod"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="HttpMethod">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The HTTP Method defines a string enumeration of HTTP method verbs as outlined in
+                    <a href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616 section 9.</a>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="GET"/>
+            <xs:enumeration value="DELETE"/>
+            <xs:enumeration value="POST"/>
+            <xs:enumeration value="PUT"/>
+            <xs:enumeration value="PATCH"/>
+            <xs:enumeration value="HEAD"/>
+            <xs:enumeration value="OPTIONS"/>
+            <xs:enumeration value="CONNECT"/>
+            <xs:enumeration value="TRACE"/>
+            <xs:enumeration value="ALL"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
