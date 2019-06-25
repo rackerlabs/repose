@@ -73,48 +73,17 @@
         </xs:annotation>
 
         <xs:all>
-            <xs:element name="port" type="Port" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="port" type="xs:unsignedShort" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            The port which Hazelcast will use to communicate between cluster members.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element name="join" type="Join" minOccurs="1" maxOccurs="1"/>
         </xs:all>
-    </xs:complexType>
-
-    <xs:complexType name="Port">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>
-                    The ports which Hazelcast will use to communicate between cluster members.
-                </html:p>
-            </xs:documentation>
-        </xs:annotation>
-
-        <xs:simpleContent>
-            <xs:extension base="xs:unsignedShort">
-                <xs:attribute name="auto-increment" type="xs:boolean" use="optional" default="true">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                                Default value is true. If port is set to 5701, Hazelcast will try to find free
-                                ports between 5701 and 5801. Normally, you will not need to change this value, but it comes
-                                in handy when needed. You may also want to choose to use only one port. In that case, you can
-                                disable the auto-increment feature of port by setting its value as false.
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-                <xs:attribute name="port-count" type="xs:int" use="optional" default="100">
-                    <xs:annotation>
-                        <xs:documentation>
-                            <html:p>
-                                Default value is 100, meaning that Hazelcast will try to bind 100 ports.
-                                If you set the value of port as 5701, as members join the cluster, Hazelcast tries to find
-                                ports between 5701 and 5801. You can change the port count in cases like having large
-                                instances on a single machine or you are willing to have only a few ports assigned.
-                            </html:p>
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:attribute>
-            </xs:extension>
-        </xs:simpleContent>
     </xs:complexType>
 
     <xs:complexType name="Join">

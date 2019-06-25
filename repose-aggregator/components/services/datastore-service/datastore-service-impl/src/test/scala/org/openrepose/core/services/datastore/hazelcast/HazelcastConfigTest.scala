@@ -36,18 +36,13 @@ class HazelcastConfigTest
   describe("from") {
     it("should set port configuration") {
       val testConfig = simpleConfig()
-      val testPort = new Port()
-      testPort.setValue(5432)
-      testPort.setPortCount(42)
-      testPort.setAutoIncrement(true)
-      testConfig.setPort(testPort)
+      val port = 5432
+      testConfig.setPort(port)
 
       val hazelcastConfig = HazelcastConfig.from(testConfig)
 
       val networkConfig = hazelcastConfig.getNetworkConfig
-      networkConfig.getPort shouldEqual testPort.getValue
-      networkConfig.getPortCount shouldEqual testPort.getPortCount
-      networkConfig.isPortAutoIncrement shouldEqual testPort.isAutoIncrement
+      networkConfig.getPort shouldEqual port
     }
 
     it("should set join configuration for tcp/ip") {
@@ -151,14 +146,12 @@ class HazelcastConfigTest
 object HazelcastConfigTest {
   def simpleConfig(): SimplifiedConfig = {
     val testConfig = new SimplifiedConfig()
-    val testPort = new Port()
     val testJoin = new Join()
     val testTcpIp = new TcpIp()
 
     testTcpIp.getMember.add("127.0.0.1")
     testJoin.setTcpIp(testTcpIp)
-    testPort.setValue(5701)
-    testConfig.setPort(testPort)
+    testConfig.setPort(5701)
     testConfig.setJoin(testJoin)
 
     testConfig

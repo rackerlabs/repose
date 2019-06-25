@@ -42,9 +42,8 @@ object HazelcastConfig {
     val kubernetes = join.getKubernetes
 
     // Configure ports
-    networkConfig.setPort(port.getValue)
-    networkConfig.setPortCount(port.getPortCount)
-    networkConfig.setPortAutoIncrement(port.isAutoIncrement)
+    networkConfig.setPort(port)
+    networkConfig.setPortAutoIncrement(false)
 
     // Explicitly disable the default discovery mechanisms
     joinConfig.getMulticastConfig.setEnabled(false)

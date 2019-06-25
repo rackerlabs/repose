@@ -2,7 +2,7 @@
 
 <hazelcast-datastore xmlns="http://docs.openrepose.org/repose/hazelcast-datastore/v1.0">
     <simplified>
-        <port auto-increment="true" port-count="100">5701</port>
+        <port>5701</port>
         <join>
             <tcp-ip connection-timeout-seconds="5">
                 <member>127.0.0.1</member>
