@@ -21,7 +21,7 @@ package org.openrepose.core.services.datastore.hazelcast
 
 import java.io.InputStream
 
-import com.hazelcast.config.XmlConfigBuilder
+import com.hazelcast.config.{Config, XmlConfigBuilder}
 import com.hazelcast.spi.properties.GroupProperty
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import javax.annotation.{PostConstruct, PreDestroy}
@@ -33,6 +33,7 @@ import org.openrepose.core.filter.SystemModelInterrogator
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
 import org.openrepose.core.services.datastore.hazelcast.HazelcastDatastoreBootstrap._
+import org.openrepose.core.services.datastore.hazelcast.config.HazelcastDatastoreConfig
 import org.openrepose.core.services.healthcheck.{HealthCheckService, HealthCheckServiceProxy, Severity}
 import org.openrepose.core.systemmodel.config.SystemModel
 
@@ -43,20 +44,23 @@ import org.openrepose.core.systemmodel.config.SystemModel
   * If and only if the system model services list includes Hazelcast will a
   * Hazelcast datastore be created and registered.
   *
-  * Configuration of the Hazelcast datastore will be determined by a Hazelcast
-  * XML configuration file in the Repose configuration directory.
-  * Note that live updates of Hazelcast configuration are not supported;
-  * Hazelcast itself does not trivially support live updates, so supporting them
-  * here would require restarting Hazelcast which may cause data to be lost.
-  * To force Hazelcast configuration to reloaded, the Hazelcast datastore
-  * service can be removed and re-added to the system model, or Repose can
-  * be restarted.
+  * Configuration of the Hazelcast datastore will be determined by the
+  * configuration of this service.
+  * This service will template environment variables in any Hazelcast
+  * configuration the same way that the configuration does.
+  * This service supports live reloading of the configuration it relies on.
+  * Since Hazelcast itself does not support live reloading, live reloading
+  * requires restarting the Hazelcast instance.
+  * Depending on the replication configuration, restarting the Hazelcast
+  * instance may result in data loss.
   */
 @Named
 class HazelcastDatastoreBootstrap @Inject()(configurationService: ConfigurationService,
                                             healthCheckService: HealthCheckService,
                                             datastoreService: DatastoreService)
   extends StrictLogging {
+
+  private final val xsdUrl = getClass.getResource("/META-INF/schema/config/hazelcast-datastore.xsd")
 
   private var healthCheckServiceProxy: HealthCheckServiceProxy = _
 
@@ -66,7 +70,7 @@ class HazelcastDatastoreBootstrap @Inject()(configurationService: ConfigurationS
 
     healthCheckServiceProxy = healthCheckService.register()
     configurationService.subscribeTo(
-      SystemModelConfig,
+      SystemModelConfigFile,
       SystemModelConfigListener,
       classOf[SystemModel]
     )
@@ -77,9 +81,20 @@ class HazelcastDatastoreBootstrap @Inject()(configurationService: ConfigurationS
     logger.trace("Destroying Hazelcast Datastore Bootstrap")
 
     configurationService.unsubscribeFrom(
-      SystemModelConfig,
+      SystemModelConfigFile,
       SystemModelConfigListener
     )
+    SystemModelConfigListener.unsubscribed()
+  }
+
+  private def refreshHazelcastConfig(config: Config): Unit = {
+    // Set the Hazelcast logging type to match our own
+    config.setProperty(GroupProperty.LOGGING_TYPE.getName, HazelcastLoggingTypeValue)
+
+    // Idempotent -- noop if the datastore does not exist
+    datastoreService.destroyDatastore(DatastoreName)
+
+    datastoreService.createHazelcastDatastore(DatastoreName, config)
   }
 
   object SystemModelConfigListener extends UpdateListener[SystemModel] {
@@ -101,20 +116,19 @@ class HazelcastDatastoreBootstrap @Inject()(configurationService: ConfigurationS
         )
 
         configurationService.subscribeTo(
-          "",
-          HazelcastConfig,
+          HazelcastDatastoreConfigFile,
+          xsdUrl,
           HazelcastDatastoreConfigListener,
-          new TemplatingConfigurationParser(new InputStreamConfigurationParser())
+          classOf[HazelcastDatastoreConfig]
         )
       } else if (!isEnabled && isRunning) {
         logger.debug("Disabling the Hazelcast datastore")
 
         configurationService.unsubscribeFrom(
-          HazelcastConfig,
+          HazelcastDatastoreConfigFile,
           HazelcastDatastoreConfigListener
         )
-
-        datastoreService.destroyDatastore(DatastoreName)
+        HazelcastDatastoreConfigListener.unsubscribed()
       }
 
       healthCheckServiceProxy.resolveIssue(NotConfiguredIssueName)
@@ -124,26 +138,93 @@ class HazelcastDatastoreBootstrap @Inject()(configurationService: ConfigurationS
     override def isInitialized: Boolean = {
       initialized
     }
+
+    // This method should only be called after this listener has been unsubscribed.
+    // This method should clean up resources that this listener manages.
+    def unsubscribed(): Unit = {
+      configurationService.unsubscribeFrom(
+        HazelcastDatastoreConfigFile,
+        HazelcastDatastoreConfigListener
+      )
+      HazelcastDatastoreConfigListener.unsubscribed()
+    }
   }
 
-  object HazelcastDatastoreConfigListener extends UpdateListener[InputStream] {
+  object HazelcastDatastoreConfigListener extends UpdateListener[HazelcastDatastoreConfig] {
+    private var initialized: Boolean = false
+
+    // Tracks the currently monitored standard Hazelcast configuration so that we can
+    // manage the listener.
+    // Assumes that concurrency is not a concern (configuration updates are serialized).
+    private var currentHref: Option[String] = None
+
+    override def configurationUpdated(configurationObject: HazelcastDatastoreConfig): Unit = {
+      logger.trace("Configuring Hazelcast")
+
+      if (Option(configurationObject.getSimplified).nonEmpty) {
+        logger.trace("Configuring Hazelcast with a simplified configuration")
+
+        currentHref.foreach { href =>
+          configurationService.unsubscribeFrom(
+            href,
+            HazelcastConfigListener
+          )
+        }
+        currentHref = None
+
+        val hazelcastConfig = HazelcastConfig.from(configurationObject.getSimplified)
+
+        refreshHazelcastConfig(hazelcastConfig)
+      } else {
+        currentHref.filterNot(configurationObject.getStandard.getHref.equals)
+          .foreach { href =>
+            configurationService.unsubscribeFrom(
+              href,
+              HazelcastConfigListener
+            )
+          }
+        currentHref = Some(configurationObject.getStandard.getHref)
+
+        configurationService.subscribeTo(
+          "",
+          configurationObject.getStandard.getHref,
+          HazelcastConfigListener,
+          new TemplatingConfigurationParser(new InputStreamConfigurationParser())
+        )
+      }
+
+      initialized = true
+    }
+
+    override def isInitialized: Boolean = {
+      initialized
+    }
+
+    // This method should only be called after this listener has been unsubscribed.
+    // This method should clean up resources that this listener manages.
+    def unsubscribed(): Unit = {
+      currentHref.foreach { href =>
+        configurationService.unsubscribeFrom(
+          href,
+          HazelcastConfigListener
+        )
+      }
+
+      datastoreService.destroyDatastore(DatastoreName)
+    }
+  }
+
+  object HazelcastConfigListener extends UpdateListener[InputStream] {
     private var initialized: Boolean = false
 
     override def configurationUpdated(in: InputStream): Unit = {
-      logger.trace("Creating Hazelcast configuration")
-
-      val isRunning = Option(datastoreService.getDatastore(DatastoreName)).isDefined
-
-      if (isRunning) {
-        datastoreService.destroyDatastore(DatastoreName)
-      }
+      logger.trace("Configuring Hazelcast with a standard configuration")
 
       val hazelcastConfig = new XmlConfigBuilder(in)
         .setProperties(System.getProperties)
         .build()
-        .setProperty(GroupProperty.LOGGING_TYPE.getName, HazelcastLoggingTypeValue)
 
-      datastoreService.createHazelcastDatastore(DatastoreName, hazelcastConfig)
+      refreshHazelcastConfig(hazelcastConfig)
 
       initialized = true
     }
@@ -158,10 +239,10 @@ class HazelcastDatastoreBootstrap @Inject()(configurationService: ConfigurationS
 object HazelcastDatastoreBootstrap {
   final val DatastoreName = "hazelcast"
   final val ServiceName = s"$DatastoreName-datastore"
+  final val HazelcastDatastoreConfigFile = s"$ServiceName.cfg.xml"
   final val NotConfiguredIssueName = "HazelcastDatastoreNotConfigured"
 
-  private final val SystemModelConfig = "system-model.cfg.xml"
-  private final val HazelcastConfig = "hazelcast.xml"
+  private final val SystemModelConfigFile = "system-model.cfg.xml"
   private final val NotConfiguredMessage = "Hazelcast Datastore enabled but not configured"
   private final val HazelcastLoggingTypeValue = "slf4j"
 }
