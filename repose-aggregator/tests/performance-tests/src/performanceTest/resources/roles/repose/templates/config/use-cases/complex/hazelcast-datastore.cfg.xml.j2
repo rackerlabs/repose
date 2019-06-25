@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<hazelcast-datastore xmlns="http://docs.openrepose.org/repose/hazelcast-datastore/v1.0">
+    <simplified>
+        <port>5701</port>
+        <join>
+            <tcp-ip>
+                {% for node in groups.performance %}
+                <member>{{ hostvars[node]['ansible_eth0']['ipv4']['address'] }}</member>
+                {% endfor %}
+            </tcp-ip>
+        </join>
+    </simplified>
+</hazelcast-datastore>

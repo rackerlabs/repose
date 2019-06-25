@@ -49,7 +49,7 @@
       templates: [
         "container.cfg.xml",
         "system-model.cfg.xml",
-        "{{ dir_prefix }}/hazelcast.xml",
+        "{{ dir_prefix }}/hazelcast-datastore.cfg.xml",
         "{{ dir_prefix }}/ip-user.cfg.xml"
       ],
       files: [
