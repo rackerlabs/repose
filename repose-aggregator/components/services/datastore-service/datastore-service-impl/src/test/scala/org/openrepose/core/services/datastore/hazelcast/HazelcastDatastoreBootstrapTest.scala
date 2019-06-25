@@ -388,12 +388,10 @@ object HazelcastDatastoreBootstrapTest {
   private def simplifiedHazelcastDatastoreConfig: HazelcastDatastoreConfig = {
     val config = new HazelcastDatastoreConfig()
     val simplified = new SimplifiedConfig()
-    val port = new Port()
     val join = new Join()
     val tcpIp = new TcpIp()
-    port.setValue(5701)
     join.setTcpIp(tcpIp)
-    simplified.setPort(port)
+    simplified.setPort(5701)
     simplified.setJoin(join)
     config.setSimplified(simplified)
     config
