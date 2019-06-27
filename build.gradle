@@ -448,7 +448,7 @@ subprojects {
         publications {
             nebula(MavenPublication) {
                 if(project.hasProperty('release')) {
-                    signArchives.signatures.each {
+                    signArchives.signatures.findAll({!it.toSign.canonicalPath.contains("deb") && !it.toSign.canonicalPath.contains("rpm")}).each {
                         artifact source: it, extension: 'asc'
                     }
                 }
