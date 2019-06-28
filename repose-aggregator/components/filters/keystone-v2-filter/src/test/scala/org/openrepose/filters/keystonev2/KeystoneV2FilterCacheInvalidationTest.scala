@@ -38,6 +38,8 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.MockFilterConfig
 
+import scala.collection.immutable.HashSet
+
 @RunWith(classOf[JUnitRunner])
 class KeystoneV2FilterCacheInvalidationTest extends FunSpec
 with IdentityResponses
@@ -217,7 +219,7 @@ with BeforeAndAfterEach {
 
     List("USER", "TRR_USER").foreach { resourceType =>
       it(s"removes the User to Token cache along with the token cache on a $resourceType event") {
-        when(mockDatastore.get(s"$USER_ID_KEY_PREFIX$userId")).thenReturn(Set(tokenOne, tokenTwo), null)
+        when(mockDatastore.get(s"$USER_ID_KEY_PREFIX$userId")).thenReturn(HashSet(tokenOne, tokenTwo), null)
         // This was taken from: https://github.com/rackerlabs/standard-usage-schemas/blob/master/message_samples/identity/xml/cloudidentity-user-trr_user-delete-v1-response.xml
         filter.CacheInvalidationFeedListener.onNewAtomEntry(
           s"""<?xml version="1.0" encoding="UTF-8"?>

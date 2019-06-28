@@ -19,17 +19,31 @@
  */
 package org.openrepose.core.services.datastore.types
 
-import org.openrepose.core.services.datastore.Patch
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSpec, Matchers}
 
-import scala.collection.immutable.Set
+import scala.collection.immutable.HashSet
 
-class SetPatch[A](elems: A*) extends Patch[Set[A]] {
+@RunWith(classOf[JUnitRunner])
+class HashSetPatchTest
+  extends FunSpec with Matchers {
 
-  override def newFromPatch(): Set[A] = {
-    Set(elems: _*)
+  describe("newFromPatch") {
+    it("returns a new set with just the initialized value") {
+      val set = new HashSetPatch("butts").newFromPatch()
+      set.size shouldBe 1
+      set should contain("butts")
+    }
   }
 
-  override def applyPatch(currentValue: Set[A]): Set[A] = {
-    currentValue ++ elems
+  describe("applyPatch") {
+    it("should add the value from a patch to a set") {
+      val originalSet = HashSet(1)
+      val patchedSet = new HashSetPatch(5).applyPatch(originalSet)
+      originalSet should contain only 1
+      patchedSet should contain only(1, 5)
+      originalSet should not be theSameInstanceAs(patchedSet)
+    }
   }
 }

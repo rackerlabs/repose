@@ -26,7 +26,6 @@ import org.mockito.AdditionalMatchers._
 import org.mockito.Mockito._
 import org.mockito.{Matchers => MockitoMatchers}
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.datastore.types.SetPatch
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
 import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityService, OpenstackIdentityV3Config}
@@ -35,6 +34,8 @@ import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+
+import scala.collection.immutable.HashSet
 
 @RunWith(classOf[JUnitRunner])
 class OpenStackIdentityV3FilterTest extends FunSpec with BeforeAndAfterEach with Matchers with MockitoSugar {
@@ -214,7 +215,7 @@ class OpenStackIdentityV3FilterTest extends FunSpec with BeforeAndAfterEach with
 
     List("USER", "TRR_USER") foreach { resourceType =>
       it(s"removes the User to Token cache along with the token cache on a $resourceType event") {
-        when(mockDatastore.get(getUserIdKey(userId))).thenReturn(Set(tokenOne, tokenTwo), null)
+        when(mockDatastore.get(getUserIdKey(userId))).thenReturn(HashSet(tokenOne, tokenTwo), null)
 
         filter.CacheInvalidationFeedListener.onNewAtomEntry(
           s"""<?xml version="1.0" encoding="UTF-8"?>

@@ -306,8 +306,8 @@ class ValkyrieAuthorizationFilter @Inject()(configurationService: ConfigurationS
                      callType: String,
                      valkyrieServer: ValkyrieServer,
                      authToken: Option[String],
-                     datastoreTransform: Object => ValkyrieResult,
-                     responseParser: String => Try[Object],
+                     datastoreTransform: java.io.Serializable => ValkyrieResult,
+                     responseParser: String => Try[java.io.Serializable],
                      tracingHeader: Option[String] = None): ValkyrieResult = {
     def tryValkyrieCall(): Try[CloseableHttpResponse] = {
       val requestTracingHeader = tracingHeader.map(guid => Map(TRACE_GUID -> guid)).getOrElse(Map())
