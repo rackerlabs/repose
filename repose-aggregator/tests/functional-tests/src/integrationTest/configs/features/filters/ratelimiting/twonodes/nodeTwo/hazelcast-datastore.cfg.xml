@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<hazelcast-datastore xmlns="http://docs.openrepose.org/repose/hazelcast-datastore/v1.0">
+    <simplified>
+        <port>${datastorePort2}</port>
+        <join>
+            <tcp-ip>
+                <member>127.0.0.1:${datastorePort}</member>
+                <member>127.0.0.1:${datastorePort2}</member>
+            </tcp-ip>
+        </join>
+    </simplified>
+</hazelcast-datastore>
