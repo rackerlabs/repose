@@ -24,6 +24,7 @@ import net.sf.ehcache.Element;
 import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.Patch;
 
+import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
 public class EHCacheDatastore implements Datastore {
@@ -46,22 +47,22 @@ public class EHCacheDatastore implements Datastore {
     }
 
     @Override
-    public Object get(String key) {
+    public Serializable get(String key) {
         Element element = ehCacheInstance.get(key);
         if (element != null) {
-            return element.getObjectValue();
+            return element.getValue();
         } else {
             return null;
         }
     }
 
     @Override
-    public void put(String key, Object value) {
+    public void put(String key, Serializable value) {
         ehCacheInstance.put(new Element(key, value));
     }
 
     @Override
-    public void put(String key, Object value, int ttl, TimeUnit timeUnit) {
+    public void put(String key, Serializable value, int ttl, TimeUnit timeUnit) {
         Element putMe = new Element(key, value);
         putMe.setTimeToLive((int) TimeUnit.SECONDS.convert(ttl, timeUnit));
 
@@ -69,12 +70,12 @@ public class EHCacheDatastore implements Datastore {
     }
 
     @Override
-    public <T> T patch(String key, Patch<T> patch) {
+    public <T extends Serializable> T patch(String key, Patch<T> patch) {
         return patch(key, patch, -1, TimeUnit.MINUTES);
     }
 
     @Override
-    public <T> T patch(String key, Patch<T> patch, int ttl, TimeUnit timeUnit) {
+    public <T extends Serializable> T patch(String key, Patch<T> patch, int ttl, TimeUnit timeUnit) {
         final T newValue = patch.newFromPatch();
         final Element newElement = new Element(key, newValue);
 
@@ -83,7 +84,7 @@ public class EHCacheDatastore implements Datastore {
 
         Element oldElement;
         while ((oldElement = ehCacheInstance.putIfAbsent(newElement)) != null) {
-            T patchedValue = patch.applyPatch((T) oldElement.getObjectValue());
+            T patchedValue = patch.applyPatch((T) oldElement.getValue());
             Element patchedElement = new Element(key, patchedValue);
 
             if (ehCacheInstance.replace(oldElement, patchedElement)) {

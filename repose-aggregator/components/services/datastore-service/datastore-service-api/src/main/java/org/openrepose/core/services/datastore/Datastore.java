@@ -19,6 +19,7 @@
  */
 package org.openrepose.core.services.datastore;
 
+import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -37,7 +38,7 @@ public interface Datastore {
      * @throws DatastoreOperationException if an exception occurs when attempting to retrieve the
      *                                     stored value
      */
-    Object get(String key) throws DatastoreOperationException;
+    Serializable get(String key) throws DatastoreOperationException;
 
     /**
      * Put an element in the datastore.
@@ -48,7 +49,7 @@ public interface Datastore {
      * @param value The value being stored
      * @throws DatastoreOperationException if an exception occurs when attempting to store the value
      */
-    void put(String key, Object value) throws DatastoreOperationException;
+    void put(String key, Serializable value) throws DatastoreOperationException;
 
     /**
      * Put an element in the datastore for a duration of time not to exceed the TimeUnit and duration
@@ -63,7 +64,7 @@ public interface Datastore {
      * @param timeUnit unit of time {@link java.util.concurrent.TimeUnit} that the ttl is defined in
      * @throws DatastoreOperationException if an exception occurs when attempting to store the value
      */
-    void put(String key, Object value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException;
+    void put(String key, Serializable value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException;
 
     /**
      * Patch (update) an element in the datastore.
@@ -75,7 +76,7 @@ public interface Datastore {
      * @return the patched and stored value
      * @throws DatastoreOperationException if an exception occurs when attempting to store the value
      */
-    <T> T patch(String key, Patch<T> patch) throws DatastoreOperationException;
+    <T extends Serializable> T patch(String key, Patch<T> patch) throws DatastoreOperationException;
 
     /**
      * Patch (update) an element in the datastore for a duration of time not to exceed the TimeUnit and duration
@@ -91,7 +92,7 @@ public interface Datastore {
      * @return the patched and stored value
      * @throws DatastoreOperationException if an exception occurs when attempting to store the value
      */
-    <T> T patch(String key, Patch<T> patch, int ttl, TimeUnit timeUnit) throws DatastoreOperationException;
+    <T extends Serializable> T patch(String key, Patch<T> patch, int ttl, TimeUnit timeUnit) throws DatastoreOperationException;
 
     /**
      * Removes a value from the Datastore.

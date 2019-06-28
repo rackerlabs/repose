@@ -22,9 +22,10 @@ package org.openrepose.core.services.ratelimit.cache;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openrepose.core.services.ratelimit.config.ConfiguredRatelimit;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class UserRateLimit {
+public class UserRateLimit implements Serializable {
 
     private final Pair<ConfiguredRatelimit, CachedRateLimit> leastRemainingLimit;
     private final Map<String, CachedRateLimit> limitMap;

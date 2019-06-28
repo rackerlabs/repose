@@ -19,6 +19,7 @@
  */
 package org.openrepose.core.services.datastore.hazelcast
 
+import java.io
 import java.util.concurrent.TimeUnit
 
 import com.hazelcast.core.HazelcastInstance
@@ -38,33 +39,33 @@ import scala.util.control.NonFatal
 class HazelcastDatastore(hazelcast: HazelcastInstance)
   extends Datastore with StrictLogging {
 
-  private val data = hazelcast.getMap[String, Object](HazelcastMapName)
+  private val data = hazelcast.getMap[String, io.Serializable](HazelcastMapName)
 
-  override def get(key: String): Object = wrapExceptions {
+  override def get(key: String): io.Serializable = wrapExceptions {
     logger.trace("Getting data for {}", key)
     data.get(key)
   }
 
-  override def put(key: String, value: Object): Unit = {
+  override def put(key: String, value: io.Serializable): Unit = {
     // We call through two reasons:
     // 1. To reduce redundancy.
     // 2. To explicitly disable TTL, since otherwise Hazelcast will update the entry's access time but keep the existing TTL.
     this.put(key, value, DisabledTtl, TimeUnit.MILLISECONDS)
   }
 
-  override def put(key: String, value: Object, ttl: Int, timeUnit: TimeUnit): Unit = wrapExceptions {
+  override def put(key: String, value: io.Serializable, ttl: Int, timeUnit: TimeUnit): Unit = wrapExceptions {
     logger.trace("Putting data for {}", key)
     data.set(key, value, ttl, timeUnit)
   }
 
-  override def patch[T](key: String, patch: Patch[T]): T = {
+  override def patch[T <: io.Serializable](key: String, patch: Patch[T]): T = {
     // We call through two reasons:
     // 1. To reduce redundancy.
     // 2. To explicitly disable TTL, since otherwise Hazelcast will update the entry's access time but keep the existing TTL.
     this.patch[T](key, patch, DisabledTtl, TimeUnit.MILLISECONDS)
   }
 
-  override def patch[T](key: String, patch: Patch[T], ttl: Int, timeUnit: TimeUnit): T = wrapExceptions {
+  override def patch[T <: io.Serializable](key: String, patch: Patch[T], ttl: Int, timeUnit: TimeUnit): T = wrapExceptions {
     logger.trace("Patching data for {}", key)
 
     // Ensures that Hazelcast's serialization service can load the necessary class.
@@ -82,10 +83,7 @@ class HazelcastDatastore(hazelcast: HazelcastInstance)
         .map(_.asInstanceOf[T])
         .map(patch.applyPatch)
         .getOrElse(patch.newFromPatch)
-      // Casting to an Object is safe since the interface for this class is a
-      // Java interface, meaning that the generic must be a sub-type of Object.
-      // The cast to an Object is for interoperability between Scala and Java.
-      data.set(key, newValue.asInstanceOf[Object], ttl, timeUnit)
+      data.set(key, newValue, ttl, timeUnit)
       newValue
     } finally {
       data.unlock(key)

@@ -31,7 +31,7 @@ import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
-import org.openrepose.core.services.datastore.types.SetPatch
+import org.openrepose.core.services.datastore.types.HashSetPatch
 import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config
 import org.openrepose.filters.openstackidentityv3.utilities.Cache._

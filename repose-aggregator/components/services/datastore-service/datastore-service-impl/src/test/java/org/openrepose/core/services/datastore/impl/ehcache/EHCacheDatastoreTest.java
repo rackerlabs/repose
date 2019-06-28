@@ -32,12 +32,12 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.openrepose.core.services.datastore.types.StringPatch;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -74,7 +74,7 @@ public class EHCacheDatastoreTest {
     @Test
     public void get_getsNullElement() {
         final String key = "doesn't exist";
-        Object element = datastore.get(key);
+        Serializable element = datastore.get(key);
         assertNull(element);
     }
 
@@ -85,9 +85,9 @@ public class EHCacheDatastoreTest {
 
         datastore.put(key, value);
 
-        Object element = datastore.get(key);
+        Serializable element = datastore.get(key);
         assertNotNull(element);
-        assertThat((String) element, equalTo(value));
+        assertThat(element, equalTo(value));
     }
 
     @Test
@@ -98,7 +98,7 @@ public class EHCacheDatastoreTest {
         datastore.put(key, value);
         datastore.remove(key);
 
-        Object element = datastore.get(key);
+        Serializable element = datastore.get(key);
         assertNull(element);
     }
 
@@ -110,7 +110,7 @@ public class EHCacheDatastoreTest {
 
         datastore.put(key, value, ttl, SECONDS);
 
-        Object element = datastore.get(key);
+        Serializable element = datastore.get(key);
         assertNotNull(element);
         assertThat((String) element, equalTo(value));
 
@@ -130,7 +130,7 @@ public class EHCacheDatastoreTest {
         datastore.put(key1, value);
         datastore.put(key2, value);
 
-        Object element = datastore.get(key1);
+        Serializable element = datastore.get(key1);
         assertNotNull(element);
         element = datastore.get(key2);
         assertNotNull(element);

@@ -19,13 +19,14 @@
  */
 package org.openrepose.core.services.datastore.hazelcast
 
+import java.io
 import java.util.concurrent.TimeUnit
 
 import com.hazelcast.core.{HazelcastInstance, IMap}
 import org.junit.runner.RunWith
-import org.mockito.Matchers.{any, anyLong, anyObject, anyString, eq => isEq}
-import org.mockito.{ArgumentCaptor, Mockito}
+import org.mockito.Matchers.{any, anyLong, anyString, eq => isEq}
 import org.mockito.Mockito.{verify, when}
+import org.mockito.{ArgumentCaptor, Mockito}
 import org.openrepose.core.services.datastore.DatastoreOperationException
 import org.openrepose.core.services.datastore.types.StringPatch
 import org.scalatest.junit.JUnitRunner
@@ -39,14 +40,14 @@ class HazelcastDatastoreTest
   final val TestKey: String = "testKey"
 
   var hazelcastInstance: HazelcastInstance = _
-  var dataMap: IMap[String, Object] = _
+  var dataMap: IMap[String, io.Serializable] = _
   var hazelcastDatastore: HazelcastDatastore = _
 
   override protected def beforeEach(): Unit = {
     hazelcastInstance = mock[HazelcastInstance]
-    dataMap = mock[IMap[String, Object]]
+    dataMap = mock[IMap[String, io.Serializable]]
 
-    when(hazelcastInstance.getMap[String, Object](any[String]))
+    when(hazelcastInstance.getMap[String, io.Serializable](any[String]))
       .thenReturn(dataMap)
 
     hazelcastDatastore = new HazelcastDatastore(hazelcastInstance)
@@ -56,7 +57,9 @@ class HazelcastDatastoreTest
     it("should return null if nothing is mapped to the key") {
       val returned = hazelcastDatastore.get(TestKey)
 
-      returned shouldBe null
+      // An assertion is used rather than a ScalaTest matcher due to java.io.Serializable not being a
+      // sub-type of AnyRef, which prevents ScalaTest matchers from performing a null check.
+      assert(returned == null)
       verify(dataMap).get(TestKey)
     }
 
@@ -103,7 +106,7 @@ class HazelcastDatastoreTest
     it("should throw a DatastoreOperationException if the operation fails") {
       val value = "value"
 
-      when(dataMap.set(anyString, anyObject, anyLong, any[TimeUnit]))
+      when(dataMap.set(anyString, any[io.Serializable], anyLong, any[TimeUnit]))
         .thenThrow(new RuntimeException("Failure!"))
 
       a[DatastoreOperationException] should be thrownBy hazelcastDatastore.put(TestKey, value)
@@ -115,7 +118,7 @@ class HazelcastDatastoreTest
       val ttl = 10
       val timeUnit = TimeUnit.MINUTES
 
-      when(dataMap.set(anyString, anyObject, anyLong, any[TimeUnit]))
+      when(dataMap.set(anyString, any[io.Serializable], anyLong, any[TimeUnit]))
         .thenThrow(new RuntimeException("Failure!"))
 
       a[DatastoreOperationException] should be thrownBy hazelcastDatastore.put(TestKey, value, ttl, timeUnit)
@@ -210,13 +213,13 @@ class HazelcastDatastoreTest
       val patchValue = "value"
       val patch = new StringPatch(patchValue)
 
-      when(dataMap.set(anyString, anyObject, anyLong, any[TimeUnit]))
+      when(dataMap.set(anyString, any[io.Serializable], anyLong, any[TimeUnit]))
         .thenThrow(new RuntimeException("Failure!"))
 
       a[DatastoreOperationException] should be thrownBy
         hazelcastDatastore.patch(TestKey, patch)
 
-      verify(dataMap).set(isEq(TestKey), anyObject, isEq(-1L), any[TimeUnit])
+      verify(dataMap).set(isEq(TestKey), any[io.Serializable], isEq(-1L), any[TimeUnit])
     }
 
     it("should throw a DatastoreOperationException if the operation fails (TTL)") {
@@ -225,13 +228,13 @@ class HazelcastDatastoreTest
       val ttl = 10
       val timeUnit = TimeUnit.MINUTES
 
-      when(dataMap.set(anyString, anyObject, anyLong, any[TimeUnit]))
+      when(dataMap.set(anyString, any[io.Serializable], anyLong, any[TimeUnit]))
         .thenThrow(new RuntimeException("Failure!"))
 
       a[DatastoreOperationException] should be thrownBy
         hazelcastDatastore.patch(TestKey, patch, ttl, timeUnit)
 
-      verify(dataMap).set(isEq(TestKey), anyObject, isEq(ttl.toLong), isEq(timeUnit))
+      verify(dataMap).set(isEq(TestKey), any[io.Serializable], isEq(ttl.toLong), isEq(timeUnit))
     }
   }
 

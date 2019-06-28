@@ -19,12 +19,14 @@
  */
 package org.openrepose.core.services.datastore;
 
+import java.io.Serializable;
+
 /**
  * An interface for a Patch (of T).
  * <p/>
  * T - the type of data that gets stored in the datastore
  */
-public interface Patch<T> {
+public interface Patch<T extends Serializable> {
 
     /**
      * Constructs a new object of type {@code T} using data specific to this
