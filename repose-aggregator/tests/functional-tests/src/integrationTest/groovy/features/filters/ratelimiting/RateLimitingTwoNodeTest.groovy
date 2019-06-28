@@ -21,6 +21,8 @@ package features.filters.ratelimiting
 
 import org.junit.experimental.categories.Category
 import org.openrepose.framework.test.PortFinder
+import org.openrepose.framework.test.ReposeConfigurationProvider
+import org.openrepose.framework.test.ReposeValveLauncher
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
@@ -28,13 +30,10 @@ import org.rackspace.deproxy.Response
 import org.w3c.dom.Document
 import org.xml.sax.InputSource
 import scaffold.category.Filters
+import spock.lang.Shared
 
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
-
-/*
- * Rate limiting tests ported over from python and JMeter
- */
 
 @Category(Filters)
 class RateLimitingTwoNodeTest extends ReposeValveTest {
@@ -44,48 +43,61 @@ class RateLimitingTwoNodeTest extends ReposeValveTest {
     final Map<String, String> groupHeaderDefault = ["X-PP-Groups": "customer"]
     final Map<String, String> acceptHeaderDefault = ["Accept": "application/xml"]
 
-    static int reposePort2
-    static int distDatastorePort
-    static int distDatastorePort2
+    static int userCount = 0
+    static int datastorePort
+    static int datastorePort2
 
-    def getReposeEndpoint2() {
-        return "http://localhost:${reposePort2}"
-    }
-
-    static int userCount = 0;
+    @Shared
+    ReposeValveLauncher repose2
 
     String getNewUniqueUser() {
-
         String name = "user-${userCount}"
-        userCount++;
-        return name;
+        userCount++
+        return name
     }
 
-
     def setupSpec() {
+        int repose2Port = properties.portFinder.nextOpenPort
+        String repose2ConfigDir = properties.configDirectory + "2"
+        ReposeConfigurationProvider configurationProvider2 = new ReposeConfigurationProvider(
+            repose2ConfigDir,
+            properties.configTemplates
+        )
+        repose2 = new ReposeValveLauncher(
+            configurationProvider2,
+            properties.reposeJar,
+            "http://${properties.targetHostname}:$repose2Port", // properties.reposeEndpoint
+            repose2ConfigDir,
+            repose2Port
+        )
+        repose2.configurationProvider.cleanConfigDirectory()
 
         deproxy = new Deproxy()
         deproxy.addEndpoint(properties.targetPort)
 
-        reposePort2 = PortFinder.instance.getNextOpenPort()
-        distDatastorePort = PortFinder.instance.getNextOpenPort()
-        distDatastorePort2 = PortFinder.instance.getNextOpenPort()
+        datastorePort = PortFinder.instance.getNextOpenPort()
+        datastorePort2 = PortFinder.instance.getNextOpenPort()
 
         def params = properties.getDefaultTemplateParams()
         params += [
-                reposePort2       : reposePort2,
-                distDatastorePort : distDatastorePort,
-                distDatastorePort2: distDatastorePort2
+            reposePort2   : repose2.reposePort,
+            datastorePort : datastorePort,
+            datastorePort2: datastorePort2
         ]
 
-
         repose.configurationProvider.applyConfigs("common", params)
-        repose.configurationProvider.applyConfigs("features/filters/ratelimiting/twonodes", params)
-        // Doesn't matter which node is given, just need one from the config to prevent:
-        //    Unable to guess what nodeID you want in cluster: repose
-        repose.start([clusterId: "repose", nodeId: "dd-node-1"])
-        //repose.start([clusterId: "repose", nodeId:"dd-node-2"])
-        repose.waitForNon500FromUrl(reposeEndpoint)
+        repose.configurationProvider.applyConfigs("features/filters/ratelimiting/twonodes/common", params)
+        repose.configurationProvider.applyConfigs("features/filters/ratelimiting/twonodes/nodeOne", params)
+
+        repose2.configurationProvider.applyConfigs("common", params)
+        repose2.configurationProvider.applyConfigs("features/filters/ratelimiting/twonodes/common", params)
+        repose2.configurationProvider.applyConfigs("features/filters/ratelimiting/twonodes/nodeTwo", params)
+
+        repose.start(killOthersBeforeStarting: false)
+        repose.waitForNon500FromUrl(repose.reposeEndpoint)
+
+        repose2.start(killOthersBeforeStarting: false)
+        repose2.waitForNon500FromUrl(repose2.reposeEndpoint)
     }
 
     def "When Repose is configured with multiple nodes, rate-limiting info should be shared"() {
@@ -93,17 +105,15 @@ class RateLimitingTwoNodeTest extends ReposeValveTest {
         useAllRemainingRequests()
 
         when: "the user sends their request and the rate-limit has not been reached"
-        MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint2, method: "GET",
-                headers: userHeaderDefault + groupHeaderDefault, defaultHandler: handler)
+        MessageChain messageChain = deproxy.makeRequest(url: repose2.reposeEndpoint, method: "GET",
+            headers: userHeaderDefault + groupHeaderDefault, defaultHandler: handler)
 
         then: "the request is rate-limited, and does not pass to the origin service"
         messageChain.receivedResponse.code.equals("413")
         messageChain.handlings.size() == 0
     }
 
-
     def "when a burst of limits is sent for an execution, only 2x-1 requests can get through"() {
-
         given:
         def user = getNewUniqueUser()
         def group = "customer"
@@ -129,8 +139,8 @@ class RateLimitingTwoNodeTest extends ReposeValveTest {
                         messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET", headers: headers)
                         println reposeEndpoint
                     } else {
-                        messageChain = deproxy.makeRequest(url: reposeEndpoint2, method: "GET", headers: headers)
-                        println reposeEndpoint2
+                        messageChain = deproxy.makeRequest(url: repose2.reposeEndpoint, method: "GET", headers: headers)
+                        println repose2.reposeEndpoint
                     }
                     println messageChain.receivedResponse.code
                     if (messageChain.receivedResponse.code.equals("200")) {
@@ -181,7 +191,7 @@ class RateLimitingTwoNodeTest extends ReposeValveTest {
 
     private String getLimits() {
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint + "/service/limits", method: "GET",
-                headers: userHeaderDefault + groupHeaderDefault + acceptHeaderDefault);
+            headers: userHeaderDefault + groupHeaderDefault + acceptHeaderDefault);
 
         return messageChain.receivedResponse.body
     }
@@ -194,11 +204,11 @@ class RateLimitingTwoNodeTest extends ReposeValveTest {
 
     private void useAllRemainingRequests() {
         MessageChain messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET",
-                headers: userHeaderDefault + groupHeaderDefault, defaultHandler: handler);
+            headers: userHeaderDefault + groupHeaderDefault, defaultHandler: handler);
 
         while (!messageChain.receivedResponse.code.equals("413")) {
             messageChain = deproxy.makeRequest(url: reposeEndpoint, method: "GET",
-                    headers: userHeaderDefault + groupHeaderDefault, defaultHandler: handler);
+                headers: userHeaderDefault + groupHeaderDefault, defaultHandler: handler);
         }
     }
 }
