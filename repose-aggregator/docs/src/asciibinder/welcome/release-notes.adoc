@@ -1,5 +1,11 @@
 = Release Notes
 
+== In Progress
+* [.breaking-tag]#Breaking Change# | https://repose.atlassian.net/browse/REP-7785[REP-7785] - Implemented a Hazelcast-backed datastore.
+** Removed the existing Distributed datastore.
+** Removed the existing Remote datastore.
+** Updated the Datastore, Datastore Service, and Datastore Patch APIs to support the Hazelcast datastore.
+
 == 9.0.1.0 (2019-06-24)
 * [.new-tag]#New# | https://repose.atlassian.net/browse/REP-7786[REP-7786] - Added the <<../services/http-logging.adoc#, HTTP Logging Service>>.
 * [.new-tag]#New# | https://repose.atlassian.net/browse/REP-7600[REP-7600] - Added the <<../filters/openapi-validator.adoc#, OpenApi Validator Filter>>.
