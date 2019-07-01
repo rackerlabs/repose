@@ -216,7 +216,7 @@ class HazelcastDatastoreBootstrapTest
         verifyZeroInteractions(datastoreService)
         verify(configurationService).subscribeTo(
           any[String],
-          isEq(config.getStandard.getHref),
+          isEq(config.getComplete.getHref),
           same(hazelcastDatastoreBootstrap.HazelcastConfigListener),
           isA(classOf[TemplatingConfigurationParser[InputStream]])
         )
@@ -230,7 +230,7 @@ class HazelcastDatastoreBootstrapTest
         hazelcastDatastoreBootstrap.HazelcastDatastoreConfigListener.configurationUpdated(secondConfig)
 
         verify(configurationService).unsubscribeFrom(
-          isEq(firstConfig.getStandard.getHref),
+          isEq(firstConfig.getComplete.getHref),
           same(hazelcastDatastoreBootstrap.HazelcastConfigListener)
         )
       }
@@ -238,13 +238,13 @@ class HazelcastDatastoreBootstrapTest
       it("should unregister a full config listener if registered and the configuration location changed") {
         val firstConfig = hazelcastDatastoreConfig
         val secondConfig = hazelcastDatastoreConfig
-        secondConfig.getStandard.setHref("/not/a/location")
+        secondConfig.getComplete.setHref("/not/a/location")
 
         hazelcastDatastoreBootstrap.HazelcastDatastoreConfigListener.configurationUpdated(firstConfig)
         hazelcastDatastoreBootstrap.HazelcastDatastoreConfigListener.configurationUpdated(secondConfig)
 
         verify(configurationService).unsubscribeFrom(
-          isEq(firstConfig.getStandard.getHref),
+          isEq(firstConfig.getComplete.getHref),
           same(hazelcastDatastoreBootstrap.HazelcastConfigListener)
         )
       }
@@ -257,7 +257,7 @@ class HazelcastDatastoreBootstrapTest
         hazelcastDatastoreBootstrap.HazelcastDatastoreConfigListener.configurationUpdated(secondConfig)
 
         verify(configurationService, never).unsubscribeFrom(
-          isEq(firstConfig.getStandard.getHref),
+          isEq(firstConfig.getComplete.getHref),
           same(hazelcastDatastoreBootstrap.HazelcastConfigListener)
         )
       }
@@ -307,7 +307,7 @@ class HazelcastDatastoreBootstrapTest
         hazelcastDatastoreBootstrap.HazelcastDatastoreConfigListener.unsubscribed()
 
         verify(configurationService).unsubscribeFrom(
-          isEq(config.getStandard.getHref),
+          isEq(config.getComplete.getHref),
           same(hazelcastDatastoreBootstrap.HazelcastConfigListener)
         )
       }
@@ -379,9 +379,9 @@ object HazelcastDatastoreBootstrapTest {
 
   private def hazelcastDatastoreConfig: HazelcastDatastoreConfig = {
     val config = new HazelcastDatastoreConfig()
-    val standard = new StandardConfig()
-    standard.setHref(hazelcastConfigUrl.toString)
-    config.setStandard(standard)
+    val complete = new CompleteConfig()
+    complete.setHref(hazelcastConfigUrl.toString)
+    config.setComplete(complete)
     config
   }
 

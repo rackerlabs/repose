@@ -176,18 +176,18 @@ class HazelcastDatastoreBootstrap @Inject()(configurationService: ConfigurationS
 
         refreshHazelcastConfig(hazelcastConfig)
       } else {
-        currentHref.filterNot(configurationObject.getStandard.getHref.equals)
+        currentHref.filterNot(configurationObject.getComplete.getHref.equals)
           .foreach { href =>
             configurationService.unsubscribeFrom(
               href,
               HazelcastConfigListener
             )
           }
-        currentHref = Some(configurationObject.getStandard.getHref)
+        currentHref = Some(configurationObject.getComplete.getHref)
 
         configurationService.subscribeTo(
           "",
-          configurationObject.getStandard.getHref,
+          configurationObject.getComplete.getHref,
           HazelcastConfigListener,
           new TemplatingConfigurationParser(new InputStreamConfigurationParser())
         )
