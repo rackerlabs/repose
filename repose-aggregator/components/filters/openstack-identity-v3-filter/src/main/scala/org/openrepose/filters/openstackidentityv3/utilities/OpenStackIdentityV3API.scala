@@ -23,7 +23,7 @@ import java.io.{InputStream, Serializable}
 import java.util.concurrent.TimeUnit
 import java.util.{Calendar, GregorianCalendar}
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import javax.servlet.http.HttpServletResponse._
 import javax.ws.rs.core.MediaType
 import org.apache.http.client.entity.EntityBuilder

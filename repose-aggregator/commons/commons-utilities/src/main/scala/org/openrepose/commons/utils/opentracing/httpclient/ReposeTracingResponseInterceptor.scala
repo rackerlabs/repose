@@ -21,7 +21,7 @@ package org.openrepose.commons.utils.opentracing.httpclient
 
 import java.io.IOException
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import io.opentracing.Span
 import io.opentracing.tag.Tags._
 import org.apache.http._

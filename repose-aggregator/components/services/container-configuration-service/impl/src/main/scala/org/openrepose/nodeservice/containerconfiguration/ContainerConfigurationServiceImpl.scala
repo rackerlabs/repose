@@ -22,7 +22,7 @@ package org.openrepose.nodeservice.containerconfiguration
 import java.lang.Long
 import java.util.Optional
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
 import org.openrepose.commons.config.manager.UpdateListener

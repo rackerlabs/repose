@@ -31,7 +31,7 @@ import javax.xml.transform.stream.StreamSource
 import com.rackspace.com.papi.components.checker.handler._
 import com.rackspace.com.papi.components.checker.wadl.WADLException
 import com.rackspace.com.papi.components.checker.{Config, Validator, ValidatorException}
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.lang3.StringUtils
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.StringUriUtilities

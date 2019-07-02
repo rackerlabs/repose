@@ -37,8 +37,8 @@ apply plugin: 'io.github.http-builder-ng.http-plugin'
 ext {
     reposeCodename = "Falco"
     scalaMajor = '2'
-    scalaMinor = '11'
-    scalaPatch = '12'
+    scalaMinor = '12'
+    scalaPatch = '8'
     scalaMajDotMin = "$scalaMajor.$scalaMinor"
 }
 
@@ -173,8 +173,8 @@ subprojects {
         jaxb "javax.xml.bind:jaxb-api"
         jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-ant"
 
-        scoverage "org.scoverage:scalac-scoverage-plugin_$scalaMajDotMin:1.1.0"
-        scoverage "org.scoverage:scalac-scoverage-runtime_$scalaMajDotMin:1.1.0"
+        scoverage "org.scoverage:scalac-scoverage-plugin_$scalaMajDotMin:1.4.0"
+        scoverage "org.scoverage:scalac-scoverage-runtime_$scalaMajDotMin:1.4.0"
 
     }
 

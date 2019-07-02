@@ -174,7 +174,7 @@ class SplitHeaderFilterTest extends FunSpec with BeforeAndAfterEach with Mockito
       splitHeaderFilter.doWork(request, response, filterChain)
 
       val passedResponse = filterChain.getResponse.asInstanceOf[HttpServletResponse]
-      passedResponse.getHeaders(TestHeaderName).asScala.toSeq should contain only("one", "two", "three", "four")
+      passedResponse.getHeaders(TestHeaderName).asScala.toSeq should contain only("one", "two", "four")
     }
 
     it("should split a request header regardless of casing") {

@@ -23,17 +23,17 @@ package org.openrepose.filters.uristripper
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
 import java.net.{URI, URL}
 import java.nio.charset.Charset
+
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.xml.transform._
 import javax.xml.transform.dom._
 import javax.xml.transform.stream._
-
 import _root_.io.gatling.jsonpath.AST.{Field, RootNode}
 import _root_.io.gatling.jsonpath.Parser
-import com.rackspace.cloud.api.wadl.Converters._
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
+import net.sf.saxon.serialize.MessageWarner
 import net.sf.saxon.{Controller, TransformerFactoryImpl}
 import org.apache.http.HttpHeaders
 import org.openrepose.commons.config.manager.UpdateListener
@@ -53,6 +53,7 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.language.{postfixOps, reflectiveCalls}
 import scala.util.{Failure, Success, Try}
+import scala.xml.NodeSeq
 
 @Named
 class UriStripperFilter @Inject()(configurationService: ConfigurationService)
@@ -66,6 +67,20 @@ class UriStripperFilter @Inject()(configurationService: ConfigurationService)
   private var templateMapRequest: Map[LinkPath, Templates] = _
   private var templateMapResponse: Map[LinkPath, Templates] = _
   private val DROP_CODE: String = "[[DROP]]"
+
+  implicit def toLogController(c : Controller) = new {
+    def addLogErrorListener : Unit = {
+      c.asInstanceOf[Transformer].setErrorListener (new LogErrorListener)
+      c.setMessageEmitter(new MessageWarner())
+    }
+  }
+
+  implicit def nodeSeq2ByteArrayInputStream(ns : NodeSeq) : ByteArrayInputStream = new ByteArrayInputStream(ns.toString().getBytes())
+
+  implicit def nodeSeqString2Source (nss : (String, NodeSeq)) : (String, ByteArrayInputStream) = {
+    val s = nodeSeq2ByteArrayInputStream(nss._2)
+    (nss._1, s)
+  }
 
   override def init(filterConfig: FilterConfig): Unit = {
     logger.trace("URI Stripper filter initializing...")

@@ -44,7 +44,7 @@ class MockService {
   // Defines a default handler, but can be changed
   var requestHandler: HttpRequest => HttpResponse = {
     case HttpRequest(GET, _, _, _, _) =>
-      HttpResponse(entity = HttpEntity(MediaTypes.`text/html`, "<html><body>Hello world!</body></html>"))
+      HttpResponse(entity = HttpEntity(ContentType.WithMissingCharset(MediaTypes.`text/html`), "<html><body>Hello world!</body></html>".getBytes))
 
     case _: HttpRequest =>
       HttpResponse(404, entity = "Unknown resource!")

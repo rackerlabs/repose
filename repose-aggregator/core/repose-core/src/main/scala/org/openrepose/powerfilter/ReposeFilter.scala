@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
 import java.util.{Optional, UUID}
 
 import com.codahale.metrics.MetricRegistry
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import io.opentracing.Tracer
 import io.opentracing.tag.Tags
 import javax.inject.{Inject, Named}

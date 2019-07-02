@@ -27,7 +27,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.xml.bind.JAXBElement
 
 import com.codahale.metrics.MetricRegistry
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.apache.http.HttpHeaders
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.CommonRequestAttributes

@@ -76,7 +76,7 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfterEach with M
 
     mockAtomFeedService.requestHandler = {
       case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
-        HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, sw.toString))
+        HttpResponse(entity = HttpEntity(ContentType.WithMissingCharset(MediaTypes.`application/atom+xml`), sw.toString.getBytes))
 
       case HttpRequest(_, _, _, _, _) =>
         HttpResponse(404, entity = "Not Found")
@@ -216,10 +216,10 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfterEach with M
 
     mockAtomFeedService.requestHandler = {
       case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
-        HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, swpo.toString))
+        HttpResponse(entity = HttpEntity(ContentType.WithMissingCharset(MediaTypes.`application/atom+xml`), swpo.toString.getBytes))
 
       case HttpRequest(_, Uri.Path("/feed2"), _, _, _) =>
-        HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, swpt.toString))
+        HttpResponse(entity = HttpEntity(ContentType.WithMissingCharset(MediaTypes.`application/atom+xml`), swpt.toString.getBytes))
 
       case HttpRequest(_, _, _, _, _) =>
         HttpResponse(404, entity = "Not Found")
@@ -279,7 +279,7 @@ class AtomEntryStreamBuilderTest extends FunSuite with BeforeAndAfterEach with M
 
     mockAtomFeedService.requestHandler = {
       case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
-        HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, swpo.toString))
+        HttpResponse(entity = HttpEntity(ContentType.WithMissingCharset(MediaTypes.`application/atom+xml`), swpo.toString.getBytes))
 
       case HttpRequest(_, Uri.Path("/feed2"), _, _, _) =>
         HttpResponse(403)

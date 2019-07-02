@@ -23,7 +23,7 @@ import java.util
 import java.util.UUID
 
 import com.oracle.javaee6.FilterType
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
 import javax.servlet.{Filter, ServletContext, ServletException}

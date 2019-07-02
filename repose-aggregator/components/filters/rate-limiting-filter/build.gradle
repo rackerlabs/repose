@@ -7,7 +7,7 @@ dependencies {
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
     compile "commons-pool:commons-pool"
     compile "org.scala-lang:scala-library"
-    compile "org.scala-lang.modules:scala-xml_2.11"
+    compile "org.scala-lang.modules:scala-xml_$scalaMajDotMin"
     compile "xalan:xalan"
     compile "org.springframework:spring-web"
 
