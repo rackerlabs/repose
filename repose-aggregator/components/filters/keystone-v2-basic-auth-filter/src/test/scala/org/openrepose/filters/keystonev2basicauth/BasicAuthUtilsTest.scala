@@ -21,7 +21,7 @@ package org.openrepose.filters.keystonev2basicauth
 
 import org.apache.commons.codec.binary.Base64
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])

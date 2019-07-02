@@ -26,8 +26,8 @@ import org.junit.runner.RunWith
 import org.openrepose.commons.utils.io.BufferedServletInputStream
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.systemmodel.config.Filter
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 import scala.collection.JavaConverters._

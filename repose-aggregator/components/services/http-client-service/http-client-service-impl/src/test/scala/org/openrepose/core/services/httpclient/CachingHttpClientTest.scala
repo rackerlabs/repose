@@ -40,8 +40,8 @@ import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.openrepose.core.services.httpclient
 import org.openrepose.core.services.httpclient.CachingHttpClientTest._
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.slf4j.MDC
 

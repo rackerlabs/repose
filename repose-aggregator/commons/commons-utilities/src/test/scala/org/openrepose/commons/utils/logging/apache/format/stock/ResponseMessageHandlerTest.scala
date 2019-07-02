@@ -26,8 +26,8 @@ import org.junit.runner.RunWith
 import org.openrepose.commons.utils.logging.apache.HttpLogFormatterState
 import org.openrepose.commons.utils.servlet.http.{HttpServletResponseWrapper, ResponseMode}
 import org.scalatest._
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 
 @RunWith(classOf[JUnitRunner])
 class ResponseMessageHandlerTest extends FunSpec with BeforeAndAfterEach with GivenWhenThen with Matchers with MockitoSugar {

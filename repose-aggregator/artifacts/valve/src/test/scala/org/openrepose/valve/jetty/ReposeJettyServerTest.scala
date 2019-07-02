@@ -28,8 +28,8 @@ import org.openrepose.core.container.config.SslConfiguration
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
 import org.openrepose.valve.SpringContextResetter
 import org.openrepose.valve.jetty.ReposeJettyServer.ServerInitializationException
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])

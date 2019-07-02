@@ -21,8 +21,8 @@ package org.openrepose.filters.openstackidentityv3.utilities
 
 import org.junit.runner.RunWith
 import org.openrepose.core.services.datastore.Datastore
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])

@@ -32,8 +32,8 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.bodypatcher.BodyPatcherFilter._
 import org.openrepose.filters.bodypatcher.config.{BodyPatcherConfig, ChangeDetails, Patch}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 import play.api.libs.json.{JsResultException, JsValue, Json => PJson}

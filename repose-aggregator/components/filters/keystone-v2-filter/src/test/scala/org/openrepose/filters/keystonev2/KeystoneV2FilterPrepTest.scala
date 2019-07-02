@@ -34,8 +34,8 @@ import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientSer
 import org.openrepose.core.systemmodel.config.{SystemModel, TracingHeaderConfig}
 import org.openrepose.filters.keystonev2.config.KeystoneV2AuthenticationConfig
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, AtomFeedService}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.MockFilterConfig
 

@@ -21,8 +21,8 @@ package org.openrepose.commons.utils.opentracing
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
 

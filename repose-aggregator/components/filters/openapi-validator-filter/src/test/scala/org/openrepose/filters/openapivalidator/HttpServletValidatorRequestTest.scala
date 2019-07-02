@@ -27,8 +27,8 @@ import javax.servlet.http.HttpServletRequest
 import org.junit.runner.RunWith
 import org.mockito.Mockito.when
 import org.openrepose.filters.openapivalidator.HttpServletValidatorRequest.RequestConversionException
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
 import org.springframework.http.{HttpHeaders, HttpMethod, MediaType}
 import org.springframework.mock.web.{DelegatingServletInputStream, MockHttpServletRequest}

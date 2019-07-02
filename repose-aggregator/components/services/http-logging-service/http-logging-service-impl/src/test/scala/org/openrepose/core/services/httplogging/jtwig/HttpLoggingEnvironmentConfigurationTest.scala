@@ -21,7 +21,7 @@ package org.openrepose.core.services.httplogging.jtwig
 
 import org.junit.runner.RunWith
 import org.openrepose.core.services.httplogging.config.Format
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])

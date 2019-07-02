@@ -33,8 +33,8 @@ import org.openrepose.filters.openstackidentityv3.config._
 import org.openrepose.filters.openstackidentityv3.objects._
 import org.openrepose.filters.openstackidentityv3.utilities._
 import org.scalatest._
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.springframework.http.HttpHeaders
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 

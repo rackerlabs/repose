@@ -21,7 +21,7 @@ package org.openrepose.commons.utils.json
 
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.string.Base64Helper
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])

@@ -46,8 +46,8 @@ import org.openrepose.filters.openstackidentityv3.config.{OpenstackIdentityServi
 import org.openrepose.filters.openstackidentityv3.objects.ValidToken
 import org.openrepose.filters.openstackidentityv3.utilities.Cache._
 import org.scalatest._
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 
 import scala.Function.tupled
 import scala.util.{Failure, Success, Try}

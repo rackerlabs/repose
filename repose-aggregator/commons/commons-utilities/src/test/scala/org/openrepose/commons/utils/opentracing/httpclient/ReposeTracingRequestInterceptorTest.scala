@@ -31,8 +31,8 @@ import org.mockito.Mockito.{verify, when}
 import org.openrepose.commons.utils.http.CommonHttpHeader.{REQUEST_ID, VIA}
 import org.openrepose.commons.utils.opentracing.ReposeTags.ReposeVersion
 import org.openrepose.core.services.uriredaction.UriRedactionService
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])

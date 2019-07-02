@@ -22,8 +22,8 @@ package org.openrepose.core.services.httpclient
 import org.apache.http.impl.client.CloseableHttpClient
 import org.junit.runner.RunWith
 import org.mockito.Mockito.{never, verify}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec}
 
 @RunWith(classOf[JUnitRunner])

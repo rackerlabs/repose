@@ -37,8 +37,8 @@ import org.openrepose.commons.config.resource.{ConfigurationResource, Configurat
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.regexrbac.config.{DelegatingType, RegexRbacConfig, ResourcesType}
 import org.scalatest._
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.springframework.mock.web.{MockFilterChain, MockFilterConfig, MockHttpServletRequest, MockHttpServletResponse}
 
 import scala.collection.JavaConversions._

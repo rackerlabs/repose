@@ -22,7 +22,7 @@ package org.openrepose.commons.test
 import java.net.URL
 
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])

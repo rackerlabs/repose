@@ -23,7 +23,7 @@ import javax.servlet.Filter
 import org.junit.runner.RunWith
 import org.openrepose.core.spring.test.foo.FooBean
 import org.openrepose.core.spring.test.{DerpBean, HerpBean}
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 import org.springframework.context.ApplicationContext
 import com.anycompany.spring.test.foo.TestFooBean

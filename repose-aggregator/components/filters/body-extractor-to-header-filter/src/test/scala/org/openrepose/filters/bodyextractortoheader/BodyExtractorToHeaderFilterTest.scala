@@ -30,8 +30,8 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.bodyextractortoheader.config.{BodyExtractorToHeaderConfig, Extractor}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest}
 

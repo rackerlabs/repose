@@ -30,7 +30,7 @@ import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
 import org.apache.logging.log4j.{Level, LogManager}
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 

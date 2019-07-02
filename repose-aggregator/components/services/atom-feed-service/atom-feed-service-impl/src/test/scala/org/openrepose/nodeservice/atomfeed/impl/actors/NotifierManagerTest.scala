@@ -32,8 +32,8 @@ import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier.{FeedReaderActiv
 import org.openrepose.nodeservice.atomfeed.impl.actors.NotifierManager._
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, LifecycleEvents}
 import org.scalatest.concurrent.Eventually
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSuiteLike, Matchers}
 
 import scala.collection.JavaConversions._

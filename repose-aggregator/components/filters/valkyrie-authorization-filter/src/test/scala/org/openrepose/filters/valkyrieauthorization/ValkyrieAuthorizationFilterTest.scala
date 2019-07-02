@@ -57,8 +57,8 @@ import org.openrepose.filters.valkyrieauthorization.config.DeviceIdMismatchActio
 import org.openrepose.filters.valkyrieauthorization.config.DevicePath.Regex
 import org.openrepose.filters.valkyrieauthorization.config.HttpMethod._
 import org.openrepose.filters.valkyrieauthorization.config._
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers => ScalaTestMatchers}
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 

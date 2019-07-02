@@ -36,8 +36,8 @@ import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
 import org.openrepose.filters.keystonev2basicauth.config.KeystoneV2BasicAuthConfig
 import org.scalatest._
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.springframework.mock.web.MockHttpServletRequest
 
 import scala.collection.JavaConversions._
