@@ -8,7 +8,7 @@ dependencies {
     compile "org.slf4j:slf4j-api"
     compile "org.scala-lang:scala-library"
     compile "org.scala-lang:scala-reflect" // Forces the version used by scala-logging.
-    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
+    compile "com.typesafe.scala-logging:scala-logging_$scalaMajDotMin"
     compile "io.dropwizard.metrics:metrics-core"
     compile "xalan:xalan"
     compile "org.springframework:spring-beans"

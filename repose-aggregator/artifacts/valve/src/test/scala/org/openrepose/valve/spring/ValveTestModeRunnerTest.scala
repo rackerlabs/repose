@@ -22,7 +22,7 @@ package org.openrepose.valve.spring
 import java.lang.management.ManagementFactory
 import javax.management.{JMX, ObjectName}
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.junit.runner.RunWith
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.container.config.ContainerConfiguration

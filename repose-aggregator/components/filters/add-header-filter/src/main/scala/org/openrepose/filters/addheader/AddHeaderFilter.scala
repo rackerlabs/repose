@@ -23,7 +23,7 @@ import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.servlet.http.ResponseMode._
 import org.openrepose.commons.utils.servlet.http.{HeaderInteractor, HttpServletResponseWrapper, HttpServletRequestWrapper}

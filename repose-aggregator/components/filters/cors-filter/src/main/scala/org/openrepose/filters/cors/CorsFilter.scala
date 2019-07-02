@@ -28,7 +28,7 @@ import javax.ws.rs.HttpMethod
 import javax.ws.rs.core.{HttpHeaders, MediaType}
 
 import com.google.common.net.InetAddresses
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.apache.http.client.utils.URIBuilder
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.{CommonHttpHeader, CorsHttpHeader}

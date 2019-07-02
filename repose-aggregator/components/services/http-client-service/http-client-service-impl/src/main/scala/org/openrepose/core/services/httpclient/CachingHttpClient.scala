@@ -22,7 +22,7 @@ package org.openrepose.core.services.httpclient
 import java.util.concurrent.Callable
 
 import com.google.common.cache.{Cache, CacheBuilder}
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import io.opentracing.Scope
 import io.opentracing.noop.NoopScopeManager.NoopScope
 import io.opentracing.util.GlobalTracer

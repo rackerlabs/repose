@@ -104,7 +104,7 @@ class FeedReaderTest(_system: ActorSystem)
 
     mockAtomFeedService.requestHandler = {
       case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
-        HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, sw.toString))
+        HttpResponse(entity = HttpEntity(ContentType.WithMissingCharset(MediaTypes.`application/atom+xml`), sw.toString.getBytes))
 
       case HttpRequest(_, _, _, _, _) =>
         HttpResponse(404, entity = "Not Found")
@@ -255,7 +255,7 @@ class FeedReaderTest(_system: ActorSystem)
 
     mockAtomFeedService.requestHandler = {
       case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
-        HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, sw.toString))
+        HttpResponse(entity = HttpEntity(ContentType.WithMissingCharset(MediaTypes.`application/atom+xml`), sw.toString.getBytes))
 
       case HttpRequest(_, _, _, _, _) =>
         HttpResponse(404, entity = "Not Found")
@@ -295,7 +295,7 @@ class FeedReaderTest(_system: ActorSystem)
 
     mockAtomFeedService.requestHandler = {
       case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
-        HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, sw.toString))
+        HttpResponse(entity = HttpEntity(ContentType.WithMissingCharset(MediaTypes.`application/atom+xml`), sw.toString.getBytes))
 
       case HttpRequest(_, _, _, _, _) =>
         HttpResponse(404, entity = "Not Found")
@@ -343,7 +343,7 @@ class FeedReaderTest(_system: ActorSystem)
 
     mockAtomFeedService.requestHandler = {
       case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
-        HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, sw.toString))
+        HttpResponse(entity = HttpEntity(ContentType.WithMissingCharset(MediaTypes.`application/atom+xml`), sw.toString.getBytes))
 
       case HttpRequest(_, _, _, _, _) =>
         HttpResponse(404, entity = "Not Found")
@@ -406,7 +406,7 @@ class FeedReaderTest(_system: ActorSystem)
 
     mockAtomFeedService.requestHandler = {
       case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
-        HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, sw.toString))
+        HttpResponse(entity = HttpEntity(ContentType.WithMissingCharset(MediaTypes.`application/atom+xml`), sw.toString.getBytes))
 
       case HttpRequest(_, _, _, _, _) =>
         HttpResponse(404, entity = "Not Found")

@@ -22,7 +22,7 @@ package org.openrepose.filters.irivalidator
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.apache.jena.iri.{IRIException, IRIFactory}
 
 /**
