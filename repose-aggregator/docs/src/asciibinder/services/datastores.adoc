@@ -3,7 +3,7 @@
 *Repose* uses one of the following datastore implementations to store various types of data:
 
 * Local datastore (name: local/default)
-* Distributed datastore (name: distributed/hash-ring)
+* Hazelcast datastore (name: hazelcast)
 
 The local datastore is enabled by default.
 The others are enabled by including the appropriate service into your <<../architecture/system-model.adoc#,System Model>> configuration.
@@ -14,20 +14,22 @@ The local datastore will store data using the cache on each node.
 Data will not be shared among the nodes, so each *Repose* node will have its own copy of the data.
 For example, if using rate limiting with the local datastore, then each node will track its own limit information and limit updates will not be shared with other nodes.
 
-== Distributed Datastore
-A *Repose* node may, at times, need to share information with other *Repose* nodes.
-The Distributed Datastore component allows *Repose* to host a simple hash-ring object store that shares consistency between all of the participating nodes.
-This, in turn, allows other hosted components as well as external programs to use a cluster of *Repose* nodes as a whole to store information.
-Instead of cache operations communicating through the *Repose* Service port (which is the port a *Repose* instance services requests to pass to the Origin Service), the Distributed Datastore Service will communicate through configured port(s) within the distributed datastore configuration.
-If the Distributed Datastore Service is unable to communicate with the service on other nodes, it will fall back on the local datastore temporarily.
-Once other nodes become reachable, the Distributed Datastore Service will return to being distributed.
+== Hazelcast Datastore
+
+As the name implies, this datastore is backed by https://hazelcast.org/[Hazelcast IMDG 3.12.1].
+Hazelcast is a highly-configurable, in-memory data grid capable of distributing data across a cluster.
+
+In fact, this datastore is simply a bridge between the datastore API and a https://docs.hazelcast.org/docs/3.12/manual/html-single/index.html#map[Hazelcast map].
+
+For details on Hazelcast itself, refer to https://docs.hazelcast.org/docs/3.12/manual/html-single/[Hazelcast documentation].
 
 === Configuration
-* *Default Configuration:* dist-datastore.cfg.xml
-* *Released:* v2.7.0
-* link:../schemas/dist-datastore.xsd[Schema]
+* *Default Configuration:* hazelcast-datastore.cfg.xml
+* *Released:* vTBD
+* link:../schemas/hazelcast-datastore.xsd[Schema]
 
-The Distributed Datastore service can be enabled in a *Repose* deployment by adding it to the services list of the <<../architecture/system-model.adoc#,System Model>> like this:
+The Hazelcast Datastore is managed by a service which can be enabled by adding it to the <<../architecture/system-model.adoc#,System Model>> like so:
+
 [source,xml]
 .system-model.cfg.xml (partial)
 ----
@@ -35,171 +37,197 @@ The Distributed Datastore service can be enabled in a *Repose* deployment by add
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
   ...
   <services>
-    <service name="dist-datastore"/>
+    <service name="hazelcast-datastore"/>
   </services>
   ...
 </system-model>
 ----
 
-Adding the Distributed Datastore Service to a *Repose* deployment requires that listening ports be configured within the `dist-datastore.cfg.xml` file.
-The `<port>` element is the port configuration for the Distributed Datastore.
-When you configure *Repose* to start with the Distributed Datastore, the running *Repose* instance will try to find the `<port>` configuration that matches it's own node ID in the <<../architecture/system-model.adoc#,System Model>>.
-If the `node` attribute is not defined for a `<port>`, that `<port>` is considered the default `<port>`.
-A running *Repose* instance will listen on the default `<port>` for Distributed Datastore traffic if no `<port>` is defined with a `node` attribute matching its own node ID in the <<../architecture/system-model.adoc#,System Model>>.
+The Hazelcast Datastore will only be created if the Hazelcast Datastore service is listed in the <<../architecture/system-model.adoc#,System Model>>.
 
-The following is a basic sample configuration.
-[source,xml]
-.dist-datastore.cfg.xml
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'>
-    <allowed-hosts allow-all="true"/>
-    <port-config>
-        <port port="9999"/>
-    </port-config>
-</distributed-datastore>
-----
+==== Simplified Configuration
 
-==== Full Configuration
+This configuration provides a quick and easy way of getting started with the <<Hazelcast Datastore>> without requiring you to understand exactly how Hazelcast works or how its myriad options should be configured.
+
+Technically, this configuration is a subset of the configuration presented by a <<Complete Configuration>>.
+If you need finer control of Hazelcast than what this configuration presents, switch to a <<Complete Configuration>>.
+
+===== TCP/IP Cluster
+
+This configuration will define a cluster using IP addresses.
+
 [source,xml]
-.dist-datastore.cfg.xml
+.hazelcast-datastore.cfg.xml
 ----
-<?xml version="1.0" encoding="UTF-8"?>
-<distributed-datastore xmlns='http://docs.openrepose.org/repose/distributed-datastore/v1.0'
-                       connection-pool-id="default" <!--1-->
-                       keystore-filename="keystore.jks" <!--2-->
-                       keystore-password="password" <!--3-->
-                       key-password="secret" <!--4-->
-                       truststore-filename="truststore.jks" <!--5-->
-                       truststore-password="trusting"> <!--6-->
-    <allowed-hosts allow-all="false"> <!--7--> <!--8-->
-        <allow host="127.0.0.1"/> <!--9-->
-    </allowed-hosts>
-    <port-config>
-        <port port="9999"/> <!--10-->
-        <port port="7777" node="node2"/> <!--11-->
-    </port-config>
-</distributed-datastore>
+<hazelcast-datastore xmlns="http://docs.openrepose.org/repose/hazelcast-datastore/v1.0">
+    <simplified> <!--1-->
+        <port>5701</port> <!--2-->
+        <join>
+            <tcp-ip connection-timeout-seconds="5"> <!--3--> <!--4-->
+                <member>127.0.0.1</member> <!--5-->
+                <member>123.123.123.123</member>
+                <member>255.255.255.255</member>
+            </tcp-ip>
+        </join>
+    </simplified>
+</hazelcast-datastore>
 ----
-<1> HTTP Connection pool (ID) to use when communicating with other members of the distributed datastore.
-<2> IF this attribute is configured,
-    THEN it is assumed that it points to the Java keystore containing the client certificate to present for client authentication (e.g keystore.jks)
-    AND the `keystore-password` and `key-password` attributes are no longer optional. +
-    *NOTE:* +
-    _IF_ the `keystore-filename` is defined, +
-    _THEN_ HTTPS will be used; +
-    _ELSE_ HTTP will be used.
-<3> The password for the client authentication keystore.
-<4> The password for the particular client authentication key in the keystore.
-<5> The truststore used for validating the server this pool is connecting to.
-    This is typically set to the same path as the client authentication keystore.
-<6> The password for the client authentication truststore. +
-    *NOTE:* This attribute is only used if the `truststore-filename` attribute is present.
-<7> Defines a list of hosts who has access to the distributed datastore API calls.
-    This does not add the host to the participating data storage nodes.
-<8> Setting the optional `allow-all` to `true` will turn off host ACL checking. +
-    Default: `false`
-<9> Defines a host who has access to the distributed datastore API.
-<10> Defines the default `port` on which all datastores will listen.
-<11> Overrides the default `port`, defined for all datastores to listen, only for this particular `node`.
+<1> Specifies that the <<Simplified Configuration>> will be used.
+<2> The port which Hazelcast will use to communicate between cluster members.
+<3> Specifies that the cluster will be formed by members identified by IP address.
+<4> The maximum amount of time (in seconds) Hazelcast will wait while trying to connect to a well known member before giving up. +
+    Default: `5`
+<5> The IP address of a cluster member.
+
+===== Multicast Cluster
+
+This configuration will define a cluster using multicast.
+
+[source,xml]
+.hazelcast-datastore.cfg.xml
+----
+<hazelcast-datastore xmlns="http://docs.openrepose.org/repose/hazelcast-datastore/v1.0">
+    <simplified> <!--1-->
+        <port>5701</port> <!--2-->
+        <join>
+            <multicast> <!--3-->
+                <multicast-group>224.2.2.3</multicast-group> <!--4-->
+                <multicast-port>54327</multicast-port> <!--5-->
+                <multicast-timeout-seconds>2</multicast-timeout-seconds> <!--6-->
+                <multicast-time-to-live>32</multicast-time-to-live> <!--7-->
+            </multicast>
+        </join>
+    </simplified>
+</hazelcast-datastore>
+----
+<1> Specifies that the <<Simplified Configuration>> will be used.
+<2> The port which Hazelcast will use to communicate between cluster members.
+<3> Specifies that the cluster will be formed using multicast.
+<4> The multicast group IP address.
+    Values can be between `224.0.0.0` and `239.255.255.255`. +
+    Default: `224.2.2.3`
+<5> The port over which Hazelcast members send and receive discovery messages. +
+    Default: `54327`
+<6> The period (in seconds) during which a node waits for a multicast response from another node when nodes are starting up. +
+    Default: `2`
+<7> The time-to-live value for multicast packets sent out to control the scope of multicasts. +
+    Defailt: `32`
+
+===== AWS Cluster
+
+This configuration will define a cluster using AWS EC2 discovery.
+
+Not all configuration properties are shown in this example.
+For details on how the discovery mechanism works and what other configuration properties exist, see https://github.com/hazelcast/hazelcast-aws[Hazelcast AWS discovery plugin documentation].
+
+[source,xml]
+.hazelcast-datastore.cfg.xml
+----
+<hazelcast-datastore xmlns="http://docs.openrepose.org/repose/hazelcast-datastore/v1.0">
+    <simplified> <!--1-->
+        <port>5701</port> <!--2-->
+        <join>
+            <aws connection-timeout-seconds="5"> <!--3--> <!--4-->
+                <access-key>my-access-key</access-key> <!--5-->
+                <secret-key>my-secret-key</secret-key> <!--6-->
+                <region>us-west-1</region> <!--7-->
+                <host-header>ec2.amazonaws.com</host-header> <!--8-->
+                <security-group-name>hazelcast-sg</security-group-name> <!--9-->
+                <tag-key>type</tag-key> <!--10-->
+                <tag-value>hz-nodes</tag-value> <!--11-->
+            </aws>
+        </join>
+    </simplified>
+</hazelcast-datastore>
+----
+<1> Specifies that the <<Simplified Configuration>> will be used.
+<2> The port which Hazelcast will use to communicate between cluster members.
+<3> Specifies that the cluster will be formed using AWS EC2 discovery.
+<4> The maximum amount of time (in seconds) Hazelcast will wait while trying to connect to a well known member before giving up. +
+    Default: `5`
+<5> The access key of the EC2 account being used.
+<6> The secret key of the EC2 account being used.
+<7> The region where Hazelcast members are running.
+    This setting is mutually exclusive with the `host-header` setting. +
+    Default: `us-east-1`
+<8> The URL that is the entry point for a web service.
+    This setting is mutually exclusive with the `region` setting. +
+    Default: `ec2.amazonaws.com`
+<9> A filter on EC2 Instances using a security group.
+<10> A filter on EC2 Instances using a tag key.
+<11> A filter on EC2 Instances using a tag value.
+
+===== Kubernetes Cluster
+
+This configuration will define a cluster using Kubernetes discovery.
+
+Not all configuration properties are shown in this example.
+For details on how the discovery mechanism works and what other configuration properties exist, see https://github.com/hazelcast/hazelcast-kubernetes[Hazelcast Kubernetes discovery plugin documentation].
+
+[source,xml]
+.hazelcast-datastore.cfg.xml
+----
+<hazelcast-datastore xmlns="http://docs.openrepose.org/repose/hazelcast-datastore/v1.0">
+    <simplified> <!--1-->
+        <port>5701</port> <!--2-->
+        <join>
+            <kubernetes> <!--3-->
+                <namespace>MY-KUBERNETES-NAMESPACE</namespace> <!--4-->
+                <service-name>MY-SERVICE-NAME</service-name> <!--5-->
+                <service-label-name>MY-SERVICE-LABEL-NAME</service-label-name> <!--6-->
+                <service-label-value>MY-SERVICE-LABEL-VALUE</service-label-value> <!--7-->
+            </kubernetes>
+        </join>
+    </simplified>
+</hazelcast-datastore>
+----
+<1> Specifies that the <<Simplified Configuration>> will be used.
+<2> The port which Hazelcast will use to communicate between cluster members.
+<3> Specifies that the cluster will be formed using Kubernetes discovery.
+<4> The Kubernetes namespace where Hazelcast is running.
+    If not specified, the value is taken from the `KUBERNETES_NAMESPACE` or `OPENSHIFT_BUILD_NAMESPACE`  environment variable.
+<5> The name of the service to scan for pods.
+    If not specified, then all pods in the namespace are scanned.
+<6> A filter on pods using a service label name.
+<7> A filter on pods using a service label value.
+
+==== Complete Configuration
+
+This configuration will delegate to an external Hazelcast XML configuration file.
+
+The external XML configuration must validate against the https://www.hazelcast.com/schema/config/hazelcast-config-3.12.xsd[Hazelcast XML configuration schema].
+For details on how to author an external configuration, see https://docs.hazelcast.org/docs/3.12/manual/html-single/index.html#composing-declarative-configuration[Hazelcast declarative configuration].
+
+[source,xml]
+.hazelcast-datastore.cfg.xml
+----
+<hazelcast-datastore xmlns="http://docs.openrepose.org/repose/hazelcast-datastore/v1.0">
+    <complete href="hazelcast.xml"/> <!--1--> <!--2-->
+</hazelcast-datastore>
+----
+<1> Specifies that the <<Complete Configuration>> will be used.
+<2> A direct URL reference to a Hazelcast XML configuration.
+    If the URL is not resolvable, this value will be resolved as a file relative to the configuration directory.
 
 === Security
-The distributed datastore provides the option to encrypt communication between nodes using HTTP over SSL/TLS.
-As mentioned above, this is achieved by configuring a keystore in the `dist-datastore.cfg.xml` file.
-This feature can additionally provide client authentication during the SSL handshake.
-By both validating the client credentials and encrypting communication with the client, data in the datastore is made more secure.
 
-Assuming all *Repose* nodes are configured identically, the most straight-forward way to make use of this security would be to use a single unique keystore as both the keystore and the truststore.
-This can be achieved by not explicitly configuring a separate truststore.
-Since each datastore node will have a copy of the keystore, each node will trust every other node.
+The best approach to secure a Hazelcast cluster would be to have the cluster communicate exclusively over a secured network.
+Unfortunately, Hazelcast IMDG Open Source https://docs.hazelcast.org/docs/3.12/manual/html-single/index.html#tlsssl[does not support TLS/SSL for communication between nodes] at this time.
 
-Client authentication in SSL/TLS can act as as alternate form of client validation, performing a task similar to that of an access control list.
-As such, the usage of client authentication may replace the need to configure the allowed-hosts section of the `dist-datastore.cfg.xml` file.
+By default, Hazelcast will use ephemeral ports for outbound connections.
+If a firewall is in use, it must not prevent Hazelcast from making these connections.
+See https://docs.hazelcast.org/docs/3.12/manual/html-single/index.html#outbound-ports[Hazelcast's outbound port documentation] on how to configure Hazelcast to work alongside a firewall.
 
-The distributed datastore will use a connection pool from the <<http-client.adoc#,HTTP Client Service>> to communicate across nodes.
-If a connection pool is not configured, the default will be used.
-In nearly all cases, the connection pool being used should not be the default, but rather, a connection pool should be configured to use <<../recipes/client-authentication.adoc#, SSL/TLS Client Authentication>> configured in the distributed datastore.
-That is, the distributed datastore may be thought of as a server, and clients in the connection pool as clients.
-Both the client and server need to be aware of how to communicate, and so they both must be configured with the appropriate secrets.
+=== Consistency and Availability
 
-For managing keystores and truststores, the aptly named keytool can be used.
+Hazelcast supports a number of strategies for ensuring that data remains consistent, however the <<Hazelcast Datastore>> prioritizes availability over consistency.
+As a result, consistency cannot be guaranteed by this datastore.
+However, replication can be used as an effective way to improve consistency.
+While Hazelcast does offer a consistent subsystem, it is not used by this datastore.
 
-For more details, see:
+For more information, see https://docs.hazelcast.org/docs/3.12/manual/html-single/index.html#consistency-and-replication-model[Hazelcast's consistencty and replication model documentation].
 
-* http://www.eclipse.org/jetty/documentation/current/configuring-ssl.html#loading-keys-and-certificates[Loading Keys and Certificates]
-* https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html[Keytool Documentation]
-* https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeystoreImplementation[Keystore Specification]
+=== Metrics
 
-=== Distribution
-The distributed datastore shares key-space with all of the enabled cluster nodes.
-Key-space is determined by the maximum value of the distributed datastore's hashing algorithm.
-Currently the only supported hashing algorithm is MD5.
-
-=== Key-space Addressing
-Addressing a key is done by first normalizing all of the participating cluster nodes.
-This is done by an ascending sort.
-After the participating nodes have had their order normalized, the key-space is sliced up by dividing the maximum possible number of addresses by the total number of participating nodes.
-The given key is then reduced to its numeric representation and a cluster node is looked up by performing a modulus such that (`<key-value> % <number-of-cluster-members>`).
-
-=== Key-space Encoding
-By default, the internal *Repose* client implementation for the distributed datastore will obscure key-space by storing only the MD5 hash value of a given key and not the key's actual value.
-This is important to note since external gets against the distributed datastore must be aware of this functionality.
-The MD5 hash is represented as a 128bit UUID.
-
-Example Key Addressing
-
-* String Key: `object-key`
-* MD5 Hash: `cd26615a30a3cdce02e3a834fed5711a`
-* UUID: `cecda330-5a61-26cd-1a71-d5fe34a8e302`
-
-If an external application makes a request for data stored by *Repose* components, it must first hash the key using MD5 before sending the request such that...
-
-`GET /powerapi/dist-datastore/objects/object-key`
-
-becomes
-
-`GET /powerapi/dist-datastore/objects/cecda330-5a61-26cd-1a71-d5fe34a8e302`
-
-Obscuring key-space is not a function of the distributed datastore service.
-This functionality is only present in the internally consumed java cache client.
-If an external application puts an object into the distributed datastore, the object will be stored under the value of the key given.
-
-=== Remote Management
-The repose distributed datastore component is a service that hosts a simple RESTful API that can be contacted to perform remote object store operations.
-These operations are defined below.
-
-`GET /powerapi/dist-datastore/objects/<object-key> HTTP/1.1`
-
-Gets a stored object from the datastore by its key.
-
-`PUT /powerapi/dist-datastore/objects/<object-key> HTTP/1.1`
-
-Puts an object into the datastore by its key.
-
-`DELETE /powerapi/dist-datastore/objects/<object-key> HTTP/1.1`
-
-Deletes an object from the datastore by its key.
-
-`PATCH /powerapi/dist-datastore/objects/<object-key> HTTP/1.1`
-
-Patches an object in the datastore by its key.
-If the object does not exist, then a new one created.
-Return the modified/new object.
-The object must be Patchable.
-
-=== Remote Fail-Over
-In the event that a node with in a datastore cluster falls off line or is unable to respond to requests, it is removed from the node's cluster membership for a period of time.
-During this time, the online node will then re-address its key-space in order to continue operation.
-After certain periods of rest, the node may attempt to introduce the damaged cluster member into its cluster membership.
-A damaged cluster member must go through several validation passes where the member is introduced back into the addressing algorithm before it can be considered online.
-In order to keep healthy nodes from attempting to route requests to the damaged node, a participating node may tell it's destination that the destination may not route the request and must handle the value locally.
-
-=== Performance
-The *Repose* node will open sockets each time it has to communicate with other *Repose* nodes to share information.
-During times of load this can affect performance and data integrity as when one node cannot communicate with another it will mark that node damaged and store/create information locally.
-One way this can happen is if the user running repose hits their open file limit.
-Luckily this can be mitigated by increasing the open file limit for the user running *Repose*.
-
-=== JMX Reporting
-Currently *Repose* instances do not report Distributed Datastore information to JMX.
-This is something that has been done in the past, but an upgrade to the metrics library used has made this capability incompatible with the current codebase.
+Hazelcast can be configured to report metrics via JMX if desired, but it does so using its own mechanisms, not the <<metrics.adoc#,Metrics Service>>.
+For more information on JMX metrics, see https://docs.hazelcast.org/docs/3.12/manual/html-single/index.html#jmx-api-per-member[Hazelcast's JMX documentation].

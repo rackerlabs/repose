@@ -114,9 +114,9 @@ A sample of the 11th attempt output is below.
 This is real handy if you have a single *Repose* node, however if you scale your *Repose* cluster horizontally, then you will need to configure for Distributed Rate Limiting for it to behave as you would expect it to.
 
 == Distributed Rate Limiting
-If no <<../services/datastores.adoc#,Distributed Datastores>> are available, then rate limiting will use the local datastore and each node will allow the configured rate through.
+If no <<../services/datastores.adoc#,distributed datastores>> are available, then rate limiting will use the local datastore and each node will allow the configured rate through.
 This is not typically the desired behavior and is easily remedied.
-By default, rate limiting will be distributed using the standard <<../services/datastores.adoc#_distributed_datastore,Distributed Datastore>> (`hash-ring`) if it is available.
-However, the <<../services/datastores.adoc#_distributed_datastore,Distributed Datastore>> must be enabled in the <<../architecture/system-model.adoc#,System Model>>.
+By default, rate limiting will be distributed using the <<../services/datastores.adoc#_hazelcast_datastore,Hazelcast Datastore>> if it is available.
+However, the <<../services/datastores.adoc#_hazelcast_datastore,Hazelcast Datastore>> must be enabled in the <<../architecture/system-model.adoc#,System Model>>.
 Furthermore, any of the datastore types can be used to store rate limiting information.
-The <<../services/datastores.adoc#,Distributed Datastore>> documentation has more information on how to properly enable and configure them.
+The <<../services/datastores.adoc#,Datastore Service>> documentation has more information on how to properly enable and configure them.
