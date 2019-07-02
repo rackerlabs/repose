@@ -128,7 +128,7 @@ task('release', description: 'Release the project and publish to all repos.', gr
 
 allprojects {
     group = 'org.openrepose'
-    def baseVersion = '9.0.1.0'
+    def baseVersion = '9.1.0.0'
     version = project.hasProperty('release') ? baseVersion : "$baseVersion~SNAPSHOT"
 
     apply plugin: 'idea'
