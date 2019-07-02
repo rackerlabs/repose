@@ -24,9 +24,9 @@ import javax.servlet.{ServletContext, FilterConfig}
 
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{Matchers, FunSpec}
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class CompressingFilterFactoryTest extends FunSpec with Matchers with MockitoSugar {

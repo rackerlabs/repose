@@ -59,8 +59,8 @@ import org.openrepose.filters.keystonev2.KeystoneV2Common._
 import org.openrepose.filters.keystonev2.KeystoneV2TestCommon.createValidToken
 import org.openrepose.filters.keystonev2.config.{KeystoneV2AuthenticationConfig, ServiceEndpointType}
 import org.openrepose.nodeservice.atomfeed.AtomFeedService
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec}
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 import play.api.libs.json.Json

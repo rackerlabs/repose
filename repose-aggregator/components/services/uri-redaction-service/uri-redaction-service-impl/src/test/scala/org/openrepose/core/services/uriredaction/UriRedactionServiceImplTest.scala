@@ -29,8 +29,8 @@ import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.uriredaction.UriRedactionServiceImpl._
 import org.openrepose.core.services.uriredaction.config.UriRedactionConfig
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 import scala.collection.JavaConverters._

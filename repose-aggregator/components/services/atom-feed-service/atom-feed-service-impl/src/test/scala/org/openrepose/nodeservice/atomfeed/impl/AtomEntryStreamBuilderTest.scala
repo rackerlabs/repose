@@ -35,8 +35,8 @@ import org.mockito.{AdditionalAnswers, ArgumentCaptor}
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.nodeservice.atomfeed.impl.auth.AuthenticationRequestContextImpl
 import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext, AuthenticationRequestException, FeedReadRequest}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
 
 import scala.concurrent.TimeoutException

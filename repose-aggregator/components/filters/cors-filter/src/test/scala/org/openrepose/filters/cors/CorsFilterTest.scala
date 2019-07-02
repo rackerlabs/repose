@@ -32,8 +32,8 @@ import org.openrepose.commons.utils.http.{CommonHttpHeader, CorsHttpHeader}
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.filters.cors.config.Origins.Origin
 import org.openrepose.filters.cors.config._
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 

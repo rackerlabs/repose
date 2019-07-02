@@ -24,7 +24,7 @@ import java.net.URL
 import org.junit.runner.RunWith
 import org.openrepose.commons.test.ConfigurationTest
 import org.openrepose.core.service.opentracing.config.ObjectFactory
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 
 import scala.xml.SAXParseException
 

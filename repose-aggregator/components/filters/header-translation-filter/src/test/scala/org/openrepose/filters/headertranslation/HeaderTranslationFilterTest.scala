@@ -28,8 +28,8 @@ import org.mockito.Matchers.any
 import org.mockito.Mockito.{never, reset, verify}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.headertranslation.config.{Header, HeaderTranslationType}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
 

@@ -30,8 +30,8 @@ import org.apache.http.{HttpHost, HttpRequest, HttpResponse}
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, eq => isEq}
 import org.mockito.Mockito.{verify, when}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])

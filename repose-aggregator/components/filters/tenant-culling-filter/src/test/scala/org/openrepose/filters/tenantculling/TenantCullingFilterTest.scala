@@ -30,8 +30,8 @@ import org.openrepose.commons.utils.http.PowerApiHeader.RELEVANT_ROLES
 import org.openrepose.commons.utils.json.JsonHeaderHelper
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.tenantculling.TenantCullingFilter.TenantToRolesMap
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 

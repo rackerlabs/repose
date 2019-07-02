@@ -27,7 +27,7 @@ import javax.servlet.ServletInputStream
 import javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.MockHttpServletRequest
 

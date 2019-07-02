@@ -23,7 +23,7 @@ import java.io.InputStream
 import java.net.URL
 
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 import org.xml.sax.SAXParseException
 

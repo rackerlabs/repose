@@ -25,7 +25,7 @@ import java.util
 import org.junit.runner.RunWith
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.logging.TracingHeaderHelper
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 

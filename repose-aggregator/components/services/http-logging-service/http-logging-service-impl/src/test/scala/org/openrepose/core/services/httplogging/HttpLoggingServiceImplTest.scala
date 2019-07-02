@@ -29,8 +29,8 @@ import org.mockito.Mockito.{verify, when}
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.httplogging.HttpLoggingServiceImplTest._
 import org.openrepose.core.services.httplogging.config.HttpLoggingConfig
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.slf4j.Logger
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}

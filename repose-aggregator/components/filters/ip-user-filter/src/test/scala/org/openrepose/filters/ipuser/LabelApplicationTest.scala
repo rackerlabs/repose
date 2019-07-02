@@ -21,7 +21,7 @@ package org.openrepose.filters.ipuser
 
 import org.junit.runner.RunWith
 import org.scalatest.{FunSpec, Matchers}
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class LabelApplicationTest extends FunSpec with Matchers {

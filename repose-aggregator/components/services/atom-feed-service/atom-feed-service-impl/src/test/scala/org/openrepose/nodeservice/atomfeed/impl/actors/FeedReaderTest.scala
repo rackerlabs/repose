@@ -43,8 +43,8 @@ import org.openrepose.nodeservice.atomfeed.impl.actors.FeedReader.{CancelSchedul
 import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier._
 import org.openrepose.nodeservice.atomfeed.impl.actors.NotifierManager.{BindFeedReader, Notify}
 import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext, FeedReadRequest}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSuiteLike}
 import org.slf4j.MDC
 

@@ -22,8 +22,8 @@ package org.openrepose.commons.test
 import org.hamcrest.Description
 import org.junit.runner.RunWith
 import org.mockito.Mockito
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])

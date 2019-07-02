@@ -43,8 +43,8 @@ import org.openrepose.core.services.jmx.ConfigurationInformation
 import org.openrepose.core.systemmodel.config.{SystemModel, TracingHeaderConfig, Filter => FilterConfig}
 import org.openrepose.powerfilter.ReposeFilterLoader.{FilterContext, FilterContextList, FilterContextRegistrar}
 import org.openrepose.powerfilter.ReposeFilterLoaderTest._
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers, OptionValues}
 import org.springframework.context.ApplicationContext
 

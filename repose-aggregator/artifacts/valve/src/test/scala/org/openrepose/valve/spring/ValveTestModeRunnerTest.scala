@@ -30,7 +30,7 @@ import org.openrepose.core.spring.CoreSpringProvider
 import org.openrepose.core.systemmodel.config.SystemModel
 import org.openrepose.nodeservice.test.FakeContainerConfigurationService
 import org.openrepose.valve.jmx.ValvePortMXBean
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 import org.slf4j.LoggerFactory
 

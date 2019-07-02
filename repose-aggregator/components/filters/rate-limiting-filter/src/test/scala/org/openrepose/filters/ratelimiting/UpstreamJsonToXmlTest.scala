@@ -23,7 +23,7 @@ import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets
 
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{FunSpec, Matchers}
 
 import scala.xml.{Elem, XML}

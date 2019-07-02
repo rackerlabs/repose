@@ -23,7 +23,7 @@ import javax.management.ObjectName
 
 import org.junit.runner.RunWith
 import org.scalatest.{FunSpec, Matchers}
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class JmxObjectNameFactoryTest extends FunSpec with Matchers {
