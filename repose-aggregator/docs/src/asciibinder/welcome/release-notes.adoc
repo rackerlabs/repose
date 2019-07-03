@@ -1,8 +1,11 @@
 = Release Notes
 
-== In Progress
+== Upcoming Release 9.1.0.0 (2019-??-??)
 * [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7954[REP-7954] - Updated dependencies:
 ** Jackson Databind: 2.9.9 → 2.9.9.3
+
+=== Integrators
+* [.breaking-tag]#Breaking Change# | https://repose.atlassian.net/browse/REP-6825[REP-6825] - Scala and all dependent libraries upgraded to 2.12 versions.
 
 == 9.0.1.0 (2019-06-24)
 * [.new-tag]#New# | https://repose.atlassian.net/browse/REP-7786[REP-7786] - Added the <<../services/http-logging.adoc#, HTTP Logging Service>>.
