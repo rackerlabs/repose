@@ -21,21 +21,9 @@
 package org.openrepose.filters.uristripper
 
 import com.typesafe.scalalogging.StrictLogging
-import javax.xml.transform.ErrorListener
-import javax.xml.transform.TransformerException
+import javax.xml.transform.{ErrorListener, TransformerException}
+import org.openrepose.filters.uristripper.LogErrorListener._
 import org.xml.sax.SAXParseException
-
-
-private object LogErrorListener {
-  val trace   = "^\\[TRACE\\]\\s+(.*)".r
-  val debug   = "^\\[DEBUG\\]\\s+(.*)".r
-  val info    = "^\\[INFO\\]\\s+(.*)".r
-  val warning = "^\\[WARNING\\]\\s+(.*)".r
-  val error   = "^\\[ERROR\\]\\s+(.*)".r
-  val se      = "^\\[SE\\]\\s+(.*)".r
-}
-
-import LogErrorListener._
 
 class LogErrorListener extends ErrorListener with StrictLogging {
 
@@ -61,4 +49,13 @@ class LogErrorListener extends ErrorListener with StrictLogging {
   override def warning (exception : TransformerException) : Unit =
     logException(exception, logger.warn(exception.getMessage()))
 
+}
+
+private object LogErrorListener {
+  val trace   = "^\\[TRACE\\]\\s+(.*)".r
+  val debug   = "^\\[DEBUG\\]\\s+(.*)".r
+  val info    = "^\\[INFO\\]\\s+(.*)".r
+  val warning = "^\\[WARNING\\]\\s+(.*)".r
+  val error   = "^\\[ERROR\\]\\s+(.*)".r
+  val se      = "^\\[SE\\]\\s+(.*)".r
 }

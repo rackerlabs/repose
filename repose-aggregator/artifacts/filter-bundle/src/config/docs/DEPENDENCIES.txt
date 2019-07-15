@@ -26,7 +26,6 @@ com.google.guava                                    guava                       
 commons-codec                                       commons-codec                   1.10              Apache License Version 2.0  http://commons.apache.org/proper/commons-codec/
 commons-io                                          commons-io                      2.4               Apache License Version 2.0  http://commons.apache.org/proper/commons-io/
 commons-pool                                        commons-pool                    1.6               Apache License Version 2.0  http://commons.apache.org/proper/commons-pool/
-com.rackspace.cloud.api                             wadl-tools_2.11                 1.0.32            Apache License Version 2.0  https://github.com/rackerlabs/wadl-tools/blob/wadl-tools-aggregator-1.0.32/LICENSE
 com.typesafe.akka                                   akka-actor_2.12                 2.5.23            Apache License Version 2.0  https://github.com/akka/akka
 com.typesafe                                        config                          1.3.0             Apache License Version 2.0  https://github.com/typesafehub/config
 com.typesafe.play                                   play-json_2.12                  2.7.4             Apache License Version 2.0  https://github.com/playframework/playframework
