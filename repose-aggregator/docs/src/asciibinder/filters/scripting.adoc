@@ -141,3 +141,13 @@ filterChain.doFilter(request, response) <!--8-->
 <7> Sets the modified query string and request URI on the request object.
 <8> Passes the modified request and the response on to the next component in the filter chain.
 <9> Terminates the `CDATA` block and the script.
+
+[WARNING]
+====
+Python support is provided via Jython which contains a dependency on Apache commons-compress.
+This dependency has a known vulnerability when reading zip files, and so it recommended not to read any zip files from the user.
+
+More Details:
+https://nvd.nist.gov/vuln/detail/CVE-2018-1324
+https://nvd.nist.gov/vuln/detail/CVE-2018-11771
+====
