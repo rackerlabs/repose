@@ -45,11 +45,13 @@ stage("Performance Test") {
                                     string(name: extraOptionsParam, value: params.extraOptions)])
                 }
             } finally {
-                build(job: cleanupJenkinsJob,
-                      quietPeriod: 0,
-                      parameters: [
-                                string(name: performanceTestParam, value: perfTest),
-                                string(name: extraOptionsParam, value: params.extraOptions)])
+                retry(3) {
+                    build(job: cleanupJenkinsJob,
+                          quietPeriod: random.nextInt(tenMinutesInSeconds),
+                          parameters: [
+                                    string(name: performanceTestParam, value: perfTest),
+                                    string(name: extraOptionsParam, value: params.extraOptions)])
+                }
             }
         }
     }
