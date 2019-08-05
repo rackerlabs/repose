@@ -25,7 +25,7 @@ import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.keystonev2.AbstractKeystoneV2Filter.Reject
 import org.openrepose.filters.keystonev2.KeystoneV2Common._
 import org.openrepose.filters.keystonev2.config._
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterEach, FunSpec, PartialFunctionValues, TryValues}
 import org.springframework.mock.web.MockHttpServletRequest
 

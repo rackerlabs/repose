@@ -24,7 +24,7 @@ import java.net.URL
 import org.junit.runner.RunWith
 import org.openrepose.commons.test.ConfigurationTest
 import org.openrepose.core.spring.{CoreSpringProvider, ReposeSpringProperties}
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.xml.sax.SAXParseException
 
 @RunWith(classOf[JUnitRunner])

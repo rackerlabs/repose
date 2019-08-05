@@ -5,9 +5,9 @@ dependencies {
     compile project(':repose-aggregator:components:services:http-client-service:http-client-service-api')
     compile "org.openrepose:http-delegation"
     compile "org.scala-lang:scala-library"
-    compile "org.scala-lang.modules:scala-xml_2.11"
+    compile "org.scala-lang.modules:scala-xml_$scalaMajDotMin"
     compile "org.scala-lang:scala-reflect" // Forces the version used by scala-logging.
-    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
+    compile "com.typesafe.scala-logging:scala-logging_$scalaMajDotMin"
     compile "org.springframework:spring-web"
     compile "org.apache.httpcomponents:httpclient"
     compile "org.apache.httpcomponents:httpcore"

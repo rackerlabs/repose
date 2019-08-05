@@ -73,6 +73,7 @@ If your API is minimal or your just getting started with it, then you might find
 It uses a very simple Domain Specific Language (DSL) that is similar to what other tools use for this basic mechanism.
 Another powerful, but easy to configure tool is the <<../filters/regex-rbac.adoc#,RegEx RBAC filter>>.
 This filter uses a similar configuration, but the resources are defined with http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html[Java Regular Expressions].
+If you have an OpenAPI document, try using the <<../filters/openapi-validator.adoc#,OpenAPI Validation Filter>>
 If on the other had your API is large and/or your authorizations are complex, then you will need the heavy lifting of the <<../filters/api-validator.adoc#,API Validator filter>> which uses a WADL to fully define the API.
 As with anything, the more bells and whistles you need, the more complex the configuration will be.
 
@@ -126,7 +127,23 @@ This filter provides an RBAC mechanism for API's that don't conveniently fit int
 
 Please refer to the <<../filters/regex-rbac.adoc#,RegEx RBAC filter>> documentation for more information about the available configuration options.
 
-==== 3. API Validator filter
+==== 3. OpenAPI Validator filter
+Role based access control is provided by a custom extension to the OpenApi specification.
+
+[source,yaml]
+.your-api.yaml
+----
+paths:
+  /pets:
+    get:
+      summary: List all pets
+      operationId: listPets
+      x-rax-roles: ["user", "admin"]
+----
+
+Please refer to the <<../filters/openapi-validator.adoc#,OpenApi Validator filter>> documentation for more information about the available configuration options.
+
+==== 4. API Validator filter
 If your API is complex or you simply need or are already using some of the extra features available in the API Validator filter, then this is the choice for you.
 
 ===== 1. Enable RAX-Roles

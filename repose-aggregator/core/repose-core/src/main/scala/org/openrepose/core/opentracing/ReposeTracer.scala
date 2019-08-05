@@ -19,7 +19,7 @@
  */
 package org.openrepose.core.opentracing
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import io.opentracing.noop.{NoopTracer, NoopTracerFactory}
 import io.opentracing.propagation.Format
 import io.opentracing.util.GlobalTracer

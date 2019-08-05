@@ -19,7 +19,7 @@
  */
 package org.openrepose.core.services.httplogging
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
 import org.jtwig.JtwigModel

@@ -26,6 +26,9 @@ import org.rackspace.deproxy.MessageChain
 import scaffold.category.Filters
 import spock.lang.Unroll
 
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
+import static javax.servlet.http.HttpServletResponse.SC_OK
+
 /**
  * Verifies the behavior of the OpenAPI Validator Filter.
  */
@@ -148,6 +151,117 @@ class OpenApiValidationTest extends ReposeValveTest {
         [:]                            || 400                    | 'reject a request without the header'
         ['x-int-header': 'not an int'] || 400                    | 'reject a request with the header with an invalid value'
         ['x-int-header': '32']         || 200                    | 'pass a request with the header with a valid value'
+    }
+
+    @Unroll
+    def "Should receive #expectedResponseStatus when the rax-role #raxRole is present on a #method to #path)"() {
+        when:
+        MessageChain messageChain1 = deproxy.makeRequest(
+            method: 'GET',
+            url: "$reposeEndpoint/v3/validations/rax-roles/$path",
+            headers: ['x-rax-roles': raxRole]
+        )
+
+        then:
+        messageChain1.receivedResponse.code as Integer == expectedResponseStatus
+        verifyHandlings(messageChain1)
+
+        when:
+        MessageChain messageChain2 = deproxy.makeRequest(
+            method: 'GET',
+            url: "$reposeEndpoint/v3/validations/rax-roles/$path",
+            headers: ['x-rax-roles': "Bogus, $raxRole, Stuff"]
+        )
+
+        then:
+        messageChain2.receivedResponse.code as Integer == expectedResponseStatus
+        verifyHandlings(messageChain2)
+
+        where:
+        path      | method   | raxRole          || expectedResponseStatus
+        // Multi
+        'multi/a' | 'GET'    | 'admin'          || SC_OK
+        'multi/a' | 'PUT'    | 'admin'          || SC_OK
+        'multi/a' | 'POST'   | 'admin'          || SC_OK
+        'multi/a' | 'DELETE' | 'admin'          || SC_OK
+        'multi/a' | 'GET'    | 'roleGET'        || SC_OK
+        'multi/a' | 'PUT'    | 'rolePUT'        || SC_OK
+        'multi/a' | 'POST'   | 'rolePOST'       || SC_OK
+        'multi/a' | 'DELETE' | 'roleDELETE'     || SC_OK
+        'multi/a' | 'GET'    | 'nimda'          || SC_BAD_REQUEST
+        'multi/a' | 'PUT'    | 'nimda'          || SC_BAD_REQUEST
+        'multi/a' | 'POST'   | 'nimda'          || SC_BAD_REQUEST
+        'multi/a' | 'DELETE' | 'nimda'          || SC_BAD_REQUEST
+        'multi/a' | 'GET'    | 'roleBAD'        || SC_BAD_REQUEST
+        'multi/a' | 'PUT'    | 'roleBAD'        || SC_BAD_REQUEST
+        'multi/a' | 'POST'   | 'roleBAD'        || SC_BAD_REQUEST
+        'multi/a' | 'DELETE' | 'roleBAD'        || SC_BAD_REQUEST
+        'multi/a' | 'GET'    | 'roleGOOD'       || SC_BAD_REQUEST
+        'multi/a' | 'PUT'    | 'roleGOOD'       || SC_BAD_REQUEST
+        'multi/a' | 'POST'   | 'roleGOOD'       || SC_BAD_REQUEST
+        'multi/a' | 'DELETE' | 'roleGOOD'       || SC_BAD_REQUEST
+        'multi/b' | 'GET'    | 'nimda'          || SC_OK
+        'multi/b' | 'PUT'    | 'nimda'          || SC_OK
+        'multi/b' | 'POST'   | 'nimda'          || SC_OK
+        'multi/b' | 'DELETE' | 'nimda'          || SC_OK
+        'multi/b' | 'GET'    | 'roleGOOD'       || SC_OK
+        'multi/b' | 'PUT'    | 'roleGOOD'       || SC_OK
+        'multi/b' | 'POST'   | 'roleGOOD'       || SC_OK
+        'multi/b' | 'DELETE' | 'roleGOOD'       || SC_OK
+        'multi/b' | 'GET'    | 'admin'          || SC_BAD_REQUEST
+        'multi/b' | 'PUT'    | 'admin'          || SC_BAD_REQUEST
+        'multi/b' | 'POST'   | 'admin'          || SC_BAD_REQUEST
+        'multi/b' | 'DELETE' | 'admin'          || SC_BAD_REQUEST
+        'multi/b' | 'GET'    | 'roleGET'        || SC_BAD_REQUEST
+        'multi/b' | 'PUT'    | 'rolePUT'        || SC_BAD_REQUEST
+        'multi/b' | 'POST'   | 'rolePOST'       || SC_BAD_REQUEST
+        'multi/b' | 'DELETE' | 'roleDELETE'     || SC_BAD_REQUEST
+        // Dash
+        'dash/a'  | 'GET'    | 'This-Is-A-Role' || SC_OK
+        'dash/a'  | 'GET'    | 'role-GET'       || SC_OK
+        'dash/a'  | 'PUT'    | 'role-PUT'       || SC_OK
+        'dash/a'  | 'POST'   | 'role-POST'      || SC_OK
+        'dash/a'  | 'DELETE' | 'role-DELETE'    || SC_OK
+        'dash/a'  | 'GET'    | 'role-BAD'       || SC_BAD_REQUEST
+        'dash/a'  | 'PUT'    | 'role-BAD'       || SC_BAD_REQUEST
+        'dash/a'  | 'POST'   | 'role-BAD'       || SC_BAD_REQUEST
+        'dash/a'  | 'DELETE' | 'role-BAD'       || SC_BAD_REQUEST
+        'dash/a'  | 'GET'    | 'role-GOOD'      || SC_BAD_REQUEST
+        'dash/a'  | 'PUT'    | 'role-GOOD'      || SC_BAD_REQUEST
+        'dash/a'  | 'POST'   | 'role-GOOD'      || SC_BAD_REQUEST
+        'dash/a'  | 'DELETE' | 'role-GOOD'      || SC_BAD_REQUEST
+        'dash/b'  | 'GET'    | 'role-GOOD'      || SC_OK
+        'dash/b'  | 'PUT'    | 'role-GOOD'      || SC_OK
+        'dash/b'  | 'POST'   | 'role-GOOD'      || SC_OK
+        'dash/b'  | 'DELETE' | 'role-GOOD'      || SC_OK
+        'dash/b'  | 'GET'    | 'This-Is-A-Role' || SC_BAD_REQUEST
+        'dash/b'  | 'GET'    | 'role-GET'       || SC_BAD_REQUEST
+        'dash/b'  | 'PUT'    | 'role-PUT'       || SC_BAD_REQUEST
+        'dash/b'  | 'POST'   | 'role-POST'      || SC_BAD_REQUEST
+        'dash/b'  | 'DELETE' | 'role-DELETE'    || SC_BAD_REQUEST
+        // Space
+        'space/a' | 'GET'    | 'This Is A Role' || SC_OK
+        'space/a' | 'GET'    | 'role GET'       || SC_OK
+        'space/a' | 'PUT'    | 'role PUT'       || SC_OK
+        'space/a' | 'POST'   | 'role POST'      || SC_OK
+        'space/a' | 'DELETE' | 'role DELETE'    || SC_OK
+        'space/a' | 'GET'    | 'role BAD'       || SC_BAD_REQUEST
+        'space/a' | 'PUT'    | 'role BAD'       || SC_BAD_REQUEST
+        'space/a' | 'POST'   | 'role BAD'       || SC_BAD_REQUEST
+        'space/a' | 'DELETE' | 'role BAD'       || SC_BAD_REQUEST
+        'space/a' | 'GET'    | 'role GOOD'      || SC_BAD_REQUEST
+        'space/a' | 'PUT'    | 'role GOOD'      || SC_BAD_REQUEST
+        'space/a' | 'POST'   | 'role GOOD'      || SC_BAD_REQUEST
+        'space/a' | 'DELETE' | 'role GOOD'      || SC_BAD_REQUEST
+        'space/b' | 'GET'    | 'role GOOD'      || SC_OK
+        'space/b' | 'PUT'    | 'role GOOD'      || SC_OK
+        'space/b' | 'POST'   | 'role GOOD'      || SC_OK
+        'space/b' | 'DELETE' | 'role GOOD'      || SC_OK
+        'space/b' | 'GET'    | 'This Is A Role' || SC_BAD_REQUEST
+        'space/b' | 'GET'    | 'role GET'       || SC_BAD_REQUEST
+        'space/b' | 'PUT'    | 'role PUT'       || SC_BAD_REQUEST
+        'space/b' | 'POST'   | 'role POST'      || SC_BAD_REQUEST
+        'space/b' | 'DELETE' | 'role DELETE'    || SC_BAD_REQUEST
     }
 
     @Unroll

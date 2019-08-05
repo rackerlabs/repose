@@ -48,8 +48,8 @@ import org.openrepose.core.systemmodel.config.{Filter => FilterConfig}
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService
 import org.openrepose.nodeservice.response.ResponseHeaderService
 import org.openrepose.powerfilter.ReposeFilterLoader.{FilterContext, FilterContextList, FilterContextRegistrar}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.slf4j.MDC
 import org.springframework.context.support.AbstractApplicationContext

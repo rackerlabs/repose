@@ -24,7 +24,7 @@ import java.net.URI
 
 import com.atlassian.oai.validator.OpenApiInteractionValidator
 import com.atlassian.oai.validator.report.ValidationReport
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -105,6 +105,7 @@ class OpenApiValidatorFilter @Inject()(@Value(ReposeSpringProperties.CORE.CONFIG
 
     validator = OpenApiInteractionValidator
       .createFor(resolveHref(newConfiguration.getHref))
+      .withCustomRequestValidation(new RaxRolesValidator())
       .build()
 
     Thread.currentThread.setContextClassLoader(contextClassLoader)
@@ -172,6 +173,7 @@ object OpenApiValidatorFilter {
     "validation.request.accept.invalid" -> HttpServletResponse.SC_BAD_REQUEST,
     "validation.request.accept.notAllowed" -> HttpServletResponse.SC_NOT_ACCEPTABLE,
     "validation.schema.invalidJson" -> HttpServletResponse.SC_BAD_REQUEST,
+    RaxRolesValidator.RoleValidationMessageKey-> HttpServletResponse.SC_UNAUTHORIZED,
     "validation.schema.unknownError" -> HttpServletResponse.SC_INTERNAL_SERVER_ERROR
   )
 

@@ -27,8 +27,8 @@ import org.mockito.Matchers.anyString
 import org.mockito.Mockito.{never, verify, when}
 import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])

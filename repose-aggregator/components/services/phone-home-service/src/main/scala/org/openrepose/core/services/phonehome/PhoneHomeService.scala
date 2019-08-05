@@ -22,7 +22,7 @@ package org.openrepose.core.services.phonehome
 import java.text.SimpleDateFormat
 import java.util.{Date, TimeZone, UUID}
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import io.opentracing.tag.Tags
 import io.opentracing.{Scope, Tracer}
 import javax.annotation.PostConstruct

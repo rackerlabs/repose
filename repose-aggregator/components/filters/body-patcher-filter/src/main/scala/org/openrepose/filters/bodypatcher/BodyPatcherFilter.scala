@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 
 import com.fasterxml.jackson.core.JsonParseException
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import gnieh.diffson.playJson._
 import org.openrepose.commons.utils.io.stream.ServletInputStreamWrapper
 import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHROUGH}

@@ -22,7 +22,7 @@ package org.openrepose.filters.tenantculling
 import java.io.IOException
 
 import com.fasterxml.jackson.core.JsonParseException
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}

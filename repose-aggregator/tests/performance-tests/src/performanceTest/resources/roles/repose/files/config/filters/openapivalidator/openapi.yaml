@@ -122,6 +122,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /roles:
+    get:
+      description: does nothing of value
+      operationId: checks roles
+      x-rax-roles: ["foo", "bar"]
+      responses:
+        '204':
+          description: yep still pointless
 components:
   schemas:
     Pet:

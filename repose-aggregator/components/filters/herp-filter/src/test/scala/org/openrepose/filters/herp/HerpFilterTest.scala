@@ -36,8 +36,8 @@ import org.openrepose.commons.utils.http.CommonHttpHeader
 import org.openrepose.commons.utils.http.CommonRequestAttributes.QUERY_PARAMS
 import org.openrepose.filters.herp.config.{FilterOut, HerpConfig, Match, Template}
 import org.scalatest._
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.springframework.http.HttpStatus._
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}
 

@@ -19,7 +19,7 @@
  */
 package org.openrepose.core.services.httpclient
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import javax.annotation.PreDestroy
 import javax.inject.Named
 import org.apache.http.impl.client.CloseableHttpClient

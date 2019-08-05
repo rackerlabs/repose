@@ -41,8 +41,8 @@ import org.openrepose.core.services.httplogging.HttpLoggingContext
 import org.openrepose.core.systemmodel.config.{Filter => FilterConfig}
 import org.openrepose.powerfilter.ReposeFilterLoader.FilterContext
 import org.scalatest.LoneElement._
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.slf4j.MDC
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}

@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpServletResponse._
 
 import com.rackspace.httpdelegation.HttpDelegationManager
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.codec.binary.Base64
 import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.servlet.filter.FilterAction

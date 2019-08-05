@@ -24,8 +24,8 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.junit.runner.RunWith
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.filters.splitheader.config.{HeaderList, SplitHeaderConfig}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest, MockHttpServletResponse}
 
@@ -174,7 +174,7 @@ class SplitHeaderFilterTest extends FunSpec with BeforeAndAfterEach with Mockito
       splitHeaderFilter.doWork(request, response, filterChain)
 
       val passedResponse = filterChain.getResponse.asInstanceOf[HttpServletResponse]
-      passedResponse.getHeaders(TestHeaderName).asScala.toSeq should contain only("one", "two", "three", "four")
+      passedResponse.getHeaders(TestHeaderName).asScala.toSeq should contain theSameElementsAs Seq("one", "two", "two", "four")
     }
 
     it("should split a request header regardless of casing") {

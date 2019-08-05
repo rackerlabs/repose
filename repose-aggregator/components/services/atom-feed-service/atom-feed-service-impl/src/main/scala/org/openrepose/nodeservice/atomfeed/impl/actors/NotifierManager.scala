@@ -20,7 +20,7 @@
 package org.openrepose.nodeservice.atomfeed.impl.actors
 
 import akka.actor.{Actor, ActorRef, PoisonPill}
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.openrepose.nodeservice.atomfeed.AtomFeedListener
 import org.openrepose.nodeservice.atomfeed.impl.actors.FeedReader.{CancelScheduledReading, ScheduleReading}
 import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier._

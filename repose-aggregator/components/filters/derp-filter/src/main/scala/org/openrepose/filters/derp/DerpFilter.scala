@@ -24,7 +24,7 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.ws.rs.core.MediaType
 
 import com.rackspace.httpdelegation._
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import scala.collection.JavaConverters._
 import scala.util.{Failure, Success}

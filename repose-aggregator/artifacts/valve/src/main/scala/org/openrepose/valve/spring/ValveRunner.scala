@@ -24,7 +24,7 @@ import java.net.{InetAddress, NetworkInterface, UnknownHostException}
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicReference
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import javax.inject.{Inject, Named}
 import javax.management.{InstanceNotFoundException, ObjectName}
 import org.openrepose.commons.config.manager.UpdateListener

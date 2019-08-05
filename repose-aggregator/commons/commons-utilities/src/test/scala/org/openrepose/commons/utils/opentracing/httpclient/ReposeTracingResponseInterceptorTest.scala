@@ -28,8 +28,8 @@ import org.junit.runner.RunWith
 import org.mockito.Matchers.{anyInt, eq => isEq}
 import org.mockito.Mockito.{never, verify, when}
 import org.openrepose.commons.utils.opentracing.httpclient.ReposeTracingInterceptorConstants.OpenTracingSpan
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])

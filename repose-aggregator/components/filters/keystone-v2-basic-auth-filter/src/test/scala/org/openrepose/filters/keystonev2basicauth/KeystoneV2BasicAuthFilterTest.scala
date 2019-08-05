@@ -21,7 +21,7 @@ package org.openrepose.filters.keystonev2basicauth
 
 import javax.servlet.{FilterChain, FilterConfig}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.test.appender.ListAppender
@@ -36,8 +36,8 @@ import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
 import org.openrepose.filters.keystonev2basicauth.config.KeystoneV2BasicAuthConfig
 import org.scalatest._
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.springframework.mock.web.MockHttpServletRequest
 
 import scala.collection.JavaConversions._

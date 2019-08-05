@@ -26,8 +26,8 @@ import org.junit.runner.RunWith
 import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.headeruser.config.{HeaderUserConfig, HttpHeader, HttpHeaderList}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockFilterChain, MockHttpServletRequest}
 

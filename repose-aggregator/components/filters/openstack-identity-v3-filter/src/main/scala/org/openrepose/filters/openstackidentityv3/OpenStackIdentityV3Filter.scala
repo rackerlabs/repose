@@ -24,7 +24,7 @@ import java.net.URL
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.servlet.filter.FilterAction
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper

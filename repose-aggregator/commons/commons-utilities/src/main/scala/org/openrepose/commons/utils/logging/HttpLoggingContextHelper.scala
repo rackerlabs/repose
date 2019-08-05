@@ -19,7 +19,7 @@
  */
 package org.openrepose.commons.utils.logging
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import javax.servlet.http.HttpServletRequest
 import org.openrepose.commons.utils.http.CommonRequestAttributes
 import org.openrepose.core.services.httplogging.HttpLoggingContext

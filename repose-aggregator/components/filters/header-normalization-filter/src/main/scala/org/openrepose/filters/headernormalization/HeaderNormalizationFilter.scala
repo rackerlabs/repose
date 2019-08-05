@@ -22,7 +22,7 @@ package org.openrepose.filters.headernormalization
 import java.util.Optional
 
 import com.codahale.metrics.MetricRegistry
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}

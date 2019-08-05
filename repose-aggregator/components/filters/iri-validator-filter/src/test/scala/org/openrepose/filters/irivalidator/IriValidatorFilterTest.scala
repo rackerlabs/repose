@@ -26,8 +26,8 @@ import org.junit.runner.RunWith
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.FunSpec
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 
 @RunWith(classOf[JUnitRunner])
 class IriValidatorFilterTest extends FunSpec with MockitoSugar {

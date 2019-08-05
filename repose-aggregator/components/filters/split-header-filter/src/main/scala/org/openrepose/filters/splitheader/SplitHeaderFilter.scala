@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.splitheader
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import javax.inject.{Inject, Named}
 import javax.servlet.FilterChain
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}

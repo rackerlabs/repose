@@ -43,8 +43,8 @@ import org.openrepose.nodeservice.atomfeed.impl.actors.FeedReader.{CancelSchedul
 import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier._
 import org.openrepose.nodeservice.atomfeed.impl.actors.NotifierManager.{BindFeedReader, Notify}
 import org.openrepose.nodeservice.atomfeed.{AuthenticatedRequestFactory, AuthenticationRequestContext, FeedReadRequest}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSuiteLike}
 import org.slf4j.MDC
 
@@ -104,7 +104,7 @@ class FeedReaderTest(_system: ActorSystem)
 
     mockAtomFeedService.requestHandler = {
       case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
-        HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, sw.toString))
+        HttpResponse(entity = HttpEntity(ContentType.WithMissingCharset(MediaTypes.`application/atom+xml`), sw.toString.getBytes))
 
       case HttpRequest(_, _, _, _, _) =>
         HttpResponse(404, entity = "Not Found")
@@ -255,7 +255,7 @@ class FeedReaderTest(_system: ActorSystem)
 
     mockAtomFeedService.requestHandler = {
       case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
-        HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, sw.toString))
+        HttpResponse(entity = HttpEntity(ContentType.WithMissingCharset(MediaTypes.`application/atom+xml`), sw.toString.getBytes))
 
       case HttpRequest(_, _, _, _, _) =>
         HttpResponse(404, entity = "Not Found")
@@ -295,7 +295,7 @@ class FeedReaderTest(_system: ActorSystem)
 
     mockAtomFeedService.requestHandler = {
       case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
-        HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, sw.toString))
+        HttpResponse(entity = HttpEntity(ContentType.WithMissingCharset(MediaTypes.`application/atom+xml`), sw.toString.getBytes))
 
       case HttpRequest(_, _, _, _, _) =>
         HttpResponse(404, entity = "Not Found")
@@ -343,7 +343,7 @@ class FeedReaderTest(_system: ActorSystem)
 
     mockAtomFeedService.requestHandler = {
       case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
-        HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, sw.toString))
+        HttpResponse(entity = HttpEntity(ContentType.WithMissingCharset(MediaTypes.`application/atom+xml`), sw.toString.getBytes))
 
       case HttpRequest(_, _, _, _, _) =>
         HttpResponse(404, entity = "Not Found")
@@ -406,7 +406,7 @@ class FeedReaderTest(_system: ActorSystem)
 
     mockAtomFeedService.requestHandler = {
       case HttpRequest(_, Uri.Path("/feed"), _, _, _) =>
-        HttpResponse(entity = HttpEntity(MediaTypes.`application/atom+xml`, sw.toString))
+        HttpResponse(entity = HttpEntity(ContentType.WithMissingCharset(MediaTypes.`application/atom+xml`), sw.toString.getBytes))
 
       case HttpRequest(_, _, _, _, _) =>
         HttpResponse(404, entity = "Not Found")

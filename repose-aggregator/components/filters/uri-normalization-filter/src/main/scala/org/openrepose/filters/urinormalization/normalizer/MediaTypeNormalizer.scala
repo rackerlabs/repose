@@ -22,7 +22,7 @@ package org.openrepose.filters.urinormalization.normalizer
 import java.util.regex.Pattern
 import javax.ws.rs.core.HttpHeaders
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.openrepose.commons.utils.http.media.MimeType
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.filters.urinormalization.config.MediaType

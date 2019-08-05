@@ -22,7 +22,7 @@ package org.openrepose.filters.headeruser
 import java.util.concurrent.atomic.AtomicReference
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.commons.utils.http.PowerApiHeader
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper

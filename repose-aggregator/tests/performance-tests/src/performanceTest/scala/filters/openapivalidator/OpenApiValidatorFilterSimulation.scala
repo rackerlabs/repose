@@ -55,15 +55,25 @@ class OpenApiValidatorFilterSimulation extends AbstractReposeSimulation {
       )
     }
 
+  var feederRole: Array[Map[String, Any]] =
+    ScenariosDelete.map { case (role, respcode) =>
+      Map(
+        "role" -> role,
+        "roleRespCode" -> respcode
+      )
+    }
+
   // set up the warm up scenario
   override val warmupScenario: ScenarioBuilder = scenario("Warmup")
     .feed(feederGet.circular)
     .feed(feederPost.circular)
     .feed(feederDelete.circular)
+    .feed(feederRole.circular)
     .forever {
       exec(requestGet)
       exec(requestPost)
       exec(requestDelete)
+      exec(requestRole)
     }
 
   // set up the main scenario
@@ -71,10 +81,12 @@ class OpenApiValidatorFilterSimulation extends AbstractReposeSimulation {
     .feed(feederGet.circular)
     .feed(feederPost.circular)
     .feed(feederDelete.circular)
+    .feed(feederRole.circular)
     .forever {
       exec(requestGet)
       exec(requestPost)
       exec(requestDelete)
+      exec(requestRole)
     }
 
   // run the scenarios
@@ -105,11 +117,23 @@ class OpenApiValidatorFilterSimulation extends AbstractReposeSimulation {
       .header(HeaderMockRespStatus, "${deleteRespCode}")
       .check(status.is(session => session("deleteRespCode").as[Int]))
   }
+
+  def requestRole: HttpRequestBuilder = {
+    http(session => session.scenario)
+      .get("/roles")
+      .header(HttpHeaderNames.Host, "localhost")
+      .header(HeaderMockRespStatus, s"$StatusCodeNoContent")
+      .header(HeaderRole, "${role}, banana")
+      .check(status.is(session => session("roleRespCode").as[Int]))
+  }
 }
 
 object OpenApiValidatorFilterSimulation {
   val HeaderMockRespStatus = "Mock-Origin-Res-Status"
+  val HeaderRole = "X-Role"
   val StatusCodeOk = 200
+  val StatusCodeNoContent = 204
+  val StatusCodeUnauthorized =401
   val StatusCodeNotFound = 404
   val StatusCodeMethodNotAllowed = 405
 
@@ -126,4 +150,10 @@ object OpenApiValidatorFilterSimulation {
     ("/pets", StatusCodeMethodNotAllowed),
     ("/pets/17362", StatusCodeOk),
     ("/notPets", StatusCodeNotFound))
+
+  //(role: String   , respcode: Int)
+  private val ScenariosRole = Array[(String, Int)](
+    ("foo", StatusCodeNoContent),
+    ("bar", StatusCodeNoContent),
+    ("baz", StatusCodeUnauthorized))
 }

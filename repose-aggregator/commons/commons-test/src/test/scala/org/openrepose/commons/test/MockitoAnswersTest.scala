@@ -22,8 +22,8 @@ package org.openrepose.commons.test
 import org.junit.runner.RunWith
 import org.mockito.invocation.InvocationOnMock
 import org.scalatest.{FunSpec, Matchers}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 
 /**
   * Created by adrian on 12/6/16.

@@ -29,8 +29,8 @@ import org.hamcrest.{Description, Matcher, SelfDescribing}
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, anyObject, anyString}
 import org.mockito.Mockito.{verify, when}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])

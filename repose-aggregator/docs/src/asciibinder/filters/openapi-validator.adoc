@@ -20,7 +20,7 @@ Vary based on configuration.
 This filter itself does not require any request headers, however the configured OpenAPI document may.
 
 === Required Preceding Filters
-This filter has no dependency on any other filter.
+<<keystone-v2.adoc#, Keystone v2 filter>> is recommended when doing Role Based Access Control.
 
 === Request Headers Created
 This filter does not create/modify any request headers.
@@ -62,6 +62,9 @@ a| * The OpenAPI document does not specify a request body, but the request conta
    * The OpenAPI document requires JSON content, but the request contains invalid JSON content.
    * A validation failure that is not explicitly expected has occurred.
 
+| `401`
+a| * The OpenAPI document specifies a role and none of the provided roles match.
+
 | `404`
 a| * The OpenAPI document does not contain a path matching the path of the request.
 
@@ -79,6 +82,29 @@ a| * An error occurs while attempting to read the request.
    * An unexpected error occurs while this filter is processing.
    * An unknown error occurs while validating schema from the OpenAPI document against the request.
 |===
+
+== Role Based Access Control
+For convenience an extension is provided that does role checking when used in combination with the <<keystone-v2.adoc#, Keystone v2 filter>>.
+This is enable through the extension mechanism of *Swagger/OpenApi* under the element name `x-rax-roles`.
+
+[source, yaml]
+.partial api-spec.yml
+----
+paths:
+  /pets:
+    get:
+      summary: List all pets
+      operationId: listPets
+      x-rax-roles: ["user", "admin"]  <1>
+----
+<1> The array of role names that are acceptable. This value must be an array even if it contains a single value.
+
+The values contained in the request `X-Roles` header will be compared against the configured list, if any match the request is considered valid.
+
+[NOTE]
+====
+This is just a convenience, the same thing could be acheived by doing a header check in the api specification.
+====
 
 == Examples
 === OpenAPI Request Validation

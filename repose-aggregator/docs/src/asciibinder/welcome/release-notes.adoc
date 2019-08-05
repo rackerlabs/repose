@@ -1,10 +1,27 @@
 = Release Notes
 
+== Upcoming Release 9.1.0.0 (2019-??-??)
+
+=== Integrators
+* [.breaking-tag]#Breaking Change# | https://repose.atlassian.net/browse/REP-6825[REP-6825] - Scala and all dependent libraries upgraded to 2.12 versions.
+** Akka: 2.4.20 → 2.5.23
+** Akka Http: 1.0 → 10.1.8
+** API Checker: 2.7.0 → 2.8.0
+** Diffson: 2.0.1 → 2.2.6
+** Gattling JsonPath: 0.6.4 → 0.6.10
+** Http Delegation: 4.0.0 → 5.0.0
+** Play Json: 2.5.2 → 2.7.4
+** Scala: 2.11.12 → 2.12.8
+** Scala Logging: 2.1.2 → 3.9.2
+** Scala Test: 2.2.0 → 3.0.8
+** Scopt: 3.2.0 → 3.7.1
+
 == 9.0.1.0 (2019-06-24)
 * [.new-tag]#New# | https://repose.atlassian.net/browse/REP-7786[REP-7786] - Added the <<../services/http-logging.adoc#, HTTP Logging Service>>.
 * [.new-tag]#New# | https://repose.atlassian.net/browse/REP-7600[REP-7600] - Added the <<../filters/openapi-validator.adoc#, OpenApi Validator Filter>>.
 * [.bug-tag]#Bug Fix# | https://repose.atlassian.net/browse/REP-7608[REP-7608] - Fixed bug where *Repose* was acting like it was sending content when the body was empty and chunked encoding was on.
 * [.bug-tag]#Bug Fix# | https://repose.atlassian.net/browse/REP-7663[REP-7663] - Fixed a file contention issue between Repose processes in the EAR unpacking logic.
+* [.new-tag]#New# | https://repose.atlassian.net/browse/REP-7600[REP-7600] | https://repose.atlassian.net/browse/REP-7789[REP-7789] - Added the <<../filters/openapi-validator.adoc#, OpenApi Validator Filter>> which provides *Swagger/OpenApi* api validation support.
 * [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7391[REP-7391] - Updated dependencies:
 ** Jetty: 9.4.8.v20171121 → 9.4.14.v20181114
 * [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7150[REP-7150] - Added OWASP security dependency checking to the build.
