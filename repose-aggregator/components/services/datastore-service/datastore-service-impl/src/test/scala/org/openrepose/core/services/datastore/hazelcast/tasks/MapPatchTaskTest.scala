@@ -17,34 +17,14 @@
  * limitations under the License.
  * =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
  */
-package org.openrepose.core.services.datastore;
+package org.openrepose.core.services.datastore.hazelcast.tasks
 
-import java.io.Serializable;
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSpec, Matchers}
 
-/**
- * An interface for a Patch (of T).
- * <p/>
- * T - the type of data that gets stored in the datastore
- */
-public interface Patch<T extends Serializable> extends Serializable {
+@RunWith(classOf[JUnitRunner])
+class MapPatchTaskTest
+  extends FunSpec with Matchers {
 
-    /**
-     * Constructs a new object of type {@code T} using data specific to this
-     * {@link Patch}.
-     * To avoid concurrency issues, the returned object should be a new,
-     * immutable instance.
-     *
-     * @return a new, immutable object of type {@code T}
-     */
-    T newFromPatch();
-
-    /**
-     * Applies a change to an object of type {@code T}.
-     * To avoid concurrency issues, the returned object should be a new,
-     * immutable instance.
-     *
-     * @param currentValue an object of type {@code T} to be patched
-     * @return a new, immutable object of type {@code T} with the patch applied
-     */
-    T applyPatch(T currentValue);
 }

@@ -22,6 +22,7 @@ dependencies {
     compileOnly "javax.inject:javax.inject"
     compileOnly "javax.servlet:javax.servlet-api"
 
+    testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.mockito:mockito-core"

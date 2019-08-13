@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit
 import com.hazelcast.core.HazelcastInstance
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.core.services.datastore.hazelcast.HazelcastDatastore._
+import org.openrepose.core.services.datastore.hazelcast.tasks.MapPatchTask
 import org.openrepose.core.services.datastore.{Datastore, DatastoreOperationException, Patch}
 
 import scala.language.implicitConversions
@@ -40,6 +41,7 @@ class HazelcastDatastore(hazelcast: HazelcastInstance)
   extends Datastore with StrictLogging {
 
   private val data = hazelcast.getMap[String, io.Serializable](HazelcastMapName)
+  private val executorService = hazelcast.getExecutorService(HazelcastExecutorServiceName)
 
   override def get(key: String): io.Serializable = wrapExceptions {
     logger.trace("Getting data for {}", key)
@@ -68,27 +70,15 @@ class HazelcastDatastore(hazelcast: HazelcastInstance)
   override def patch[T <: io.Serializable](key: String, patch: Patch[T], ttl: Int, timeUnit: TimeUnit): T = wrapExceptions {
     logger.trace("Patching data for {}", key)
 
-    // Ensures that Hazelcast's serialization service can load the necessary class.
-    val contextClassLoader = Thread.currentThread.getContextClassLoader
-    Thread.currentThread.setContextClassLoader(patch.getClass.getClassLoader)
-
-    // We must lock to ensure consistency.
-    // While we do have access to ConcurrentMap methods like compute, they do not support setting the TTL.
-    // As a result, we would have to use a transaction to consistently use compute and set the TTL, at which
-    // point a lock is being used anyway, so we may as well lock ourselves to simplify the implementation.
-    // Since the underlying map performs lock aware operations, we only need to lock here, and not in other methods.
-    data.lock(key)
-    try {
-      val newValue = Option(data.get(key))
-        .map(_.asInstanceOf[T])
-        .map(patch.applyPatch)
-        .getOrElse(patch.newFromPatch)
-      data.set(key, newValue, ttl, timeUnit)
-      newValue
-    } finally {
-      data.unlock(key)
-      Thread.currentThread.setContextClassLoader(contextClassLoader)
-    }
+    // Forward our task to the key-owning member of the Hazelcast cluster.
+    // Doing so prevents multiple network hops and reduces the amount of time
+    // a key remains locked.
+    // The net result is much better performance.
+    // An ExecutorService was used rather than an EntryProcessor so that TTL
+    // can be set.
+    val patchTask = new MapPatchTask(HazelcastMapName, key, patch, ttl, timeUnit)
+    val future = executorService.submitToKeyOwner(patchTask, key)
+    future.get()
   }
 
   override def remove(key: String): Boolean = wrapExceptions {
@@ -110,6 +100,7 @@ object HazelcastDatastore {
   final val Name = "hazelcast"
 
   private final val HazelcastMapName = "hazelcast-datastore-map"
+  private final val HazelcastExecutorServiceName = "hazelcast-datastore-executor-service"
   private final val DisabledTtl = -1
 
   private def wrapExceptions[T](f: => T): T = {
