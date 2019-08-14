@@ -18,9 +18,9 @@ outlined in CONTRIBUTORS.txt.
 Group                                               Name                            Version           Licenses                    Source
 --------------------------------------------------  ------------------------------  ----------------  --------------------------  ----------------------------------------------------------------------------------
 com.atlassian.oai                                   swagger-request-validator-core  2.2.2             Apache License Version 2.0  https://bitbucket.org/atlassian/swagger-request-validator
-com.fasterxml.jackson.core                          jackson-annotations             2.9.8             Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
-com.fasterxml.jackson.core                          jackson-core                    2.9.8             Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
-com.fasterxml.jackson.core                          jackson-databind                2.9.8             Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
+com.fasterxml.jackson.core                          jackson-annotations             2.9.9             Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
+com.fasterxml.jackson.core                          jackson-core                    2.9.9             Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
+com.fasterxml.jackson.core                          jackson-databind                2.9.9.3           Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
 com.github.jknack                                   handlebars                      2.0.0             Apache License Version 2.0  https://github.com/jknack/handlebars.java
 com.google.guava                                    guava                           27.0.1-jre        Apache License Version 2.0  https://github.com/google/guava
 com.jayway.jsonpath                                 json-path                       2.4.0             Apache License Version 2.0  https://github.com/jayway/JsonPath
