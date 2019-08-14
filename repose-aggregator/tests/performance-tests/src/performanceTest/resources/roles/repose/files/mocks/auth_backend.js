@@ -19,7 +19,6 @@
  */
 
 var express = require('express');
-var libxmljs = require('libxmljs');
 require('date-utils');
 
 var app = express();
