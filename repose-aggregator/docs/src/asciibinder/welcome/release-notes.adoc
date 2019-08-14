@@ -1,5 +1,9 @@
 = Release Notes
 
+== In Progress
+* [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7954[REP-7954] - Updated dependencies:
+** Jackson Databind: 2.9.9 → 2.9.9.3
+
 == 9.0.1.0 (2019-06-24)
 * [.new-tag]#New# | https://repose.atlassian.net/browse/REP-7786[REP-7786] - Added the <<../services/http-logging.adoc#, HTTP Logging Service>>.
 * [.new-tag]#New# | https://repose.atlassian.net/browse/REP-7600[REP-7600] - Added the <<../filters/openapi-validator.adoc#, OpenApi Validator Filter>>.
