@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit
 import com.hazelcast.core.HazelcastInstance
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.openrepose.core.services.datastore.hazelcast.HazelcastDatastore._
-import org.openrepose.core.services.datastore.hazelcast.tasks.MapPatchTask
+import org.openrepose.core.services.datastore.hazelcast.processors.MapPatchProcessor
 import org.openrepose.core.services.datastore.{Datastore, DatastoreOperationException, Patch}
 
 import scala.language.implicitConversions
@@ -41,7 +41,6 @@ class HazelcastDatastore(hazelcast: HazelcastInstance)
   extends Datastore with StrictLogging {
 
   private val data = hazelcast.getMap[String, io.Serializable](HazelcastMapName)
-  private val executorService = hazelcast.getExecutorService(HazelcastExecutorServiceName)
 
   override def get(key: String): io.Serializable = wrapExceptions {
     logger.trace("Getting data for {}", key)
@@ -70,15 +69,13 @@ class HazelcastDatastore(hazelcast: HazelcastInstance)
   override def patch[T <: io.Serializable](key: String, patch: Patch[T], ttl: Int, timeUnit: TimeUnit): T = wrapExceptions {
     logger.trace("Patching data for {}", key)
 
-    // Forward our task to the key-owning member of the Hazelcast cluster.
-    // Doing so prevents multiple network hops and reduces the amount of time
-    // a key remains locked.
-    // The net result is much better performance.
-    // An ExecutorService was used rather than an EntryProcessor so that TTL
-    // can be set.
-    val patchTask = new MapPatchTask(HazelcastMapName, key, patch, ttl, timeUnit)
-    val future = executorService.submitToKeyOwner(patchTask, key)
-    future.get()
+    // Uses an EntryProcessor so that we do not have to worry about data
+    // consistency or where our code is executed; we can rely on Hazelcast
+    // to execute our code on the member which owns the data in a consistent
+    // manner.
+    // This approach is more performant than locking ourselves, even when an
+    // ExecutorService is used to run our code on the data-owner node.
+    data.executeOnKey(key, new MapPatchProcessor(HazelcastMapName, patch, ttl, timeUnit)).asInstanceOf[T]
   }
 
   override def remove(key: String): Boolean = wrapExceptions {
@@ -100,7 +97,6 @@ object HazelcastDatastore {
   final val Name = "hazelcast"
 
   private final val HazelcastMapName = "hazelcast-datastore-map"
-  private final val HazelcastExecutorServiceName = "hazelcast-datastore-executor-service"
   private final val DisabledTtl = -1
 
   private def wrapExceptions[T](f: => T): T = {
