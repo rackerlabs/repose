@@ -8,8 +8,6 @@
         </timeouts>
     </cache>
 
-    <identity-service username="admin_username"
-                      password="admin_password"
-                      uri="http://localhost:${identityPort}"/>
+    <identity-service uri="http://localhost:${identityPort}"/>
 
 </keystone-v2>
