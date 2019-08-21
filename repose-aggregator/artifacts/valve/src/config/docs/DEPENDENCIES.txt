@@ -28,7 +28,7 @@ commons-pool                                        commons-pool              1.
 com.typesafe.akka                                   akka-actor_2.12           2.5.23           Apache License Version 2.0  https://github.com/akka/akka
 com.typesafe                                        config                    1.3.0            Apache License Version 2.0  https://github.com/typesafehub/config
 com.typesafe.play                                   play-json_2.12            2.7.4            Apache License Version 2.0  https://github.com/playframework/playframework
-com.typesafe.scala-logging                          scala-logging_2.121       3.9.2            Apache License Version 2.0  https://github.com/typesafehub/scala-logging
+com.typesafe.scala-logging                          scala-logging_2.12        3.9.2            Apache License Version 2.0  https://github.com/typesafehub/scala-logging
 io.dropwizard.metrics                               metrics-core              3.2.0            Apache License Version 2.0  https://github.com/dropwizard/metrics/blob/v3.2.0/LICENSE
 io.dropwizard.metrics                               metrics-graphite          3.2.0            Apache License Version 2.0  https://github.com/dropwizard/metrics/blob/v3.2.0/LICENSE
 io.dropwizard.metrics                               metrics-httpclient        3.2.0            Apache License Version 2.0  https://github.com/dropwizard/metrics/blob/v3.2.0/LICENSE
