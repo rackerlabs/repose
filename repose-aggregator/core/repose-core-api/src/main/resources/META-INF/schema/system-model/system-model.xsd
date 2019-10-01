@@ -447,6 +447,14 @@
             <xs:element name="endpoint" type="mod:Destination" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
+        <xs:attribute name="url-encode-headers" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>A comma separated list of the headers that should url encoded before being passed on to the origin service</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
         <xs:assert vc:minVersion="1.1"
                    test="count(mod:*[xs:boolean(@default) = true()]) eq 1"
                    xerces:message="There should be one and only one default destination"
