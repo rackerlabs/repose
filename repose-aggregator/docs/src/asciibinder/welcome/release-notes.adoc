@@ -1,6 +1,7 @@
 = Release Notes
 
 == In Progress
+* [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7966[REP-7966] - Added option to <<../architecture/system-model.adoc#, System Model>> to allow a header value to be URL encoded before being sent to the origin service.
 * [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7954[REP-7954] - Updated dependencies:
 ** Jackson Databind: 2.9.9 → 2.9.9.3
 

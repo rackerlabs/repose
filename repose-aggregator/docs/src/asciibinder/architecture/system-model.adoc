@@ -150,11 +150,11 @@ If set to localhost, any physical node will match and run the *Repose* node.
      In this case, no services are being used.
 <12> Defines the required one default endpoint.
 
-==== Streaming Request Body to the Origin Service
+=== Streaming Request Body to the Origin Service
 Streaming a request body to the origin service is accomplished by using the `chunked` transfer encoding.
 
 [source,xml]
-.partial http-connection-pool.cfg
+.system-model.cfg.xml
 ----
 <system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
   <nodes>
@@ -184,6 +184,28 @@ Setting the `chunked-encoding` attribute to `false` may cause *Repose* to read a
 This will cause some performance degradation as request body is no longer always streamed through.
 It is recommended that users leave this value as `true` unless their service does not support chunked encoding.
 ====
+
+=== Header Encoding
+If headers got added to the request while processing through *Repose* that contain characters that are valid by the HTTP spec this allows them to be encoded before being sent to the origin service.
+
+[source,xml]
+.system-model.cfg.xml
+----
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+  <nodes>
+    <node id="repose_node" hostname="localhost" http-port="8080"/>
+  </nodes>
+
+  <filters/>
+
+  <destinations url-encode-headers="x-header-1,x-header-2"> <!--1-->
+    <endpoint id="origin_service" default="true" protocol="http" port="80"
+              chunked-encoding="auto"/>
+  </destinations>
+</system-model>
+----
+<1> This is a comma separated list of all the headers that should be URL Encoded.
+    Default: empty
 
 === Nova-API Localhost Deployment
 *IN PROGRESS*

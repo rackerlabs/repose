@@ -1,0 +1,74 @@
+= Problematic Header Handling
+
+This recipe is meant to provide solutions if *Repose*'s header enrichment is creating headers with non-legal characters.
+The ideal solution is to turn off the generation of the problem headers, but there are situations where that may not be possible because they are needed downstream in the orign service or are required for internal *Repose* usage (like rate limiting).
+
+If the origin service doesn't need any of the problematic headers that *Repose* adds, you can use <<Header Normalization>>.
+If the origin service does use the added headers you'll need to use <<Header Encoding>>.
+
+== Header Normalization
+This solution will remove the problematic headers before sending the request onto the origin service
+
+=== Update the System Model
+The first step is to update your system model and add another <<../filters/header-normalization.adoc#, header normalization filter>> to the end of your filter chain.
+
+[source,xml]
+.partial system-model.cfg.xml
+----
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+
+  <!-- Node definition -->
+
+  <filters>
+    <!-- Other filters in chain -->
+    <filter="header-normalization" configuration="karate-headers.cfg.xml"/> <!--1-->
+  </filters>
+
+  <!-- Rest of system model -->
+
+</system-model>
+----
+<1> Specifies a new header noramilzation filter and tells it to look for its configuration in `karate-headers.cfg.xml`.
+
+=== Add the Header Normalization Config
+Create a new header normalization config named `karate-header.cfg.xml`.
+
+[source,xml]
+.karate-headers.cfg.xml
+----
+<header-normalization xmlns='http://docs.openrepose.org/repose/header-normalization/v1.0'>
+    <target>
+        <request>
+            <blacklist>
+                <header id="X-User-Name"/> <!--1-->
+                <header id="X-PP-User"/> <!--2-->
+                <header id="x-catalog"/> <!--3-->
+            </blacklist>
+        </request>
+    </target>
+</header-normalization>
+----
+<1> When using the <<../filters/keystone-v2.adoc#, Keystone v2 Filter>> this header is populated with the users username.
+<2> This header is populated at the same time with the same value and is used for rate limiting.
+<3> This header is also created at the same time, and contains a significant part of the identity response which may contain bad characters.
+
+== Header Encoding
+This solution is for when your origin service depends on the header values that might have some bad characters.
+
+=== Update the System Model
+The only step in this solution is to update the system model with the header you want encoded.
+
+[source,xml]
+.partial system-model.cfg.xml
+----
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+
+  <!-- Rest of system model -->
+
+  <destinations url-encode-headers="X-User-Name,X-PP-User,x-catalog"> <!--1-->
+    <endpoint id="origin_service" default="true" protocol="http" port="80"
+              chunked-encoding="auto"/>
+  </destinations>
+</system-model>
+----
+<1> This is the list of headers populated by <<../filters/keystone-v2.adoc#, Keystone v2 Filter>> that are known to possibly end up with bad characters.
