@@ -122,4 +122,12 @@
         <cve>CVE-2018-1324</cve>
         <cve>CVE-2018-11771</cve>
     </suppress>
+    <suppress>
+       <notes><![CDATA[
+            file name: netty-3.10.6.Final.jar
+            This vulnerability is for when using netty as a server, for us it's being used transitive for flume and even in that capacity it's a client not a server.
+       ]]></notes>
+       <packageUrl regex="true">^pkg:maven/io\.netty/netty@.*$</packageUrl>
+       <cve>CVE-2019-16869</cve>
+    </suppress>
 </suppressions>
