@@ -5,6 +5,8 @@
 ** Removed the existing Distributed datastore.
 ** Removed the existing Remote datastore.
 ** Updated the Datastore, Datastore Service, and Datastore Patch APIs to support the Hazelcast datastore.
+* [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7954[REP-7954] - Updated dependencies:
+** Jackson Databind: 2.9.9 → 2.9.9.3
 
 == 9.0.1.0 (2019-06-24)
 * [.new-tag]#New# | https://repose.atlassian.net/browse/REP-7786[REP-7786] - Added the <<../services/http-logging.adoc#, HTTP Logging Service>>.
