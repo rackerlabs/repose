@@ -428,8 +428,7 @@
             </xs:annotation>
             <xs:simpleType>
                 <xs:restriction base="xs:string">
-                    <xs:enumeration value="dist-datastore"/>
-                    <xs:enumeration value="remote-datastore"/>
+                    <xs:enumeration value="hazelcast-datastore"/>
                     <xs:enumeration value="atom-feed-service"/>
                 </xs:restriction>
             </xs:simpleType>

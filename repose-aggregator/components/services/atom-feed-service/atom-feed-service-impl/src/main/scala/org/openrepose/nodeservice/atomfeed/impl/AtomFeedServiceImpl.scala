@@ -251,9 +251,7 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
 
         initialized = true
 
-        val systemModelInterrogator = new SystemModelInterrogator(nodeId)
-
-        isServiceEnabled = systemModelInterrogator.getService(configurationObject, ServiceName).isPresent
+        isServiceEnabled = SystemModelInterrogator.getService(configurationObject, ServiceName).isPresent
 
         if (isServiceEnabled) {
           feedActors foreach { case (_, actorPair) =>

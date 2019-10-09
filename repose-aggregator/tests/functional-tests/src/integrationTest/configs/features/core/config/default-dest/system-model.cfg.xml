@@ -9,10 +9,6 @@
     <filters>
     </filters>
 
-    <services>
-        <service name="dist-datastore"/>
-    </services>
-
     <destinations>
         <endpoint id="mock-service-1" protocol="http" hostname="${targetHostname}" port="${targetPort}"
                   ${default1}/>

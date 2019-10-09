@@ -38,7 +38,7 @@ import org.openrepose.commons.utils.servlet.http.ResponseMode.{MUTABLE, PASSTHRO
 import org.openrepose.commons.utils.servlet.http.{HttpServletRequestWrapper, HttpServletResponseWrapper}
 import org.openrepose.commons.utils.string.Base64Helper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.datastore.types.{PatchableSet, SetPatch}
+import org.openrepose.core.services.datastore.types.HashSetPatch
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.httpclient.HttpClientService
 import org.openrepose.core.systemmodel.config.SystemModel
@@ -178,7 +178,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
             val timeToLive = getTtl(cacheSettings.getToken, cacheSettings.getVariability, Some(validToken))
 
             timeToLive foreach { ttl =>
-              datastore.patch(s"$USER_ID_KEY_PREFIX${validToken.userId}", SetPatch(authToken), ttl, TimeUnit.SECONDS)
+              datastore.patch(s"$USER_ID_KEY_PREFIX${validToken.userId}", new HashSetPatch(authToken), ttl, TimeUnit.SECONDS)
               datastore.put(s"$TOKEN_KEY_PREFIX$authToken", validToken, ttl, TimeUnit.SECONDS)
             }
           }
@@ -573,7 +573,7 @@ class KeystoneV2Filter @Inject()(configurationService: ConfigurationService,
         val authTokens: Option[collection.Set[String]] = resourceType.headOption match {
           // User OR Token Revocation Record (TRR) event
           case Some("USER") | Some("TRR_USER") =>
-            val tokens = Option(datastore.get(s"$USER_ID_KEY_PREFIX${resourceId.get}").asInstanceOf[PatchableSet[String]])
+            val tokens = Option(datastore.get(s"$USER_ID_KEY_PREFIX${resourceId.get}").asInstanceOf[Set[String]])
             datastore.remove(s"$USER_ID_KEY_PREFIX${resourceId.get}")
             tokens
           case Some("TOKEN") => Some(Set(resourceId.get))

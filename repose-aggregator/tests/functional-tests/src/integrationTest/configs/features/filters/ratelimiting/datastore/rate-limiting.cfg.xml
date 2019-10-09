@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<rate-limiting datastore="distributed/hash-ring" datastore-warn-limit="1" use-capture-groups="true"
+<rate-limiting datastore-warn-limit="1" use-capture-groups="true"
                xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
     <request-endpoint uri-regex="/limits" include-absolute-limits="false"/>
 
@@ -12,5 +12,3 @@
         <limit id="test3" uri="/*" uri-regex="/(.*)" http-methods="GET" unit="MINUTE" value="300"/>
     </limit-group>
 </rate-limiting>
-
-        <!-- http://wiki.openrepose.org/display/REPOSE/Rate+Limiting+Filter -->

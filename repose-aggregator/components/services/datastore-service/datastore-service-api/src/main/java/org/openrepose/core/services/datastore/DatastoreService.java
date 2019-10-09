@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,12 +19,7 @@
  */
 package org.openrepose.core.services.datastore;
 
-import org.openrepose.commons.utils.encoding.EncodingProvider;
-import org.openrepose.core.services.RequestProxyService;
-import org.openrepose.core.services.datastore.distributed.ClusterConfiguration;
-import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
-
-import java.net.InetSocketAddress;
+import com.hazelcast.config.Config;
 
 /**
  * DatastoreService - service that manages the lifecycle and configuration of {@link Datastore}s
@@ -48,10 +43,10 @@ public interface DatastoreService {
     /**
      * Get the distributed datastore managed by the service.
      *
-     * @return the default Distributed Datastore
+     * @return the default distributed Datastore
      * @throws DatastoreUnavailableException if no distributed datastore exists
      */
-    DistributedDatastore getDistributedDatastore() throws DatastoreUnavailableException;
+    Datastore getDistributedDatastore() throws DatastoreUnavailableException;
 
     /**
      * Shutdown the datastore associated with the datastore name
@@ -61,46 +56,13 @@ public interface DatastoreService {
     void destroyDatastore(String datastoreName);
 
     /**
-     * Create and return a distributed datastore using the provided configuration.  The created
-     * datastore can be retrieved by the same name provided using getDatastore(datastoreName)
+     * Create and return a Hazelcast Datastore using the provided configuration.
      *
      * @param datastoreName unique name for this Datastore
-     * @param configuration Configuration for the entire Cluster
+     * @param configuration configuration for Hazelcast
      * @return the newly created Datastore
-     * @throws DatastoreServiceException if the datastore creation fails
      */
-    DistributedDatastore createDatastore(String datastoreName, ClusterConfiguration configuration)
-            throws DatastoreServiceException;
-
-    /**
-     * Create and return a distributed datastore using the provided configuration.  The created
-     * datastore can be retrieved by the same name provided using getDatastore(datastoreName)
-     *
-     * @param datastoreName unique name for this Datastore
-     * @param configuration Configuration for the entire Cluster
-     * @param connPoolId    the name of the pool to borrow a connection from
-     * @param useHttps      indicates if SSL/TLS should be used
-     * @return the newly created Datastore
-     * @throws DatastoreServiceException if the datastore creation fails
-     */
-    DistributedDatastore createDistributedDatastore(String datastoreName, ClusterConfiguration configuration, String connPoolId, boolean useHttps)
-            throws DatastoreServiceException;
-
-    /**
-     * Create and return a remote datastore using the provided configuration.  The created
-     * datastore can be retrieved by the same name provided using getDatastore(datastoreName)
-     *
-     * @param datastoreName    unique name for this Datastore
-     * @param proxyService     Proxy Service for making remote calls
-     * @param encodingProvider Encoding Provider
-     * @param target           the IP Socket Address of the Datastore
-     * @param connPoolId       the name of the pool to borrow a connection from
-     * @param useHttps         indicates if SSL/TLS should be used
-     * @return the newly created Datastore
-     * @throws DatastoreServiceException if the datastore creation fails
-     */
-    DistributedDatastore createRemoteDatastore(String datastoreName, RequestProxyService proxyService, EncodingProvider encodingProvider, InetSocketAddress target, String connPoolId, boolean useHttps)
-            throws DatastoreServiceException;
+    Datastore createHazelcastDatastore(String datastoreName, Config configuration);
 
     /**
      * Shutdown all datastores

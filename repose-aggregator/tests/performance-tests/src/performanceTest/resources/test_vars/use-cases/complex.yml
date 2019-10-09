@@ -38,7 +38,7 @@
           { name: "derp" }
         ],
         services: [
-          "dist-datastore"
+          "hazelcast-datastore"
         ]
       },
       container: {
@@ -49,7 +49,7 @@
       templates: [
         "container.cfg.xml",
         "system-model.cfg.xml",
-        "{{ dir_prefix }}/dist-datastore.cfg.xml",
+        "{{ dir_prefix }}/hazelcast-datastore.cfg.xml",
         "{{ dir_prefix }}/ip-user.cfg.xml"
       ],
       files: [

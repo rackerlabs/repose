@@ -21,18 +21,20 @@ package features.core.tracing
 
 import org.junit.experimental.categories.Category
 import org.openrepose.commons.utils.io.ObjectSerializer
-import org.openrepose.core.services.datastore.types.StringValue
+import org.openrepose.core.services.datastore.types.StringPatch
 import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
 import org.openrepose.framework.test.mocks.MockIdentityService
 import org.rackspace.deproxy.Deproxy
 import org.rackspace.deproxy.MessageChain
 import scaffold.category.Core
+import spock.lang.Ignore
 
 /**
  * Specific tests for admin token
  */
 @Category(Core)
+@Ignore("Use the Hazelcast Datastore once it supports OpenTracing")
 class TracingDistDatastoreTest extends ReposeValveTest {
 
     final ObjectSerializer objectSerializer = new ObjectSerializer(this.getClass().getClassLoader())
@@ -102,7 +104,7 @@ class TracingDistDatastoreTest extends ReposeValveTest {
         given:
         //Repose is running
         def key = UUID.randomUUID().toString()
-        def body = objectSerializer.writeObject(new StringValue("test data"))
+        def body = objectSerializer.writeObject(new StringPatch("test data"))
 
         when:
         //An http request is made to the dist datastore endpoint with a tracing header

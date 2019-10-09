@@ -27,7 +27,7 @@ This deployment method, illustrated in the following graphic, is called <<valve-
 
 You can decide which configuration works best for you, and you can tweak many of your configurations without having to restart *Repose* – it will pick up configuration changes on the fly, making it easy to configure and test.
 
-*Repose* can be configured to use a distributed data store service where cached information is exchanged across multiple nodes.
+*Repose* can be configured to use a distributed data store where cached information is exchanged across multiple nodes.
 This makes *Repose* fault tolerant with proven performance.
 
 == What Services Does Repose Provide?

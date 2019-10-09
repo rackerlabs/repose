@@ -23,7 +23,6 @@ import org.junit.Before
 import org.junit.Test
 import org.openrepose.core.services.datastore.Datastore
 import org.openrepose.core.services.datastore.DatastoreManager
-import org.openrepose.core.services.datastore.distributed.DistributedDatastore
 
 import static org.junit.Assert.assertNotNull
 import static org.junit.Assert.assertNull
@@ -35,7 +34,7 @@ public class DatastoreServiceImplTest {
     private DatastoreServiceImpl datastoreService
     private Datastore localDatastore
     private DatastoreManager localManager
-    private DistributedDatastore remoteDatastore
+    private Datastore remoteDatastore
     private DatastoreManager remoteManager
 
     @Before
@@ -46,7 +45,7 @@ public class DatastoreServiceImplTest {
         when(localManager.getDatastore()).thenReturn(localDatastore)
         when(localManager.isDistributed()).thenReturn(false)
 
-        remoteDatastore = mock(DistributedDatastore.class)
+        remoteDatastore = mock(Datastore.class)
         remoteManager = mock(DatastoreManager.class)
         when(remoteManager.getDatastore()).thenReturn(remoteDatastore)
         when(remoteManager.isDistributed()).thenReturn(true)
@@ -79,7 +78,7 @@ public class DatastoreServiceImplTest {
         datastoreService.distributedManagers.put("remote1", remoteManager)
         datastoreService.distributedManagers.put("remote2", remoteManager)
 
-        DistributedDatastore availableDistributedDatastores = datastoreService.getDistributedDatastore()
+        Datastore availableDistributedDatastores = datastoreService.getDistributedDatastore()
 
         assertNotNull(availableDistributedDatastores)
     }

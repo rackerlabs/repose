@@ -99,7 +99,7 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
     // the existence of a local node, so an explicit check is not necessary.
     localNode = node.get()
 
-    defaultDestination = interrogator.getDefaultDestination(configurationObject).get()
+    defaultDestination = SystemModelInterrogator.getDefaultDestination(configurationObject).get()
     destinations = configurationObject.getDestinations.getEndpoint.asScala
       .map(it => it.getId -> it)
       .toMap

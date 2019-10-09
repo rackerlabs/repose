@@ -218,7 +218,7 @@ public class RateLimitingHandler {
             LOG.error("Failure when tracking limits.", e);
             response.setStatus(SC_BAD_GATEWAY);
         } catch (DatastoreOperationException doe) {
-            LOG.error("Unable to communicate with dist-datastore.", doe);
+            LOG.error("Unable to communicate with datastore.", doe);
             response.setStatus(SC_SERVICE_UNAVAILABLE);
         }
 

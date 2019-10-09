@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -76,7 +76,7 @@ public interface Datastore {
      * @return the patched and stored value
      * @throws DatastoreOperationException if an exception occurs when attempting to store the value
      */
-    Serializable patch(String key, Patch patch) throws DatastoreOperationException;
+    <T extends Serializable> T patch(String key, Patch<T> patch) throws DatastoreOperationException;
 
     /**
      * Patch (update) an element in the datastore for a duration of time not to exceed the TimeUnit and duration
@@ -92,7 +92,7 @@ public interface Datastore {
      * @return the patched and stored value
      * @throws DatastoreOperationException if an exception occurs when attempting to store the value
      */
-    Serializable patch(String key, Patch patch, int ttl, TimeUnit timeUnit) throws DatastoreOperationException;
+    <T extends Serializable> T patch(String key, Patch<T> patch, int ttl, TimeUnit timeUnit) throws DatastoreOperationException;
 
     /**
      * Removes a value from the Datastore.
@@ -106,8 +106,11 @@ public interface Datastore {
 
     /**
      * Remove all previously stored elements from the datastore
+     *
+     * @throws DatastoreOperationException if an exception occurs when attempting to remove all
+     *                                     stored value
      */
-    void removeAll();
+    void removeAll() throws DatastoreOperationException;
 
     /**
      * Get the name of this datastore

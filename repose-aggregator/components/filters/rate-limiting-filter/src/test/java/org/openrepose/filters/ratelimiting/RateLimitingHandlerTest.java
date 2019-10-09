@@ -25,9 +25,9 @@ import org.openrepose.commons.utils.http.PowerApiHeader;
 import org.openrepose.commons.utils.servlet.filter.FilterAction;
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper;
 import org.openrepose.commons.utils.servlet.http.HttpServletResponseWrapper;
+import org.openrepose.core.services.datastore.Datastore;
 import org.openrepose.core.services.datastore.DatastoreService;
 import org.openrepose.core.services.datastore.Patch;
-import org.openrepose.core.services.datastore.distributed.DistributedDatastore;
 import org.openrepose.core.services.event.EventService;
 import org.openrepose.core.services.ratelimit.OverLimitData;
 import org.openrepose.core.services.ratelimit.RateLimitFilterEvent;
@@ -58,13 +58,13 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
     private final ConfiguredRatelimit defaultConfig = new ConfiguredRatelimit();
     private MockHttpServletRequest mockedRequest;
     private HttpServletResponseWrapper mockedResponse;
-    private DistributedDatastore datastore;
+    private Datastore datastore;
     private EventService eventService;
 
 
     @Before
     public void setup() {
-        datastore = mock(DistributedDatastore.class);
+        datastore = mock(Datastore.class);
         eventService = mock(EventService.class);
         final DatastoreService service = mock(DatastoreService.class);
 

@@ -10,6 +10,16 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
+            file name: hazelcast-kubernetes-1.5.1.jar
+            NOTE: Hazelcast Kubernetes is a Hazelcast discovery mechanism for Kubernetes, not
+            Kubernetes itself.
+            This was a misindentification.
+        ]]></notes>
+        <gav regex="true">^com\.hazelcast:hazelcast-kubernetes:.*$</gav>
+        <cpe>cpe:/a:kubernetes:kubernetes</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
             file name: xz-1.0.jar
             NOTE: This is simply a case of mistaken identity.
             The Java version of this library is not afflicted with this particular vulnerability.

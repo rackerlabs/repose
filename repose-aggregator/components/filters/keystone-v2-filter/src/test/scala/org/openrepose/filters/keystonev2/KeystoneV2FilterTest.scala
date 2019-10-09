@@ -49,7 +49,7 @@ import org.openrepose.commons.test.HttpUriRequestMatchers._
 import org.openrepose.commons.utils.http._
 import org.openrepose.commons.utils.string.Base64Helper
 import org.openrepose.core.services.config.ConfigurationService
-import org.openrepose.core.services.datastore.types.SetPatch
+import org.openrepose.core.services.datastore.types.HashSetPatch
 import org.openrepose.core.services.datastore.{Datastore, DatastoreService}
 import org.openrepose.core.services.httpclient.{CachingHttpClientContext, HttpClientService, HttpClientServiceClient}
 import org.openrepose.core.services.httplogging.HttpLoggingContext
@@ -2004,7 +2004,7 @@ with HttpDelegationManager {
       filterChain.getRequest shouldNot be(null)
       filterChain.getResponse shouldNot be(null)
       verify(mockDatastore).put(mockitoEq(s"$ADMIN_TOKEN_KEY"), any())
-      verify(mockDatastore).patch(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"), isA(classOf[SetPatch[String]]), mockitoEq(270), mockitoEq(TimeUnit.SECONDS))
+      verify(mockDatastore).patch(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"), isA(classOf[HashSetPatch[String]]), mockitoEq(270), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(270), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(330), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(300), mockitoEq(TimeUnit.SECONDS))
@@ -2081,7 +2081,7 @@ with HttpDelegationManager {
       filterChain.getRequest shouldNot be(null)
       filterChain.getResponse shouldNot be(null)
       verify(mockDatastore).patch(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"),
-        isA(classOf[SetPatch[String]]),
+        isA(classOf[HashSetPatch[String]]),
         intThat(both(greaterThanOrEqualTo(Int.box(269))).and(lessThanOrEqualTo(Int.box(271)))),
         mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"),
@@ -2168,7 +2168,7 @@ with HttpDelegationManager {
       filterChain.getRequest shouldNot be(null)
       filterChain.getResponse shouldNot be(null)
       verify(mockDatastore).put(mockitoEq(s"$ADMIN_TOKEN_KEY"), any())
-      verify(mockDatastore).patch(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"), isA(classOf[SetPatch[String]]), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
+      verify(mockDatastore).patch(mockitoEq(s"$USER_ID_KEY_PREFIX$userId"), isA(classOf[HashSetPatch[String]]), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$TOKEN_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$ENDPOINTS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))
       verify(mockDatastore).put(mockitoEq(s"$GROUPS_KEY_PREFIX$VALID_TOKEN"), any(), mockitoEq(600), mockitoEq(TimeUnit.SECONDS))

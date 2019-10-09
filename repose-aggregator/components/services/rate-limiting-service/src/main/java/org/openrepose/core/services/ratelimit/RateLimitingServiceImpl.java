@@ -96,14 +96,15 @@ public class RateLimitingServiceImpl implements RateLimitingService {
                 uriMatcher = Pattern.compile(rateLimit.getUriRegex()).matcher(uri);
             }
 
+            // Always track the largest time unit to be used for TTL
+            if (rateLimit.getUnit().compareTo(largestUnit) > 0) {
+                largestUnit = rateLimit.getUnit();
+            }
+
             // Did we find a limit that matches the incoming uri and http method?
             if (uriMatcher.matches() && httpMethodMatches(rateLimit.getHttpMethods(), httpMethod) && queryParameterNameMatches(rateLimit.getQueryParamNames(), parameterMap)) {
                 matchingConfiguredLimits.add(Pair.of(LimitKey.getLimitKey(configuredLimitGroup.getId(),
                         rateLimit.getId(), uriMatcher, useCaptureGroups), rateLimit));
-
-                if (rateLimit.getUnit().compareTo(largestUnit) > 0) {
-                    largestUnit = rateLimit.getUnit();
-                }
             }
         }
 

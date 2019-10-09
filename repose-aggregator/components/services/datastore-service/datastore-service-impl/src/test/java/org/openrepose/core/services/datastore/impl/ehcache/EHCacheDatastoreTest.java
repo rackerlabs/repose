@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.openrepose.core.services.datastore.types.StringValue;
+import org.openrepose.core.services.datastore.types.StringPatch;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -38,7 +38,6 @@ import java.util.UUID;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -88,7 +87,7 @@ public class EHCacheDatastoreTest {
 
         Serializable element = datastore.get(key);
         assertNotNull(element);
-        assertThat((String) element, equalTo(value));
+        assertThat(element, equalTo(value));
     }
 
     @Test
@@ -153,20 +152,20 @@ public class EHCacheDatastoreTest {
     public void shouldPatchNewElement() {
         String key = "my element";
         String value = "1, 2, 3";
-        datastore.patch(key, new StringValue.Patch(value));
-        StringValue element = (StringValue) datastore.get(key);
+        datastore.patch(key, new StringPatch(value));
+        String element = (String) datastore.get(key);
         assertNotNull(element);
-        assertEquals(value, element.getValue());
+        assertEquals(value, element);
     }
 
     @Test
     public void shouldPatchNewElementWithTTL() {
         String key = "my element";
         String value = "1, 2, 3";
-        datastore.patch(key, new StringValue.Patch(value), 5, DAYS);
-        StringValue element = (StringValue) datastore.get(key);
+        datastore.patch(key, new StringPatch(value), 5, DAYS);
+        String element = (String) datastore.get(key);
         assertNotNull(element);
-        assertEquals(value, element.getValue());
+        assertEquals(value, element);
     }
 
     @Test
@@ -174,11 +173,11 @@ public class EHCacheDatastoreTest {
         String key = "my element";
         String value = "1, 2, 3";
         String newValue = ", 4";
-        datastore.patch(key, new StringValue.Patch(value));
-        datastore.patch(key, new StringValue.Patch(newValue));
-        StringValue element = (StringValue) datastore.get(key);
+        datastore.patch(key, new StringPatch(value));
+        datastore.patch(key, new StringPatch(newValue));
+        String element = (String) datastore.get(key);
         assertNotNull(element);
-        assertEquals("1, 2, 3, 4", element.getValue());
+        assertEquals("1, 2, 3, 4", element);
     }
 
     @Test
@@ -186,11 +185,11 @@ public class EHCacheDatastoreTest {
         String key = "my element";
         String value = "1, 2, 3";
         String newValue = ", 4";
-        datastore.patch(key, new StringValue.Patch(value), 5, DAYS);
-        datastore.patch(key, new StringValue.Patch(newValue), 5, DAYS);
-        StringValue element = (StringValue) datastore.get(key);
+        datastore.patch(key, new StringPatch(value), 5, DAYS);
+        datastore.patch(key, new StringPatch(newValue), 5, DAYS);
+        String element = (String) datastore.get(key);
         assertNotNull(element);
-        assertEquals("1, 2, 3, 4", element.getValue());
+        assertEquals("1, 2, 3, 4", element);
     }
 
     @Test
@@ -198,10 +197,10 @@ public class EHCacheDatastoreTest {
         String key = "my element";
         String value = "1, 2, 3";
         String newValue = ", 4";
-        datastore.patch(key, new StringValue.Patch(value), 5, DAYS);
-        StringValue element = (StringValue) datastore.patch(key, new StringValue.Patch(newValue), 5, DAYS);
+        datastore.patch(key, new StringPatch(value), 5, DAYS);
+        String element = datastore.patch(key, new StringPatch(newValue), 5, DAYS);
         assertNotNull(element);
-        assertEquals("1, 2, 3, 4", element.getValue());
+        assertEquals("1, 2, 3, 4", element);
     }
 
     @Test
@@ -209,28 +208,21 @@ public class EHCacheDatastoreTest {
         Ehcache cache = mock(Ehcache.class);
         EHCacheDatastore datastore = new EHCacheDatastore(cache);
         ArgumentCaptor<Element> captor = ArgumentCaptor.forClass(Element.class);
-        datastore.patch("key", new StringValue.Patch("some value"), 10, SECONDS);
+        datastore.patch("key", new StringPatch("some value"), 10, SECONDS);
         verify(cache).putIfAbsent(captor.capture());
-        assertThat(captor.getValue().getTimeToIdle(), equalTo(10));
+        assertThat(captor.getValue().getTimeToLive(), equalTo(10));
     }
 
     @Test
-    public void patch_shouldRaiseTtl_ifHigher() throws Exception {
+    public void patch_shouldResetTtl() throws Exception {
         Ehcache cache = mock(Ehcache.class);
-        Element returnedElement = new Element("key", new StringValue(""));
+        Element returnedElement = new Element("key", "");
         when(cache.putIfAbsent(any(Element.class))).thenReturn(returnedElement);
+        when(cache.replace(any(Element.class), any(Element.class))).thenReturn(true);
         EHCacheDatastore datastore = new EHCacheDatastore(cache);
-        datastore.patch("key", new StringValue.Patch("some value"), 10, SECONDS);
-        assertThat(returnedElement.getTimeToIdle(), equalTo(10));
-    }
-
-    @Test
-    public void patch_ttlShouldBeReset() throws Exception {
-        Ehcache cache = mock(Ehcache.class);
-        Element returnedElement = new Element("key", new StringValue(""));
-        when(cache.putIfAbsent(any(Element.class))).thenReturn(returnedElement);
-        EHCacheDatastore datastore = new EHCacheDatastore(cache);
-        datastore.patch("key", new StringValue.Patch("some value"), 10, SECONDS);
-        assertThat(returnedElement.getTimeToLive(), greaterThanOrEqualTo(10));
+        ArgumentCaptor<Element> captor = ArgumentCaptor.forClass(Element.class);
+        datastore.patch("key", new StringPatch("some value"), 10, SECONDS);
+        verify(cache).replace(any(Element.class), captor.capture());
+        assertThat(captor.getValue().getTimeToLive(), equalTo(10));
     }
 }

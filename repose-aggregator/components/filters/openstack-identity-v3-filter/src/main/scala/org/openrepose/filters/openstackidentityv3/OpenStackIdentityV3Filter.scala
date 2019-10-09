@@ -31,7 +31,7 @@ import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.openrepose.core.filter.FilterConfigHelper
 import org.openrepose.core.services.config.ConfigurationService
 import org.openrepose.core.services.datastore.DatastoreService
-import org.openrepose.core.services.datastore.types.PatchableSet
+import org.openrepose.core.services.datastore.types.HashSetPatch
 import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
 import org.openrepose.filters.openstackidentityv3.config.OpenstackIdentityV3Config
 import org.openrepose.filters.openstackidentityv3.utilities.Cache._
@@ -148,7 +148,7 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
         val authTokens = resourceType.headOption match {
           // User OR Token Revocation Record (TRR) event.
           case Some("USER") | Some("TRR_USER") =>
-            val tokens = Option(datastore.get(getUserIdKey(resourceId.get)).asInstanceOf[PatchableSet[String]])
+            val tokens = Option(datastore.get(getUserIdKey(resourceId.get)).asInstanceOf[Set[String]])
             datastore.remove(getUserIdKey(resourceId.get))
             tokens.getOrElse(Set.empty[String])
           case Some("TOKEN") => Set(resourceId.get)

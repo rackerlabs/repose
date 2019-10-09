@@ -1,6 +1,10 @@
 = Release Notes
 
 == In Progress
+* [.breaking-tag]#Breaking Change# | https://repose.atlassian.net/browse/REP-7785[REP-7785] - Implemented a Hazelcast-backed datastore.
+** Removed the existing Distributed datastore.
+** Removed the existing Remote datastore.
+** Updated the Datastore, Datastore Service, and Datastore Patch APIs to support the Hazelcast datastore.
 * [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7954[REP-7954] - Updated dependencies:
 ** Jackson Databind: 2.9.9 → 2.9.9.3
 

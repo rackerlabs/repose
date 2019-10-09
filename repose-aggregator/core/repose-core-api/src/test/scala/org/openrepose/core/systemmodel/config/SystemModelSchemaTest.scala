@@ -137,7 +137,7 @@ class SystemModelSchemaTest extends ConfigurationTest {
                      |   </nodes>
                      |   <services>
                      |       <service name="atom-feed-service"/>
-                     |       <service name="dist-datastore"/>
+                     |       <service name="hazelcast-datastore"/>
                      |   </services>
                      |   <destinations>
                      |       <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"
@@ -153,8 +153,8 @@ class SystemModelSchemaTest extends ConfigurationTest {
                      |       <node id="node1" hostname="10.0.0.1" http-port="8088"/>
                      |   </nodes>
                      |   <services>
-                     |       <service name="dist-datastore"/>
-                     |       <service name="dist-datastore"/>
+                     |       <service name="hazelcast-datastore"/>
+                     |       <service name="hazelcast-datastore"/>
                      |   </services>
                      |   <destinations>
                      |       <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80"

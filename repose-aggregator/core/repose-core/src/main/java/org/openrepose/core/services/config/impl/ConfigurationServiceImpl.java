@@ -22,7 +22,8 @@ package org.openrepose.core.services.config.impl;
 import org.openrepose.commons.config.manager.ConfigurationUpdateManager;
 import org.openrepose.commons.config.manager.UpdateListener;
 import org.openrepose.commons.config.parser.common.ConfigurationParser;
-import org.openrepose.commons.config.parser.jaxb.TemplatingJaxbConfigurationParser;
+import org.openrepose.commons.config.parser.common.TemplatingConfigurationParser;
+import org.openrepose.commons.config.parser.jaxb.JaxbConfigurationParser;
 import org.openrepose.commons.config.resource.ConfigurationResource;
 import org.openrepose.commons.config.resource.ConfigurationResourceResolver;
 import org.openrepose.commons.config.resource.impl.FileDirectoryResourceResolver;
@@ -180,7 +181,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         if (parser == null) {
             LOG.debug("Creating new jaxbConfigurationParser for the given configuration class: {}", configurationClass);
             try {
-                parser = new TemplatingJaxbConfigurationParser<>(configurationClass, xsdStreamSource, loader);
+                parser = new TemplatingConfigurationParser<>(new JaxbConfigurationParser<>(configurationClass, xsdStreamSource, loader));
             } catch (JAXBException e) {
                 throw new ConfigurationServiceException("Failed to create a JAXB context for a configuration parser!", e);
             }

@@ -20,7 +20,6 @@
 package features.core.config
 
 import org.junit.experimental.categories.Category
-import org.openrepose.framework.test.PortFinder
 import org.openrepose.framework.test.ReposeValveTest
 import org.rackspace.deproxy.Deproxy
 import scaffold.category.Core
@@ -42,12 +41,7 @@ class DefaultDestinationTest extends ReposeValveTest {
     }
 
     def setup() {
-        int dataStorePort = PortFinder.instance.getNextOpenPort()
-
         params = properties.getDefaultTemplateParams()
-        params += [
-            datastorePort: dataStorePort,
-        ]
 
         reposeLogSearch.cleanLog()
         repose.configurationProvider.cleanConfigDirectory()

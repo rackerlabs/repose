@@ -18,6 +18,7 @@ dependencies {
     compile project(":repose-aggregator:components:services:http-logging-service:http-logging-service-impl")
     compile project(":repose-aggregator:components:services:open-tracing-service")
     compile project(":repose-aggregator:components:services:phone-home-service")
+    compile project(":repose-aggregator:components:services:rate-limiting-service") // Add the rate limiting service classes to the classpath so that the core classloader can access UserRateLimit for serialization/deserialization by the datastore
     compile project(":repose-aggregator:components:services:uri-redaction-service:uri-redaction-service-api")
     compile project(":repose-aggregator:components:services:uri-redaction-service:uri-redaction-service-impl")
     compile project(":repose-aggregator:core:repose-core-api")

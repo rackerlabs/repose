@@ -54,20 +54,8 @@ public class CachedRateLimitTest {
     }
 
     @Test
-    public void shouldLogHits() {
-        final CachedRateLimit limit = new CachedRateLimit(cfg);
-        limit.logHit();
-        limit.logHit();
-        limit.logHit();
-
-        assertThat(limit.amount(), equalTo(3));
-    }
-
-    @Test
     public void shouldGiveAccurateExpirationDates() {
-        final CachedRateLimit limit = new CachedRateLimit(cfg);
-        limit.logHit();
-        limit.logHit();
+        final CachedRateLimit limit = new CachedRateLimit(cfg, 2);
 
         long currentTime = System.currentTimeMillis();
 
@@ -77,40 +65,6 @@ public class CachedRateLimitTest {
         assertThat(soonestRequest, lessThanOrEqualTo(nextExpiration));
         assertThat(soonestRequest, greaterThanOrEqualTo(currentTime));
         assertThat(nextExpiration, greaterThanOrEqualTo(currentTime));
-    }
-
-    @Test
-    public void shouldVacuumExpiredHits() {
-        when(cfg.getValue()).thenReturn(3);
-        when(cfg.getUnit()).thenReturn(TimeUnit.SECOND);
-
-        final CachedRateLimit limit = new CachedRateLimit(cfg);
-        limit.logHit();
-
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException ie) {
-        }
-
-        assertThat(limit.amount(), equalTo(0));
-    }
-
-    @Test
-    public void shouldMaintainHitsThatHaveNotExpired() {
-        when(cfg.getValue()).thenReturn(3);
-        when(cfg.getUnit()).thenReturn(TimeUnit.SECOND);
-
-        final CachedRateLimit limit = new CachedRateLimit(cfg);
-        limit.logHit();
-
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException ie) {
-        }
-
-        limit.logHit();
-
-        assertThat(limit.amount(), equalTo(1));
     }
 
     @Test
@@ -132,11 +86,7 @@ public class CachedRateLimitTest {
 
     @Test
     public void amount_get() {
-        final CachedRateLimit limit = new CachedRateLimit(cfg);
-
-        assertThat(limit.amount(), equalTo(0));
-
-        limit.logHit();
+        final CachedRateLimit limit = new CachedRateLimit(cfg, 1);
 
         assertThat(limit.amount(), equalTo(1));
     }

@@ -101,13 +101,13 @@ The value of this header will be the preferred media type provided in the `Accep
 | `502`
 |
 * If there is an issue obtaining absolute limits from the origin service.
-* If there is an issue committing an updated limit across nodes when using the <<../services/datastores.adoc#, Distributed Datastore>>.
+* If there is an issue committing an updated limit across nodes when using a <<../services/datastores.adoc#, distributed datastore>>.
 
 | `503`
 |
 * If the filter has not yet initialized.
 * If a global rate limit is reached.
-* If a <<../services/datastores.adoc#, Distributed Datastore>> action fails.
+* If a <<../services/datastores.adoc#, distributed datastore>> action fails.
 |===
 
 == Examples
@@ -119,7 +119,7 @@ Provided below are sample requests to give you a better idea of what that looks 
 [source, xml]
 .rate-limiting.cfg.xml
 ----
-<rate-limiting datastore="distributed/hash-ring" use-capture-groups="false" xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
+<rate-limiting use-capture-groups="false" xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0">
     <request-endpoint <!--1-->
         uri-regex="/limits" <!--2-->
         include-absolute-limits="false"/> <!--3-->
@@ -182,7 +182,7 @@ This configuration provides per-user limits, global limits, and an endpoint to q
 ----
 <rate-limiting xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0"
     overLimit-429-responseCode="true" <!--1-->
-    datastore="distributed/hash-ring" <!--2-->
+    datastore="hazelcast" <!--2-->
     datastore-warn-limit="1200" <!--3-->
     use-capture-groups="true"> <!--4-->
 
@@ -333,6 +333,8 @@ To retrieve limits from a origin service, a request will be made through the *Re
 ====
 
 === Distributed Datastore
-If this filter is configured to use the <<../services/datastores.adoc#, Distributed Datastore>>, and the Distributed Datastore service is unable to communicate with other nodes (e.g., during a rolling upgrade to *Repose*), then the Distributed Datastore service will fall back on the local datastore.
-Consequently, rate limits may not be tracked correctly during the transition from the Distributed Datastore to the local datastore or vice-versa.
-To be more precise, when Distributed Datastore nodes are unreachable, limit data cannot be be retrieved, and so new limits are created in the local datastore.
+
+If a <<../services/datastores.adoc#, distributed datastore>> is used, a partition event may leave some rate limiting data inaccessible.
+If and when such an event occurs, rate limits may not be tracked or handled with perfect accuracy.
+In nearly all cases, availability is chosen over consistency to allow *Repose* to continue serving requests even if it comes at the cost of inaccurate rate limits.
+In short, while rate limits will still be tracked and enforced, networking failures can cause more requests than desired to be passed to the origin service.

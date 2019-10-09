@@ -59,7 +59,7 @@ class UserRateLimitTest {
         ArrayList<Pair<String, ConfiguredRatelimit>> matchingLimits = new ArrayList<Pair<String, ConfiguredRatelimit>>();
         matchingLimits.add(Pair.of(limitId, configuredRatelimit));
 
-        UserRateLimit patchedLimit = rateLimit.applyPatch(new UserRateLimit.Patch(matchingLimits))
+        UserRateLimit patchedLimit = new UserRateLimit.Patch(matchingLimits).applyPatch(rateLimit)
         assertThat(patchedLimit, containsLimit(limitId, [method], now, TimeUnit.MINUTES, uriRegex))
     }
 
@@ -78,7 +78,7 @@ class UserRateLimitTest {
         matchingLimits.add(Pair.of(limitId, configuredRatelimit));
         matchingLimits.add(Pair.of(limitId2, configuredRatelimit2));
 
-        UserRateLimit patchedLimit = rateLimit.applyPatch(new UserRateLimit.Patch(matchingLimits))
+        UserRateLimit patchedLimit = new UserRateLimit.Patch(matchingLimits).applyPatch(rateLimit)
         Assert.assertEquals(1, patchedLimit.limitMap.get(limitId).amount())
         assertEquals(null, patchedLimit.limitMap.get(limitId2))
     }
@@ -95,7 +95,7 @@ class UserRateLimitTest {
         ArrayList<Pair<String, ConfiguredRatelimit>> matchingLimits = new ArrayList<Pair<String, ConfiguredRatelimit>>();
         matchingLimits.add(Pair.of(limitId, configuredRatelimit));
 
-        UserRateLimit patchedLimit = rateLimit.applyPatch(new UserRateLimit.Patch(matchingLimits))
+        UserRateLimit patchedLimit = new UserRateLimit.Patch(matchingLimits).applyPatch(rateLimit)
         assertThat(patchedLimit, containsLimit(limitId, [method], System.currentTimeMillis(), TimeUnit.MINUTES, uriRegex))
     }
 
@@ -114,7 +114,7 @@ class UserRateLimitTest {
         ArrayList<Pair<String, ConfiguredRatelimit>> matchingLimits = new ArrayList<Pair<String, ConfiguredRatelimit>>();
         matchingLimits.add(Pair.of(limitId, configuredRatelimit));
 
-        UserRateLimit patchedLimit = rateLimit.applyPatch(new UserRateLimit.Patch(matchingLimits))
+        UserRateLimit patchedLimit = new UserRateLimit.Patch(matchingLimits).applyPatch(rateLimit)
         assertThat(patchedLimit, not(sameInstance(rateLimit)))
     }
 

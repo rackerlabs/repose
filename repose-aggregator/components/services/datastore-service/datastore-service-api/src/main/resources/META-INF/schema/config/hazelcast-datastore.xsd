@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns="http://docs.openrepose.org/repose/hazelcast-datastore/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/hazelcast-datastore/v1.0"
+           attributeFormDefault="unqualified"
+           elementFormDefault="qualified">
+
+    <xs:element name="hazelcast-datastore" type="HazelcastDatastoreConfig"/>
+
+    <xs:complexType name="HazelcastDatastoreConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Hazelcast Datastore settings.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:choice>
+            <xs:element name="complete" type="CompleteConfig"/>
+            <xs:element name="simplified" type="SimplifiedConfig"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="CompleteConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A hook that allows for usage of a standard Hazelcast configuration.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="href" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        A direct URI reference to a complete Hazelcast XML configuration.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="SimplifiedConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A custom subset of the full Hazelcast configuration meant to simplify usage.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:all>
+            <xs:element name="port" type="xs:unsignedShort" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            The port which Hazelcast will use to communicate between cluster members.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="join" type="Join" minOccurs="1" maxOccurs="1"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="Join">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The `join` configuration element is used to enable the Hazelcast instances to form a cluster,
+                    i.e. to join the members. The following ways can be used to join the members: discovery by TCP/IP,
+                    by multicast, by discovery on Kubernetes, and by discovery on AWS (EC2 auto-discovery).
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:choice>
+            <xs:element name="tcp-ip" type="Tcp-ip"/>
+            <xs:element name="multicast" type="Multicast"/>
+            <xs:element name="aws" type="Aliased-discovery-strategy"/>
+            <xs:element name="kubernetes" type="Aliased-discovery-strategy"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="Tcp-ip">
+        <xs:sequence>
+            <xs:element name="member" type="xs:string" minOccurs="1" maxOccurs="unbounded" default="127.0.0.1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            IP address(es) of one or more well known members. Once members are connected to these
+                            well known ones, all member addresses will be communicated with each other.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+
+        <xs:attribute name="connection-timeout-seconds" type="xs:int" use="optional" default="5">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The maximum amount of time Hazelcast is going to try to connect to a well known member
+                        before giving up. Setting it to a too low value could mean that a member is not able
+                        to connect to a cluster. Setting it to a too high value means that member startup could
+                        slow down because of longer timeouts (e.g. when a well known member is not up). Increasing
+                        this value is recommended if you have many IPs listed and the members cannot properly
+                        build up the cluster. Its default value is 5.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="Multicast">
+        <xs:all>
+            <xs:element name="multicast-group" type="xs:string" minOccurs="0" maxOccurs="1" default="224.2.2.3">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            The multicast group IP address. Specify it when you want to create clusters within the
+                            same network. Values can be between 224.0.0.0 and 239.255.255.255. Default value is
+                            224.2.2.3.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="multicast-port" type="xs:unsignedShort" minOccurs="0" maxOccurs="1" default="54327">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            The multicast socket port through which the Hazelcast member listens and sends discovery
+                            messages.
+                            Default value is 54327.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="multicast-timeout-seconds" type="xs:int" minOccurs="0" maxOccurs="1" default="2">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Only when the nodes are starting up, this timeout (in seconds) specifies the period during
+                            which a node waits for a multicast response from another node. For example, if you set it
+                            to 60 seconds, each node will wait for 60 seconds until a leader node is selected.
+                            Its default value is 2 seconds.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="multicast-time-to-live" type="xs:int" minOccurs="0" maxOccurs="1" default="32">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Time-to-live value for multicast packets sent out to control the scope of multicasts.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="Aliased-discovery-strategy">
+        <xs:sequence>
+            <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+        </xs:sequence>
+        <xs:attribute name="connection-timeout-seconds" type="xs:int" use="optional" default="5">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The maximum amount of time Hazelcast is going to try to connect to a well known member
+                        before giving up. Please check if the specific discovery strategy supports this property.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>
