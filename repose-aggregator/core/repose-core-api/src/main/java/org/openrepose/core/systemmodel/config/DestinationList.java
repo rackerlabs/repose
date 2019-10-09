@@ -23,6 +23,7 @@ import lombok.Data;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -36,4 +37,6 @@ import java.util.List;
 public class DestinationList
     implements Serializable {
     private List<Destination> endpoint = new ArrayList<>();
+    @XmlAttribute(name = "url-encode-headers")
+    private String urlEncodeHeaders;
 }

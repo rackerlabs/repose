@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="groovy">
+    switch(request.getHeader("Test-Case")) {
+        case "A" :
+            request.addHeader("x-header-two", "banana")
+            break
+        case "B" :
+            request.addHeader("x-header-two", "バナナ")
+            break
+    }
+
+    request.addHeader("x-header-three", "bar")
+    filterChain.doFilter(request, response)
+</scripting>
