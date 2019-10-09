@@ -1,8 +1,9 @@
 = Release Notes
 
 == Upcoming Release 9.1.0.0 (2019-??-??)
+* [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7966[REP-7966] - Added option to <<../architecture/system-model.adoc#, System Model>> to allow a header value to be URL encoded before being sent to the origin service.
 * [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7954[REP-7954] - Updated dependencies:
-** Jackson Databind: 2.9.9 → 2.9.9.3
+** Jackson: 2.9.9 → 2.9.10
 
 === Integrators
 * [.breaking-tag]#Breaking Change# | https://repose.atlassian.net/browse/REP-6825[REP-6825] - Scala and all dependent libraries upgraded to 2.12 versions.

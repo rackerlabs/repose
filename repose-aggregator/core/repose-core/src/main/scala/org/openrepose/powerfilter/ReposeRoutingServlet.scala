@@ -68,6 +68,7 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
   private var localNode: Node = _
   private var defaultDestination: Destination = _
   private var destinations: Map[String, Destination] = Map.empty
+  private var urlEncodeHeaders: List[String] = List.empty
   private var rewriteHostHeader: Boolean = _
   private var initialized = false
 
@@ -104,6 +105,8 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
       .map(it => it.getId -> it)
       .toMap
     rewriteHostHeader = configurationObject.isRewriteHostHeader
+
+    urlEncodeHeaders = Option(configurationObject.getDestinations.getUrlEncodeHeaders).map(_.split(",").map(_.toLowerCase).toList).getOrElse(List.empty)
 
     //Build a list of the destinations in this cluster, just so we know what we're doing
     val destStrings = destinations
@@ -244,6 +247,7 @@ class ReposeRoutingServlet @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_V
       servletRequest,
       target.url.toURI,
       rewriteHostHeader,
+      urlEncodeHeaders.asJava,
       target.chunkedEncoding)
   }
 

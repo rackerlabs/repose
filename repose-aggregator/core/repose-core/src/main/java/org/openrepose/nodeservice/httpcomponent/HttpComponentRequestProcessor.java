@@ -37,9 +37,13 @@ import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -84,6 +88,7 @@ public class HttpComponentRequestProcessor {
     public static HttpUriRequest process(HttpServletRequest servletRequest,
                                          URI target,
                                          boolean rewriteHostHeader,
+                                         List<String> urlEncodeHeaders,
                                          ChunkedEncoding chunkedEncoding) throws URISyntaxException, IOException {
         final RequestBuilder requestBuilder = RequestBuilder.create(servletRequest.getMethod())
             .setUri(getUri(servletRequest, target));
@@ -97,7 +102,7 @@ public class HttpComponentRequestProcessor {
             }
         }
         final HttpUriRequest clientRequest = requestBuilder.build();
-        setHeaders(servletRequest, clientRequest, target, rewriteHostHeader);
+        setHeaders(servletRequest, clientRequest, target, urlEncodeHeaders, rewriteHostHeader);
         return clientRequest;
     }
 
@@ -119,7 +124,8 @@ public class HttpComponentRequestProcessor {
     private static String processHeaderValue(String headerName,
                                              String headerValue,
                                              URI target,
-                                             boolean rewriteHostHeader) {
+                                             List<String> urlEncodeHeaders,
+                                             boolean rewriteHostHeader) throws UnsupportedEncodingException {
         String result = headerValue;
 
         // todo: is this necessary, or redundant with setting the URI?
@@ -132,6 +138,10 @@ public class HttpComponentRequestProcessor {
             } else {
                 result = target.getHost() + ":" + target.getPort();
             }
+        }
+
+        if (urlEncodeHeaders.contains(headerName.toLowerCase())) {
+            result = URLEncoder.encode(headerValue, StandardCharsets.UTF_8.name());
         }
 
         return result;
@@ -147,7 +157,8 @@ public class HttpComponentRequestProcessor {
     private static void setHeaders(HttpServletRequest servletRequest,
                                    HttpMessage message,
                                    URI target,
-                                   boolean rewriteHostHeader) {
+                                   List<String> urlEncodeHeaders,
+                                   boolean rewriteHostHeader) throws UnsupportedEncodingException {
         final Enumeration<String> headerNames = servletRequest.getHeaderNames();
 
         while (headerNames.hasMoreElements()) {
@@ -158,7 +169,7 @@ public class HttpComponentRequestProcessor {
 
                 while (headerValues.hasMoreElements()) {
                     String headerValue = headerValues.nextElement();
-                    message.addHeader(headerName, processHeaderValue(headerName, headerValue, target, rewriteHostHeader));
+                    message.addHeader(headerName, processHeaderValue(headerName, headerValue, target, urlEncodeHeaders, rewriteHostHeader));
                 }
             }
         }

@@ -33,6 +33,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,6 +61,7 @@ public class HttpComponentRequestProcessorTest {
             request,
             URI.create("http://www.openrepose.org:8080"),
             true,
+            Collections.emptyList(),
             ChunkedEncoding.TRUE);
 
         assertThat(clientRequest.getMethod(), equalTo(request.getMethod()));
@@ -75,6 +77,7 @@ public class HttpComponentRequestProcessorTest {
             request,
             URI.create("http://www.openrepose.org:8080" + targetPath),
             true,
+            Collections.emptyList(),
             ChunkedEncoding.TRUE);
 
         assertThat(clientRequest.getURI().getPath(), equalTo(targetPath));
@@ -90,6 +93,7 @@ public class HttpComponentRequestProcessorTest {
             request,
             URI.create("http://www.openrepose.org:8080"),
             true,
+            Collections.emptyList(),
             ChunkedEncoding.TRUE);
 
         assertThat(clientRequest.getURI().toString(), allOf(containsString("param1%5B%5D=value1"), containsString("param2=value21"), containsString("param2=value22")));
@@ -101,12 +105,30 @@ public class HttpComponentRequestProcessorTest {
             request,
             URI.create("http://www.openrepose.org:8080"),
             true,
+            Collections.emptyList(),
             ChunkedEncoding.TRUE);
 
         List<String> header1Values = Arrays.stream(clientRequest.getHeaders("header1")).map(NameValuePair::getValue).collect(Collectors.toList());
         List<String> header2Values = Arrays.stream(clientRequest.getHeaders("header2")).map(NameValuePair::getValue).collect(Collectors.toList());
 
         assertThat(header1Values, contains(values1));
+        assertThat(header2Values, contains(values2));
+    }
+
+    @Test
+    public void shouldEncodeConfiguredHeaders() throws Exception {
+        request.addHeader("Header1", "バナナ");
+        HttpUriRequest clientRequest = HttpComponentRequestProcessor.process(
+            request,
+            URI.create("http://www.openrepose.org:8080"),
+            true,
+            Collections.singletonList("header1"),
+            ChunkedEncoding.TRUE);
+
+        List<String> header1Values = Arrays.stream(clientRequest.getHeaders("header1")).map(NameValuePair::getValue).collect(Collectors.toList());
+        List<String> header2Values = Arrays.stream(clientRequest.getHeaders("header2")).map(NameValuePair::getValue).collect(Collectors.toList());
+
+        assertThat(header1Values, hasItem("%E3%83%90%E3%83%8A%E3%83%8A"));
         assertThat(header2Values, contains(values2));
     }
 
@@ -118,6 +140,7 @@ public class HttpComponentRequestProcessorTest {
             request,
             URI.create("http://www.openrepose.org"),
             true,
+            Collections.emptyList(),
             ChunkedEncoding.TRUE);
 
         assertThat(clientRequest.getFirstHeader("Host").getValue(), equalTo("www.openrepose.org"));
@@ -131,6 +154,7 @@ public class HttpComponentRequestProcessorTest {
             request,
             URI.create("http://www.openrepose.org:8080"),
             true,
+            Collections.emptyList(),
             ChunkedEncoding.TRUE);
 
         assertThat(clientRequest.getFirstHeader("Host").getValue(), equalTo("www.openrepose.org:8080"));
@@ -146,6 +170,7 @@ public class HttpComponentRequestProcessorTest {
             request,
             URI.create("http://www.openrepose.org:8080"),
             true,
+            Collections.emptyList(),
             ChunkedEncoding.TRUE);
     }
 
@@ -159,6 +184,7 @@ public class HttpComponentRequestProcessorTest {
             request,
             URI.create("http://www.openrepose.org:8080"),
             true,
+            Collections.emptyList(),
             ChunkedEncoding.TRUE);
     }
 
@@ -172,6 +198,7 @@ public class HttpComponentRequestProcessorTest {
             request,
             URI.create("http://www.openrepose.org:8080"),
             true,
+            Collections.emptyList(),
             ChunkedEncoding.TRUE);
     }
 
@@ -185,6 +212,7 @@ public class HttpComponentRequestProcessorTest {
             request,
             URI.create("http://www.openrepose.org:8080"),
             true,
+            Collections.emptyList(),
             ChunkedEncoding.TRUE);
     }
 
@@ -198,6 +226,7 @@ public class HttpComponentRequestProcessorTest {
             request,
             URI.create("http://www.openrepose.org:8080"),
             true,
+            Collections.emptyList(),
             ChunkedEncoding.TRUE);
 
         String clientRequestContent = EntityUtils.toString(clientRequest.getEntity());
@@ -214,6 +243,7 @@ public class HttpComponentRequestProcessorTest {
             request,
             URI.create("http://www.openrepose.org"),
             true,
+            Collections.emptyList(),
             ChunkedEncoding.TRUE);
 
         assertThat(clientRequest.getEntity().getContentLength(), lessThan(0L));
@@ -229,6 +259,7 @@ public class HttpComponentRequestProcessorTest {
             request,
             URI.create("http://www.openrepose.org"),
             true,
+            Collections.emptyList(),
             ChunkedEncoding.FALSE);
 
         assertThat(clientRequest.getEntity().getContentLength(), equalTo((long) servletRequestContent.length()));
@@ -245,6 +276,7 @@ public class HttpComponentRequestProcessorTest {
             request,
             URI.create("http://www.openrepose.org"),
             true,
+            Collections.emptyList(),
             ChunkedEncoding.AUTO);
 
         assertThat(clientRequest.getEntity().getContentLength(), lessThan(0L));
@@ -260,6 +292,7 @@ public class HttpComponentRequestProcessorTest {
             request,
             URI.create("http://www.openrepose.org"),
             true,
+            Collections.emptyList(),
             ChunkedEncoding.FALSE);
 
         assertThat(clientRequest.getEntity().getContentLength(), equalTo((long) servletRequestContent.length()));
@@ -274,6 +307,7 @@ public class HttpComponentRequestProcessorTest {
             request,
             URI.create("http://www.openrepose.org"),
             true,
+            Collections.emptyList(),
             ChunkedEncoding.TRUE);
     }
 
@@ -288,6 +322,7 @@ public class HttpComponentRequestProcessorTest {
             request,
             URI.create("http://www.openrepose.org"),
             true,
+            Collections.emptyList(),
             ChunkedEncoding.TRUE);
 
         assertThat(clientRequest.getEntity().getContentLength(), lessThan(0L));
