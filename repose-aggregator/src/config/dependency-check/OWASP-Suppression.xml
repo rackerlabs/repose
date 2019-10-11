@@ -77,12 +77,42 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-            file name: jackson-databind-2.9.9.jar
+            file name: jackson-databind-2.9.10.jar
             NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
             Additionally we don't utilize any of the affected functionality.
-        ]]></notes>
-        <gav regex="true">^com\.fasterxml\.jackson\.core:jackson-databind:.*$</gav>
-        <cve>CVE-2019-12814</cve>
+            ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+        <cve>CVE-2019-16942</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: jackson-databind-2.9.10.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
+            Additionally we don't utilize any of the affected functionality.
+            ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+        <cpe>cpe:/a:fasterxml:jackson-databind</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: jackson-databind-2.9.10.jar
+            ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+        <cpe>cpe:/a:fasterxml:jackson</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: spray-json_2.12-1.3.2.jar
+            ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.spray/spray\-json_2\.12@.*$</packageUrl>
+        <vulnerabilityName>CVE-2018-18853</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: spray-json_2.12-1.3.2.jar
+            ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.spray/spray\-json_2\.12@.*$</packageUrl>
+        <vulnerabilityName>CVE-2018-18854</vulnerabilityName>
     </suppress>
     <suppress>
         <notes><![CDATA[

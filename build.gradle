@@ -22,7 +22,7 @@ buildscript {
         classpath 'com.bmuschko:gradle-docker-plugin:3.2.1'
         classpath 'gradle.plugin.org.openrepose:gradle-linkchecker-plugin:1.0.0'
         classpath 'gradle.plugin.io.github.http-builder-ng:http-plugin:0.1.1'
-        classpath 'org.owasp:dependency-check-gradle:5.2.0'
+        classpath 'org.owasp:dependency-check-gradle:5.2.2'
     }
 }
 
