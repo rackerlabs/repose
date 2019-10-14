@@ -513,21 +513,6 @@ class HeaderPassthroughTest extends ReposeValveTest {
         ]
     }
 
-    def "Requests - header values containing characters not allowed by HTTP/1.1 specification should be cause failure"() {
-        given:
-        String testHeaderName = 'Test-Header'
-
-        when:
-        MessageChain mc = deproxy.makeRequest(
-            url: reposeEndpoint,
-            headers: [(testHeaderName): (0xC0 as char) as String]
-        )
-
-        then:
-        mc.receivedResponse.code.toInteger() == SC_INTERNAL_SERVER_ERROR
-        mc.handlings.isEmpty()
-    }
-
     @Ignore("Jetty drops the invalid character causing Deproxy to fail when parsing the header")
     def "Responses - header values containing characters not allowed by HTTP/1.1 specification should be sanitized"() {
         given:
