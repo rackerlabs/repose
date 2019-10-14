@@ -24,7 +24,7 @@ import java.net.URL
 import org.junit.runner.RunWith
 import org.openrepose.commons.test.ConfigurationTest
 import org.openrepose.docs.repose.atom_feed_service.v1.ObjectFactory
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class AtomFeedSchemaTest extends ConfigurationTest {

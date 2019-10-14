@@ -21,7 +21,7 @@ package org.openrepose.nodeservice.atomfeed.impl.auth
 
 import java.util
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import javax.inject.Inject
 import javax.servlet.http.HttpServletResponse._
 import javax.ws.rs.core.{HttpHeaders, MediaType}

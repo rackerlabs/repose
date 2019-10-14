@@ -31,8 +31,8 @@ import org.apache.logging.log4j.test.appender.ListAppender
 import org.junit.runner.RunWith
 import org.openrepose.core.services.config.ConfigurationService
 import org.scalatest.concurrent.Eventually
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.time.{Seconds, Span}
 import org.scalatest.{FunSpec, Matchers}
 import org.slf4j.{Logger, LoggerFactory}

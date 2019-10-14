@@ -32,7 +32,7 @@ import org.junit.runner.RunWith
 import org.openrepose.core.container.config.{SslCipherConfiguration, SslConfiguration, SslProtocolConfiguration}
 import org.openrepose.core.spring.CoreSpringProvider
 import org.openrepose.valve.SpringContextResetter
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterAll, FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])

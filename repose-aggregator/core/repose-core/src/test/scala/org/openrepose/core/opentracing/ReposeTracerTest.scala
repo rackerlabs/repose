@@ -23,8 +23,8 @@ import io.opentracing.mock.MockTracer
 import io.opentracing.noop.NoopTracer
 import io.opentracing.util.GlobalTracer
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
 
 @RunWith(classOf[JUnitRunner])

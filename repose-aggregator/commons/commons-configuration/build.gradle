@@ -16,7 +16,7 @@ dependencies {
     testCompile "org.scala-lang:scala-library"
     testCompile "org.scalatest:scalatest_$scalaMajDotMin"
     testCompile "org.scala-lang:scala-reflect" // Forces the version used by scala-logging.
-    testCompile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
+    testCompile "com.typesafe.scala-logging:scala-logging_$scalaMajDotMin"
     testCompile "org.codehaus.groovy:groovy-all"
     testCompile "org.spockframework:spock-core"
     testCompile "org.apache.logging.log4j:log4j-slf4j-impl"

@@ -22,7 +22,7 @@ package org.openrepose.commons.utils.jmx
 import java.util
 import javax.management.{MalformedObjectNameException, ObjectName}
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import scala.util.Try
 

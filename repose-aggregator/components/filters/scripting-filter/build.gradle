@@ -3,7 +3,7 @@ dependencies {
     compile project(":repose-aggregator:commons:commons-utilities")
     compile "org.scala-lang:scala-library"
     compile "org.scala-lang:scala-reflect" // Forces the version used by scala-logging.
-    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
+    compile "com.typesafe.scala-logging:scala-logging_$scalaMajDotMin"
     compile "org.python:jython-standalone"
     compile "org.codehaus.groovy:groovy-all"
     compile "org.luaj:luaj-jse"

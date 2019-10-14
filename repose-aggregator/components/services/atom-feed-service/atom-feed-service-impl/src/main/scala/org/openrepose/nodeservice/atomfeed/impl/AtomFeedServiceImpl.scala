@@ -23,7 +23,7 @@ import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
 
 import akka.actor._
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import io.opentracing.Tracer
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.filter.SystemModelInterrogator
@@ -90,7 +90,7 @@ class AtomFeedServiceImpl @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VE
     configurationService.unsubscribeFrom(DefaultConfig, AtomFeedServiceConfigurationListener)
     configurationService.unsubscribeFrom(SystemModelConfig, SystemModelConfigurationListener)
 
-    actorSystem.shutdown()
+    actorSystem.terminate()
   }
 
   override def registerListener(feedId: String, listener: AtomFeedListener): String = {

@@ -22,7 +22,7 @@ package org.openrepose.core.services.opentracing
 import javax.annotation.{PostConstruct, PreDestroy}
 import javax.inject.{Inject, Named}
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import io.jaegertracing.Configuration
 import io.jaegertracing.Configuration.{SamplerConfiguration, SenderConfiguration}
 import io.jaegertracing.samplers.{ConstSampler, ProbabilisticSampler, RateLimitingSampler}

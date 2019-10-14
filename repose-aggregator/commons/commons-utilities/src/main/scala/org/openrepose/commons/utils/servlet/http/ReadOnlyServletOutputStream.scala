@@ -21,7 +21,7 @@ package org.openrepose.commons.utils.servlet.http
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import javax.servlet.ServletOutputStream
 
 class ReadOnlyServletOutputStream(servletOutputStream: ServletOutputStream)

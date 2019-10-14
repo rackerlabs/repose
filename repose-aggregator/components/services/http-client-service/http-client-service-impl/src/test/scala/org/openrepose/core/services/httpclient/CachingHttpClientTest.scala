@@ -37,12 +37,11 @@ import org.junit.runner.RunWith
 import org.mockito.Matchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.invocation.InvocationOnMock
-import org.mockito.stubbing.Answer
 import org.openrepose.core.services.httpclient
 import org.openrepose.core.services.httpclient.CachingHttpClientTest._
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.slf4j.MDC
 
 import scala.concurrent.duration._
@@ -336,16 +335,16 @@ class CachingHttpClientTest extends FunSpec with BeforeAndAfterEach with Mockito
     }
 
     it("should carry over the active opentracing span when making a request") {
+      val mockResponse = mock[CloseableHttpResponse]
+
       val localSpan = tracer.buildSpan("testSpan").start()
-      val localScope = tracer.scopeManager.activate(localSpan, true)
+      tracer.scopeManager.activate(localSpan, true)
 
       var realSpan: Span = NoopSpan.INSTANCE
       when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext]))
-        .thenAnswer(new Answer[CloseableHttpResponse] {
-          override def answer(invocation: InvocationOnMock): CloseableHttpResponse = {
-            realSpan = GlobalTracer.get.activeSpan()
-            null
-          }
+        .thenAnswer((_: InvocationOnMock) => {
+          realSpan = GlobalTracer.get.activeSpan()
+          mockResponse
         })
 
       val request = RequestBuilder.get("localhost").build()
@@ -356,6 +355,8 @@ class CachingHttpClientTest extends FunSpec with BeforeAndAfterEach with Mockito
     }
 
     it("should carry over the MDC when making a request") {
+      val mockResponse = mock[CloseableHttpResponse]
+
       val localKey = "testKey"
       val localValue = "testValue"
       MDC.put(localKey, localValue)
@@ -365,12 +366,10 @@ class CachingHttpClientTest extends FunSpec with BeforeAndAfterEach with Mockito
 
       var realValue: String = "garbage"
       when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext]))
-        .thenAnswer(new Answer[CloseableHttpResponse] {
-          override def answer(invocation: InvocationOnMock): CloseableHttpResponse = {
-            realValue = MDC.get(localKey)
-            MDC.put(remoteKey, remoteValue)
-            null
-          }
+        .thenAnswer((_: InvocationOnMock) => {
+          realValue = MDC.get(localKey)
+          MDC.put(remoteKey, remoteValue)
+          mockResponse
         })
 
       val request = RequestBuilder.get("localhost").build()
@@ -378,7 +377,7 @@ class CachingHttpClientTest extends FunSpec with BeforeAndAfterEach with Mockito
       cachingHttpClient.execute(request)
 
       realValue shouldEqual localValue
-      MDC.get(remoteKey) shouldBe null
+      MDC.get(remoteKey) shouldBe remoteValue
     }
   }
 }

@@ -23,7 +23,7 @@ import java.io.{IOException, StringWriter}
 import java.net.{URI, UnknownServiceException}
 
 import akka.actor._
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import io.opentracing.Tracer
 import io.opentracing.tag.Tags
 import org.apache.abdera.Abdera

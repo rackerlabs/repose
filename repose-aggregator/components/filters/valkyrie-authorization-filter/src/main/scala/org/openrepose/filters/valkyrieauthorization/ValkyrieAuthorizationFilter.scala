@@ -28,7 +28,7 @@ import java.util.regex.PatternSyntaxException
 import com.fasterxml.jackson.core.JsonParseException
 import com.jayway.jsonpath.{DocumentContext, InvalidJsonException, JsonPath, PathNotFoundException}
 import com.rackspace.httpdelegation.HttpDelegationManager
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import javax.inject.{Inject, Named}
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._

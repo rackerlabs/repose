@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit
 
 import com.codahale.metrics.MetricRegistry
 import com.codahale.metrics.httpclient._
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import io.opentracing.Tracer
 import javax.inject.{Inject, Named}
 import javax.net.ssl.SSLContext

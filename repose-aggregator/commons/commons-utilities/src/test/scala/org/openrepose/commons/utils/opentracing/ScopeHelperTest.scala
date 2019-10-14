@@ -28,8 +28,8 @@ import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, anyBoolean, anyString, isNull, eq => eql}
 import org.mockito.Mockito.{verify, when}
 import org.openrepose.core.services.uriredaction.UriRedactionService
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.slf4j.Logger
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse}

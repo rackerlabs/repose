@@ -49,8 +49,8 @@ import org.openrepose.core.systemmodel.config._
 import org.openrepose.nodeservice.containerconfiguration.ContainerConfigurationService
 import org.openrepose.powerfilter.ReposeRoutingServletTest._
 import org.scalatest.TryValues._
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSpec, Matchers}
 import org.springframework.mock.web.{MockHttpServletRequest, MockHttpServletResponse, MockServletConfig}
 

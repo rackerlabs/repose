@@ -20,7 +20,7 @@
 package org.openrepose.core.services.httplogging
 
 import com.fasterxml.jackson.core.JsonProcessingException
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import javax.inject.Named
 import org.jtwig.environment.{EnvironmentConfiguration, EnvironmentConfigurationBuilder}
 import org.jtwig.exceptions.JtwigException

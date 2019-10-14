@@ -4,7 +4,7 @@ dependencies {
     compile "com.fasterxml.jackson.core:jackson-core"
     compile "com.google.guava:guava" // Forces the version used by jtwig-core
     compile "com.typesafe.play:play-json_$scalaMajDotMin"
-    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajDotMin"
+    compile "com.typesafe.scala-logging:scala-logging_$scalaMajDotMin"
     compile "org.jtwig:jtwig-core"
     compile "org.scala-lang:scala-library"
 

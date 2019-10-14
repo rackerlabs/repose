@@ -25,8 +25,8 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito.{reset, verify}
 import org.openrepose.nodeservice.atomfeed.impl.actors.Notifier._
 import org.openrepose.nodeservice.atomfeed.{AtomFeedListener, LifecycleEvents}
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FunSuiteLike}
 
 @RunWith(classOf[JUnitRunner])

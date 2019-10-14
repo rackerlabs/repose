@@ -24,7 +24,7 @@ import java.nio.charset.{Charset, StandardCharsets}
 import java.util
 import java.util.Date
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.{ServletOutputStream, ServletResponse}
 import javax.ws.rs.core.HttpHeaders

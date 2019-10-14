@@ -26,8 +26,8 @@ import org.mockito.Matchers.any
 import org.mockito.Mockito.when
 import org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper
 import org.scalatest._
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.springframework.mock.web.MockHttpServletRequest
 
 @RunWith(classOf[JUnitRunner])

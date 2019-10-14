@@ -25,8 +25,8 @@ import javax.servlet.ServletOutputStream
 
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{FunSpec, Matchers}
 
 import scala.io.Source

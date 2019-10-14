@@ -22,7 +22,7 @@ package org.openrepose.filters.core.filterfour
 import javax.inject.Named
 import javax.servlet._
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.openrepose.others.SimplicityDivine
 
 /**

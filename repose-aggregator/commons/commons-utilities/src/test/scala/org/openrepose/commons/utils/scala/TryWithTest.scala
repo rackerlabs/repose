@@ -20,7 +20,7 @@
 package org.openrepose.commons.utils.scala
 
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 import scala.util.{Failure, Success}

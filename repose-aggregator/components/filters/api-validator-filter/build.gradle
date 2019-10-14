@@ -4,6 +4,7 @@ dependencies {
     compile project(":repose-aggregator:core:repose-core")
     compile "xalan:xalan" // Forces the version used by api-checker.
     compile "com.google.guava:guava" // Forces the version used by api-checker.
+    compile "io.spray:spray-json_2.12" // Forces the version used by api-checker.
     compile "com.rackspace.papi.components.api-checker:checker-core"
     compile "io.dropwizard.metrics:metrics-core"
     compile "org.slf4j:slf4j-api"
