@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>9.1.0.0~SNAPSHOT | Services | HTTP Logging Service</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="/_stylesheets/asciibinder.css" >
+  <link rel="stylesheet" href="/_stylesheets/repose.css" >
+  <link rel="stylesheet" href="/_stylesheets/release-note-categories.css" >
+
+   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+   <!--[if lt IE 9]>
+     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+   <![endif]-->
+
+  <link href="/_images/favicon32x32.png" rel="shortcut icon" type="text/css">
+  <!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
+  <meta content="AsciiBinder" name="application-name">
+</head>
+<body onload="selectVersion('9.1.0.0~SNAPSHOT');">
+  <div class="container">
+    <p class="toggle-nav visible-xs pull-left">
+      <button class="btn btn-default btn-sm" type="button" data-toggle="offcanvas">Toggle nav</button>
+    </p>
+    <ol class="breadcrumb">
+      <li class="sitename">
+        <a class="navbar-brand" href="http://www.openrepose.org/">
+          <img alt="OpenRepose" src="/_images/repose-logo.png" align="bottom">
+        </a>
+      </li>
+      <li class="sitename">
+        <a href="../../index.html">
+          Home
+        </a>
+      </li>
+      <li class="hidden-xs active">
+        <a href="/versions/9.1.0.0~SNAPSHOT/welcome/index.html">
+          Repose
+        </a>
+        <select id="version-selector" onchange="versionSelector(this);" w3-include-html="/_includes/versions.html">
+        </select>
+      </li>
+      <li class="hidden-xs active">
+        <a href="../services/index.html">Services</a>
+      </li>
+      
+      <li class="hidden-xs active">
+        HTTP Logging Service
+      </li>
+    </ol>
+    <div class="row row-offcanvas row-offcanvas-left">
+      <div class="col-xs-8 col-sm-3 col-md-3 sidebar sidebar-offcanvas">
+        <a class="navbar-search" href="/versions/search.html">
+          <span class="glyphicon glyphicon-search"/>
+          Search
+        </a>
+        <ul class="nav nav-sidebar">
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup0">
+        <span id="tgSpan0" class="fa fa-angle-right"></span>Welcome to Repose
+      </a>
+      <ul id="topicGroup0" class="collapse  list-unstyled">
+            <li><a class="" href="../welcome/index.html">Welcome</a></li>
+            <li><a class="" href="../welcome/troubleshooting.html">Troubleshooting</a></li>
+            <li><a class="" href="../welcome/release-notes.html">Release Notes</a></li>
+            <li><a class="" href="../welcome/ver-9-upgrade-notes.html">Version 9 Upgrade Notes</a></li>
+            <li><a class="" href="../welcome/style-guide.html">Style Guide</a></li>
+            <li><a class="" href="../welcome/faq.html">FAQ</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup1">
+        <span id="tgSpan1" class="fa fa-angle-right"></span>Architecture
+      </a>
+      <ul id="topicGroup1" class="collapse  list-unstyled">
+            <li><a class="" href="../architecture/index.html">Overview</a></li>
+            <li><a class="" href="../architecture/configuration.html">Configuration</a></li>
+            <li><a class="" href="../architecture/container.html">Container</a></li>
+            <li><a class="" href="../architecture/filter-chain.html">Filter Chain</a></li>
+            <li><a class="" href="../architecture/logging.html">Logging</a></li>
+            <li><a class="" href="../architecture/packages.html">Packages</a></li>
+            <li><a class="" href="../architecture/servlet-spec.html">Servlet Specification</a></li>
+            <li><a class="" href="../architecture/system-model.html">System Model</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup2">
+        <span id="tgSpan2" class="fa fa-angle-right"></span>Recipes
+      </a>
+      <ul id="topicGroup2" class="collapse  list-unstyled">
+            <li><a class="" href="../recipes/index.html">Overview</a></li>
+            <li><a class="" href="../recipes/quick-start.html">Quick Start</a></li>
+            <li><a class="" href="../recipes/getting-started.html">Getting Started</a></li>
+            <li><a class="" href="../recipes/custom-filter-for-repose.html">Custom Filter for Repose</a></li>
+            <li><a class="" href="../recipes/docker.html">Docker</a></li>
+            <li><a class="" href="../recipes/performance-best-practices.html">Performance Best Practices</a></li>
+            <li><a class="" href="../recipes/role-based-access-control.html">Role Based Access Control</a></li>
+            <li><a class="" href="../recipes/running-valve.html">Running Valve</a></li>
+            <li><a class="" href="../recipes/valve-installation.html">Valve Installation</a></li>
+            <li><a class="" href="../recipes/echo-server.html">Echo Server</a></li>
+            <li><a class="" href="../recipes/rate-limiting.html">Rate Limiting</a></li>
+            <li><a class="" href="../recipes/multi-tenant.html">Multi Tenant Authorization</a></li>
+            <li><a class="" href="../recipes/user-access-events.html">User Access Events</a></li>
+            <li><a class="" href="../recipes/basic-authentication.html">Basic Authentication</a></li>
+            <li><a class="" href="../recipes/delegation.html">Delegation</a></li>
+            <li><a class="" href="../recipes/preventing-xml-bomb.html">Preventing XML bomb attacks</a></li>
+            <li><a class="" href="../recipes/api-event-flume.html">API Access Event Recording with Flume</a></li>
+            <li><a class="" href="../recipes/xsd-versioning.html">XSD Versioning Guidelines</a></li>
+            <li><a class="" href="../recipes/client-authentication.html">SSL/TLS Client Authentication</a></li>
+            <li><a class="" href="../recipes/functional-test-framework.html">Functional Test Framework</a></li>
+            <li><a class="" href="../recipes/header-splitting.html">Header Splitting</a></li>
+            <li><a class="" href="../recipes/reason-phrase-normalization.html">Reason Phrase Normalization</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup3">
+        <span id="tgSpan3" class="fa fa-angle-right"></span>Filters
+      </a>
+      <ul id="topicGroup3" class="collapse  list-unstyled">
+            <li><a class="" href="../filters/index.html">Overview</a></li>
+            <li><a class="" href="../filters/add-header.html">Add Header Filter</a></li>
+            <li><a class="" href="../filters/api-validator.html">API Validator Filter</a></li>
+            <li><a class="" href="../filters/body-extractor-to-header.html">Body Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/body-patcher.html">Body Patcher Filter</a></li>
+            <li><a class="" href="../filters/compression.html">Compression Filter</a></li>
+            <li><a class="" href="../filters/content-type-stripper.html">Content Type Stripper Filter</a></li>
+            <li><a class="" href="../filters/cors.html">CORS Filter</a></li>
+            <li><a class="" href="../filters/derp.html">Delegation Response Processor (DeRP) Filter</a></li>
+            <li><a class="" href="../filters/destination-router.html">Destination Router Filter</a></li>
+            <li><a class="" href="../filters/echo.html">Echo Filter</a></li>
+            <li><a class="" href="../filters/exception.html">Exception Filter</a></li>
+            <li><a class="" href="../filters/forwarded-proto.html">Forwarded Protocol Filter</a></li>
+            <li><a class="" href="../filters/header-normalization.html">Header Normalization filter</a></li>
+            <li><a class="" href="../filters/header-translation.html">Header Translation Filter</a></li>
+            <li><a class="" href="../filters/header-user.html">Header User Filter</a></li>
+            <li><a class="" href="../filters/herp.html">Highly Efficient Record Processor (HERP) Filter</a></li>
+            <li><a class="" href="../filters/ip-user.html">IP User Filter</a></li>
+            <li><a class="" href="../filters/iri-validator.html">IRI Validator Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2.html">Keystone v2 Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-authorization.html">Keystone v2 Authorization Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-basic-auth.html">Keystone v2 Basic Auth Filter</a></li>
+            <li><a class="" href="../filters/merge-header.html">Merge Header Filter</a></li>
+            <li><a class="" href="../filters/openapi-validator.html">OpenAPI Validatort Filter</a></li>
+            <li><a class="" href="../filters/openstack-identity-v3.html">Openstack Identity v3 Filter</a></li>
+            <li><a class="" href="../filters/rate-limiting.html">Rate Limiting Filter</a></li>
+            <li><a class="" href="../filters/regex-rbac.html">RegEx Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/scripting.html">Scripting Filter</a></li>
+            <li><a class="" href="../filters/simple-rbac.html">Simple Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/slf4j-http-logging.html">SFL4J HTTP Logging Filter</a></li>
+            <li><a class="" href="../filters/split-header.html">Split Header Filter</a></li>
+            <li><a class="" href="../filters/tenant-culling.html">Tenant Culling Filter</a></li>
+            <li><a class="" href="../filters/translation.html">Translation Filter</a></li>
+            <li><a class="" href="../filters/uri-normalization.html">URI Normalization Filter</a></li>
+            <li><a class="" href="../filters/uri-stripper.html">URI Stripper Filter</a></li>
+            <li><a class="" href="../filters/uri-user.html">URI User Filter</a></li>
+            <li><a class="" href="../filters/url-extractor-to-header.html">URL Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a></li>
+            <li><a class="" href="../filters/versioning.html">Versioning Filter</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup4">
+        <span id="tgSpan4" class="fa fa-angle-down"></span>Services
+      </a>
+      <ul id="topicGroup4" class="collapse in list-unstyled">
+            <li><a class="" href="../services/index.html">Overview</a></li>
+            <li><a class="" href="../services/atom-feed-consumption.html">Atom Feed Consumption Service</a></li>
+            <li><a class="" href="../services/datastores.html">Datastores</a></li>
+            <li><a class="" href="../services/health-check.html">Health Check Service</a></li>
+            <li><a class="" href="../services/http-client.html">HTTP Client Service</a></li>
+            <li><a class=" active" href="../services/http-logging.html">HTTP Logging Service</a></li>
+            <li><a class="" href="../services/logging.html">Logging Service</a></li>
+            <li><a class="" href="../services/metrics.html">Metrics Service</a></li>
+            <li><a class="" href="../services/open-tracing.html">OpenTracing Service</a></li>
+            <li><a class="" href="../services/phone-home.html">Phone Home Service</a></li>
+            <li><a class="" href="../services/uri-redaction.html">URI Redaction service</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup5">
+        <span id="tgSpan5" class="fa fa-angle-right"></span>Developer
+      </a>
+      <ul id="topicGroup5" class="collapse  list-unstyled">
+            <li><a class="" href="../developer/index.html">Overview</a></li>
+            <li><a class="" href="../developer/docker.html">Docker</a></li>
+            <li><a class="" href="../developer/performance.html">Performance Testing</a></li>
+            <li><a class="" href="../developer/functional.html">Functional Testing</a></li>
+      </ul>
+    </li>
+</ul>
+      </div>
+      <div class="col-xs-12 col-sm-9 col-md-9 main">
+        <div class="page-header">
+          <h2>HTTP Logging Service</h2>
+        </div>
+        <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>The HTTP Logging Service enables logging of operator-configurable messages for every HTTP interaction.</p>
+</div>
+<div class="paragraph">
+<p>Usage of this service is just a matter of configuring messages.
+Messages tell this service what to log and where to log it.
+Messages include a template to define what should be written to a log.
+Templates will be populated and rendered using data relevant to each HTTP interaction.</p>
+</div>
+<div class="paragraph">
+<p>This service can be used for auditing all interactions with an API.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="configuration"><a class="anchor" href="#configuration"></a>Configuration</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Default Configuration:</strong> http-logging.cfg.xml</p>
+</li>
+<li>
+<p><strong>Released:</strong> TBD</p>
+</li>
+<li>
+<p><a href="../schemas/http-logging.xsd">Schema</a></p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="full-configuration"><a class="anchor" href="#full-configuration"></a>Full Configuration</h3>
+<div class="paragraph">
+<p>This configuration sets every available setting explicitly for the sake of detailing the available settings.</p>
+</div>
+<div class="listingblock">
+<div class="title">http-logging.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;http-logging</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/http-logging/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;message</span> <i class="conum" data-value="1"></i><b>(1)</b>
+        <span style="color:#b48">log-to</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">plain-access-log</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="2"></i><b>(2)</b>
+        <span style="color:#b48">format</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">plain</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span> <i class="conum" data-value="3"></i><b>(3)</b>
+        Request handled!
+    <span style="color:#070;font-weight:bold">&lt;/message&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/http-logging&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Declares a message to be logged for every HTTP interaction.
+The value of this element serves as the content of the message.
+The value will be processed as a template.
+See <a href="#templating">Templating</a> for more information.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Specifies the name of the logger to which messages should be logged.
+See <a href="../architecture/logging.html">Logging</a> for more information.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Specifies the format of the content.
+The format determines if and how to validate the content and how to escape values populated by the templating engine.<br>
+<strong>Supported values</strong>: <code>plain</code>, <code>json</code><br>
+<strong>Default</strong>: <code>plain</code></td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="common-log-format-clf"><a class="anchor" href="#common-log-format-clf"></a>Common Log Format (CLF)</h3>
+<div class="paragraph">
+<p>This configuration includes a content template that conforms to the <a href="https://www.w3.org/Daemon/User/Config/Logging.html#common-logfile-format">Common Log Format</a>.
+This template shows how some variables can be accessed, and makes use of some JTwig functions.</p>
+</div>
+<div class="listingblock">
+<div class="title">http-logging.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;http-logging</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/http-logging/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;message</span> <span style="color:#b48">log-to</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">common-log</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">format</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">plain</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+        {{ remoteIpAddress }} - {{ default(first(outboundRequestHeaders['x-user-id']), '-') }} [{{ timeRequestReceived }}] &quot;{{ inboundRequestMethod }} {{ inboundRequestPath }} {{ inboundRequestProtocol }}&quot; {{ outboundResponseStatusCode }} {{ default(outboundResponseContentLength, '-') }}
+    <span style="color:#070;font-weight:bold">&lt;/message&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/http-logging&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="json-format"><a class="anchor" href="#json-format"></a>JSON Format</h3>
+<div class="paragraph">
+<p>This configuration includes a content template that contains much of the same data as the <a href="#common-log-format-clf">Common Log Format (CLF)</a> formatted in JSON.
+Rather than rendering <code>-</code> for an undefined value, this template uses JTwig&#8217;s conditional control flow mechanism to render <code>null</code>.
+If desired, the same mechanism could be used to omit a field rather than rendering a <code>null</code> value for that field.</p>
+</div>
+<div class="listingblock">
+<div class="title">http-logging.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;http-logging</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/http-logging/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;message</span> <span style="color:#b48">log-to</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">json-access-log</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">format</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">json</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+<span style="font-weight:bold;color:#666">&lt;![CDATA[</span>{
+    &quot;remoteIpAddress&quot;: &quot;{{ remoteIpAddress }}&quot;,
+    &quot;userId&quot;: {; if (defined(outboundRequestHeaders['x-user-id'])) ;}&quot;{{ first(outboundRequestHeaders['x-user-id']) }}&quot;{; else ;}null{; endif ;},
+    &quot;timeRequestReceived&quot;: &quot;{{ timeRequestReceived }}&quot;,
+    &quot;requestLine&quot;: &quot;{{ inboundRequestMethod }} {{ inboundRequestPath }} {{ inboundRequestProtocol }}&quot;,
+    &quot;responseStatusCode&quot;: {{ outboundResponseStatusCode }},
+    &quot;responseContentLength&quot;: {; if (defined(outboundResponseContentLength)) ;}{{ outboundResponseContentLength }}{; else ;}null{; endif ;}
+}<span style="font-weight:bold;color:#666">]]&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/message&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/http-logging&gt;</span></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="additional-information"><a class="anchor" href="#additional-information"></a>Additional Information</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="templating"><a class="anchor" href="#templating"></a>Templating</h3>
+<div class="paragraph">
+<p>In order for this service to adapt to a myriad of potential use-cases, content templates are supported.
+These templates are rendered using the <a href="http://jtwig.org">JTwig templating engine</a>.
+For details on how to write a JTwig template, please refer to the <a href="http://jtwig.org/documentation/reference">JTwig reference documentation</a>.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>For compatibility reasons, this service uses different delimiters than JTwig for <a href="http://jtwig.org/documentation/reference/syntax/code-islands#control-flow">control flow code islands</a>.
+The following table shows the difference:</p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<caption class="title">Table 1. Template Delimiters</caption>
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"></th>
+<th class="tableblock halign-left valign-top">JTwig Default</th>
+<th class="tableblock halign-left valign-top">HTTP Logging Service</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th class="tableblock halign-left valign-top"><p class="tableblock">Code</p></th>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{% code %}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{; code ;}</code></p></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The following table details every variable available for use in a content template.</p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<caption class="title">Table 2. Template Variables</caption>
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Data Type</th>
+<th class="tableblock halign-left valign-top">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">inboundRequestProtocol</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The name and version of the inbound request protocol.
+For example, for a request with the request line <code>GET / HTTP/1.1</code>, this value would be <code>HTTP/1.1</code>.
+Note that the name of the protocol will always be <code>HTTP</code>, but the version may vary.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">outboundRequestProtocol</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The name and version of the outbound request protocol.
+For example, for a request with the request line <code>GET / HTTP/1.1</code>, this value would be <code>HTTP/1.1</code>.
+Note that the name of the protocol will always be <code>HTTP</code>, but the version may vary.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">inboundResponseProtocol</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The name and version of the inbound response protocol.
+For example, for a response with the status line <code>HTTP/1.1 200 OK</code>, this value would be <code>HTTP/1.1</code>.
+Note that the name of the protocol will always be <code>HTTP</code>, but the version may vary.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">inboundRequestMethod</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The HTTP method of the inbound request.
+For example, for a request with the request line <code>GET / HTTP/1.1</code>, this value would be <code>GET</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">outboundRequestMethod</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The HTTP method of the outbound request.
+For example, for a request with the request line <code>GET / HTTP/1.1</code>, this value would be <code>GET</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">inboundRequestPath</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The path portion of the inbound request URL.
+For example, for a request with the request line <code>GET /some/path HTTP/1.1</code>, this value would be <code>/some/path</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">outboundRequestPath</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The path portion of the outbound request URL.
+For example, for a request with the request line <code>GET /some/path HTTP/1.1</code>, this value would be <code>/some/path</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">inboundRequestQueryString</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The query portion of the inbound request URL.
+For example, for a request with the request line <code>GET /path?when=now&amp;what=it HTTP/1.1</code>, this value would be <code>when=now&amp;what=it</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">outboundRequestQueryString</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The query portion of the outbound request URL.
+For example, for a request with the request line <code>GET /path?when=now&amp;what=it HTTP/1.1</code>, this value would be <code>when=now&amp;what=it</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">inboundRequestUrl</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The full inbound request URL minus the query portion.
+For example, for a request with the request line <code>GET /path?when=now HTTP/1.1</code> and the header <code>Host: example.com</code>, this value would be <code><a href="http://example.com/path" class="bare">http://example.com/path</a></code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">outboundRequestUrl</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The full outbound request URL minus the query portion.
+For example, for a request with the request line <code>GET /path?when=now HTTP/1.1</code> and the header <code>Host: example.com</code>, this value would be <code><a href="http://example.com/path" class="bare">http://example.com/path</a></code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">inboundRequestHeaders</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Map&lt;String, List&lt;String&gt;&gt;</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>The headers on the inbound request.
+The keys in this map are the header names while the values are lists of corresponding header values.
+The keys (i.e., header names) are case-sensitive and will only contain lowercase letters.
+Headers with multiple values spanning multiple lines will have a value list with one item for each line.
+For example, given the header lines:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>Test-Header: foo, bar
+Test-Header: baz</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The value of this variable would be:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>{ "test-header": ["foo, bar", "baz"] }</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">outboundRequestHeaders</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Map&lt;String, List&lt;String&gt;&gt;</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>The headers on the outbound request.
+The keys in this map are the header names while the values are lists of corresponding header values.
+The keys (i.e., header names) are case-sensitive and will only contain lowercase letters.
+Headers with multiple values spanning multiple lines will have a value list with one item for each line.
+For example, given the header lines:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>Test-Header: foo, bar
+Test-Header: baz</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The value of this variable would be:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>{ "test-header": ["foo, bar", "baz"] }</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">outboundResponseHeaders</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Map&lt;String, List&lt;String&gt;&gt;</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>The headers on the outbound response.
+The keys in this map are the header names while the values are lists of corresponding header values.
+The keys (i.e., header names) are case-sensitive and will only contain lowercase letters.
+Headers with multiple values spanning multiple lines will have a value list with one item for each line.
+For example, given the header lines:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>Test-Header: foo, bar
+Test-Header: baz</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The value of this variable would be:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>{ "test-header": ["foo, bar", "baz"] }</code></pre>
+</div>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">outboundResponseStatusCode</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The status code of the outbound response.
+For example, for a response with the status line <code>HTTP/1.1 200 OK</code>, this value would be <code>200</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">outboundResponseReasonPhrase</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The reason phrase of the outbound response.
+For example, for a response with the status line <code>HTTP/1.1 200 OK</code>, this value would be <code>OK</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">outboundResponseContentLength</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The size of the outbound response body in bytes.
+This value is taken from the <code>Content-Length</code> header of the response.
+For example, for a response with the header line <code>Content-Length: 1234</code>, this value would be <code>1234</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">outboundResponseBytesWritten</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Integer</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The number of bytes of the outbound response body written.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">userId</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The identifier which uniquely identifies a user.
+This value is taken from the <code>X-User-Id</code> header of the outbound request.
+For example, given the header <code>X-User-Id: 1234</code>, the value of this variable would be <code>1234</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">userName</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The name of a user, which is not necessarily unique.
+This value is taken from the <code>X-User-Name</code> header of the outbound request.
+For example, given the header <code>X-User-Name: IAmAUser</code>, the value of this variable would be <code>IAmAUser</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">impersonatorUserId</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The identifier which uniquely identifies the impersonator user.
+This value is taken from the <code>X-Impersonator-Id</code> header of the outbound request.
+For example, given the header <code>X-Impersonator-Id: 4321</code>, the value of this variable would be <code>4321</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">impersonatorUserName</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The name of the impersonator user, which is not necessarily unique.
+This value is taken from the <code>X-Impersonator-Name</code> header of the outbound request.
+For example, given the header <code>X-Impersonator-Name: IAmAnImpersonator</code>, the value of this variable would be <code>IAmAnImpersonator</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">timeRequestReceived</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/javase/8/docs/api/java/time/Instant.html">Instant</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The time at which the inbound request was received.
+Evaluating this variable in an expression (i.e., <code>{{ timeRequestReceived }}</code>) will result in the value of <a href="https://docs.oracle.com/javase/8/docs/api/java/time/Instant.html#toString--">Instant.toString</a> being rendered.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">timeToHandleRequest</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html">Duration</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The amount of time between receiving an inbound request and sending an outbound response.
+Evaluating this variable in an expression (i.e., <code>{{ timeToHandleRequest }}</code>) will result in the value of <a href="https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html#toString--">Duration.toString</a> being rendered.
+This value can be rendered as the amount of time in milliseconds by calling the <a href="https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html#toMillis--">Duration.toMillis</a> method (i.e., <code>{{ timeToHandleRequest.toMillis }}</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">timeInOriginService</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html">Duration</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The amount of time between sending an outbound request to the origin service and receiving an inbound response.
+Evaluating this variable in an expression (i.e., <code>{{ timeInOriginService }}</code>) will result in the value of <a href="https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html#toString--">Duration.toString</a> being rendered.
+This value can be rendered as the amount of time in milliseconds by calling the <a href="https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html#toMillis--">Duration.toMillis</a> method (i.e., <code>{{ timeToHandleRequest.toMillis }}</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">localIpAddress</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Internet Protocol (IP) address of the interface on which the inbound request was received.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">remoteIpAddress</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The Internet Protocol (IP) address of the client or last proxy that sent the inbound request.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">remoteHost</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The fully qualified name of the client or the last proxy that sent the inbound request.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">traceId</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">String</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The ID associated with the inbound request used for tracing purposes.
+This value will match the value from the decoded <code>X-Trans-Id</code> header.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">extensions</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Map&lt;String, Object&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Extension data that does not correspond to any of the other defined variables.
+The data types of the values of this map are unknown.
+Using this map in a template will require coordination between the template author and the developer that added the desired mapping.
+This variable serves as an extension point which allows third-party developers to inject arbitrary data into this service.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If a the value of a variable cannot be resolved, the variable will be left undefined.
+When rendering a template, an undefined variable has specific semantics which are detailed in the <a href="http://jtwig.org/documentation/reference">JTwig reference documentation</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>A distinction is made between inbound and outbound requests and responses.
+This distinction allows template authors to retrieve data associated with a request or response at a particular point during the processing of the HTTP interaction.
+The inbound qualifier denotes the point at which an HTTP message is received by <strong>Repose</strong>.
+The outbound qualifier denotes the point at which an HTTP message is sent by <strong>Repose</strong>.
+An inbound request and an outbound response define the interaction with an end-user while an outbound request and inbound response define the interaction with the origin service.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Whitespace in templates is preserved.
+However, it is possible to modify whitespace when rendering a template by leveraging <a href="http://jtwig.org/documentation/reference/syntax/code-islands#whitespace-control">Jtwig whitespace control</a> and the <a href="http://jtwig.org/documentation/reference/functions#trim">Jtwig trim function</a>.
+Whitespace can also be modified when a log message is being written using the <a href="https://logging.apache.org/log4j/log4j-2.1/manual/layouts.html#PatternLayout">Log4J2 Pattern Layout replace pattern</a>.
+Those mechanisms should help in cases where it is desirable to include whitespace for configuration formatting that is not desired in the rendered message.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="for-developers"><a class="anchor" href="#for-developers"></a>For Developers</h3>
+<div class="paragraph">
+<p>This service introduces the concept of an HTTP logging context.
+An HTTP logging context is a container for data related to an individual HTTP interaction.
+An HTTP interaction is the exchange of an HTTP request and response.</p>
+</div>
+<div class="paragraph">
+<p>While this service provides the means to open and close a logging context, it does not do so automatically.
+Logging contexts are opened and closed by code which uses this service and is hooked into the container lifecycle.
+While it is possible to create a new logging context at any time using this service, it is not the expected usage.
+Rather, the logging context created when a new request is received is expected to be used.
+That logging context will be passed around in a request attribute with the key <code>org.openrepose.core.services.httplogging.context</code>.</p>
+</div>
+<div class="paragraph">
+<p>To be clear, this service only manages:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Configuration of logging parameters to answer the questions of what to log and where to log it.</p>
+</li>
+<li>
+<p>Handling the processing of the logging context (i.e., rendering messages and sending those messages to the logging system) which answers the question of how to log.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Notably, this service does not manage:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The lifecycle of the logging context for an HTTP interaction which answers the question of when to log.</p>
+</li>
+<li>
+<p>Collection of data related to an HTTP interaction which assists in answering the question of what to log.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>However, this service does provide the logging context interface to be used for data collection.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Management of those facets is left to developers intent on interacting with the logging system supported by this service.</p>
+</div>
+<div class="paragraph">
+<p>There may be instances when it is desired to add data to the logging context that is not part of the predefined data set.
+For this reason, the logging context supports extension data.
+Extension data can be accessed and modified via the <code>extensions</code> field of the logging context.
+Extension data is not validated by this service; it is passed as a map directly to the templating engine.</p>
+</div>
+</div>
+</div>
+</div>
+      </div>
+    </div>
+  </div>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="/_javascripts/bootstrap-offcanvas.js" type="text/javascript"></script>
+  <script src="/_javascripts/page-loader.js" type="text/javascript"></script>
+  <script src="/_javascripts/include-html.js" type="text/javascript"></script>
+  <script>includeHTML();</script>
+  <script type="text/javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+      $("[id^='topicGroup']").on('show.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicGroup']").on('hide.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicSubGroup']").on('show.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+      $("[id^='topicSubGroup']").on('hide.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+    });
+    /*]]>*/
+  </script>
+</body>
+</html>

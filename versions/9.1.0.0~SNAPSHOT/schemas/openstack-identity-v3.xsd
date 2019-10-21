@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/openstack-identity-v3/v1.0"
+           elementFormDefault="qualified">
+
+    <!-- Elements -->
+    <xs:element name="openstack-identity-v3" type="OpenstackIdentityV3Config"/>
+
+    <!-- Types -->
+    <xs:complexType name="OpenstackIdentityV3Config">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The root config type for the OpenStack Identity v3 filter configuration file.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:all>
+            <xs:element name="delegating" type="DelegatingType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="white-list" type="WhiteList" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="openstack-identity-service" type="OpenstackIdentityService" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="service-endpoint" type="ServiceEndpoint" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="validate-project-id-in-uri" type="ValidateProjectID" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="roles-which-bypass-project-id-check" type="PreAuthRolesList" minOccurs="0"
+                        maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Deprecated: This attribute is deprecated. Use pre-authorized-roles instead.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="pre-authorized-roles" type="PreAuthRolesList" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="cache" type="CacheType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="send-project-id-quality" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            If set to false, x-project-id headers are not sent with qualities.
+                            If set to true, the default x-project-id will be given the highest quality, and qualities
+                            will be attached to every x-project-id header.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:attribute name="default-project-quality" type="QualityType" default="0.9" use="optional"/>
+                    <xs:attribute name="uri-project-quality" type="QualityType" default="0.7" use="optional"/>
+                    <xs:attribute name="roles-project-quality" type="QualityType" default="0.5" use="optional"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:all>
+
+        <xs:attribute name="send-all-project-ids" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to false, a single X-Project-Id is sent.
+                        If set to true, all project IDs returned by the Identity service are added as multiple
+                        X-Project-Id headers.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="forward-groups" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Tells the filter whether or not to make a GET groups API call to the OpenStack Identity service
+                        and populate the X-PP-Groups header with the result.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="forward-catalog" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Tells the filter whether or not to forward the service catalog associated with a token in the
+                        X-Catalog header. If forwarded, the service catalog will be base 64 encoded.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="connection-pool-id" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Http Connection pool ID to use when talking to OpenStack Identity v3</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="not(pre-authorized-roles and roles-which-bypass-project-id-check)"
+                   xerces:message="Cannot define the deprecated roles-which-bypass-project-id-check and pre-authorized-roles"
+                   saxon:message="Cannot define the deprecated roles-which-bypass-project-id-check and pre-authorized-roles"
+        />
+    </xs:complexType>
+
+    <xs:complexType name="WhiteList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>A list of URI patterns all users can access.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="uri-pattern" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="OpenstackIdentityService">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines an Openstack Identity endpoint and access credentials.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="username" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Admin username to access the OpenStack Identity service.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="password" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Admin password to access the OpenStack Identity service.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="domain-id" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Optional domain id to use when authenticating as an Admin User to OpenStack Identity.
+                    </html:p>
+                    <html:p>
+                        This will end up in the domain: { "id": HERE } JSON structure
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="uri" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Target URI for authentication requests.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="project-id" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The project ID of the admin defined by the username and password.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ServiceEndpoint">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Describes the service mapping for the Origin Service</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="url" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>URL for the endpoint that matches the Origin Service</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="region" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Region for the endpoint that matches the Origin Service</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="name" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Name for the endpoint that matches the Origin Service</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="interface" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Interface for the endpoint that matches the Origin Service</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ValidateProjectID">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    If this element is present, the OpenStack Identity V3 filter will attempt to match the project ID
+                    parsed from the URI against the set of project IDs in the token provided by the Identity service.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="regex" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This attribute represents a regular expression which will be used to parse the project ID
+                        out of the uri. A capture group should be present around the portion of the regex which matches
+                        the project ID.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="strip-token-project-prefixes" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        A '/' delimited list of prefixes to attempt to strip from the project id in the token
+                        response from the identity service. The post-strip project id is only used in the project id
+                        validation check.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="PreAuthRolesList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A list of roles that bypass the project id and endpoint checks.
+                    Users with any of the roles specified will be considered pre-authorized.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="role" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="DelegatingType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    If present, the OpenStack Identity v3 filter will not send a failing response when authentication
+                    fails.
+                    Instead, it will add the data relating to the failure to a header and forward the
+                    request to be handled by a different filter or service.
+                    If not present, a validator will send a failing response when authentication fails.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="quality" type="QualityType" use="optional" default="0.7">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The quality, a double between 0 and 1, assigned to the delegation header on delegation. This
+                        value will be used to order delegation based on priority when multiple delegations are present.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="CacheType">
+        <xs:sequence>
+            <xs:element name="timeouts" type="CacheTimeoutsType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="atom-feed" type="AtomFeedType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="CacheTimeoutsType">
+        <xs:annotation>
+            <xs:documentation>
+                <!-- todo: html:p>
+                    The number of seconds which cached data will live in the datastore. Different data is cached
+                    separately, so there are multiple configurable cache timeouts. Each timeout value behaves in the
+                    following way:
+                    If -1, caching is disabled.
+                    If 0, data is cached indefinitely. In other words, data is eternal.
+                    If greater than 0, data is cached for the value provided, in seconds.
+                </html:p-->
+                <html:p>
+                    The number of seconds which cached data will live in the datastore. Different data is cached
+                    separately, so there are multiple configurable cache timeouts. Each timeout value behaves in the
+                    following way:
+                    If 0, data is cached indefinitely. In other words, data is eternal.
+                    If greater than 0, data is cached for the value provided, in seconds.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:all>
+            <xs:element name="token" type="ZeroOrPositiveInteger" default="600" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Deprecated: This element is deprecated. Use token attribute instead.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="group" type="ZeroOrPositiveInteger" default="600" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Deprecated: This element is deprecated. Use group attribute instead.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <!-- todo: xs:element name="user" type="ZeroOrPositiveInteger" default="600" minOccurs="0" maxOccurs="1"/-->
+        </xs:all>
+
+        <xs:attribute name="token" type="ZeroOrPositiveInteger"/>
+        <xs:attribute name="group" type="ZeroOrPositiveInteger"/>
+        <xs:attribute name="variance" type="ZeroOrPositiveInteger" default="0">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Cache timeout variance (in seconds) for cached data. A random value
+                        between -variance and +variance will be applied to the existing
+                        cache timeout values. A timeout variance mitigates issues caused by cached
+                        data expiring at the same time.
+                        Defaults to no variance.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="count((@token, token)) le 1"
+                   xerces:message="Cannot define both a deprecated token element and the new token attribute"
+                   saxon:message="Cannot define both a deprecated token element and the new token attribute"/>
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="count((@group, group)) le 1"
+                   xerces:message="Cannot define both a deprecated group element and the new group attribute"
+                   saxon:message="Cannot define both a deprecated group element and the new group attribute"/>
+    </xs:complexType>
+
+    <xs:complexType name="AtomFeedType">
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The unique ID of a feed defined in the Atom Feed service configuration.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="ZeroOrPositiveInteger">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="QualityType">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>9.1.0.0~SNAPSHOT | Recipes | Functional Test Framework</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="/_stylesheets/asciibinder.css" >
+  <link rel="stylesheet" href="/_stylesheets/repose.css" >
+  <link rel="stylesheet" href="/_stylesheets/release-note-categories.css" >
+
+   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+   <!--[if lt IE 9]>
+     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+   <![endif]-->
+
+  <link href="/_images/favicon32x32.png" rel="shortcut icon" type="text/css">
+  <!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
+  <meta content="AsciiBinder" name="application-name">
+</head>
+<body onload="selectVersion('9.1.0.0~SNAPSHOT');">
+  <div class="container">
+    <p class="toggle-nav visible-xs pull-left">
+      <button class="btn btn-default btn-sm" type="button" data-toggle="offcanvas">Toggle nav</button>
+    </p>
+    <ol class="breadcrumb">
+      <li class="sitename">
+        <a class="navbar-brand" href="http://www.openrepose.org/">
+          <img alt="OpenRepose" src="/_images/repose-logo.png" align="bottom">
+        </a>
+      </li>
+      <li class="sitename">
+        <a href="../../index.html">
+          Home
+        </a>
+      </li>
+      <li class="hidden-xs active">
+        <a href="/versions/9.1.0.0~SNAPSHOT/welcome/index.html">
+          Repose
+        </a>
+        <select id="version-selector" onchange="versionSelector(this);" w3-include-html="/_includes/versions.html">
+        </select>
+      </li>
+      <li class="hidden-xs active">
+        <a href="../recipes/index.html">Recipes</a>
+      </li>
+      
+      <li class="hidden-xs active">
+        Functional Test Framework
+      </li>
+    </ol>
+    <div class="row row-offcanvas row-offcanvas-left">
+      <div class="col-xs-8 col-sm-3 col-md-3 sidebar sidebar-offcanvas">
+        <a class="navbar-search" href="/versions/search.html">
+          <span class="glyphicon glyphicon-search"/>
+          Search
+        </a>
+        <ul class="nav nav-sidebar">
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup0">
+        <span id="tgSpan0" class="fa fa-angle-right"></span>Welcome to Repose
+      </a>
+      <ul id="topicGroup0" class="collapse  list-unstyled">
+            <li><a class="" href="../welcome/index.html">Welcome</a></li>
+            <li><a class="" href="../welcome/troubleshooting.html">Troubleshooting</a></li>
+            <li><a class="" href="../welcome/release-notes.html">Release Notes</a></li>
+            <li><a class="" href="../welcome/ver-9-upgrade-notes.html">Version 9 Upgrade Notes</a></li>
+            <li><a class="" href="../welcome/style-guide.html">Style Guide</a></li>
+            <li><a class="" href="../welcome/faq.html">FAQ</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup1">
+        <span id="tgSpan1" class="fa fa-angle-right"></span>Architecture
+      </a>
+      <ul id="topicGroup1" class="collapse  list-unstyled">
+            <li><a class="" href="../architecture/index.html">Overview</a></li>
+            <li><a class="" href="../architecture/configuration.html">Configuration</a></li>
+            <li><a class="" href="../architecture/container.html">Container</a></li>
+            <li><a class="" href="../architecture/filter-chain.html">Filter Chain</a></li>
+            <li><a class="" href="../architecture/logging.html">Logging</a></li>
+            <li><a class="" href="../architecture/packages.html">Packages</a></li>
+            <li><a class="" href="../architecture/servlet-spec.html">Servlet Specification</a></li>
+            <li><a class="" href="../architecture/system-model.html">System Model</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup2">
+        <span id="tgSpan2" class="fa fa-angle-down"></span>Recipes
+      </a>
+      <ul id="topicGroup2" class="collapse in list-unstyled">
+            <li><a class="" href="../recipes/index.html">Overview</a></li>
+            <li><a class="" href="../recipes/quick-start.html">Quick Start</a></li>
+            <li><a class="" href="../recipes/getting-started.html">Getting Started</a></li>
+            <li><a class="" href="../recipes/custom-filter-for-repose.html">Custom Filter for Repose</a></li>
+            <li><a class="" href="../recipes/docker.html">Docker</a></li>
+            <li><a class="" href="../recipes/performance-best-practices.html">Performance Best Practices</a></li>
+            <li><a class="" href="../recipes/role-based-access-control.html">Role Based Access Control</a></li>
+            <li><a class="" href="../recipes/running-valve.html">Running Valve</a></li>
+            <li><a class="" href="../recipes/valve-installation.html">Valve Installation</a></li>
+            <li><a class="" href="../recipes/echo-server.html">Echo Server</a></li>
+            <li><a class="" href="../recipes/rate-limiting.html">Rate Limiting</a></li>
+            <li><a class="" href="../recipes/multi-tenant.html">Multi Tenant Authorization</a></li>
+            <li><a class="" href="../recipes/user-access-events.html">User Access Events</a></li>
+            <li><a class="" href="../recipes/basic-authentication.html">Basic Authentication</a></li>
+            <li><a class="" href="../recipes/delegation.html">Delegation</a></li>
+            <li><a class="" href="../recipes/preventing-xml-bomb.html">Preventing XML bomb attacks</a></li>
+            <li><a class="" href="../recipes/api-event-flume.html">API Access Event Recording with Flume</a></li>
+            <li><a class="" href="../recipes/xsd-versioning.html">XSD Versioning Guidelines</a></li>
+            <li><a class="" href="../recipes/client-authentication.html">SSL/TLS Client Authentication</a></li>
+            <li><a class=" active" href="../recipes/functional-test-framework.html">Functional Test Framework</a></li>
+            <li><a class="" href="../recipes/header-splitting.html">Header Splitting</a></li>
+            <li><a class="" href="../recipes/reason-phrase-normalization.html">Reason Phrase Normalization</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup3">
+        <span id="tgSpan3" class="fa fa-angle-right"></span>Filters
+      </a>
+      <ul id="topicGroup3" class="collapse  list-unstyled">
+            <li><a class="" href="../filters/index.html">Overview</a></li>
+            <li><a class="" href="../filters/add-header.html">Add Header Filter</a></li>
+            <li><a class="" href="../filters/api-validator.html">API Validator Filter</a></li>
+            <li><a class="" href="../filters/body-extractor-to-header.html">Body Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/body-patcher.html">Body Patcher Filter</a></li>
+            <li><a class="" href="../filters/compression.html">Compression Filter</a></li>
+            <li><a class="" href="../filters/content-type-stripper.html">Content Type Stripper Filter</a></li>
+            <li><a class="" href="../filters/cors.html">CORS Filter</a></li>
+            <li><a class="" href="../filters/derp.html">Delegation Response Processor (DeRP) Filter</a></li>
+            <li><a class="" href="../filters/destination-router.html">Destination Router Filter</a></li>
+            <li><a class="" href="../filters/echo.html">Echo Filter</a></li>
+            <li><a class="" href="../filters/exception.html">Exception Filter</a></li>
+            <li><a class="" href="../filters/forwarded-proto.html">Forwarded Protocol Filter</a></li>
+            <li><a class="" href="../filters/header-normalization.html">Header Normalization filter</a></li>
+            <li><a class="" href="../filters/header-translation.html">Header Translation Filter</a></li>
+            <li><a class="" href="../filters/header-user.html">Header User Filter</a></li>
+            <li><a class="" href="../filters/herp.html">Highly Efficient Record Processor (HERP) Filter</a></li>
+            <li><a class="" href="../filters/ip-user.html">IP User Filter</a></li>
+            <li><a class="" href="../filters/iri-validator.html">IRI Validator Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2.html">Keystone v2 Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-authorization.html">Keystone v2 Authorization Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-basic-auth.html">Keystone v2 Basic Auth Filter</a></li>
+            <li><a class="" href="../filters/merge-header.html">Merge Header Filter</a></li>
+            <li><a class="" href="../filters/openapi-validator.html">OpenAPI Validatort Filter</a></li>
+            <li><a class="" href="../filters/openstack-identity-v3.html">Openstack Identity v3 Filter</a></li>
+            <li><a class="" href="../filters/rate-limiting.html">Rate Limiting Filter</a></li>
+            <li><a class="" href="../filters/regex-rbac.html">RegEx Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/scripting.html">Scripting Filter</a></li>
+            <li><a class="" href="../filters/simple-rbac.html">Simple Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/slf4j-http-logging.html">SFL4J HTTP Logging Filter</a></li>
+            <li><a class="" href="../filters/split-header.html">Split Header Filter</a></li>
+            <li><a class="" href="../filters/tenant-culling.html">Tenant Culling Filter</a></li>
+            <li><a class="" href="../filters/translation.html">Translation Filter</a></li>
+            <li><a class="" href="../filters/uri-normalization.html">URI Normalization Filter</a></li>
+            <li><a class="" href="../filters/uri-stripper.html">URI Stripper Filter</a></li>
+            <li><a class="" href="../filters/uri-user.html">URI User Filter</a></li>
+            <li><a class="" href="../filters/url-extractor-to-header.html">URL Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a></li>
+            <li><a class="" href="../filters/versioning.html">Versioning Filter</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup4">
+        <span id="tgSpan4" class="fa fa-angle-right"></span>Services
+      </a>
+      <ul id="topicGroup4" class="collapse  list-unstyled">
+            <li><a class="" href="../services/index.html">Overview</a></li>
+            <li><a class="" href="../services/atom-feed-consumption.html">Atom Feed Consumption Service</a></li>
+            <li><a class="" href="../services/datastores.html">Datastores</a></li>
+            <li><a class="" href="../services/health-check.html">Health Check Service</a></li>
+            <li><a class="" href="../services/http-client.html">HTTP Client Service</a></li>
+            <li><a class="" href="../services/http-logging.html">HTTP Logging Service</a></li>
+            <li><a class="" href="../services/logging.html">Logging Service</a></li>
+            <li><a class="" href="../services/metrics.html">Metrics Service</a></li>
+            <li><a class="" href="../services/open-tracing.html">OpenTracing Service</a></li>
+            <li><a class="" href="../services/phone-home.html">Phone Home Service</a></li>
+            <li><a class="" href="../services/uri-redaction.html">URI Redaction service</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup5">
+        <span id="tgSpan5" class="fa fa-angle-right"></span>Developer
+      </a>
+      <ul id="topicGroup5" class="collapse  list-unstyled">
+            <li><a class="" href="../developer/index.html">Overview</a></li>
+            <li><a class="" href="../developer/docker.html">Docker</a></li>
+            <li><a class="" href="../developer/performance.html">Performance Testing</a></li>
+            <li><a class="" href="../developer/functional.html">Functional Testing</a></li>
+      </ul>
+    </li>
+</ul>
+      </div>
+      <div class="col-xs-12 col-sm-9 col-md-9 main">
+        <div class="page-header">
+          <h2>Functional Test Framework</h2>
+        </div>
+        <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <strong>Repose</strong> functional test framework is a testing library provided by the <strong>Repose</strong> team meant to simplify the process of creating functional tests for features in <strong>Repose</strong> or its extension components.</p>
+</div>
+<div class="paragraph">
+<p>This framework is based on the <a href="http://spockframework.org/">Spock framework</a>.
+While there are features of this framework that are can be used without Spock, it is expected that tests utilizing this framework will be Spock tests.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="download"><a class="anchor" href="#download"></a>Download</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The <strong>Repose</strong> functional test framework is published to <a href="https://maven.research.rackspacecloud.com/">an instance of Nexus hosted by Rackspace</a>.</p>
+</div>
+<div class="paragraph">
+<p>It is highly recommended that a build system be used to manage this library.
+The following snippets provide the necessary additions to download this framework with some popular build systems.</p>
+</div>
+<div class="sect2">
+<h3 id="maven"><a class="anchor" href="#maven"></a>Maven</h3>
+<div class="listingblock">
+<div class="title">pom.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#070;font-weight:bold">&lt;repositories&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;repository&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;id&gt;</span>public.maven.research.rackspace.com<span style="color:#070;font-weight:bold">&lt;/id&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;name&gt;</span>Rackspace Research<span style="color:#070;font-weight:bold">&lt;/name&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;url&gt;</span>https://maven.research.rackspacecloud.com/content/groups/aggregate<span style="color:#070;font-weight:bold">&lt;/url&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/repository&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/repositories&gt;</span>
+
+<span style="color:#070;font-weight:bold">&lt;dependencies&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;dependency&gt;</span>
+      <span style="color:#070;font-weight:bold">&lt;groupId&gt;</span>org.openrepose<span style="color:#070;font-weight:bold">&lt;/groupId&gt;</span>
+      <span style="color:#070;font-weight:bold">&lt;artifactId&gt;</span>functional-test-framework<span style="color:#070;font-weight:bold">&lt;/artifactId&gt;</span>
+      <span style="color:#070;font-weight:bold">&lt;version&gt;</span>${version}<span style="color:#070;font-weight:bold">&lt;/version&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/dependency&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/dependencies&gt;</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="gradle"><a class="anchor" href="#gradle"></a>Gradle</h3>
+<div class="listingblock">
+<div class="title">build.gradle</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">repositories {
+    maven {
+        url <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">https://maven.research.rackspacecloud.com/content/groups/aggregate/</span><span style="color:#710">&quot;</span></span>
+    }
+}
+
+dependencies {
+    compile <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">org.openrepose:functional-test-framework:</span><span style="background-color:hsla(0,0%,0%,0.07);color:black"><span style="font-weight:bold;color:#666">${</span>version<span style="font-weight:bold;color:#666">}</span></span><span style="color:#710">&quot;</span></span>
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="setup"><a class="anchor" href="#setup"></a>Setup</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>There are two requirements that must be satisfied for this framework.</p>
+</div>
+<div class="paragraph">
+<p>The first requirement is that a <code>repose-test.properties</code> file is on the classpath when tests are run.
+The <code>repose-test.properties</code> file tells that framework what version of <strong>Repose</strong>, directories, host, and ports to use.
+It should be in the <a href="https://en.wikipedia.org/wiki/.properties#Format">Java properties file format</a> like the following example:</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Not all properties are strictly required.
+In fact, most properties have reasonable defaults.
+However, any property which takes an absolute path should be given a value.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre># Required Properties
+test.root.directory=/default/test/root <i class="conum" data-value="1"></i><b>(1)</b>
+
+repose.home=/default/repose/home <i class="conum" data-value="2"></i><b>(2)</b>
+repose.config.templates=/default/config/templates <i class="conum" data-value="3"></i><b>(3)</b>
+
+# Required (If Used) Properties
+repose.jar=/default/valve/location <i class="conum" data-value="4"></i><b>(4)</b>
+mocks.war=/default/mocks/war/location <i class="conum" data-value="5"></i><b>(5)</b>
+
+# Optional Properties
+repose.version=${version} <i class="conum" data-value="6"></i><b>(6)</b>
+repose.container=valve <i class="conum" data-value="7"></i><b>(7)</b>
+repose.config.directory=/configs <i class="conum" data-value="8"></i><b>(8)</b>
+repose.log.name=/logs/repose.log <i class="conum" data-value="9"></i><b>(9)</b>
+repose.log.pattern=/logs/repose_%d{yyyy-MM-dd_HHmmss}.log <i class="conum" data-value="10"></i><b>(10)</b>
+
+target.hostname=localhost <i class="conum" data-value="11"></i><b>(11)</b>
+
+port.finder.port.start=10000 <i class="conum" data-value="12"></i><b>(12)</b>
+port.finder.port.max=65535 <i class="conum" data-value="13"></i><b>(13)</b>
+port.finder.port.range=100 <i class="conum" data-value="14"></i><b>(14)</b>
+port.finder.property.name.worker.id=org.gradle.test.worker <i class="conum" data-value="15"></i><b>(15)</b></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The absolute path of the root directory to run tests under.
+The user running the tests must have permission to read and write in this directory.<br>
+It is advised that this be the build directory of the build tool being used to run the tests (e.g., <code>buildDir</code> in Gradle).
+Doing so enables the build tool to handle cleanup of any test resources.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The absolute path of the home directory which will contain <strong>Repose</strong> artifacts, and possibly other <strong>Repose</strong> test structures.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The absolute path of the directory which contains the configuration file templates.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>The absolute path to the <strong>Repose</strong> JAR file.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>The absolute path of the WAR file containing mock services.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>The version of <strong>Repose</strong>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>The servlet container to run <strong>Repose</strong> in.
+A value of <code>valve</code> will run a standalone instance of <strong>Repose</strong> using an embedded container.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>The path of the directory relative to the <code>test.root.directory</code> or <code>repose.home</code> directory which will contain <strong>Repose</strong> configuration files.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="9"></i><b>9</b></td>
+<td>The <strong>Repose</strong> log file path relative to the <code>test.root.directory</code> or <code>repose.home</code> directory.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="10"></i><b>10</b></td>
+<td>The log filename path pattern relative to the <code>test.root.directory</code> or <code>repose.home</code> directory.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="11"></i><b>11</b></td>
+<td>The target hostname (usually <code>localhost</code>).</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="12"></i><b>12</b></td>
+<td>The port number to start at when scanning for open ports.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="13"></i><b>13</b></td>
+<td>The max port number which can be used when scanning for open ports.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="14"></i><b>14</b></td>
+<td>The step size between workers when scanning for open ports.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="15"></i><b>15</b></td>
+<td>The name of a System property the value of which will be used as the worker ID.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The second requirement is that the <strong>Repose</strong> artifacts (e.g., JARs and EARs) must be placed in the directory specified by the <code>repose.home</code> property.
+If they are located elsewhere, the <code>ReposeValveTest</code> specification will not work.
+However, other utilities provided by the framework may still be used.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="usage"><a class="anchor" href="#usage"></a>Usage</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="spock"><a class="anchor" href="#spock"></a>Spock</h3>
+<div class="paragraph">
+<p>To make the most of this framework, tests should be written for the Spock testing framework.
+The <strong>Repose</strong> functional test framework provides a base Spock <code>Specification</code> in the form of the <code>ReposeValveTest</code> class.
+The <code>ReposeValveTest</code> specification provide utilities to populate configuration file templates, start <strong>Repose</strong>, and search the <strong>Repose</strong> log.</p>
+</div>
+<div class="paragraph">
+<p>The following simple example demonstrates how a Spock test can be written utilizing the <strong>Repose</strong> functional test framework.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy"><span style="color:#339;font-weight:bold">class</span> <span style="color:#B06;font-weight:bold">MyTest</span> <span style="color:#088;font-weight:bold">extends</span> ReposeValveTest {
+    <span style="color:#080;font-weight:bold">def</span> <span style="color:#06B;font-weight:bold">setupSpec</span>() {
+        deproxy = <span style="color:#080;font-weight:bold">new</span> Deproxy() <i class="conum" data-value="1"></i><b>(1)</b>
+        deproxy.addEndpoint(properties.targetPort) <i class="conum" data-value="2"></i><b>(2)</b>
+
+        <span style="color:#080;font-weight:bold">def</span> params = properties.getDefaultTemplateParams() <i class="conum" data-value="3"></i><b>(3)</b>
+        repose.configurationProvider.applyConfigs(<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">common</span><span style="color:#710">&quot;</span></span>, params) <i class="conum" data-value="4"></i><b>(4)</b>
+        repose.start() <i class="conum" data-value="5"></i><b>(5)</b>
+        repose.waitForNon500FromUrl(properties.reposeEndpoint) <i class="conum" data-value="6"></i><b>(6)</b>
+    }
+
+    <span style="color:#080;font-weight:bold">def</span> <span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">this is an example test</span><span style="color:#710">&quot;</span></span>() {
+        <span style="color:#606">when</span>:
+        MessageChain mc = deproxy.makeRequest(reposeEndpoint) <i class="conum" data-value="7"></i><b>(7)</b>
+
+        <span style="color:#606">then</span>:
+        mc.receivedResponse.code.toInteger() == <span style="color:#00D">200</span> <i class="conum" data-value="8"></i><b>(8)</b>
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Instantiates <a href="https://github.com/rackerlabs/deproxy">Deproxy</a>, a proxy testing tool.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Creates a Deproxy endpoint that will act as the origin service for <strong>Repose</strong>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Retrieves a map of the test properties that will be used in templated configuration files.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Copies configuration files into the test directory being used by the test instance of <strong>Repose</strong>.
+Any variables in the configuration files will be substituted.
+The variable name will be matched to a key in the <code>params</code> map, and the corresponding value will replace the key in the configuration file.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>Starts <strong>Repose</strong>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>Waits for <strong>Repose</strong> to finish starting, which is assumed to be when a non-<code>500</code> status code response is returned.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>Using Deproxy, makes a request to <strong>Repose</strong>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>Asserts that the response status code from <strong>Repose</strong> is <code>200</code>.</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+      </div>
+    </div>
+  </div>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="/_javascripts/bootstrap-offcanvas.js" type="text/javascript"></script>
+  <script src="/_javascripts/page-loader.js" type="text/javascript"></script>
+  <script src="/_javascripts/include-html.js" type="text/javascript"></script>
+  <script>includeHTML();</script>
+  <script type="text/javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+      $("[id^='topicGroup']").on('show.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicGroup']").on('hide.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicSubGroup']").on('show.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+      $("[id^='topicSubGroup']").on('hide.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+    });
+    /*]]>*/
+  </script>
+</body>
+</html>

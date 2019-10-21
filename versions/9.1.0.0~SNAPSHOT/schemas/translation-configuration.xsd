@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:trans-config="http://docs.openrepose.org/repose/translation/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/repose/translation/v1.0">
+
+
+    <!-- Configuration -->
+    <xs:element name="translation" type="trans-config:TranslationConfig"/>
+
+    <xs:simpleType name="XSLEngine">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="SaxonHE"/>
+            <xs:enumeration value="SaxonEE"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="TranslationConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The entire translation configuration for a single power api node.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="request-translations" type="trans-config:RequestTranslations" minOccurs="0"
+                        maxOccurs="1"/>
+            <xs:element name="response-translations" type="trans-config:ResponseTranslations" minOccurs="0"
+                        maxOccurs="1"/>
+        </xs:sequence>
+
+        <!-- <xs:attribute name="allow-entities" type="xs:boolean" use="optional" default="false"/> -->
+        <xs:attribute name="allow-doctype-decl" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Allow embedded entity declarations</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="multi-match" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Apply all translation sets that match the request.
+                        Default is to only apply the first translation set that matches.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="xsl-engine" type="trans-config:XSLEngine" use="optional" default="SaxonHE">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Select the XSL parser. SaxonHE is the default. SaxonEE
+                        has initial support for XSLT 3.0 and requires a Saxon license.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="RequestTranslations">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The translation process for the request.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="request-translation" type="trans-config:RequestTranslation" minOccurs="0"
+                        maxOccurs="unbounded"/>
+        </xs:sequence>
+
+    </xs:complexType>
+
+    <xs:complexType name="TranslationBase">
+        <xs:sequence>
+            <xs:element name="style-sheets" type="trans-config:StyleSheets" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+
+        <xs:attribute name="content-type" type="xs:string" use="optional" default="*/*">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The content type of the response body</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="accept" type="xs:string" use="optional" default="*/*">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The matching accept type to be matched for these style sheets to apply.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="translated-content-type" type="xs:string" use="optional" default="">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The resulting content type after style sheets have been applied</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="RequestTranslation">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:complexContent>
+            <xs:extension base="trans-config:TranslationBase">
+                <xs:attribute name="http-methods" type="trans-config:HttpMethodList" use="optional" default="ALL">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>List of HTTP Methods this rate limit will match on</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+
+    </xs:complexType>
+
+    <xs:complexType name="ResponseTranslations">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The translation process for the response.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="response-translation" type="trans-config:ResponseTranslation" minOccurs="1"
+                        maxOccurs="unbounded"/>
+        </xs:sequence>
+
+    </xs:complexType>
+
+    <xs:complexType name="ResponseTranslation">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:complexContent>
+            <xs:extension base="trans-config:TranslationBase">
+
+                <xs:attribute name="code-regex" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>Defines a regular expression that will be used to match status codes against this
+                                declaration
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="StyleSheets">
+        <xs:sequence>
+            <xs:element name="style" type="trans-config:StyleSheet" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:attribute name="headers" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Pass header values as name value pairs in xml into style sheets as a parameter</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="query-params" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Pass query parameters as name value pairs in xml into style sheets as a parameter</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+    </xs:complexType>
+
+    <xs:complexType name="StyleSheet">
+        <xs:sequence>
+            <xs:element name="param" type="trans-config:StyleParam" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="xsl" type="trans-config:Xsl" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+
+        <xs:attribute name="id" type="xs:ID">
+
+        </xs:attribute>
+        <xs:attribute name="href" type="xs:anyURI">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The href references an external style sheet to be used in processing a translation.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+    </xs:complexType>
+
+    <xs:complexType name="Xsl">
+        <xs:sequence>
+            <xs:any minOccurs="0" maxOccurs="1" namespace="##any" processContents="skip"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="StyleParam">
+        <xs:attribute name="name" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The name of the parameter to be passed into the transformer for the style sheet.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="value" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The value of the parameter to be passed into the transformer for the style sheet.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+    </xs:complexType>
+
+    <!-- HttpMethod types are borrowed from rate limiting. -->
+    <xs:simpleType name="HttpMethodList">
+        <xs:list itemType="trans-config:HttpMethod"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="HttpMethod">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The HttpMethod simple type defines a string
+                    enumeration of HTTP method verbs as outlined in
+                    <a
+                            href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616
+                    </a>
+                    section 9.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="GET"/>
+            <xs:enumeration value="DELETE"/>
+            <xs:enumeration value="POST"/>
+            <xs:enumeration value="PUT"/>
+            <xs:enumeration value="HEAD"/>
+            <xs:enumeration value="OPTIONS"/>
+            <xs:enumeration value="CONNECT"/>
+            <xs:enumeration value="TRACE"/>
+
+            <xs:enumeration value="ALL"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>

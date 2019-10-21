@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:scr="http://docs.openrepose.org/repose/validator/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/repose/validator/v1.0">
+
+    <!-- Enumeration and SimpleType definitions -->
+    <xs:simpleType name="StringList">
+        <xs:list itemType="xs:string"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="XPathVersion">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="1"/>
+            <xs:maxInclusive value="2"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="XSLEngine">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="XalanC"/>
+            <xs:enumeration value="Xalan"/>
+            <xs:enumeration value="SaxonHE"/>
+            <xs:enumeration value="SaxonEE"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="XSDEngine">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Xerces"/>
+            <xs:enumeration value="SaxonEE"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Configuration Schema Definitions -->
+    <xs:element name="validators" type="scr:ValidatorConfiguration"/>
+
+    <!-- The Configuration Type -->
+    <xs:complexType name="ValidatorConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    <html:strong>Deprecation warning:</html:strong> Multiple validators will not be supported in
+                    Repose 9.  In Repose 9, only a single validator will be allowed in config.
+                </html:p>
+                <html:p>
+                    The validator.cfg.xml will contain a list of validator elements.
+                    A validator element will specify the WADL to be used in order to
+                    validate a request for a user of a given role/group.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="delegating" type="scr:DelegatingType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="validator" type="scr:ValidatorItem" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:attribute name="multi-role-match" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        <html:strong>Deprecation warning:</html:strong> Multiple validators will not be supported
+                        in Repose 9 making this attribute moot. This attribute will not be available in Repose 9.
+                    </html:p>
+                    <html:p>
+                        When set to true, filter will match validators to header 'x-roles' and all matches are
+                        validated until one of them is valid. If a default validator is configured, it will be
+                        the first validator to be checked. In the event that all matches are invalid, the response
+                        returned will be that of the last matched validator. If set to false, or not set at all, the
+                        filter will use the first validator which matches the 'x-roles' header.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:assert vc:minVersion="1.1"
+                   test="count(scr:validator/@dot-output) = count(distinct-values(scr:validator/@dot-output))"
+                   xerces:message="Dot output files must be unique"
+                   saxon:message="Dot output files must be unique"/>
+
+        <xs:assert vc:minVersion="1.1"
+                   test="count(scr:validator/@validator-name) = count(distinct-values(scr:validator/@validator-name))"
+                   xerces:message="Validator names must be unique"
+                   saxon:message="Validator names must be unique"/>
+
+        <xs:assert vc:minVersion="1.1"
+                   test="count(scr:validator[xs:boolean(@default)=true()]) &lt;= 1"
+                   xerces:message="Only one default validator may be defined"
+                   saxon:message="Only one default validator may be defined"/>
+    </xs:complexType>
+
+    <!-- The Validator Type -->
+    <xs:complexType name="ValidatorItem">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    <html:strong>Deprecation warning:</html:strong> Embedding a WADL inside of a validator
+                    element will no longer be supported in Repose 9.  The WADL will need to be in its own
+                    file and referenced in this config.
+                </html:p>
+                <html:p>Creates a new validator.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <!-- Allow embedding a WADL - deprecated in Repose 8, to be removed in Repose 9 -->
+            <xs:any minOccurs="0" namespace="##any" processContents="skip"/>
+        </xs:sequence>
+
+        <xs:attribute name="role" type="scr:StringList" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        <html:strong>Deprecation warning:</html:strong> Starting in Repose 9, roles will need to
+                        be specified inside of the WADL.  This attribute will not be available in Repose 9.
+                    </html:p>
+                    <html:p>
+                        List of roles that are applied on single validator. Triggers off of 'x-roles' header.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="enable-api-coverage" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to true, this validator will record, via JMX, the number of times each state in the
+                        generated state machine (the mechanism underlying api validation) is accessed. These values may
+                        be used to determine api usage and coverage.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="default" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        <html:strong>Deprecation warning:</html:strong> Multiple validators will not be supported
+                        in Repose 9 making this attribute moot. This attribute will not be available in Repose 9.
+                    </html:p>
+                    <html:p>
+                        Set to use this validator if no 'x-roles' header is passed.
+                        If the api-validator config 'multi-match' is set to true then the default validator
+                        will be the first validator to process the incoming request. If multi-match is set to
+                        false and if no validator is matched to the users' roles, then the filter will use
+                        the default validator.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="wadl" type="xs:anyURI" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Location of wadl to associate with configured validator. This attribute is optional.
+                        If not specified, then the wadl needs to be embedded within the validator element.
+                        Can be located within the file system or pointed to a remote file.
+                        Can use absolute or relative path.
+                    </html:p>
+                    <html:p>Note: This will be a required attribute in Repose 9.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="dot-output" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        dot output file for this validator
+                        DOT is a plain text graph description language.
+                        It is a simple way of describing graphs that both humans and computer programs can use.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="xpath-version" type="scr:XPathVersion" use="optional" default="1">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        XPath version used in the WADL.
+                        Can be 1 or 2.
+                        If 1 is set the Xalan implementation will be used, if 2 then Saxon will be used
+                        Note that XPath 2 with schema awareness requires a Saxon license.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="check-well-formed" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Check that the request body is well-formed XML or JSON that conforms to
+                        the XML or JSON syntax rules.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="check-xsd-grammar" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to true and the wadl references an XSD grammar, checks that the
+                        incoming request body is validated against the XSD grammar.
+                        Deprecated: This attribute is deprecated. Use check-grammars attribute instead.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="check-grammars" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to true and the wadl references an XSD or JSON grammar(s), then the
+                        incoming request body will be validated against the grammar(s).
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="check-elements" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to true and the wadl request representation
+                        contains an element the filter will check the root
+                        element of a request
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="check-plain-params" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Plain parameter: Assertion about the content of the message.
+                        If set to true and the WADL has a plain parameters defined the filter will
+                        check the plain parameters.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="do-xsd-grammar-transform" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Allow XSD grammar transform. Transform the XML after validation, to fill in things like default
+                        values etc
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="enable-pre-process-extension" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to true allows the filter to perform a transform before xsd validation takes place.
+                        The transformation rules can be defined in the WADL via the Rackspace WADL rax:preprocess
+                        extension.
+                        <html:code>
+                            <![CDATA[
+                                 <method id="addAtomHopperEntry" name="POST">
+                                     <request>
+                                        <representation mediaType="application/atom+xml" element="atom:entry">
+                                         <rax:preprocess href="atom_hopper_pre.xsl"/>
+                                        </representation>
+                                    </request>
+                            </method>]]>
+                        </html:code>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="remove-dups" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Analyzes the state machine generated from the WADL and makes sure that there aren't
+                        any duplicate nodes in the machine.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="validate-checker" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to true checks the validity of the generated state machine (e.g. no dead-end
+                        paths, there is a single start state, no none connected nodes, etc.)
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="join-xpath-checks" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        This is an optimization where the well formed check and multiple XPath checks can be merged into
+                        a single check.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="check-headers" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If set to true and the WADL defines required headers then the filter will check
+                        that those required headers are present.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="enable-ignore-xsd-extension" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Enables the use of the rax:ignoreXSD extension in WADL files to exclude some representations
+                        from validation against the XSD. Default values is true if not specified
+                        <html:code>
+                            <![CDATA[
+                            <request rax:ignoreXSD="true">
+                                <representation mediaType="application/xml"/>
+                                <representation mediaType="application/atom+xml"/>
+                            </request>
+                            ]]>
+                        </html:code>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="validator-name" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Sets the name for this validator item. The name is used as the MBean name
+                        when connecting to Repose via JMX.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="enable-rax-roles" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Enables the use of rax:roles in WADL files to determine resource access.
+                        If true, rax:roles defined in the supplied WADL files will be used to determine resource access.
+                        If false, rax:roles defined in WADL files are NOT used to determine resource access.
+                        NOTE: If true, check-headers will also be enabled regardless of your setting.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="xsl-engine" type="scr:XSLEngine" use="optional" default="XalanC">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The XSL engine to use. Possible choices are Xalan, XalanC, and Saxon
+                        Note that Saxon is an XSL 2.0 engine, but most 1.0 XSLs should work fine.
+                    </html:p>
+                    <html:ul>
+                        <html:li>
+                            Xalan - Standard Java XSL engine
+                        </html:li>
+                        <html:li>
+                            XalanC - compiles XSL into byte code and is a very efficient 1.0 engine
+                        </html:li>
+                        <html:li>
+                            SaxonHE - Implements v2.0 of the XSL language, but gives a license error when attempting a
+                            transform.
+                        </html:li>
+                        <html:li>
+                            SaxonEE - Implements v2.0 of the XSL language, and allows transforms.
+                        </html:li>
+                    </html:ul>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="xsd-engine" type="scr:XSDEngine" use="optional" default="Xerces">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The XSD engine to use for validation. Possible choices are Xerces and SaxonEE.
+                        Note that the SaxonEE validator requires a license.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="mask-rax-roles-403" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Mask rax-roles with 404 and 405 errors. By default rax-roles responds with a 403 if there
+                        is a role mismatch, if this is set to true, then the response will be 404 if no methods are
+                        accessible or 405 if some methods are available.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:assert vc:minVersion="1.1"
+                   test="count(tokenize(string(@role), ' ')) = count(distinct-values(tokenize(string(@role), ' ')))"
+                   xerces:message="Roles list must contain unique roles"
+                   saxon:message="Roles list must contain unique roles"/>
+
+        <xs:assert vc:minVersion="1.1" test="if (@wadl) then not (count(./*)>0) else true()"
+                   xerces:message="Cannot define wadl file and embedded wadl"
+                   saxon:message="Cannot define wadl file and embedded wadl"/>
+
+        <xs:assert vc:minVersion="1.1" test="if (not(@wadl)) then (count(./*)>0) else true()"
+                   xerces:message="Must define a wadl file OR an embedded wadl"
+                   saxon:message="Must define a wadl file OR an embedded wadl"/>
+    </xs:complexType>
+
+    <xs:complexType name="DelegatingType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    If present, the API Validator filter will not send a failing response when an invalid state
+                    is reached.
+                    Instead, a validator will add the data relating to the failure to a header and forward the
+                    request to be handled by a different filter or service.
+                    If not present, a validator will send a failing response when an invalid state is
+                    reached.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="quality" type="scr:QualityType" use="optional" default="0.3">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The quality, a double between 0 and 1, assigned to the delegation header on delegation. This
+                        value will be used to order delegation based on priority when multiple delegations are present.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="component-name" type="xs:string" use="optional" default="api-validator">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Sets the delegation component name for this validator.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="QualityType">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

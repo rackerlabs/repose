@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           elementFormDefault="qualified"
+           targetNamespace="http://docs.openrepose.org/repose/bodypatcher/v1.0"
+           xmlns="http://docs.openrepose.org/repose/bodypatcher/v1.0">
+
+    <!-- Elements -->
+    <xs:element name="body-patcher" type="BodyPatcherConfig"/>
+
+    <!-- Types -->
+    <xs:complexType name="BodyPatcherConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The root config type for the Munging filter configuration file.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="change" type="ChangeDetails" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ChangeDetails">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The set of patches to be applied for a given url path.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="request" type="Patch" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            The changes to be applied to the incoming request.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="response" type="Patch" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            The changes to be applied to the outbound response.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+
+        <xs:attribute name="path" type="xs:string" use="optional" default=".*">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        A regex of the request paths this set of changes should be applied to.
+                        Defaults to matching on everything.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:assert vc:minVersion="1.1"
+                   xpathDefaultNamespace="##targetNamespace"
+                   test="request or response"
+                   xerces:message="You must specify request and/or response behavior"
+                   saxon:message="You must specify request and/or response behavior">
+        </xs:assert>
+    </xs:complexType>
+
+    <xs:complexType name="Patch">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The changes to be applied. Only json or xml are required, but both can be specified.
+                    The content type will be inspected and the appropriate patch will be invoked,
+                    if the content type doesn't match no changes will be made.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <!-- todo: when we add xml support revert the commit this was added in -->
+            <xs:element name="json" type="xs:string" minOccurs="1" maxOccurs="1">
+            <!--<xs:element name="json" type="xs:string" minOccurs="0" maxOccurs="1">-->
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            A JSON Patch as specified by RFC-6902.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <!-- todo: when we add xml support revert the commit this was added in -->
+            <!--<xs:element name="xml" type="xs:string" minOccurs="0" maxOccurs="1">-->
+                <!--<xs:annotation>-->
+                    <!--<xs:documentation>-->
+                        <!--<html:p>-->
+                            <!--A XML Patch as specified by RFC-5261.-->
+                        <!--</html:p>-->
+                    <!--</xs:documentation>-->
+                <!--</xs:annotation>-->
+            <!--</xs:element>-->
+        </xs:sequence>
+
+        <!-- todo: when we add xml support revert the commit this was added in -->
+        <!--<xs:assert vc:minVersion="1.1"-->
+                   <!--xpathDefaultNamespace="##targetNamespace"-->
+                   <!--test="json or xml"-->
+                   <!--xerces:message="You must specify a json and/or xml patch"-->
+                   <!--saxon:message="You must specify a json and/or xml patch"/>-->
+    </xs:complexType>
+
+</xs:schema>

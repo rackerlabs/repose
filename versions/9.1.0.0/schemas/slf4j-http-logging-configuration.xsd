@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+
+<xs:schema xmlns:slf4jlog="http://docs.openrepose.org/repose/slf4j-http-logging/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/repose/slf4j-http-logging/v1.0">
+
+    <xs:element name="slf4j-http-logging" type="slf4jlog:slf4j-http-logging-config"/>
+
+    <xs:complexType name="slf4j-http-logging-config">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>This is the type definition for SLF4j targeted http logging configuration</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="slf4j-http-log" type="slf4jlog:slf4j-http-log" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="slf4j-http-log">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Root element containing configuration for SLF4j HTTP logging</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="format" type="slf4jlog:format-element" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>This is a replacement for the format attribute. You can use this if your format
+                            string does not fit well inside of an attribute. You cannot use both. Leading and trailing
+                            whitespace will be stripped, but not whitespace within the log message.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>This ID will be the SLF4j logger target, it can be used in the backend logger configuration
+                        to direct it's output to an appender. See the log4j documentation as for how to do this.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="format" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The format includes what will be logged. The arguments with % are a subset of the apache
+                        mod_log_config found at http://httpd.apache.org/docs/2.2/mod/mod_log_config.html#formats
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <!-- http://stackoverflow.com/a/16674043/423218 -->
+        <xs:assert vc:minVersion="1.1"
+                   test="count((@format, ./slf4jlog:format)) = 1"
+                   xerces:message="Cannot define format as both an attribute and as an element"
+                   saxon:message="Cannot define format as both an attribute and as an element"/>
+    </xs:complexType>
+
+    <xs:complexType name="format-element">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Format configuration element for SLF4j HTTP logging</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="crush" type="xs:boolean" use="optional" default="false">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>Indicates whether or not to replace a newline sequence (i.e. \r, \n, \r\n) plus any
+                                following whitespace with a single space.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+</xs:schema>

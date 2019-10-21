@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:httpx="http://docs.rackspace.com/httpx/v1.0" xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           targetNamespace="http://docs.rackspace.com/httpx/v1.0"
+           xsi:schemaLocation="http://www.w3.org/2001/XMLSchema http://www.w3.org/2001/XMLSchema.xsd">
+
+    <!-- Imports -->
+    <xs:include schemaLocation="httpx-common.xsd"/>
+    <xs:include schemaLocation="httpx-headers.xsd"/>
+
+    <!-- Elements -->
+    <xs:element name="httpx" type="httpx:MessageEnvelope"/>
+
+    <!-- Type Definitions -->
+    <xs:complexType name="MessageEnvelope">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:choice>
+            <xs:element name="request" type="httpx:Request"/>
+            <xs:element name="response" type="httpx:Response"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="Message" abstract="true">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="version" type="httpx:Version" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <!-- Request -->
+    <xs:complexType name="Request">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:complexContent>
+            <xs:extension base="httpx:Message">
+                <xs:sequence>
+                    <xs:element name="head" type="httpx:RequestHead" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="body" type="httpx:Body" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+
+                <xs:attribute name="method" type="httpx:Method" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="uri" type="xs:anyURI" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="fidelity" type="httpx:MessageFidelity" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="RequestHead">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="uri-detail" type="httpx:URIDetail" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="headers" type="httpx:RequestHeaders" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+
+        <xs:attribute name="fidelity" type="httpx:RequestHeadFidelity" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+
+    <!-- Response -->
+    <xs:complexType name="Response">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:complexContent>
+            <xs:extension base="httpx:Message">
+                <xs:sequence>
+                    <xs:element name="head" type="httpx:ResponseHead" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="body" type="httpx:Body" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+
+                <xs:attribute name="status-code" type="httpx:StatusCode" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="reason" type="httpx:ReasonPhrase" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="fidelity" type="httpx:MessageFidelity" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="ResponseHead">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="headers" type="httpx:ResponseHeaders" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+
+        <xs:attribute name="fidelity" type="httpx:ResponseHeadFidelity" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <!-- Body -->
+    <xs:complexType name="Body" mixed="true">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:anyAttribute namespace="##other" processContents="lax"/>
+    </xs:complexType>
+
+    <!-- Complex Types -->
+    <xs:complexType name="URIDetail">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="query-parameter" type="httpx:ComplexParameter" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:attribute name="fragment" type="xs:string" use="optional" default="">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>

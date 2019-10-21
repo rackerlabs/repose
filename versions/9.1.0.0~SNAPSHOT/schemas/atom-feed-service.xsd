@@ -1,0 +1,219 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<!--
+  _=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+  Repose
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Copyright (C) 2010 - 2015 Rackspace US, Inc.
+  _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  =_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+  -->
+
+<xs:schema elementFormDefault="qualified"
+           targetNamespace="http://docs.openrepose.org/repose/atom-feed-service/v1.0"
+           xmlns="http://docs.openrepose.org/repose/atom-feed-service/v1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml">
+
+    <xs:element name="atom-feed-service" type="AtomFeedServiceConfigType"/>
+
+    <xs:complexType name="AtomFeedServiceConfigType">
+        <xs:sequence>
+            <xs:element name="feed" type="AtomFeedConfigType" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="AtomFeedConfigType">
+        <xs:all>
+            <xs:element name="authentication" type="OpenStackIdentityV2AuthenticationType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            Defines the authentication mechanism to be used, and provides any necessary configuration.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines a unique ID which may be used to identify this feed.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="uri" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines the URI at which this feed can be read.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="polling-frequency" type="PositiveIntType" use="optional" default="5">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines how often, in seconds, the Atom Feed service checks this feed for updates.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="entry-order" type="EntryOrderType" use="optional" default="read">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Defines the order in which new Atom events will be delivered to any listeners registered
+                        on this feed.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="connection-pool-id" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>HTTP Connection pool ID to use when communicating with this feed</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:simpleType name="EntryOrderType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="read">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            With this ordering, a feed listener will receive events in the order in which entries are
+                            read from the feed, from top to bottom.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+
+            <xs:enumeration value="reverse-read">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            With this ordering, a feed listener will receive events in the order in which entries are
+                            put on the feed, from bottom to top.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
+
+            <!--xs:enumeration value="updated">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>
+                            With this ordering, a feed listener will receive events in an order mirroring the
+                            chronological ordering of entries based on the "updated" field.
+                        </html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:enumeration-->
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="NonNegativeIntType">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="PositiveIntType">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="1"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- todo: register this schema with the configuration service (will require modification to the service to take
+     multiple schemas, and to use .newSchema(Schema[]).-->
+    <!--<xs:complexType name="AuthenticationType" abstract="true">-->
+    <!--&lt;!&ndash; todo: assert requiring this type to have a fqcn string attribute &ndash;&gt;-->
+    <!--&lt;!&ndash; todo: how will the generated Java objects work, since the fqcn attribute is not in the root type? &ndash;&gt;-->
+    <!--</xs:complexType>-->
+
+    <!--<xs:complexType name="GenericAuthenticationType">-->
+    <!--<xs:complexContent>-->
+    <!--<xs:extension base="AuthenticationType">-->
+    <!--<xs:attribute name="fqcn" type="xs:string" use="required">-->
+    <!--<xs:annotation>-->
+    <!--<xs:documentation>-->
+    <!--<html:p>Defines the fully qualified class name of a class which can authenticate requests.-->
+    <!--</html:p>-->
+    <!--</xs:documentation>-->
+    <!--</xs:annotation>-->
+    <!--</xs:attribute>-->
+    <!--</xs:extension>-->
+    <!--</xs:complexContent>-->
+    <!--</xs:complexType>-->
+
+    <xs:complexType name="OpenStackIdentityV2AuthenticationType">
+        <!--<xs:complexContent>-->
+        <!--<xs:extension base="AuthenticationType">-->
+        <xs:attribute name="fqcn" type="xs:string"
+                      fixed="org.openrepose.nodeservice.atomfeed.impl.auth.OpenStackIdentityV2AuthenticatedRequestFactory">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines the fully qualified class name of a class which can authenticate requests.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="uri" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines the URI at which the OpenStack Identity service can be reached.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="username" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Defines the username of the user which will query the authenticated feed.
+                        Note that the user must have, at a minimum, read permissions on the associated feed.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="password" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Defines the password of the user which will query the authenticated feed.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="timeout" type="NonNegativeIntType" use="optional" default="5000">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Defines the amount of time, in milliseconds, to wait before considering an authentication
+                        attempt to be a failure. A value of '0' indicates an infinite wait time.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <!--</xs:extension>-->
+        <!--</xs:complexContent>-->
+    </xs:complexType>
+</xs:schema>

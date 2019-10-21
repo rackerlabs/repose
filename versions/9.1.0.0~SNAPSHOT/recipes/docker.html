@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>9.1.0.0~SNAPSHOT | Recipes | Docker</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="/_stylesheets/asciibinder.css" >
+  <link rel="stylesheet" href="/_stylesheets/repose.css" >
+  <link rel="stylesheet" href="/_stylesheets/release-note-categories.css" >
+
+   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+   <!--[if lt IE 9]>
+     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+   <![endif]-->
+
+  <link href="/_images/favicon32x32.png" rel="shortcut icon" type="text/css">
+  <!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
+  <meta content="AsciiBinder" name="application-name">
+</head>
+<body onload="selectVersion('9.1.0.0~SNAPSHOT');">
+  <div class="container">
+    <p class="toggle-nav visible-xs pull-left">
+      <button class="btn btn-default btn-sm" type="button" data-toggle="offcanvas">Toggle nav</button>
+    </p>
+    <ol class="breadcrumb">
+      <li class="sitename">
+        <a class="navbar-brand" href="http://www.openrepose.org/">
+          <img alt="OpenRepose" src="/_images/repose-logo.png" align="bottom">
+        </a>
+      </li>
+      <li class="sitename">
+        <a href="../../index.html">
+          Home
+        </a>
+      </li>
+      <li class="hidden-xs active">
+        <a href="/versions/9.1.0.0~SNAPSHOT/welcome/index.html">
+          Repose
+        </a>
+        <select id="version-selector" onchange="versionSelector(this);" w3-include-html="/_includes/versions.html">
+        </select>
+      </li>
+      <li class="hidden-xs active">
+        <a href="../recipes/index.html">Recipes</a>
+      </li>
+      
+      <li class="hidden-xs active">
+        Docker
+      </li>
+    </ol>
+    <div class="row row-offcanvas row-offcanvas-left">
+      <div class="col-xs-8 col-sm-3 col-md-3 sidebar sidebar-offcanvas">
+        <a class="navbar-search" href="/versions/search.html">
+          <span class="glyphicon glyphicon-search"/>
+          Search
+        </a>
+        <ul class="nav nav-sidebar">
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup0">
+        <span id="tgSpan0" class="fa fa-angle-right"></span>Welcome to Repose
+      </a>
+      <ul id="topicGroup0" class="collapse  list-unstyled">
+            <li><a class="" href="../welcome/index.html">Welcome</a></li>
+            <li><a class="" href="../welcome/troubleshooting.html">Troubleshooting</a></li>
+            <li><a class="" href="../welcome/release-notes.html">Release Notes</a></li>
+            <li><a class="" href="../welcome/ver-9-upgrade-notes.html">Version 9 Upgrade Notes</a></li>
+            <li><a class="" href="../welcome/style-guide.html">Style Guide</a></li>
+            <li><a class="" href="../welcome/faq.html">FAQ</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup1">
+        <span id="tgSpan1" class="fa fa-angle-right"></span>Architecture
+      </a>
+      <ul id="topicGroup1" class="collapse  list-unstyled">
+            <li><a class="" href="../architecture/index.html">Overview</a></li>
+            <li><a class="" href="../architecture/configuration.html">Configuration</a></li>
+            <li><a class="" href="../architecture/container.html">Container</a></li>
+            <li><a class="" href="../architecture/filter-chain.html">Filter Chain</a></li>
+            <li><a class="" href="../architecture/logging.html">Logging</a></li>
+            <li><a class="" href="../architecture/packages.html">Packages</a></li>
+            <li><a class="" href="../architecture/servlet-spec.html">Servlet Specification</a></li>
+            <li><a class="" href="../architecture/system-model.html">System Model</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup2">
+        <span id="tgSpan2" class="fa fa-angle-down"></span>Recipes
+      </a>
+      <ul id="topicGroup2" class="collapse in list-unstyled">
+            <li><a class="" href="../recipes/index.html">Overview</a></li>
+            <li><a class="" href="../recipes/quick-start.html">Quick Start</a></li>
+            <li><a class="" href="../recipes/getting-started.html">Getting Started</a></li>
+            <li><a class="" href="../recipes/custom-filter-for-repose.html">Custom Filter for Repose</a></li>
+            <li><a class=" active" href="../recipes/docker.html">Docker</a></li>
+            <li><a class="" href="../recipes/performance-best-practices.html">Performance Best Practices</a></li>
+            <li><a class="" href="../recipes/role-based-access-control.html">Role Based Access Control</a></li>
+            <li><a class="" href="../recipes/running-valve.html">Running Valve</a></li>
+            <li><a class="" href="../recipes/valve-installation.html">Valve Installation</a></li>
+            <li><a class="" href="../recipes/echo-server.html">Echo Server</a></li>
+            <li><a class="" href="../recipes/rate-limiting.html">Rate Limiting</a></li>
+            <li><a class="" href="../recipes/multi-tenant.html">Multi Tenant Authorization</a></li>
+            <li><a class="" href="../recipes/user-access-events.html">User Access Events</a></li>
+            <li><a class="" href="../recipes/basic-authentication.html">Basic Authentication</a></li>
+            <li><a class="" href="../recipes/delegation.html">Delegation</a></li>
+            <li><a class="" href="../recipes/preventing-xml-bomb.html">Preventing XML bomb attacks</a></li>
+            <li><a class="" href="../recipes/api-event-flume.html">API Access Event Recording with Flume</a></li>
+            <li><a class="" href="../recipes/xsd-versioning.html">XSD Versioning Guidelines</a></li>
+            <li><a class="" href="../recipes/client-authentication.html">SSL/TLS Client Authentication</a></li>
+            <li><a class="" href="../recipes/functional-test-framework.html">Functional Test Framework</a></li>
+            <li><a class="" href="../recipes/header-splitting.html">Header Splitting</a></li>
+            <li><a class="" href="../recipes/reason-phrase-normalization.html">Reason Phrase Normalization</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup3">
+        <span id="tgSpan3" class="fa fa-angle-right"></span>Filters
+      </a>
+      <ul id="topicGroup3" class="collapse  list-unstyled">
+            <li><a class="" href="../filters/index.html">Overview</a></li>
+            <li><a class="" href="../filters/add-header.html">Add Header Filter</a></li>
+            <li><a class="" href="../filters/api-validator.html">API Validator Filter</a></li>
+            <li><a class="" href="../filters/body-extractor-to-header.html">Body Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/body-patcher.html">Body Patcher Filter</a></li>
+            <li><a class="" href="../filters/compression.html">Compression Filter</a></li>
+            <li><a class="" href="../filters/content-type-stripper.html">Content Type Stripper Filter</a></li>
+            <li><a class="" href="../filters/cors.html">CORS Filter</a></li>
+            <li><a class="" href="../filters/derp.html">Delegation Response Processor (DeRP) Filter</a></li>
+            <li><a class="" href="../filters/destination-router.html">Destination Router Filter</a></li>
+            <li><a class="" href="../filters/echo.html">Echo Filter</a></li>
+            <li><a class="" href="../filters/exception.html">Exception Filter</a></li>
+            <li><a class="" href="../filters/forwarded-proto.html">Forwarded Protocol Filter</a></li>
+            <li><a class="" href="../filters/header-normalization.html">Header Normalization filter</a></li>
+            <li><a class="" href="../filters/header-translation.html">Header Translation Filter</a></li>
+            <li><a class="" href="../filters/header-user.html">Header User Filter</a></li>
+            <li><a class="" href="../filters/herp.html">Highly Efficient Record Processor (HERP) Filter</a></li>
+            <li><a class="" href="../filters/ip-user.html">IP User Filter</a></li>
+            <li><a class="" href="../filters/iri-validator.html">IRI Validator Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2.html">Keystone v2 Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-authorization.html">Keystone v2 Authorization Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-basic-auth.html">Keystone v2 Basic Auth Filter</a></li>
+            <li><a class="" href="../filters/merge-header.html">Merge Header Filter</a></li>
+            <li><a class="" href="../filters/openapi-validator.html">OpenAPI Validatort Filter</a></li>
+            <li><a class="" href="../filters/openstack-identity-v3.html">Openstack Identity v3 Filter</a></li>
+            <li><a class="" href="../filters/rate-limiting.html">Rate Limiting Filter</a></li>
+            <li><a class="" href="../filters/regex-rbac.html">RegEx Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/scripting.html">Scripting Filter</a></li>
+            <li><a class="" href="../filters/simple-rbac.html">Simple Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/slf4j-http-logging.html">SFL4J HTTP Logging Filter</a></li>
+            <li><a class="" href="../filters/split-header.html">Split Header Filter</a></li>
+            <li><a class="" href="../filters/tenant-culling.html">Tenant Culling Filter</a></li>
+            <li><a class="" href="../filters/translation.html">Translation Filter</a></li>
+            <li><a class="" href="../filters/uri-normalization.html">URI Normalization Filter</a></li>
+            <li><a class="" href="../filters/uri-stripper.html">URI Stripper Filter</a></li>
+            <li><a class="" href="../filters/uri-user.html">URI User Filter</a></li>
+            <li><a class="" href="../filters/url-extractor-to-header.html">URL Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a></li>
+            <li><a class="" href="../filters/versioning.html">Versioning Filter</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup4">
+        <span id="tgSpan4" class="fa fa-angle-right"></span>Services
+      </a>
+      <ul id="topicGroup4" class="collapse  list-unstyled">
+            <li><a class="" href="../services/index.html">Overview</a></li>
+            <li><a class="" href="../services/atom-feed-consumption.html">Atom Feed Consumption Service</a></li>
+            <li><a class="" href="../services/datastores.html">Datastores</a></li>
+            <li><a class="" href="../services/health-check.html">Health Check Service</a></li>
+            <li><a class="" href="../services/http-client.html">HTTP Client Service</a></li>
+            <li><a class="" href="../services/http-logging.html">HTTP Logging Service</a></li>
+            <li><a class="" href="../services/logging.html">Logging Service</a></li>
+            <li><a class="" href="../services/metrics.html">Metrics Service</a></li>
+            <li><a class="" href="../services/open-tracing.html">OpenTracing Service</a></li>
+            <li><a class="" href="../services/phone-home.html">Phone Home Service</a></li>
+            <li><a class="" href="../services/uri-redaction.html">URI Redaction service</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup5">
+        <span id="tgSpan5" class="fa fa-angle-right"></span>Developer
+      </a>
+      <ul id="topicGroup5" class="collapse  list-unstyled">
+            <li><a class="" href="../developer/index.html">Overview</a></li>
+            <li><a class="" href="../developer/docker.html">Docker</a></li>
+            <li><a class="" href="../developer/performance.html">Performance Testing</a></li>
+            <li><a class="" href="../developer/functional.html">Functional Testing</a></li>
+      </ul>
+    </li>
+</ul>
+      </div>
+      <div class="col-xs-12 col-sm-9 col-md-9 main">
+        <div class="page-header">
+          <h2>Docker</h2>
+        </div>
+        <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>With the advent of container technology, <strong>Repose</strong> can be fully encapsulated and run as a service.</p>
+</div>
+<div class="paragraph">
+<p>By bundling the environment with the software itself, deploying <strong>Repose</strong> has become a much quicker and simpler process.
+Docker boasts security through isolation, and when run on platforms with native support, it requires very little overhead.
+To make everything as easy and versatile as possible, the <strong>Repose</strong> team now publishes Docker images on Docker Hub as part of every release.</p>
+</div>
+<div class="paragraph">
+<p>Even though the published <strong>Repose Docker</strong> image doesn&#8217;t do a lot by default, this recipe will show you how to tap into some of that power hidden just below the surface.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="prerequisites"><a class="anchor" href="#prerequisites"></a>Prerequisites</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The rest of this recipe assumes you have already completed the <a href="quick-start.html">Quick Start</a> and that you are familiar with how to perform the following on <strong>Repose Docker</strong> containers and images:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>create</code></p>
+</li>
+<li>
+<p><code>run</code></p>
+</li>
+<li>
+<p><code>start</code></p>
+</li>
+<li>
+<p><code>stop</code></p>
+</li>
+<li>
+<p><code>inspect</code></p>
+</li>
+<li>
+<p><code>remove</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If you don&#8217;t have the basics of these operations memorized, then that is fine.
+You can always look back at the <a href="quick-start.html">Quick Start</a> anytime you need to.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="using-a-repose-docker-image"><a class="anchor" href="#using-a-repose-docker-image"></a>Using a Repose Docker Image</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>All official <strong>Repose Docker</strong> images are published on Docker Hub at:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="https://hub.docker.com/r/rackerlabs/repose/"><img src="http://dockeri.co/image/rackerlabs/repose" alt="Repose Docker"></a>
+</div>
+</div>
+<div class="paragraph">
+<p>In the <a href="quick-start.html">Quick Start</a> the <strong>Repose</strong> instance was left in its default out of the box configuration.
+As was seen, it wasn&#8217;t very useful unless you wanted to go to the Rackspace homepage.
+So you are probably wondering how you make a <strong>Repose</strong> container do cool stuff like <a href="preventing-xml-bomb.html">Preventing XML bomb attacks</a>.</p>
+</div>
+<div class="paragraph">
+<p>If you already have a <strong>Repose</strong> configuration that you are migrating to a Docker container, then it is very easy to present it to the container.
+Simply add the location to the <code>--volume</code> option as described in the example below.</p>
+</div>
+<div class="paragraph">
+<p>If you don&#8217;t already have a configuration, then there is a couple of paths you might want to take.
+The first is if you don&#8217;t know how <strong>Repose</strong> works and therefore need to know what you can do, then visit the <a href="getting-started.html">Getting Started</a>.
+We all need to get started somewhere and this is a great place if it is your first time using <strong>Repose</strong>.
+If you are already familiar with using <strong>Repose</strong> and are just looking for a quick reference of the different files, the visit the <a href="../architecture/configuration.html">Configuration</a> page for more specific details.
+We also have a series of <a href="index.html">Recipes</a> that will walk you through some of our common use cases and their configurations.</p>
+</div>
+<div class="paragraph">
+<p>The following command will mount a volume containing a configuration and perform a couple other new options to the <code>run</code> command which are explained below.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>docker run                                   \ <i class="conum" data-value="1"></i><b>(1)</b>
+   --detach                                  \ <i class="conum" data-value="2"></i><b>(2)</b>
+   --volume /my/config/directory:/etc/repose \ <i class="conum" data-value="3"></i><b>(3)</b>
+   --publish 8080:8080                       \ <i class="conum" data-value="4"></i><b>(4)</b>
+   --env JAVA_OPTS=-Xmx1024m                 \ <i class="conum" data-value="5"></i><b>(5)</b>
+   --name my_repose                          \ <i class="conum" data-value="6"></i><b>(6)</b>
+   rackerlabs/repose:latest                    <i class="conum" data-value="7"></i><b>(7)</b></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s break that command down and take a closer look at what it is doing:</p>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>This is the part of the command that tells Docker to create and start a container.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>This option will run the container in detached mode.
+In detached mode, the container will run in the background.
+If we were to run in the default attached mode instead of detached mode, the terminal we used to execute this command would receive all of the container output (i.e., <code>STDOUT</code> and <code>STDERR</code>).</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>This option defines a volume that is mounted from the host (i.e., the OS running Docker) onto the Docker container.
+The volume mapping format is <code>HOST_DIRECTORY:CONTAINER_DIRECTORY</code>.
+So in this case, the contents of <code>/my/config/directory</code> on the host will be visible within in the container in the <code>/etc/repose</code> directory.
+This allows us to modify configuration files without having to rebuild the Docker image or even restart the Docker container!</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>This option defines a port mapping between the host (i.e., the OS running Docker) and the Docker container.
+Doing so allows <strong>Repose</strong> to accept traffic over the specified port from outside of Docker.
+The port mapping format is <code>HOST_PORT:CONTAINER_PORT</code>.
+So in this case, traffic on port <code>8080</code> of the host will be forwarded to port <code>8080</code> of the container.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>This option sets the <code>JAVA_OPTS</code> environment variable.
+Doing so allows the user to configure the JVM that <strong>Repose</strong> is running on.
+The value of this environment variable should be valid command-line arguments for the <code>java</code> command.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>This option names the container so that it&#8217;s easier to interact with.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>This is the Image ID (in <code>repository:tag</code> format) to create a container from.
+Remember that <strong>Repose</strong> images are hosted at Docker Hub, which Docker can use implicitly.
+Otherwise use the <code>repository:tag</code> of the image you created.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Now if we wanted to, we could change the Docker options that define the environment that <strong>Repose</strong> will run in.
+If we wanted to forward random ports instead of explicitly declaring the port mapping, we could replace the <code>--publish 8080:8080</code> option with <code>--publish-all</code> instead.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="manually-building-a-repose-docker-image"><a class="anchor" href="#manually-building-a-repose-docker-image"></a>Manually Building a Repose Docker Image</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Dockerfile&#8217;s used to build v{project-version} of the <strong>Repose Docker</strong> images published on Docker Hub are:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><a href="../resources/ubuntu/Dockerfile">Ubuntu</a></p>
+</li>
+<li>
+<p><a href="../resources/centos/Dockerfile">CentOS</a></p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>To build a custom <strong>Repose Docker</strong> image, follow these steps:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Acquire a <strong>Repose</strong> Dockerfile.</p>
+</li>
+<li>
+<p><strong>Optionally</strong> Modify the Dockerfile.</p>
+</li>
+<li>
+<p>Run the following command from the root of the <strong>Repose</strong> project to build an image based on one of the Dockerfile&#8217;s linked above.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="bash">docker build                          \ <i class="conum" data-value="1"></i><b>(1)</b>
+   --build-arg REPOSE_VERSION={project-version} \ <i class="conum" data-value="2"></i><b>(2)</b>
+   --tag local/repose:v{project-version}-local  \ <i class="conum" data-value="3"></i><b>(3)</b>
+   /dir/containing/dockerfile/          <i class="conum" data-value="4"></i><b>(4)</b></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s break that command down and take a closer look at what it is doing:</p>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>This tells Docker to build an image.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>This option is used by the Dockerfile to know what version of <strong>Repose</strong> to install.
+See our <a href="http://www.openrepose.org/versions/latest/welcome/release-notes.html">Release Notes</a> page for a list of available versions.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>This option defines the tag to apply to the image.
+It is in <code>repository:tag</code> format.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>The last parameter is the path to the <code>docker build</code> context.
+By default, there should be a <code>Dockerfile</code> at the root of the context.
+If you need it to reside somewhere else, then review the <a href="https://docs.docker.com/">Official Docker Documentation</a> for additional options.</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>If the Dockerfile was successfully built, a Docker image should be available within Docker.
+Run the following command to show all available images:</p>
+<div class="listingblock">
+<div class="content">
+<pre>docker images</pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="notices"><a class="anchor" href="#notices"></a>Notices</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Custom artifacts are not currently supported by our Docker images.
+If you would like to deploy custom code in <strong>Repose</strong> running in Docker, please <a href="http://www.openrepose.org/#contact-us">contact us</a>!</p>
+</div>
+</div>
+</div>
+      </div>
+    </div>
+  </div>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="/_javascripts/bootstrap-offcanvas.js" type="text/javascript"></script>
+  <script src="/_javascripts/page-loader.js" type="text/javascript"></script>
+  <script src="/_javascripts/include-html.js" type="text/javascript"></script>
+  <script>includeHTML();</script>
+  <script type="text/javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+      $("[id^='topicGroup']").on('show.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicGroup']").on('hide.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicSubGroup']").on('show.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+      $("[id^='topicSubGroup']").on('hide.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+    });
+    /*]]>*/
+  </script>
+</body>
+</html>
