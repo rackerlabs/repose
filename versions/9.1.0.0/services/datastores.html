@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>9.1.0.0 | Services | Datastores</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="/_stylesheets/asciibinder.css" >
+  <link rel="stylesheet" href="/_stylesheets/repose.css" >
+  <link rel="stylesheet" href="/_stylesheets/release-note-categories.css" >
+
+   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+   <!--[if lt IE 9]>
+     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+   <![endif]-->
+
+  <link href="/_images/favicon32x32.png" rel="shortcut icon" type="text/css">
+  <!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
+  <meta content="AsciiBinder" name="application-name">
+</head>
+<body onload="selectVersion('9.1.0.0');">
+  <div class="container">
+    <p class="toggle-nav visible-xs pull-left">
+      <button class="btn btn-default btn-sm" type="button" data-toggle="offcanvas">Toggle nav</button>
+    </p>
+    <ol class="breadcrumb">
+      <li class="sitename">
+        <a class="navbar-brand" href="http://www.openrepose.org/">
+          <img alt="OpenRepose" src="/_images/repose-logo.png" align="bottom">
+        </a>
+      </li>
+      <li class="sitename">
+        <a href="../../index.html">
+          Home
+        </a>
+      </li>
+      <li class="hidden-xs active">
+        <a href="/versions/9.1.0.0/welcome/index.html">
+          Repose
+        </a>
+        <select id="version-selector" onchange="versionSelector(this);" w3-include-html="/_includes/versions.html">
+        </select>
+      </li>
+      <li class="hidden-xs active">
+        <a href="../services/index.html">Services</a>
+      </li>
+      
+      <li class="hidden-xs active">
+        Datastores
+      </li>
+    </ol>
+    <div class="row row-offcanvas row-offcanvas-left">
+      <div class="col-xs-8 col-sm-3 col-md-3 sidebar sidebar-offcanvas">
+        <a class="navbar-search" href="/versions/search.html">
+          <span class="glyphicon glyphicon-search"/>
+          Search
+        </a>
+        <ul class="nav nav-sidebar">
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup0">
+        <span id="tgSpan0" class="fa fa-angle-right"></span>Welcome to Repose
+      </a>
+      <ul id="topicGroup0" class="collapse  list-unstyled">
+            <li><a class="" href="../welcome/index.html">Welcome</a></li>
+            <li><a class="" href="../welcome/troubleshooting.html">Troubleshooting</a></li>
+            <li><a class="" href="../welcome/release-notes.html">Release Notes</a></li>
+            <li><a class="" href="../welcome/ver-9-upgrade-notes.html">Version 9 Upgrade Notes</a></li>
+            <li><a class="" href="../welcome/style-guide.html">Style Guide</a></li>
+            <li><a class="" href="../welcome/faq.html">FAQ</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup1">
+        <span id="tgSpan1" class="fa fa-angle-right"></span>Architecture
+      </a>
+      <ul id="topicGroup1" class="collapse  list-unstyled">
+            <li><a class="" href="../architecture/index.html">Overview</a></li>
+            <li><a class="" href="../architecture/configuration.html">Configuration</a></li>
+            <li><a class="" href="../architecture/container.html">Container</a></li>
+            <li><a class="" href="../architecture/filter-chain.html">Filter Chain</a></li>
+            <li><a class="" href="../architecture/logging.html">Logging</a></li>
+            <li><a class="" href="../architecture/packages.html">Packages</a></li>
+            <li><a class="" href="../architecture/servlet-spec.html">Servlet Specification</a></li>
+            <li><a class="" href="../architecture/system-model.html">System Model</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup2">
+        <span id="tgSpan2" class="fa fa-angle-right"></span>Recipes
+      </a>
+      <ul id="topicGroup2" class="collapse  list-unstyled">
+            <li><a class="" href="../recipes/index.html">Overview</a></li>
+            <li><a class="" href="../recipes/quick-start.html">Quick Start</a></li>
+            <li><a class="" href="../recipes/getting-started.html">Getting Started</a></li>
+            <li><a class="" href="../recipes/custom-filter-for-repose.html">Custom Filter for Repose</a></li>
+            <li><a class="" href="../recipes/docker.html">Docker</a></li>
+            <li><a class="" href="../recipes/performance-best-practices.html">Performance Best Practices</a></li>
+            <li><a class="" href="../recipes/role-based-access-control.html">Role Based Access Control</a></li>
+            <li><a class="" href="../recipes/running-valve.html">Running Valve</a></li>
+            <li><a class="" href="../recipes/valve-installation.html">Valve Installation</a></li>
+            <li><a class="" href="../recipes/echo-server.html">Echo Server</a></li>
+            <li><a class="" href="../recipes/rate-limiting.html">Rate Limiting</a></li>
+            <li><a class="" href="../recipes/multi-tenant.html">Multi Tenant Authorization</a></li>
+            <li><a class="" href="../recipes/user-access-events.html">User Access Events</a></li>
+            <li><a class="" href="../recipes/basic-authentication.html">Basic Authentication</a></li>
+            <li><a class="" href="../recipes/delegation.html">Delegation</a></li>
+            <li><a class="" href="../recipes/preventing-xml-bomb.html">Preventing XML bomb attacks</a></li>
+            <li><a class="" href="../recipes/api-event-flume.html">API Access Event Recording with Flume</a></li>
+            <li><a class="" href="../recipes/xsd-versioning.html">XSD Versioning Guidelines</a></li>
+            <li><a class="" href="../recipes/client-authentication.html">SSL/TLS Client Authentication</a></li>
+            <li><a class="" href="../recipes/functional-test-framework.html">Functional Test Framework</a></li>
+            <li><a class="" href="../recipes/header-splitting.html">Header Splitting</a></li>
+            <li><a class="" href="../recipes/reason-phrase-normalization.html">Reason Phrase Normalization</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup3">
+        <span id="tgSpan3" class="fa fa-angle-right"></span>Filters
+      </a>
+      <ul id="topicGroup3" class="collapse  list-unstyled">
+            <li><a class="" href="../filters/index.html">Overview</a></li>
+            <li><a class="" href="../filters/add-header.html">Add Header Filter</a></li>
+            <li><a class="" href="../filters/api-validator.html">API Validator Filter</a></li>
+            <li><a class="" href="../filters/body-extractor-to-header.html">Body Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/body-patcher.html">Body Patcher Filter</a></li>
+            <li><a class="" href="../filters/compression.html">Compression Filter</a></li>
+            <li><a class="" href="../filters/content-type-stripper.html">Content Type Stripper Filter</a></li>
+            <li><a class="" href="../filters/cors.html">CORS Filter</a></li>
+            <li><a class="" href="../filters/derp.html">Delegation Response Processor (DeRP) Filter</a></li>
+            <li><a class="" href="../filters/destination-router.html">Destination Router Filter</a></li>
+            <li><a class="" href="../filters/echo.html">Echo Filter</a></li>
+            <li><a class="" href="../filters/exception.html">Exception Filter</a></li>
+            <li><a class="" href="../filters/forwarded-proto.html">Forwarded Protocol Filter</a></li>
+            <li><a class="" href="../filters/header-normalization.html">Header Normalization filter</a></li>
+            <li><a class="" href="../filters/header-translation.html">Header Translation Filter</a></li>
+            <li><a class="" href="../filters/header-user.html">Header User Filter</a></li>
+            <li><a class="" href="../filters/herp.html">Highly Efficient Record Processor (HERP) Filter</a></li>
+            <li><a class="" href="../filters/ip-user.html">IP User Filter</a></li>
+            <li><a class="" href="../filters/iri-validator.html">IRI Validator Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2.html">Keystone v2 Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-authorization.html">Keystone v2 Authorization Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-basic-auth.html">Keystone v2 Basic Auth Filter</a></li>
+            <li><a class="" href="../filters/merge-header.html">Merge Header Filter</a></li>
+            <li><a class="" href="../filters/openapi-validator.html">OpenAPI Validatort Filter</a></li>
+            <li><a class="" href="../filters/openstack-identity-v3.html">Openstack Identity v3 Filter</a></li>
+            <li><a class="" href="../filters/rate-limiting.html">Rate Limiting Filter</a></li>
+            <li><a class="" href="../filters/regex-rbac.html">RegEx Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/scripting.html">Scripting Filter</a></li>
+            <li><a class="" href="../filters/simple-rbac.html">Simple Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/slf4j-http-logging.html">SFL4J HTTP Logging Filter</a></li>
+            <li><a class="" href="../filters/split-header.html">Split Header Filter</a></li>
+            <li><a class="" href="../filters/tenant-culling.html">Tenant Culling Filter</a></li>
+            <li><a class="" href="../filters/translation.html">Translation Filter</a></li>
+            <li><a class="" href="../filters/uri-normalization.html">URI Normalization Filter</a></li>
+            <li><a class="" href="../filters/uri-stripper.html">URI Stripper Filter</a></li>
+            <li><a class="" href="../filters/uri-user.html">URI User Filter</a></li>
+            <li><a class="" href="../filters/url-extractor-to-header.html">URL Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a></li>
+            <li><a class="" href="../filters/versioning.html">Versioning Filter</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup4">
+        <span id="tgSpan4" class="fa fa-angle-down"></span>Services
+      </a>
+      <ul id="topicGroup4" class="collapse in list-unstyled">
+            <li><a class="" href="../services/index.html">Overview</a></li>
+            <li><a class="" href="../services/atom-feed-consumption.html">Atom Feed Consumption Service</a></li>
+            <li><a class=" active" href="../services/datastores.html">Datastores</a></li>
+            <li><a class="" href="../services/health-check.html">Health Check Service</a></li>
+            <li><a class="" href="../services/http-client.html">HTTP Client Service</a></li>
+            <li><a class="" href="../services/http-logging.html">HTTP Logging Service</a></li>
+            <li><a class="" href="../services/logging.html">Logging Service</a></li>
+            <li><a class="" href="../services/metrics.html">Metrics Service</a></li>
+            <li><a class="" href="../services/open-tracing.html">OpenTracing Service</a></li>
+            <li><a class="" href="../services/phone-home.html">Phone Home Service</a></li>
+            <li><a class="" href="../services/uri-redaction.html">URI Redaction service</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup5">
+        <span id="tgSpan5" class="fa fa-angle-right"></span>Developer
+      </a>
+      <ul id="topicGroup5" class="collapse  list-unstyled">
+            <li><a class="" href="../developer/index.html">Overview</a></li>
+            <li><a class="" href="../developer/docker.html">Docker</a></li>
+            <li><a class="" href="../developer/performance.html">Performance Testing</a></li>
+            <li><a class="" href="../developer/functional.html">Functional Testing</a></li>
+      </ul>
+    </li>
+</ul>
+      </div>
+      <div class="col-xs-12 col-sm-9 col-md-9 main">
+        <div class="page-header">
+          <h2>Datastores</h2>
+        </div>
+        <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>Repose</strong> uses one of the following datastore implementations to store various types of data:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Local datastore (name: local/default)</p>
+</li>
+<li>
+<p>Distributed datastore (name: distributed/hash-ring)</p>
+</li>
+<li>
+<p>Remote datastore (name: distributed/remote)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The local datastore is enabled by default.
+The others are enabled by including the appropriate service into your <a href="../architecture/system-model.html">System Model</a> configuration.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="local-datastore"><a class="anchor" href="#local-datastore"></a>Local Datastore</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If no other datastores are configured, then <strong>Repose</strong> will use the local datastore.
+The local datastore will store data using the cache on each node.
+Data will not be shared among the nodes, so each <strong>Repose</strong> node will have its own copy of the data.
+For example, if using rate limiting with the local datastore, then each node will track its own limit information and limit updates will not be shared with other nodes.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="distributed-datastore"><a class="anchor" href="#distributed-datastore"></a>Distributed Datastore</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A <strong>Repose</strong> node may, at times, need to share information with other <strong>Repose</strong> nodes.
+The Distributed Datastore component allows <strong>Repose</strong> to host a simple hash-ring object store that shares consistency between all of the participating nodes.
+This, in turn, allows other hosted components as well as external programs to use a cluster of <strong>Repose</strong> nodes as a whole to store information.
+Instead of cache operations communicating through the <strong>Repose</strong> Service port (which is the port a <strong>Repose</strong> instance services requests to pass to the Origin Service), the Distributed Datastore Service will communicate through configured port(s) within the distributed datastore configuration.
+If the Distributed Datastore Service is unable to communicate with the service on other nodes, it will fall back on the local datastore temporarily.
+Once other nodes become reachable, the Distributed Datastore Service will return to being distributed.</p>
+</div>
+<div class="sect2">
+<h3 id="configuration"><a class="anchor" href="#configuration"></a>Configuration</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Default Configuration:</strong> dist-datastore.cfg.xml</p>
+</li>
+<li>
+<p><strong>Released:</strong> v2.7.0</p>
+</li>
+<li>
+<p><a href="../schemas/dist-datastore.xsd">Schema</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The Distributed Datastore service can be enabled in a <strong>Repose</strong> deployment by adding it to the services list of the <a href="../architecture/system-model.html">System Model</a> like this:</p>
+</div>
+<div class="listingblock">
+<div class="title">system-model.cfg.xml (partial)</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;system-model</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/system-model/v2.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+  ...
+  <span style="color:#070;font-weight:bold">&lt;services&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;service</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">dist-datastore</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+  <span style="color:#070;font-weight:bold">&lt;/services&gt;</span>
+  ...
+<span style="color:#070;font-weight:bold">&lt;/system-model&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Adding the Distributed Datastore Service to a <strong>Repose</strong> deployment requires that listening ports be configured within the <code>dist-datastore.cfg.xml</code> file.
+The <code>&lt;port&gt;</code> element is the port configuration for the Distributed Datastore.
+When you configure <strong>Repose</strong> to start with the Distributed Datastore, the running <strong>Repose</strong> instance will try to find the <code>&lt;port&gt;</code> configuration that matches it&#8217;s own node ID in the <a href="../architecture/system-model.html">System Model</a>.
+If the <code>node</code> attribute is not defined for a <code>&lt;port&gt;</code>, that <code>&lt;port&gt;</code> is considered the default <code>&lt;port&gt;</code>.
+A running <strong>Repose</strong> instance will listen on the default <code>&lt;port&gt;</code> for Distributed Datastore traffic if no <code>&lt;port&gt;</code> is defined with a <code>node</code> attribute matching its own node ID in the <a href="../architecture/system-model.html">System Model</a>.</p>
+</div>
+<div class="paragraph">
+<p>The following is a basic sample configuration.</p>
+</div>
+<div class="listingblock">
+<div class="title">dist-datastore.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;distributed-datastore</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">http://docs.openrepose.org/repose/distributed-datastore/v1.0</span><span style="color:#710">'</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;allowed-hosts</span> <span style="color:#b48">allow-all</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;port-config&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;port</span> <span style="color:#b48">port</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">9999</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/port-config&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/distributed-datastore&gt;</span></code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="full-configuration"><a class="anchor" href="#full-configuration"></a>Full Configuration</h4>
+<div class="listingblock">
+<div class="title">dist-datastore.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;distributed-datastore</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">'</span><span style="color:#D20">http://docs.openrepose.org/repose/distributed-datastore/v1.0</span><span style="color:#710">'</span></span>
+                       <span style="color:#b48">connection-pool-id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">default</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="1"></i><b>(1)</b>
+                       <span style="color:#b48">keystore-filename</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">keystore.jks</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="2"></i><b>(2)</b>
+                       <span style="color:#b48">keystore-password</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">password</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="3"></i><b>(3)</b>
+                       <span style="color:#b48">key-password</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">secret</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="4"></i><b>(4)</b>
+                       <span style="color:#b48">truststore-filename</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">truststore.jks</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="5"></i><b>(5)</b>
+                       <span style="color:#b48">truststore-password</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">trusting</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span> <i class="conum" data-value="6"></i><b>(6)</b>
+    <span style="color:#070;font-weight:bold">&lt;allowed-hosts</span> <span style="color:#b48">allow-all</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">false</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>  <i class="conum" data-value="7"></i><b>(7)</b> <i class="conum" data-value="8"></i><b>(8)</b>
+        <span style="color:#070;font-weight:bold">&lt;allow</span> <span style="color:#b48">host</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">127.0.0.1</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="9"></i><b>(9)</b>
+    <span style="color:#070;font-weight:bold">&lt;/allowed-hosts&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;port-config&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;port</span> <span style="color:#b48">port</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">9999</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="10"></i><b>(10)</b>
+        <span style="color:#070;font-weight:bold">&lt;port</span> <span style="color:#b48">port</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">7777</span><span style="color:#710">&quot;</span></span> <span style="color:#b48">node</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">node2</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="11"></i><b>(11)</b>
+    <span style="color:#070;font-weight:bold">&lt;/port-config&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/distributed-datastore&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>HTTP Connection pool (ID) to use when communicating with other members of the distributed datastore.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>IF this attribute is configured,
+THEN it is assumed that it points to the Java keystore containing the client certificate to present for client authentication (e.g keystore.jks)
+AND the <code>keystore-password</code> and <code>key-password</code> attributes are no longer optional.<br>
+<strong>NOTE:</strong><br>
+<em>IF</em> the <code>keystore-filename</code> is defined,<br>
+<em>THEN</em> HTTPS will be used;<br>
+<em>ELSE</em> HTTP will be used.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The password for the client authentication keystore.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>The password for the particular client authentication key in the keystore.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>The truststore used for validating the server this pool is connecting to.
+This is typically set to the same path as the client authentication keystore.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>The password for the client authentication truststore.<br>
+<strong>NOTE:</strong> This attribute is only used if the <code>truststore-filename</code> attribute is present.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>Defines a list of hosts who has access to the distributed datastore API calls.
+This does not add the host to the participating data storage nodes.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>Setting the optional <code>allow-all</code> to <code>true</code> will turn off host ACL checking.<br>
+Default: <code>false</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="9"></i><b>9</b></td>
+<td>Defines a host who has access to the distributed datastore API.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="10"></i><b>10</b></td>
+<td>Defines the default <code>port</code> on which all datastores will listen.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="11"></i><b>11</b></td>
+<td>Overrides the default <code>port</code>, defined for all datastores to listen, only for this particular <code>node</code>.</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="security"><a class="anchor" href="#security"></a>Security</h3>
+<div class="paragraph">
+<p>The distributed datastore provides the option to encrypt communication between nodes using HTTP over SSL/TLS.
+As mentioned above, this is achieved by configuring a keystore in the <code>dist-datastore.cfg.xml</code> file.
+This feature can additionally provide client authentication during the SSL handshake.
+By both validating the client credentials and encrypting communication with the client, data in the datastore is made more secure.</p>
+</div>
+<div class="paragraph">
+<p>Assuming all <strong>Repose</strong> nodes are configured identically, the most straight-forward way to make use of this security would be to use a single unique keystore as both the keystore and the truststore.
+This can be achieved by not explicitly configuring a separate truststore.
+Since each datastore node will have a copy of the keystore, each node will trust every other node.</p>
+</div>
+<div class="paragraph">
+<p>Client authentication in SSL/TLS can act as as alternate form of client validation, performing a task similar to that of an access control list.
+As such, the usage of client authentication may replace the need to configure the allowed-hosts section of the <code>dist-datastore.cfg.xml</code> file.</p>
+</div>
+<div class="paragraph">
+<p>The distributed datastore will use a connection pool from the <a href="http-client.html">HTTP Client Service</a> to communicate across nodes.
+If a connection pool is not configured, the default will be used.
+In nearly all cases, the connection pool being used should not be the default, but rather, a connection pool should be configured to use <a href="../recipes/client-authentication.html">SSL/TLS Client Authentication</a> configured in the distributed datastore.
+That is, the distributed datastore may be thought of as a server, and clients in the connection pool as clients.
+Both the client and server need to be aware of how to communicate, and so they both must be configured with the appropriate secrets.</p>
+</div>
+<div class="paragraph">
+<p>For managing keystores and truststores, the aptly named keytool can be used.</p>
+</div>
+<div class="paragraph">
+<p>For more details, see:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="http://www.eclipse.org/jetty/documentation/current/configuring-ssl.html#loading-keys-and-certificates">Loading Keys and Certificates</a></p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html">Keytool Documentation</a></p>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeystoreImplementation">Keystore Specification</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="distribution"><a class="anchor" href="#distribution"></a>Distribution</h3>
+<div class="paragraph">
+<p>The distributed datastore shares key-space with all of the enabled cluster nodes.
+Key-space is determined by the maximum value of the distributed datastore&#8217;s hashing algorithm.
+Currently the only supported hashing algorithm is MD5.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="key-space-addressing"><a class="anchor" href="#key-space-addressing"></a>Key-space Addressing</h3>
+<div class="paragraph">
+<p>Addressing a key is done by first normalizing all of the participating cluster nodes.
+This is done by an ascending sort.
+After the participating nodes have had their order normalized, the key-space is sliced up by dividing the maximum possible number of addresses by the total number of participating nodes.
+The given key is then reduced to its numeric representation and a cluster node is looked up by performing a modulus such that (<code>&lt;key-value&gt; % &lt;number-of-cluster-members&gt;</code>).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="key-space-encoding"><a class="anchor" href="#key-space-encoding"></a>Key-space Encoding</h3>
+<div class="paragraph">
+<p>By default, the internal <strong>Repose</strong> client implementation for the distributed datastore will obscure key-space by storing only the MD5 hash value of a given key and not the key&#8217;s actual value.
+This is important to note since external gets against the distributed datastore must be aware of this functionality.
+The MD5 hash is represented as a 128bit UUID.</p>
+</div>
+<div class="paragraph">
+<p>Example Key Addressing</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>String Key: <code>object-key</code></p>
+</li>
+<li>
+<p>MD5 Hash: <code>cd26615a30a3cdce02e3a834fed5711a</code></p>
+</li>
+<li>
+<p>UUID: <code>cecda330-5a61-26cd-1a71-d5fe34a8e302</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If an external application makes a request for data stored by <strong>Repose</strong> components, it must first hash the key using MD5 before sending the request such that&#8230;&#8203;</p>
+</div>
+<div class="paragraph">
+<p><code>GET /powerapi/dist-datastore/objects/object-key</code></p>
+</div>
+<div class="paragraph">
+<p>becomes</p>
+</div>
+<div class="paragraph">
+<p><code>GET /powerapi/dist-datastore/objects/cecda330-5a61-26cd-1a71-d5fe34a8e302</code></p>
+</div>
+<div class="paragraph">
+<p>Obscuring key-space is not a function of the distributed datastore service.
+This functionality is only present in the internally consumed java cache client.
+If an external application puts an object into the distributed datastore, the object will be stored under the value of the key given.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="remote-management"><a class="anchor" href="#remote-management"></a>Remote Management</h3>
+<div class="paragraph">
+<p>The repose distributed datastore component is a service that hosts a simple RESTful API that can be contacted to perform remote object store operations.
+These operations are defined below.</p>
+</div>
+<div class="paragraph">
+<p><code>GET /powerapi/dist-datastore/objects/&lt;object-key&gt; HTTP/1.1</code></p>
+</div>
+<div class="paragraph">
+<p>Gets a stored object from the datastore by its key.</p>
+</div>
+<div class="paragraph">
+<p><code>PUT /powerapi/dist-datastore/objects/&lt;object-key&gt; HTTP/1.1</code></p>
+</div>
+<div class="paragraph">
+<p>Puts an object into the datastore by its key.</p>
+</div>
+<div class="paragraph">
+<p><code>DELETE /powerapi/dist-datastore/objects/&lt;object-key&gt; HTTP/1.1</code></p>
+</div>
+<div class="paragraph">
+<p>Deletes an object from the datastore by its key.</p>
+</div>
+<div class="paragraph">
+<p><code>PATCH /powerapi/dist-datastore/objects/&lt;object-key&gt; HTTP/1.1</code></p>
+</div>
+<div class="paragraph">
+<p>Patches an object in the datastore by its key.
+If the object does not exist, then a new one created.
+Return the modified/new object.
+The object must be Patchable.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="remote-fail-over"><a class="anchor" href="#remote-fail-over"></a>Remote Fail-Over</h3>
+<div class="paragraph">
+<p>In the event that a node with in a datastore cluster falls off line or is unable to respond to requests, it is removed from the node&#8217;s cluster membership for a period of time.
+During this time, the online node will then re-address its key-space in order to continue operation.
+After certain periods of rest, the node may attempt to introduce the damaged cluster member into its cluster membership.
+A damaged cluster member must go through several validation passes where the member is introduced back into the addressing algorithm before it can be considered online.
+In order to keep healthy nodes from attempting to route requests to the damaged node, a participating node may tell it&#8217;s destination that the destination may not route the request and must handle the value locally.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="performance"><a class="anchor" href="#performance"></a>Performance</h3>
+<div class="paragraph">
+<p>The <strong>Repose</strong> node will open sockets each time it has to communicate with other <strong>Repose</strong> nodes to share information.
+During times of load this can affect performance and data integrity as when one node cannot communicate with another it will mark that node damaged and store/create information locally.
+One way this can happen is if the user running repose hits their open file limit.
+Luckily this can be mitigated by increasing the open file limit for the user running <strong>Repose</strong>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="jmx-reporting"><a class="anchor" href="#jmx-reporting"></a>JMX Reporting</h3>
+<div class="paragraph">
+<p>Currently <strong>Repose</strong> instances do not report Distributed Datastore information to JMX.
+This is something that has been done in the past, but an upgrade to the metrics library used has made this capability incompatible with the current codebase.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="remote-datastore"><a class="anchor" href="#remote-datastore"></a>Remote Datastore</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="configuration-2"><a class="anchor" href="#configuration-2"></a>Configuration</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Default Configuration:</strong> remote-datastore.cfg.xml</p>
+</li>
+<li>
+<p><strong>Released:</strong> v8.5.1.0</p>
+</li>
+<li>
+<p><a href="../schemas/remote-datastore.xsd">Schema</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>At times, <strong>Repose</strong> instances may need to share information between nodes that are unaware of each other.
+An example of this is a dynamic containerized environment like OpenShift or other 12-Factor environment.</p>
+</div>
+<div class="paragraph">
+<p>The Remote Datastore Service allows dynamic isolated <strong>Repose</strong> instances to use a single static <strong>Repose</strong> instance&#8217;s object store.
+The Remote Datastore Service communicates to the configured host through the configured port.
+If the Remote Datastore Service is unable to communicate with the configured object store, it will fall back on the local datastore temporarily.
+The Remote Datastore Service will return to using the configured object store as soon as it becomes reachable again.</p>
+</div>
+<div class="paragraph">
+<p>The static <strong>Repose</strong> instance is simply configured as a single node cluster with the distributed datastore service enabled.
+The distributed datastore is typically configured with <a href="../recipes/client-authentication.html">SSL/TLS Client Authentication</a> so that all clients must properly authenticate before a session is established.
+Then all of the dynamic clients are configured with a remote datastore and the <a href="http-client.html">HTTP Client Service</a> configured to provide the proper authentication.</p>
+</div>
+<div class="paragraph">
+<p>The Remote Datastore service can be enabled in the dynamic clients by adding it to the services list of the <a href="../architecture/system-model.html">System Model</a> like this:</p>
+</div>
+<div class="listingblock">
+<div class="title">system-model.cfg.xml (partial)</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;system-model</span> <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/system-model/v2.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+  ...
+  <span style="color:#070;font-weight:bold">&lt;services&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;service</span> <span style="color:#b48">name</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">remote-datastore</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>
+  <span style="color:#070;font-weight:bold">&lt;/services&gt;</span>
+  ...
+<span style="color:#070;font-weight:bold">&lt;/system-model&gt;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The following is a basic sample configuration.</p>
+</div>
+<div class="listingblock">
+<div class="title">remote-datastore.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;remote-datastore</span> <span style="color:#b48">host</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">remote.example.com</span><span style="color:#710">&quot;</span></span>
+                  <span style="color:#b48">port</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">8080</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span></code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="full-configuration-2"><a class="anchor" href="#full-configuration-2"></a>Full Configuration</h4>
+<div class="listingblock">
+<div class="title">remote-datastore.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;remote-datastore</span> <span style="color:#b48">host</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">remote.example.com</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="1"></i><b>(1)</b>
+                  <span style="color:#b48">port</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">8080</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="2"></i><b>(2)</b>
+                  <span style="color:#b48">useHTTPS</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span> <i class="conum" data-value="3"></i><b>(3)</b>
+                  <span style="color:#b48">connection-pool-id</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">remote-datastore</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="4"></i><b>(4)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Defines the host providing the remote datastore.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Defines the port on which the remote datastore is listening (1-65535).</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Defines if the remote datastore is expecting a secure connection request.<br>
+Default: <code>true</code></td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Http Connection Pool ID to use when connecting to the Remote Datastore.</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Refer to the <a href="http-client.html">HTTP Client Service</a> and <a href="../recipes/client-authentication.html">SSL/TLS Client Authentication</a> documentation for properly securing the connection pool used to connect to the Remote Datastore.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+      </div>
+    </div>
+  </div>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="/_javascripts/bootstrap-offcanvas.js" type="text/javascript"></script>
+  <script src="/_javascripts/page-loader.js" type="text/javascript"></script>
+  <script src="/_javascripts/include-html.js" type="text/javascript"></script>
+  <script>includeHTML();</script>
+  <script type="text/javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+      $("[id^='topicGroup']").on('show.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicGroup']").on('hide.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicSubGroup']").on('show.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+      $("[id^='topicSubGroup']").on('hide.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+    });
+    /*]]>*/
+  </script>
+</body>
+</html>

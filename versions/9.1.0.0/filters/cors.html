@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>9.1.0.0 | Filters | CORS Filter</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="/_stylesheets/asciibinder.css" >
+  <link rel="stylesheet" href="/_stylesheets/repose.css" >
+  <link rel="stylesheet" href="/_stylesheets/release-note-categories.css" >
+
+   <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+   <!--[if lt IE 9]>
+     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+   <![endif]-->
+
+  <link href="/_images/favicon32x32.png" rel="shortcut icon" type="text/css">
+  <!--[if IE]><link rel="shortcut icon" href="/favicon.ico"><![endif]-->
+  <meta content="AsciiBinder" name="application-name">
+</head>
+<body onload="selectVersion('9.1.0.0');">
+  <div class="container">
+    <p class="toggle-nav visible-xs pull-left">
+      <button class="btn btn-default btn-sm" type="button" data-toggle="offcanvas">Toggle nav</button>
+    </p>
+    <ol class="breadcrumb">
+      <li class="sitename">
+        <a class="navbar-brand" href="http://www.openrepose.org/">
+          <img alt="OpenRepose" src="/_images/repose-logo.png" align="bottom">
+        </a>
+      </li>
+      <li class="sitename">
+        <a href="../../index.html">
+          Home
+        </a>
+      </li>
+      <li class="hidden-xs active">
+        <a href="/versions/9.1.0.0/welcome/index.html">
+          Repose
+        </a>
+        <select id="version-selector" onchange="versionSelector(this);" w3-include-html="/_includes/versions.html">
+        </select>
+      </li>
+      <li class="hidden-xs active">
+        <a href="../filters/index.html">Filters</a>
+      </li>
+      
+      <li class="hidden-xs active">
+        CORS Filter
+      </li>
+    </ol>
+    <div class="row row-offcanvas row-offcanvas-left">
+      <div class="col-xs-8 col-sm-3 col-md-3 sidebar sidebar-offcanvas">
+        <a class="navbar-search" href="/versions/search.html">
+          <span class="glyphicon glyphicon-search"/>
+          Search
+        </a>
+        <ul class="nav nav-sidebar">
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup0">
+        <span id="tgSpan0" class="fa fa-angle-right"></span>Welcome to Repose
+      </a>
+      <ul id="topicGroup0" class="collapse  list-unstyled">
+            <li><a class="" href="../welcome/index.html">Welcome</a></li>
+            <li><a class="" href="../welcome/troubleshooting.html">Troubleshooting</a></li>
+            <li><a class="" href="../welcome/release-notes.html">Release Notes</a></li>
+            <li><a class="" href="../welcome/ver-9-upgrade-notes.html">Version 9 Upgrade Notes</a></li>
+            <li><a class="" href="../welcome/style-guide.html">Style Guide</a></li>
+            <li><a class="" href="../welcome/faq.html">FAQ</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup1">
+        <span id="tgSpan1" class="fa fa-angle-right"></span>Architecture
+      </a>
+      <ul id="topicGroup1" class="collapse  list-unstyled">
+            <li><a class="" href="../architecture/index.html">Overview</a></li>
+            <li><a class="" href="../architecture/configuration.html">Configuration</a></li>
+            <li><a class="" href="../architecture/container.html">Container</a></li>
+            <li><a class="" href="../architecture/filter-chain.html">Filter Chain</a></li>
+            <li><a class="" href="../architecture/logging.html">Logging</a></li>
+            <li><a class="" href="../architecture/packages.html">Packages</a></li>
+            <li><a class="" href="../architecture/servlet-spec.html">Servlet Specification</a></li>
+            <li><a class="" href="../architecture/system-model.html">System Model</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup2">
+        <span id="tgSpan2" class="fa fa-angle-right"></span>Recipes
+      </a>
+      <ul id="topicGroup2" class="collapse  list-unstyled">
+            <li><a class="" href="../recipes/index.html">Overview</a></li>
+            <li><a class="" href="../recipes/quick-start.html">Quick Start</a></li>
+            <li><a class="" href="../recipes/getting-started.html">Getting Started</a></li>
+            <li><a class="" href="../recipes/custom-filter-for-repose.html">Custom Filter for Repose</a></li>
+            <li><a class="" href="../recipes/docker.html">Docker</a></li>
+            <li><a class="" href="../recipes/performance-best-practices.html">Performance Best Practices</a></li>
+            <li><a class="" href="../recipes/role-based-access-control.html">Role Based Access Control</a></li>
+            <li><a class="" href="../recipes/running-valve.html">Running Valve</a></li>
+            <li><a class="" href="../recipes/valve-installation.html">Valve Installation</a></li>
+            <li><a class="" href="../recipes/echo-server.html">Echo Server</a></li>
+            <li><a class="" href="../recipes/rate-limiting.html">Rate Limiting</a></li>
+            <li><a class="" href="../recipes/multi-tenant.html">Multi Tenant Authorization</a></li>
+            <li><a class="" href="../recipes/user-access-events.html">User Access Events</a></li>
+            <li><a class="" href="../recipes/basic-authentication.html">Basic Authentication</a></li>
+            <li><a class="" href="../recipes/delegation.html">Delegation</a></li>
+            <li><a class="" href="../recipes/preventing-xml-bomb.html">Preventing XML bomb attacks</a></li>
+            <li><a class="" href="../recipes/api-event-flume.html">API Access Event Recording with Flume</a></li>
+            <li><a class="" href="../recipes/xsd-versioning.html">XSD Versioning Guidelines</a></li>
+            <li><a class="" href="../recipes/client-authentication.html">SSL/TLS Client Authentication</a></li>
+            <li><a class="" href="../recipes/functional-test-framework.html">Functional Test Framework</a></li>
+            <li><a class="" href="../recipes/header-splitting.html">Header Splitting</a></li>
+            <li><a class="" href="../recipes/reason-phrase-normalization.html">Reason Phrase Normalization</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup3">
+        <span id="tgSpan3" class="fa fa-angle-down"></span>Filters
+      </a>
+      <ul id="topicGroup3" class="collapse in list-unstyled">
+            <li><a class="" href="../filters/index.html">Overview</a></li>
+            <li><a class="" href="../filters/add-header.html">Add Header Filter</a></li>
+            <li><a class="" href="../filters/api-validator.html">API Validator Filter</a></li>
+            <li><a class="" href="../filters/body-extractor-to-header.html">Body Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/body-patcher.html">Body Patcher Filter</a></li>
+            <li><a class="" href="../filters/compression.html">Compression Filter</a></li>
+            <li><a class="" href="../filters/content-type-stripper.html">Content Type Stripper Filter</a></li>
+            <li><a class=" active" href="../filters/cors.html">CORS Filter</a></li>
+            <li><a class="" href="../filters/derp.html">Delegation Response Processor (DeRP) Filter</a></li>
+            <li><a class="" href="../filters/destination-router.html">Destination Router Filter</a></li>
+            <li><a class="" href="../filters/echo.html">Echo Filter</a></li>
+            <li><a class="" href="../filters/exception.html">Exception Filter</a></li>
+            <li><a class="" href="../filters/forwarded-proto.html">Forwarded Protocol Filter</a></li>
+            <li><a class="" href="../filters/header-normalization.html">Header Normalization filter</a></li>
+            <li><a class="" href="../filters/header-translation.html">Header Translation Filter</a></li>
+            <li><a class="" href="../filters/header-user.html">Header User Filter</a></li>
+            <li><a class="" href="../filters/herp.html">Highly Efficient Record Processor (HERP) Filter</a></li>
+            <li><a class="" href="../filters/ip-user.html">IP User Filter</a></li>
+            <li><a class="" href="../filters/iri-validator.html">IRI Validator Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2.html">Keystone v2 Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-authorization.html">Keystone v2 Authorization Filter</a></li>
+            <li><a class="" href="../filters/keystone-v2-basic-auth.html">Keystone v2 Basic Auth Filter</a></li>
+            <li><a class="" href="../filters/merge-header.html">Merge Header Filter</a></li>
+            <li><a class="" href="../filters/openapi-validator.html">OpenAPI Validatort Filter</a></li>
+            <li><a class="" href="../filters/openstack-identity-v3.html">Openstack Identity v3 Filter</a></li>
+            <li><a class="" href="../filters/rate-limiting.html">Rate Limiting Filter</a></li>
+            <li><a class="" href="../filters/regex-rbac.html">RegEx Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/scripting.html">Scripting Filter</a></li>
+            <li><a class="" href="../filters/simple-rbac.html">Simple Role Based Access Control (RBAC) Filter</a></li>
+            <li><a class="" href="../filters/slf4j-http-logging.html">SFL4J HTTP Logging Filter</a></li>
+            <li><a class="" href="../filters/split-header.html">Split Header Filter</a></li>
+            <li><a class="" href="../filters/tenant-culling.html">Tenant Culling Filter</a></li>
+            <li><a class="" href="../filters/translation.html">Translation Filter</a></li>
+            <li><a class="" href="../filters/uri-normalization.html">URI Normalization Filter</a></li>
+            <li><a class="" href="../filters/uri-stripper.html">URI Stripper Filter</a></li>
+            <li><a class="" href="../filters/uri-user.html">URI User Filter</a></li>
+            <li><a class="" href="../filters/url-extractor-to-header.html">URL Extractor to Header Filter</a></li>
+            <li><a class="" href="../filters/valkyrie-authorization.html">Valkyrie Authorization Filter</a></li>
+            <li><a class="" href="../filters/versioning.html">Versioning Filter</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup4">
+        <span id="tgSpan4" class="fa fa-angle-right"></span>Services
+      </a>
+      <ul id="topicGroup4" class="collapse  list-unstyled">
+            <li><a class="" href="../services/index.html">Overview</a></li>
+            <li><a class="" href="../services/atom-feed-consumption.html">Atom Feed Consumption Service</a></li>
+            <li><a class="" href="../services/datastores.html">Datastores</a></li>
+            <li><a class="" href="../services/health-check.html">Health Check Service</a></li>
+            <li><a class="" href="../services/http-client.html">HTTP Client Service</a></li>
+            <li><a class="" href="../services/http-logging.html">HTTP Logging Service</a></li>
+            <li><a class="" href="../services/logging.html">Logging Service</a></li>
+            <li><a class="" href="../services/metrics.html">Metrics Service</a></li>
+            <li><a class="" href="../services/open-tracing.html">OpenTracing Service</a></li>
+            <li><a class="" href="../services/phone-home.html">Phone Home Service</a></li>
+            <li><a class="" href="../services/uri-redaction.html">URI Redaction service</a></li>
+      </ul>
+    </li>
+    <li class="nav-header">
+      <a class="" href="#" data-toggle="collapse" data-target="#topicGroup5">
+        <span id="tgSpan5" class="fa fa-angle-right"></span>Developer
+      </a>
+      <ul id="topicGroup5" class="collapse  list-unstyled">
+            <li><a class="" href="../developer/index.html">Overview</a></li>
+            <li><a class="" href="../developer/docker.html">Docker</a></li>
+            <li><a class="" href="../developer/performance.html">Performance Testing</a></li>
+            <li><a class="" href="../developer/functional.html">Functional Testing</a></li>
+      </ul>
+    </li>
+</ul>
+      </div>
+      <div class="col-xs-12 col-sm-9 col-md-9 main">
+        <div class="page-header">
+          <h2>Cross-Origin Resource Sharing (CORS) Filter</h2>
+        </div>
+        <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Cross-Origin Resource Sharing (CORS) filter allows <strong>Repose</strong> to manage CORS requests without the origin service needing to understand CORS.
+For an introduction to CORS, see the <a href="#cors-overview">CORS Overview</a> section below.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Before enabling the CORS filter, you should be familiar with the <a href="https://www.w3.org/TR/cors/">CORS specification</a> and the associated security implications.
+Enabling CORS can increase an endpoint&#8217;s exposure.
+Configuring CORS improperly could expose <a href="https://en.wikipedia.org/wiki/Cross-site_request_forgery">Cross-Site Request Forgery (CSRF)</a> vulnerabilities in the origin service that were previously hidden by not supporting CORS.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="general-filter-information"><a class="anchor" href="#general-filter-information"></a>General Filter Information</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Name:</strong> cors</p>
+</li>
+<li>
+<p><strong>Released:</strong> v7.2.0.0</p>
+</li>
+<li>
+<p><strong>Bundle:</strong> repose-filter-bundle</p>
+</li>
+<li>
+<p><strong>Default Configuration:</strong> cors.cfg.xml</p>
+</li>
+<li>
+<p><strong>Configuration Schema:</strong> <a href="../schemas/cors-configuration.xsd">cors-configuration.xsd</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="prerequisites-postconditions"><a class="anchor" href="#prerequisites-postconditions"></a>Prerequisites &amp; Postconditions</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="required-request-headers"><a class="anchor" href="#required-request-headers"></a>Required Request Headers</h3>
+<div class="paragraph">
+<p>The presence and values of certain headers will indicate what kind of request is being made.
+All of these headers will be supplied by the client making the request.</p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Non-CORS Request</th>
+<th class="tableblock halign-left valign-top">Preflight CORS Request</th>
+<th class="tableblock halign-left valign-top">Actual CORS Request</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">None required</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><code>Origin</code></p>
+</li>
+<li>
+<p><code>Access-Control-Request-Method</code></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><code>Origin</code>*</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>* If the <code>Origin</code> header matches the original <code>Host</code> header in the request, it will be considered a non-CORS request.
+See the <a href="#origin-header">Origin Header</a> section for more details.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="required-preceding-filters"><a class="anchor" href="#required-preceding-filters"></a>Required Preceding Filters</h3>
+<div class="paragraph">
+<p>The CORS filter should be one of the first filters, if not the first filter, in the filter chain in order to properly handle CORS Preflight Requests and to properly handle exposing response headers in CORS Actual Requests.
+If you want to rate limit CORS Preflight Requests, you can add the following filters before the CORS filter in the filter chain:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><a href="ip-user.html">IP User Filter</a></p>
+</li>
+<li>
+<p><a href="rate-limiting.html">Rate Limiting Filter</a></p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>This Rate Limiting filter would be in addition to any Rate Limiting filter you may already have in place.
+The first Rate Limiting filter would filter only by IP address, and the second Rate Limiting filter would continue to rate limit the way it&#8217;s currently set up.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="request-headers-created"><a class="anchor" href="#request-headers-created"></a>Request Headers Created</h3>
+<div class="paragraph">
+<p>This filter does not create/modify any request headers.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="request-body-changes"><a class="anchor" href="#request-body-changes"></a>Request Body Changes</h3>
+<div class="paragraph">
+<p>This filter does not modify the request body.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="recommended-follow-on-succeeding-filters"><a class="anchor" href="#recommended-follow-on-succeeding-filters"></a>Recommended Follow-On (Succeeding) Filters</h3>
+<div class="paragraph">
+<p>This filter is not strictly required by any other filters.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-body-changes"><a class="anchor" href="#response-body-changes"></a>Response Body Changes</h3>
+<div class="paragraph">
+<p>This filter does not <em>modify</em> the response body, but it will set it in certain early termination conditions.
+See the <a href="#Response status codes">[Response status codes]</a> section for more details.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="response-headers-created"><a class="anchor" href="#response-headers-created"></a>Response Headers Created</h3>
+<div class="paragraph">
+<p>The filter will add the following headers to the response when the request is allowed to proceed:</p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Non-CORS Request</th>
+<th class="tableblock halign-left valign-top">CORS Preflight Request</th>
+<th class="tableblock halign-left valign-top">CORS Actual Request</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">None</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><code>Access-Control-Allow-Credentials</code></p>
+</li>
+<li>
+<p><code>Access-Control-Allow-Origin</code></p>
+</li>
+<li>
+<p><code>Access-Control-Allow-Headers</code></p>
+</li>
+<li>
+<p><code>Access-Control-Allow-Methods</code></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><code>Access-Control-Allow-Credentials</code></p>
+</li>
+<li>
+<p><code>Access-Control-Allow-Origin</code></p>
+</li>
+<li>
+<p><code>Access-Control-Expose-Headers</code></p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The following headers will be added to the response when the request is rejected by this filter:</p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Origin is not allowed</th>
+<th class="tableblock halign-left valign-top">Method is not allowed</th>
+<th class="tableblock halign-left valign-top"><code>Origin</code> header is malformed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">None</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p><code>Access-Control-Allow-Origin</code></p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">None</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="response-status-codes"><a class="anchor" href="#response-status-codes"></a>Response Status Codes</h3>
+<div class="paragraph">
+<p>These are the conditions in which the CORS filter will stop processing the request and immediately return a response:</p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Response Code</th>
+<th class="tableblock halign-left valign-top">Response Body</th>
+<th class="tableblock halign-left valign-top">Request Type</th>
+<th class="tableblock halign-left valign-top">Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">200</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>None</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Preflight Request</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Origin is allowed</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">403</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>None</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Preflight Request</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Origin is not allowed</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">403</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>None</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Preflight Request</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Method is not allowed</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">400</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bad Origin header</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Actual Request</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Origin</code> header is malformed</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">403</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>None</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Actual Request</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Origin is not allowed</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">403</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>None</em></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Actual Request</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Method is not allowed</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="basic-example"><a class="anchor" href="#basic-example"></a>Basic Example</h3>
+<div class="paragraph">
+<p>A basic CORS configuration would allow all origins to use any standard HTTP method on all resources.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If you configure an origin regex of <code>.*</code> or any other regex that could allow untrusted origins, you may want to consider securing your API from <a href="https://en.wikipedia.org/wiki/Cross-site_request_forgery">CSRF</a> exploits.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">cors.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;cross-origin-resource-sharing</span>
+    <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;allowed-origins&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;origin</span> <span style="color:#b48">regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>.*<span style="color:#070;font-weight:bold">&lt;/origin&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+    <span style="color:#070;font-weight:bold">&lt;/allowed-origins&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;allowed-methods&gt;</span> <i class="conum" data-value="2"></i><b>(2)</b>
+        <span style="color:#070;font-weight:bold">&lt;method&gt;</span>OPTIONS<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;method&gt;</span>GET<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;method&gt;</span>HEAD<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;method&gt;</span>POST<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;method&gt;</span>PUT<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;method&gt;</span>DELETE<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;method&gt;</span>TRACE<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;method&gt;</span>CONNECT<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/allowed-methods&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/cross-origin-resource-sharing&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Allow all origins.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Allow these HTTP methods on all resources.</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="limit-origins"><a class="anchor" href="#limit-origins"></a>Limit Origins</h3>
+<div class="paragraph">
+<p>To limit which origins are allowed to initiate a CORS request to your API, you can specify a literal value or a regular expression that the <code>Origin</code> header must match in order to proceed with the request.</p>
+</div>
+<div class="listingblock">
+<div class="title">cors.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;cross-origin-resource-sharing</span>
+    <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;allowed-origins&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;origin&gt;</span>https://subdomain.other-domain.com:8443<span style="color:#070;font-weight:bold">&lt;/origin&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+        <span style="color:#070;font-weight:bold">&lt;origin</span> <span style="color:#b48">regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>http://.*.subdomain.rackspace.com(:\d*)?<span style="color:#070;font-weight:bold">&lt;/origin&gt;</span> <i class="conum" data-value="2"></i><b>(2)</b>
+        <span style="color:#070;font-weight:bold">&lt;origin</span> <span style="color:#b48">regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>http://www.openrepose.org(:80)?<span style="color:#070;font-weight:bold">&lt;/origin&gt;</span> <i class="conum" data-value="3"></i><b>(3)</b>
+    <span style="color:#070;font-weight:bold">&lt;/allowed-origins&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;allowed-methods&gt;</span> <i class="conum" data-value="4"></i><b>(4)</b>
+        <span style="color:#070;font-weight:bold">&lt;method&gt;</span>GET<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;method&gt;</span>POST<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/allowed-methods&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/cross-origin-resource-sharing&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Allow this specific origin.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>Allow any subdomain of ".subdomain.rackspace.com" on any port.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>Allow this specific origin and support both web browsers that will include the default port and those that will leave it out.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>Allow HTTP methods GET and POST on all resources.</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="limit-methods-by-resource"><a class="anchor" href="#limit-methods-by-resource"></a>Limit Methods By Resource</h3>
+<div class="paragraph">
+<p>If specific resources support additional HTTP methods, you can configure this per-resource using a regex to specify the path or paths.
+The <code>resource</code> configuration is processed in the configured order, so the first path regex to match the request URI will be used in conjunction with the global <code>allowed-methods</code> configuration.
+This is used to determine the complete list of allowed methods to return in response to a CORS Preflight Request and to determine whether or not a CORS Actual Request is allowed to proceed past this filter.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>This is not a substitution for authorization.
+Requests that do not contain the <code>Origin</code> header are not CORS requests and completely bypass this validation.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">cors.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;cross-origin-resource-sharing</span>
+    <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;allowed-origins&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;origin</span> <span style="color:#b48">regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>.*<span style="color:#070;font-weight:bold">&lt;/origin&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/allowed-origins&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;allowed-methods&gt;</span> <i class="conum" data-value="1"></i><b>(1)</b>
+        <span style="color:#070;font-weight:bold">&lt;method&gt;</span>GET<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;method&gt;</span>HEAD<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/allowed-methods&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;resources&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;resource</span> <span style="color:#b48">path</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/v1/status.*</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span> <i class="conum" data-value="2"></i><b>(2)</b>
+
+        <span style="color:#070;font-weight:bold">&lt;resource</span> <span style="color:#b48">path</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/v1(/.*)?</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span> <i class="conum" data-value="3"></i><b>(3)</b>
+            <span style="color:#070;font-weight:bold">&lt;allowed-methods&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;method&gt;</span>POST<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;method&gt;</span>PUT<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;/allowed-methods&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/resource&gt;</span>
+
+        <span style="color:#070;font-weight:bold">&lt;resource</span> <span style="color:#b48">path</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/.*</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span> <i class="conum" data-value="4"></i><b>(4)</b>
+            <span style="color:#070;font-weight:bold">&lt;allowed-methods&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;method&gt;</span>POST<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;method&gt;</span>PUT<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;method&gt;</span>PATCH<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;method&gt;</span>DELETE<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;/allowed-methods&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/resource&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/resources&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/cross-origin-resource-sharing&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>Allow HTTP methods GET and HEAD on all resources.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <code>/v1/status</code> endpoint doesn&#8217;t support anything other than GET and HEAD.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The rest of <code>/v1</code> supports POST and PUT in addition to GET and HEAD.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>All other non <code>/v1</code> endpoints support POST, PUT, PATCH, and DELETE in addition to GET and HEAD.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Using this configuration, you would see the following behavior:</p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Request URI</th>
+<th class="tableblock halign-left valign-top">Matched Path</th>
+<th class="tableblock halign-left valign-top">Access-Control-Allow-Methods</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/v1/status/servers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/v1/status.*</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GET, HEAD</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/v1/status?status=destroyed</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/v1/status.*</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GET, HEAD</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/v1/servers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/v1(/.*)?</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GET, HEAD, POST, PUT</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/v1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/v1(/.*)?</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GET, HEAD, POST, PUT</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/v2/servers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/.*</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GET, HEAD, POST, PUT, PATCH, DELETE</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/index.html</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">/.*</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GET, HEAD, POST, PUT, PATCH, DELETE</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="putting-it-all-together"><a class="anchor" href="#putting-it-all-together"></a>Putting It All Together</h3>
+<div class="paragraph">
+<p>This is an example configuration with notes on all of the required and optional elements and attributes.</p>
+</div>
+<div class="listingblock">
+<div class="title">cors.cfg.xml</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="xml"><span style="color:#579">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;cross-origin-resource-sharing</span>
+    <span style="color:#b48">xmlns</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">http://docs.openrepose.org/repose/cross-origin-resource-sharing/v1.0</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;allowed-origins&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;origin&gt;</span>https://subdomain.other-domain.com:8443<span style="color:#070;font-weight:bold">&lt;/origin&gt;</span>  <i class="conum" data-value="1"></i><b>(1)</b> <i class="conum" data-value="2"></i><b>(2)</b>
+        <span style="color:#070;font-weight:bold">&lt;origin</span> <span style="color:#b48">regex</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">true</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>http://.*.subdomain.rackspace.com(:\d*)?<span style="color:#070;font-weight:bold">&lt;/origin&gt;</span> <i class="conum" data-value="3"></i><b>(3)</b>
+    <span style="color:#070;font-weight:bold">&lt;/allowed-origins&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;allowed-methods&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;method&gt;</span>GET<span style="color:#070;font-weight:bold">&lt;/method&gt;</span> <i class="conum" data-value="4"></i><b>(4)</b>
+        <span style="color:#070;font-weight:bold">&lt;method&gt;</span>HEAD<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/allowed-methods&gt;</span>
+
+    <span style="color:#070;font-weight:bold">&lt;resources&gt;</span> <i class="conum" data-value="5"></i><b>(5)</b>
+        <span style="color:#070;font-weight:bold">&lt;resource</span> <span style="color:#b48">path</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/v1/status.*</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">/&gt;</span>  <i class="conum" data-value="6"></i><b>(6)</b> <i class="conum" data-value="7"></i><b>(7)</b>
+
+        <span style="color:#070;font-weight:bold">&lt;resource</span> <span style="color:#b48">path</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/v1(/.*)?</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;allowed-methods&gt;</span> <i class="conum" data-value="8"></i><b>(8)</b>
+                <span style="color:#070;font-weight:bold">&lt;method&gt;</span>POST<span style="color:#070;font-weight:bold">&lt;/method&gt;</span> <i class="conum" data-value="9"></i><b>(9)</b>
+                <span style="color:#070;font-weight:bold">&lt;method&gt;</span>PUT<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;/allowed-methods&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/resource&gt;</span>
+
+        <span style="color:#070;font-weight:bold">&lt;resource</span> <span style="color:#b48">path</span>=<span style="background-color:hsla(0,100%,50%,0.05)"><span style="color:#710">&quot;</span><span style="color:#D20">/.*</span><span style="color:#710">&quot;</span></span><span style="color:#070;font-weight:bold">&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;allowed-methods&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;method&gt;</span>POST<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;method&gt;</span>PUT<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;method&gt;</span>PATCH<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+                <span style="color:#070;font-weight:bold">&lt;method&gt;</span>DELETE<span style="color:#070;font-weight:bold">&lt;/method&gt;</span>
+            <span style="color:#070;font-weight:bold">&lt;/allowed-methods&gt;</span>
+        <span style="color:#070;font-weight:bold">&lt;/resource&gt;</span>
+    <span style="color:#070;font-weight:bold">&lt;/resources&gt;</span>
+<span style="color:#070;font-weight:bold">&lt;/cross-origin-resource-sharing&gt;</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>At least one <code>origin</code> element is required.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <code>regex</code> attribute is not required.
+If it is not present, it is defaulted to <code>false</code> and the specified URI is treated as a literal string.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>When the <code>regex</code> attribute is <code>true</code>, the specified URI will be treated as a <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#sum">Java regular expression</a>.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="4"></i><b>4</b></td>
+<td>At least one <code>method</code> element is required.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="5"></i><b>5</b></td>
+<td>The <code>resources</code> element is optional.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="6"></i><b>6</b></td>
+<td>At least one <code>resource</code> element is required when the <code>resources</code> element is present.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="7"></i><b>7</b></td>
+<td>The <code>path</code> attribute is required and is always treated as a Java regular expression.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="8"></i><b>8</b></td>
+<td>The <code>allowed-methods</code> element is optional.
+Leaving it out is useful when you need to prevent adding additional HTTP methods to a sub-resource as is the case with <code>/v1/status.*</code> in this example.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="9"></i><b>9</b></td>
+<td>At least one <code>method</code> element is required when the <code>allowed-methods</code> element is present.</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="additional-information"><a class="anchor" href="#additional-information"></a>Additional Information</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="cors-overview"><a class="anchor" href="#cors-overview"></a>CORS Overview</h3>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>CORS is not a security feature.
+It is a mechanism for informing clients (e.g., web browsers) of conditions when client-side security may be slightly relaxed in certain circumstances.
+That is, the security lies completely within the client.
+Simply leaving out the <code>Origin</code> header in the request completely bypasses the CORS spec (and thus this filter).
+You should continue securing your API in other ways using proper authentication and authorization mechanisms.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="same-origin-policy"><a class="anchor" href="#same-origin-policy"></a>Same-Origin Policy</h4>
+<div class="paragraph">
+<p>For security purposes, web browsers follow the <a href="https://en.wikipedia.org/wiki/Same-origin_policy">Same-Origin policy</a>.
+If a user were to visit a website containing malicious code, the web browser would prevent the malicious code from trying to send requests to different websites on the user&#8217;s behalf.
+This is especially useful when the user is authenticated on those other websites.
+However, sometimes a website needs to be able to get data or perform an action on a different website, but how can the client know which websites allow this and under what circumstances?
+This is where <a href="https://www.w3.org/TR/cors/">CORS</a> comes in.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="cors"><a class="anchor" href="#cors"></a>CORS</h4>
+<div class="paragraph">
+<p>Instead of the web browser immediately dropping any attempt to send a request to a third-party server, it can send the request to that server with CORS headers to see if the server trusts the origin server.
+The address of the origin server is sent in the <code>Origin</code> header.
+If the response from the third-party server does not contain the appropriate CORS headers (i.e., the server is not CORS aware) or if the CORS headers indicate the <code>Origin</code> is not allowed to send requests to it, the browser will drop the response (i.e., the client-side code from the origin server will not get to see the contents of the response from the third-party server).</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="cors-preflight-requests"><a class="anchor" href="#cors-preflight-requests"></a>CORS Preflight Requests</h4>
+<div class="paragraph">
+<p>Even though the web browser will prevent the client-side code from seeing the response from the third-party server, the request may have still been processed by the third-party server.
+To mitigate this issue, the web browser will send a CORS Preflight Request to the third-party server to first verify that the <code>Origin</code> and HTTP method are allowed (among a few other things) before sending the CORS Actual Request.
+If the response to the CORS Preflight Request indicates the CORS Actual Request would not include the appropriate CORS headers, the web browser will not proceed with sending the CORS Actual Request.</p>
+</div>
+<div class="paragraph">
+<p>Because the CORS Preflight Request is asking if a CORS Actual Request would be allowed and not for the request to actually be processed, this type of request is completely handled by the CORS filter in <strong>Repose</strong>.
+No other filters after the CORS filter will process the request, and the request will not reach the origin service.</p>
+</div>
+<div class="paragraph">
+<p>A web browser may choose to skip sending a CORS Preflight Request if the HTTP method is GET, HEAD, or POST, the request headers do not include anything other than <code>Accept</code>, <code>Accept-Language</code>, and <code>Content-Language</code>, and the request does not require any cookies, HTTP authentication, nor use of any client-side SSL certificates.
+Otherwise, the web browser must make a CORS Preflight Request.
+For example, if your origin service requires an <code>X-Auth-Token</code> header, the web browser will always send a CORS Preflight Request before sending the CORS Actual Request.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="origin-header"><a class="anchor" href="#origin-header"></a>Origin Header</h4>
+<div class="paragraph">
+<p>Some web browsers (e.g., Chrome and Safari) will send the <code>Origin</code> header for same-origin (i.e., non-CORS) requests in addition to CORS requests which is technically allowed under <a href="https://tools.ietf.org/html/rfc6454#section-7.3">RFC 6454</a>.
+This is typically not a concern for servers handling CORS because the unnecessary inclusion of CORS headers will be ignored by the client if they are not needed to process the response.
+Because <strong>Repose</strong> has the added ability to reject requests with unapproved origins, additional logic is required to differentiate between CORS requests and same-origin requests when the <code>Origin</code> header is present.</p>
+</div>
+<div class="paragraph">
+<p>Requests are considered same-origin requests when the <code>Origin</code> header matches the original <code>Host</code> header set by the client according to the comparison rules in <a href="https://tools.ietf.org/html/rfc6454#section-5">RFC 6454 Section 5</a>.
+If the <code>X-Forwarded-Host</code> header is present in the request, the first value will be used as the host.
+If the header is not present or it cannot be parsed as a URI (when the URI scheme is prepended to it), then the <code>Host</code> header will be used instead.
+This check is not performed for CORS Preflight Requests since web browsers should not be sending a CORS preflight header for a same-origin request.</p>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-caution" title="Caution"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>If a proxy server sitting between the client and <strong>Repose</strong> rewrites the <code>Host</code> without updating the <code>X-Forwarded-Host</code> header with the original value, <strong>Repose</strong> will not be able to correctly identify same-origin requests coming from that client.
+This may result in requests from that client being incorrectly rejected on the basis that they are CORS requests when they may in fact be same-origin requests.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+      </div>
+    </div>
+  </div>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="/_javascripts/bootstrap-offcanvas.js" type="text/javascript"></script>
+  <script src="/_javascripts/page-loader.js" type="text/javascript"></script>
+  <script src="/_javascripts/include-html.js" type="text/javascript"></script>
+  <script>includeHTML();</script>
+  <script type="text/javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+      $("[id^='topicGroup']").on('show.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicGroup']").on('hide.bs.collapse', function (event) {
+        if (!($(event.target).attr('id').match(/^topicSubGroup/))) {
+          $(this).parent().find("[id^='tgSpan']").toggleClass("fa-angle-right fa-angle-down");
+        }
+      });
+      $("[id^='topicSubGroup']").on('show.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+      $("[id^='topicSubGroup']").on('hide.bs.collapse', function () {
+        $(this).parent().find("[id^='sgSpan']").toggleClass("fa-caret-right fa-caret-down");
+      });
+    });
+    /*]]>*/
+  </script>
+</body>
+</html>
