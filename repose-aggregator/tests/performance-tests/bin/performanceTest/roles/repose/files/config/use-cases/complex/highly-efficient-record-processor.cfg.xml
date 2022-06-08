@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<highly-efficient-record-processor xmlns="http://docs.openrepose.org/repose/highly-efficient-record-processor/v1.0"
+                                   pre-filter-logger-name="org.openrepose.herp.pre.filter"
+                                   post-filter-logger-name="org.openrepose.herp.post.filter"
+                                   service-code="complex" region="DFW" data-center="DFW1">
+    <template crush="true">
+        <![CDATA[
+        <cadf:event xmlns:cadf="http://schemas.dmtf.org/cloud/audit/1.0/event"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation='http://schemas.dmtf.org/cloud/audit/1.0/event user-access-cadf.xsd'
+                    xmlns:ua="http://feeds.api.rackspacecloud.com/cadf/user-access-event"
+                    id="{{guid}}"
+                    eventType="activity"
+                    typeURI="http://schemas.dmtf.org/cloud/audit/1.0/event"
+                    eventTime="{{cadfTimestamp timestamp}}"
+                    action="{{cadfMethod requestMethod}}"
+                    outcome="{{cadfOutcome responseCode}}">
+            <cadf:initiator id="{{#if impersonatorName}}impersonatorName{{else}}{{userName}}{{/if}}"
+                            typeURI="network/node" name="{{#if impersonatorName}}impersonatorName{{else}}{{userName}}{{/if}}">
+                <cadf:host address="{{requestorIp}}" agent="{{userAgent}}"/>
+            </cadf:initiator>
+            <cadf:target id="{{targetHost}}" typeURI="service" name="{{serviceCode}}">
+                <cadf:host address="{{targetHost}}"/>
+            </cadf:target>
+            <cadf:attachments>
+                <cadf:attachment name="auditData" contentType="ua:auditData">
+                    <cadf:content>
+                        <ua:auditData version="1">
+                            <ua:region>{{region}}</ua:region>
+                            <ua:dataCenter>{{dataCenter}}</ua:dataCenter>
+                            <ua:methodLabel>{{methodLabel}}</ua:methodLabel>
+                            <ua:requestURL>{{requestURL}}</ua:requestURL>
+                            <ua:queryString>{{requestQueryString}}</ua:queryString>
+                            <ua:tenantId>{{defaultProjectId}}</ua:tenantId>
+                            <ua:responseMessage>{{responseMessage}}</ua:responseMessage>
+                            <ua:userName>{{userName}}</ua:userName>
+                            <ua:roles>{{#each roles}}{{#if @index}} {{/if}}{{.}}{{/each}}</ua:roles>
+                        </ua:auditData>
+                    </cadf:content>
+                </cadf:attachment>
+            </cadf:attachments>
+            <cadf:observer id="{{serviceCode}}-{{nodeId}}" name="repose" typeURI="service/security" >
+                <cadf:host address="{{nodeId}}"/>
+            </cadf:observer>
+            <cadf:reason reasonCode="{{responseCode}}"
+                         reasonType="http://www.iana.org/assignments/http-status-codes/http-status-codes.xml"/>
+        </cadf:event>
+        ]]>
+    </template>
+    <filterOut>
+      <match field="roles" regex="service-admin"/>
+    </filterOut>
+    <filterOut>
+      <match field="roles" regex="complex:service-admin"/>
+    </filterOut>
+    <filterOut>
+      <match field="roles" regex="complex:service-observer"/>
+    </filterOut>
+</highly-efficient-record-processor>

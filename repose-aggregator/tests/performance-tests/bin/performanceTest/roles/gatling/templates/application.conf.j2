@@ -1,0 +1,15 @@
+{
+    test: {
+        throughput: {{ gatling.test.params.throughput }},
+        duration: {{ gatling.test.params.duration_in_min }},
+        warmup_duration: {{ gatling.test.params.warmup_duration_in_min }},
+        ramp_up_users: {
+            new_per_sec: {{ gatling.test.params.ramp_up_users.new_per_sec }},
+            duration_in_sec: {{ gatling.test.params.ramp_up_users.duration_in_sec }},
+        },
+        expectations: {
+            percentile3_response_time_upper_bound: {{ gatling.test.params.expectations.percentile3_response_time_upper_bound_in_ms }},
+            percent_successful_requests: {{ gatling.test.params.expectations.successful_requests_percentage }}
+        }
+    }
+}

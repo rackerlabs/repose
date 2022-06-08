@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<highly-efficient-record-processor xmlns="http://docs.openrepose.org/repose/highly-efficient-record-processor/v1.0"
+                                   pre-filter-logger-name="org.openrepose.herp.pre.filter"
+                                   post-filter-logger-name="org.openrepose.herp.post.filter"
+                                   service-code="repose" region="USA" data-center="DFW">
+    <template crush="true">
+        {
+            "GUID" : "{{guid}}",
+            "ServiceCode" : "{{serviceCode}}",
+            "Region" : "{{region}}",
+            "DataCenter" : "{{dataCenter}}",
+            "Timestamp" : "{{timestamp}}",
+            "Request" : {
+                "RequestID": "{{guid}}",
+                "Method" : "{{requestMethod}}",
+                "URL" : "{{requestURL}}",
+                "QueryString" : "{{requestQueryString}}",
+                "Parameters" : { {{#each parameters}}
+                    {{#if @index}},{{/if}}"{{key}}" : [{{#each value}}{{#if @index}},{{/if}}"{{.}}"{{/each}}]
+                {{/each}} },
+                "UserName" : "{{userName}}",
+                "ImpersonatorName" : "{{impersonatorName}}",
+                "ProjectID" : [ {{#each projectID}}
+                    {{#if @index}},{{/if}}"{{.}}"
+                {{/each}} ],
+                "Roles" : [ {{#each roles}}
+                    {{#if @index}},{{/if}}"{{.}}"
+                {{/each}} ],
+                "UserAgent" : "{{userAgent}}"
+            },
+            "Response" : {
+                "Code" : {{responseCode}},
+                "Message" : "{{responseMessage}}"
+            }
+        }
+    </template>
+    <filterOut>
+        <match field="userName" regex=".*User.*"/>
+        <!-- Implicit AND -->
+        <match field="dataCenter" regex="DFW"/>
+    </filterOut>
+    <filterOut>
+        <match field="userName" regex=".*Test.*"/>
+        <!-- Implicit AND -->
+        <match field="dataCenter" regex="DFW"/>
+    </filterOut>
+    <filterOut>
+        <match field="projectID" regex="(-)\d*"/>
+        <!-- Implicit AND -->
+        <match field="dataCenter" regex="DFW"/>
+    </filterOut>
+    <filterOut>
+        <match field="parameters.tenantId" regex="(-)\d*"/>
+        <!-- Implicit AND -->
+        <match field="dataCenter" regex="DFW"/>
+    </filterOut>
+</highly-efficient-record-processor>

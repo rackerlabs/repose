@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<http-logging xmlns="http://docs.openrepose.org/repose/http-logging/v1.0">
+    <message log-to="request-counter">
+        Request handled!
+    </message>
+
+    <message log-to="plain-access-log" format="plain">
+        {{ remoteIpAddress }} - {{ default(first(outboundRequestHeaders['x-user-id']), '-') }} [{{ timeRequestReceived }}] "{{ inboundRequestMethod }} {{ inboundRequestPath }} {{ inboundRequestProtocol }}" {{ outboundResponseStatusCode }} {{ default(outboundResponseContentLength, '-') }}
+    </message>
+
+    <message log-to="json-access-log" format="json">
+<![CDATA[{
+    "remoteIpAddress": "{{ remoteIpAddress }}",
+    "userId": {; if (defined(outboundRequestHeaders['x-user-id'])) ;}"{{ first(outboundRequestHeaders['x-user-id']) }}"{; else ;}null{; endif ;},
+    "timeRequestReceived": "{{ timeRequestReceived }}",
+    "requestLine": "{{ inboundRequestMethod }} {{ inboundRequestPath }} {{ inboundRequestProtocol }}",
+    "responseStatusCode": {{ outboundResponseStatusCode }},
+    "responseContentLength": {; if (defined(outboundResponseContentLength)) ;}{{ outboundResponseContentLength }}{; else ;}null{; endif ;}
+}]]>
+    </message>
+</http-logging>

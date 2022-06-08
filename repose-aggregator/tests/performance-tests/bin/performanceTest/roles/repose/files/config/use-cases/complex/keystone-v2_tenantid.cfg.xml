@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keystone-v2 xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+    <identity-service
+            uri="http://localhost:9090"
+            connection-pool-id="keystone-v2-pool"
+    />
+    <delegating quality="0.8"/>
+    <cache>
+        <timeouts variability="10">
+            <!-- The Datastore service can only take integers, so these are in Seconds -->
+            <token>600</token>
+            <group>60</group>
+            <endpoints>600</endpoints>
+        </timeouts>
+    </cache>
+    <tenant-handling send-all-tenant-ids="true">
+        <validate-tenant>
+            <header-extraction-name>x-expected-tenant</header-extraction-name>
+        </validate-tenant>
+    </tenant-handling>
+</keystone-v2>

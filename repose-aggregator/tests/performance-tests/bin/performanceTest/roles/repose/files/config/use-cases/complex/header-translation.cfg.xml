@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<header-translation xmlns="http://docs.openrepose.org/repose/header-translation/v1.0">
+    <header original-name="x-roles" new-name="x-pp-groups" remove-original="false"/>
+</header-translation>

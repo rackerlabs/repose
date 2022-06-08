@@ -1,0 +1,89 @@
+#
+#_=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+#Repose
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Copyright (C) 2010 - 2015 Rackspace US, Inc.
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+#=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+#
+
+- name: Get a listing of directories with Gatling results for tests that hit Repose
+  find:
+    path: "/root/gatling/current/results/"
+    pattern: "*Repose-*"
+    file_type: directory
+  register: gatling_results_dir
+  tags:
+    - repose
+    - fetch_gatling_results
+
+- name: Get the directory name with the Gatling results for the current Repose run
+  set_fact:
+    current_gatling_results_dir: "{{ gatling_results_dir.files | sort(attribute='mtime',reverse=true) | first }}"
+  tags:
+    - repose
+    - fetch_gatling_results
+
+- name: Compress the Gatling results directory for the Repose test into a tar.gz
+  archive:
+    path: "{{ current_gatling_results_dir.path }}"
+    dest: "/root/{{ current_gatling_results_dir.path | basename }}.tar.gz"
+    remove: yes
+  tags:
+    - repose
+    - fetch_gatling_results
+
+- name: Fetch the Gatling results for the Repose test
+  fetch:
+    src: "/root/{{ current_gatling_results_dir.path | basename }}.tar.gz"
+    dest: "{{ hostvars['localhost']['ansible_env']['HOME'] }}/"
+    flat: yes
+  tags:
+    - repose
+    - fetch_gatling_results
+
+- name: Get a listing of directories with Gatling results for tests that hit the mock origin service
+  find:
+    path: "/root/gatling/current/results/"
+    pattern: "*Origin-*"
+    file_type: directory
+  register: gatling_results_dir
+  tags:
+    - origin
+    - fetch_gatling_results
+
+- name: Get the directory name with the Gatling results for the current origin service run
+  set_fact:
+    current_gatling_results_dir: "{{ gatling_results_dir.files | sort(attribute='mtime',reverse=true) | first }}"
+  tags:
+    - origin
+    - fetch_gatling_results
+
+- name: Compress the Gatling results directory for the origin service test into a tar.gz
+  archive:
+    path: "{{ current_gatling_results_dir.path }}"
+    dest: "/root/{{ current_gatling_results_dir.path | basename }}.tar.gz"
+    remove: yes
+  tags:
+    - origin
+    - fetch_gatling_results
+
+- name: Fetch the Gatling results for the origin service test
+  fetch:
+    src: "/root/{{ current_gatling_results_dir.path | basename }}.tar.gz"
+    dest: "{{ hostvars['localhost']['ansible_env']['HOME'] }}/"
+    flat: yes
+  tags:
+    - origin
+    - fetch_gatling_results

@@ -1,0 +1,118 @@
+#
+#_=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+#Repose
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Copyright (C) 2010 - 2015 Rackspace US, Inc.
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+#=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+#
+
+- name: Install pip
+  apt:
+    pkg: python-pip
+    state: latest
+    update_cache: yes
+    cache_valid_time: 86400
+  become: yes
+
+- name: Install Maven
+  apt:
+    pkg: maven
+    state: latest
+    update_cache: yes
+    cache_valid_time: 86400
+  when: build_tool is not defined or build_tool == "maven"
+  become: yes
+
+- name: Install RPM
+  apt:
+    pkg: rpm
+    state: latest
+    update_cache: yes
+    cache_valid_time: 86400
+  become: yes
+
+- name: Install Java 8
+  apt:
+    pkg: openjdk-8-jdk
+    state: latest
+    update_cache: yes
+    cache_valid_time: 86400
+  become: yes
+
+- name: Install Git
+  apt: pkg=git state=latest
+  become: yes
+
+- name: Install Requests
+  pip: name=requests
+  become: yes
+
+- name: Determine if Repose packages exist locally
+  local_action:
+    module: find
+    paths: "{{ role_path }}/files/packages"
+    patterns: '*.deb'
+  register: repose_packages
+  become: no
+
+- name: Create packages directory
+  file:
+    path: /tmp/repose
+    state: directory
+  when: repose_packages.matched|int != 0
+
+- name: Copy the Repose packages
+  copy:
+    src: packages/{{ item.path | basename }}
+    dest: /tmp/repose/{{ item.path | basename }}
+  when: repose_packages.matched|int != 0
+  with_items: "{{ repose_packages.files }}"
+
+# Note: Valve must be installed first since the other packages depend on it
+# Note: We also cannot trust the apt module to install repose_packages in the correct order
+# Note: See: https://github.com/ansible/ansible-modules-core/issues/1178
+- name: Install Repose Valve from a local package
+  apt:
+    deb: /tmp/repose/{{ repose_packages.files | map(attribute='path') | select('match','.*/repose(_.*SNAPSHOT.*)?.deb') | list | first | basename }}
+  when: repose_packages.matched|int != 0
+
+- name: Install Repose bundles from local packages
+  command: dpkg --force-confold --force-confdef -i /tmp/repose/{{ item.path | basename }}
+  # todo: replace the command module with the apt module
+  # todo: the current issue is that the apt module does not believe that the repose virtual package dependency is
+  # todo: satisfied, even though it should be
+  #  apt:
+  #    deb: /tmp/repose/{{ item.path | basename }}
+  when: repose_packages.matched|int != 0
+  with_items: "{{ repose_packages.files }}"
+
+- name: Install Repose
+  repose:
+    state: installed
+    release: "{{ repose.install.release | default('') }}"
+  when: repose_packages.matched|int == 0 and repose.install.release is defined
+  async: 1200
+  poll: 30
+
+- name: Install Repose from a git repo
+  repose:
+    state: installed
+    git_build: "{{ repose.install.git.build }}"
+    git_repo: "{{ repose.install.git.repo }}"
+    git_branch: "{{ repose.install.git.branch }}"
+    build_tool: "{{ repose.install.git.build_tool }}"
+  when: repose_packages.matched|int == 0 and repose.install.release is not defined and repose.install.git is defined
+  async: 1200
+  poll: 30

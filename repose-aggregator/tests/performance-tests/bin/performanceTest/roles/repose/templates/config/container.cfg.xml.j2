@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<repose-container xmlns='http://docs.openrepose.org/repose/container/v2.0'>
+    <deployment-config content-body-read-limit="{{ repose.config.container.read_limit }}">
+        <deployment-directory auto-clean="false">{{ repose.config.container.deployment_dir }}</deployment-directory>
+        <artifact-directory check-interval="{{ repose.config.container.check_interval }}">{{ repose.config.container.artifact_dir }}</artifact-directory>
+        <logging-configuration href="{{ repose.config.container.logging_href }}"/>
+        <via-header request-prefix="Repose (Performance Testing)"
+                    response-prefix="Repose (Performance Testing)"/>
+    </deployment-config>
+</repose-container>

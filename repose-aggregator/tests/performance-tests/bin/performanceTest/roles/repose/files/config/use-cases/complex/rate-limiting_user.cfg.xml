@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rate-limiting overLimit-429-responseCode="true"
+               use-capture-groups="true"
+               xmlns="http://docs.openrepose.org/repose/rate-limiting/v1.0"
+>
+    <request-endpoint uri-regex="/limits/users/?" include-absolute-limits="false"/>
+    <limit-group id="UserRole_Group" groups="complex:observer" default="true">
+        <limit id="observer-user-GET"
+               uri="^/(?!.*test)(.*)/users.*"
+               uri-regex="^/(?!.*test)(.*)/users.*"
+               http-methods="GET"
+               value="10"
+               unit="MINUTE"
+        />
+    </limit-group>
+    <limit-group id="UserIdentity_Group"
+                 groups="farmers ranchers complex:service-admin complex:service-observer"
+                 default="false"
+    >
+        <limit id="farmers-POST"
+               uri="/farmers/users.*"
+               uri-regex="/(farmers)/users.*"
+               http-methods="POST"
+               value="1000"
+               unit="SECOND"
+        />
+        <limit id="ranchers-POST"
+               uri="/ranchers/users.*"
+               uri-regex="/(ranchers)/users.*"
+               http-methods="POST"
+               value="1000"
+               unit="SECOND"
+        />
+        <limit id="service-admin-user-POST"
+               uri="^/(?!.*lions|tigers|bears).*/users.*"
+               uri-regex="^/(?!.*lions|tigers|bears)(.*)/users.*"
+               http-methods="POST"
+               value="1000"
+               unit="SECOND"
+        />
+        <limit id="service-admin-user-GET"
+               uri="^/(?!.*lions).*/users.*"
+               uri-regex="^/(?!.*lions)(.*)/users.*"
+               http-methods="GET"
+               value="1000"
+               unit="SECOND"
+        />
+    </limit-group>
+</rate-limiting>

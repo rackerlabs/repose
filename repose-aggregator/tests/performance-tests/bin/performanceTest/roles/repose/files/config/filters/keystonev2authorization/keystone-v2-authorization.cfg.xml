@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<keystone-v2-authorization xmlns="http://docs.openrepose.org/repose/keystone-v2/v1.0">
+    <tenant-handling>
+        <validate-tenant>
+            <header-extraction-name>x-tenant-id</header-extraction-name>
+        </validate-tenant>
+    </tenant-handling>
+</keystone-v2-authorization>

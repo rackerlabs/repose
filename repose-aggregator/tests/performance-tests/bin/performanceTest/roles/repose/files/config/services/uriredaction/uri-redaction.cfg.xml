@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE uri-redaction[
+    <!ENTITY redactedString "XXXXX">
+    <!ENTITY singleSegment "[^/]+">
+    <!ENTITY singleCapture "(&singleSegment;)">
+    <!ENTITY oneRedactedOneNot "&redactedString;/&singleSegment;">
+    <!ENTITY twoRedactedTwoNot "&oneRedactedOneNot;/&oneRedactedOneNot;">
+    <!ENTITY oneCaptureWithTrailing "&singleCapture;.*">
+    <!ENTITY oneRedactedOneNotOneCapture "&oneRedactedOneNot;/&oneCaptureWithTrailing;">
+    <!ENTITY twoRedactedTwoNotTwoCapture  "&twoRedactedTwoNot;/&singleCapture;/&singleSegment;/&oneCaptureWithTrailing;">
+    <!ENTITY fourRedactedFourNotTwoCapture  "&twoRedactedTwoNot;/&twoRedactedTwoNotTwoCapture;">
+    ]>
+<uri-redaction xmlns="http://docs.openrepose.org/repose/uri-redaction-service/v1.0">
+    <!-- Redact the second path segment from v1. -->
+    <redact>^/v1/&oneCaptureWithTrailing;</redact>
+    <!-- Redact the fourth path segment from v1. -->
+    <redact>^/v1/&oneRedactedOneNotOneCapture;</redact>
+    <!-- Redact the sixth and eighth path segments from v1. -->
+    <redact>^/v1/&twoRedactedTwoNotTwoCapture;</redact>
+    <!-- Redact the tenth and twelfth path segments from v1. -->
+    <redact>^/v1/&fourRedactedFourNotTwoCapture;</redact>
+    <!-- Redact the path segments from v2. -->
+    <redact>^/v2/&oneCaptureWithTrailing;</redact>
+    <redact>^/v2/&oneRedactedOneNotOneCapture;</redact>
+    <redact>^/v2/&twoRedactedTwoNotTwoCapture;</redact>
+    <redact>^/v2/&fourRedactedFourNotTwoCapture;</redact>
+    <!-- Redact the path segments from v3. -->
+    <redact>^/v3/&oneCaptureWithTrailing;</redact>
+    <redact>^/v3/&oneRedactedOneNotOneCapture;</redact>
+    <redact>^/v3/&twoRedactedTwoNotTwoCapture;</redact>
+    <redact>^/v3/&fourRedactedFourNotTwoCapture;</redact>
+    <!-- Redact the path segments from v4. -->
+    <redact>^/v4/&oneCaptureWithTrailing;</redact>
+    <redact>^/v4/&oneRedactedOneNotOneCapture;</redact>
+    <redact>^/v4/&twoRedactedTwoNotTwoCapture;</redact>
+    <redact>^/v4/&fourRedactedFourNotTwoCapture;</redact>
+    <!-- Redact the path segments from v5. -->
+    <redact>^/v5/&oneCaptureWithTrailing;</redact>
+    <redact>^/v5/&oneRedactedOneNotOneCapture;</redact>
+    <redact>^/v5/&twoRedactedTwoNotTwoCapture;</redact>
+    <redact>^/v5/&fourRedactedFourNotTwoCapture;</redact>
+</uri-redaction>

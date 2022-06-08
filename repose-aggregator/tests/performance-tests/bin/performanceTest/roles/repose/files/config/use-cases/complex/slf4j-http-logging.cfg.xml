@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<slf4j-http-logging xmlns="http://docs.openrepose.org/repose/slf4j-http-logging/v1.0">
+    <slf4j-http-log id="http">
+        <format>
+            <![CDATA[
+                {"timestamp": "%t", "response_time_in_seconds": %T, "response_code_modifiers": "%200,201U", "modifier_negation": "%!401a", "remote_ip": "%a", "local_ip": "%A", "response_size_in_bytes": "%b", "remote_host": "%h", "request_method": "%m", "server_port": %p, "query_string": "%q", "status_code": %s, "remote_user": "%u", "user_id": "%{x-user-id}i", "username": "%{x-user-name}i", "tenant_id": "%{x-tenant-id}i", "url_path_requested": "%U", "accept": "%{accept}i"}
+            ]]>
+        </format>
+    </slf4j-http-log>
+</slf4j-http-logging>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uri-normalization xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://docs.openrepose.org/repose/uri-normalization/v1.0"
+    xsi:schemaLocation="http://docs.openrepose.org/repose/uri-normalization/v1.0"
+>
+    <media-variants>
+        <media-type name="application/xml" variant-extension="xml"/>
+        <media-type name="application/complex+xml" preferred="true" variant-extension="xml"/>
+        <media-type name="application/complexfancy+xml" variant-extension="xml"/>
+        <media-type name="application/json" variant-extension="json"/>
+        <media-type name="application/vnd.openstack.complex+json" variant-extension="json"/>
+        <media-type name="application/vnd.openstack.complexfancy+json" variant-extension="json"/>
+    </media-variants>
+</uri-normalization>

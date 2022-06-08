@@ -1,0 +1,40 @@
+#
+#_=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+#Repose
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Copyright (C) 2010 - 2015 Rackspace US, Inc.
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+#=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+#
+
+---
+- name: Record the Repose version for Debian-based distributions
+  command: dpkg-query --showformat='${Version}' --show 'repose'
+  register: repose_version_query_debian
+  when: ansible_os_family == "Debian"
+
+- name: Record the Repose version for RedHat-based distributions
+  command: rpm -q --queryformat '%{VERSION}' repose
+  register: repose_version_query_redhat
+  when: ansible_os_family == "RedHat"
+
+- name: Set the Repose version fact for Debian-based distributions
+  set_fact:
+    repose_version: "{{ repose_version_query_debian.stdout }}"
+  when: ansible_os_family == "Debian"
+
+- name: Set the Repose version fact for RedHat-based distributions
+  set_fact:
+    repose_version: "{{ repose_version_query_redhat.stdout }}"
+  when: ansible_os_family == "RedHat"

@@ -1,0 +1,42 @@
+#jinja2: trim_blocks: "true", lstrip_blocks: "true"
+<?xml version="1.0" encoding="UTF-8"?>
+<system-model xmlns="http://docs.openrepose.org/repose/system-model/v2.0">
+    <nodes>
+        {% for node in groups.performance %}
+        <node id="proxy-n0{{ loop.index }}"
+              hostname="{{ hostvars[node]['ansible_eth0']['ipv4']['address'] }}"
+              http-port="{{ repose.config.system_model.http_port }}"/>
+        {% endfor %}
+    </nodes>
+
+    <filters>
+        {% for filter in repose.config.system_model.filters %}
+        <filter name="{{ filter.name }}"
+                {% if filter.config is defined %}
+                configuration="{{ filter.config }}"
+                {% endif %}
+                {% if filter.uri_regex is defined %}
+                uri-regex="{{ filter.uri_regex }}"
+                {% endif %}
+        />
+        {% endfor %}
+    </filters>
+
+    <services>
+        {% for service in repose.config.system_model.services %}
+        <service name="{{ service }}"/>
+        {% endfor %}
+    </services>
+
+    <destinations>
+        <endpoint id="target"
+                  protocol="http"
+                  hostname="{{ repose.config.system_model.origin_hostname }}"
+                  port="{{ repose.config.system_model.origin_port }}"
+                  root-path="/"
+                  chunked-encoding="{{ repose.config.system_model.origin_chunked }}"
+                  default="true"/>
+    </destinations>
+
+    <tracing-header rewrite-header="{{ repose.config.system_model.tracing.rewrite_header }}"/>
+</system-model>

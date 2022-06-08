@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<regex-rbac xmlns="http://docs.openrepose.org/repose/regex-rbac/v1.0"
+            mask-rax-roles-403="false">
+    <resources>
+        /path/[^/]+/this GET     role1,role2,role3,role4
+        /path/[^/]+/this put     role1,role2,role3
+        /path/[^/]+/this POST    role1,role2
+        /path/[^/]+/this DELETE  role1
+        /path/[^/]+/that get,PUT ANY
+        /foo/[^/]+       GET     admin,role1
+        /foo/[^/]+       GET     admin,role2
+        /foo/[^/]+/.*    ALL     admin,role5
+    </resources>
+</regex-rbac>

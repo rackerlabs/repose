@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<opentracing xmlns="http://docs.openrepose.org/repose/opentracing/v1.0"
+             name="repose"
+             tracer="jaeger"
+             collector-endpoint="{{ repose.config.opentracing.tracer_collector_hostname }}:{{ repose.config.opentracing.tracer_collector_port }}"
+/>

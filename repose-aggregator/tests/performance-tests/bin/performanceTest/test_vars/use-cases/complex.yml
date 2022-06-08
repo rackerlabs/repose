@@ -1,0 +1,86 @@
+#
+#_=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+#Repose
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Copyright (C) 2010 - 2015 Rackspace US, Inc.
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+#=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+#
+
+{
+  dir_prefix: "use-cases/complex",
+  repose: {
+    config: {
+      system_model: {
+        filters: [
+          { name: "slf4j-http-logging" },
+          { name: "uri-normalization" },
+          { name: "header-normalization" },
+          { name: "ip-user" },
+          { name: "rate-limiting" },
+          { name: "keystone-v2-basic-auth" },
+          { name: "keystone-v2", uri_regex: '/.+/users/?' },
+          { name: "keystone-v2", config: "keystone-v2_tenantid.cfg.xml", uri_regex: '/.+/users/[^/?]+(/objects/[^?]+)?/?(\?.*)?' },
+          { name: "header-translation" },
+          { name: "rate-limiting", config: "rate-limiting_user.cfg.xml" },
+          { name: "herp", uri_regex: '.+/users/.*' },
+          { name: "derp" }
+        ],
+        services: [
+          "dist-datastore"
+        ]
+      },
+      container: {
+        read_limit: 2097152
+      }
+    },
+    config_files: {
+      templates: [
+        "container.cfg.xml",
+        "system-model.cfg.xml",
+        "{{ dir_prefix }}/dist-datastore.cfg.xml",
+        "{{ dir_prefix }}/ip-user.cfg.xml"
+      ],
+      files: [
+        "log4j2.xml",
+        "{{ dir_prefix }}/header-normalization.cfg.xml",
+        "{{ dir_prefix }}/header-translation.cfg.xml",
+        "{{ dir_prefix }}/highly-efficient-record-processor.cfg.xml",
+        "{{ dir_prefix }}/http-connection-pool.cfg.xml",
+        "{{ dir_prefix }}/keystone-v2-basic-auth.cfg.xml",
+        "{{ dir_prefix }}/keystone-v2.cfg.xml",
+        "{{ dir_prefix }}/keystone-v2_tenantid.cfg.xml",
+        "{{ dir_prefix }}/rate-limiting.cfg.xml",
+        "{{ dir_prefix }}/rate-limiting_user.cfg.xml",
+        "{{ dir_prefix }}/slf4j-http-logging.cfg.xml",
+        "{{ dir_prefix }}/uri-normalization.cfg.xml"
+      ]
+    },
+    systemd_opts: {
+      use_saxon: true
+    }
+  },
+  mock: {
+    backends: [
+      "main_backend.js",
+      "auth_backend.js"
+    ]
+  },
+  gatling: {
+    test: {
+      name: "ComplexUseCaseSimulation",
+      package: "usecases.complex"
+    }
+  }
+}

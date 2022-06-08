@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ip-user xmlns="http://docs.openrepose.org/repose/ip-user/v1.0">
+    <user-header name="X-PP-User" quality="0.2"/>
+    <group-header quality="0.3"/>
+    <group name="IP_Super">
+        {% for node in groups.performance %}
+            <cidr-ip>{{ hostvars[node]['ansible_eth0']['ipv4']['address'] }}/32</cidr-ip>
+        {% endfor %}
+    </group>
+</ip-user>

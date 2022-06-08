@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="lua"><![CDATA[
+  path = request:getRequestURI()
+  path = path:gsub("^/+", "")
+
+  pathSegments = {} ; i = 1
+  for str in path:gmatch("([^/]+)") do
+    pathSegments[i] = str
+    i = i + 1
+  end
+
+  queryString = request:getQueryString()
+
+  if #pathSegments >= 2 then
+    if not queryString == nil then
+      queryString = queryString .. "&penultimate=" .. pathSegments[#pathSegments - 1] .. "&ultimate=" .. pathSegments[#pathSegments]
+    else
+      queryString = "penultimate=" .. pathSegments[#pathSegments - 1] .. "&ultimate=" .. pathSegments[#pathSegments]
+    end
+
+    request:setQueryString(queryString)
+
+    reducedPathSegments = {}; i = 1
+    for i = 1, #pathSegments - 2, i + 1 do
+      reducedPathSegments[i] = pathSegments[i]
+    end
+
+    request:setRequestURI("/" .. table.concat(reducedPathSegments, "/"))
+  end
+
+  filterChain:doFilter(request, response)
+]]></scripting>

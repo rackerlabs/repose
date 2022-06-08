@@ -1,0 +1,107 @@
+#
+#_=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+#Repose
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Copyright (C) 2010 - 2015 Rackspace US, Inc.
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+#=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+#
+
+{
+  repose: {
+    install: {
+      git: {
+        build: true,
+        build_tool: "gradlew",
+        repo: "https://github.com/rackerlabs/repose.git",
+        branch: "master"
+      }
+    },
+    config: {
+      system_model: {
+        tracing: {
+          rewrite_header: "false"
+        },
+        http_port: 7070,
+        origin_hostname: "localhost",
+        origin_port: 8080,
+        origin_chunked: "true",
+        filters: [],
+        services: []
+      },
+      container: {
+        read_limit: 1024,
+        deployment_dir: "/var/repose",
+        artifact_dir: "/usr/share/repose/filters",
+        check_interval: 60000,
+        logging_href: "file:///etc/repose/log4j2.xml"
+      },
+      keystone_v2: {
+        username: "admin",
+        password: "admin_password",
+        uri: "http://localhost:9090"
+      },
+      saml: {
+        policy_bypass_issuers: [
+          "http://legacy.idp.external.com"
+        ],
+        cache: {
+          ttl: "3600"
+        },
+        signature_credentials: {
+          keystore_filename: "single.jks",
+          keystore_password: "password",
+          key_name: "server",
+          key_password: "password"
+        }
+      },
+      opentracing: {
+        tracer_collector_hostname: "localhost",
+        tracer_collector_port: 10000
+      }
+    },
+    config_files: {
+      templates: [
+        "container.cfg.xml",
+        "system-model.cfg.xml"
+      ],
+      files: [
+        "log4j2.xml"
+      ],
+      dirs: []
+    },
+    systemd_opts: {
+      use_saxon: false,
+      java_opts: [
+        "-Xmx512m",
+        "-Xms512m",
+      ],
+    },
+    service: {
+      state: "started",
+      start_timeout_in_sec: 300
+    }
+  },
+  nodejs: {
+    nodesource_pin_priority: 600,
+    repo: "node"
+  },
+  mock: {
+    npm_package_file: "package.json",
+    backends: [
+      "main_backend.js"
+    ],
+    payloads: []
+  }
+}

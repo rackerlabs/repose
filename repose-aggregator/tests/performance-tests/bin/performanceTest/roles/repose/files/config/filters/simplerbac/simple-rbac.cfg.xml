@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<simple-rbac xmlns="http://docs.openrepose.org/repose/simple-rbac/v1.0">
+    <resources>
+        /path/to/this  GET       super,useradmin,admin,user
+        /path/to/this  PUT       super,useradmin,admin
+        /path/to/this  POST      super,useradmin
+        /path/to/this  DELETE    super
+        /path/to/that  GET,PUT   ANY
+        /path/to/that  ALL       super
+        /path/to/test  GET,POST  user,useradmin
+        /path/to/space GET       super wsp , useradmin wsp,admin wsp
+    </resources>
+</simple-rbac>

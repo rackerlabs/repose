@@ -1,0 +1,26 @@
+<application xmlns:rax="http://docs.rackspace.com/api"
+         xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+         xmlns="http://wadl.dev.java.net/2009/02"
+>
+  <resources base="http://localhost">
+    <resource id="This" path="/path/to/this">
+      <method name="GET"    id="This-GET"    rax:roles="super useradmin admin user"/>
+      <method name="PUT"    id="This-PUT"    rax:roles="super useradmin admin"/>
+      <method name="POST"   id="This-POST"   rax:roles="super useradmin"/>
+      <method name="DELETE" id="This-DELETE" rax:roles="super"/>
+    </resource>
+    <resource id="That" path="/path/to/that">
+      <method name="GET"    id="That-GET"    />
+      <method name="PUT"    id="That-PUT"    />
+      <method name="POST"   id="That-POST"   rax:roles="super"/>
+      <method name="DELETE" id="That-DELETE" rax:roles="super"/>
+    </resource>
+    <resource id="Test" path="/path/to/test">
+      <method name="GET"    id="Test-GET"    rax:roles="user useradmin"/>
+      <method name="POST"   id="Test-POST"   rax:roles="user useradmin"/>
+    </resource>
+    <resource id="Space" path="/path/to/space">
+      <method name="GET"    id="Space-GET"   rax:roles="super&#xA0;wsp useradmin&#xA0;wsp admin&#xA0;wsp"/>
+    </resource>
+  </resources>
+</application>

@@ -1,0 +1,87 @@
+#
+#_=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=
+#Repose
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Copyright (C) 2010 - 2015 Rackspace US, Inc.
+#_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+#=_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_=_
+#
+
+- name: Ensure the system can use the HTTPS transport for APT
+  stat: path=/usr/lib/apt/methods/https
+  register: apt_https_transport
+
+- name: Install HTTPS transport for APT
+  apt: pkg=apt-transport-https state=installed
+  when: not apt_https_transport.stat.exists
+
+- name: Import the NodeSource GPG key into apt using a key that actually works (NodeSource's key does not)
+  apt_key:
+    url: https://keyserver.ubuntu.com/pks/lookup?op=get&fingerprint=on&search=0x1655A0AB68576280
+    id: "68576280"
+
+- name: Add NodeSource deb repository
+  apt_repository: repo="deb https://deb.nodesource.com/{{ nodejs.repo }} {{ ansible_distribution_release }} main"
+
+- name: Add NodeSource deb-src repository
+  apt_repository: repo="deb-src https://deb.nodesource.com/{{ nodejs.repo }} {{ ansible_distribution_release }} main"
+
+- name: Add NodeSource repository preferences
+  template:
+    src: apt_preferences/deb_nodesource_com_node.pref.j2
+    dest: /etc/apt/preferences.d/deb_nodesource_com_node.pref
+
+- name: Install Node.js
+  apt:
+    pkg: nodejs
+    state: installed
+    update_cache: yes
+
+- name: Install build-essential
+  apt:
+    pkg: build-essential
+    state: latest
+    update_cache: yes
+    cache_valid_time: 86400
+
+- name: Create mocks directory
+  file: path=/opt/mocks state=directory
+
+- name: Copy the mocks
+  copy:
+    src: mocks/{{ item }}
+    dest: /opt/mocks/{{ item | basename }}
+    mode: 0640
+  with_items: "{{ mock.backends }}"
+
+- name: Copy the package.json
+  copy: src=mocks/{{ mock.npm_package_file }} dest=/opt/mocks/package.json
+
+- name: Copy the response payloads
+  copy: src=mocks/{{ item }} dest=/opt/mocks/{{ item | basename }}
+  with_items: "{{ mock.payloads }}"
+
+- name: Install Node.js dependencies for the mock(s)
+  npm: path=/opt/mocks
+
+# FIXME: Remove this step once the following issue with the npm module is
+# resolved and we upgrade to a version of Ansible that includes it:
+# https://github.com/ansible/ansible-modules-extras/issues/1375
+- name: Install forever (to run Node.js app)
+  npm: name=forever global=yes state=present
+
+# FIXME: Name this "Install forever (to run Node.js app)" once the previous
+# step is removed.
+- name: Update forever (to run Node.js app)
+  npm: name=forever global=yes state=latest
