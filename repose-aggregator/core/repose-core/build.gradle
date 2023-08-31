@@ -22,9 +22,9 @@ dependencies {
     compile project(":repose-aggregator:components:services:uri-redaction-service:uri-redaction-service-impl")
     compile project(":repose-aggregator:core:repose-core-api")
     compile project(":repose-aggregator:external:jee6-schemas")
-    compile "commons-collections:commons-collections" // Forces the version used by velocity -> avro-ipc -> flume-ng-sdk -> log4j-flume-ng. Alleviates: CVE-2015-6420, CVE-2017-15708
-    compile "org.apache.flume:flume-ng-sdk" // Forces the version used by log4j-flume-ng. Alleviates: CVE-2015-2156
-    compile "org.apache.logging.log4j:log4j-flume-ng"
+    compile("org.apache.logging.log4j:log4j-flume-ng") {
+        exclude group: 'org.apache.flume', module: 'flume-ng-sdk'
+    }
     compile "javax.inject:javax.inject"
     compile "io.dropwizard.metrics:metrics-graphite"
     compile "io.dropwizard.metrics:metrics-core"
@@ -54,8 +54,14 @@ dependencies {
     compile "javax.ws.rs:javax.ws.rs-api"
     compile "io.opentracing:opentracing-api"
     compile "io.opentracing:opentracing-util"
-    compile 'com.squareup.okhttp3:okhttp' // Forces the version used by jaeger-core.
-    compile 'org.apache.thrift:libthrift' // Forces the version used by jaeger-core.
+    compile("com.squareup.okhttp3:okhttp") { // Forces the version used by jaeger-core.
+        exclude group: 'com.squareup.okio', module: 'okio'
+    }
+    compile "com.squareup.okio:okio" // Forces the version used by okhttp.
+    compile('org.apache.thrift:libthrift') { // Forces the version used by jaeger-core.
+        exclude group: 'org.apache.tomcat.embed', module: 'tomcat-embed-core'
+    }
+    compile 'org.apache.tomcat.embed:tomcat-embed-core' // Forces the version used by libthrift.
     compile "io.jaegertracing:jaeger-core"
 
     compileOnly "javax.servlet:javax.servlet-api"

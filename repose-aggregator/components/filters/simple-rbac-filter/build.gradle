@@ -6,7 +6,10 @@ dependencies {
     compile "com.typesafe.scala-logging:scala-logging_$scalaMajDotMin"
     compile "xalan:xalan" // Forces the version used by api-checker.
     compile "com.google.guava:guava" // Forces the version used by api-checker.
-    compile "com.rackspace.papi.components.api-checker:checker-core"
+    compile("com.rackspace.papi.components.api-checker:checker-core") {
+        exclude group: 'com.rackspace.apache', module: 'xerces2-xsd11'
+    }
+    compile "xerces:xerces-xsd11"
     compile "org.springframework:spring-beans"
     compile "org.apache.commons:commons-lang3"
 
