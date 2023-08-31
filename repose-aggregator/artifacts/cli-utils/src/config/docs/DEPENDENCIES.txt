@@ -20,7 +20,7 @@ Group                                               Name                      Ve
 com.fasterxml.jackson.core                          jackson-core              2.9.9            Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
 com.fasterxml.jackson.core                          jackson-databind          2.9.9.3          Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
 commons-codec                                       commons-codec             1.10             Apache License Version 2.0  http://commons.apache.org/proper/commons-codec/
-commons-io                                          commons-io                2.4              Apache License Version 2.0  http://commons.apache.org/proper/commons-io/
+commons-io                                          commons-io                2.7              Apache License Version 2.0  http://commons.apache.org/proper/commons-io/
 commons-pool                                        commons-pool              1.6              Apache License Version 2.0  http://commons.apache.org/proper/commons-pool/
 com.typesafe.scala-logging                          scala-logging_2.12        3.9.2            Apache License Version 2.0  https://github.com/typesafehub/scala-logging
 io.dropwizard.metrics                               metrics-core              3.2.0            Apache License Version 2.0  https://github.com/dropwizard/metrics/blob/v3.2.0/LICENSE

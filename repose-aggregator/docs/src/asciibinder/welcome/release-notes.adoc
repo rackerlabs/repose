@@ -1,11 +1,34 @@
 = Release Notes
 
-== Upcoming Release 9.1.0.0 (2019-??-??)
+== Upcoming Release 9.1.1.0 (2023-09-??)
+* Updated dependencies:
+** Log4j: 2.17.1 → 2.19.0
+** Http Client: 4.5.6 -> 4.5.13
+** Jena IRI: 1.1.1 -> 1.1.2
+** Libthrift: 0.12.0 -> 0.14.1
+** Jackson: 2.9.10 -> 2.15.2
+** Json Path: 2.4.0 -> 2.8.0
+** Flume NG: 1.9.0 -> 1.11.0
+** Handlebars: 2.0.0 -> 4.3.1
+** Guava: 27.0.0-jre -> 32.0.0-jre
+** Commons IO: 2.4 -> 2.7
+** Groovy: 2.4.15 -> 2.4.21
+** Jython: 2.7.1 -> 2.7.3
+** Spring: 4.3.21.RELEASE -> 5.3.27
+** Xalan: 2.7.2 -> 2.7.3
+
+== 9.1.0.3 (202?-??-??)
+* Updated dependencies:
+** Log4j: 2.17.0 → 2.17.1
+
+== 9.1.0.1 (202?-??-??)
+* Updated dependencies:
+** Log4j: 2.9.0 → 2.17.0
+
+== 9.1.0.0 (2019-10-14)
 * [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7966[REP-7966] - Added option to <<../architecture/system-model.adoc#, System Model>> to allow a header value to be URL encoded before being sent to the origin service.
 * [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7954[REP-7954] - Updated dependencies:
 ** Jackson: 2.9.9 → 2.9.10
-
-=== Integrators
 * [.breaking-tag]#Breaking Change# | https://repose.atlassian.net/browse/REP-6825[REP-6825] - Scala and all dependent libraries upgraded to 2.12 versions.
 ** Akka: 2.4.20 → 2.5.23
 ** Akka Http: 1.0 → 10.1.8

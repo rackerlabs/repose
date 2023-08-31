@@ -10,7 +10,10 @@ dependencies {
     compile "org.scala-lang:scala-library"
     compile "com.typesafe.akka:akka-actor_$scalaMajDotMin"
     compile "org.apache.abdera:abdera-core"
-    compile "org.apache.abdera:abdera-parser"
+    compile("org.apache.abdera:abdera-parser") {
+        exclude group: 'org.codehaus.woodstox', module: 'wstx-asl'
+    }
+    compile "org.codehaus.woodstox:woodstox-core-asl" // Forces the version used by abdera-parser
     compile "org.springframework:spring-beans"
     compile "org.springframework:spring-context"
     compile "com.typesafe.play:play-json_$scalaMajDotMin"

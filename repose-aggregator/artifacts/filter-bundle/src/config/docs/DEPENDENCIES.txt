@@ -21,10 +21,10 @@ com.atlassian.oai                                   swagger-request-validator-co
 com.fasterxml.jackson.core                          jackson-annotations             2.9.9             Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
 com.fasterxml.jackson.core                          jackson-core                    2.9.9             Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
 com.fasterxml.jackson.core                          jackson-databind                2.9.9.3           Apache License Version 2.0  http://wiki.fasterxml.com/JacksonDownload
-com.github.jknack                                   handlebars                      2.0.0             Apache License Version 2.0  https://github.com/jknack/handlebars.java
-com.google.guava                                    guava                           27.0.1-jre        Apache License Version 2.0  https://github.com/google/guava
+com.github.jknack                                   handlebars                      4.3.1             Apache License Version 2.0  https://github.com/jknack/handlebars.java
+com.google.guava                                    guava                           32.0.1-jre        Apache License Version 2.0  https://github.com/google/guava
 commons-codec                                       commons-codec                   1.10              Apache License Version 2.0  http://commons.apache.org/proper/commons-codec/
-commons-io                                          commons-io                      2.4               Apache License Version 2.0  http://commons.apache.org/proper/commons-io/
+commons-io                                          commons-io                      2.7               Apache License Version 2.0  http://commons.apache.org/proper/commons-io/
 commons-pool                                        commons-pool                    1.6               Apache License Version 2.0  http://commons.apache.org/proper/commons-pool/
 com.typesafe.akka                                   akka-actor_2.12                 2.5.23            Apache License Version 2.0  https://github.com/akka/akka
 com.typesafe                                        config                          1.3.0             Apache License Version 2.0  https://github.com/typesafehub/config
@@ -43,14 +43,14 @@ org.apache.abdera                                   abdera-parser               
 org.apache.commons                                  commons-lang3                   3.8.1             Apache License Version 2.0  http://commons.apache.org/proper/commons-lang/
 org.apache.httpcomponents                           httpclient                      4.4.1             Apache License Version 2.0  http://hc.apache.org/httpcomponents-client-4.4.x/index.html
 org.apache.httpcomponents                           httpcore                        4.4.1             Apache License Version 2.0  http://hc.apache.org/httpcomponents-core-4.4.x/index.html
-org.apache.jena                                     jena-iri                        1.1.1             Apache License Version 2.0  http://jena.apache.org/
-org.apache.logging.log4j                            log4j-api                       2.9.0             Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
-org.apache.logging.log4j                            log4j-core                      2.9.0             Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
-org.apache.logging.log4j                            log4j-flume-ng                  2.9.0             Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
-org.apache.logging.log4j                            log4j-iostreams                 2.9.0             Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
-org.apache.logging.log4j                            log4j-jul                       2.9.0             Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
-org.apache.logging.log4j                            log4j-slf4j-impl                2.9.0             Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
-org.codehaus.groovy                                 groovy-all                      2.4.15            Apache License Version 2.0  https://github.com/apache/groovy
+org.apache.jena                                     jena-iri                        1.1.2             Apache License Version 2.0  http://jena.apache.org/
+org.apache.logging.log4j                            log4j-api                       2.19.0            Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
+org.apache.logging.log4j                            log4j-core                      2.19.0            Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
+org.apache.logging.log4j                            log4j-flume-ng                  2.19.0            Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
+org.apache.logging.log4j                            log4j-iostreams                 2.19.0            Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
+org.apache.logging.log4j                            log4j-jul                       2.19.0            Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
+org.apache.logging.log4j                            log4j-slf4j-impl                2.19.0            Apache License Version 2.0  https://logging.apache.org/log4j/2.x/license.html
+org.codehaus.groovy                                 groovy-all                      2.4.21            Apache License Version 2.0  https://github.com/apache/groovy
 org.eclipse.jetty                                   jetty-server                    9.4.14.v20181114  Apache License Version 2.0  http://www.eclipse.org/jetty/licenses.php
 org.eclipse.jetty                                   jetty-servlet                   9.4.14.v20181114  Apache License Version 2.0  http://www.eclipse.org/jetty/licenses.php
 org.gnieh                                           diffson-play-json_2.12          2.2.6             Apache License Version 2.0  https://github.com/gnieh/diffson
@@ -59,15 +59,15 @@ org.jtwig                                           jtwig-core                  
 org.jvnet.jaxb2_commons                             jaxb2-basics-runtime            0.6.5             CDDL v1.1 and GPL v2        https://jaxb.java.net/
 org.luaj                                            luaj-jse                        3.0.1             MIT License                 http://luaj.sourceforge.net/
 org.openrepose                                      http-delegation                 5.0.0             Apache License Version 2.0  https://github.com/rackerlabs/repose
-org.python                                          jython-standalone               2.7.1             Jython Specific License     http://www.jython.org/license.html
+org.python                                          jython-standalone               2.7.3             Jython Specific License     http://www.jython.org/license.html
 org.scala-lang.modules                              scala-xml_2.12                  1.0.5             Scala Specific License      http://www.scala-lang.org/license.html
 org.scala-lang                                      scala-library                   2.12.8            Scala Specific License      http://www.scala-lang.org/license.html
 org.scala-lang                                      scala-reflect                   2.12.8            Scala Specific License      http://www.scala-lang.org/license.html
 org.slf4j                                           jcl-over-slf4j                  1.7.7             MIT License                 http://slf4j.org/license.html
 org.slf4j                                           slf4j-api                       1.7.22            MIT License                 http://slf4j.org/license.html
-org.springframework                                 spring-beans                    4.3.21.RELEASE    Apache License Version 2.0  https://github.com/spring-projects/spring-framework
-org.springframework                                 spring-context                  4.3.21.RELEASE    Apache License Version 2.0  https://github.com/spring-projects/spring-framework
-org.springframework                                 spring-core                     4.3.21.RELEASE    Apache License Version 2.0  https://github.com/spring-projects/spring-framework
-org.springframework                                 spring-web                      4.3.21.RELEASE    Apache License Version 2.0  https://github.com/spring-projects/spring-framework
-xalan                                               xalan                           2.7.1             Apache License Version 2.0  http://xalan.apache.org/old/xalan-j/index.html
+org.springframework                                 spring-beans                    5.3.27            Apache License Version 2.0  https://github.com/spring-projects/spring-framework
+org.springframework                                 spring-context                  5.3.27            Apache License Version 2.0  https://github.com/spring-projects/spring-framework
+org.springframework                                 spring-core                     5.3.27            Apache License Version 2.0  https://github.com/spring-projects/spring-framework
+org.springframework                                 spring-web                      5.3.27            Apache License Version 2.0  https://github.com/spring-projects/spring-framework
+xalan                                               xalan                           2.7.3             Apache License Version 2.0  http://xalan.apache.org/old/xalan-j/index.html
 xerces                                              xerces-xsd11                    2.12.0-rax        Apache License Version 2.0  http://xerces.apache.org/

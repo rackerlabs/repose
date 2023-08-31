@@ -4,7 +4,10 @@ dependencies {
     compile "org.scala-lang:scala-library"
     compile "com.typesafe.scala-logging:scala-logging_$scalaMajDotMin"
     compile "org.springframework:spring-beans"
-    compile "com.atlassian.oai:swagger-request-validator-core"
+    compile("com.atlassian.oai:swagger-request-validator-core") {
+        exclude group: 'com.google.guava', module: 'guava'
+    }
+    compile "com.google.guava:guava"
 
     compileOnly "javax.servlet:javax.servlet-api"
     compileOnly "javax.inject:javax.inject"

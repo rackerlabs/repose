@@ -2,57 +2,250 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
     <suppress>
         <notes><![CDATA[
-            file name: echo-filter.jar (project :repose-aggregator:components:filters:echo-filter)
-            NOTE: This is simply a case of mistaken identity.
-            The echo-filter used for internal testing has the same name as a known vulnerable filter.
-        ]]></notes>
-        <cpe>cpe:/a:echo_project:echo</cpe>
+            file name: jackson-databind-2.15.2.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
+            ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+        <cve>CVE-2023-35116</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            file name: xz-1.0.jar
-            NOTE: This is simply a case of mistaken identity.
-            The Java version of this library is not afflicted with this particular vulnerability.
-        ]]></notes>
-        <gav regex="true">^org\.tukaani:xz:.*$</gav>
-        <cve>CVE-2015-4035</cve>
+            file name: jackson-databind-2.15.2.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
+            ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+        <cpe>cpe:/a:fasterxml:jackson-databind</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            file name: jetty-6.1.26.jar
-            NOTE: There is a transitive dependency with a known vulnerability exists, but it is not exposed.
-            The Log4J Flume Appender is an event driven Flume Source that is supported by the Highly Efficient Record Processor (HERP) filter to send event data to a remote Flume Agent.
-            The Log4J Flume Appender is not pollable even though it depends on the flume-ng-sdk which does support that type of source.
-            Therefore the transitive dependency on an old Jetty version with a known vulnerability that is used to support polling does not expose the potential DOS attack vector in this instance.
-        ]]></notes>
-        <gav regex="true">^org\.mortbay\.jetty:jetty:.*$</gav>
-        <cve>CVE-2009-1523</cve>
-        <cve>CVE-2011-4461</cve>
-        <cve>CVE-2017-7656</cve>
-        <cve>CVE-2017-7657</cve>
-        <cve>CVE-2017-7658</cve>
-        <cve>CVE-2017-9735</cve>
-        <cve>CVE-2019-10241</cve>
-        <cve>CVE-2019-10247</cve>
+            file name: jackson-core-2.15.2.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
+            ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
+        <cve>CVE-2022-45688</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            file name: jython-standalone-2.7.1.jar (shaded: com.google.guava:guava:22.0-android)
-            NOTE: This is being fixed under issue https://bugs.jython.org/issue2728
-            This is currently only potentially exposed if the Scripting filter is used with Python to deserialize certain data types.
-        ]]></notes>
-        <gav regex="true">^com\.google\.guava:guava:.*$</gav>
-        <cve>CVE-2018-10237</cve>
+            file name: jackson-core-2.15.2.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
+            ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
+        <cpe>cpe:/a:fasterxml:jackson-modules-java8</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            file name: json-patch-1.6.jar
-            NOTE: The dependency which includes this issue is a transitive dependency inherited from com.atlassian.oai:swagger-request-validator-core.
-            The issue in question appears to be in a different JSON patching library written in Go and used by OpenShift.
-            In other words, this appears to be a case of mistaken identity.
+            file name: jackson-core-2.15.2.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
+            ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
+        <cpe>cpe:/a:json-java_project:json-java</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: xalan-2.7.3.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
         ]]></notes>
-        <gav regex="true">^com\.github\.fge:json-patch:.*$</gav>
-        <cve>CVE-2018-14632</cve>
+        <packageUrl regex="true">^pkg:maven/xalan/xalan@.*$</packageUrl>
+        <cve>CVE-2022-42920</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: xalan-2.7.3.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/xalan/xalan@.*$</packageUrl>
+        <cpe>cpe:/a:apache:commons_bcel</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: xalan-2.7.3.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/xalan/xalan@.*$</packageUrl>
+        <cpe>cpe:/a:apache:xalan-java</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: spring-web-5.3.27.jar
+            NOTE: Need to see and fix this in next minor release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-web@.*$</packageUrl>
+        <cve>CVE-2016-1000027</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: spring-web-5.3.27.jar
+            NOTE: Need to see and fix this in next minor release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-web@.*$</packageUrl>
+        <cpe>cpe:/a:springsource:spring_framework</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: spring-web-5.3.27.jar
+            NOTE: Need to see and fix this in next minor release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/spring\-web@.*$</packageUrl>
+        <cpe>cpe:/a:web_project:web</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: gson-2.8.2.jar
+            NOTE: This is a transitive dependency and an update for this dependency breaks the functionality.
+            ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.code\.gson/gson@.*$</packageUrl>
+        <cve>CVE-2022-25647</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: gson-2.8.2.jar
+            NOTE: This is a transitive dependency and an update for this dependency breaks the functionality.
+            ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.code\.gson/gson@.*$</packageUrl>
+        <cpe>cpe:/a:google:gson</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: jython-standalone-2.7.3.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
+        <cpe>cpe:/a:google:guava</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: json-schema-validator-2.2.8.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.github\.java\-json\-tools/json\-schema\-validator@.*$</packageUrl>
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: json-schema-validator-2.2.8.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.github\.java\-json\-tools/json\-schema\-validator@.*$</packageUrl>
+        <cpe>cpe:/a:json-java_project:json-java</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: json-schema-validator-2.2.8.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.github\.java\-json\-tools/json\-schema\-validator@.*$</packageUrl>
+        <cpe>cpe:/a:json-schema_project:json-schema</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: json-path-2.8.0.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.jayway\.jsonpath/json\-path@.*$</packageUrl>
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: json-path-2.8.0.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.jayway\.jsonpath/json\-path@.*$</packageUrl>
+        <cpe>cpe:/a:json-java_project:json-java</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: jython-standalone-2.7.3.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
+        <cve>CVE-2023-2976</cve>
+        <cve>CVE-2020-8908</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: jython-standalone-2.7.3.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
+        <cpe>cpe:/a:google:guava</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: jena-iri-1.1.2.jar
+            NOTE: Upgrading this will break the functionality. Marked for upgrade in the next release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.jena/jena\-iri@.*$</packageUrl>
+        <cve>CVE-2022-28890</cve>
+        <cve>CVE-2021-39239</cve>
+        <cve>CVE-2023-22665</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: jena-iri-1.1.2.jar
+            NOTE: Upgrading this will break the functionality. Marked for upgrade in the next release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.jena/jena\-iri@.*$</packageUrl>
+        <cpe>cpe:2.3:a:apache:jena</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: json-schema-core-1.2.8.jar
+            NOTE: This is a part of swagger request validator core, upgrading this will break functionality.
+            So, marked this for next release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.github\.java\-json\-tools/json\-schema\-core@.*$</packageUrl>
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: json-schema-core-1.2.8.jar
+            NOTE: This is a part of swagger request validator core, upgrading this will break functionality.
+            So, marked this for next release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.github\.java\-json\-tools/json\-schema\-core@.*$</packageUrl>
+        <cpe>cpe:2.3:a:json-java_project:json-java</cpe>
+        <cpe>cpe:2.3:a:json-schema_project:json-schema</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: snakeyaml-1.18.jar
+            NOTE: This is a part of swagger request validator core, upgrading this will break functionality.
+            So, marked this for next release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
+        <cve>CVE-2022-1471</cve>
+        <cve>CVE-2017-18640</cve>
+        <cve>CVE-2022-25857</cve>
+        <cve>CVE-2022-38749</cve>
+        <cve>CVE-2022-38751</cve>
+        <cve>CVE-2022-38752</cve>
+        <cve>CVE-2022-41854</cve>
+        <cve>CVE-2022-38750</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: snakeyaml-1.18.jar
+            NOTE: This is a part of swagger request validator core, upgrading this will break functionality.
+            So, marked this for next release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
+        <cpe>cpe:2.3:a:snakeyaml_project:snakeyaml</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: accessors-smart-2.5.0.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/net\.minidev/accessors\-smart@.*$</packageUrl>
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: accessors-smart-2.5.0.jar
+            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/net\.minidev/accessors\-smart@.*$</packageUrl>
+        <cpe>cpe:/a:json-java_project:json-java</cpe>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -70,94 +263,29 @@
             NOTE: This vulnerability is only exposed if the DefaultServlet or ResourceHandler are used with indexing/listing enabled.
             Since Repose doesn't use these normally default classes, this issue does not effect Repose users.
         ]]></notes>
-        <gav regex="true">^org\.eclipse\.jetty:jetty-(?:servlet|security|server|http|util):.*$</gav>
+        <gav regex="true">^org\.eclipse\.jetty:jetty-(?:servlet|security|server|http|util|io):.*$</gav>
         <cve>CVE-2019-10241</cve>
         <cve>CVE-2019-10246</cve>
         <cve>CVE-2019-10247</cve>
+        <cve>CVE-2021-28165</cve>
+        <cve>CVE-2022-2048</cve>
+        <cve>CVE-2020-27216</cve>
+        <cve>CVE-2020-27223</cve>
+        <cve>CVE-2021-28169</cve>
+        <cve>CVE-2023-26048</cve>
+        <cve>CVE-2023-26049</cve>
+        <cve>CVE-2020-27218</cve>
+        <cve>CVE-2021-34428</cve>
+        <cve>CVE-2022-2047</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            file name: jackson-databind-2.9.10.jar
-            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
-            Additionally we don't utilize any of the affected functionality.
-            ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
-        <cve>CVE-2019-16942</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-            file name: jackson-databind-2.9.10.jar
-            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
-            Additionally we don't utilize any of the affected functionality.
-            ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
-        <cpe>cpe:/a:fasterxml:jackson-databind</cpe>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-            file name: jackson-databind-2.9.10.jar
-            ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
-        <cpe>cpe:/a:fasterxml:jackson</cpe>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-            file name: spray-json_2.12-1.3.2.jar
-            ]]></notes>
-        <packageUrl regex="true">^pkg:maven/io\.spray/spray\-json_2\.12@.*$</packageUrl>
-        <vulnerabilityName>CVE-2018-18853</vulnerabilityName>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-            file name: spray-json_2.12-1.3.2.jar
-            ]]></notes>
-        <packageUrl regex="true">^pkg:maven/io\.spray/spray\-json_2\.12@.*$</packageUrl>
-        <vulnerabilityName>CVE-2018-18854</vulnerabilityName>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-            file name: je-5.0.73.jar
-            NOTE: Misidentified Berkeley DB.
+            file name: libthrift-0.12.0.jar
+            NOTE: There is a breaking change in libthrift from 0.14.0 that breaks the functionality. Marked for update in next release.
         ]]></notes>
-        <gav regex="true">^com\.sleepycat:je:.*$</gav>
-        <cpe>cpe:/a:oracle:berkeley_db</cpe>
-        <cpe>cpe:/a:oracle:oracle_berkeley_db</cpe>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-            file name: jetty-util-6.1.26.jar
-            NOTE: Misidentified as Jetty itself.
-        ]]></notes>
-        <gav regex="true">^org\.mortbay\.jetty:jetty-util:.*$</gav>
-        <cpe>cpe:/a:eclipse:jetty</cpe>
-        <cpe>cpe:/a:jetty:jetty</cpe>
-        <cpe>cpe:/a:mortbay:jetty</cpe>
-        <cpe>cpe:/a:mortbay_jetty:jetty</cpe>
-    </suppress>
-    <suppress>
-       <notes><![CDATA[
-           file name: libphonenumber-5.6.jar
-           This is a transitive problem that will be addressed in https://repose.atlassian.net/browse/REP-7925
-       ]]></notes>
-       <packageUrl regex="true">^pkg:maven/com\.googlecode\.libphonenumber/libphonenumber@.*$</packageUrl>
-       <vulnerabilityName>CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')</vulnerabilityName>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-            file name: jython-standalone-2.7.1.jar (shaded: org.apache.commons:commons-compress:1.14)
-            This dependency gets shaded into the jython library used by the scripting filter.
-            We don't consume zips from the user, but a scripting filter could be written to do, so the vulnerability will be documented.
-        ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons-compress@.*$</packageUrl>
-        <cve>CVE-2018-1324</cve>
-        <cve>CVE-2018-11771</cve>
-    </suppress>
-    <suppress>
-       <notes><![CDATA[
-            file name: netty-3.10.6.Final.jar
-            This vulnerability is for when using netty as a server, for us it's being used transitive for flume and even in that capacity it's a client not a server.
-       ]]></notes>
-       <packageUrl regex="true">^pkg:maven/io\.netty/netty@.*$</packageUrl>
-       <cve>CVE-2019-16869</cve>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.thrift/libthrift@.*$</packageUrl>
+        <cve>CVE-2019-0205</cve>
+        <cve>CVE-2019-0210</cve>
+        <cve>CVE-2020-13949</cve>
     </suppress>
 </suppressions>
