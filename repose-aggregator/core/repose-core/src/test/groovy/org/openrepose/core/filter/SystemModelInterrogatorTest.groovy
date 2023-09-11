@@ -37,7 +37,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void "when passed a valid system model, getLocalHost(...) should return a matching node"() throws Exception {
+    public void "when passed a valid system model, getLocalHost should return a matching node"() throws Exception {
         SystemModel sysModel = getValidSystemModel()
 
         Optional<Node> returnedNode = interrogator.getNode(sysModel)
@@ -52,7 +52,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void "when passed a system model missing a matching node, getLocalHost(...) should return an absent Optional"() throws Exception {
+    public void "when passed a system model missing a matching node, getLocalHost should return an absent Optional"() throws Exception {
         SystemModel sysModel = getValidSystemModel()
         sysModel.getNodes().getNode().get(0).setId("nopes")
 
@@ -62,7 +62,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void "when passed a valid system model including a service, getService(...) should return a matching service"() throws Exception {
+    public void "when passed a valid system model including a service, getService should return a matching service"() throws Exception {
         String serviceName = "foo"
         SystemModel sysModel = getValidSystemModel()
         sysModel.services = new ServicesList()
@@ -79,7 +79,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void "when passed a system model missing a service, getService(...) should return an absent Optional"() throws Exception {
+    public void "when passed a system model missing a service, getService should return an absent Optional"() throws Exception {
         String serviceName = "foo"
         SystemModel sysModel = getValidSystemModel()
         sysModel.services = new ServicesList()
@@ -90,7 +90,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void "when passed a valid system model, getDefaultDestination(...) should return a matching default destination"() throws Exception {
+    public void "when passed a valid system model, getDefaultDestination should return a matching default destination"() throws Exception {
         SystemModel sysModel = getValidSystemModel()
 
         Optional<Destination> returnedDest = interrogator.getDefaultDestination(sysModel)
@@ -106,7 +106,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void "when passed a system model missing a matching default destination, getDefaultDestination(...) should return an absent Optional"() throws Exception {
+    public void "when passed a system model missing a matching default destination, getDefaultDestination should return an absent Optional"() throws Exception {
         SystemModel sysModel = getValidSystemModel()
         sysModel.getDestinations().getEndpoint().head().setDefault(false)
 
