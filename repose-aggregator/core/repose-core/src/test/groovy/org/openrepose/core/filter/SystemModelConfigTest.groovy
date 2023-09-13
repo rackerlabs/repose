@@ -78,6 +78,7 @@ class SystemModelConfigTest extends Specification {
         then:
         def caught = thrown(SAXParseException)
         caught.getLocalizedMessage().contains('There should be one and only one default destination')
+        caught.getLocalizedMessage().isEmpty()
 
         where:
         endpointOneDefault << [null, false]
