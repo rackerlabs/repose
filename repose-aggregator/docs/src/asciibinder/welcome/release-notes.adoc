@@ -1,11 +1,21 @@
 = Release Notes
 
-== Upcoming Release 9.1.0.0 (2019-??-??)
+== 9.1.0.4 (2023-09-14)
+* Updated dependencies:
+** Log4j: 2.17.1 → 2.19.0
+
+== 9.1.0.3 (202?-??-??)
+* Updated dependencies:
+** Log4j: 2.17.0 → 2.17.1
+
+== 9.1.0.1 (202?-??-??)
+* Updated dependencies:
+** Log4j: 2.9.0 → 2.17.0
+
+== 9.1.0.0 (2019-10-14)
 * [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7966[REP-7966] - Added option to <<../architecture/system-model.adoc#, System Model>> to allow a header value to be URL encoded before being sent to the origin service.
 * [.enhancement-tag]#Enhancement# | https://repose.atlassian.net/browse/REP-7954[REP-7954] - Updated dependencies:
 ** Jackson: 2.9.9 → 2.9.10
-
-=== Integrators
 * [.breaking-tag]#Breaking Change# | https://repose.atlassian.net/browse/REP-6825[REP-6825] - Scala and all dependent libraries upgraded to 2.12 versions.
 ** Akka: 2.4.20 → 2.5.23
 ** Akka Http: 1.0 → 10.1.8

@@ -1,251 +1,251 @@
-import groovy.json.JsonBuilder
-import org.ajoberstar.grgit.Grgit
-
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.util.regex.Pattern
-
-apply plugin: 'org.openrepose.gradle.plugins.linkchecker'
-
-def username = System.properties['user.name']
-def uid = ["id", "-u", username].execute().text.trim()
-def gid = ["id", "-g", username].execute().text.trim()
-
-task asciibinder(group: 'build', description: 'Builds the latest version of the docs') {
-    inputs.dir(file("${project.projectDir}/src"))
-    outputs.dir(file("${project.buildDir}/asciibinder"))
-    doLast {
-        copy {
-            from(fileTree("${project.projectDir}/src/asciibinder"))
-            into("${project.buildDir}/asciibinder")
-        }
-        copy {
-            from(fileTree("${project.projectDir}/src/templates"))
-            into("${project.buildDir}/asciibinder")
-            expand(version: version)
-        }
-
-        // This Git repo is strictly to appease ASCII Binder's way of doing business.
-        file("${project.buildDir}/asciibinder/.git").deleteDir()
-        def grgit = Grgit.init(dir: "${project.buildDir}/asciibinder")
-        grgit.add(patterns: ['.'])
-        grgit.commit(message: 'initial_commit')
-
-        def buildProcess =
-            "docker build --tag local/ascii_binder ${project.projectDir}/src/docker/AsciiBinder/"
-                .execute(null, file("${project.buildDir}/asciibinder"))
-        buildProcess.waitFor()
-        if (buildProcess.exitValue() != 0) {
-            logger.error new String(buildProcess.getInputStream().bytes)
-            logger.error new String(buildProcess.getErrorStream().bytes)
-        } else {
-            logger.info new String(buildProcess.getInputStream().bytes)
-        }
-
-        // The repose-aggregator mount is for docs that reference things that are in the codebase itself.
-        def runProcess =
-            "docker run --tty --user ${uid}:${gid} --volume ${project.buildDir}/asciibinder:/docs:z --volume ${project.rootDir}/repose-aggregator:/repose-aggregator:z local/ascii_binder"
-                .execute(null, file("${project.buildDir}/asciibinder"))
-        runProcess.waitFor()
-        def runProcessInputStreamAsString = new String(runProcess.getInputStream().bytes)
-        if (runProcessInputStreamAsString =~ /asciidoctor: WARNING:/ ||
-            runProcessInputStreamAsString =~ /asciidoctor: ERROR:/ ||
-            runProcess.exitValue() != 0) {
-            logger.error(runProcessInputStreamAsString)
-            logger.error(new String(runProcess.getErrorStream().bytes))
-            throw new RuntimeException("See output above for specific cause of AsciiBinder failure(s).")
-        } else {
-            logger.info(runProcessInputStreamAsString)
-            copy {
-                from(fileTree("${project.projectDir}/src/redirects/index.html"))
-                into("${project.buildDir}/asciibinder/_package/main/${version}/")
-                expand(target: "./welcome/index.html")
-            }
-        }
-    }
-}
-
-task copyXsds(type: Copy, dependsOn: asciibinder) {
-    // Copy the Repose Core configuration schemas.
-    from(fileTree("${project.rootDir}/repose-aggregator/core/repose-core-api").include('**/src/main/resources/META-INF/schema/**/*.xsd').files)
-
-    // Copy all filter and service configuration schemas.
-    from(fileTree("${project.rootDir}/repose-aggregator/components").include('**/src/main/resources/META-INF/schema/config/*.xsd').files)
-    // Copy all datastore service configuration schemas.
-    from(fileTree("${project.rootDir}/repose-aggregator/components").include('**/src/main/resources/META-INF/schema/*-datastore/*.xsd').files)
-
-    // Place all schemas into a schemas directory.
-    into("${project.buildDir}/asciibinder/_package/main/${version}/schemas/")
-}
-
-task copyUbuntuDockerfile(type: Copy, dependsOn: asciibinder) {
-    // Copy the Repose Ubuntu Dockerfile.
-    from("${project.rootDir}/repose-aggregator/artifacts/docker/src/docker/ubuntu/Dockerfile")
-
-    // Place the file into a resources subdirectory.
-    into("${project.buildDir}/asciibinder/_package/main/${version}/resources/ubuntu/")
-}
-
-task copyCentosDockerfile(type: Copy, dependsOn: asciibinder) {
-    // Copy the Repose CentOS Dockerfile.
-    from("${project.rootDir}/repose-aggregator/artifacts/docker/src/docker/centos/Dockerfile")
-
-    // Place the file into a resources subdirectory.
-    into("${project.buildDir}/asciibinder/_package/main/${version}/resources/centos/")
-}
-
-task asciibindersearch(dependsOn: [copyXsds, copyCentosDockerfile, copyUbuntuDockerfile], group: 'build', description: 'Builds the search for the latest version of the docs') {
-    inputs.dir(file("${project.buildDir}/asciibinder/_package/main/${version}"))
-    outputs.files(
-        file("${project.buildDir}/asciibinder/_package/main/search.html"),
-        file("${project.buildDir}/asciibinder/_package/main/data_${version}.json"),
-        file("${project.buildDir}/asciibinder/_package/main/versions.json")
-    )
-    doLast {
-        def buildProcess =
-            "docker build --tag local/asciibindersearch ${project.projectDir}/src/docker/AsciiBinderSearch/"
-                .execute(null, file("${project.buildDir}/asciibinder"))
-        buildProcess.waitFor()
-        if (buildProcess.exitValue() != 0) {
-            logger.error new String(buildProcess.getInputStream().bytes)
-            logger.error new String(buildProcess.getErrorStream().bytes)
-        } else {
-            logger.info new String(buildProcess.getInputStream().bytes)
-        }
-
-        def runProcess =
-            "docker run --tty --user ${uid}:${gid} --volume ${project.buildDir}/asciibinder:/docs:z local/asciibindersearch"
-                .execute(null, file("${project.buildDir}/asciibinder"))
-        runProcess.waitFor()
-        if (runProcess.exitValue() != 0) {
-            logger.error new String(runProcess.getInputStream().bytes)
-            logger.error new String(runProcess.getErrorStream().bytes)
-            throw new RuntimeException("See output above for specific cause of AsciiBinder Search failure(s).")
-        } else {
-            logger.info new String(runProcess.getInputStream().bytes)
-        }
-    }
-}
-
-task stageDocs(dependsOn: asciibindersearch) {
-    inputs.dir(file("${project.projectDir}/src/resources"))
-    inputs.dir(file("${project.buildDir}/asciibinder/_package/main"))
-    outputs.dir(file("${project.buildDir}/gh-pages"))
-    doLast {
-        def workingDir = file("${project.buildDir}/gh-pages")
-
-        // IF the gh-pages dir exists,
-        // THEN just clean it up;
-        // ELSE clone the repo and checkout the correct branch.
-        if (file("${project.buildDir}/gh-pages/.git").exists()) {
-            def grgit = Grgit.open(dir: workingDir.getAbsolutePath())
-            grgit.fetch(prune: true, tagMode: 'ALL')
-            grgit.reset(mode: 'HARD')
-            grgit.clean(directories: true)
-            grgit.checkout(branch: 'gh-pages')
-            grgit.reset(mode: 'HARD', commit: 'origin/gh-pages')
-            grgit.clean(directories: true)
-        } else {
-            Grgit.clone(
-                uri: 'git@github.com:rackerlabs/repose.git',
-                refToCheckout: 'gh-pages',
-                dir: workingDir,
-            )
-        }
-
-        file("${project.buildDir}/gh-pages/versions/$version").deleteDir()
-        copy {
-            from("${project.projectDir}/src/resources")
-            into("${project.buildDir}/gh-pages/")
-        }
-        copy {
-            from "${project.buildDir}/asciibinder/_package/main/"
-            into "${project.buildDir}/gh-pages/versions/"
-        }
-
-        // Setup the version utilities
-        def versionsList = file("${project.buildDir}/gh-pages/versions").list(new FilenameFilter() {
-            def pattern = Pattern.compile("""\\d+\\.\\d+\\.\\d+\\.\\d+\$""")
-
-            @Override
-            boolean accept(File dir, String name) {
-                return pattern.matcher(new File(name).getName()).matches()
-            }
-        }).collect()
-        versionsList.sort { o1, o2 ->
-                // Natural order is reversed.
-                List<String> v1Parts = ((String) o2).tokenize('.')
-                List<String> v2Parts = ((String) o1).tokenize('.')
-
-                int minLen = Math.min(v1Parts.size(), v2Parts.size())
-
-                // Compare each number from the versions until either the numbers do not match,
-                // or the end of a version string is hit.
-                for (int i = 0; i < minLen; ++i) {
-                    int n1 = v1Parts[i] as int
-                    int n2 = v2Parts[i] as int
-
-                    if (n1 != n2) {
-                        return n1 <=> n2
-                    }
-                }
-
-                // If we got this far, then one version is a substring of the other.
-                // Therefore, whichever version is longer is the greater version.
-                return v1Parts.size() <=> v2Parts.size()
-        }
-
-        // Write the searchable versions list as JSON
-        def jsonFile = file("${project.buildDir}/gh-pages/versions/versions.json")
-        Files.deleteIfExists(jsonFile.toPath())
-        def jsonWriter = new PrintWriter(jsonFile)
-        new JsonBuilder(versions: versionsList).writeTo(jsonWriter).close()
-
-        // Write the versions includes file
-        def htmlFile = file("${project.buildDir}/gh-pages/_includes/versions.html")
-        Files.deleteIfExists(htmlFile.toPath())
-        def htmlWriter = new PrintWriter(htmlFile)
-        htmlWriter.println("""<option value="latest">Latest</option>""")
-        versionsList.forEach {
-            htmlWriter.println("""<option value="${it}">v${it}</option>""")
-        }
-        htmlWriter.close()
-
-        // Update the latest link, if applicable
-        copy {
-            from(fileTree("${project.projectDir}/src/redirects/index.html"))
-            into "${project.buildDir}/gh-pages/versions/"
-            expand(target: "./${versionsList.head()}/welcome/index.html")
-        }
-        def latestLinkPath = project.buildDir.toPath().resolve(Paths.get('gh-pages', 'versions', 'latest'))
-        Files.deleteIfExists(latestLinkPath)
-        Files.createSymbolicLink(latestLinkPath, Paths.get(versionsList.head()))
-    }
-}
-
-linkchecker {
-    inputDir = file("${project.buildDir}/gh-pages/versions/$version")
-    httpURLConnectionTimeout = 1000
-    ignoreHostRegexs = [
-        /one\.rackspace\.com/,      // Prevents an infinite loop issue.
-        /openrepose\.org/,          // Prevents a false positive.
-        /repose\.atlassian\.net/,   // Saves ~30 secs.
-    ]
-}
-
-task publishDocs(dependsOn: stageDocs, group: 'release', description: 'Adds the new version of the docs to github pages') {
-    doLast {
-        def grgit = Grgit.open(dir: "${project.buildDir}/gh-pages")
-        grgit.with {
-            add(patterns: ['.'])
-            commit(message: "Adding documentation for $version")
-            push()
-        }
-    }
-}
-
-build.dependsOn asciibindersearch
-tasks.linkchecker.dependsOn stageDocs
-//check.dependsOn tasks.linkchecker
-publishDocs.dependsOn project.tasks.getByPath(':buildAll')
-project.tasks.getByPath(':release').dependsOn publishDocs
+//import groovy.json.JsonBuilder
+//import org.ajoberstar.grgit.Grgit
+//
+//import java.nio.file.Files
+//import java.nio.file.Paths
+//import java.util.regex.Pattern
+//
+//apply plugin: 'org.openrepose.gradle.plugins.linkchecker'
+//
+//def username = System.properties['user.name']
+//def uid = ["id", "-u", username].execute().text.trim()
+//def gid = ["id", "-g", username].execute().text.trim()
+//
+//task asciibinder(group: 'build', description: 'Builds the latest version of the docs') {
+//    inputs.dir(file("${project.projectDir}/src"))
+//    outputs.dir(file("${project.buildDir}/asciibinder"))
+//    doLast {
+//        copy {
+//            from(fileTree("${project.projectDir}/src/asciibinder"))
+//            into("${project.buildDir}/asciibinder")
+//        }
+//        copy {
+//            from(fileTree("${project.projectDir}/src/templates"))
+//            into("${project.buildDir}/asciibinder")
+//            expand(version: version)
+//        }
+//
+//        // This Git repo is strictly to appease ASCII Binder's way of doing business.
+//        file("${project.buildDir}/asciibinder/.git").deleteDir()
+//        def grgit = Grgit.init(dir: "${project.buildDir}/asciibinder")
+//        grgit.add(patterns: ['.'])
+//        grgit.commit(message: 'initial_commit')
+//
+//        def buildProcess =
+//            "docker build --tag local/ascii_binder ${project.projectDir}/src/docker/AsciiBinder/"
+//                .execute(null, file("${project.buildDir}/asciibinder"))
+//        buildProcess.waitFor()
+//        if (buildProcess.exitValue() != 0) {
+//            logger.error new String(buildProcess.getInputStream().bytes)
+//            logger.error new String(buildProcess.getErrorStream().bytes)
+//        } else {
+//            logger.info new String(buildProcess.getInputStream().bytes)
+//        }
+//
+//        // The repose-aggregator mount is for docs that reference things that are in the codebase itself.
+//        def runProcess =
+//            "docker run --tty --user ${uid}:${gid} --volume ${project.buildDir}/asciibinder:/docs:z --volume ${project.rootDir}/repose-aggregator:/repose-aggregator:z local/ascii_binder"
+//                .execute(null, file("${project.buildDir}/asciibinder"))
+//        runProcess.waitFor()
+//        def runProcessInputStreamAsString = new String(runProcess.getInputStream().bytes)
+//        if (runProcessInputStreamAsString =~ /asciidoctor: WARNING:/ ||
+//            runProcessInputStreamAsString =~ /asciidoctor: ERROR:/ ||
+//            runProcess.exitValue() != 0) {
+//            logger.error(runProcessInputStreamAsString)
+//            logger.error(new String(runProcess.getErrorStream().bytes))
+//            throw new RuntimeException("See output above for specific cause of AsciiBinder failure(s).")
+//        } else {
+//            logger.info(runProcessInputStreamAsString)
+//            copy {
+//                from(fileTree("${project.projectDir}/src/redirects/index.html"))
+//                into("${project.buildDir}/asciibinder/_package/main/${version}/")
+//                expand(target: "./welcome/index.html")
+//            }
+//        }
+//    }
+//}
+//
+//task copyXsds(type: Copy, dependsOn: asciibinder) {
+//    // Copy the Repose Core configuration schemas.
+//    from(fileTree("${project.rootDir}/repose-aggregator/core/repose-core-api").include('**/src/main/resources/META-INF/schema/**/*.xsd').files)
+//
+//    // Copy all filter and service configuration schemas.
+//    from(fileTree("${project.rootDir}/repose-aggregator/components").include('**/src/main/resources/META-INF/schema/config/*.xsd').files)
+//    // Copy all datastore service configuration schemas.
+//    from(fileTree("${project.rootDir}/repose-aggregator/components").include('**/src/main/resources/META-INF/schema/*-datastore/*.xsd').files)
+//
+//    // Place all schemas into a schemas directory.
+//    into("${project.buildDir}/asciibinder/_package/main/${version}/schemas/")
+//}
+//
+//task copyUbuntuDockerfile(type: Copy, dependsOn: asciibinder) {
+//    // Copy the Repose Ubuntu Dockerfile.
+//    from("${project.rootDir}/repose-aggregator/artifacts/docker/src/docker/ubuntu/Dockerfile")
+//
+//    // Place the file into a resources subdirectory.
+//    into("${project.buildDir}/asciibinder/_package/main/${version}/resources/ubuntu/")
+//}
+//
+//task copyCentosDockerfile(type: Copy, dependsOn: asciibinder) {
+//    // Copy the Repose CentOS Dockerfile.
+//    from("${project.rootDir}/repose-aggregator/artifacts/docker/src/docker/centos/Dockerfile")
+//
+//    // Place the file into a resources subdirectory.
+//    into("${project.buildDir}/asciibinder/_package/main/${version}/resources/centos/")
+//}
+//
+//task asciibindersearch(dependsOn: [copyXsds, copyCentosDockerfile, copyUbuntuDockerfile], group: 'build', description: 'Builds the search for the latest version of the docs') {
+//    inputs.dir(file("${project.buildDir}/asciibinder/_package/main/${version}"))
+//    outputs.files(
+//        file("${project.buildDir}/asciibinder/_package/main/search.html"),
+//        file("${project.buildDir}/asciibinder/_package/main/data_${version}.json"),
+//        file("${project.buildDir}/asciibinder/_package/main/versions.json")
+//    )
+//    doLast {
+//        def buildProcess =
+//            "docker build --tag local/asciibindersearch ${project.projectDir}/src/docker/AsciiBinderSearch/"
+//                .execute(null, file("${project.buildDir}/asciibinder"))
+//        buildProcess.waitFor()
+//        if (buildProcess.exitValue() != 0) {
+//            logger.error new String(buildProcess.getInputStream().bytes)
+//            logger.error new String(buildProcess.getErrorStream().bytes)
+//        } else {
+//            logger.info new String(buildProcess.getInputStream().bytes)
+//        }
+//
+//        def runProcess =
+//            "docker run --tty --user ${uid}:${gid} --volume ${project.buildDir}/asciibinder:/docs:z local/asciibindersearch"
+//                .execute(null, file("${project.buildDir}/asciibinder"))
+//        runProcess.waitFor()
+//        if (runProcess.exitValue() != 0) {
+//            logger.error new String(runProcess.getInputStream().bytes)
+//            logger.error new String(runProcess.getErrorStream().bytes)
+//            throw new RuntimeException("See output above for specific cause of AsciiBinder Search failure(s).")
+//        } else {
+//            logger.info new String(runProcess.getInputStream().bytes)
+//        }
+//    }
+//}
+//
+//task stageDocs(dependsOn: asciibindersearch) {
+//    inputs.dir(file("${project.projectDir}/src/resources"))
+//    inputs.dir(file("${project.buildDir}/asciibinder/_package/main"))
+//    outputs.dir(file("${project.buildDir}/gh-pages"))
+//    doLast {
+//        def workingDir = file("${project.buildDir}/gh-pages")
+//
+//        // IF the gh-pages dir exists,
+//        // THEN just clean it up;
+//        // ELSE clone the repo and checkout the correct branch.
+//        if (file("${project.buildDir}/gh-pages/.git").exists()) {
+//            def grgit = Grgit.open(dir: workingDir.getAbsolutePath())
+//            grgit.fetch(prune: true, tagMode: 'ALL')
+//            grgit.reset(mode: 'HARD')
+//            grgit.clean(directories: true)
+//            grgit.checkout(branch: 'gh-pages')
+//            grgit.reset(mode: 'HARD', commit: 'origin/gh-pages')
+//            grgit.clean(directories: true)
+//        } else {
+//            Grgit.clone(
+//                uri: 'git@github.com:rackerlabs/repose.git',
+//                refToCheckout: 'gh-pages',
+//                dir: workingDir,
+//            )
+//        }
+//
+//        file("${project.buildDir}/gh-pages/versions/$version").deleteDir()
+//        copy {
+//            from("${project.projectDir}/src/resources")
+//            into("${project.buildDir}/gh-pages/")
+//        }
+//        copy {
+//            from "${project.buildDir}/asciibinder/_package/main/"
+//            into "${project.buildDir}/gh-pages/versions/"
+//        }
+//
+//        // Setup the version utilities
+//        def versionsList = file("${project.buildDir}/gh-pages/versions").list(new FilenameFilter() {
+//            def pattern = Pattern.compile("""\\d+\\.\\d+\\.\\d+\\.\\d+\$""")
+//
+//            @Override
+//            boolean accept(File dir, String name) {
+//                return pattern.matcher(new File(name).getName()).matches()
+//            }
+//        }).collect()
+//        versionsList.sort { o1, o2 ->
+//                // Natural order is reversed.
+//                List<String> v1Parts = ((String) o2).tokenize('.')
+//                List<String> v2Parts = ((String) o1).tokenize('.')
+//
+//                int minLen = Math.min(v1Parts.size(), v2Parts.size())
+//
+//                // Compare each number from the versions until either the numbers do not match,
+//                // or the end of a version string is hit.
+//                for (int i = 0; i < minLen; ++i) {
+//                    int n1 = v1Parts[i] as int
+//                    int n2 = v2Parts[i] as int
+//
+//                    if (n1 != n2) {
+//                        return n1 <=> n2
+//                    }
+//                }
+//
+//                // If we got this far, then one version is a substring of the other.
+//                // Therefore, whichever version is longer is the greater version.
+//                return v1Parts.size() <=> v2Parts.size()
+//        }
+//
+//        // Write the searchable versions list as JSON
+//        def jsonFile = file("${project.buildDir}/gh-pages/versions/versions.json")
+//        Files.deleteIfExists(jsonFile.toPath())
+//        def jsonWriter = new PrintWriter(jsonFile)
+//        new JsonBuilder(versions: versionsList).writeTo(jsonWriter).close()
+//
+//        // Write the versions includes file
+//        def htmlFile = file("${project.buildDir}/gh-pages/_includes/versions.html")
+//        Files.deleteIfExists(htmlFile.toPath())
+//        def htmlWriter = new PrintWriter(htmlFile)
+//        htmlWriter.println("""<option value="latest">Latest</option>""")
+//        versionsList.forEach {
+//            htmlWriter.println("""<option value="${it}">v${it}</option>""")
+//        }
+//        htmlWriter.close()
+//
+//        // Update the latest link, if applicable
+//        copy {
+//            from(fileTree("${project.projectDir}/src/redirects/index.html"))
+//            into "${project.buildDir}/gh-pages/versions/"
+//            expand(target: "./${versionsList.head()}/welcome/index.html")
+//        }
+//        def latestLinkPath = project.buildDir.toPath().resolve(Paths.get('gh-pages', 'versions', 'latest'))
+//        Files.deleteIfExists(latestLinkPath)
+//        Files.createSymbolicLink(latestLinkPath, Paths.get(versionsList.head()))
+//    }
+//}
+//
+//linkchecker {
+//    inputDir = file("${project.buildDir}/gh-pages/versions/$version")
+//    httpURLConnectionTimeout = 1000
+//    ignoreHostRegexs = [
+//        /one\.rackspace\.com/,      // Prevents an infinite loop issue.
+//        /openrepose\.org/,          // Prevents a false positive.
+//        /repose\.atlassian\.net/,   // Saves ~30 secs.
+//    ]
+//}
+//
+//task publishDocs(dependsOn: stageDocs, group: 'release', description: 'Adds the new version of the docs to github pages') {
+//    doLast {
+//        def grgit = Grgit.open(dir: "${project.buildDir}/gh-pages")
+//        grgit.with {
+//            add(patterns: ['.'])
+//            commit(message: "Adding documentation for $version")
+//            push()
+//        }
+//    }
+//}
+//
+//build.dependsOn asciibindersearch
+//tasks.linkchecker.dependsOn stageDocs
+////check.dependsOn tasks.linkchecker
+//publishDocs.dependsOn project.tasks.getByPath(':buildAll')
+//project.tasks.getByPath(':release').dependsOn publishDocs

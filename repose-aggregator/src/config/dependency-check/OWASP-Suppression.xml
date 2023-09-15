@@ -2,20 +2,257 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
     <suppress>
         <notes><![CDATA[
-            file name: echo-filter.jar (project :repose-aggregator:components:filters:echo-filter)
-            NOTE: This is simply a case of mistaken identity.
-            The echo-filter used for internal testing has the same name as a known vulnerable filter.
+            file name: commons-io-2.4.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
         ]]></notes>
-        <cpe>cpe:/a:echo_project:echo</cpe>
+        <packageUrl regex="true">^pkg:maven/commons\-io/commons\-io@.*$</packageUrl>
+        <cpe>cpe:/a:apache:commons_io</cpe>
+        <cve>CVE-2021-29425</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            file name: xz-1.0.jar
-            NOTE: This is simply a case of mistaken identity.
-            The Java version of this library is not afflicted with this particular vulnerability.
+            file name: httpclient-4.5.6.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
         ]]></notes>
-        <gav regex="true">^org\.tukaani:xz:.*$</gav>
-        <cve>CVE-2015-4035</cve>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpclient@.*$</packageUrl>
+        <cpe>cpe:/a:apache:httpclient</cpe>
+        <cve>CVE-2020-13956</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: avro-1.7.4.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org.apache.avro/avro@.*$</packageUrl>
+        <cpe>cpe:/a:apache:avro</cpe>
+        <cve>CVE-2021-43045</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: avro-ipc-1.7.4.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.avro/avro-ipc@.*$</packageUrl>
+        <cve>CVE-2021-43045</cve>
+        <cve>CVE-2023-37475</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: flume-ng-sdk-1.9.0.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org.apache.flume/flume-ng-sdk@.*$</packageUrl>
+        <cpe> cpe:/a:apache:flume</cpe>
+        <cve>CVE-2022-25167</cve>
+        <cve>CVE-2022-34916</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: gson-2.8.2.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com.google.code.gson/gson@.*$</packageUrl>
+        <cpe>cpe:/a:google:gson</cpe>
+        <cve>CVE-2022-25647</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: guava-27.0.1-jre.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com.google.guava/guava@.*$</packageUrl>
+        <cpe>cpe:/a:google:guava</cpe>
+        <cve>CVE-2023-2976</cve>
+        <cve>CVE-2020-8908</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: okhttp-3.12.1.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com.squareup.okhttp3/okhttp@.*$</packageUrl>
+        <cpe>cpe:/a:squareup:okhttp</cpe>
+        <cpe>cpe:/a:squareup:okhttp3</cpe>
+        <cve>CVE-2021-0341</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: okio-1.15.0.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com.squareup.okio/okio@.*$</packageUrl>
+        <cpe>cpe:/a:squareup:okio</cpe>
+        <cve>CVE-2023-3635</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: snappy-java-1.0.4.1.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org.xerial.snappy/snappy-java@.*$</packageUrl>
+        <cpe>cpe:/a:google:snappy</cpe>
+        <cpe>cpe:/a:xerial:snappy-java</cpe>
+        <cve>CVE-2023-34453</cve>
+        <cve>CVE-2023-34454</cve>
+        <cve>CVE-2023-34455</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: xalan-2.7.2.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/xalan/xalan@.*$</packageUrl>
+        <cpe>cpe:/a:apache:xalan-java</cpe>
+        <cve>CVE-2022-34169</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: xerces2-xsd11-2.11.2.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com.rackspace.apache/xerces2-xsd11@.*$</packageUrl>
+        <cpe>cpe:/a:apache:xerces2_java</cpe>
+        <cve>CVE-2013-4002</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: wstx-asl-3.2.6.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org.codehaus.woodstox/wstx-asl@.*$</packageUrl>
+        <cve>CVE-2019-12401</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: jackson-mapper-asl-1.9.13.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org.codehaus.jackson/jackson-mapper-asl@.*$</packageUrl>
+        <cpe>cpe:/a:fasterxml:jackson-mapper-asl</cpe>
+        <cve>CVE-2017-7525</cve>
+        <cve>CVE-2019-10172</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: accessors-smart-1.2.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/net\.minidev/accessors\-smart@.*$</packageUrl>
+        <cpe>cpe:/a:json-java_project:json-java</cpe>
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: groovy-all-2.4.15.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.codehaus\.groovy/groovy\-all@.*$</packageUrl>
+        <cpe>cpe:/a:apache:groovy</cpe>
+        <cve>CVE-2020-17521</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: jena-iri-1.1.1.jar
+            NOTE: Upgrading this will break the functionality. Marked for upgrade in the next release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.jena/jena\-iri@.*$</packageUrl>
+        <cpe>cpe:/a:apache:jena</cpe>
+        <cve>CVE-2022-28890</cve>
+        <cve>CVE-2021-39239</cve>
+        <cve>CVE-2023-22665</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: json-path-2.4.0.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.jayway\.jsonpath/json\-path@.*$</packageUrl>
+        <cpe>cpe:/a:json-java_project:json-java</cpe>
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: json-schema-core-1.2.8.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.github\.java\-json\-tools/json\-schema\-core@.*$</packageUrl>
+        <cpe>cpe:/a:json-java_project:json-java</cpe>
+        <cpe>cpe:/a:json-schema_project:json-schema</cpe>
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: json-schema-validator-2.2.8.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.github\.java\-json\-tools/json\-schema\-validator@.*$</packageUrl>
+        <cpe>cpe:/a:json-java_project:json-java</cpe>
+        <cpe>cpe:/a:json-schema_project:json-schema</cpe>
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: json-smart-2.3.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/net\.minidev/json\-smart@.*$</packageUrl>
+        <cpe>cpe:/a:json-smart_project:json-smart</cpe>
+        <cpe>cpe:/a:json-smart_project:json-smart-v2</cpe>
+        <cpe>cpe:/a:ini-parser_project:ini-parser</cpe>
+        <cpe>cpe:/a:json-java_project:json-java</cpe>
+        <cve>CVE-2021-31684</cve>
+        <cve>CVE-2023-1370</cve>
+        <cve>CVE-2021-27568</cve>
+        <cve>CVE-2022-45688</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: snakeyaml-1.18.jar
+            NOTE: This is a part of swagger request validator core, upgrading this will break functionality.
+            So, marked this for next release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.yaml/snakeyaml@.*$</packageUrl>
+        <cpe>cpe:/a:snakeyaml_project:snakeyaml</cpe>
+        <cve>CVE-2022-1471</cve>
+        <cve>CVE-2017-18640</cve>
+        <cve>CVE-2022-25857</cve>
+        <cve>CVE-2022-38749</cve>
+        <cve>CVE-2022-38751</cve>
+        <cve>CVE-2022-38752</cve>
+        <cve>CVE-2022-41854</cve>
+        <cve>CVE-2022-38750</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: libthrift-0.12.0.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.thrift/libthrift@.*$</packageUrl>
+        <cpe>cpe:/a:apache:thrift</cpe>
+        <cve>CVE-2019-0205</cve>
+        <cve>CVE-2019-0210</cve>
+        <cve>CVE-2020-13949</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -26,33 +263,35 @@
             Therefore the transitive dependency on an old Jetty version with a known vulnerability that is used to support polling does not expose the potential DOS attack vector in this instance.
         ]]></notes>
         <gav regex="true">^org\.mortbay\.jetty:jetty:.*$</gav>
+        <cpe>cpe:/a:eclipse:jetty</cpe>
+        <cpe>cpe:/a:jetty:jetty</cpe>
+        <cpe>cpe:/a:mortbay_jetty:jetty</cpe>
         <cve>CVE-2009-1523</cve>
         <cve>CVE-2011-4461</cve>
-        <cve>CVE-2017-7656</cve>
-        <cve>CVE-2017-7657</cve>
-        <cve>CVE-2017-7658</cve>
-        <cve>CVE-2017-9735</cve>
-        <cve>CVE-2019-10241</cve>
-        <cve>CVE-2019-10247</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            file name: jython-standalone-2.7.1.jar (shaded: com.google.guava:guava:22.0-android)
+            file name: jython-standalone-2.7.1.jar
             NOTE: This is being fixed under issue https://bugs.jython.org/issue2728
             This is currently only potentially exposed if the Scripting filter is used with Python to deserialize certain data types.
+            Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
         ]]></notes>
-        <gav regex="true">^com\.google\.guava:guava:.*$</gav>
-        <cve>CVE-2018-10237</cve>
+        <packageUrl regex="true">^pkg:maven/org\.python/jython\-standalone@.*$</packageUrl>
+        <cpe>cpe:/a:jython_project:jython</cpe>
+        <cve>CVE-2023-30081</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            file name: json-patch-1.6.jar
-            NOTE: The dependency which includes this issue is a transitive dependency inherited from com.atlassian.oai:swagger-request-validator-core.
-            The issue in question appears to be in a different JSON patching library written in Go and used by OpenShift.
-            In other words, this appears to be a case of mistaken identity.
+            file name: jython-standalone-2.7.1.jar/META-INF/maven/com.google.guava/guava/pom.xml
+            NOTE: This is being fixed under issue https://bugs.jython.org/issue2728
+            This is currently only potentially exposed if the Scripting filter is used with Python to deserialize certain data types.
+            Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
         ]]></notes>
-        <gav regex="true">^com\.github\.fge:json-patch:.*$</gav>
-        <cve>CVE-2018-14632</cve>
+        <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
+        <cpe>cpe:/a:google:guava</cpe>
+        <cve>CVE-2018-10237</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -66,62 +305,113 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-            file name: jetty-(servlet|security|server|http|util)-9.4.14.v20181114.jar
+            file name: jetty-(servlet|security|io|server|http|util)-9.4.14.v20181114.jar
             NOTE: This vulnerability is only exposed if the DefaultServlet or ResourceHandler are used with indexing/listing enabled.
             Since Repose doesn't use these normally default classes, this issue does not effect Repose users.
         ]]></notes>
-        <gav regex="true">^org\.eclipse\.jetty:jetty-(?:servlet|security|server|http|util):.*$</gav>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-(servlet|security|io|server|http|util)@.*$</packageUrl>
+        <cpe>cpe:/a:eclipse:jetty</cpe>
+        <cpe>cpe:/a:jetty:jetty</cpe>
+        <cpe>cpe:/a:mortbay_jetty:jetty</cpe>
+        <cve>CVE-2021-28165</cve>
+        <cve>CVE-2022-2048</cve>
+        <cve>CVE-2020-27216</cve>
+        <cve>CVE-2020-27223</cve>
+        <cve>CVE-2021-28169</cve>
+        <cve>CVE-2023-26048</cve>
+        <cve>CVE-2023-26049</cve>
+        <cve>CVE-2023-40167</cve>
+        <cve>CVE-2020-27218</cve>
+        <cve>CVE-2021-34428</cve>
+        <cve>CVE-2022-2047</cve>
         <cve>CVE-2019-10241</cve>
         <cve>CVE-2019-10246</cve>
         <cve>CVE-2019-10247</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            file name: jackson-databind-2.9.10.jar
-            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
-            Additionally we don't utilize any of the affected functionality.
-            ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
-        <cve>CVE-2019-16942</cve>
+            file name: jackson-core-2.9.10.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
+        <cpe>cpe:/a:fasterxml:jackson-modules-java8</cpe>
+        <cpe>cpe:/a:json-java_project:json-java</cpe>
+        <cve>CVE-2022-45688</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            file name: jackson-databind-2.9.10.jar
-            NOTE: There is currently no remediation for this vulnerability and no alternatives exist.
-            Additionally we don't utilize any of the affected functionality.
-            ]]></notes>
+            file name: jackson-databind-2.9.10.jar & jackson-databind-2.12.5.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
+        ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
         <cpe>cpe:/a:fasterxml:jackson-databind</cpe>
+        <cve>CVE-2019-16943</cve>
+        <cve>CVE-2019-17531</cve>
+        <cve>CVE-2020-25649</cve>
+        <cve>CVE-2020-36518</cve>
+        <cve>CVE-2022-42003</cve>
+        <cve>CVE-2022-42004</cve>
+        <cve>CVE-2019-16942</cve>
+        <cve>CVE-2019-20330</cve>
+        <cve>CVE-2020-8840</cve>
+        <cve>CVE-2020-9546</cve>
+        <cve>CVE-2020-9547</cve>
+        <cve>CVE-2020-9548</cve>
+        <cve>CVE-2020-10672</cve>
+        <cve>CVE-2020-10673</cve>
+        <cve>CVE-2020-10968</cve>
+        <cve>CVE-2020-10969</cve>
+        <cve>CVE-2020-11111</cve>
+        <cve>CVE-2020-11112</cve>
+        <cve>CVE-2020-11113</cve>
+        <cve>CVE-2020-10650</cve>
+        <cve>CVE-2020-11619</cve>
+        <cve>CVE-2020-11620</cve>
+        <cve>CVE-2020-14060</cve>
+        <cve>CVE-2020-14061</cve>
+        <cve>CVE-2020-14062</cve>
+        <cve>CVE-2020-14195</cve>
+        <cve>CVE-2020-24616</cve>
+        <cve>CVE-2020-24750</cve>
+        <cve>CVE-2020-35490</cve>
+        <cve>CVE-2020-35491</cve>
+        <cve>CVE-2020-35728</cve>
+        <cve>CVE-2020-36179</cve>
+        <cve>CVE-2020-36180</cve>
+        <cve>CVE-2020-36181</cve>
+        <cve>CVE-2020-36182</cve>
+        <cve>CVE-2020-36183</cve>
+        <cve>CVE-2020-36184</cve>
+        <cve>CVE-2020-36185</cve>
+        <cve>CVE-2020-36186</cve>
+        <cve>CVE-2020-36187</cve>
+        <cve>CVE-2020-36188</cve>
+        <cve>CVE-2020-36189</cve>
+        <cve>CVE-2021-20190</cve>
+        <cve>CVE-2023-35116</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
-            file name: jackson-databind-2.9.10.jar
-            ]]></notes>
-        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
-        <cpe>cpe:/a:fasterxml:jackson</cpe>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-            file name: spray-json_2.12-1.3.2.jar
-            ]]></notes>
-        <packageUrl regex="true">^pkg:maven/io\.spray/spray\-json_2\.12@.*$</packageUrl>
-        <vulnerabilityName>CVE-2018-18853</vulnerabilityName>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-            file name: spray-json_2.12-1.3.2.jar
-            ]]></notes>
-        <packageUrl regex="true">^pkg:maven/io\.spray/spray\-json_2\.12@.*$</packageUrl>
-        <vulnerabilityName>CVE-2018-18854</vulnerabilityName>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-            file name: je-5.0.73.jar
-            NOTE: Misidentified Berkeley DB.
+            file name: spring-(aop|beans|context|core|expression|web)-4.3.21.RELEASE.jar
+            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            This will be fixed in a later release.
         ]]></notes>
-        <gav regex="true">^com\.sleepycat:je:.*$</gav>
-        <cpe>cpe:/a:oracle:berkeley_db</cpe>
-        <cpe>cpe:/a:oracle:oracle_berkeley_db</cpe>
+        <packageUrl regex="true">^pkg:maven/org.springframework/spring\-(aop|beans|context|core|expression|web)@.*$</packageUrl>
+        <cpe>cpe:/a:pivotal_software:spring_framework</cpe>
+        <cpe>cpe:/a:springsource:spring_framework</cpe>
+        <cpe>cpe:/a:vmware:spring</cpe>
+        <cpe>cpe:/a:vmware:spring_framework</cpe>
+        <cpe>cpe:/a:web_project:web</cpe>
+        <cve>CVE-2016-1000027</cve>
+        <cve>CVE-2022-22965</cve>
+        <cve>CVE-2020-5421</cve>
+        <cve>CVE-2022-22950</cve>
+        <cve>CVE-2023-20861</cve>
+        <cve>CVE-2022-22968</cve>
+        <cve>CVE-2022-22970</cve>
+        <cve>CVE-2023-20863</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -133,14 +423,8 @@
         <cpe>cpe:/a:jetty:jetty</cpe>
         <cpe>cpe:/a:mortbay:jetty</cpe>
         <cpe>cpe:/a:mortbay_jetty:jetty</cpe>
-    </suppress>
-    <suppress>
-       <notes><![CDATA[
-           file name: libphonenumber-5.6.jar
-           This is a transitive problem that will be addressed in https://repose.atlassian.net/browse/REP-7925
-       ]]></notes>
-       <packageUrl regex="true">^pkg:maven/com\.googlecode\.libphonenumber/libphonenumber@.*$</packageUrl>
-       <vulnerabilityName>CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')</vulnerabilityName>
+        <cve>CVE-2011-4461</cve>
+        <cve>CVE-2009-1523</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -150,7 +434,20 @@
         ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons-compress@.*$</packageUrl>
         <cve>CVE-2018-1324</cve>
+        <cve>CVE-2021-35515</cve>
+        <cve>CVE-2021-35516</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: commons-compress-1.4.1.jar
+            This dependency gets shaded into the jython library used by the scripting filter.
+            We don't consume zips from the user, but a scripting filter could be written to do, so the vulnerability will be documented.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.commons/commons-compress@.*$</packageUrl>
+        <cpe>cpe:/a:apache:commons_compress</cpe>
         <cve>CVE-2018-11771</cve>
+        <cve>CVE-2021-35517</cve>
+        <cve>CVE-2021-36090</cve>
     </suppress>
     <suppress>
        <notes><![CDATA[
@@ -158,6 +455,28 @@
             This vulnerability is for when using netty as a server, for us it's being used transitive for flume and even in that capacity it's a client not a server.
        ]]></notes>
        <packageUrl regex="true">^pkg:maven/io\.netty/netty@.*$</packageUrl>
-       <cve>CVE-2019-16869</cve>
+        <cpe>cpe:/a:netty:netty</cpe>
+        <cve>CVE-2019-20444</cve>
+        <cve>CVE-2019-20445</cve>
+        <cve>CVE-2019-16869</cve>
+        <cve>CVE-2020-11612</cve>
+        <cve>CVE-2021-37136</cve>
+        <cve>CVE-2021-37137</cve>
+        <cve>CVE-2022-41881</cve>
+        <cve>CVE-2021-43797</cve>
+        <cve>CVE-2023-34462</cve>
+        <cve>CVE-2021-21295</cve>
+        <cve>CVE-2021-21409</cve>
+        <cve>CVE-2021-21290</cve>
+        <cve>CVE-2022-24823</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: velocity-1.7.jar
+            This is being used transitive for flume.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.velocity/velocity@.*$</packageUrl>
+        <cpe>cpe:/a:apache:velocity_engine</cpe>
+        <cve>CVE-2020-13936</cve>
     </suppress>
 </suppressions>
