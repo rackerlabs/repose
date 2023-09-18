@@ -296,7 +296,7 @@ class HerpFilterTest extends FunSpec with BeforeAndAfterEach with Matchers with 
       // then:
       val logEvents = listAppenderPre.getEvents
       logEvents.size shouldBe 1
-      logEvents.get(0).getMessage.getFormattedMessage should include(""""QueryString" : "a=b&amp;c=d%20e"""")
+      logEvents.get(0).getMessage.getFormattedMessage should include(""""QueryString" : "a&#x3D;b&amp;c&#x3D;d%20e"""")
     }
     it("should extract and log the target host") {
       // given:
