@@ -210,7 +210,8 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
     private var initialized = false
 
     override def configurationUpdated(configurationObject: SystemModel): Unit = {
-      val scope = tracer.buildSpan(TracingOperationName).ignoreActiveSpan().startActive(true)
+      val span = tracer.buildSpan(TracingOperationName).ignoreActiveSpan().start()
+      val scope = tracer.activateSpan(span)
       scope.span().setTag(ReposeTags.ReposeVersion, reposeVer)
 
       try {

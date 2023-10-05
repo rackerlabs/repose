@@ -8,15 +8,18 @@ dependencies {
     compile "org.springframework:spring-beans"
     compile "io.opentracing:opentracing-api"
     compile "io.opentracing:opentracing-util"
-    compile("com.squareup.okhttp3:okhttp") { // Forces the version used by jaeger-core.
-        exclude group: 'com.squareup.okio', module: 'okio'
+//    compile("com.squareup.okhttp3:okhttp") { // Forces the version used by jaeger-core.
+//        exclude group: 'com.squareup.okio', module: 'okio'
+//    }
+//    compile "com.squareup.okio:okio" // Forces the version used by okhttp.
+//    compile('org.apache.thrift:libthrift') { // Forces the version used by jaeger-core.
+//        exclude group: 'org.apache.tomcat.embed', module: 'tomcat-embed-core'
+//    }
+//    compile 'org.apache.tomcat.embed:tomcat-embed-core'
+    compile("io.jaegertracing:jaeger-core") {
+        exclude group: 'io.opentracing', module: 'opentracing-api'
+        exclude group: 'io.opentracing', module: 'opentracing-util'
     }
-    compile "com.squareup.okio:okio" // Forces the version used by okhttp.
-    compile('org.apache.thrift:libthrift') { // Forces the version used by jaeger-core.
-        exclude group: 'org.apache.tomcat.embed', module: 'tomcat-embed-core'
-    }
-    compile 'org.apache.tomcat.embed:tomcat-embed-core'
-    compile "io.jaegertracing:jaeger-core"
 
     compileOnly "javax.servlet:javax.servlet-api"
     compileOnly "javax.inject:javax.inject"
