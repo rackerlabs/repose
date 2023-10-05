@@ -122,7 +122,8 @@ class ReposeFilterChain(val filterChain: List[FilterContext],
   def doMetrics(filter: String)(requestProcess: (HttpServletRequest, HttpServletResponse) => Unit): (HttpServletRequest, HttpServletResponse) => Unit = (request, response) => {
     val startTime = System.currentTimeMillis()
 
-    val scope = tracer.buildSpan(s"Filter $filter").startActive(true)
+    val span = tracer.buildSpan(s"Filter $filter").start()
+    val scope = tracer.activateSpan(span)
 
     requestProcess(request, response)
 

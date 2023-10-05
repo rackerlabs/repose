@@ -21,6 +21,7 @@ package org.openrepose.core.opentracing
 
 import com.typesafe.scalalogging.StrictLogging
 import io.opentracing.noop.{NoopTracer, NoopTracerFactory}
+import io.opentracing.Scope
 import io.opentracing.propagation.Format
 import io.opentracing.util.GlobalTracer
 import io.opentracing.{ScopeManager, Span, SpanContext, Tracer}
@@ -41,7 +42,7 @@ class ReposeTracer extends DelegatingTracer with StrictLogging {
 
   @PostConstruct
   def init(): Unit = {
-    GlobalTracer.register(this)
+    GlobalTracer.registerIfAbsent(this)
   }
 
   override def get(): Tracer =
@@ -69,6 +70,12 @@ class ReposeTracer extends DelegatingTracer with StrictLogging {
 
   override def activeSpan(): Span =
     tracer.activeSpan()
+
+  override def activateSpan(span: Span): Scope =
+    tracer.activateSpan(span)
+
+  override def close(): Unit =
+    tracer.close()
 
   override def toString: String =
     s"${this.getClass.getName.split("\\$").last} {$tracer}"

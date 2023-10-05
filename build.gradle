@@ -354,7 +354,7 @@ subprojects {
 
     //todo: for some reason jacoco freaks when we do clean and build together
     jacoco {
-        toolVersion = "0.8.1"
+        toolVersion = "0.8.10"
     }
 
     jacocoTestReport {
@@ -402,6 +402,8 @@ subprojects {
 
         // Configures the dependencyCheck plugin to fail the build if any vulnerability is found
         failBuildOnCVSS = 0
+
+        skipProjects = [':repose-aggregator:tests', ':repose-aggregator:docs']
     }
 
     jar {

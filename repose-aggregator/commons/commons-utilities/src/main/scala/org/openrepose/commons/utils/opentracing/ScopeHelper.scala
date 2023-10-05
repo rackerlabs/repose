@@ -47,11 +47,12 @@ object ScopeHelper {
       }
 
     logger.debug("The span context obtained from the request: {}", context.getOrElse("NONE"))
-    val scope = tracer.buildSpan(s"${req.getMethod} ${uriRedactionService.redact(req.getRequestURI)}")
+    val span = tracer.buildSpan(s"${req.getMethod} ${uriRedactionService.redact(req.getRequestURI)}")
       .asChildOf(context.orNull)
       .withTag(Tags.SPAN_KIND.getKey, spanKind)
       .withTag(ReposeTags.ReposeVersion, reposeVersion)
-      .startActive(true)
+      .start()
+    val scope = tracer.activateSpan(span)
 
     logger.debug("New span: {}", scope.span)
     scope

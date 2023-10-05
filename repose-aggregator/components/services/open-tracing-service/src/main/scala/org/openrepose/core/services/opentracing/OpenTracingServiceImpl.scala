@@ -25,7 +25,7 @@ import javax.inject.{Inject, Named}
 import com.typesafe.scalalogging.StrictLogging
 import io.jaegertracing.Configuration
 import io.jaegertracing.Configuration.{SamplerConfiguration, SenderConfiguration}
-import io.jaegertracing.samplers.{ConstSampler, ProbabilisticSampler, RateLimitingSampler}
+import io.jaegertracing.internal.samplers.{ConstSampler, ProbabilisticSampler, RateLimitingSampler}
 import org.openrepose.commons.config.manager.UpdateListener
 import org.openrepose.core.opentracing.DelegatingTracer
 import org.openrepose.core.service.opentracing.config._
@@ -72,15 +72,9 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
 
         val samplerConfiguration = getJaegerSamplerConfiguration(jaeger)
         val senderConfiguration = getJaegerSenderConfiguration(jaeger)
-        val reporterConfiguration = new Configuration.ReporterConfiguration(
-          jaeger.isLogSpans,
-          jaeger.getFlushIntervalMs,
-          jaeger.getMaxBufferSize,
-          senderConfiguration)
-        val configuration = new Configuration(
-          openTracingConfig.getServiceName,
-          samplerConfiguration,
-          reporterConfiguration)
+        val reporterConfiguration = new Configuration.ReporterConfiguration().withLogSpans(jaeger.isLogSpans).withFlushInterval(jaeger.getFlushIntervalMs).withMaxQueueSize(jaeger.getMaxBufferSize).withSender(senderConfiguration)
+        val configuration = (new Configuration(openTracingConfig.getServiceName)).withSampler(samplerConfiguration)
+          .withReporter(reporterConfiguration)
 
         logger.debug("Registering the tracer with global tracer")
         reposeTracer.register(configuration.getTracer())
@@ -97,13 +91,13 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
     jaegerConfig.getJaegerSampling match {
       case constant: JaegerSamplingConstant =>
         logger.debug("Constant sampling configured with value set to {}", constant.getToggle)
-        new Configuration.SamplerConfiguration(ConstSampler.TYPE, if (Toggle.ON.equals(constant.getToggle)) 1 else 0)
+        new Configuration.SamplerConfiguration().withType(ConstSampler.TYPE).withParam(if (Toggle.ON.equals(constant.getToggle)) 1 else 0)
       case rateLimiting: JaegerSamplingRateLimiting =>
         logger.debug("Rate limiting sampling configured with value set to {} samples per second", rateLimiting.getMaxTracesPerSecond.asInstanceOf[AnyRef])
-        new Configuration.SamplerConfiguration(RateLimitingSampler.TYPE, rateLimiting.getMaxTracesPerSecond)
+        new Configuration.SamplerConfiguration().withType(RateLimitingSampler.TYPE).withParam(rateLimiting.getMaxTracesPerSecond)
       case probabilistic: JaegerSamplingProbabilistic =>
         logger.debug("Probabilistic sampling configured with value set to {}", probabilistic.getProbability.asInstanceOf[AnyRef])
-        new Configuration.SamplerConfiguration(ProbabilisticSampler.TYPE, probabilistic.getProbability)
+        new Configuration.SamplerConfiguration().withType(ProbabilisticSampler.TYPE).withParam(probabilistic.getProbability)
     }
   }
 
@@ -111,17 +105,17 @@ class OpenTracingServiceImpl @Inject()(configurationService: ConfigurationServic
     jaegerConfig.getJaegerConnection match {
       case udp: JaegerConnectionUdp =>
         logger.debug("UDP sender configured")
-        new SenderConfiguration.Builder().agentHost(udp.getHost).agentPort(udp.getPort).build
+        new SenderConfiguration().withAgentHost(udp.getHost).withAgentPort(udp.getPort)
       case http: JaegerConnectionHttp =>
         if (Option(http.getToken).isDefined) {
           logger.debug("HTTP sender configured with bearer token")
-          new SenderConfiguration.Builder().authToken(http.getToken).endpoint(http.getEndpoint).build
+          new SenderConfiguration().withAuthToken(http.getToken).withEndpoint(http.getEndpoint)
         } else if (Option(http.getUsername).isDefined) {
           logger.debug("HTTP sender configured with basic auth")
-          new SenderConfiguration.Builder().authUsername(http.getUsername).authPassword(http.getPassword).endpoint(http.getEndpoint).build
+          new SenderConfiguration().withAuthUsername(http.getUsername).withAuthPassword(http.getPassword).withEndpoint(http.getEndpoint)
         } else {
           logger.debug("HTTP sender configured without authentication")
-          new SenderConfiguration.Builder().endpoint(http.getEndpoint).build
+          new SenderConfiguration().withEndpoint(http.getEndpoint)
         }
     }
   }

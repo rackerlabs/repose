@@ -2,11 +2,11 @@ dependencies {
     compile project(':repose-aggregator:core:repose-core-api')
     compile project(':repose-aggregator:commons:commons-utilities')
     compile project(':repose-aggregator:commons:commons-configuration')
-    compile 'org.codehaus.groovy:groovy-all'
+    compile 'org.codehaus.groovy:groovy-all:2.4.15'
     compile 'org.rackspace:deproxy'
     compile 'org.spockframework:spock-core'
     compile 'org.apache.commons:commons-lang3'
-    compile 'org.springframework:spring-web'
+    compile 'org.springframework:spring-web:4.3.21.RELEASE'
     compile 'javax.ws.rs:javax.ws.rs-api'
     compile 'joda-time:joda-time'
     compile 'org.linkedin:org.linkedin.util-groovy'
@@ -18,7 +18,7 @@ dependencies {
         exclude group: 'org.apache.tomcat.embed', module: 'tomcat-embed-core'
     }
     compile 'org.apache.tomcat.embed:tomcat-embed-core' // Forces the version used by libthrift.
-    compile 'io.jaegertracing:jaeger-core'
+    compile 'io.jaegertracing:jaeger-core:0.27.0'
 }
 
 processResources {
