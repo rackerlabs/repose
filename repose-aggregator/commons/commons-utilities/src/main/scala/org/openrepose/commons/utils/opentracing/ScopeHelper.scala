@@ -21,7 +21,8 @@ package org.openrepose.commons.utils.opentracing
 
 import io.opentracing.propagation.Format
 import io.opentracing.tag.Tags
-import io.opentracing.{Scope, SpanContext, Tracer}
+import io.opentracing.{Scope, ScopeManager, SpanContext, Tracer}
+
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import org.openrepose.core.services.uriredaction.UriRedactionService
 import org.slf4j.Logger
@@ -54,12 +55,12 @@ object ScopeHelper {
       .start()
     val scope = tracer.activateSpan(span)
 
-    logger.debug("New span: {}", scope.span)
+    logger.debug("New span: {}", span)
     scope
   }
 
-  def closeSpan(res: HttpServletResponse, scope: Scope): Unit = {
-    scope.span.setTag(Tags.HTTP_STATUS.getKey, res.getStatus)
+  def closeSpan(res: HttpServletResponse, scopeManager: ScopeManager, scope: Scope): Unit = {
+    scopeManager.activeSpan().setTag(Tags.HTTP_STATUS.getKey, res.getStatus)
     scope.close()
   }
 }

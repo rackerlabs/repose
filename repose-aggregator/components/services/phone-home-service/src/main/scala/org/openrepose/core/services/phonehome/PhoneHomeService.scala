@@ -21,10 +21,10 @@ package org.openrepose.core.services.phonehome
 
 import java.text.SimpleDateFormat
 import java.util.{Date, TimeZone, UUID}
-
 import com.typesafe.scalalogging.StrictLogging
 import io.opentracing.tag.Tags
-import io.opentracing.{Scope, Tracer}
+import io.opentracing.{Scope, Span, Tracer}
+
 import javax.annotation.PostConstruct
 import javax.inject.{Inject, Named}
 import org.apache.http.client.entity.EntityBuilder
@@ -82,7 +82,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
     )
   }
 
-  private def sendUpdate(scope: Scope): Unit = {
+  private def sendUpdate(span: Span): Unit = {
     logger.trace("sendUpdate method called")
 
     val staticSystemModel = systemModel // Pin the system model in case an update occurs while processing
@@ -201,7 +201,7 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
       } catch {
         case e: Exception =>
           logger.error("Could not send an update to the collection service", e)
-          scope.span.setTag(Tags.ERROR.getKey, true)
+          span.setTag(Tags.ERROR.getKey, true)
       }
     }
   }
@@ -212,15 +212,15 @@ class PhoneHomeService @Inject()(@Value(ReposeSpringProperties.CORE.REPOSE_VERSI
     override def configurationUpdated(configurationObject: SystemModel): Unit = {
       val span = tracer.buildSpan(TracingOperationName).ignoreActiveSpan().start()
       val scope = tracer.activateSpan(span)
-      scope.span().setTag(ReposeTags.ReposeVersion, reposeVer)
+      tracer.activeSpan().setTag(ReposeTags.ReposeVersion, reposeVer)
 
       try {
         systemModel = configurationObject
         initialized = true
 
-        sendUpdate(scope)
+        sendUpdate(tracer.activeSpan())
       } catch {
-        case e: Exception => scope.span.setTag(Tags.ERROR.getKey, true)
+        case e: Exception => span.setTag(Tags.ERROR.getKey, true)
       } finally {
         scope.close()
       }

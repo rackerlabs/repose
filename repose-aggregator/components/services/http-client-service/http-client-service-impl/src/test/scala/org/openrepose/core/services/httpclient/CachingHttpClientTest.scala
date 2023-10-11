@@ -338,7 +338,7 @@ class CachingHttpClientTest extends FunSpec with BeforeAndAfterEach with Mockito
       val mockResponse = mock[CloseableHttpResponse]
 
       val localSpan = tracer.buildSpan("testSpan").start()
-      tracer.scopeManager.activate(localSpan, true)
+      tracer.scopeManager.activate(localSpan)
 
       var realSpan: Span = NoopSpan.INSTANCE
       when(httpClient.execute(any[HttpHost], any[HttpRequest], any[HttpContext]))

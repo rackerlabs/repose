@@ -116,8 +116,9 @@ class FeedReader(feedURIString: String,
       val requestId = java.util.UUID.randomUUID().toString
       MDC.put(TracingKey.TRACING_KEY, requestId)
 
-      val scope = tracer.buildSpan(TracingOperationName).ignoreActiveSpan().startActive(true)
-      scope.span().setTag(ReposeTags.ReposeVersion, reposeVersion)
+      val span = tracer.buildSpan(TracingOperationName).ignoreActiveSpan().start()
+      val scope = tracer.activateSpan(span)
+      span.setTag(ReposeTags.ReposeVersion, reposeVersion)
 
       try {
         // todo: add authenticatedRequestFactory and authenticationTimeout to the AuthenticationRequestContextImpl?
@@ -156,17 +157,17 @@ class FeedReader(feedURIString: String,
       } catch {
         case AuthenticationException(_) =>
           logger.error("Authentication failed -- connection to Atom service could not be established")
-          scope.span.setTag(Tags.ERROR.getKey, true)
+          span.setTag(Tags.ERROR.getKey, true)
         case e@(_: UnknownServiceException | _: IOException | ClientErrorException(_)) =>
           logger.error("Connection to Atom service failed -- an invalid URI may have been provided, or " +
             "authentication credentials may be invalid", e)
-          scope.span.setTag(Tags.ERROR.getKey, true)
+          span.setTag(Tags.ERROR.getKey, true)
         case pe: ParseException =>
           logger.error("Failed to parse the Atom feed", pe)
-          scope.span.setTag(Tags.ERROR.getKey, true)
+          span.setTag(Tags.ERROR.getKey, true)
         case e: Exception =>
           logger.error("Feed was unable to be read", e)
-          scope.span.setTag(Tags.ERROR.getKey, true)
+          span.setTag(Tags.ERROR.getKey, true)
       } finally {
         scope.close()
       }

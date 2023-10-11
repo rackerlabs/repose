@@ -20,7 +20,7 @@
 package org.openrepose.core.services.phonehome
 
 import io.opentracing.Tracer.SpanBuilder
-import io.opentracing.{Scope, Span, Tracer}
+import io.opentracing.{Scope, ScopeManager, Span, Tracer}
 import org.apache.http.HttpVersion
 import org.apache.http.client.methods.{CloseableHttpResponse, HttpEntityEnclosingRequestBase, HttpPost, HttpUriRequest}
 import org.apache.http.entity.ContentType
@@ -55,6 +55,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
   val msgListAppender: ListAppender = ctx.getConfiguration.getAppender("messageList").asInstanceOf[ListAppender]
 
   var mockTracer: Tracer = mock[Tracer]
+  var mockScopeManager: ScopeManager = mock[ScopeManager]
   var mockSpanBuilder: SpanBuilder = mock[SpanBuilder]
   var mockScope: Scope = mock[Scope]
   var mockSpan: Span = mock[Span]
@@ -65,6 +66,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
   override def beforeEach(): Unit = {
     mockTracer = mock[Tracer]
     mockSpanBuilder = mock[SpanBuilder]
+    mockScopeManager = mock[ScopeManager]
     mockScope = mock[Scope]
     mockSpan = mock[Span]
     mockConfigurationService = mock[ConfigurationService]
@@ -74,8 +76,10 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
     when(mockTracer.buildSpan(anyString())).thenReturn(mockSpanBuilder)
     when(mockSpanBuilder.withTag(anyString(), anyString())).thenReturn(mockSpanBuilder)
     when(mockSpanBuilder.ignoreActiveSpan()).thenReturn(mockSpanBuilder)
-    when(mockSpanBuilder.startActive(anyBoolean())).thenReturn(mockScope)
-    when(mockScope.span()).thenReturn(mockSpan)
+    when(mockSpanBuilder.start()).thenReturn(mockSpan)
+    when(mockTracer.activateSpan(anyObject())).thenReturn(mockScope)
+    when(mockTracer.activeSpan()).thenReturn(mockSpan)
+    when(mockScopeManager.activeSpan()).thenReturn(mockSpan)
 
     when(mockHttpClientService.getDefaultClient).thenReturn(mockHttpClient)
   }
@@ -442,7 +446,7 @@ class PhoneHomeServiceTest extends FunSpec with Matchers with MockitoSugar with 
       phoneHomeService.SystemModelConfigurationListener.configurationUpdated(systemModel)
 
       verify(mockSpanBuilder).ignoreActiveSpan()
-      verify(mockSpanBuilder).startActive(true)
+      verify(mockSpanBuilder).start()
       verify(mockScope).close()
     }
   }

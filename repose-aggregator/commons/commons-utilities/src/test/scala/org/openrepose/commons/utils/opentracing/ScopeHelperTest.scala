@@ -23,9 +23,11 @@ import io.opentracing.Tracer.SpanBuilder
 import io.opentracing._
 import io.opentracing.propagation.Format
 import io.opentracing.tag.Tags
+
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
+
 import org.junit.runner.RunWith
-import org.mockito.Matchers.{any, anyBoolean, anyString, isNull, eq => eql}
+import org.mockito.Matchers.{any, anyString, isNull, eq => eql}
 import org.mockito.Mockito.{verify, when}
 import org.openrepose.core.services.uriredaction.UriRedactionService
 import org.scalatestplus.junit.JUnitRunner
@@ -44,6 +46,7 @@ class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers with Befor
   var spanContext: SpanContext = _
   var spanBuilder: SpanBuilder = _
   var scope: Scope = _
+  var span: Span = _
   var uriRedactionService: UriRedactionService = _
 
   override def beforeEach(): Unit = {
@@ -53,6 +56,7 @@ class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers with Befor
     spanContext = mock[SpanContext]
     spanBuilder = mock[SpanBuilder]
     scope = mock[Scope]
+    span = mock[Span]
     uriRedactionService = mock[UriRedactionService]
     when(uriRedactionService.redact(request.getRequestURI)).thenReturn(redactedPath)
   }
@@ -63,14 +67,16 @@ class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers with Befor
       when(tracer.buildSpan(anyString())).thenReturn(spanBuilder)
       when(spanBuilder.asChildOf(any[SpanContext])).thenReturn(spanBuilder)
       when(spanBuilder.withTag(anyString(), anyString())).thenReturn(spanBuilder)
-      when(spanBuilder.startActive(anyBoolean())).thenReturn(scope)
+      when(spanBuilder.start()).thenReturn(span)
+      when(tracer.activateSpan(any[Span])).thenReturn(scope)
 
       val result = ScopeHelper.startSpan(request, tracer, logger, Tags.SPAN_KIND_CLIENT, "1.two.III", uriRedactionService)
 
       verify(tracer).extract(eql(Format.Builtin.HTTP_HEADERS), any())
       verify(tracer).buildSpan(s"${request.getMethod} $redactedPath")
       verify(spanBuilder).asChildOf(spanContext)
-      verify(spanBuilder).startActive(true)
+      verify(spanBuilder).start()
+      verify(tracer).activateSpan(span)
       result shouldBe scope
     }
 
@@ -79,14 +85,16 @@ class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers with Befor
       when(tracer.buildSpan(anyString())).thenReturn(spanBuilder)
       when(spanBuilder.asChildOf(any[SpanContext])).thenReturn(spanBuilder)
       when(spanBuilder.withTag(anyString(), anyString())).thenReturn(spanBuilder)
-      when(spanBuilder.startActive(anyBoolean())).thenReturn(scope)
+      when(spanBuilder.start()).thenReturn(span)
+      when(tracer.activateSpan(any[Span])).thenReturn(scope)
 
       val result = ScopeHelper.startSpan(request, tracer, logger, Tags.SPAN_KIND_CLIENT, "1.two.III", uriRedactionService)
 
       verify(tracer).extract(eql(Format.Builtin.HTTP_HEADERS), any())
       verify(tracer).buildSpan(s"${request.getMethod} $redactedPath")
       verify(spanBuilder).asChildOf(isNull(classOf[SpanContext]))
-      verify(spanBuilder).startActive(true)
+      verify(spanBuilder).start()
+      verify(tracer).activateSpan(span)
       result shouldBe scope
     }
 
@@ -107,7 +115,8 @@ class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers with Befor
       when(tracer.buildSpan(anyString())).thenReturn(spanBuilder)
       when(spanBuilder.asChildOf(any[SpanContext])).thenReturn(spanBuilder)
       when(spanBuilder.withTag(anyString(), anyString())).thenReturn(spanBuilder)
-      when(spanBuilder.startActive(anyBoolean())).thenReturn(scope)
+      when(spanBuilder.start()).thenReturn(span)
+      when(tracer.activateSpan(any[Span])).thenReturn(scope)
       when(uriRedactionService.redact(request.getRequestURI)).thenReturn(redactedPath)
 
       val result = ScopeHelper.startSpan(request, tracer, logger, Tags.SPAN_KIND_CLIENT, "1.two.III", uriRedactionService)
@@ -123,7 +132,8 @@ class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers with Befor
       when(tracer.buildSpan(anyString())).thenReturn(spanBuilder)
       when(spanBuilder.asChildOf(any[SpanContext])).thenReturn(spanBuilder)
       when(spanBuilder.withTag(anyString(), anyString())).thenReturn(spanBuilder)
-      when(spanBuilder.startActive(anyBoolean())).thenReturn(scope)
+      when(spanBuilder.start()).thenReturn(span)
+      when(tracer.activateSpan(any[Span])).thenReturn(scope)
 
       val result = ScopeHelper.startSpan(request, tracer, logger, spanKind, "1.two.III", uriRedactionService)
 
@@ -137,7 +147,8 @@ class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers with Befor
       when(tracer.buildSpan(anyString())).thenReturn(spanBuilder)
       when(spanBuilder.asChildOf(any[SpanContext])).thenReturn(spanBuilder)
       when(spanBuilder.withTag(anyString(), anyString())).thenReturn(spanBuilder)
-      when(spanBuilder.startActive(anyBoolean())).thenReturn(scope)
+      when(spanBuilder.start()).thenReturn(span)
+      when(tracer.activateSpan(any[Span])).thenReturn(scope)
 
       val result = ScopeHelper.startSpan(request, tracer, logger, Tags.SPAN_KIND_PRODUCER, "1.two.III", uriRedactionService)
 
@@ -151,13 +162,15 @@ class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers with Befor
     it("should set the HTTP status tag") {
       val status = HttpServletResponse.SC_EXPECTATION_FAILED
       val response = new MockHttpServletResponse()
+      val tracer = mock[Tracer]
       val scope = mock[Scope]
       val span = mock[Span]
+      val scopeManager = mock[ScopeManager]
 
       response.setStatus(status)
-      when(scope.span()).thenReturn(span)
+      when(tracer.activeSpan()).thenReturn(span)
 
-      ScopeHelper.closeSpan(response, scope)
+      ScopeHelper.closeSpan(response, scopeManager, scope)
 
       verify(span).setTag(Tags.HTTP_STATUS.getKey, status)
     }
@@ -165,10 +178,12 @@ class ScopeHelperTest extends FunSpec with MockitoSugar with Matchers with Befor
     it("should close the span") {
       val response = new MockHttpServletResponse()
       val scope = mock[Scope]
+      val span = mock[Span]
+      val scopeManager = mock[ScopeManager]
 
-      when(scope.span()).thenReturn(mock[Span])
+      when(scopeManager.activeSpan()).thenReturn(span)
 
-      ScopeHelper.closeSpan(response, scope)
+      ScopeHelper.closeSpan(response, scopeManager, scope)
 
       verify(scope).close()
     }

@@ -21,8 +21,8 @@ package org.openrepose.core.services.opentracing
 
 import java.net.URL
 
-import io.jaegertracing.{Tracer => JaegerTracer}
-import io.jaegertracing.samplers.{ConstSampler, ProbabilisticSampler, RateLimitingSampler}
+import io.jaegertracing.internal.JaegerTracer
+import io.jaegertracing.internal.samplers.{ConstSampler, ProbabilisticSampler, RateLimitingSampler}
 import io.opentracing.Tracer
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor

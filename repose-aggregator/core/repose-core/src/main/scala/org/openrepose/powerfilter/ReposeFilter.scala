@@ -196,7 +196,7 @@ class ReposeFilter @Inject()(@Value(ReposeSpringProperties.NODE.NODE_ID) nodeId:
 
           // Commit the response and record metrics for the request and response
           wrappedResponse.commitToResponse()
-          closeSpan(wrappedResponse, scope)
+          closeSpan(wrappedResponse, tracer.scopeManager(), scope)
           optMetricRegistry.foreach { mr =>
             markResponseCodeHelper(
               mr,

@@ -21,19 +21,18 @@ package org.openrepose.nodeservice.atomfeed.impl.actors
 
 import java.io.StringWriter
 import java.util.Date
-
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.testkit.{TestActorRef, TestKit, TestProbe}
 import io.opentracing.Tracer.SpanBuilder
-import io.opentracing.{Scope, Span, Tracer}
+import io.opentracing.{Scope, ScopeManager, Span, Tracer}
 import org.apache.abdera.Abdera
 import org.apache.abdera.model.Feed
 import org.apache.http.client.methods.{CloseableHttpResponse, HttpUriRequest}
 import org.apache.http.impl.client.{CloseableHttpClient, HttpClients}
 import org.junit.runner.RunWith
 import org.mockito.AdditionalAnswers
-import org.mockito.Matchers.{any, anyBoolean, anyString}
+import org.mockito.Matchers.{any, anyBoolean, anyObject, anyString}
 import org.mockito.Mockito.{reset, verify, when}
 import org.openrepose.commons.utils.logging.TracingKey
 import org.openrepose.core.services.httpclient.{HttpClientService, HttpClientServiceClient}
@@ -65,6 +64,7 @@ class FeedReaderTest(_system: ActorSystem)
   var mockHttpClientService: HttpClientService = _
   var mockTracer: Tracer = _
   var mockSpanBuilder: SpanBuilder = _
+  var mockScopeManager: ScopeManager = _
   var mockScope: Scope = _
   var mockSpan: Span = _
 
@@ -76,13 +76,16 @@ class FeedReaderTest(_system: ActorSystem)
 
     mockTracer = mock[Tracer]
     mockSpanBuilder = mock[SpanBuilder]
+    mockScopeManager = mock[ScopeManager]
     mockScope = mock[Scope]
     mockSpan = mock[Span]
     when(mockTracer.buildSpan(anyString())).thenReturn(mockSpanBuilder)
     when(mockSpanBuilder.withTag(anyString(), anyString())).thenReturn(mockSpanBuilder)
     when(mockSpanBuilder.ignoreActiveSpan()).thenReturn(mockSpanBuilder)
-    when(mockSpanBuilder.startActive(anyBoolean())).thenReturn(mockScope)
-    when(mockScope.span()).thenReturn(mockSpan)
+    when(mockSpanBuilder.start()).thenReturn(mockSpan)
+    when(mockTracer.activateSpan(anyObject())).thenReturn(mockScope)
+    when(mockTracer.activeSpan()).thenReturn(mockSpan)
+    when(mockScopeManager.activeSpan()).thenReturn(mockSpan)
 
     reset(mockAuthRequestFactory)
     when(mockAuthRequestFactory.authenticateRequest(any[FeedReadRequest], any[AuthenticationRequestContext]))
@@ -207,7 +210,7 @@ class FeedReaderTest(_system: ActorSystem)
     actorRef ! ReadFeed
 
     verify(mockSpanBuilder).ignoreActiveSpan()
-    verify(mockSpanBuilder).startActive(true)
+    verify(mockSpanBuilder).start()
     verify(mockScope).close()
     notifierProbe.receiveWhile(500 milliseconds) {
       case _ => true

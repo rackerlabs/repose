@@ -20,10 +20,10 @@
 package org.openrepose.powerfilter
 
 import java.util.{Optional, UUID}
-
 import com.codahale.metrics.MetricRegistry
 import io.opentracing.Tracer.SpanBuilder
-import io.opentracing.{Scope, Span, SpanContext, Tracer}
+import io.opentracing.{Scope, ScopeManager, Span, SpanContext, Tracer}
+
 import javax.servlet._
 import javax.servlet.http.HttpServletResponse._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
@@ -74,6 +74,7 @@ class ReposeFilterTest extends FunSpec
   var healthCheckService: HealthCheckService = _
   var tracer: Tracer = _
   var spanBuilder: SpanBuilder = _
+  var scopeManager: ScopeManager = _
   var scope: Scope = _
   var span: Span = _
   var uriRedactionService: UriRedactionService = _
@@ -108,8 +109,10 @@ class ReposeFilterTest extends FunSpec
     spanBuilder = mock[SpanBuilder]
     scope = mock[Scope]
     span = mock[Span]
-    when(scope.span()).thenReturn(span)
-    when(spanBuilder.startActive(anyBoolean())).thenReturn(scope)
+    scopeManager = mock[ScopeManager]
+    when(scopeManager.activeSpan()).thenReturn(span)
+    when(spanBuilder.start()).thenReturn(span)
+    when(tracer.activateSpan(any[Span])).thenReturn(scope)
     when(spanBuilder.asChildOf(any[SpanContext])).thenReturn(spanBuilder)
     when(spanBuilder.withTag(anyString(), anyString())).thenReturn(spanBuilder)
     when(tracer.buildSpan(anyString())).thenReturn(spanBuilder)
@@ -183,7 +186,8 @@ class ReposeFilterTest extends FunSpec
     it("should start a span") {
       filter.doFilter(request, response, filterChain)
 
-      verify(spanBuilder, atLeastOnce).startActive(true)
+      verify(spanBuilder, atLeastOnce).start()
+      verify(tracer, atLeastOnce()).activateSpan(any[Span])
     }
 
     it("should start a span even with an empty filter list") {
@@ -191,7 +195,8 @@ class ReposeFilterTest extends FunSpec
 
       filter.doFilter(request, response, filterChain)
 
-      verify(spanBuilder, atLeastOnce).startActive(true)
+      verify(spanBuilder, atLeastOnce).start()
+      verify(tracer, atLeastOnce()).activateSpan(any[Span])
     }
 
     it("should close the span") {

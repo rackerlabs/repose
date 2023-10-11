@@ -137,7 +137,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
                 }
             }
         } finally {
-            closeSpan(resp, scope);
+            closeSpan(resp, tracer.scopeManager(), scope);
             MDC.clear();
         }
     }
