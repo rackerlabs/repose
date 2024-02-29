@@ -1,5 +1,11 @@
 = Release Notes
 
+== 9.1.0.5 (2024-02-29)
+* [.enhancement-tag]#Enhancement# - Added option to <<../filters/api-validator.adoc#, API Validator Filter>> to disable byte code gen in Saxon EE.
+* Updated dependencies:
+** checker-core: 2.8.0 → 2.9.0
+** checker-util: 2.8.0 → 2.9.0
+
 == 9.1.0.4 (2023-09-18)
 * Updated dependencies:
 ** Log4j: 2.17.1 → 2.17.2
