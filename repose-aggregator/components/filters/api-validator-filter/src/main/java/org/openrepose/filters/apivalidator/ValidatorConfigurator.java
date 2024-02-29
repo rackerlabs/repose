@@ -139,6 +139,7 @@ public class ValidatorConfigurator {
         config.setCheckHeaders(validatorItem.isCheckHeaders());
         config.setEnableIgnoreXSDExtension(validatorItem.isEnableIgnoreXsdExtension());
         config.setEnableRaxRolesExtension(validatorItem.isEnableRaxRoles());
+        config.setDisableSaxonByteCodeGen(validatorItem.isDisableSaxonByteCodeGen());
         config.setMaskRaxRoles403(validatorItem.isMaskRaxRoles403());
         config.setSetParamDefaults(true);
         config.setEnableAuthenticatedByExtension(true);

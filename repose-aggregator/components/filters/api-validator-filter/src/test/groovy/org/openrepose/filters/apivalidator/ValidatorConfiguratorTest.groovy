@@ -115,6 +115,21 @@ class ValidatorConfiguratorTest {
         assert config.getCheckJSONGrammar();
     }
 
+    @Test
+    void whenDisableSaxonByteCodeGenIsTrueConfigShouldStoreTrue() {
+        ValidatorItem vItem = new ValidatorItem();
+        vItem.disableSaxonByteCodeGen = true;
+        Config config = validatorConfigurator.createConfiguration(vItem, false, 1.0, false, "", "")
+        assert config.getDisableSaxonByteCodeGen();
+    }
+
+    @Test
+    void whenDisableSaxonByteCodeGenNotSetConfigShouldStoreFalse() {
+        ValidatorItem vItem = new ValidatorItem();
+        Config config = validatorConfigurator.createConfiguration(vItem, false, 1.0, false, "", "")
+        assert !config.getDisableSaxonByteCodeGen();
+    }
+
     static String getFilePath(URL path) {
         int d = path.getPath().lastIndexOf("/")
 

@@ -109,5 +109,18 @@ class ApiValidatorSchemaTest extends ConfigurationTest {
         validator.validateConfigString(xml)
       }.getLocalizedMessage should include("is not allowed to appear in element")
     }
+
+    it("should allow disable-saxon-byte-code-gen attribute") {
+      val xml =
+        """<validators xmlns="http://docs.openrepose.org/repose/validator/v1.0">
+          |    <validator
+          |        role="default"
+          |        default="true"
+          |        wadl="file://my/wadl/file.wadl"
+          |        xsd-engine="SaxonEE"
+          |        disable-saxon-byte-code-gen="true"/>
+          |</validators>""".stripMargin
+      validator.validateConfigString(xml)
+    }
   }
 }
