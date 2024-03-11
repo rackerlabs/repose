@@ -57,9 +57,9 @@ org.scala-lang                                      scala-library             2.
 org.scala-lang                                      scala-reflect             2.12.8          Scala Specific License      http://www.scala-lang.org/license.html
 org.slf4j                                           jcl-over-slf4j            1.7.7            MIT License                 http://slf4j.org/license.html
 org.slf4j                                           slf4j-api                 1.7.22           MIT License                 http://slf4j.org/license.html
-org.springframework                                 spring-beans              4.3.21.RELEASE   Apache License Version 2.0  https://github.com/spring-projects/spring-framework
-org.springframework                                 spring-context            4.3.21.RELEASE   Apache License Version 2.0  https://github.com/spring-projects/spring-framework
-org.springframework                                 spring-core               4.3.21.RELEASE   Apache License Version 2.0  https://github.com/spring-projects/spring-framework
-org.springframework                                 spring-web                4.3.21.RELEASE   Apache License Version 2.0  https://github.com/spring-projects/spring-framework
+org.springframework                                 spring-beans              5.3.32           Apache License Version 2.0  https://github.com/spring-projects/spring-framework
+org.springframework                                 spring-context            5.3.32           Apache License Version 2.0  https://github.com/spring-projects/spring-framework
+org.springframework                                 spring-core               5.3.32           Apache License Version 2.0  https://github.com/spring-projects/spring-framework
+org.springframework                                 spring-web                5.3.32           Apache License Version 2.0  https://github.com/spring-projects/spring-framework
 xalan                                               xalan                     2.7.1            Apache License Version 2.0  http://xalan.apache.org/old/xalan-j/index.html
 xerces                                              xerces-xsd11              2.12.1-rax       Apache License Version 2.0  http://xerces.apache.org/

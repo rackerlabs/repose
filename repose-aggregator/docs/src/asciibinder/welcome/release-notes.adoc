@@ -5,6 +5,7 @@
 * Updated dependencies:
 ** checker-core: 2.8.0 → 2.9.0
 ** checker-util: 2.8.0 → 2.9.0
+** Spring Framework: 4.3.21.RELEASE → 5.3.32
 
 == 9.1.0.4 (2023-09-18)
 * Updated dependencies:
