@@ -147,6 +147,7 @@ This configuration expands the basic example in order to show off all of the fea
                enable-rax-roles="false" <!--20-->
                mask-rax-roles-403="false" <!--21-->
                validate-checker="true" <!--22-->
+               disable-saxon-byte-code-gen="true" <!--23-->
     />
 </validators>
 ----
@@ -224,6 +225,8 @@ This configuration expands the basic example in order to show off all of the fea
      Default: `false`
 <22> If set to `true`, then the validity of the generated state machine is checked (e.g., no dead-end paths, there is a single start state, no orphaned nodes, etc.). +
      Default: `true`
+<23> If set to `true`, then the `http://saxon.sf.net/feature/generateByteCode` feature is set to false while configuring Saxon-EE. +
+     Default: `false`
 
 === Enable Delegation
 To place this filter in <<../recipes/delegation.adoc#,Delegation>> mode, add the `delegating` element to the filter configuration with an optional `quality` attribute that determines the delegating priority.

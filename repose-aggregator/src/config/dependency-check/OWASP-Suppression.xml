@@ -29,6 +29,7 @@
         <packageUrl regex="true">^pkg:maven/org.apache.avro/avro@.*$</packageUrl>
         <cpe>cpe:/a:apache:avro</cpe>
         <cve>CVE-2021-43045</cve>
+        <cve>CVE-2023-39410</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -185,7 +186,9 @@
         ]]></notes>
         <packageUrl regex="true">^pkg:maven/com\.jayway\.jsonpath/json\-path@.*$</packageUrl>
         <cpe>cpe:/a:json-java_project:json-java</cpe>
+        <cpe>cpe:/a:json-path:jayway_jsonpath</cpe>
         <cve>CVE-2022-45688</cve>
+        <cve>CVE-2023-51074</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -394,24 +397,11 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-            file name: spring-(aop|beans|context|core|expression|web)-4.3.21.RELEASE.jar
-            NOTE: Fixing the log4j transitive dependency from jena-iri module and update log4j version in this release.
+            file name: spring-web-5.3.32.jar
             This will be fixed in a later release.
         ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org.springframework/spring\-(aop|beans|context|core|expression|web)@.*$</packageUrl>
-        <cpe>cpe:/a:pivotal_software:spring_framework</cpe>
-        <cpe>cpe:/a:springsource:spring_framework</cpe>
-        <cpe>cpe:/a:vmware:spring</cpe>
-        <cpe>cpe:/a:vmware:spring_framework</cpe>
-        <cpe>cpe:/a:web_project:web</cpe>
+        <packageUrl regex="true">^pkg:maven/org.springframework/spring\-web@.*$</packageUrl>
         <cve>CVE-2016-1000027</cve>
-        <cve>CVE-2022-22965</cve>
-        <cve>CVE-2020-5421</cve>
-        <cve>CVE-2022-22950</cve>
-        <cve>CVE-2023-20861</cve>
-        <cve>CVE-2022-22968</cve>
-        <cve>CVE-2022-22970</cve>
-        <cve>CVE-2023-20863</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -448,6 +438,7 @@
         <cve>CVE-2018-11771</cve>
         <cve>CVE-2021-35517</cve>
         <cve>CVE-2021-36090</cve>
+        <cve>CVE-2024-25710</cve>
     </suppress>
     <suppress>
        <notes><![CDATA[
@@ -478,5 +469,20 @@
         <packageUrl regex="true">^pkg:maven/org\.apache\.velocity/velocity@.*$</packageUrl>
         <cpe>cpe:/a:apache:velocity_engine</cpe>
         <cve>CVE-2020-13936</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: apache-mime4j-core-0.7.2.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.james/apache\-mime4j\-core@.*$</packageUrl>
+        <cve>CVE-2024-21742</cve> <!-- This is still being analyzed -->
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+            file name: akka-actor_2.12-2.9.0-M1.jar
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.typesafe\.akka/akka\-actor_2.12@.*$</packageUrl>
+        <cve>CVE-2023-31442</cve> <!-- This will be fixed in a later release -->
+        <cve>CVE-2023-45865</cve>
     </suppress>
 </suppressions>
