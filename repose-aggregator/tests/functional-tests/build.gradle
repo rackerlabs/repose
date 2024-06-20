@@ -87,6 +87,12 @@ task copyConfigs() {
 }
 
 integrationTest.dependsOn copyArtifacts, copyConfigs
+integrationTest.inputs.dir copyConfigs.outputs
+//INFO: Ideally i'd just be able to point to the files output from the copyArtifacts task,
+//INFO: but that's a directory where the tests do work so the contents are always moving making gradle rerun the tests
+//INFO: This will achieve the desired effect indirectly
+integrationTest.inputs.dir configurations.integrationTestRunnable.files
+integrationTest.inputs.dir configurations.integrationTestBundle.files
 
 def container = "valve"
 def targetHostName = "localhost"

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scripting xmlns="http://docs.openrepose.org/repose/scripting/v1.0"
+           language="groovy">
+    def stream = new BufferedInputStream(request.getInputStream())
+    stream.mark(8000)
+    def reader = new BufferedReader(new InputStreamReader(stream))
+    println("***************************buttsbuttsbutts***************************")
+    println(reader.readLine())
+    println("***************************buttsbuttsbutts***************************")
+    stream.reset()
+    filterChain.doFilter(new org.openrepose.commons.utils.servlet.http.HttpServletRequestWrapper(request, new org.openrepose.commons.utils.io.BufferedServletInputStream(stream)), response)
+</scripting>
