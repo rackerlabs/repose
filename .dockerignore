@@ -1,0 +1,44 @@
+# Git
+.git
+.gitignore
+
+# Build artifacts (except the ones we need)
+build/
+!repose-aggregator/artifacts/valve/build/distributions/*.deb
+!repose-aggregator/artifacts/filter-bundle/build/distributions/*.deb
+!repose-aggregator/artifacts/extensions-filter-bundle/build/distributions/*.deb
+!repose-aggregator/artifacts/experimental-filter-bundle/build/distributions/*.deb
+
+# Gradle (keep wrapper for building, exclude cache)
+.gradle/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# Documentation
+*.md
+!BUILD-DOCKER.md
+
+# Scripts
+scripts/
+build-docker.sh
+build-docker.bat
+
+# Test files
+**/test/
+**/tests/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files we don't need in the build context
+Dockerfile
+docker-compose.yaml

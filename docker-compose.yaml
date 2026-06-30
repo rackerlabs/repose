@@ -1,0 +1,16 @@
+services:
+  repose:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: repose:9.1.0.5-java11-patched
+    container_name: repose
+    environment:
+      - JAVA_OPTS=-Xmx1024m
+    volumes:
+      - /etc/repose/:/etc/repose/
+      - /usr/share/repose/filters/:/usr/share/repose/filters/
+    ports:
+      - 8080:8080
+    user: "root"
+    restart: unless-stopped

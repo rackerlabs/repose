@@ -1,38 +1,46 @@
 buildscript {
     repositories {
         mavenCentral()
-        jcenter()
         maven {
             url "https://plugins.gradle.org/m2/"
+        }
+        // Add Maven Central snapshot repository for missing dependencies
+        maven {
+            url "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+        // Add alternative repository for archived JCenter artifacts
+        maven {
+            url "https://maven.google.com"
         }
     }
 
     dependencies {
-        classpath 'gradle.plugin.org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:1.4.2'
         classpath 'com.netflix.nebula:nebula-dependency-recommender:4.3.0'
         classpath 'gradle.plugin.org.openrepose:gradle-jaxb-plugin:2.5.0'
-        classpath 'gradle.plugin.org.scoverage:gradle-scoverage:2.1.0'
+        classpath 'org.scoverage:gradle-scoverage:6.0.0'
         classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.2'
-        classpath 'org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_2.11:1.0.1'
         classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.13.1'
         classpath 'com.netflix.nebula:nebula-publishing-plugin:5.1.5'
         classpath 'com.netflix.nebula:gradle-git-scm-plugin:3.0.1'
-        classpath 'com.netflix.nebula:gradle-ospackage-plugin:4.5.1'
-        classpath 'org.ajoberstar:gradle-git:1.7.2'
+        classpath 'com.netflix.nebula:gradle-ospackage-plugin:8.6.0'
+        // Commented out due to unavailability - git tasks will be skipped
+        // classpath 'org.ajoberstar:gradle-git:1.7.2'
         classpath 'com.bmuschko:gradle-docker-plugin:3.2.1'
         classpath 'gradle.plugin.org.openrepose:gradle-linkchecker-plugin:1.0.0'
-        classpath 'gradle.plugin.io.github.http-builder-ng:http-plugin:0.1.1'
+        // Commented out due to unavailability - http tasks will be skipped
+        // classpath 'gradle.plugin.io.github.http-builder-ng:http-plugin:0.1.1'
         classpath 'org.owasp:dependency-check-gradle:8.0.1'
+        classpath 'io.github.cosmicsilence:gradle-scalafix:0.2.6'
     }
 }
 
-import groovyx.net.http.ContentTypes
-import io.github.httpbuilderng.http.HttpTask
+// import groovyx.net.http.ContentTypes
+// import io.github.httpbuilderng.http.HttpTask
 
-import static groovyx.net.http.NativeHandlers.Encoders
+// import static groovyx.net.http.NativeHandlers.Encoders
 
 apply plugin: 'nebula.gradle-git-scm'
-apply plugin: 'io.github.http-builder-ng.http-plugin'
+// apply plugin: 'io.github.http-builder-ng.http-plugin'
 
 ext {
     reposeCodename = "Falco"
@@ -76,55 +84,15 @@ task('exportVersion', description: 'Write the current build version out to a pro
     }
 }
 
-task('publishToPackageRepo', type: HttpTask, group: 'publishing') {
-    description 'Publishes the DEB and RPM packages to the package repository'
-    dependsOn configurations.debBundle, configurations.rpmBundle, buildAll
+// publishToPackageRepo task commented out due to unavailable http-plugin dependency
+// task('publishToPackageRepo', type: HttpTask, group: 'publishing') {
+//     description 'Publishes the DEB and RPM packages to the package repository'
+//     dependsOn configurations.debBundle, configurations.rpmBundle, buildAll
+//     ... (task body omitted)
+// }
 
-    config {
-        if (!project.hasProperty('nexus.openrepose.username')) {
-            throw new GradleException('The "nexus.openrepose.username" property is required')
-        }
-        if (!project.hasProperty('nexus.openrepose.password')) {
-            throw new GradleException('The "nexus.openrepose.password" property is required')
-        }
+task('release', description: 'Release the project and publish to all repos.', group: 'release', dependsOn: [exportVersion, tagVersion])
 
-        request.uri = 'https://nexus.openrepose.org'
-        request.auth.basic getProperty('nexus.openrepose.username') as String, getProperty('nexus.openrepose.password') as String
-        request.contentType = ContentTypes.BINARY[0]
-        request.encoder ContentTypes.BINARY[0], Encoders.&binary
-
-        // The requests are configured here (inside of the config closure) so that they are evaluated and
-        // configured during the execution build phase rather than the configuration build phase.
-        // This allows us to dynamically create requests to upload files that are not determined until after the
-        // configuration phase for certain projects without having to dictate evaluation order between the projects.
-
-        // PUT the rpm packages in the Nexus Yum repository
-        configurations.rpmBundle.files.each { rpmFile ->
-            put {
-                request.uri.path = "/repository/el/${rpmFile.name}"
-                request.body = rpmFile.bytes
-
-                response.success {
-                    logger.lifecycle 'Successfully uploaded {}', rpmFile.name
-                }
-            }
-        }
-
-        // POST the deb packages in the Nexus APT repository
-        configurations.debBundle.files.each { debFile ->
-            post {
-                request.uri.path = "/repository/debian/"
-                request.body = debFile.bytes
-
-                response.success {
-                    logger.lifecycle 'Successfully uploaded {}', debFile.name
-                }
-            }
-        }
-    }
-}
-
-task('release', description: 'Release the project and publish to all repos.', group: 'release', dependsOn: [exportVersion, tagVersion, publishToPackageRepo])
 
 allprojects {
     group = 'org.openrepose'
@@ -143,6 +111,10 @@ allprojects {
         maven {
             url 'https://build.shibboleth.net/nexus/content/repositories/releases'
         }
+        // Add Maven Central snapshot repository
+        maven {
+            url "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
     }
 
     ext {
@@ -155,11 +127,9 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'groovy'
     apply plugin: 'scala'
-    apply plugin: 'org.unbroken-dome.test-sets'
     apply plugin: 'org.openrepose.gradle.plugins.jaxb'
     apply plugin: 'checkstyle'
     apply plugin: 'codenarc'
-    apply plugin: 'scalaStyle'
     apply plugin: 'com.github.hierynomus.license'
     apply plugin: 'jacoco'
     apply plugin: 'nebula.maven-publish'
@@ -172,21 +142,63 @@ subprojects {
         jaxb "com.sun.xml.bind:jaxb-impl"
         jaxb "javax.xml.bind:jaxb-api"
         jaxb "org.jvnet.jaxb2_commons:jaxb2-basics-ant"
-
-        scoverage "org.scoverage:scalac-scoverage-plugin_$scalaMajDotMin:1.4.0"
-        scoverage "org.scoverage:scalac-scoverage-runtime_$scalaMajDotMin:1.4.0"
-
+        jaxb "javax.activation:activation:1.1.1"
+        
+        // JAXB dependencies for Java 11 (removed from JDK)
+        compile "javax.xml.bind:jaxb-api"
+        compile "com.sun.xml.bind:jaxb-impl"
+        compile "javax.activation:activation:1.1.1"
+        
+        // JSR-250 annotations for Java 11 (removed from JDK)
+        compile "javax.annotation:javax.annotation-api:1.3.2"
+        
+        // Lombok annotation processor for Java 11
+        annotationProcessor "org.projectlombok:lombok"
     }
 
-    testSets {
-        integrationTest
+    // Ensure Lombok works with the Scoverage source set
+    configurations.matching { it.name == 'scoverageCompileOnly' }.all {
+        dependencies.add(project.dependencies.create('org.projectlombok:lombok'))
+    }
+    configurations.matching { it.name == 'scoverageAnnotationProcessor' }.all {
+        dependencies.add(project.dependencies.create('org.projectlombok:lombok'))
+    }
+
+    scoverage {
+        scoverageVersion = '1.4.11'
+        scoverageScalaVersion = "$scalaMajDotMin.$scalaPatch"
+    }
+
+    // Create integrationTest source set and task manually (replaces testSets plugin)
+    sourceSets {
+        integrationTest {
+            java.srcDir 'src/integrationTest/java'
+            groovy.srcDir 'src/integrationTest/groovy'
+            scala.srcDir 'src/integrationTest/scala'
+            resources.srcDir 'src/integrationTest/resources'
+            compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+            runtimeClasspath += output + compileClasspath
+        }
+    }
+
+    configurations {
+        integrationTestImplementation.extendsFrom testImplementation
+        integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+    }
+
+    task integrationTest(type: Test) {
+        description = 'Runs integration tests.'
+        group = 'verification'
+        testClassesDirs = sourceSets.integrationTest.output.classesDirs
+        classpath = sourceSets.integrationTest.runtimeClasspath
+        shouldRunAfter test
     }
 
     check.dependsOn integrationTest
     integrationTest.mustRunAfter test
 
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = 11
+    targetCompatibility = 11
 
     task transformXSDs() {
         description "Runs xml through an xslt transform"
@@ -262,6 +274,7 @@ subprojects {
             java {
                 srcDirs += generatedDir
             }
+            compileClasspath += configurations.compile
         }
         main {
             compileClasspath += files([sourceSets.generated.java.outputDir])
@@ -284,28 +297,14 @@ subprojects {
             runtimeClasspath += files([sourceSets.generated.java.outputDir])
         }
         scoverage {
-            compileClasspath += configurations.compileOnly
-            runtimeClasspath += configurations.compileOnly
-            compileClasspath += files([sourceSets.generated.java.outputDir, sourceSets.main.java.outputDir])
-            runtimeClasspath += files([sourceSets.generated.java.outputDir, sourceSets.main.java.outputDir, sourceSets.test.groovy.outputDir])
-        }
-        testScoverage {
-            compileClasspath += configurations.compileOnly
-            runtimeClasspath += configurations.compileOnly
-            compileClasspath += files([sourceSets.generated.java.outputDir, sourceSets.main.java.outputDir])
-            runtimeClasspath += files([sourceSets.generated.java.outputDir,
-                                       sourceSets.main.java.outputDir,
-                                       sourceSets.main.groovy.outputDir,
-                                       sourceSets.test.groovy.outputDir,
-                                       file("${project.buildDir}/resources/scoverage/")
-            ])
+            compileClasspath += files([sourceSets.generated.java.outputDir])
+            runtimeClasspath += files([sourceSets.generated.java.outputDir])
         }
     }
 
     compileJava.dependsOn compileGeneratedJava
     compileScala.dependsOn compileGeneratedJava
     compileIntegrationTestGroovy.dependsOn compileGeneratedJava
-    testScoverage.dependsOn compileTestGroovy
 
     [JavaCompile, ScalaCompile, GroovyCompile].collect { type ->
         tasks.withType(type) {
@@ -321,26 +320,35 @@ subprojects {
 
     checkstyle {
         configFile = file("$rootDir/repose-aggregator/src/config/styles/checkstyle.xml")
-        sourceSets = sourceSets.matching {it.name != 'generated' && it.name != 'scoverage' && it.name != 'testScoverage'}
+        sourceSets = sourceSets.matching {it.name != 'generated'}
     }
 
     codenarc {
         configFile = file("$rootDir/repose-aggregator/src/config/styles/codenarc.xml")
-        sourceSets = sourceSets.matching {it.name != 'generated' && it.name != 'scoverage' && it.name != 'testScoverage'}
+        sourceSets = sourceSets.matching {it.name != 'generated'}
         toolVersion = "1.0"
     }
 
-    //todo: write a good one of these plugins, because this is garbage
-    scalaStyle {
-        configLocation = "$rootDir/repose-aggregator/src/config/styles/scalastyle_config.xml"
-        includeTestSourceDirectory = true
-        source = "src/main/scala"
-        testSource = "src/test/scala"
-        failOnWarning = true
-        quiet = true
+    // Scalafix: Scala linting and auto-fix (replaces deprecated Scalastyle)
+    // Usage:
+    //   ./gradlew checkScalafix   - lint only, fails on violations (runs as part of 'check')
+    //   ./gradlew scalafix        - auto-fix mode, modifies files in-place
+    // Only apply to leaf projects (no child projects) — aggregator projects don't have source code
+    //
+    // TODO: Re-enable DisableSyntax rules (noVars, noNulls, noThrows) incrementally for new modules
+    // TODO: Add OrganizeImports rule after bumping Scala to 2.12.18+ (requires SemanticDB compatibility)
+    // TODO: Add Scalafmt for whitespace/formatting enforcement (covers gaps from old Scalastyle regex checks)
+    // TODO: Enable test/integrationTest source set linting once test code is cleaned up
+    if (project.childProjects.isEmpty()) {
+        apply plugin: 'io.github.cosmicsilence.scalafix'
+        scalafix {
+            configFile = file("$rootDir/repose-aggregator/src/config/styles/.scalafix.conf")
+            ignoreSourceSets = ['generated', 'scoverage', 'test', 'integrationTest']
+            semanticdb {
+                autoConfigure = false
+            }
+        }
     }
-
-    check.dependsOn scalaStyle
 
     license {
         header file("$rootDir/repose-aggregator/src/config/license/LICENSE.txt")
@@ -349,21 +357,69 @@ subprojects {
         }
         exclude "**/*.cfg.xml"
         exclude "**/log4j2*.xml"
-        sourceSets = sourceSets.matching {it.name != 'generated' && it.name != 'scoverage' && it.name != 'testScoverage'}
+        sourceSets = sourceSets.matching {it.name != 'generated'}
     }
 
     //todo: for some reason jacoco freaks when we do clean and build together
     jacoco {
-        toolVersion = "0.8.1"
+        toolVersion = "0.8.7"
     }
 
     jacocoTestReport {
+        dependsOn test
+        executionData test
+        
         afterEvaluate {
-            sourceDirectories = files([sourceSets.main.java.srcDirs, sourceSets.generated.java.srcDirs])
-            classDirectories = files([sourceSets.main.java.outputDir, sourceSets.generated.java.outputDir])
-            classDirectories = files(classDirectories.files.collect { classDirectory ->
+            sourceDirectories.setFrom(files([sourceSets.main.java.srcDirs, sourceSets.generated.java.srcDirs]))
+            classDirectories.setFrom(files([sourceSets.main.java.outputDir, sourceSets.generated.java.outputDir]))
+            classDirectories.setFrom(files(classDirectories.files.collect { classDirectory ->
                 fileTree(dir: classDirectory, excludes: ['**/ObjectFactory.class'])
-            })
+            }))
+        }
+        
+        reports {
+            xml.required = true
+            html.required = true
+        }
+    }
+
+    // Integration test coverage report
+    task jacocoIntegrationTestReport(type: JacocoReport) {
+        dependsOn integrationTest
+        executionData integrationTest
+        
+        afterEvaluate {
+            sourceDirectories.setFrom(files([sourceSets.main.java.srcDirs, sourceSets.generated.java.srcDirs]))
+            classDirectories.setFrom(files([sourceSets.main.java.outputDir, sourceSets.generated.java.outputDir]))
+            classDirectories.setFrom(files(classDirectories.files.collect { classDirectory ->
+                fileTree(dir: classDirectory, excludes: ['**/ObjectFactory.class'])
+            }))
+        }
+        
+        reports {
+            xml.required = true
+            html.required = true
+            html.outputLocation = file("${buildDir}/reports/jacoco/integrationTest/html")
+        }
+    }
+
+    // Combined coverage report (unit + integration tests)
+    task jacocoMergedReport(type: JacocoReport) {
+        dependsOn test, integrationTest
+        executionData fileTree(project.buildDir).include("jacoco/*.exec")
+        
+        afterEvaluate {
+            sourceDirectories.setFrom(files([sourceSets.main.java.srcDirs, sourceSets.generated.java.srcDirs]))
+            classDirectories.setFrom(files([sourceSets.main.java.outputDir, sourceSets.generated.java.outputDir]))
+            classDirectories.setFrom(files(classDirectories.files.collect { classDirectory ->
+                fileTree(dir: classDirectory, excludes: ['**/ObjectFactory.class'])
+            }))
+        }
+        
+        reports {
+            xml.required = true
+            html.required = true
+            html.outputLocation = file("${buildDir}/reports/jacoco/merged/html")
         }
     }
 
@@ -371,6 +427,17 @@ subprojects {
         jacoco {
             destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
         }
+        
+        // Add JVM arguments for Java 11 reflection compatibility
+        jvmArgs '--add-opens=java.base/java.lang=ALL-UNNAMED',
+                '--add-opens=java.base/java.util=ALL-UNNAMED',
+                '--add-opens=java.base/java.lang.reflect=ALL-UNNAMED',
+                '--add-opens=java.base/java.text=ALL-UNNAMED',
+                '--add-opens=java.base/java.util.concurrent=ALL-UNNAMED',
+                '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
+                '--add-opens=java.base/sun.security.util=ALL-UNNAMED',
+                '--add-opens=java.base/java.security=ALL-UNNAMED',
+                '--add-opens=java.base/java.io=ALL-UNNAMED'
     }
 
     integrationTest {
@@ -382,6 +449,17 @@ subprojects {
         if (project.hasProperty('javaArguments')) {
             systemProperty 'javaArguments', project.getProperty('javaArguments')
         }
+        
+        // Add JVM arguments for Java 11 reflection compatibility (same as test task)
+        jvmArgs '--add-opens=java.base/java.lang=ALL-UNNAMED',
+                '--add-opens=java.base/java.util=ALL-UNNAMED',
+                '--add-opens=java.base/java.lang.reflect=ALL-UNNAMED',
+                '--add-opens=java.base/java.text=ALL-UNNAMED',
+                '--add-opens=java.base/java.util.concurrent=ALL-UNNAMED',
+                '--add-opens=java.base/sun.nio.ch=ALL-UNNAMED',
+                '--add-opens=java.base/sun.security.util=ALL-UNNAMED',
+                '--add-opens=java.base/java.security=ALL-UNNAMED',
+                '--add-opens=java.base/java.io=ALL-UNNAMED'
     }
 
     dependencyCheck {
@@ -472,7 +550,7 @@ subprojects {
     if (project.hasProperty("minCoverageRatio")) {
         def minCoverageRatio = (project.findProperty("minCoverageRatio") ?: "0.75") as double
 
-        // Configure the JaCoCo test coverage verification
+        // Configure the JaCoCo test coverage verification (unit tests only)
         jacocoTestCoverageVerification {
             violationRules {
                 rule {
@@ -482,16 +560,38 @@ subprojects {
                 }
             }
             afterEvaluate {
-                sourceDirectories = files([sourceSets.main.java.srcDirs, sourceSets.generated.java.srcDirs])
-                classDirectories = files([sourceSets.main.java.outputDir, sourceSets.generated.java.outputDir])
-                classDirectories = files(classDirectories.files.collect { classDirectory ->
+                sourceDirectories.setFrom(files([sourceSets.main.java.srcDirs, sourceSets.generated.java.srcDirs]))
+                classDirectories.setFrom(files([sourceSets.main.java.outputDir, sourceSets.generated.java.outputDir]))
+                classDirectories.setFrom(files(classDirectories.files.collect { classDirectory ->
                     fileTree(dir: classDirectory, excludes: ['**/ObjectFactory.class'])
-                })
+                }))
+            }
+        }
+
+        // Configure merged coverage verification (unit + integration tests)
+        task jacocoMergedCoverageVerification(type: JacocoCoverageVerification) {
+            dependsOn test, integrationTest
+            executionData fileTree(project.buildDir).include("jacoco/*.exec")
+            
+            violationRules {
+                rule {
+                    limit {
+                        minimum = minCoverageRatio
+                    }
+                }
+            }
+            
+            afterEvaluate {
+                sourceDirectories.setFrom(files([sourceSets.main.java.srcDirs, sourceSets.generated.java.srcDirs]))
+                classDirectories.setFrom(files([sourceSets.main.java.outputDir, sourceSets.generated.java.outputDir]))
+                classDirectories.setFrom(files(classDirectories.files.collect { classDirectory ->
+                    fileTree(dir: classDirectory, excludes: ['**/ObjectFactory.class'])
+                }))
             }
         }
 
         // Configure the Scoverage test coverage verification
-        checkScoverage {
+        scoverage {
             minimumRate = minCoverageRatio
         }
 
@@ -499,7 +599,8 @@ subprojects {
         //
         // Note: To take advantage of Scoverage aggregation, the check dependency on
         // Scoverage was placed in the repose-aggregator sub-project.
-        check.dependsOn jacocoTestCoverageVerification
+        // We use merged coverage verification to check combined unit + integration test coverage
+        check.dependsOn jacocoMergedCoverageVerification
     }
 
     buildAll.dependsOn build

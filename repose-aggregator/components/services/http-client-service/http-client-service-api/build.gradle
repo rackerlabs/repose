@@ -3,6 +3,7 @@ dependencies {
     compile "org.slf4j:jcl-over-slf4j"
 
     compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 
     testCompile project(":repose-aggregator:commons:commons-test")
     testCompile "junit:junit"

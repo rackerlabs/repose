@@ -19,7 +19,7 @@
  */
 package org.openrepose.filters.ipuser
 
-import java.net.{URL, UnknownHostException}
+import java.net.{InetAddress, URL, UnknownHostException}
 import java.util.concurrent.atomic.AtomicReference
 
 import javax.inject.{Inject, Named}
@@ -77,22 +77,46 @@ class IpUserFilter @Inject()(configurationService: ConfigurationService) extends
       val clientIpAddress = request.getSplittableHeaderScala(CommonHttpHeader.X_FORWARDED_FOR)
         .headOption.getOrElse(servletRequest.getRemoteAddr)
 
-      try {
-        getClassificationLabel(clientIpAddress).foreach { label =>
-          request.addHeader(groupHeaderName, label, groupHeaderQuality)
+      // Validate that the IP address is in a valid format (IPv4 or IPv6)
+      if (!isValidIpAddress(clientIpAddress)) {
+        logger.debug(s"Malformed IP address: $clientIpAddress")
+        servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_BAD_REQUEST, "Malformed X-Forwarded-For header")
+      } else {
+        try {
+          getClassificationLabel(clientIpAddress).foreach { label =>
+            request.addHeader(groupHeaderName, label, groupHeaderQuality)
+          }
+
+          //Always set the user header name to the current IP address
+          request.addHeader(userHeaderName, clientIpAddress, userHeaderQuality)
+
+          logger.trace("IP User filter passing request...")
+          filterChain.doFilter(request, servletResponse)
+        } catch {
+          case e@(_: UnknownHostException | _: IllegalArgumentException) =>
+            logger.debug(s"Bad X-Forwarded-For header: $clientIpAddress", e)
+            servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_BAD_REQUEST, "Malformed X-Forwarded-For header")
         }
-
-        //Always set the user header name to the current IP address
-        request.addHeader(userHeaderName, clientIpAddress, userHeaderQuality)
-
-        logger.trace("IP User filter passing request...")
-        filterChain.doFilter(request, servletResponse)
-      } catch {
-        case uhe: UnknownHostException =>
-          logger.debug(s"Bad X-Forwarded-For header: $clientIpAddress", uhe)
-          servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_BAD_REQUEST, "Malformed X-Forwarded-For header")
       }
       logger.trace("IP User filter returning response...")
+    }
+  }
+
+  /**
+    * Validates if a string is a valid IPv4 or IPv6 address
+    */
+  private def isValidIpAddress(ip: String): Boolean = {
+    try {
+      // Try to parse as InetAddress and verify it's actually an IP (not a hostname)
+      val addr = InetAddress.getByName(ip)
+      // Check if the string representation matches the input (prevents hostname resolution)
+      addr.getHostAddress == ip || 
+        // For IPv6, also check with brackets removed and compressed form
+        (ip.contains(":") && addr.getHostAddress.replaceAll("0+([0-9a-fA-F])", "$1").toLowerCase == 
+          ip.replaceAll("0+([0-9a-fA-F])", "$1").toLowerCase)
+    } catch {
+      case _: UnknownHostException => false
+      case _: Exception => false
     }
   }
 
@@ -108,8 +132,8 @@ class IpUserFilter @Inject()(configurationService: ConfigurationService) extends
     //Update all the CIDRs
     //Create a new list to replace the old one
 
-    import scala.collection.JavaConversions._
-    val groups = classificationConfig.getGroup.toList
+    import scala.collection.JavaConverters._
+    val groups = classificationConfig.getGroup.asScala.toList
 
     /**
       * This guy builds a List[List[LabeledCIDR]] I flat map it to remove that extra list, so it's just a
@@ -118,7 +142,7 @@ class IpUserFilter @Inject()(configurationService: ConfigurationService) extends
       */
     val replacementCidrList: List[LabeledCIDR] = groups.flatMap { group =>
       val label = group.getName
-      group.getCidrIp.map { cidr =>
+      group.getCidrIp.asScala.map { cidr =>
         LabeledCIDR(label, new CIDRUtils(cidr))
       }
     }

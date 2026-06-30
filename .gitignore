@@ -5,6 +5,7 @@
 *.ipr
 *.lic
 **/target/
+*.hprof
 
 ## vim objects
 *.swo
@@ -31,6 +32,12 @@ build/
 out/
 .gradletasknamecache
 
+# Kiro local workspace files
+.kiro/
+
+# Local Gradle properties (machine-specific JVM args, java.home, etc.)
+gradle.properties
+
 # Ignore Gradle GUI config
 gradle-app.setting
 
@@ -41,6 +48,11 @@ gradle-app.setting
 *.swp
 *.out
 jmeter.log
+
+# Test outputs and temporary files
+log-outputs/
+test-*.sh
+run-*.sh
 
 ## rcman
 rcman.conf

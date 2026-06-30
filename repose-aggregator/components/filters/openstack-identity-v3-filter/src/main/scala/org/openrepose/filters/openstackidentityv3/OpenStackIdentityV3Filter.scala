@@ -57,7 +57,7 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
   private var httpClient: HttpClientServiceClient = _
   private var openStackIdentityV3Handler: OpenStackIdentityV3Handler = _
 
-  override def init(filterConfig: FilterConfig) {
+  override def init(filterConfig: FilterConfig): Unit = {
     configFilename = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
     logger.info("Initializing filter using config " + configFilename)
     val xsdURL: URL = getClass.getResource("/META-INF/schema/config/openstack-identity-v3.xsd")
@@ -68,7 +68,7 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
       classOf[OpenstackIdentityV3Config])
   }
 
-  override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) {
+  override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     if (!isInitialized) {
       logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
       servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
@@ -93,12 +93,12 @@ class OpenStackIdentityV3Filter @Inject()(configurationService: ConfigurationSer
 
   def isInitialized = initialized
 
-  override def destroy() {
+  override def destroy(): Unit = {
     configurationService.unsubscribeFrom(configFilename, this)
     CacheInvalidationFeedListener.unregisterFeeds()
   }
 
-  def configurationUpdated(config: OpenstackIdentityV3Config) {
+  def configurationUpdated(config: OpenstackIdentityV3Config): Unit = {
     // This will also un-register any Atom Feeds not present in the new config.
     CacheInvalidationFeedListener.updateFeeds(
       Option(config.getCache).map(_.getAtomFeed.map(_.getId).toSet).getOrElse(Set.empty)

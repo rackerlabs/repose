@@ -1,7 +1,29 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
-testSets {
-    performanceTest
+// Create performanceTest source set and task manually (replaces testSets plugin)
+sourceSets {
+    performanceTest {
+        java.srcDir 'src/performanceTest/java'
+        groovy.srcDir 'src/performanceTest/groovy'
+        scala.srcDir 'src/performanceTest/scala'
+        resources.srcDir 'src/performanceTest/resources'
+        compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+configurations {
+    performanceTestImplementation.extendsFrom testImplementation
+    performanceTestRuntimeOnly.extendsFrom testRuntimeOnly
+    performanceTestCompile
+    performanceTestCompileOnly
+}
+
+task performanceTest(type: Test) {
+    description = 'Runs performance tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.performanceTest.output.classesDirs
+    classpath = sourceSets.performanceTest.runtimeClasspath
 }
 
 dependencies {

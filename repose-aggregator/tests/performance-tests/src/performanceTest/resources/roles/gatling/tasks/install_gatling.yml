@@ -24,9 +24,9 @@
 - name: Add Java repositories
   apt_repository: repo="ppa:webupd8team/java" update_cache=yes
 
-- name: Install java 8
+- name: Install java 11
   apt:
-    pkg: openjdk-8-jdk
+    pkg: openjdk-11-jdk
     state: latest
     update_cache: yes
     cache_valid_time: 86400

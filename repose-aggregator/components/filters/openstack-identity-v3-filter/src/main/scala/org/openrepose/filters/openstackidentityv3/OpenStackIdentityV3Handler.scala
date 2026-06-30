@@ -60,7 +60,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
   def handleRequest(request: HttpServletRequestWrapper, response: HttpServletResponse): FilterAction = {
     var filterAction = FilterAction.PASS
 
-    def delegateOrElse(responseCode: Int, message: String)(f: => Unit) {
+    def delegateOrElse(responseCode: Int, message: String)(f: => Unit): Unit = {
       delegatingWithQuality match {
         case Some(quality) =>
           buildDelegationHeaders(responseCode, "openstack-identity-v3", message, quality) foreach { case (key, values) =>
@@ -266,7 +266,7 @@ class OpenStackIdentityV3Handler(identityConfig: OpenstackIdentityV3Config, iden
     endpointsList exists (endpoint => endpoint.meetsRequirement(endpointRequirement))
 
   private def writeProjectHeader(defaultProject: Option[String], roles: List[Role], projectFromUri: Option[String],
-                                 writeAll: Boolean, sendQuality: Boolean, request: HttpServletRequestWrapper) {
+                                 writeAll: Boolean, sendQuality: Boolean, request: HttpServletRequestWrapper): Unit = {
     lazy val projectsFromRoles = (roles.collect { case Role(_, Some(projectId), _) => projectId } :::
       roles.collect { case Role( _, _, Some(raxId)) => raxId }).toSet
     val sendProjectIdQuality = Option(identityConfig.getSendProjectIdQuality)

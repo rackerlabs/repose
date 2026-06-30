@@ -193,7 +193,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "node",
       None,
       httpsPort,
-      sslConfig(includedProtocols = List("TLSv1.1", "TLSv1.2")),
+      sslConfig(includedProtocols = List("TLSv1.2", "TLSv1.3")),
       None,
       null,
       null
@@ -201,10 +201,10 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
     repose.start()
     try {
       intercept[SSLHandshakeException] {
-        selectiveRequest(Array("TLSv1"))
+        selectiveRequest(Array("TLSv1.1"))
       }
-      selectiveRequest(Array("TLSv1.1"))
       selectiveRequest(Array("TLSv1.2"))
+      selectiveRequest(Array("TLSv1.3"))
     } finally {
       repose.shutdown()
     }
@@ -280,7 +280,7 @@ class ReposeJettySSLTest extends FunSpec with Matchers with BeforeAndAfterAll {
       "node",
       None,
       httpsPort,
-      sslConfig(includedProtocols = List("TLSv1"), tlsRenegotiation = true),
+      sslConfig(includedProtocols = List("TLSv1.2"), tlsRenegotiation = true),
       None,
       null,
       null

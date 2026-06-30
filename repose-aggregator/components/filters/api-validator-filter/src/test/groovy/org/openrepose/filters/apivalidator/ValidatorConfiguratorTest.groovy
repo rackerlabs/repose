@@ -37,6 +37,9 @@ class ValidatorConfiguratorTest {
     @Before
     void setUp() {
         resource = this.getClass().getClassLoader().getResource(wadl)
+        if (resource == null) {
+            throw new IllegalStateException("Test resource not found: " + wadl + ". Ensure test resources are properly configured.")
+        }
         cnf = new ValidatorConfiguration()
         ValidatorItem v1 = new ValidatorItem()
         v1.setDefault(true)
@@ -52,7 +55,9 @@ class ValidatorConfiguratorTest {
     void whenMultiMatchIsTrueThenPreserveRequestBodyShouldBeTrue() {
         cnf.setMultiRoleMatch(true)
         validatorConfigurator.processConfiguration(cnf, getFilePath(resource), wadl)
-        for (ValidatorInfo info : validatorConfigurator.getValidators()) {
+        def validators = validatorConfigurator.getValidators()
+        assert validators != null : "Validators should not be null after processConfiguration"
+        for (ValidatorInfo info : validators) {
             assert info.getValidator().config().preserveRequestBody
         }
     }
@@ -61,7 +66,9 @@ class ValidatorConfiguratorTest {
     void testProcessConfiguration() {
         cnf.setMultiRoleMatch(false)
         validatorConfigurator.processConfiguration(cnf, getFilePath(resource), wadl)
-        for (ValidatorInfo info : validatorConfigurator.getValidators()) {
+        def validators = validatorConfigurator.getValidators()
+        assert validators != null : "Validators should not be null after processConfiguration"
+        for (ValidatorInfo info : validators) {
             assert !info.getValidator().config().preserveRequestBody
         }
     }
@@ -131,8 +138,15 @@ class ValidatorConfiguratorTest {
     }
 
     static String getFilePath(URL path) {
-        int d = path.getPath().lastIndexOf("/")
-
-        return path.getPath().substring(0, d);
+        try {
+            // Decode the URL path to handle spaces and special characters properly
+            String decodedPath = java.net.URLDecoder.decode(path.getPath(), "UTF-8")
+            int d = decodedPath.lastIndexOf("/")
+            return decodedPath.substring(0, d)
+        } catch (java.io.UnsupportedEncodingException e) {
+            // UTF-8 is always supported, but handle it anyway
+            int d = path.getPath().lastIndexOf("/")
+            return path.getPath().substring(0, d)
+        }
     }
 }

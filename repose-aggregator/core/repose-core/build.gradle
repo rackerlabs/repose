@@ -81,7 +81,7 @@ dependencies {
 
 sourceSets.main.scala.srcDir "src/main/java"
 sourceSets.main.java.srcDirs = []
-sourceSets.test.compileClasspath.add(project.files([sourceSets.test.scala.outputDir]))
+sourceSets.test.compileClasspath += project.files([sourceSets.test.scala.outputDir])
 
 compileTestGroovy.dependsOn compileTestScala
 
@@ -105,7 +105,6 @@ task copyEars() {
 }
 
 test.dependsOn copyEars
-testScoverage.dependsOn copyEars
 
 processResources {
     expand(reposeVersion: version, reposeVersionName: reposeCodename)
@@ -116,10 +115,6 @@ processScoverageResources {
 }
 
 processTestResources {
-    expand(earDirectory: copyEars.outputDir, earVersion: version)
-}
-
-processTestScoverageResources {
     expand(earDirectory: copyEars.outputDir, earVersion: version)
 }
 

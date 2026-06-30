@@ -1,13 +1,3 @@
-//import org.scoverage.ScoverageAggregate
-//
-//task aggregateScoverage(type: ScoverageAggregate)
-//
-//checkScoverage {
-//    reportDir = file("$buildDir/scoverage-aggregate")
-//}
-//
-//if (project.hasProperty("minCoverageRatio")) {
-//    aggregateScoverage.dependsOn reportScoverage, subprojects.reportScoverage
-//    checkScoverage.dependsOn aggregateScoverage
-//    check.dependsOn checkScoverage
-//}
+if (project.hasProperty("minCoverageRatio")) {
+    check.dependsOn checkScoverage
+}

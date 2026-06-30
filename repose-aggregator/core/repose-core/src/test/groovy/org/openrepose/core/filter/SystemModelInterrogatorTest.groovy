@@ -37,7 +37,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void "when passed a valid system model, getLocalHost(...) should return a matching node"() throws Exception {
+    public void testGetNodeReturnsMatchingNodeForValidSystemModel() throws Exception {
         SystemModel sysModel = getValidSystemModel()
 
         Optional<Node> returnedNode = interrogator.getNode(sysModel)
@@ -52,7 +52,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void "when passed a system model missing a matching node, getLocalHost(...) should return an absent Optional"() throws Exception {
+    public void testGetNodeReturnsAbsentOptionalWhenNodeMissing() throws Exception {
         SystemModel sysModel = getValidSystemModel()
         sysModel.getNodes().getNode().get(0).setId("nopes")
 
@@ -62,24 +62,25 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void "when passed a valid system model including a service, getService(...) should return a matching service"() throws Exception {
+    public void testGetServiceReturnsMatchingServiceForValidSystemModel() throws Exception {
         String serviceName = "foo"
         SystemModel sysModel = getValidSystemModel()
         sysModel.services = new ServicesList()
-        sysModel.services.service <<
-            new Service(name: serviceName)
+        Service service = new Service()
+        service.name = serviceName
+        sysModel.services.service.add(service)
 
         Optional<Service> returnedService = interrogator.getService(sysModel, serviceName)
 
         assertTrue(returnedService.isPresent())
 
-        Service service = returnedService.get()
+        Service retrievedService = returnedService.get()
 
-        assertThat(service.getName(), equalTo(serviceName))
+        assertThat(retrievedService.getName(), equalTo(serviceName))
     }
 
     @Test
-    public void "when passed a system model missing a service, getService(...) should return an absent Optional"() throws Exception {
+    public void testGetServiceReturnsAbsentOptionalWhenServiceMissing() throws Exception {
         String serviceName = "foo"
         SystemModel sysModel = getValidSystemModel()
         sysModel.services = new ServicesList()
@@ -90,7 +91,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void "when passed a valid system model, getDefaultDestination(...) should return a matching default destination"() throws Exception {
+    public void testGetDefaultDestinationReturnsMatchingDestinationForValidSystemModel() throws Exception {
         SystemModel sysModel = getValidSystemModel()
 
         Optional<Destination> returnedDest = interrogator.getDefaultDestination(sysModel)
@@ -106,7 +107,7 @@ public class SystemModelInterrogatorTest {
     }
 
     @Test
-    public void "when passed a system model missing a matching default destination, getDefaultDestination(...) should return an absent Optional"() throws Exception {
+    public void testGetDefaultDestinationReturnsAbsentOptionalWhenDestinationMissing() throws Exception {
         SystemModel sysModel = getValidSystemModel()
         sysModel.getDestinations().getEndpoint().head().setDefault(false)
 
@@ -122,11 +123,21 @@ public class SystemModelInterrogatorTest {
         SystemModel sysModel = new SystemModel()
 
         sysModel.setNodes(new NodeList())
-        sysModel.getNodes().getNode() <<
-            new Node(id: "node1", hostname: "localhost", httpPort: 8080, httpsPort: 8181)
+        Node node = new Node()
+        node.id = "node1"
+        node.hostname = "localhost"
+        node.httpPort = 8080
+        node.httpsPort = 8181
+        sysModel.getNodes().getNode().add(node)
+        
         sysModel.setDestinations(new DestinationList())
-        sysModel.getDestinations().getEndpoint() << new Destination(
-            hostname: "localhost", port: 9090, isDefault: true, id: "dest1", protocol: "http")
+        Destination dest = new Destination()
+        dest.hostname = "localhost"
+        dest.port = 9090
+        dest.isDefault = true
+        dest.id = "dest1"
+        dest.protocol = "http"
+        sysModel.getDestinations().getEndpoint().add(dest)
 
         return sysModel
     }

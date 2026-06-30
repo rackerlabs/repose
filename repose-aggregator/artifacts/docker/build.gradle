@@ -37,7 +37,7 @@ task('copyPackages', type: Copy) {
     }
 
     from(configurations.dockerRpmBundle) {
-        into 'centos'
+        into 'rocky'
     }
 }
 
@@ -50,8 +50,8 @@ task('copyDockerfiles', type: Copy) {
         into 'ubuntu'
     }
 
-    from("$projectDir/src/docker/resources/$reposePackageSource/centos") {
-        into 'centos'
+    from("$projectDir/src/docker/resources/$reposePackageSource/rocky") {
+        into 'rocky'
     }
 }
 
@@ -65,7 +65,7 @@ docker {
     }
 }
 
-['Ubuntu': '', 'Centos': '-centos'].forEach { baseImage, tagSuffix ->
+['Ubuntu': '', 'Rocky': '-rocky'].forEach { baseImage, tagSuffix ->
     task("build${baseImage}ImageLocal", type: DockerBuildImage) {
         dependsOn copyPackages, copyDockerfiles
         inputDir = file("$dockerBuildDir/${baseImage.toLowerCase()}")

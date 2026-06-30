@@ -303,7 +303,7 @@ class SimpleRbacFilter @Inject()(configurationService: ConfigurationService,
     }
   }
 
-  private def clearValidator() {
+  private def clearValidator(): Unit = {
     Option(validator) match {
       case Some(_) =>
         logger.debug (s"Destroying: $validator. From thread {}", Thread.currentThread.getName)

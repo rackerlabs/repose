@@ -72,7 +72,7 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
   private var secretType: SecretType = _
   private var httpClient: HttpClientServiceClient = _
 
-  override def init(filterConfig: FilterConfig) {
+  override def init(filterConfig: FilterConfig): Unit = {
     config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG)
     logger.info("Initializing filter using config " + config)
     val xsdURL: URL = getClass.getResource("/META-INF/schema/config/keystone-v2-basic-auth.xsd")
@@ -86,7 +86,7 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
     logger.warn("WARNING: This filter cannot be used alone, it requires an AuthFilter after it.")
   }
 
-  override def configurationUpdated(config: KeystoneV2BasicAuthConfig) {
+  override def configurationUpdated(config: KeystoneV2BasicAuthConfig): Unit = {
     identityServiceUri = config.getKeystoneV2ServiceUri
     tokenCacheTtlMillis = config.getTokenCacheTimeoutMillis
     delegationWithQuality = Option(config.getDelegating).map(_.getQuality)
@@ -101,7 +101,7 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
     initialized
   }
 
-  override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) {
+  override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain): Unit = {
     if (!isInitialized) {
       logger.error("Filter has not yet initialized... Please check your configuration files and your artifacts directory.")
       servletResponse.asInstanceOf[HttpServletResponse].sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE)
@@ -307,7 +307,7 @@ class KeystoneV2BasicAuthFilter @Inject()(configurationService: ConfigurationSer
     }
   }
 
-  override def destroy() {
+  override def destroy(): Unit = {
     configurationService.unsubscribeFrom(config, this.asInstanceOf[UpdateListener[_]])
   }
 
